@@ -31,6 +31,7 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - **Tests**: prepare and run checks.
 - **Test Results**: pass/warn/fail history.
 - **Ask**: type a question in natural language.
+  If disk archive is enabled in the node, Ask searches archived telegrams by default and falls back to the last 24 hours when no explicit date is provided.
 - **Settings**: node selection and import/export.
 
 ## First guided workflow

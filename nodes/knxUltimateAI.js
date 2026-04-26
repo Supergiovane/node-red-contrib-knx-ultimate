@@ -875,6 +875,106 @@ const readJsonFileSafe = (filePath, fallbackValue) => {
   }
 }
 
+const formatArchiveDayKey = (ts) => {
+  try {
+    return new Date(ts).toISOString().slice(0, 10)
+  } catch (error) {
+    return new Date().toISOString().slice(0, 10)
+  }
+}
+
+const collectArchiveDayKeysBetween = ({ fromTs, toTs }) => {
+  const out = []
+  const start = Number(fromTs || 0)
+  const end = Number(toTs || 0)
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return out
+  const cursor = new Date(start)
+  cursor.setUTCHours(0, 0, 0, 0)
+  const endDay = new Date(end)
+  endDay.setUTCHours(0, 0, 0, 0)
+  while (cursor.getTime() <= endDay.getTime()) {
+    out.push(cursor.toISOString().slice(0, 10))
+    cursor.setUTCDate(cursor.getUTCDate() + 1)
+  }
+  return out
+}
+
+const startOfLocalDayMs = (ts) => {
+  const d = new Date(ts)
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+
+const endOfLocalDayMs = (ts) => {
+  const d = new Date(ts)
+  d.setHours(23, 59, 59, 999)
+  return d.getTime()
+}
+
+const parseQuestionTimeRange = (question, nowTs = Date.now()) => {
+  const text = String(question || '').trim().toLowerCase()
+  if (!text) return null
+
+  const exactDates = Array.from(text.matchAll(/\b(\d{4}-\d{2}-\d{2})\b/g)).map(match => match[1])
+  if (exactDates.length >= 2) {
+    const start = new Date(`${exactDates[0]}T00:00:00`).getTime()
+    const end = new Date(`${exactDates[1]}T23:59:59.999`).getTime()
+    if (Number.isFinite(start) && Number.isFinite(end) && end >= start) {
+      return { fromTs: start, toTs: end, label: `${exactDates[0]}..${exactDates[1]}`, explicit: true }
+    }
+  }
+  if (exactDates.length === 1) {
+    const start = new Date(`${exactDates[0]}T00:00:00`).getTime()
+    const end = new Date(`${exactDates[0]}T23:59:59.999`).getTime()
+    if (Number.isFinite(start) && Number.isFinite(end)) {
+      return { fromTs: start, toTs: end, label: exactDates[0], explicit: true }
+    }
+  }
+
+  const dayStart = startOfLocalDayMs(nowTs)
+  const dayEnd = endOfLocalDayMs(nowTs)
+  const yesterdayStart = dayStart - (24 * 60 * 60 * 1000)
+  const yesterdayEnd = dayStart - 1
+
+  if (/\b(stamattina|this morning)\b/.test(text)) {
+    return { fromTs: dayStart, toTs: Math.min(dayEnd, dayStart + (12 * 60 * 60 * 1000) - 1), label: 'this morning', explicit: true }
+  }
+  if (/\b(oggi pomeriggio|this afternoon)\b/.test(text)) {
+    return { fromTs: dayStart + (12 * 60 * 60 * 1000), toTs: Math.min(dayEnd, dayStart + (18 * 60 * 60 * 1000) - 1), label: 'this afternoon', explicit: true }
+  }
+  if (/\b(stasera|this evening|tonight)\b/.test(text)) {
+    return { fromTs: dayStart + (18 * 60 * 60 * 1000), toTs: dayEnd, label: 'this evening', explicit: true }
+  }
+  if (/\b(oggi|today)\b/.test(text)) {
+    return { fromTs: dayStart, toTs: dayEnd, label: 'today', explicit: true }
+  }
+  if (/\b(ieri|yesterday)\b/.test(text)) {
+    return { fromTs: yesterdayStart, toTs: yesterdayEnd, label: 'yesterday', explicit: true }
+  }
+
+  const lastDaysMatch = text.match(/\b(?:last|ultimi)\s+(\d{1,3})\s+(?:day|days|giorno|giorni)\b/)
+  if (lastDaysMatch) {
+    const days = Math.max(1, Number(lastDaysMatch[1] || 1))
+    return {
+      fromTs: nowTs - (days * 24 * 60 * 60 * 1000),
+      toTs: nowTs,
+      label: `last ${days} days`,
+      explicit: true
+    }
+  }
+
+  if (/\b(this week|questa settimana)\b/.test(text)) {
+    const d = new Date(nowTs)
+    const dow = d.getDay()
+    const offset = dow === 0 ? 6 : dow - 1
+    d.setHours(0, 0, 0, 0)
+    d.setDate(d.getDate() - offset)
+    return { fromTs: d.getTime(), toTs: nowTs, label: 'this week', explicit: true }
+  }
+
+  return null
+}
+
 const normalizeAreaOverridePayload = (payload) => {
   const p = payload && typeof payload === 'object' ? payload : {}
   const normalized = {}
@@ -2602,13 +2702,14 @@ module.exports = function (RED) {
     return catalog
   }
 
-  const buildKnxUltimateFlowInventory = ({ maxNodes = 80 } = {}) => {
+  const buildKnxUltimateProjectInventory = () => {
     const tabById = new Map()
     const gatewaysById = new Map()
-    const knxNodes = []
+    const flowNodes = []
 
     try {
       if (typeof RED.nodes.eachNode !== 'function') return ''
+      const gaRe = /\b\d{1,3}\/\d{1,3}\/\d{1,3}\b/g
 
       // First pass: collect tabs + gateways
       RED.nodes.eachNode((n) => {
@@ -2627,11 +2728,11 @@ module.exports = function (RED) {
         }
       })
 
-      // Second pass: collect KNX Ultimate nodes (all flows)
+      // Second pass: collect all flow nodes that may help the LLM understand KNX logic.
       RED.nodes.eachNode((n) => {
         if (!n || typeof n !== 'object') return
         const type = String(n.type || '')
-        if (!type.startsWith('knxUltimate') || type === 'knxUltimate-config') return
+        if (type === 'tab' || type === 'subflow' || type === 'knxUltimate-config') return
 
         const tabId = String(n.z || '')
         const tabLabel = tabById.get(tabId) || ''
@@ -2639,6 +2740,16 @@ module.exports = function (RED) {
         const name = String(n.name || '')
         const server = String(n.server || '')
         const gw = gatewaysById.get(server) || null
+
+        const gaRefs = new Set()
+        extractGAsFromValue({ value: n, outSet: gaRefs, gaRe, maxItems: 24 })
+        const gaList = Array.from(gaRefs.values()).slice(0, 24)
+
+        const shortenSnippet = (value, maxLen = 140) => {
+          const text = String(value || '').replace(/\s+/g, ' ').trim()
+          if (!text) return ''
+          return text.length > maxLen ? `${text.slice(0, Math.max(0, maxLen - 3))}...` : text
+        }
 
         const entry = {
           tabLabel,
@@ -2648,7 +2759,12 @@ module.exports = function (RED) {
           gatewayId: server,
           gatewayName: gw ? gw.name : '',
           topic: n.topic !== undefined ? String(n.topic) : '',
-          dpt: n.dpt !== undefined ? String(n.dpt) : ''
+          dpt: n.dpt !== undefined ? String(n.dpt) : '',
+          gaRefs: gaList,
+          payload: n.payload !== undefined ? shortenSnippet(n.payload, 80) : '',
+          payloadType: n.payloadType !== undefined ? String(n.payloadType) : '',
+          outputTopic: n.outputtopic !== undefined ? String(n.outputtopic) : '',
+          setTopicType: n.setTopicType !== undefined ? String(n.setTopicType) : ''
         }
 
         if (type === 'knxUltimate') {
@@ -2669,17 +2785,31 @@ module.exports = function (RED) {
           entry.gaRewriteRules = n.gaRewriteRules !== undefined ? String(n.gaRewriteRules) : ''
           entry.rewriteSource = n.rewriteSource === true || n.rewriteSource === 'true'
           entry.srcRewriteRules = n.srcRewriteRules !== undefined ? String(n.srcRewriteRules) : ''
+        } else if (type === 'function') {
+          entry.funcSnippet = shortenSnippet(n.func, 220)
+        } else if (type === 'change') {
+          entry.rulesSnippet = shortenSnippet(safeStringify(n.rules), 180)
+        } else if (type === 'inject') {
+          entry.injectOnce = n.once === true || n.once === 'true'
+          entry.repeat = n.repeat !== undefined ? String(n.repeat) : ''
+          entry.crontab = n.crontab !== undefined ? String(n.crontab) : ''
+        } else if (type === 'template') {
+          entry.templateSnippet = shortenSnippet(n.template, 180)
+        } else if (type === 'switch') {
+          entry.rulesSnippet = shortenSnippet(safeStringify(n.rules), 180)
+        } else if (type === 'api-current-state' || type === 'server-state-changed') {
+          entry.entityId = n.entityid !== undefined ? String(n.entityid) : ''
         }
 
-        knxNodes.push(entry)
+        flowNodes.push(entry)
       })
     } catch (error) {
       return ''
     }
 
-    if (!knxNodes.length && !gatewaysById.size) return ''
+    if (!flowNodes.length && !gatewaysById.size) return ''
 
-    const sorted = knxNodes
+    const sorted = flowNodes
       .sort((a, b) => {
         const at = (a.tabLabel || '').localeCompare(b.tabLabel || '')
         if (at !== 0) return at
@@ -2687,13 +2817,12 @@ module.exports = function (RED) {
         if (an !== 0) return an
         return (a.type || '').localeCompare(b.type || '')
       })
-      .slice(0, Math.max(0, Number(maxNodes) || 0))
 
     const shorten = (id) => (id && id.length > 8) ? id.slice(0, 8) : id
     const safeLine = (s) => String(s || '').replace(/\s+/g, ' ').trim()
 
     const lines = []
-    lines.push('Node-RED flow inventory (KNX Ultimate):')
+    lines.push('Node-RED project inventory:')
 
     if (gatewaysById.size) {
       lines.push(`Gateways (knxUltimate-config): ${gatewaysById.size}`)
@@ -2707,7 +2836,7 @@ module.exports = function (RED) {
       if (gatewaysById.size > 20) lines.push('- ...')
     }
 
-    lines.push(`KNX Ultimate nodes: ${knxNodes.length}${knxNodes.length > sorted.length ? ` (showing first ${sorted.length})` : ''}`)
+    lines.push(`Project nodes: ${flowNodes.length}`)
     for (const n of sorted) {
       const parts = []
       if (n.tabLabel) parts.push(`[${safeLine(n.tabLabel)}]`)
@@ -2716,6 +2845,7 @@ module.exports = function (RED) {
       if (n.name) parts.push(`name="${safeLine(n.name)}"`)
       if (n.gatewayName) parts.push(`gw="${safeLine(n.gatewayName)}"`)
       if (!n.gatewayName && n.gatewayId) parts.push(`gwId=${shorten(n.gatewayId)}`)
+      if (Array.isArray(n.gaRefs) && n.gaRefs.length) parts.push(`gaRefs="${safeLine(n.gaRefs.join(','))}"`)
 
       if (n.type === 'knxUltimate') {
         if (n.topic) parts.push(`topic=${safeLine(n.topic)}`)
@@ -2733,8 +2863,26 @@ module.exports = function (RED) {
         if (n.gaRewriteRules) parts.push(`gaRewriteRules="${safeLine(n.gaRewriteRules)}"`)
         if (n.rewriteSource) parts.push('rewriteSource=true')
         if (n.srcRewriteRules) parts.push(`srcRewriteRules="${safeLine(n.srcRewriteRules)}"`)
+      } else if (n.type === 'function') {
+        if (n.funcSnippet) parts.push(`func="${safeLine(n.funcSnippet)}"`)
+      } else if (n.type === 'change' || n.type === 'switch') {
+        if (n.rulesSnippet) parts.push(`rules="${safeLine(n.rulesSnippet)}"`)
+      } else if (n.type === 'inject') {
+        if (n.topic) parts.push(`topic=${safeLine(n.topic)}`)
+        if (n.payload) parts.push(`payload="${safeLine(n.payload)}"`)
+        if (n.payloadType) parts.push(`payloadType=${safeLine(n.payloadType)}`)
+        if (n.injectOnce) parts.push('once=true')
+        if (n.repeat) parts.push(`repeat=${safeLine(n.repeat)}`)
+        if (n.crontab) parts.push(`crontab="${safeLine(n.crontab)}"`)
+      } else if (n.type === 'template') {
+        if (n.templateSnippet) parts.push(`template="${safeLine(n.templateSnippet)}"`)
+      } else if (n.type === 'api-current-state' || n.type === 'server-state-changed') {
+        if (n.entityId) parts.push(`entityId=${safeLine(n.entityId)}`)
       } else {
         if (n.topic) parts.push(`topic=${safeLine(n.topic)}`)
+        if (n.payload) parts.push(`payload="${safeLine(n.payload)}"`)
+        if (n.outputTopic) parts.push(`outputTopic=${safeLine(n.outputTopic)}`)
+        if (n.setTopicType) parts.push(`setTopicType=${safeLine(n.setTopicType)}`)
       }
       lines.push(`- ${parts.join(' ')}`)
     }
@@ -3531,6 +3679,8 @@ module.exports = function (RED) {
 
     node.analysisWindowSec = Number(config.analysisWindowSec || 60)
     node.historyWindowSec = Number(config.historyWindowSec || 300)
+    node.historyStoreToDisk = config.historyStoreToDisk !== undefined ? coerceBoolean(config.historyStoreToDisk) : false
+    node.historyStoreRetentionDays = Math.max(1, Number.isFinite(Number(config.historyStoreRetentionDays)) ? Number(config.historyStoreRetentionDays) : 10)
     node.emitIntervalSec = Number(config.emitIntervalSec || 0)
     node.topN = Number(config.topN || 10)
 
@@ -3561,9 +3711,6 @@ module.exports = function (RED) {
     node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 120 : Number(config.llmMaxEventsInPrompt)
     node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
     node.llmIncludeFlowContext = config.llmIncludeFlowContext !== undefined ? coerceBoolean(config.llmIncludeFlowContext) : true
-    node.llmMaxFlowNodesInPrompt = (config.llmMaxFlowNodesInPrompt === undefined || config.llmMaxFlowNodesInPrompt === '')
-      ? 400
-      : Number(config.llmMaxFlowNodesInPrompt)
     node.llmIncludeDocsSnippets = config.llmIncludeDocsSnippets !== undefined ? coerceBoolean(config.llmIncludeDocsSnippets) : true
     node.llmDocsLanguage = config.llmDocsLanguage ? String(config.llmDocsLanguage) : 'it'
     node.llmDocsMaxSnippets = (config.llmDocsMaxSnippets === undefined || config.llmDocsMaxSnippets === '') ? 5 : Number(config.llmDocsMaxSnippets)
@@ -3632,6 +3779,7 @@ module.exports = function (RED) {
     node._gaRateSeries = new Map()
     node._gaLabelCsvCache = { ref: null, map: {} }
     node._busConnectionWatchTimer = null
+    node._historyDiskLastPruneAt = 0
     node._busConnectionState = (node.serverKNX && typeof node.serverKNX.linkStatus === 'string')
       ? String(node.serverKNX.linkStatus).toLowerCase()
       : 'unknown'
@@ -4738,7 +4886,8 @@ module.exports = function (RED) {
       const compactMode = compact === true
       const maxEventsRequested = Math.max(10, Number(node.llmMaxEventsInPrompt) || 120)
       const maxEvents = Math.min(compactMode ? 80 : 240, maxEventsRequested)
-      const recent = node._history.slice(-maxEvents)
+      const promptEvents = selectTelegramsForPrompt({ question, maxEvents })
+      const recent = Array.isArray(promptEvents.events) ? promptEvents.events : []
       const wantsSvgChart = shouldGenerateSvgChart(question)
       const areasSnapshot = buildAreasSnapshot({ summary })
       const areasContext = buildAreasPromptContext(areasSnapshot)
@@ -4751,6 +4900,7 @@ module.exports = function (RED) {
         return `${new Date(t.ts).toISOString()} ${t.event} ${t.source} -> ${t.destination}${devName} dpt=${t.dpt} payload=${payloadStr}${rawStr}`
       })
       const recentLines = takeLastItemsByCharBudget(lines, compactMode ? 2600 : 7000)
+      const archiveScopeLine = `Prompt event source: ${promptEvents.source}. Time range: ${promptEvents.range && promptEvents.range.label ? promptEvents.range.label : 'recent events'}. Events selected: ${recent.length}.`
 
       let flowContext = ''
       if (node.llmIncludeFlowContext) {
@@ -4760,11 +4910,7 @@ module.exports = function (RED) {
         if (node._flowContextCache && node._flowContextCache.text && (now - (node._flowContextCache.at || 0)) < ttlMs) {
           flowContext = node._flowContextCache.text
         } else {
-          const configuredMaxFlowNodes = Math.max(0, Number(node.llmMaxFlowNodesInPrompt) || 0)
-          const maxFlowNodes = compactMode
-            ? (configuredMaxFlowNodes > 0 ? Math.min(configuredMaxFlowNodes, 30) : 0)
-            : configuredMaxFlowNodes
-          flowContext = buildKnxUltimateFlowInventory({ maxNodes: maxFlowNodes })
+          flowContext = buildKnxUltimateProjectInventory()
           flowContext = truncatePromptText(flowContext, flowMaxChars)
           node._flowContextCache = { at: now, text: flowContext }
         }
@@ -4812,7 +4958,9 @@ module.exports = function (RED) {
         wantsSvgChart ? '- Do not use JavaScript, external URLs, or <foreignObject>.' : '',
         wantsSvgChart ? '- Prefer width via viewBox and include labels + legend when useful.' : '',
         wantsSvgChart ? '' : '',
-        'Recent KNX telegrams:',
+        archiveScopeLine,
+        '',
+        'Selected KNX telegrams:',
         recentLines.join('\n'),
         '',
         'User request:',
@@ -4857,6 +5005,172 @@ module.exports = function (RED) {
         ? node.serverKNX.userDir
         : path.join(RED.settings.userDir, 'knxultimatestorage')
       return path.join(baseDir, 'knxai', 'config', `knxai-config-${node.id}.json`)
+    }
+
+    const getHistoryArchiveDir = () => {
+      const baseDir = (node.serverKNX && node.serverKNX.userDir)
+        ? node.serverKNX.userDir
+        : path.join(RED.settings.userDir, 'knxultimatestorage')
+      return path.join(baseDir, 'knxai', 'history', node.id)
+    }
+
+    const getHistoryArchiveFile = (dayKey) => path.join(getHistoryArchiveDir(), `${String(dayKey || '').trim() || formatArchiveDayKey(Date.now())}.jsonl`)
+
+    const pruneHistoryArchiveFiles = ({ force = false } = {}) => {
+      if (node.historyStoreToDisk !== true) return
+      const retentionDays = Math.max(1, Math.round(Number.isFinite(Number(node.historyStoreRetentionDays)) ? Number(node.historyStoreRetentionDays) : 1))
+      const now = nowMs()
+      if (!force && (now - Number(node._historyDiskLastPruneAt || 0)) < (60 * 60 * 1000)) return
+      node._historyDiskLastPruneAt = now
+      const dirPath = getHistoryArchiveDir()
+      try {
+        if (!fs.existsSync(dirPath)) return
+        const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+        const cutoffTs = now - ((retentionDays - 1) * 24 * 60 * 60 * 1000)
+        const cutoffDayKey = formatArchiveDayKey(cutoffTs)
+        for (let i = 0; i < entries.length; i++) {
+          const entry = entries[i]
+          if (!entry || !entry.isFile()) continue
+          const match = String(entry.name || '').match(/^(\d{4}-\d{2}-\d{2})\.jsonl$/)
+          if (!match) continue
+          const dayKey = match[1]
+          if (dayKey < cutoffDayKey) {
+            try { fs.unlinkSync(path.join(dirPath, entry.name)) } catch (error) { /* ignore */ }
+          }
+        }
+      } catch (error) {
+        node.sysLogger?.warn(`KNX AI history prune error: ${error.message || error}`)
+      }
+    }
+
+    const persistTelegramToDisk = (telegram) => {
+      if (node.historyStoreToDisk !== true || !telegram || typeof telegram !== 'object') return
+      const archiveDir = getHistoryArchiveDir()
+      if (!ensureDirectorySync(archiveDir)) return
+      const dayKey = formatArchiveDayKey(telegram.ts || Date.now())
+      const filePath = getHistoryArchiveFile(dayKey)
+      const line = JSON.stringify(telegram) + '\n'
+      fs.appendFile(filePath, line, 'utf8', (error) => {
+        if (error) node.sysLogger?.warn(`KNX AI history append error: ${error.message || error}`)
+      })
+      pruneHistoryArchiveFiles()
+    }
+
+    const loadRecentHistoryFromDisk = () => {
+      if (node.historyStoreToDisk !== true) return
+      const archiveDir = getHistoryArchiveDir()
+      try {
+        if (!fs.existsSync(archiveDir)) return
+        const now = nowMs()
+        const cutoffTs = now - (Math.max(5, Number(node.historyWindowSec || 5)) * 1000)
+        const dayKeys = collectArchiveDayKeysBetween({ fromTs: cutoffTs, toTs: now })
+        if (!dayKeys.length) return
+        const restored = []
+        for (let i = 0; i < dayKeys.length; i++) {
+          const filePath = getHistoryArchiveFile(dayKeys[i])
+          if (!fs.existsSync(filePath)) continue
+          const raw = fs.readFileSync(filePath, 'utf8')
+          if (!raw || String(raw).trim() === '') continue
+          const lines = raw.split(/\r?\n/)
+          for (let j = 0; j < lines.length; j++) {
+            const line = lines[j]
+            if (!line) continue
+            try {
+              const telegram = JSON.parse(line)
+              const ts = Number(telegram && telegram.ts ? telegram.ts : 0)
+              if (!Number.isFinite(ts) || ts < cutoffTs || ts > now) continue
+              restored.push(telegram)
+            } catch (error) {
+              // Ignore malformed archive rows.
+            }
+          }
+        }
+        if (!restored.length) return
+        restored.sort((a, b) => Number(a.ts || 0) - Number(b.ts || 0))
+        node._history = restored
+        trimHistory(now)
+      } catch (error) {
+        node.sysLogger?.warn(`KNX AI history restore error: ${error.message || error}`)
+      }
+    }
+
+    const loadHistorySliceFromDisk = ({ fromTs, toTs, limit = 240 } = {}) => {
+      if (node.historyStoreToDisk !== true) return []
+      const archiveDir = getHistoryArchiveDir()
+      try {
+        if (!fs.existsSync(archiveDir)) return []
+        const from = Number(fromTs || 0)
+        const to = Number(toTs || 0)
+        if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) return []
+        const dayKeys = collectArchiveDayKeysBetween({ fromTs: from, toTs: to })
+        if (!dayKeys.length) return []
+        const items = []
+        for (let i = 0; i < dayKeys.length; i++) {
+          const filePath = getHistoryArchiveFile(dayKeys[i])
+          if (!fs.existsSync(filePath)) continue
+          const raw = fs.readFileSync(filePath, 'utf8')
+          if (!raw || String(raw).trim() === '') continue
+          const lines = raw.split(/\r?\n/)
+          for (let j = 0; j < lines.length; j++) {
+            const line = lines[j]
+            if (!line) continue
+            try {
+              const telegram = JSON.parse(line)
+              const ts = Number(telegram && telegram.ts ? telegram.ts : 0)
+              if (!Number.isFinite(ts) || ts < from || ts > to) continue
+              items.push(telegram)
+            } catch (error) {
+              // Ignore malformed archive rows.
+            }
+          }
+        }
+        if (!items.length) return []
+        items.sort((a, b) => Number(a.ts || 0) - Number(b.ts || 0))
+        return items.slice(-Math.max(1, Number(limit || 1)))
+      } catch (error) {
+        node.sysLogger?.warn(`KNX AI history load slice error: ${error.message || error}`)
+        return []
+      }
+    }
+
+    const selectTelegramsForPrompt = ({ question, maxEvents }) => {
+      const now = nowMs()
+      const maxItems = Math.max(10, Number(maxEvents) || 120)
+      const explicitRange = parseQuestionTimeRange(question, now)
+      const fallbackRange = node.historyStoreToDisk === true
+        ? { fromTs: now - (24 * 60 * 60 * 1000), toTs: now, label: 'last 24 hours', explicit: false }
+        : { fromTs: now - (Math.max(5, Number(node.historyWindowSec || 5)) * 1000), toTs: now, label: 'memory window', explicit: false }
+      const range = explicitRange || fallbackRange
+
+      let selected = []
+      let source = 'memory'
+      if (node.historyStoreToDisk === true) {
+        const diskItems = loadHistorySliceFromDisk({ fromTs: range.fromTs, toTs: range.toTs, limit: maxItems * 3 })
+        const memoryItems = node._history.filter(t => Number(t && t.ts ? t.ts : 0) >= range.fromTs && Number(t && t.ts ? t.ts : 0) <= range.toTs)
+        const dedupe = new Map()
+        diskItems.concat(memoryItems).forEach((telegram) => {
+          if (!telegram || typeof telegram !== 'object') return
+          const key = [
+            Number(telegram.ts || 0),
+            String(telegram.event || ''),
+            String(telegram.source || ''),
+            String(telegram.destination || ''),
+            normalizeValueForCompare(telegram.payload),
+            String(telegram.rawHex || '')
+          ].join('|')
+          dedupe.set(key, telegram)
+        })
+        selected = Array.from(dedupe.values()).sort((a, b) => Number(a.ts || 0) - Number(b.ts || 0)).slice(-maxItems)
+        source = 'archive+memory'
+      } else {
+        selected = node._history.slice(-maxItems)
+      }
+
+      return {
+        events: selected,
+        source,
+        range
+      }
     }
 
     const loadPersistedAiConfig = () => {
@@ -7068,6 +7382,7 @@ module.exports = function (RED) {
         const telegram = extractTelegram(msg)
         if (!telegram) return
         node._history.push(telegram)
+        persistTelegramToDisk(telegram)
         resolveTelegramWaiters(telegram)
         trackTransitionTelemetry(telegram)
         const now = telegram.ts
@@ -7317,6 +7632,13 @@ module.exports = function (RED) {
       node._timerEmit = setInterval(() => {
         try { emitSummary() } catch (e) { /* emitSummary already guards */ }
       }, Math.max(5, node.emitIntervalSec) * 1000)
+    }
+
+    try {
+      pruneHistoryArchiveFiles({ force: true })
+      loadRecentHistoryFromDisk()
+    } catch (error) {
+      node.sysLogger?.warn(`KNX AI history startup error: ${error.message || error}`)
     }
 
     if (node._busConnectionWatchTimer) clearInterval(node._busConnectionWatchTimer)

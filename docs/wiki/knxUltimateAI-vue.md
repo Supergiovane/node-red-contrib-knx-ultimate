@@ -41,7 +41,7 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 
 - Ask questions about current traffic and anomalies in natural language.
 - Rendered responses support Markdown for clear explanations and action points.
-- Prompt context can include KNX events, flow inventory, and docs snippets (node settings dependent).
+- Prompt context can include KNX events, project inventory, and docs snippets (node settings dependent).
 
 ## 6) Settings and operations
 

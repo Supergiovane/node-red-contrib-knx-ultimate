@@ -31,6 +31,7 @@ Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 - **Tests** : preparer et executer des controles.
 - **Test Results** : historique pass/warn/fail.
 - **Ask** : poser une question en langage naturel.
+  Si l'archive disque est activée dans le nœud, Ask consulte cette archive par défaut et, sans date explicite, utilise les dernières 24 heures.
 - **Settings** : selection du nœud et import/export.
 
 ## Parcours conseille (premiere utilisation)

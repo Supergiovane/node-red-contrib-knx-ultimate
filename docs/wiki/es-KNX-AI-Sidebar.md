@@ -31,6 +31,7 @@ Esta pagina mantiene el nombre historico `KNX-AI-Sidebar` por compatibilidad.
 - **Tests**: preparar y lanzar comprobaciones.
 - **Test Results**: historial pass/warn/fail.
 - **Ask**: escribir preguntas en lenguaje natural.
+  Si el archivo en disco está activado en el nodo, Ask consulta ese archivo por defecto y, sin fecha explícita, usa las últimas 24 horas.
 - **Settings**: seleccion de nodo e import/export.
 
 ## Flujo recomendado (primera vez)

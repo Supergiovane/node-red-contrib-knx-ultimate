@@ -36,6 +36,8 @@ permalink: /wiki/zh-CN-KNX%20AI
 ### Analysis
 - **Analysis window (seconds)**：摘要/速率统计主窗口。
 - **History window (seconds)**：内部历史保留窗口。
+- **同时将捕获的报文归档到磁盘**：除了 RAM，还会把报文保存到 `knxultimatestorage/knxai/history/<node-id>/YYYY-MM-DD.jsonl`。
+- **磁盘归档保留天数**：归档文件在磁盘上保留的天数，超期后旧文件会自动删除。
 - **Max stored events**：内存中保留的最大电报数量。
 - **Auto emit summary (seconds, 0=off)**：周期性输出摘要间隔。
 - **Top list size**：摘要中 top 组地址/来源数量。
@@ -50,26 +52,31 @@ permalink: /wiki/zh-CN-KNX%20AI
 - **Flap window (seconds)**：抖动/快速变化检测窗口。
 - **Max changes per GA in window (0=off)**：窗口内允许的最大变化次数。
 
-### LLM Assistant
-- **LLM Assistant** 标签页现在固定在编辑器最前面，便于快速配置。
+### AI 助手
 - **Enable LLM assistant**：启用 Ask/chat 功能。
 - **Provider**：LLM 后端（OpenAI-compatible 或 Ollama）。
 - **Endpoint URL**：chat/completions 接口 URL。
 - **API key**：API Key（本地 Ollama 可不填）。
 - **Model**：模型 ID/名称。
-- **System prompt**：KNX 分析全局系统提示词。
-- **Temperature**：采样温度。
-- **Max tokens**：最大生成 token 数。
-- **Timeout (ms)**：LLM 请求 HTTP 超时。
-- **Recent events included**：提示词中包含的最近事件数量上限。
+- **System prompt**：KNX 分析全局系统提示词（Advanced）。
+- 如果启用了磁盘归档，**Ask** 默认会查询该归档：若问题里写了明确日期/时间范围就按其查询，否则默认查询最近 24 小时并补上当前 RAM 事件。
 - **Include raw payload hex**：在提示词中包含原始十六进制 payload。
-- **Include Node-RED KNX node inventory**：在提示词中包含 flow 清单。
-- **Max flow nodes included**：flow 清单中最多包含的节点数。
+- **包含 Node-RED 项目清单**：在提示词中加入整个 Node-RED 项目的节点清单，不仅包含 KNX 节点，也包含 function/change/inject/template 等在内且带有 KNX 逻辑或组地址的有用节点。
 - **Include documentation snippets (help/README/examples)**：在提示词中包含文档片段。
 - **Docs language**：文档片段优先语言。
-- **Max docs snippets**：文档片段最大条数。
-- **Max docs chars**：文档片段最大总字符数。
 - **Refresh** 按钮：请求 provider 并加载可用模型 ID。
+
+### Advanced
+- **Analysis window (seconds)**：摘要/速率统计主窗口。
+- **Max stored events**：内存中保留的最大电报数量。
+- **Top list size**：摘要中 top 组地址/来源数量。
+- **Pattern max lag (ms)**：模式关联允许的最大时间差。
+- **Pattern min occurrences**：报告模式前的最小出现次数。
+- **Rate window (seconds)**：异常速率检查滑动窗口。
+- **Max overall telegrams/sec (0=off)**：全总线 telegram/s 阈值。
+- **Max telegrams/sec per GA (0=off)**：单组地址 telegram/s 阈值。
+- **Flap window (seconds)**：抖动/快速变化检测窗口。
+- **Max changes per GA in window (0=off)**：窗口内允许的最大变化次数。
 
 ### Ollama 快速配置（本地）
 - 选择 **Provider = Ollama**。

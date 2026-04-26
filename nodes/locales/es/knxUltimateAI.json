@@ -3,9 +3,11 @@
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
       "capture": "Capture",
-      "analysis": "Analysis",
-      "anomalies": "Anomalies",
-      "llm": "LLM Assistant"
+      "storage": "Historial y Resumen",
+      "detection": "Deteccion y Alertas",
+      "llmConnection": "Conexion del Asistente IA",
+      "llmContext": "Contexto del Asistente IA",
+      "advanced": "Ajustes Avanzados"
     },
     "properties": {
       "server": "Gateway",
@@ -16,6 +18,8 @@
       "notifyreadrequest": "Capture GroupValue_Read",
       "analysisWindowSec": "Analysis window (seconds)",
       "historyWindowSec": "History window (seconds)",
+      "historyStoreToDisk": "Archivar tambien en disco los telegramas capturados",
+      "historyStoreRetentionDays": "Retencion del archivo en disco (dias)",
       "maxEvents": "Max stored events",
       "emitIntervalSec": "Auto emit summary (seconds, 0=off)",
       "topN": "Top list size",
@@ -33,17 +37,10 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmSystemPrompt": "System prompt",
-      "llmTemperature": "Temperature",
-      "llmMaxTokens": "Max tokens",
-      "llmTimeoutMs": "Timeout (ms)",
-      "llmMaxEventsInPrompt": "Recent events included",
       "llmIncludeRaw": "Include raw payload hex",
-      "llmIncludeFlowContext": "Include Node-RED KNX node inventory",
-      "llmMaxFlowNodesInPrompt": "Max flow nodes included",
+      "llmIncludeFlowContext": "Incluir inventario del proyecto Node-RED",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
-      "llmDocsLanguage": "Docs language",
-      "llmDocsMaxSnippets": "Max docs snippets",
-      "llmDocsMaxChars": "Max docs chars"
+      "llmDocsLanguage": "Docs language"
     },
     "outputs": {
       "summary": "Resumen/Estadísticas",

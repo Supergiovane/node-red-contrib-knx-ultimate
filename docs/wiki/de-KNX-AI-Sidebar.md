@@ -31,6 +31,7 @@ Diese Seite behält den historischen Namen `KNX-AI-Sidebar` aus Kompatibilitäts
 - **Tests**: Prüfungen vorbereiten und starten.
 - **Test Results**: Historie mit pass/warn/fail.
 - **Ask**: Fragen in natürlicher Sprache stellen.
+  Wenn das Festplattenarchiv im Node aktiv ist, durchsucht Ask standardmäßig das Archiv und fällt ohne explizites Datum auf die letzten 24 Stunden zurück.
 - **Settings**: Node-Auswahl und Import/Export.
 
 ## Empfohlener Ablauf (erste Nutzung)

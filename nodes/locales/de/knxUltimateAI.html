@@ -31,6 +31,8 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 ### Analysis
 - **Analysis window (seconds)**: Hauptfenster für Summary/Rate-Berechnung.
 - **History window (seconds)**: Aufbewahrungsfenster der internen Telegramm-Historie.
+- **Captured telegrams also on disk archivieren**: Speichert Telegramme zusätzlich zu RAM in `knxultimatestorage/knxai/history/<node-id>/YYYY-MM-DD.jsonl`.
+- **Aufbewahrung des Festplattenarchivs (Tage)**: Anzahl Tage, die Archivdateien auf Platte behalten werden, bevor sie automatisch gelöscht werden.
 - **Max stored events**: Maximale Anzahl Telegramme im Speicher.
 - **Auto emit summary (seconds, 0=off)**: Periodisches Summary-Intervall.
 - **Top list size**: Anzahl Top-Gruppenadressen/Quellen in der Summary.
@@ -45,26 +47,31 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 - **Flap window (seconds)**: Zeitfenster für Flapping-/Wechselraten-Erkennung.
 - **Max changes per GA in window (0=off)**: Maximal erlaubte Änderungen im Fenster.
 
-### LLM Assistant
-- Der Tab **LLM Assistant** steht im Editor jetzt an erster Stelle für eine schnellere Einrichtung.
+### KI-Assistent
 - **Enable LLM assistant**: Aktiviert Ask/Chat-Funktionen.
 - **Provider**: LLM-Backend (OpenAI-compatible oder Ollama).
 - **Endpoint URL**: URL des Chat/Completions-Endpunkts.
 - **API key**: API-Schlüssel (für lokales Ollama nicht erforderlich).
 - **Model**: Modell-ID/Name.
-- **System prompt**: Globale Instruktion für KNX-Analyse.
-- **Temperature**: Sampling-Temperatur.
-- **Max tokens**: Maximalzahl Completion-Tokens.
-- **Timeout (ms)**: HTTP-Timeout für LLM-Anfragen.
-- **Recent events included**: Max. Anzahl aktueller Events im Prompt.
+- **System prompt**: Globale Instruktion für KNX-Analyse (Advanced).
+- Wenn das Festplattenarchiv aktiv ist, nutzt **Ask** standardmäßig dieses Archiv: explizite Datumsangaben/Zeitbereiche werden beachtet, sonst durchsucht der Assistent die letzten 24 Stunden plus aktuelle RAM-Events.
 - **Include raw payload hex**: Rohe Hex-Payload im Prompt einfügen.
-- **Include Node-RED KNX node inventory**: Flow-Inventar im Prompt einfügen.
-- **Max flow nodes included**: Limit der inkludierten Flow-Nodes.
+- **Node-RED-Projektinventar einbeziehen**: Nimmt das gesamte Node-RED-Projektinventar in den Prompt auf, einschließlich KNX-Nodes und anderer hilfreicher Nodes wie function/change/inject/template, wenn sie KNX-Logik oder Gruppenadressen enthalten.
 - **Include documentation snippets (help/README/examples)**: Doku-Kontext einfügen.
 - **Docs language**: Bevorzugte Sprache der Doku-Snippets.
-- **Max docs snippets**: Max. Anzahl Doku-Snippets.
-- **Max docs chars**: Max. Gesamtzeichen aus Doku.
 - Button **Refresh**: Provider abfragen und verfügbare Modelle laden.
+
+### Advanced
+- **Analysis window (seconds)**: Hauptfenster für Summary/Rate-Berechnung.
+- **Max stored events**: Maximale Anzahl Telegramme im Speicher.
+- **Top list size**: Anzahl Top-Gruppenadressen/Quellen in der Summary.
+- **Pattern max lag (ms)**: Maximaler Zeitabstand für Pattern-Korrelation.
+- **Pattern min occurrences**: Mindestanzahl, bevor ein Pattern gemeldet wird.
+- **Rate window (seconds)**: Gleitendes Zeitfenster für Rate-Prüfungen.
+- **Max overall telegrams/sec (0=off)**: Schwellwert für gesamten Bus.
+- **Max telegrams/sec per GA (0=off)**: Schwellwert pro Gruppenadresse.
+- **Flap window (seconds)**: Zeitfenster für Flapping-/Wechselraten-Erkennung.
+- **Max changes per GA in window (0=off)**: Maximal erlaubte Änderungen im Fenster.
 
 ### Ollama Schnellstart (lokal)
 - **Provider = Ollama** auswählen.

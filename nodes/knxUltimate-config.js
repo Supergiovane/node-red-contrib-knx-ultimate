@@ -2067,6 +2067,15 @@ module.exports = (RED) => {
       }
 
       const isRawMode = typeof _inputDpt === 'string' && _inputDpt.trim().toLowerCase() === 'raw'
+      const isUniversalNode = _oNode?.listenallga === true || _oNode?.listenallga === 'true'
+      const hasKnownInputDpt = !(_inputDpt === null || _inputDpt === undefined || _inputDpt === '')
+      const shouldFallbackToRaw = isUniversalNode && !hasKnownInputDpt
+      const setRawModeMetadata = () => {
+        sInputDpt = 'raw'
+        sPayloadmeasureunit = ''
+        sDptdesc = 'Raw value'
+        sPayloadsubtypevalue = ''
+      }
 
       const errorMessage = {
         topic: _outputtopic,
@@ -2091,14 +2100,43 @@ module.exports = (RED) => {
       // Resolve DPT and convert value if available
       if (_Rawvalue !== null) {
         if (isRawMode) {
-          sInputDpt = 'raw'
-          sPayloadmeasureunit = ''
-          sDptdesc = 'Raw value'
-          sPayloadsubtypevalue = ''
+          setRawModeMetadata()
         } else {
           try {
-            sInputDpt = _inputDpt === null ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt
+            sInputDpt = !hasKnownInputDpt ? tryToFigureOutDataPointFromRawValue(_Rawvalue) : _inputDpt
           } catch (error) {
+            if (shouldFallbackToRaw) {
+              setRawModeMetadata()
+              jsValue = null
+              node.sysLogger?.debug(`buildInputMessage: falling back to RAW for universal node ${_oNode?.id || ''} destination ${_destGA}`)
+              try {
+                const finalMessage = {
+                  topic: _outputtopic,
+                  devicename: typeof _devicename !== 'undefined' ? _devicename : '',
+                  payload: jsValue,
+                  payloadmeasureunit: sPayloadmeasureunit,
+                  payloadsubtypevalue: sPayloadsubtypevalue,
+                  gainfo,
+                  echoed: _echoed,
+                  repeated: _repeated === true,
+                  repeat: _repeated === true,
+                  knx: {
+                    event: _event,
+                    dpt: sInputDpt,
+                    dptdesc: sDptdesc,
+                    source: _srcGA,
+                    destination: _destGA,
+                    rawValue: _Rawvalue,
+                    repeated: _repeated === true,
+                    repeat: _repeated === true
+                  }
+                }
+                return finalMessage
+              } catch (buildError) {
+                node.sysLogger?.error('buildInputMessage error: ' + buildError.message)
+                return errorMessage
+              }
+            }
             // Here comes if no datapoint has beeen found
             node.sysLogger?.error(
               'buildInputMessage: Error returning from tryToFigureOutDataPointFromRawValue. Device ' +
@@ -2216,11 +2254,8 @@ module.exports = (RED) => {
         }
       } else {
         // Don't care, it's a READ REQUEST
-        if (isRawMode) {
-          sInputDpt = 'raw'
-          sPayloadmeasureunit = ''
-          sDptdesc = 'Raw value'
-          sPayloadsubtypevalue = ''
+        if (isRawMode || shouldFallbackToRaw) {
+          setRawModeMetadata()
         }
       }
 

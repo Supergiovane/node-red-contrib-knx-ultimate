@@ -185,10 +185,6 @@ For the full node reference see: [KNX AI](/node-red-contrib-knx-ultimate/wiki/KN
     "llmBaseUrl": "https://api.openai.com/v1/chat/completions",
     "llmModel": "gpt-4o-mini",
     "llmSystemPrompt": "You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.",
-    "llmTemperature": "0.2",
-    "llmMaxTokens": "600",
-    "llmTimeoutMs": "30000",
-    "llmMaxEventsInPrompt": "600",
     "llmIncludeRaw": false,
     "x": 560,
     "y": 200,
@@ -270,4 +266,3 @@ For the full node reference see: [KNX AI](/node-red-contrib-knx-ultimate/wiki/KN
 ## Notes
 - If you enable the LLM, bus data will be sent to the configured endpoint.
 - For OpenAI, paste **only** the API key (starts with `sk-`) in the node credentials.
-

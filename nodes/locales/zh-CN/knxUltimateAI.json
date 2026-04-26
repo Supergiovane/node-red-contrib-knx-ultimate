@@ -3,9 +3,11 @@
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
       "capture": "Capture",
-      "analysis": "Analysis",
-      "anomalies": "Anomalies",
-      "llm": "LLM Assistant"
+      "storage": "历史与摘要",
+      "detection": "检测与告警",
+      "llmConnection": "AI 助手连接",
+      "llmContext": "AI 助手上下文",
+      "advanced": "高级调优"
     },
     "properties": {
       "server": "Gateway",
@@ -16,6 +18,8 @@
       "notifyreadrequest": "Capture GroupValue_Read",
       "analysisWindowSec": "Analysis window (seconds)",
       "historyWindowSec": "History window (seconds)",
+      "historyStoreToDisk": "同时将捕获的报文归档到磁盘",
+      "historyStoreRetentionDays": "磁盘归档保留天数",
       "maxEvents": "Max stored events",
       "emitIntervalSec": "Auto emit summary (seconds, 0=off)",
       "topN": "Top list size",
@@ -33,17 +37,10 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmSystemPrompt": "System prompt",
-      "llmTemperature": "Temperature",
-      "llmMaxTokens": "Max tokens",
-      "llmTimeoutMs": "Timeout (ms)",
-      "llmMaxEventsInPrompt": "Recent events included",
       "llmIncludeRaw": "Include raw payload hex",
-      "llmIncludeFlowContext": "Include Node-RED KNX node inventory",
-      "llmMaxFlowNodesInPrompt": "Max flow nodes included",
+      "llmIncludeFlowContext": "包含 Node-RED 项目清单",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
-      "llmDocsLanguage": "Docs language",
-      "llmDocsMaxSnippets": "Max docs snippets",
-      "llmDocsMaxChars": "Max docs chars"
+      "llmDocsLanguage": "Docs language"
     },
     "outputs": {
       "summary": "摘要/统计",

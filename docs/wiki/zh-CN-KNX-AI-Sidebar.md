@@ -31,6 +31,7 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 - **Tests**：准备并执行检测。
 - **Test Results**：pass/warn/fail 历史。
 - **Ask**：用自然语言提问。
+  如果节点中启用了磁盘归档，Ask 默认会查询该归档；若没有明确日期，则默认查看最近 24 小时。
 - **Settings**：节点选择与导入/导出。
 
 ## 推荐使用流程（首次）
