@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.9** - April 2026<br/>
+
+- Bump KNX Engine to 5.5.3 (fixed umlaut issue in dpt16)<br/>
+
 **Version 4.3.8** - April 2026<br/>
 
 - FIX: **KNX AI Web Assistant** `Ask` tab now truly uses the full available content width on desktop too; removed the leftover `50vw` cap that still kept the panel at half width.<br/>
@@ -30,7 +34,7 @@
 
 **Version 4.3.4** - April 2026<br/>
 
-- UI: **KNX Function** editor areas now have colored backgrounds (light green for *input→bus*, light yellow for *bus→output*) for easier visual distinction.<br/>
+- UI: **KNX Function** editor areas now have colored backgrounds (light green for _input→bus_, light yellow for _bus→output_) for easier visual distinction.<br/>
 - UI: **KNX Function** Monaco editor no longer shows red underlines for custom KNX functions (`getGAValue`, `setGAValue`, `toggle`, `self`).<br/>
 - NEW: **KNX Function** : **`let val = await getGAValue(...)`** now automatically sends a `GroupValue_Read` to the KNX bus when the requested group address has no cached value yet, and waits up to 3 seconds for the device to respond before returning `null`. Use `await getGAValue(...)` in your KNX Function code to benefit from this behaviour.<br/>
 
