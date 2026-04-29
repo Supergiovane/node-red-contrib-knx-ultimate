@@ -200,6 +200,7 @@ module.exports = (RED) => {
     node.stopETSImportIfNoDatapoint = typeof config.stopETSImportIfNoDatapoint === 'undefined' ? 'stop' : config.stopETSImportIfNoDatapoint // 09/01/2020 Stop, Import Fake or Skip the import if a group address has unset datapoint
     node.userDir = path.join(RED.settings.userDir, 'knxultimatestorage') // 04/04/2021 Supergiovane: Storage for service files
     node.exposedGAs = []
+    node.exposedGAsByGa = new Map()
     node.loglevel = config.loglevel !== undefined ? config.loglevel : 'error' // 18/02/2020 Loglevel default error
     if (node.loglevel === 'trace') node.loglevel = 'debug' // Backward compatibility
     if (node.loglevel === 'silent') node.loglevel = 'disable' // Backward compatibility
@@ -208,6 +209,44 @@ module.exports = (RED) => {
       node.sysLogger = new loggerClass({ loglevel: node.loglevel, setPrefix: node.type + ' <' + (node.name || node.id || '') + '>' })
     } catch (error) { console.log(error.stack) }
     node.csv = readCSV(config.csv) // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
+    node.csvByGa = new Map()
+    if (Array.isArray(node.csv)) {
+      node.csv.forEach((entry) => {
+        if (entry && typeof entry.ga === 'string' && entry.ga !== '') node.csvByGa.set(entry.ga, entry)
+      })
+    }
+
+    node.rebuildExposedGAIndex = () => {
+      node.exposedGAsByGa = new Map()
+      if (!Array.isArray(node.exposedGAs)) return
+      node.exposedGAs.forEach((entry) => {
+        if (entry && typeof entry.ga === 'string' && entry.ga !== '') node.exposedGAsByGa.set(entry.ga, entry)
+      })
+    }
+
+    node.getExposedGAEntry = (ga) => {
+      if (typeof ga !== 'string' || ga === '') return undefined
+      return node.exposedGAsByGa.get(ga)
+    }
+
+    node.upsertExposedGAEntry = (entry) => {
+      if (!entry || typeof entry.ga !== 'string' || entry.ga === '') return undefined
+      const existing = node.exposedGAsByGa.get(entry.ga)
+      if (existing) {
+        Object.assign(existing, entry)
+        return existing
+      }
+      node.exposedGAs.push(entry)
+      node.exposedGAsByGa.set(entry.ga, entry)
+      return entry
+    }
+
+    node.removeExposedGAEntry = (ga) => {
+      if (typeof ga !== 'string' || ga === '') return
+      node.exposedGAsByGa.delete(ga)
+      const index = node.exposedGAs.findIndex((item) => item.ga === ga)
+      if (index > -1) node.exposedGAs.splice(index, 1)
+    }
 
     // 12/11/2021 Connect at start delay
     node.autoReconnect = true // 20/03/2022 Default
@@ -764,10 +803,12 @@ module.exports = (RED) => {
       const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
       try {
         node.exposedGAs = JSON.parse(fs.readFileSync(sFile, 'utf8'))
+        if (!Array.isArray(node.exposedGAs)) node.exposedGAs = []
       } catch (err) {
         node.exposedGAs = []
         node.sysLogger?.info('unable to read peristent file ' + sFile + ' ' + err.message)
       }
+      node.rebuildExposedGAIndex()
     }
 
     // ************************
@@ -856,7 +897,7 @@ module.exports = (RED) => {
             } else {
               try {
                 if (node.exposedGAs.length > 0) {
-                  const oExposedGA = node.exposedGAs.find((a) => a.ga === _oClient.topic)
+                  const oExposedGA = node.getExposedGAEntry(_oClient.topic)
                   if (oExposedGA !== undefined) {
                     // Retrieve the value from exposedGAs
                     const msg = buildInputMessage({
@@ -885,7 +926,7 @@ module.exports = (RED) => {
                     if (msg.payload === null) {
                       _oClient._hasCurrentPayload = false
                       // Delete the exposedGA
-                      node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _oClient.topic)
+                      node.removeExposedGAEntry(_oClient.topic)
                       _oClient.setNodeStatus({
                         fill: 'yellow',
                         shape: 'dot',
@@ -1384,16 +1425,14 @@ module.exports = (RED) => {
       if (typeof _dest === 'string' && _rawValue !== undefined && (_evt === 'GroupValue_Write' || _evt === 'GroupValue_Response')) {
         try {
           const ret = { ga: _dest, rawValue: _rawValue, dpt: undefined, devicename: undefined, updatedAt: Date.now() }
-          node.exposedGAs = node.exposedGAs.filter((item) => item.ga !== _dest) // Remove previous
-          if (node.csv !== undefined && node.csv !== '' && node.csv.length !== 0) {
-            // Add the dpt
-            const found = node.csv.find(a => a.ga === _dest)
+          if (node.csvByGa.size > 0) {
+            const found = node.csvByGa.get(_dest)
             if (found !== undefined) {
               ret.dpt = found.dpt
               ret.devicename = found.devicename
             }
           }
-          node.exposedGAs.push(ret) // add the new
+          node.upsertExposedGAEntry(ret)
         } catch (error) { }
       }
 

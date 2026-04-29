@@ -505,12 +505,32 @@ module.exports = function (RED) {
       }
     }
 
+    const pendingGAReads = new Map()
+    const findExposedGA = (ga) => {
+      if (!node.serverKNX) return undefined
+      if (typeof node.serverKNX.getExposedGAEntry === 'function') return node.serverKNX.getExposedGAEntry(ga)
+      return Array.isArray(node.serverKNX.exposedGAs) ? node.serverKNX.exposedGAs.find(a => a.ga === ga) : undefined
+    }
+
     // Used in the KNX Function TAB
-    const getGAValue = async function getGAValue(_ga = undefined, _dpt = undefined) {
+    const getGAValue = async function getGAValue(_ga = undefined, _dpt = undefined, _requestReadIfMissing = undefined) {
       if (_ga === undefined) return null
       // Strip devicename if present (e.g. "1/1/1 Light name" → "1/1/1")
       const blankSpacePosition = _ga.indexOf(' ')
       if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition)
+
+      // Overloads:
+      // - getGAValue('1/1/1')
+      // - getGAValue('1/1/1', '1.001')
+      // - getGAValue('1/1/1', '1.001', false)
+      // - getGAValue('1/1/1', false)
+      let dptRequested = _dpt
+      let requestReadIfMissing = _requestReadIfMissing
+      if (typeof dptRequested === 'boolean' && requestReadIfMissing === undefined) {
+        requestReadIfMissing = dptRequested
+        dptRequested = undefined
+      }
+      if (requestReadIfMissing === undefined) requestReadIfMissing = true
 
       const tryDecode = (rawValue, dpt) => {
         try {
@@ -531,30 +551,43 @@ module.exports = function (RED) {
       }
 
       // Check cache first
-      let found = node.serverKNX.exposedGAs.find(a => a.ga === _ga)
+      let found = findExposedGA(_ga)
       if (found !== undefined) {
-        const dptFinal = _dpt || found.dpt
+        const dptFinal = dptRequested || found.dpt
         if (!dptFinal) {
           RED.log.error('getGAValue: no DPT for ' + _ga + '. Provide it as second parameter.')
           return null
         }
         const val = tryDecode(found.rawValue, dptFinal)
         if (val !== undefined) return val
-        // rawValue present but decode failed (bad format) — fall through to read
+        // rawValue present but decode failed (bad format) — fall through to read, unless cache-only mode is requested.
+        if (requestReadIfMissing === false) return undefined
         RED.log.warn('getGAValue: cached rawValue for ' + _ga + ' could not be decoded, sending read request')
       }
 
-      // Not cached or decode failed: send read and poll up to 3 seconds
-      sendRead()
-      for (let i = 0; i < 30; i++) {
-        await new Promise(resolve => setTimeout(resolve, 100))
-        found = node.serverKNX.exposedGAs.find(a => a.ga === _ga)
-        if (found !== undefined) {
-          const dptFinal = _dpt || found.dpt
-          if (!dptFinal) return null
-          const val = tryDecode(found.rawValue, dptFinal)
-          if (val !== undefined) return val
-        }
+      if (requestReadIfMissing === false) return undefined
+
+      // Not cached or decode failed: send read and poll up to 3 seconds.
+      // Deduplicate concurrent reads to the same GA to avoid repeated bus reads and repeated polling loops.
+      let pendingRead = pendingGAReads.get(_ga)
+      if (!pendingRead) {
+        pendingRead = (async () => {
+          sendRead()
+          for (let i = 0; i < 30; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+            const updated = findExposedGA(_ga)
+            if (updated !== undefined) return updated
+          }
+          return null
+        })().finally(() => pendingGAReads.delete(_ga))
+        pendingGAReads.set(_ga, pendingRead)
+      }
+      found = await pendingRead
+      if (found !== null && found !== undefined) {
+        const dptFinal = dptRequested || found.dpt
+        if (!dptFinal) return null
+        const val = tryDecode(found.rawValue, dptFinal)
+        if (val !== undefined) return val
       }
       RED.log.warn('getGAValue: no response from KNX bus for ' + _ga + ' within 3 seconds')
       return null
@@ -569,7 +602,7 @@ module.exports = function (RED) {
         if (blankSpacePosition > -1) _ga = _ga.substring(0, blankSpacePosition)
         if (_dpt === undefined) {
           // Try getting dpt from ETS CSV
-          const found = node.serverKNX.exposedGAs.find(a => a.ga === _ga)
+          const found = findExposedGA(_ga)
           if (found === undefined || found.dpt === undefined) {
             const errM = 'setGAValue: node ID:' + node.id + ' ' + 'No CSV file imported. Please provide the dpt manually'
             RED.log.error(errM)

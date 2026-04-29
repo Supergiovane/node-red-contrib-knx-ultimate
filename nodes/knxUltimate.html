@@ -271,10 +271,10 @@
             const knxFunctionHelperItems = [
                 {
                     id: 'getGAValue',
-                    label: 'getGAValue(address, dpt?)',
-                    aceValue: "getGAValue('1/1/1', '1.001')",
-                    snippet: "getGAValue('${1:1/1/1}', '${2:1.001}')",
-                    doc: 'Read the cached value of another group address. Provide the datapoint if the ETS import is not available.'
+                    label: 'getGAValue(address, dpt?, readIfMissing?)',
+                    aceValue: "getGAValue('1/1/1', '1.001', false)",
+                    snippet: "getGAValue('${1:1/1/1}', '${2:1.001}', ${3:false})",
+                    doc: 'Read another group address. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode.'
                 },
                 {
                     id: 'setGAValue',
@@ -465,8 +465,8 @@ return msg;`
                             });
 
                             monaco.languages.typescript.javascriptDefaults.addExtraLib([
-                                '/** Read the cached value of a KNX group address. */',
-                                'declare function getGAValue(address: string, dpt?: string): any;',
+                                '/** Read a KNX group address. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode. */',
+                                'declare function getGAValue(address: string, dptOrReadIfMissing?: string | boolean, readIfMissing?: boolean): any;',
                                 '/** Send a value to a KNX group address. */',
                                 'declare function setGAValue(address: string, value: any, dpt?: string): void;',
                                 '/** Toggle (invert) this node\'s current value on the KNX bus. */',

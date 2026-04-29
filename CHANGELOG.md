@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.3.10** - April 2026<br/>
+
+- CHANGE: **KNX Function** `getGAValue(...)` now accepts an optional `readIfMissing` boolean. Default is `true` to preserve the current behaviour; pass `false` to use cache-only mode and immediately return `undefined` when the GA value is not available locally.<br/>
+- PERF: **KNX Function** `getGAValue(...)` and KNX cache lookups now use indexed GA access plus deduplicated pending reads, reducing overhead and avoiding duplicate simultaneous `GroupValue_Read` requests for the same GA.<br/>
+- Docs/help/wiki: updated **KNX DEVICE / KNX Function** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to document the new `getGAValue(..., readIfMissing)` signature and cache-only mode.<br/>
+
 **Version 4.3.9** - April 2026<br/>
 
 - Bump KNX Engine to 5.5.3 (fixed umlaut issue in dpt16)<br/>
