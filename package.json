@@ -82,7 +82,7 @@
     "IOT",
     "philips hue"
   ],
-  "author": "Supergiovane",
+  "author": "Massimo Saccani (Supergiovane)",
   "license": "MIT",
   "scripts": {
     "build": "npm run knx-ai:build && npm run knx-viewer:build",
