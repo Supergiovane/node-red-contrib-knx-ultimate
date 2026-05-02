@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.3.11** - May 2026<br/>
+
+- Docs/help/wiki: clarified in **KNX DEVICE / KNX Function** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) that `getGAValue(...)` is async and should be used as **`await getGAValue(...)`**, even in cache-only mode.<br/>
+- UI: updated **KNX Function** editor helper/snippet and Monaco typings so `getGAValue(...)` is suggested with `await` and exposed as a `Promise` in the editor.<br/>
+
 **Version 4.3.10** - April 2026<br/>
 
 - CHANGE: **KNX Function** `getGAValue(...)` now accepts an optional `readIfMissing` boolean. Default is `true` to preserve the current behaviour; pass `false` to use cache-only mode and immediately return `undefined` when the GA value is not available locally.<br/>
