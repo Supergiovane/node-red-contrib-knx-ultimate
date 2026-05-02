@@ -72,7 +72,7 @@ Si está habilitado, la indicación "F (x)" se agregará al nombre del nodo.
 | Objeto o función | Descripción |
 |-|-|
 | msg (objeto) | El objeto MSG actual recibido por el nodo. |
-| getGavalue (String ga, string opcional dpt, bool opcional readIfMissing) | Obtenga el valor de la GA especificada, por ejemplo **'1/0/1'** o **'1/0/1 Luz mesilla'** (el texto tras un espacio se ignora). Con el archivo ETS importado, también puede copiar y pegar la GA desde el campo **Búsqueda GA**. **DPT** es opcional con ETS; si no, debe indicarlo (por ejemplo `'1.001'`). Por defecto, si el valor no está en caché, la función envía un `GroupValue_Read` y espera la respuesta. Pase `false` como tercer parámetro, o como segundo si no necesita DPT, para usar el modo solo caché y devolver `undefined` cuando el valor no esté disponible localmente. |
+| getGavalue (String ga, string opcional dpt, bool opcional readIfMissing) | Obtenga el valor de la GA especificada, por ejemplo **'1/0/1'** o **'1/0/1 Luz mesilla'** (el texto tras un espacio se ignora). Con el archivo ETS importado, también puede copiar y pegar la GA desde el campo **Búsqueda GA**. **DPT** es opcional con ETS; si no, debe indicarlo (por ejemplo `'1.001'`). Por defecto, si el valor no está en caché, la función envía un `GroupValue_Read` y espera la respuesta. Pase `false` como tercer parámetro, o como segundo si no necesita DPT, para usar el modo solo caché y devolver `undefined` cuando el valor no esté disponible localmente. `getGAValue` es asíncrona, así que use `await getGAValue(...)` cuando necesite el valor real. Incluso en modo solo caché, mantenga `await`, porque el helper siempre devuelve una Promise. |
 | setgavalue (cadena ga, cualquier valor, cadena opcional dpt) | Establezca el valor de GA especificado, por ejemplo **'1/0/1'** o **'1/0/1 Luz mesilla'** (el texto tras un espacio se ignora). Con el archivo ETS importado, también puede copiar y pegar la GA desde el campo **Búsqueda GA**. El valor es obligatorio; **dpt** es opcional con ETS. |
 | yo (cualquier valor) | Establezca el valor del nodo de Currend y envía el valor al bus KNX también. Por ejemplo, _Self (False) _. PRECAUCIÓN Uso de ** Función ** ** En la _From KNX Bus hasta el código PIN_ de salida del nodo, porque el código se ejecutará cada vez que se reciba un telegrama KNX, por lo que usted tiene bucles de recurrencia. |
 | alternar (nada) | Alterne el valor del nodo de Currend y envía el valor al bus KNX también. Por ejemplo, _Toggle () _. PRECAUCIÓN Uso de la función ** Toggle** En el código _From KNX BUS al Código PIN_ de salida del nodo, porque el código se ejecutará cada vez que se reciba un Telegrama KNX, por lo que usted tiene bucles de recurrencia. |
@@ -87,7 +87,7 @@ Encenderemos la luz solo si su estado GA está apagado y viceversa.
 
 ```javascript
 
-const statusGA = getGAValue('0/0/09','1.001');
+const statusGA = await getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
     return msg;
 }else{
@@ -117,7 +117,7 @@ El mensaje de salida al flujo también tendrá la temperatura externa en la prop
 ```javascript
 
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
-msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+msg.externalTemperature = await getGAValue('0/0/10'); // Si falta el archivo ETS: await getGAValue('0/0/10','9.001')
 return msg;
 ```
 
@@ -125,7 +125,8 @@ En esta otra muestra, no emitiremos un MSG al flujo, en el caso de MSG.PayLoad y
 
 ```javascript
 
-if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
+const otherGA = await getGAValue('0/0/11','1.001');
+if (msg.payload === false && otherGA === false){
     // Both false, don't emit the msg to the flow.
     return;
 }else{

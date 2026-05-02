@@ -77,7 +77,7 @@ If enabled, "f(x)" indication will be added to node's name.
 |Object or Function|Description|
 |--|--|
 | msg (object) | The current msg object received by the node. |
-| getGAValue (string GA, optional string DPT, optional bool readIfMissing) | Get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (all text after a blank space will be ignored by the function). With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field. **DPT** is optional if you've imported the ETS file, otherwise you must specify it (for example '1.001'). By default, if the value is not cached, the function sends a `GroupValue_Read` and waits for the reply. Pass `false` as the third parameter, or as the second one when no DPT is needed, to use cache-only mode and return `undefined` when the value is not available locally. |
+| getGAValue (string GA, optional string DPT, optional bool readIfMissing) | Get the specified GA's value, for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (all text after a blank space will be ignored by the function). With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field. **DPT** is optional if you've imported the ETS file, otherwise you must specify it (for example '1.001'). By default, if the value is not cached, the function sends a `GroupValue_Read` and waits for the reply. Pass `false` as the third parameter, or as the second one when no DPT is needed, to use cache-only mode and return `undefined` when the value is not available locally. `getGAValue` is async, so use `await getGAValue(...)` whenever you need the actual value. Even in cache-only mode, keep `await`, because the helper always returns a Promise. |
 | setGAValue (string GA, any value, optional string DPT) | Set the specified GA's value. The GA can be wrote for example **'1/0/1'**, or also **'1/0/1 Bed table light'** (all text after a blank space will be ignored by the function). With the ETS file imported, you can also copy and paste the GA and GA Name directly from the **Search GA** field. The **value** is mandatory (boolean/number/string/object). **DPT** is optional if you've imported the ETS file, otherwise you must specify it (for example '1.001'). |
 | self (any value) | Set the currend node's value and sends the value to the KNX BUS as well. For example, _self(false)_. Caution using **self** function in the _From KNX BUS to node's OUTPUT PIN_ code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops. |
 | toggle (nothing) | Toggle the currend node's value and sends the value to the KNX BUS as well. For example, _toggle()_. Caution using **toggle** function in the _From KNX BUS to node's OUTPUT PIN_ code, because the code will be executed everytime a KNX telegram is received, so you coud have recurrency loops. |
@@ -92,7 +92,7 @@ We'll turn on the light only if it's status GA is off, and vice versa.
 
 ```javascript
 
-const statusGA = getGAValue('0/0/09','1.001');
+const statusGA = await getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
     return msg;
 }else{
@@ -122,7 +122,7 @@ The ouput msg to the flow will have also the external temp in the property `msg.
 ```javascript
 
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
-msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+msg.externalTemperature = await getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: await getGAValue('0/0/10','9.001')
 return msg;
 ```
 
@@ -130,7 +130,8 @@ In this other sample, we'll not emit a msg to the flow, in case msg.payload and 
 
 ```javascript
 
-if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
+const otherGA = await getGAValue('0/0/11','1.001');
+if (msg.payload === false && otherGA === false){
     // Both false, don't emit the msg to the flow.
     return;
 }else{

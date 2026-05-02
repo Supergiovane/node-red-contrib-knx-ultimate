@@ -72,7 +72,7 @@ S'il est activé, l'indication "f (x)" sera ajoutée au nom du nœud.
 | Objet ou fonction | Description |
 |-|-|
 | msg (objet) | L'objet MSG actuel reçu par le nœud. |
-| getGavalue (String GA, String DPT facultatif, bool readIfMissing facultatif) | Obtenez la valeur de la GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ **Recherche GA**. **DPT** est facultatif avec ETS; sinon vous devez le spécifier (par exemple `'1.001'`). Par défaut, si la valeur n'est pas en cache, la fonction envoie un `GroupValue_Read` et attend la réponse. Passez `false` comme troisième paramètre, ou comme deuxième si aucun DPT n'est nécessaire, pour utiliser le mode cache uniquement et retourner `undefined` si la valeur n'est pas disponible localement. |
+| getGavalue (String GA, String DPT facultatif, bool readIfMissing facultatif) | Obtenez la valeur de la GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement dans le champ **Recherche GA**. **DPT** est facultatif avec ETS; sinon vous devez le spécifier (par exemple `'1.001'`). Par défaut, si la valeur n'est pas en cache, la fonction envoie un `GroupValue_Read` et attend la réponse. Passez `false` comme troisième paramètre, ou comme deuxième si aucun DPT n'est nécessaire, pour utiliser le mode cache uniquement et retourner `undefined` si la valeur n'est pas disponible localement. `getGAValue` est asynchrone: utilisez donc `await getGAValue(...)` quand vous avez besoin de la vraie valeur. Même en mode cache uniquement, gardez `await`, car le helper renvoie toujours une Promise. |
 | setGavalue (String ga, n'importe quelle valeur, chaîne facultative dpt) | Définissez la valeur de GA spécifiée, par exemple **'1/0/1'** ou **'1/0/1 Light'** (le texte après un espace est ignoré). Avec le fichier ETS importé, vous pouvez également copier et coller le nom GA et GA directement depuis le champ **Recherche GA**. La valeur est obligatoire; **dpt** est facultatif avec ETS. |
 | self (toute valeur) | Définissez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _self (false) _. ATTENTION UTILISATION ** Self** Fonction dans le code Pin_ de sortie du bus KNX _From pour le nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, vous avez donc Coud ayant des boucles de récurrence. |
 | basculer (rien) | Basculez la valeur du nœud Currend et envoie également la valeur au bus KNX. Par exemple, _toggle () _. ATTENTION en utilisant ** Toggle** Fonction dans le code Pin_ de sortie du bus KNX _From à la sortie du nœud, car le code sera exécuté à chaque fois qu'un télégramme KNX est reçu, de sorte que vous avez des boucles de récurrence. |
@@ -87,7 +87,7 @@ Nous allons allumer la lumière uniquement si son statut GA est éteint, et vice
 
 ```javascript
 
-const statusGA = getGAValue('0/0/09','1.001');
+const statusGA = await getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ // "!==" means "not equal"
     return msg;
 }else{
@@ -117,7 +117,7 @@ Le msg ouput au flux aura également la température externe dans la propriété
 ```javascript
 
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
-msg.externalTemperature = getGAValue('0/0/10'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+msg.externalTemperature = await getGAValue('0/0/10'); // En l'absence du fichier ETS: await getGAValue('0/0/10','9.001')
 return msg;
 ```
 
@@ -125,7 +125,8 @@ Dans cet autre échantillon, nous n'émettons pas de msg au flux, au cas où msg
 
 ```javascript
 
-if (msg.payload === false && getGAValue('0/0/11','1.001') === false){
+const otherGA = await getGAValue('0/0/11','1.001');
+if (msg.payload === false && otherGA === false){
     // Both false, don't emit the msg to the flow.
     return;
 }else{

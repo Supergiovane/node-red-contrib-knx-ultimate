@@ -272,9 +272,9 @@
                 {
                     id: 'getGAValue',
                     label: 'getGAValue(address, dpt?, readIfMissing?)',
-                    aceValue: "getGAValue('1/1/1', '1.001', false)",
-                    snippet: "getGAValue('${1:1/1/1}', '${2:1.001}', ${3:false})",
-                    doc: 'Read another group address. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode.'
+                    aceValue: "await getGAValue('1/1/1', '1.001', false)",
+                    snippet: "await getGAValue('${1:1/1/1}', '${2:1.001}', ${3:false})",
+                    doc: 'Read another group address. This helper is async, so use await to get the real value. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode.'
                 },
                 {
                     id: 'setGAValue',
@@ -465,8 +465,8 @@ return msg;`
                             });
 
                             monaco.languages.typescript.javascriptDefaults.addExtraLib([
-                                '/** Read a KNX group address. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode. */',
-                                'declare function getGAValue(address: string, dptOrReadIfMissing?: string | boolean, readIfMissing?: boolean): any;',
+                                '/** Read a KNX group address. This helper is async, so use await to get the real value. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode. */',
+                                'declare function getGAValue(address: string, dptOrReadIfMissing?: string | boolean, readIfMissing?: boolean): Promise<any>;',
                                 '/** Send a value to a KNX group address. */',
                                 'declare function setGAValue(address: string, value: any, dpt?: string): void;',
                                 '/** Toggle (invert) this node\'s current value on the KNX bus. */',

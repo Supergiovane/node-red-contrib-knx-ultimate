@@ -67,7 +67,7 @@ Der Code läuft bei jeder Eingangs-Nachricht und bei jedem BUS-Telegramm. Bei Ak
 |Objekt/Funktion|Beschreibung|
 |--|--|
 | `msg` | Aktuelle Nachricht. |
-| `getGAValue(GA, DPT?, readIfMissing?)` | Liest den Wert einer GA, z. B. `'1/0/1'` oder `'1/0/1 Bed table light'` (Text nach Leerzeichen wird ignoriert). Mit importierter ETS ist DPT optional; sonst muss es angegeben werden. Standardmäßig sendet die Funktion bei fehlendem Cache-Wert ein `GroupValue_Read` und wartet auf die Antwort. Mit `false` als drittem Parameter, oder als zweitem wenn kein DPT nötig ist, arbeitet die Funktion nur mit dem Cache und liefert `undefined`, wenn lokal kein Wert vorhanden ist. |
+| `getGAValue(GA, DPT?, readIfMissing?)` | Liest den Wert einer GA, z. B. `'1/0/1'` oder `'1/0/1 Bed table light'` (Text nach Leerzeichen wird ignoriert). Mit importierter ETS ist DPT optional; sonst muss es angegeben werden. Standardmäßig sendet die Funktion bei fehlendem Cache-Wert ein `GroupValue_Read` und wartet auf die Antwort. Mit `false` als drittem Parameter, oder als zweitem wenn kein DPT nötig ist, arbeitet die Funktion nur mit dem Cache und liefert `undefined`, wenn lokal kein Wert vorhanden ist. `getGAValue` ist asynchron, daher solltest du `await getGAValue(...)` verwenden, wenn du den echten Wert brauchst. Auch im Cache-only-Modus bleibt `await` erforderlich, weil der Helper immer eine Promise zurückgibt. |
 | `setGAValue(GA, value, DPT?)` | Setzt den Wert der GA; DPT wie oben. |
 | `self(value)` | Setzt den eigenen Node-Wert und sendet ihn an den BUS (Achtung Schleifen). |
 | `toggle()` | Toggeln wie `self`. |
@@ -77,7 +77,7 @@ Der Code läuft bei jeder Eingangs-Nachricht und bei jedem BUS-Telegramm. Bei Ak
 
 ```javascript
 
-const statusGA = getGAValue('0/0/09','1.001');
+const statusGA = await getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ return msg; } else { return; }
 ```
 
@@ -93,12 +93,13 @@ return msg;
 
 ```javascript
 
-msg.externalTemperature = getGAValue('0/0/10'); // ohne ETS: getGAValue('0/0/10','9.001')
+msg.externalTemperature = await getGAValue('0/0/10'); // ohne ETS: await getGAValue('0/0/10','9.001')
 return msg;
 ```
 
 ```javascript
-if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } else { return msg; }
+const otherGA = await getGAValue('0/0/11','1.001');
+if (msg.payload === false && otherGA === false){ return; } else { return msg; }
 ```
 
 ### Inputs

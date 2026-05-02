@@ -67,7 +67,7 @@ permalink: /wiki/zh-CN-Device
 |对象/函数|说明|
 |--|--|
 | `msg` | 当前消息对象。|
-| `getGAValue(GA, DPT?, readIfMissing?)` | 读取 GA 的值，例如 `'1/0/1'` 或 `'1/0/1 Bed table light'`（空格后的文字会被忽略）。导入 ETS 后，DPT 为可选；未导入时则必须提供。默认情况下，如果缓存中没有该值，函数会发送一个 `GroupValue_Read` 并等待响应。若将第三个参数设为 `false`，或者在不需要 DPT 时将第二个参数设为 `false`，则函数只使用缓存；如果本地没有值，则返回 `undefined`。|
+| `getGAValue(GA, DPT?, readIfMissing?)` | 读取 GA 的值，例如 `'1/0/1'` 或 `'1/0/1 Bed table light'`（空格后的文字会被忽略）。导入 ETS 后，DPT 为可选；未导入时则必须提供。默认情况下，如果缓存中没有该值，函数会发送一个 `GroupValue_Read` 并等待响应。若将第三个参数设为 `false`，或者在不需要 DPT 时将第二个参数设为 `false`，则函数只使用缓存；如果本地没有值，则返回 `undefined`。`getGAValue` 是异步的，所以当你需要真实值时，应写成 `await getGAValue(...)`。即使使用只读缓存模式，也要保留 `await`，因为该 helper 始终返回 Promise。|
 | `setGAValue(GA, value, DPT?)` | 设置 GA 值；DPT 同上。|
 | `self(value)` | 设置当前节点的值并发送到总线（注意循环）。|
 | `toggle()` | 切换当前值并发送到总线。|
@@ -77,7 +77,7 @@ permalink: /wiki/zh-CN-Device
 
 ```javascript
 
-const statusGA = getGAValue('0/0/09','1.001');
+const statusGA = await getGAValue('0/0/09','1.001');
 if (msg.payload !== statusGA){ return msg; } else { return; }
 ```
 
@@ -93,12 +93,13 @@ return msg;
 
 ```javascript
 
-msg.externalTemperature = getGAValue('0/0/10'); // 未导入 ETS：getGAValue('0/0/10','9.001')
+msg.externalTemperature = await getGAValue('0/0/10'); // 未导入 ETS：await getGAValue('0/0/10','9.001')
 return msg;
 ```
 
 ```javascript
-if (msg.payload === false && getGAValue('0/0/11','1.001') === false){ return; } else { return msg; }
+const otherGA = await getGAValue('0/0/11','1.001');
+if (msg.payload === false && otherGA === false){ return; } else { return msg; }
 ```
 
 ### 输入（Inputs）
