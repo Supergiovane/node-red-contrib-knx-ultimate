@@ -5,7 +5,7 @@
             title: 'Status GA check',
             code: `// @ts-nocheck
 // Replace '' with the real status group address.
-const statusGA = getGAValue('','1.001');
+const statusGA = await getGAValue('','1.001');
 if (msg.payload !== statusGA){ // " !==" means " not equal"
     return msg;
  }else{
@@ -29,7 +29,7 @@ return msg;`
             title: 'Toggle value (with status check)',
             code: `// @ts-nocheck
 // Get the current value of the status GA. insert the actual STATUS GA here.
-let prevValue = getGAValue('InsertHereTheStatusGA', '1.001')
+let prevValue = await getGAValue('InsertHereTheStatusGA', '1.001')
 if (prevValue === null)
 {
     // If the status of the light is not defined, at the

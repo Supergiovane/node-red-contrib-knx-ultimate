@@ -35,7 +35,7 @@ return msg`
       title: 'Add property to msg',
       code: `// @ts-nocheck
 // The current msg contains the internal temperature in the "msg.payload" property, but we want to emit the external temperature as well.
-msg.externalTemperature = getGAValue('0/0/10 Garden temperature sensor'); // In case the ETS file is missing, you must specify the dpt as well: getGAValue('0/0/10','9.001')
+msg.externalTemperature = await getGAValue('0/0/10 Garden temperature sensor'); // In case the ETS file is missing, you must specify the dpt as well: await getGAValue('0/0/10','9.001')
 return msg;`
     },
     {
@@ -45,7 +45,7 @@ return msg;`
 // When a motion detector sends a telegram, switch on the corridor light only if
 // the outdoor lux sensor reports a value lower than 80 lux.
 if (msg.payload === true) {
-  const currentLux = getGAValue('0/2/5 Garden lux sensor', '9.004');
+  const currentLux = await getGAValue('0/2/5 Garden lux sensor', '9.004');
   if (typeof currentLux === 'number' && currentLux < 80) {
     return msg;
   }

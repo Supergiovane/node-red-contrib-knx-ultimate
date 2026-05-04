@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.3.12** - May 2026<br/>
+
+- Docs/help/wiki: refined **KNX DEVICE / KNX Function** wording in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to state explicitly that `getGAValue(...)` must always be used as **`await getGAValue(...)`**; without `await` the function returns a `Promise`, not the GA value.<br/>
+- UI: updated remaining **KNX Function** helper snippets to always use `await getGAValue(...)` in practical examples.<br/>
+
 **Version 4.3.11** - May 2026<br/>
 
 - Docs/help/wiki: clarified in **KNX DEVICE / KNX Function** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) that `getGAValue(...)` is async and should be used as **`await getGAValue(...)`**, even in cache-only mode.<br/>

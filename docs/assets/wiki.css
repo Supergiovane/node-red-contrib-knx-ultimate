@@ -234,14 +234,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
+  min-height: 2.2rem;
   padding: 0.48rem 0.75rem;
   border-radius: 999px;
   color: #ffffff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
   font-size: 0.85rem;
   font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   text-decoration: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.wiki-nav-cta__button:visited {
+  color: #ffffff;
 }
 
 .wiki-nav-cta__button:hover,
@@ -268,4 +281,11 @@
 .wiki-nav-cta__button--youtube:hover,
 .wiki-nav-cta__button--youtube:focus {
   filter: brightness(1.05);
+}
+
+@media (max-width: 480px) {
+  .wiki-nav-cta__button {
+    font-size: 0.8rem;
+    padding: 0.44rem 0.65rem;
+  }
 }
