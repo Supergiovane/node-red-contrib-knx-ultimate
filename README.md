@@ -7,6 +7,8 @@
 [![Node.js version][node-version-image]][npm-url]
 [![Node-RED Flow Library][flows-image]][flows-url]
 [![Docs][docs-image]][docs-url]
+[![Commit activity][commit-activity-image]][commit-activity-url]
+[![Last commit][last-commit-image]][last-commit-url]
 [![NPM downloads per month][npm-downloads-month-image]][npm-url]
 [![NPM downloads total][npm-downloads-total-image]][npm-url]
 [![MIT License][license-image]][license-url]
@@ -49,6 +51,10 @@
 [youtube-url]: https://www.youtube.com/channel/UCA9RsLps1IthT7fDSeUbRZw/playlists
 [docs-image]: https://img.shields.io/badge/Docs-GitHub%20Pages-2ea44f
 [docs-url]: https://supergiovane.github.io/node-red-contrib-knx-ultimate/
+[commit-activity-image]: https://img.shields.io/github/commit-activity/m/Supergiovane/node-red-contrib-knx-ultimate?logo=github
+[commit-activity-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/commits/master
+[last-commit-image]: https://img.shields.io/github/last-commit/Supergiovane/node-red-contrib-knx-ultimate?logo=github
+[last-commit-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/commits/master
 [github-image]: https://img.shields.io/badge/GitHub-Repository-000000
 [github-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate
 [flows-image]: https://img.shields.io/badge/Node--RED-Flow%20Library-white?logo=nodered&logoColor=8F0000

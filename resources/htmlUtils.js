@@ -216,7 +216,11 @@ window.KNX_makeSelectSearchable = KNX_makeSelectSearchable;
     }
     this.element.on('focus.knxAutocomplete click.knxAutocomplete', function () {
       clearTimeout(self._knxAutoTimer)
-      self._knxAutoTimer = setTimeout(function () { showAll() }, 0)
+      const isDptCombobox = $(this).hasClass('knx-dpt-combobox')
+      self._knxAutoTimer = setTimeout(function () {
+        // DPT comboboxes must keep the full dropdown open even when an existing value is clicked.
+        showAll(isDptCombobox ? '' : undefined)
+      }, 0)
     })
     this.element.on('mousedown.knxAutocomplete', function () {
       clearTimeout(self._knxAutoTimer)
