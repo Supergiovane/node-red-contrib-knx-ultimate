@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.13** - May 2026<br/>
+
+- Bump KNX Engine to 5.5.6<br/>
+
 **Version 4.3.12** - May 2026<br/>
 
 - Docs/help/wiki: refined **KNX DEVICE / KNX Function** wording in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to state explicitly that `getGAValue(...)` must always be used as **`await getGAValue(...)`**; without `await` the function returns a `Promise`, not the GA value.<br/>
