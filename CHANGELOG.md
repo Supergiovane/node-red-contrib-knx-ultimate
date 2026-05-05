@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 4.3.15** - May 2026<br/>
+
+- FIX: DPT dropdown in editor now remains open when clicking on an already populated datapoint field (no immediate close on mouse button release).<br/>
+- Docs: added GitHub badges **Commit activity** and **Last commit** to the README header.<br/>
+
 **Version 4.3.13** - May 2026<br/>
 
 - Bump KNX Engine to 5.5.6<br/>
