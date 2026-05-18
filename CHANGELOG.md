@@ -8,6 +8,7 @@
 
 **Version 4.3.16** - May 2026<br/>
 
+- Docs/help/wiki: updated **KNX DateTime** help HTML and DateTime wiki pages (**EN/IT**) to document current `DPT 19.001` behavior based on JavaScript `Date`, additional input object fields (`msg.payload.dateTime` / `timestamp` / `epoch`), queued send while gateway is disconnected (latest pending only), and output metadata `msg.knxUltimateDateTime.date`.<br/>
 - Bump knxultimate Engine to 5.5.7<br/>
 
 **Version 4.3.15** - May 2026<br/>
