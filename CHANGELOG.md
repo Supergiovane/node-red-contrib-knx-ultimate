@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.16** - May 2026<br/>
+
+- Bump knxultimate Engine to 5.5.7<br/>
+
 **Version 4.3.15** - May 2026<br/>
 
 - FIX: DPT dropdown in editor now remains open when clicking on an already populated datapoint field (no immediate close on mouse button release).<br/>

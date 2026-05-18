@@ -10,6 +10,9 @@ Può inviare:
 
 Puoi configurare uno o più indirizzi di gruppo: il nodo scrive su tutti quelli configurati.
 
+Nota su **DPT 19.001**:
+- il nodo parte da una `Date` JavaScript e la converte in telegramma KNX DateTime tramite l'engine KNX.
+
 ## Quando invia
 
 - **Al deploy/avvio** (opzionale, con ritardo).
@@ -26,6 +29,10 @@ Payload supportati:
 - numero timestamp (millisecondi dall'epoch)
 - stringa accettata da `new Date("...")`
 - `"now"`
+- oggetto con uno di questi campi:
+  - `msg.payload.dateTime`
+  - `msg.payload.timestamp`
+  - `msg.payload.epoch`
 
 Esempio:
 
@@ -34,12 +41,17 @@ msg.payload = new Date();
 return msg;
 ```
 
+## Gateway non connesso
+
+Se il gateway KNX non è connesso, l'invio viene messo in coda e parte appena torna la connessione.
+Il nodo mantiene **una sola richiesta pendente** (l'ultima ricevuta).
+
 ## Output
 
 Il nodo emette un messaggio ad ogni invio:
 - `msg.payload`: la `Date` inviata
 - `msg.sent`: array di `{ ga, dpt, name }`
 - `msg.reason`: `input`, `startup`, `periodic` o `button`
+- `msg.knxUltimateDateTime.date`: data/ora in formato ISO (`toISOString()`)
 
 </script>
-

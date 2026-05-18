@@ -13,6 +13,9 @@ Supporta:
 - **DPT 11.001** (Data) – opzionale
 - **DPT 10.001** (Ora) – opzionale
 
+Nota su **DPT 19.001**:
+- il nodo parte da una `Date` JavaScript e la converte in DateTime KNX tramite l'engine KNX.
+
 ## Indirizzi di gruppo
 
 |Scopo|Proprietà|DPT|
@@ -39,6 +42,12 @@ Valori supportati:
 - numero timestamp (millisecondi dall'epoch)
 - stringa accettata da `new Date("...")`
 - `"now"`
+- oggetto con uno dei campi: `msg.payload.dateTime`, `msg.payload.timestamp`, `msg.payload.epoch`
+
+## Gateway non connesso
+
+Se il gateway KNX non è connesso, l'invio viene accodato e parte automaticamente alla riconnessione.
+Il nodo mantiene **una sola richiesta pendente** (sempre l'ultima ricevuta).
 
 ## Output del nodo
 
@@ -46,8 +55,8 @@ Il nodo emette un messaggio per ogni invio:
 - `msg.payload`: la `Date` inviata
 - `msg.sent`: array di `{ ga, dpt, name }`
 - `msg.reason`: `input`, `startup`, `periodic` o `button`
+- `msg.knxUltimateDateTime.date`: data/ora in formato ISO (`toISOString()`)
 
 ## Auto-compilazione (ETS)
 
 Quando aggiungi un nodo nuovo, può selezionare automaticamente il primo Gateway KNX che ha un import ETS e compilare le GA coerenti.
-

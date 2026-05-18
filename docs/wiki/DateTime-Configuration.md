@@ -13,6 +13,9 @@ It supports:
 - **DPT 11.001** (Date) – optional
 - **DPT 10.001** (Time) – optional
 
+Note about **DPT 19.001**:
+- the node starts from a JavaScript `Date` and converts it to KNX DateTime via the KNX engine.
+
 ## Group addresses
 
 |Purpose|Property|DPT|
@@ -39,6 +42,12 @@ Supported values:
 - timestamp number (milliseconds since epoch)
 - string accepted by `new Date("...")`
 - `"now"`
+- object with one of these fields: `msg.payload.dateTime`, `msg.payload.timestamp`, `msg.payload.epoch`
+
+## Gateway disconnected
+
+If the KNX gateway is disconnected, the send is queued and sent automatically after reconnection.
+The node keeps **only one pending request** (always the latest one).
 
 ## Node output
 
@@ -46,8 +55,8 @@ The node emits one message per send:
 - `msg.payload`: the `Date` written
 - `msg.sent`: array of `{ ga, dpt, name }`
 - `msg.reason`: `input`, `startup`, `periodic` or `button`
+- `msg.knxUltimateDateTime.date`: date/time in ISO format (`toISOString()`)
 
 ## Editor auto-fill (ETS)
 
 When you add a brand new node, it can auto-select the first KNX Gateway that has an ETS import and pre-fill coherent group addresses.
-

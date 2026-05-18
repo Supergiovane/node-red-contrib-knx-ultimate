@@ -10,6 +10,9 @@ It can send:
 
 You can configure one or more group addresses and the node will write to all configured outputs.
 
+Note about **DPT 19.001**:
+- the node starts from a JavaScript `Date` and converts it to KNX DateTime via the KNX engine.
+
 ## When it sends
 
 - **On deploy/startup** (optional, with delay).
@@ -26,6 +29,10 @@ Supported payloads:
 - a timestamp number (milliseconds since epoch)
 - a string accepted by `new Date("...")`
 - `"now"`
+- an object with one of these fields:
+  - `msg.payload.dateTime`
+  - `msg.payload.timestamp`
+  - `msg.payload.epoch`
 
 Example:
 
@@ -34,12 +41,17 @@ msg.payload = new Date();
 return msg;
 ```
 
+## Gateway disconnected
+
+If the KNX gateway is disconnected, the send is queued and sent automatically when the connection comes back.
+The node keeps **only one pending request** (the latest one).
+
 ## Output
 
 The node emits one message per send:
 - `msg.payload`: the `Date` that has been written
 - `msg.sent`: array of `{ ga, dpt, name }`
 - `msg.reason`: `input`, `startup`, `periodic` or `button`
+- `msg.knxUltimateDateTime.date`: date/time in ISO format (`toISOString()`)
 
 </script>
-
