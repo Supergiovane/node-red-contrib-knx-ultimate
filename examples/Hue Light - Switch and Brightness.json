@@ -1,0 +1,67 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueLight",
+    "type": "tab",
+    "label": "knxUltimateHueLight",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.217",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueLight",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueLight",
+    "name": "knxUltimateHueLight example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueLight",
+    "type": "knxUltimateHueLight",
+    "z": "h_tab_knxUltimateHueLight",
+    "name": "Hue Light",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "nameLightSwitch": "Hue switch",
+    "GALightSwitch": "5/0/1",
+    "dptLightSwitch": "1.001",
+    "nameLightState": "Hue state",
+    "GALightState": "5/0/2",
+    "dptLightState": "1.001",
+    "nameLightBrightness": "Brightness",
+    "GALightBrightness": "5/0/3",
+    "dptLightBrightness": "5.001",
+    "nameLightBrightnessState": "Brightness status",
+    "GALightBrightnessState": "5/0/4",
+    "dptLightBrightnessState": "5.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "no",
+    "outputs": 0,
+    "x": 620,
+    "y": 180,
+    "wires": []
+  }
+]

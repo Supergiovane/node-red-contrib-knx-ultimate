@@ -1,0 +1,77 @@
+[
+  {
+    "id": "h_tab_knxUltimateHuedevice_software_update",
+    "type": "tab",
+    "label": "knxUltimateHuedevice_software_update",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.228",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHuedevice_software_update",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHuedevice_software_update",
+    "name": "knxUltimateHuedevice_software_update example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHuedevice_software_update",
+    "type": "knxUltimateHuedevice_software_update",
+    "z": "h_tab_knxUltimateHuedevice_software_update",
+    "name": "Hue SW Update",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namedevice_software_update": "SW update",
+    "GAdevice_software_update": "5/11/1",
+    "dptdevice_software_update": "1.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHuedevice_software_update"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHuedevice_software_update",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHuedevice_software_update",
+    "name": "knxUltimateHuedevice_software_update output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

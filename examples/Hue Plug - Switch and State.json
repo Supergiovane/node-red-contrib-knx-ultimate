@@ -1,0 +1,63 @@
+[
+  {
+    "id": "h_tab_knxUltimateHuePlug",
+    "type": "tab",
+    "label": "knxUltimateHuePlug",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.229",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHuePlug",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHuePlug",
+    "name": "knxUltimateHuePlug example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHuePlug",
+    "type": "knxUltimateHuePlug",
+    "z": "h_tab_knxUltimateHuePlug",
+    "name": "Hue Plug",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "namePlugSwitch": "Plug switch",
+    "GAPlugSwitch": "5/12/1",
+    "dptPlugSwitch": "1.001",
+    "namePlugState": "Plug state",
+    "GAPlugState": "5/12/2",
+    "dptPlugState": "1.001",
+    "namePlugPowerState": "Power state",
+    "GAPlugPowerState": "5/12/3",
+    "dptPlugPowerState": "1.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "no",
+    "outputs": 0,
+    "x": 620,
+    "y": 180,
+    "wires": []
+  }
+]

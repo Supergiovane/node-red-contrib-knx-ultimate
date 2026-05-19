@@ -1,0 +1,27 @@
+[
+  {
+    "id": "hc_tab",
+    "type": "tab",
+    "label": "Hue Config",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "hc_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "hc_c",
+    "type": "comment",
+    "z": "hc_tab",
+    "name": "Create your Hue Bridge config node and reference it from all Hue nodes",
+    "info": "",
+    "x": 380,
+    "y": 120,
+    "wires": []
+  }
+]

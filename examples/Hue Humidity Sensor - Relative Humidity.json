@@ -1,0 +1,77 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueHumiditySensor",
+    "type": "tab",
+    "label": "knxUltimateHueHumiditySensor",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.230",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueHumiditySensor",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueHumiditySensor",
+    "name": "knxUltimateHueHumiditySensor example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueHumiditySensor",
+    "type": "knxUltimateHueHumiditySensor",
+    "z": "h_tab_knxUltimateHueHumiditySensor",
+    "name": "Hue Humidity",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namehumiditysensor": "Humidity",
+    "GAhumiditysensor": "5/13/1",
+    "dpthumiditysensor": "9.007",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueHumiditySensor"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueHumiditySensor",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueHumiditySensor",
+    "name": "knxUltimateHueHumiditySensor output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

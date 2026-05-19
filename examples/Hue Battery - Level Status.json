@@ -1,0 +1,77 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueBattery",
+    "type": "tab",
+    "label": "knxUltimateHueBattery",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.225",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueBattery",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueBattery",
+    "name": "knxUltimateHueBattery example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueBattery",
+    "type": "knxUltimateHueBattery",
+    "z": "h_tab_knxUltimateHueBattery",
+    "name": "Hue Battery",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namebatterysensor": "Battery %",
+    "GAbatterysensor": "5/8/1",
+    "dptbatterysensor": "5.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueBattery"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueBattery",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueBattery",
+    "name": "knxUltimateHueBattery output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

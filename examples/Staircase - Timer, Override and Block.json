@@ -1,0 +1,305 @@
+[
+  {
+    "id": "stair_flow_1",
+    "type": "tab",
+    "label": "KNX Staircase",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "stair_cfg_1",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.210",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "stair_comment_1",
+    "type": "comment",
+    "z": "stair_flow_1",
+    "name": "Staircase timer with Trigger/Output/Status + Override + Block",
+    "info": "Use the inject nodes to test trigger/cancel. Override and Block are sent on KNX bus via the two knxUltimate helper nodes.",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "stair_node_1",
+    "type": "knxUltimateStaircase",
+    "z": "stair_flow_1",
+    "server": "stair_cfg_1",
+    "name": "Staircase Light",
+    "outputtopic": "events/staircase",
+    "gaTrigger": "1/1/1",
+    "nameTrigger": "Trigger pushbutton",
+    "dptTrigger": "1.001",
+    "gaOutput": "1/1/2",
+    "nameOutput": "Light actuator",
+    "dptOutput": "1.001",
+    "gaStatus": "1/1/3",
+    "nameStatus": "Staircase status",
+    "dptStatus": "1.001",
+    "gaOverride": "1/1/4",
+    "nameOverride": "Maintenance override",
+    "dptOverride": "1.001",
+    "gaBlock": "1/1/5",
+    "nameBlock": "Activation block",
+    "dptBlock": "1.001",
+    "timerSeconds": 45,
+    "extendMode": "restart",
+    "triggerOffCancels": "yes",
+    "preWarnEnable": true,
+    "preWarnSeconds": 10,
+    "preWarnMode": "status",
+    "preWarnFlashMs": 400,
+    "blockAction": "off",
+    "emitEvents": true,
+    "x": 700,
+    "y": 260,
+    "wires": [
+      [
+        "stair_dbg_1"
+      ]
+    ]
+  },
+  {
+    "id": "stair_inj_on",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Trigger ON",
+    "props": [
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 170,
+    "y": 220,
+    "wires": [
+      [
+        "stair_node_1"
+      ]
+    ]
+  },
+  {
+    "id": "stair_inj_off",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Trigger OFF (cancel)",
+    "props": [
+      {
+        "p": "payload",
+        "v": "false",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 260,
+    "wires": [
+      [
+        "stair_node_1"
+      ]
+    ]
+  },
+  {
+    "id": "stair_inj_toggle",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Trigger command (string)",
+    "props": [
+      {
+        "p": "payload",
+        "v": "trigger",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 300,
+    "wires": [
+      [
+        "stair_node_1"
+      ]
+    ]
+  },
+  {
+    "id": "stair_dbg_1",
+    "type": "debug",
+    "z": "stair_flow_1",
+    "name": "Staircase events",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 940,
+    "y": 260,
+    "wires": []
+  },
+  {
+    "id": "stair_override_node",
+    "type": "knxUltimate",
+    "z": "stair_flow_1",
+    "server": "stair_cfg_1",
+    "topic": "1/1/4",
+    "dpt": "1.001",
+    "initialread": false,
+    "notifyreadrequest": false,
+    "notifyresponse": true,
+    "notifywrite": false,
+    "notifyreadrequestalsorespondtobus": true,
+    "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "0",
+    "listenallga": false,
+    "name": "Override command GA",
+    "outputtype": "write",
+    "outputRBE": false,
+    "inputRBE": false,
+    "x": 690,
+    "y": 420,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "stair_override_on",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Override ON (GA 1/1/4)",
+    "props": [
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 210,
+    "y": 400,
+    "wires": [
+      [
+        "stair_override_node"
+      ]
+    ]
+  },
+  {
+    "id": "stair_override_off",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Override OFF (GA 1/1/4)",
+    "props": [
+      {
+        "p": "payload",
+        "v": "false",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 210,
+    "y": 440,
+    "wires": [
+      [
+        "stair_override_node"
+      ]
+    ]
+  },
+  {
+    "id": "stair_block_node",
+    "type": "knxUltimate",
+    "z": "stair_flow_1",
+    "server": "stair_cfg_1",
+    "topic": "1/1/5",
+    "dpt": "1.001",
+    "initialread": false,
+    "notifyreadrequest": false,
+    "notifyresponse": true,
+    "notifywrite": false,
+    "notifyreadrequestalsorespondtobus": true,
+    "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "0",
+    "listenallga": false,
+    "name": "Block command GA",
+    "outputtype": "write",
+    "outputRBE": false,
+    "inputRBE": false,
+    "x": 680,
+    "y": 520,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "stair_block_on",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Block ON (GA 1/1/5)",
+    "props": [
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 190,
+    "y": 500,
+    "wires": [
+      [
+        "stair_block_node"
+      ]
+    ]
+  },
+  {
+    "id": "stair_block_off",
+    "type": "inject",
+    "z": "stair_flow_1",
+    "name": "Block OFF (GA 1/1/5)",
+    "props": [
+      {
+        "p": "payload",
+        "v": "false",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 190,
+    "y": 540,
+    "wires": [
+      [
+        "stair_block_node"
+      ]
+    ]
+  }
+]

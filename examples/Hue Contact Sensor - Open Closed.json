@@ -1,0 +1,75 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueContactSensor",
+    "type": "tab",
+    "label": "knxUltimateHueContactSensor",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.227",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueContactSensor",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueContactSensor",
+    "name": "knxUltimateHueContactSensor example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueContactSensor",
+    "type": "knxUltimateHueContactSensor",
+    "z": "h_tab_knxUltimateHueContactSensor",
+    "name": "Hue Contact",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namecontact": "Door contact",
+    "GAcontact": "5/10/1",
+    "dptcontact": "1.019",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueContactSensor"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueContactSensor",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueContactSensor",
+    "name": "knxUltimateHueContactSensor output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "id": "ar_tab",
+    "type": "tab",
+    "label": "KNX Auto Responder",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ar_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.212",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "ar_c",
+    "type": "comment",
+    "z": "ar_tab",
+    "name": "Respond automatically to KNX read requests with configured defaults",
+    "info": "",
+    "x": 420,
+    "y": 70,
+    "wires": []
+  },
+  {
+    "id": "ar_node",
+    "type": "knxUltimateAutoResponder",
+    "z": "ar_tab",
+    "server": "ar_cfg",
+    "name": "Auto responder",
+    "commandText": "[{\"ga\":\"2/7/1\",\"default\":true},{\"ga\":\"2/7/2\",\"dpt\":\"5.001\",\"default\":25},{\"ga\":\"2/7/3\",\"dpt\":\"16.001\",\"default\":\"Ready\"}]",
+    "x": 420,
+    "y": 170,
+    "wires": []
+  }
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueButton",
+    "type": "tab",
+    "label": "knxUltimateHueButton",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.218",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueButton",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueButton",
+    "name": "knxUltimateHueButton example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueButton",
+    "type": "knxUltimateHueButton",
+    "z": "h_tab_knxUltimateHueButton",
+    "name": "Hue Button",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "nameshort_release": "Short press",
+    "GAshort_release": "5/1/1",
+    "dptshort_release": "1.001",
+    "nameshort_releaseStatus": "Short press status",
+    "GAshort_releaseStatus": "5/1/2",
+    "dptshort_releaseStatus": "1.001",
+    "nameDim": "Dim",
+    "GArepeat": "5/1/3",
+    "dptrepeat": "3.007",
+    "toggleValues": true,
+    "switchSend": true,
+    "dimSend": "up",
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueButton"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueButton",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueButton",
+    "name": "knxUltimateHueButton output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

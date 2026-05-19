@@ -1,0 +1,132 @@
+[
+  {
+    "id": "ib_tab",
+    "type": "tab",
+    "label": "KNX IoT Bridge",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ib_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.215",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "ib_c",
+    "type": "comment",
+    "z": "ib_tab",
+    "name": "Mapping between KNX GA and MQTT topic with ACK output",
+    "info": "",
+    "x": 420,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ib_node",
+    "type": "knxUltimateIoTBridge",
+    "z": "ib_tab",
+    "server": "ib_cfg",
+    "name": "KNX IoT Bridge",
+    "outputtopic": "iot/knx",
+    "emitOnChangeOnly": true,
+    "readOnDeploy": true,
+    "acceptFlowInput": true,
+    "mappings": [
+      {
+        "id": "map_light_1",
+        "label": "Living Light",
+        "ga": "3/0/1",
+        "dpt": "1.001",
+        "direction": "bidirectional",
+        "iotType": "mqtt",
+        "target": "home/living/light/set",
+        "method": "POST",
+        "modbusFunction": "writeHoldingRegister",
+        "scale": 1,
+        "offset": 0,
+        "template": "",
+        "property": "",
+        "enabled": true,
+        "timeout": 0,
+        "retry": 0
+      }
+    ],
+    "x": 640,
+    "y": 220,
+    "wires": [
+      [
+        "ib_dbg_out"
+      ],
+      [
+        "ib_dbg_ack"
+      ]
+    ]
+  },
+  {
+    "id": "ib_inj",
+    "type": "inject",
+    "z": "ib_tab",
+    "name": "IoT -> KNX (topic match)",
+    "props": [
+      {
+        "p": "topic",
+        "v": "home/living/light/set",
+        "vt": "str"
+      },
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 220,
+    "y": 220,
+    "wires": [
+      [
+        "ib_node"
+      ]
+    ]
+  },
+  {
+    "id": "ib_dbg_out",
+    "type": "debug",
+    "z": "ib_tab",
+    "name": "Output 1 KNX->IoT",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 930,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "ib_dbg_ack",
+    "type": "debug",
+    "z": "ib_tab",
+    "name": "Output 2 IoT->KNX ACK",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 930,
+    "y": 240,
+    "wires": []
+  }
+]

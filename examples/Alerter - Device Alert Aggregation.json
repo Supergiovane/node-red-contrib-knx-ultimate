@@ -1,0 +1,196 @@
+[
+  {
+    "id": "al_tab",
+    "type": "tab",
+    "label": "KNX Alerter",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "al_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.211",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "al_c",
+    "type": "comment",
+    "z": "al_tab",
+    "name": "Aggregate alarm devices and emit 3 outputs",
+    "info": "",
+    "x": 370,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "al_node",
+    "type": "knxUltimateAlerter",
+    "z": "al_tab",
+    "server": "al_cfg",
+    "name": "KNX Alerter",
+    "property": "payload",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "topic": "2/1/1",
+        "devicename": "Smoke Kitchen",
+        "longdevicename": "Smoke detector kitchen"
+      },
+      {
+        "topic": "2/1/2",
+        "devicename": "Water Laundry",
+        "longdevicename": "Water leak laundry room"
+      }
+    ],
+    "whentostart": "ifnewalert",
+    "timerinterval": "2",
+    "initialreadGAInRules": "1",
+    "x": 640,
+    "y": 220,
+    "wires": [
+      [
+        "al_dbg1"
+      ],
+      [
+        "al_dbg2"
+      ],
+      [
+        "al_dbg3"
+      ]
+    ]
+  },
+  {
+    "id": "al_on",
+    "type": "inject",
+    "z": "al_tab",
+    "name": "Alarm ON 2/1/1",
+    "props": [
+      {
+        "p": "topic",
+        "v": "2/1/1",
+        "vt": "str"
+      },
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 180,
+    "y": 180,
+    "wires": [
+      [
+        "al_node"
+      ]
+    ]
+  },
+  {
+    "id": "al_off",
+    "type": "inject",
+    "z": "al_tab",
+    "name": "Alarm OFF 2/1/1",
+    "props": [
+      {
+        "p": "topic",
+        "v": "2/1/1",
+        "vt": "str"
+      },
+      {
+        "p": "payload",
+        "v": "false",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 190,
+    "y": 220,
+    "wires": [
+      [
+        "al_node"
+      ]
+    ]
+  },
+  {
+    "id": "al_start",
+    "type": "inject",
+    "z": "al_tab",
+    "name": "Force cycle start",
+    "props": [
+      {
+        "p": "start",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 180,
+    "y": 260,
+    "wires": [
+      [
+        "al_node"
+      ]
+    ]
+  },
+  {
+    "id": "al_dbg1",
+    "type": "debug",
+    "z": "al_tab",
+    "name": "Output 1 - each device",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 930,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "al_dbg2",
+    "type": "debug",
+    "z": "al_tab",
+    "name": "Output 2 - all devices",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 930,
+    "y": 220,
+    "wires": []
+  },
+  {
+    "id": "al_dbg3",
+    "type": "debug",
+    "z": "al_tab",
+    "name": "Output 3 - last device",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 930,
+    "y": 260,
+    "wires": []
+  }
+]

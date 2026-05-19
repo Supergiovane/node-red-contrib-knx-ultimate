@@ -1,0 +1,118 @@
+[
+  {
+    "id": "ha_tab",
+    "type": "tab",
+    "label": "KNX HA Translator",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ha_c",
+    "type": "comment",
+    "z": "ha_tab",
+    "name": "Translate Home Assistant-like strings to booleans",
+    "info": "",
+    "x": 350,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ha_node",
+    "type": "knxUltimateHATranslator",
+    "z": "ha_tab",
+    "name": "HA Translator",
+    "payloadPropName": "payload",
+    "commandText": "on:true\noff:false\nopen:true\nclosed:false\nhome:true\nnot_home:false",
+    "x": 560,
+    "y": 220,
+    "wires": [
+      [
+        "ha_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "ha_on",
+    "type": "inject",
+    "z": "ha_tab",
+    "name": "payload:on",
+    "props": [
+      {
+        "p": "payload",
+        "v": "on",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 180,
+    "y": 180,
+    "wires": [
+      "ha_node"
+    ]
+  },
+  {
+    "id": "ha_off",
+    "type": "inject",
+    "z": "ha_tab",
+    "name": "payload:off",
+    "props": [
+      {
+        "p": "payload",
+        "v": "off",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 180,
+    "y": 220,
+    "wires": [
+      "ha_node"
+    ]
+  },
+  {
+    "id": "ha_home",
+    "type": "inject",
+    "z": "ha_tab",
+    "name": "payload:home",
+    "props": [
+      {
+        "p": "payload",
+        "v": "home",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 180,
+    "y": 260,
+    "wires": [
+      "ha_node"
+    ]
+  },
+  {
+    "id": "ha_dbg",
+    "type": "debug",
+    "z": "ha_tab",
+    "name": "Translated payload",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 820,
+    "y": 220,
+    "wires": []
+  }
+]

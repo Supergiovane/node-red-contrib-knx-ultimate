@@ -1,0 +1,132 @@
+[
+  {
+    "id": "ga_tab",
+    "type": "tab",
+    "label": "KNX Garage",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "ga_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.213",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "ga_c",
+    "type": "comment",
+    "z": "ga_tab",
+    "name": "Garage controller with command, moving and obstruction GA",
+    "info": "",
+    "x": 360,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "ga_node",
+    "type": "knxUltimateGarage",
+    "z": "ga_tab",
+    "server": "ga_cfg",
+    "name": "Garage Door",
+    "outputtopic": "events/garage",
+    "gaCommand": "1/2/1",
+    "nameCommand": "Garage command",
+    "dptCommand": "1.001",
+    "gaImpulse": "1/2/2",
+    "nameImpulse": "Garage impulse",
+    "dptImpulse": "1.017",
+    "gaMoving": "1/2/3",
+    "nameMoving": "Garage moving",
+    "dptMoving": "1.001",
+    "gaObstruction": "1/2/4",
+    "nameObstruction": "Garage obstruction",
+    "dptObstruction": "1.001",
+    "gaHoldOpen": "1/2/5",
+    "nameHoldOpen": "Hold open",
+    "dptHoldOpen": "1.001",
+    "gaDisable": "1/2/6",
+    "nameDisable": "Disable",
+    "dptDisable": "1.001",
+    "gaPhotocell": "1/2/7",
+    "namePhotocell": "Photocell",
+    "dptPhotocell": "1.001",
+    "autoCloseEnable": true,
+    "autoCloseSeconds": 120,
+    "emitEvents": true,
+    "x": 650,
+    "y": 220,
+    "wires": [
+      [
+        "ga_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "ga_inj_on",
+    "type": "inject",
+    "z": "ga_tab",
+    "name": "Open/Toggle",
+    "props": [
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 170,
+    "y": 200,
+    "wires": [
+      "ga_node"
+    ]
+  },
+  {
+    "id": "ga_inj_off",
+    "type": "inject",
+    "z": "ga_tab",
+    "name": "Close/Stop",
+    "props": [
+      {
+        "p": "payload",
+        "v": "false",
+        "vt": "bool"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 170,
+    "y": 240,
+    "wires": [
+      "ga_node"
+    ]
+  },
+  {
+    "id": "ga_dbg",
+    "type": "debug",
+    "z": "ga_tab",
+    "name": "Garage events",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 900,
+    "y": 220,
+    "wires": []
+  }
+]

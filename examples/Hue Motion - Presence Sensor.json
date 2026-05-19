@@ -1,0 +1,76 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueMotion",
+    "type": "tab",
+    "label": "knxUltimateHueMotion",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.219",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueMotion",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueMotion",
+    "name": "knxUltimateHueMotion example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueMotion",
+    "type": "knxUltimateHueMotion",
+    "z": "h_tab_knxUltimateHueMotion",
+    "name": "Hue Motion",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namemotion": "Motion",
+    "GAmotion": "5/2/1",
+    "dptmotion": "1.001",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueMotion"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueMotion",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueMotion",
+    "name": "knxUltimateHueMotion output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

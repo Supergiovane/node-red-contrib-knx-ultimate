@@ -1,0 +1,77 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueTemperatureSensor",
+    "type": "tab",
+    "label": "knxUltimateHueTemperatureSensor",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.223",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueTemperatureSensor",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueTemperatureSensor",
+    "name": "knxUltimateHueTemperatureSensor example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueTemperatureSensor",
+    "type": "knxUltimateHueTemperatureSensor",
+    "z": "h_tab_knxUltimateHueTemperatureSensor",
+    "name": "Hue Temperature",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "nametemperaturesensor": "Temperature",
+    "GAtemperaturesensor": "5/6/1",
+    "dpttemperaturesensor": "9.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueTemperatureSensor"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueTemperatureSensor",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueTemperatureSensor",
+    "name": "knxUltimateHueTemperatureSensor output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

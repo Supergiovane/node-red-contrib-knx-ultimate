@@ -1,0 +1,63 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueScene",
+    "type": "tab",
+    "label": "knxUltimateHueScene",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.224",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueScene",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueScene",
+    "name": "knxUltimateHueScene example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueScene",
+    "type": "knxUltimateHueScene",
+    "z": "h_tab_knxUltimateHueScene",
+    "name": "Hue Scene",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namescene": "Scene recall",
+    "GAscene": "5/7/1",
+    "dptscene": "1.001",
+    "valscene": "1",
+    "namesceneStatus": "Scene status",
+    "GAsceneStatus": "5/7/2",
+    "dptsceneStatus": "1.001",
+    "enableNodePINS": "no",
+    "outputs": 0,
+    "selectedModeTabNumber": 0,
+    "hueSceneRecallType": "active",
+    "x": 620,
+    "y": 180,
+    "wires": []
+  }
+]

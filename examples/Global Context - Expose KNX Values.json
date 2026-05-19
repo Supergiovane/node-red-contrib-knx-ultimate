@@ -1,0 +1,45 @@
+[
+  {
+    "id": "gc_tab",
+    "type": "tab",
+    "label": "KNX Global Context",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "gc_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.214",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "gc_c",
+    "type": "comment",
+    "z": "gc_tab",
+    "name": "Expose KNX group addresses to global context",
+    "info": "",
+    "x": 350,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "gc_node",
+    "type": "knxUltimateGlobalContext",
+    "z": "gc_tab",
+    "server": "gc_cfg",
+    "name": "KNXGlobalContext",
+    "exposeAsVariable": "exposeAsVariableREADWRITE",
+    "writeExecutionInterval": 1000,
+    "contextStorage": "",
+    "x": 350,
+    "y": 140,
+    "wires": []
+  }
+]

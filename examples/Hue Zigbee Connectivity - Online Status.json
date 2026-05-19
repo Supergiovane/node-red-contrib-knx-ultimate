@@ -1,0 +1,77 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueZigbeeConnectivity",
+    "type": "tab",
+    "label": "knxUltimateHueZigbeeConnectivity",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.226",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueZigbeeConnectivity",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueZigbeeConnectivity",
+    "name": "knxUltimateHueZigbeeConnectivity example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueZigbeeConnectivity",
+    "type": "knxUltimateHueZigbeeConnectivity",
+    "z": "h_tab_knxUltimateHueZigbeeConnectivity",
+    "name": "Hue Zigbee",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "namezigbeeconnectivity": "Zigbee online",
+    "GAzigbeeconnectivity": "5/9/1",
+    "dptzigbeeconnectivity": "1.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueZigbeeConnectivity"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueZigbeeConnectivity",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueZigbeeConnectivity",
+    "name": "knxUltimateHueZigbeeConnectivity output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

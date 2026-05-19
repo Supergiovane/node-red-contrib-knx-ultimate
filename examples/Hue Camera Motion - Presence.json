@@ -1,0 +1,77 @@
+[
+  {
+    "id": "h_tab_knxUltimateHueCameraMotion",
+    "type": "tab",
+    "label": "knxUltimateHueCameraMotion",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "h_knx",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.231",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "h_hue",
+    "type": "hue-config",
+    "z": "",
+    "host": "192.168.1.10",
+    "name": "Hue Bridge",
+    "bridgeid": ""
+  },
+  {
+    "id": "h_c_knxUltimateHueCameraMotion",
+    "type": "comment",
+    "z": "h_tab_knxUltimateHueCameraMotion",
+    "name": "knxUltimateHueCameraMotion example (set your real Hue device id in hueDevice)",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "h_node_knxUltimateHueCameraMotion",
+    "type": "knxUltimateHueCameraMotion",
+    "z": "h_tab_knxUltimateHueCameraMotion",
+    "name": "Hue Camera Motion",
+    "server": "h_knx",
+    "serverHue": "h_hue",
+    "hueDevice": "device-id-here",
+    "nameCameraMotion": "Camera motion",
+    "GAcameraMotion": "5/14/1",
+    "dptCameraMotion": "1.001",
+    "readStatusAtStartup": "yes",
+    "enableNodePINS": "yes",
+    "outputs": 1,
+    "x": 620,
+    "y": 180,
+    "wires": [
+      [
+        "h_dbg_knxUltimateHueCameraMotion"
+      ]
+    ]
+  },
+  {
+    "id": "h_dbg_knxUltimateHueCameraMotion",
+    "type": "debug",
+    "z": "h_tab_knxUltimateHueCameraMotion",
+    "name": "knxUltimateHueCameraMotion output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 920,
+    "y": 180,
+    "wires": []
+  }
+]

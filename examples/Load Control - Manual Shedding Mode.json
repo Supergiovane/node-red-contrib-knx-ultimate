@@ -1,0 +1,174 @@
+[
+  {
+    "id": "lc_tab",
+    "type": "tab",
+    "label": "KNX Load Control",
+    "disabled": false,
+    "info": ""
+  },
+  {
+    "id": "lc_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.216",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "lc_c",
+    "type": "comment",
+    "z": "lc_tab",
+    "name": "Manual shedding/unshedding with 5 priority loads",
+    "info": "",
+    "x": 430,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "lc_node",
+    "type": "knxUltimateLoadControl",
+    "z": "lc_tab",
+    "server": "lc_cfg",
+    "name": "Load Control",
+    "controlMode": "msg",
+    "topic": "4/0/1",
+    "dpt": "14.056",
+    "wattLimit": 3000,
+    "sheddingCheckInterval": 15,
+    "sheddingRestoreDelay": 60,
+    "GA1": "4/1/1",
+    "DPT1": "1.001",
+    "Name1": "Water Heater",
+    "autoRestore1": true,
+    "MonitorGA1": "4/2/1",
+    "MonitorDPT1": "14.056",
+    "MonitorName1": "Water Heater W",
+    "GA2": "4/1/2",
+    "DPT2": "1.001",
+    "Name2": "EV Charger",
+    "autoRestore2": true,
+    "MonitorGA2": "4/2/2",
+    "MonitorDPT2": "14.056",
+    "MonitorName2": "EV Charger W",
+    "GA3": "4/1/3",
+    "DPT3": "1.001",
+    "Name3": "Boiler",
+    "autoRestore3": true,
+    "MonitorGA3": "4/2/3",
+    "MonitorDPT3": "14.056",
+    "MonitorName3": "Boiler W",
+    "GA4": "4/1/4",
+    "DPT4": "1.001",
+    "Name4": "Dryer",
+    "autoRestore4": true,
+    "MonitorGA4": "4/2/4",
+    "MonitorDPT4": "14.056",
+    "MonitorName4": "Dryer W",
+    "GA5": "4/1/5",
+    "DPT5": "1.001",
+    "Name5": "Oven",
+    "autoRestore5": true,
+    "MonitorGA5": "4/2/5",
+    "MonitorDPT5": "14.056",
+    "MonitorName5": "Oven W",
+    "x": 690,
+    "y": 240,
+    "wires": [
+      [
+        "lc_dbg"
+      ]
+    ]
+  },
+  {
+    "id": "lc_shed",
+    "type": "inject",
+    "z": "lc_tab",
+    "name": "msg.shedding = shed",
+    "props": [
+      {
+        "p": "shedding",
+        "v": "shed",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 210,
+    "y": 200,
+    "wires": [
+      [
+        "lc_node"
+      ]
+    ]
+  },
+  {
+    "id": "lc_unshed",
+    "type": "inject",
+    "z": "lc_tab",
+    "name": "msg.shedding = unshed",
+    "props": [
+      {
+        "p": "shedding",
+        "v": "unshed",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 220,
+    "y": 240,
+    "wires": [
+      [
+        "lc_node"
+      ]
+    ]
+  },
+  {
+    "id": "lc_auto",
+    "type": "inject",
+    "z": "lc_tab",
+    "name": "msg.shedding = auto",
+    "props": [
+      {
+        "p": "shedding",
+        "v": "auto",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 210,
+    "y": 280,
+    "wires": [
+      [
+        "lc_node"
+      ]
+    ]
+  },
+  {
+    "id": "lc_dbg",
+    "type": "debug",
+    "z": "lc_tab",
+    "name": "Load control output",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "x": 950,
+    "y": 240,
+    "wires": []
+  }
+]
