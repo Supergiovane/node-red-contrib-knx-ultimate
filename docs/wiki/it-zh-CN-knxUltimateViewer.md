@@ -9,6 +9,7 @@ permalink: /wiki/it-zh-CN-knxUltimateViewer
 Visualizza tutti gli indirizzi di gruppo e i loro valori nel gruppo dashboard.<br/>
 </p>
 # Viewer KNX
+
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | KNX Gateway |

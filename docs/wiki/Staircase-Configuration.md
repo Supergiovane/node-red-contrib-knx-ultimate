@@ -8,6 +8,7 @@ permalink: /wiki/Staircase-Configuration
 # Staircase Light configuration
 The **KNX Staircase** node emulates the typical stairwell timer using KNX group addresses. When the trigger GA receives an impulse the lamp is forced on, a configurable timer starts and optional warnings are issued before switching off. Additional features cover manual override, blocking (for maintenance), and event reporting to the Node-RED flow.
 ## Group addresses
+
 | Purpose | Property | Notes |
 | -- | -- | -- |
 | Trigger impulse | `Trigger GA` (`gaTrigger`) | Rising edge (=1) starts or extends the timer. Optional 0 can cancel the cycle. |

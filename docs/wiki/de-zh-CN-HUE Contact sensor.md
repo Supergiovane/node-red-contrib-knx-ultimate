@@ -11,14 +11,14 @@ permalink: /wiki/de-zh-CN-HUE%20Contact%20sensor
 Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und das verfügbare Gerät wird beim Eingeben angezeigt.
 
 **Allgemein**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | Wählen Sie das zu verwendende KNX -Portal |
 | Hua Bridge | Wählen Sie die zu verwendende Tonbrücke aus |
 | Farbtonsensor | Hue -Kontaktsensor (automatische Fertigstellung) |
-
 | Eigenschaften | Beschreibung |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| -- | -- |
 | Kontakt | Wenn der Sensor ein-/aus ist: Senden Sie den KNX -Wert _true_ (aktivieren/eins), ansonsten _false_ |
 
 ### Ausgabe

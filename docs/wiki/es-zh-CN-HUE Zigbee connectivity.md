@@ -8,12 +8,14 @@ permalink: /wiki/es-zh-CN-HUE%20Zigbee%20connectivity
 <p> Este nodo lee el estado de conexión Zigbee desde el dispositivo HUE y lo publica a KNX.</p>
 Ingrese el nombre del dispositivo KNX o la dirección de grupo en el campo GA, y se asociará automáticamente cuando se ingrese.
 **convencional**
+
 | Propiedades | Descripción |
 |-|-|
 | KNX GW | KNX Gateway para el estado de liberación |
 | Puente Hue | Puente de Hue para usar |
 | Sensor de tono | Sensor/dispositivo de Hue que proporciona información de conexión Zigbee (autocompleto) |
 **Cartografía**
+
 | Propiedades | Descripción |
 |-|-|
 | Estado | Mapee la dirección del grupo KNX de la conectividad Zigbee._true_ Cuando está conectado, de lo contrario _false_.|

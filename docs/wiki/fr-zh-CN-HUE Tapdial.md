@@ -10,17 +10,20 @@ Onglet ###
 - **Mappage** - Sélectionnez l'adresse du groupe KNX et DPT correspondant à l'événement de rotation, prenant en charge DPT 3.007, 5.001, 232.600.
 - **comportement** - contrôle si la broche de sortie du nœud-rouge s'affiche.Lorsque la passerelle KNX n'est pas configurée, la broche reste activée afin que les événements continuent de saisir le processus.
 ### Paramètres généraux
+
 | Propriétés | Description |
 |-|-|
 | KNX GW | KNX Gateway for GA Automatic Competion.|
 | Hue Bridge | Hue Bridge fournit le pont Hue de Tap Dial. |
 | Hue Tap Dial |Appareil bouton (prend en charge l'achèvement automatique; bouton de rafraîchissement pour recueillir la liste).|
 Onglet de mappage ###
+
 | Propriétés | Description |
 |-|-|
 | GA rotatif | Adresse du groupe KNX qui reçoit des événements de rotation (prend en charge DPT 3.007, 5.001, 232.600).|
 | Nom |Description Nom de GA. |
 ### Sortir
+
 | # | Port | Télélée utile |
 |-|-| - | - |
 | 1 | Sortie standard | `msg.payload` (objet) Événement de teinte d'origine généré par Tap Dial. |

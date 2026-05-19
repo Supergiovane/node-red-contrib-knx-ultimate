@@ -11,18 +11,21 @@ El nodo del registrador registra todos los mensajes y emite un archivo XML compa
 Puede guardarlo en disco con el nodo del archivo, o enviarlo a FTP, etc. Este archivo se puede usar en ETS para diagnosticar o reproducir mensajes.
 Este nodo también puede contar el número de mensajes (por segundo o intervalo personalizado).<br/> <a href = "/node-red-contrib-knx-ultimate/wiki/logger-sample" target = "_ blank"> El ejemplo está aquí </a>
 ## configuración
+
 | Propiedades | Descripción |
 |-|-|
 | Puerta de entrada | KNX Gateway. |
 | Tema | El tema del nodo. |
 | Nombre | Nombre del nodo. |
 ## Archivos de diagnóstico de bus compatibles con ETS
+
 |Propiedades | Descripción |
 |-|-|
 | Temporizador de inicio automático | Inicie automáticamente el temporizador cuando se despliegue o se inicie. |
 |Salida nueva XML cada (en minutos) | ¿Cuántos minutos sale XML compatible con ETS? |
 | Número máximo de filas (0 = sin límite) |El número máximo de filas de XML en esta ventana de tiempo; 0 significa que no hay límite. Cuando también está activado el guardado en archivo, este valor representa el número máximo de filas del archivo; al alcanzar el límite, el archivo se **rotará**, eliminando progresivamente las filas más antiguas. |
 ## contador de mensajes KNX
+
 | Propiedades |Descripción |
 |-|-|
 | Temporizador de inicio automático | Inicie automáticamente el temporizador cuando se despliegue o se inicie.|

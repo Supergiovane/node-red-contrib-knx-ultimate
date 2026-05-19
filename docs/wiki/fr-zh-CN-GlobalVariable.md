@@ -16,6 +16,7 @@ Et permettre l'écriture au bus KNX via cette variable.
 - Pour des raisons de sécurité, veuillez modifier le nom par défaut.
 Remarque: Une fois l'écriture exécutée, `<name> _write` sera automatiquement effacée pour éviter une écriture répétée.
 ## installation
+
 | Propriétés | Description |
 |-|-|
 | Passerelle | KNX Gateway.|

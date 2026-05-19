@@ -8,6 +8,7 @@ permalink: /wiki/it-zh-CN-HUE%20Contact%20sensor
 <p> Questo nodo mappa l'evento del sensore di contatto Hue all'indirizzo del gruppo KNX.</p>
 Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo KNX e il dispositivo disponibile inizia a visualizzare quando si entra.
 **Generale**
+
 | Proprietà | Descrizione |
 |-|-|
 | KNX GW | Seleziona il portale KNX da utilizzare |

@@ -11,6 +11,7 @@ Il dispositivo viene interrotto in modo intelligente, controllando il possibile 
 Il nodo può riattivare automaticamente il carico.<br/>
 Questo nodo spegne un dispositivo (o dispositivi) alla volta in base all'ordine scelto. <br/>
 **Generale**
+
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | Portale KNX.È anche possibile non selezionare alcun gateway.In questo caso, verranno presi in considerazione solo i messaggi inseriti nel nodo.|
@@ -25,6 +26,7 @@ Seleziona il dispositivo per spegnere.Immettere il nome del dispositivo o il suo
 Immettere qualsiasi indirizzo di gruppo che indica il consumato dal dispositivo selezionato nella prima riga. **Questo è un parametro opzionale** .Se il dispositivo consuma più di una certa quantità di watt, significa che è in uso.Se consumato di meno, il dispositivo verrà considerato "non utilizzato" e il dispositivo verrà disattivato immediatamente.<br/>
 Se \*AutoRecovery \* è abilitato, il dispositivo verrà riattivato automaticamente quando scade il ritardo di ripristino.
 ## INVIO
+
 | Proprietà | Descrizione |
 | - |- |
 | `msg.readstatus = true` | Forzare il bus KNX di ciascun dispositivo nell'elenco per leggere il valore. _ **Il nodo stesso ha fatto tutte le operazioni** _, ma se necessario, è possibile utilizzare questo comando per forzare una rileggere il valore corrente in Watt.| | |

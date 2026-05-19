@@ -9,6 +9,7 @@ permalink: /wiki/it-zh-CN-HATranslator
 Può convertire il payload input in true /false booleano.<Br />
 Ogni riga nella casella di testo rappresenta un comando di traduzione.<br/>
 Puoi aggiungere le tue linee di traduzione.<br/>
+
 | Proprietà | Descrizione |
 |-|-|
 | Nome | Nome nodo. |

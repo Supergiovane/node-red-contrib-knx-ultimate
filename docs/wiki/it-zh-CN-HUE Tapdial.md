@@ -10,17 +10,20 @@ Tab ###
 - **Mappatura** - Selezionare l'indirizzo del gruppo KNX e DPT corrispondente all'evento di rotazione, supportando DPT 3.007, 5.001, 232.600.
 - **Comportamento** - Controlla se viene visualizzato il pin di uscita rosso -rosso.Quando il gateway KNX non è configurato, il pin rimane abilitato in modo che gli eventi continuino ad immettere il processo.
 ### impostazioni generali
+
 | Proprietà | Descrizione |
 |-|-|
 | KNX GW | KNX Gateway per il completamento automatico GA.|
 | Bridge Hue | Hue Bridge fornisce il ponte Hue di Tap Dial. |
 | Quadrante tocco di tonalità |Dispositivo a manopola (supporta il completamento automatico; pulsante Aggiorna per re-elenco).|
 Scheda di mappatura ###
+
 | Proprietà | Descrizione |
 |-|-|
 | Rotante ga | Indirizzo del gruppo KNX che riceve eventi di rotazione (supporta DPT 3.007, 5.001, 232.600). |
 | Nome | Descrizione Nome di Ga. |
 ### Produzione
+
 |#| Porta | Payload |
 |-|-|-|-|
 | 1 | Output standard | `msg.payload` (oggetto) Evento di tonalità originale generato da tap compositura. |

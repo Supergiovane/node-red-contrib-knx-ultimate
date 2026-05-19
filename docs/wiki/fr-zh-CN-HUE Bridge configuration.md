@@ -13,6 +13,7 @@ Ce nœud est utilisé pour s'inscrire avec Hue Bridge.
 Définissez l'IP du pont et cliquez sur **Connexion** . \
 Vous pouvez également remplir les informations d'identification manuellement.
 **conventionnel**
+
 | Propriétés | Description |
 |- | - |
 | IP |IP de Hue Bridge (nécessite fixe). |

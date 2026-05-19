@@ -11,12 +11,14 @@ Panoramica della scheda ###
 - **Scenari multipli** - Costruisci un elenco di regole, mappa diversi numeri di scena KNX per accontentare le scene e selezionare il metodo di chiamata di _active_ / _dynamic \ _parlette_ / _static_.
 - **Comportamento** - Controlla se viene visualizzato il pin di uscita rosso -rosso.Quando il gateway KNX non è configurato, il pin rimane abilitato in modo che l'evento Bridge continui ad entrare nel processo.
 ### impostazioni generali
+
 | Proprietà | Descrizione |
 |-|-|
 | KNX GW | Un gateway KNX che fornisce directory di indirizzi di completamento automatico.|
 | Bridge Hue | Hue Bridge che ospita la scena. |
 | SCENA HUE |Scena da chiamare (il completamento automatico è supportato; il pulsante di aggiornamento riprenderà l'elenco).|
 Scheda di mappatura ###
+
 | Proprietà | Descrizione |
 |-|-|
 | Ricorda Ga | Chiama l'indirizzo del gruppo KNX della scena.Utilizzare DPT 1.xxx per inviare un valore booleano o utilizzare DPT 18.xxx per inviare un numero di scena KNX.|
@@ -25,6 +27,7 @@ Scheda di mappatura ###
 | # |Visualizzato quando viene selezionata la scena KNX DPT, utilizzata per selezionare il numero di scena da inviare.|
 | Stato GA | Opzionale GA booleano al feedback se la scena è attiva.|
 Scheda ### multi-scene
+
 | Proprietà | Descrizione |
 |-|-|
 | Ricorda Ga | Usa GA di DPT 18.001 per selezionare una scena per numero di scena KNX. |

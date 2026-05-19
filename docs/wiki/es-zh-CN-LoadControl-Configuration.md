@@ -11,6 +11,7 @@ El dispositivo se apaga de manera inteligente, verificando el posible consumo de
 El nodo puede reactivar automáticamente la carga.<br/>
 Este nodo apaga un dispositivo (o dispositivos) a la vez según el pedido que elija. <br/>
 **General**
+
 | Propiedades | Descripción |
 |-|-|
 | Gateway | Knx Portal.También es posible no seleccionar ninguna puerta de enlace.En este caso, solo se considerarán los mensajes ingresados ​​en el nodo. |
@@ -25,6 +26,7 @@ Seleccione el dispositivo para apagar.Ingrese el nombre del dispositivo o su dir
 Ingrese cualquier dirección de grupo que indique lo consumido por el dispositivo seleccionado en la primera línea. **Este es un parámetro opcional** . Si el dispositivo consume más de una cierta cantidad de vatios, significa que está en uso.Si se consume menos, el dispositivo se considerará "no utilizado" y el dispositivo se apagará de inmediato. <br/>
 Si \*Autorecovery \* está habilitado, el dispositivo se reactivará automáticamente cuando expire el retraso de reinicio.
 ## Ingresar
+
 | Propiedades | Descripción |
 |-|-|
 | `msg.readstatus = true` | Force el bus KNX de cada dispositivo en la lista a leer el valor._ **El nodo en sí ha realizado todas las operaciones** _, pero si es necesario, puede usar este comando para forzar un relevo del valor actual en Watt.| | |

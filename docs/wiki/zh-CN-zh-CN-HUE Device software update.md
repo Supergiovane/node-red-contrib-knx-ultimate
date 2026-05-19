@@ -12,6 +12,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Device%20software%20update
 您正在打字。
 
 **一般的**
+
 |属性|描述|
 | - | - |
 |KNX GW |选择要使用的KNX门户|
@@ -19,6 +20,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Device%20software%20update
 | HUE Device | 要监控的 HUE 设备（自动补全） |
 
 **映射**
+
 |属性|说明|
 |--|--|
 | 状态 | 映射软件更新的 KNX 组地址：可用/准备/安装中为 _true_，否则 _false_ |

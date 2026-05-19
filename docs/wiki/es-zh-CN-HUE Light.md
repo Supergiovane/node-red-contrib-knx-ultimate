@@ -7,6 +7,7 @@ permalink: /wiki/es-zh-CN-HUE%20Light
 ---
 <p> Este nodo le permite controlar las luces de tono de Philips y las luces agrupadas, y también enviar el estado de esta luz al bus KNX.</p>
 **General**
+
 | Propiedades | Descripción |
 |-|-|
 | KNX GW | Seleccione el portal KNX para usar |
@@ -17,12 +18,14 @@ permalink: /wiki/es-zh-CN-HUE%20Light
 Aquí puede seleccionar la dirección KNX que desea vincular a las luces/estado de tono disponibles.<br/>
 Comience a ingresar el campo GA, el nombre o la dirección de grupo del dispositivo KNX, y el dispositivo disponible comienza a mostrar al ingresar.
 **cambiar**
+
 | Propiedades | Descripción |
 |-|-|
 | Control | Este GA se usa para encender/apagar la luz de tono por el valor booleano de KNX de True/False |
 | Estado | Enlace a la dirección de grupo de estado Switch de la luz |
 <br/>
 **oscuro**
+
 | Propiedades | Descripción |
 |-|-|
 | Control Dim | Atenuación relativamente oscura.Puede establecer la velocidad de atenuación en la pestaña \*\* _Behavior_ **.|
@@ -33,6 +36,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 | Brillo tenue máximo | Brillo máximo que la lámpara puede lograr.Por ejemplo, si desea ajustar la luz, la luz dejará de atenuar en el % especificado del brillo.|
 <br/>
 **Blanco ajustable**
+
 | Propiedades | Descripción |
 |-|-|
 | Control Dim | Use DPT 3.007 atenuación para cambiar la temperatura blanca de la lámpara de tono.Puede establecer la velocidad de atenuación en la pestaña \*\* _Behavior_ \*\*. |
@@ -43,6 +47,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 | Revertir la dirección tenue | Invierta la dirección tenue.|
 <br/>
 \*\*Rgb/hsv \*\*
+
 | Propiedades | Descripción |
 |-|-|
 | **Parte RGB** ||
@@ -58,6 +63,7 @@ Consejo: Para la "V" (brillo) del HSV, utilice los controles estándar de la pes
 <br/>
 **Efecto**
 _Non-Hue Efectos básicos_
+
 | Propiedades | Descripción |
 |-|-|
 | Blink | _true_ flashea la luz, _false_ deja de flashear. Interruptores alternativos, adecuados para indicaciones.Admite todas las luces de tono.|
@@ -68,8 +74,9 @@ En la tabla **Hue Native Effects** , asigne el valor de KNX a los efectos respal
 - (Opcional) Configure una dirección de grupo de estado: Cuando el puente de Hue informa el cambio de efecto, el nodo vuelve a escribir el valor del mapa;Si no se encuentra ningún mapa, se envía el nombre del efecto original (se requiere la clase de texto DPT, por ejemplo 16.xxx).
 <br/>
 **Comportamiento**
+
 | Propiedades | Descripción |
-| ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------- |
+| -- | -- |
 | Lea el estado al inicio | Lea el estado de luz del tono en el inicio de nodo-rojo o la implementación completa de nodo-rojo y luego envíe ese estado al bus KNX |
 | Estado de brillo KNX | Cada vez que se enciende/apagan la luz de tono, se actualiza el estado de la dirección del grupo de brillo KNX. La opción es **Enviar 0% cuando el tono está apagado. Cuando se enciende el tono, restaure los valores anteriores (comportamiento de KNX predeterminado) y ** * como es (comportamiento de tono predeterminado)**. Si tiene un atenuador KNX con estado de brillo, como MDT, la opción recomendada es \*\*\*, y cuando la luz del tono está apagada, envíe 0%. Cuando el tono se enciende, restaure el valor anterior (comportamiento predeterminado KNX) \*\*\*|
 | Actualizar el estado local en caché de Hue a partir de escrituras del bus KNX | Opcion avanzada, activada por defecto. Si esta activa, las escrituras que llegan desde el bus KNX tambien actualizan inmediatamente el estado local en cache de Hue del nodo, sin esperar al feedback/evento del bridge Hue. Esto da reacciones locales mas rapidas y respuestas inmediatas de lectura KNX mas coherentes, especialmente cuando la luz o el grupo estan apagados. Desactivela si prefiere que la cache siga solo el feedback/evento real del bridge Hue. |

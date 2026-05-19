@@ -11,12 +11,14 @@ La **Hue Scene** Node publica la escena del tono a KNX y puede enviar los evento
 - **Múltiples escenarios** - Cree una lista de reglas, asigne diferentes números de escena KNX a escenas de Hue y seleccione el método de llamadas de _Active_ / _Dynamic \ _palette_ / _static_.
 - **Comportamiento** - Controla si se muestra el pin de salida de nodo -rojo.Cuando la puerta de enlace KNX no está configurada, el PIN permanece habilitado para que el evento del puente continúe ingresando al proceso.
 ### Configuración general
+
 | Propiedades | Descripción |
 |-|-|
 | KNX GW | Una puerta de enlace KNX que proporciona directorio de direcciones de finalización automática.|
 | Puente Hue | Hue Bridge que alberga la escena. |
 | Escena de tono |La escena a llamar (se admite el botón de actualización; el botón de actualización recuperará la lista).|
 Pestaña de mapeo ###
+
 | Propiedades | Descripción |
 |-|-|
 | RECUERDO GA | Llame a la dirección del grupo KNX de la escena.Use DPT 1.xxx para enviar un valor booleano, o use DPT 18.xxx para enviar un número de escena KNX.|
@@ -25,6 +27,7 @@ Pestaña de mapeo ###
 | # | Se muestra cuando se selecciona el DPT de la escena KNX, se usa para seleccionar el número de escena para enviar.|
 | Estado GA | GA booleano opcional a los comentarios si la escena está activa.|
 ### Pestaña Multi-Scene
+
 | Propiedades | Descripción |
 |-|-|
 | RECUERDO GA | Use el GA de DPT 18.001 para seleccionar una escena por número de escena KNX. |

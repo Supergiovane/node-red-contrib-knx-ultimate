@@ -10,13 +10,18 @@ Il nodo registra tutti i telegrammi che vengono trasferiti al bus KNX e memorizz
 Quindi risponde alla richiesta di lettura inviando tali valori memorizzati al bus in base alla richiesta.
 Se l'indirizzo di gruppo da leggere non ha ancora valore, il nodo risponderà con il valore predefinito.
 Questo nodo risponderà solo all'indirizzo di gruppo specificato nel campo **Response** JSON.
-Per impostazione predefinita, esiste un testo JSON **Esempio ** precompilato**che puoi semplicemente cambiare/eliminare il contenuto.Assicurati ** NON premere**per usarlo!!! ** Configurazione** | Proprietà | Descrizione |
+Per impostazione predefinita, esiste un testo JSON **Esempio ** precompilato**che puoi semplicemente cambiare/eliminare il contenuto.Assicurati ** NON premere**per usarlo!!!
+
+** Configurazione**
+
+| Proprietà | Descrizione |
 |-|-|
 | Gateway | Seleziona il portale KNX da utilizzare |
 | Risposta | Il nodo risponderà a una richiesta di lettura dall'indirizzo di gruppo specificato in questo array JSON.Il formato è specificato di seguito.|
 <br/>
 \*\*JSON FORMAT \*\*
 JSON è sempre una serie di oggetti contenenti ogni istruzione. Ogni istruzione dice al nodo cosa fare.
+
 | Proprietà | Descrizione |
 |-|-|
 | Nota | ** Chiave facoltativo** Nota per ottenere promemoria. Non verrà usato da nessuna parte.|

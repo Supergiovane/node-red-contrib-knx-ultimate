@@ -9,12 +9,14 @@ permalink: /wiki/es-zh-CN-HUE%20Device%20software%20update
 Comience a escribir el nombre o la dirección de grupo del dispositivo KNX en el campo GA, y los dispositivos disponibles comienzan a mostrar
 Estás escribiendo.
 **General**
+
 | Propiedades | Descripción |
 |-|-|
 | KNX GW | Seleccione el portal KNX para usar |
 | Puente Hua | Seleccione el puente de tono para usar |
 | Dispositivo de tono | Dispositivo HUE a ser monitoreado (Autocompleto) |
 **Cartografía**
+
 | Propiedades | Descripción |
 |-|-|
 | Estado | Dirección de grupo KNX para actualizaciones de software: _true_ disponible/preparación/instalación, de lo contrario _false_ |

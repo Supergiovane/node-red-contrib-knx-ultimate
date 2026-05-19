@@ -8,6 +8,7 @@ permalink: /wiki/es-zh-CN-SceneController-Configuration
 # Controlador de escena
 Este nodo es consistente con el controlador de la escena KNX: la escena se puede guardar y retirar.
 ## Configuración del nodo
+
 | Propiedades | Descripción |
 |-|-|
 | Puerta de entrada | Gateway Knx seleccionado.|
@@ -18,6 +19,7 @@ Este nodo es consistente con el controlador de la escena KNX: la escena se puede
 ## Configuración de escenarios
 Como un controlador de escena KNX real, agregue dispositivos a la escena; Cada fila representa un dispositivo.
 Una vez que se recibe un nuevo valor del bus, el nodo registrará automáticamente el último valor del actuador en la escena.
+
 | Propiedades | Descripción |
 |-|-|
 | Botón Agregar | Agregue una nueva fila. |

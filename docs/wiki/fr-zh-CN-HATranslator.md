@@ -9,6 +9,7 @@ permalink: /wiki/fr-zh-CN-HATranslator
 Il peut convertir la charge utile d'entrée en true / false booléen.<br />
 Chaque ligne de la zone de texte représente une commande de traduction.<br/>
 Vous pouvez ajouter vos propres lignes de traduction.<br/>
+
 | Propriétés | Description |
 |-|-|
 | Nom | Nom du nœud. |

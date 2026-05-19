@@ -9,12 +9,14 @@ permalink: /wiki/fr-zh-CN-HUE%20Device%20software%20update
 Commencez à taper le nom ou l'adresse de groupe du périphérique KNX dans le champ GA, et les appareils disponibles commencent à afficher
 Vous tapez.
 **Général**
+
 | Propriétés | Description |
 |-|-|
 | KNX GW | Sélectionnez le portail KNX à utiliser |
 | Hua Bridge | Sélectionnez le pont de ton à utiliser |
 | Dispositif Hue | Dispositif de teinte à surveiller (assureur automatique) |
 **Mappage**
+
 | Propriétés | Description |
 |-|-|
 | Statut | Adresse du groupe KNX pour le mappage des mises à jour du logiciel: _true_ Disponible / préparation / installation, sinon _false_ |

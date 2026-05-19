@@ -11,6 +11,7 @@ Luego responde a la solicitud de lectura enviando dichos valores memorizados al 
 Si la dirección del grupo que se lee aún no tiene valor, el nodo responderá con el valor predeterminado.
 Este nodo responderá solo a la dirección de grupo especificada en el campo **Respuesta** JSON.
 De manera predeterminada, hay un texto JSON de "respuesta" **Precompilado ** que simplemente puede cambiar/eliminar contenido.¡Asegúrese de que**no presione ** para usarlo!!!**Configuración**
+
 | Propiedades | Descripción |
 |-|-|
 | Puerta de enlace | seleccione el portal KNX para usar |
@@ -18,6 +19,7 @@ De manera predeterminada, hay un texto JSON de "respuesta" **Precompilado ** que
 <br/>
 \*\*json format \*\*
 JSON siempre es una variedad de objetos que contienen cada instrucción. Cada instrucción le dice al nodo qué hacer.
+
 | Propiedades |Descripción |
 |-|-|
 | Nota | **Clave de nota opcional** para obtener recordatorios. No se usará en ningún lado.|

@@ -25,13 +25,7 @@ _ **El nodo de la escena guarda automáticamente los valores actualizados de tod
 |Propiedad |Descripción |
 |------------- |---------------------------------------------------------------------------------------------------- |
 |Botón Agregar |Agregue una fila a la lista.|
-|Campo de la fila |El primer campo es la dirección de grupo, el segundo es el punto de datos, tercero es el valor predeterminado para este dispositivo en la escena (la función _scene save_ puede anular esto).A continuación, se encuentra el nombre del dispositivo. 
- Para insertar un _Pause_, escriba **espera ** en el primer campo y un número en el último campo, que representa el tiempo (en milisegundos) de la pausa, por ejemplo**2000 ** 
- 
- El comando**espera ** acepta también valores que indican segundos o horas. 
- a un valor en segundo lugar, add**ssule, por ejemplo, los valores de los numéricos, por ejemplo, por ejemplo, por ejemplo, los valores de los numéricos.( ** 12s**) 
- Para establecer un valor en minutos, agregue ** m**después del valor numérico, por ejemplo ( ** 5m**) 
- Para establecer un valor en horas, agregue ** h**después del valor numérico, por ejemplo ( ** 1H** ) |
+|Campo de la fila |El primer campo es la dirección de grupo, el segundo es el punto de datos, tercero es el valor predeterminado para este dispositivo en la escena (la función _scene save_ puede anular esto).A continuación, se encuentra el nombre del dispositivo.  <br/> <br/> Para insertar un _pause_, escriba **espera ** en el primer campo y un número en el último campo, que representa el tiempo (en milisegundos) de la pausa, por ejemplo**2000 **  <br/> <br/> El comando **espera** también acepta segundos, minutos y horas. <br/> <br/> Para segundos: add**ssule, por ejemplo, los valores de los numéricos, por ejemplo, por ejemplo, por ejemplo, los valores de los numéricos.( ** 12s**)  <br/> <br/> Para minutos, agregue ** m**después del valor numérico, por ejemplo ( ** 5m**)  <br/> <br/> Para horas, agregue ** h**después del valor numérico, por ejemplo ( ** 1H** )  |
 |Botón eliminar |Elimine un dispositivo de la lista.|
 
 # Salida de mensajes desde el nodo del controlador de escena

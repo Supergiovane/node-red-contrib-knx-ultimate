@@ -11,6 +11,7 @@ permalink: /wiki/de-zh-CN-HUE%20Camera%20motion
 Starten Sie in das GA -Eingangsfeld (Name oder Gruppenadresse), um die KNX GA zu verknüpfen.Das Matching -Gerät wird beim Eingang angezeigt.
 
 **konventionell**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX Gateway | Wählen Sie das zu verwendende KNX -Gateway |
@@ -19,6 +20,7 @@ Starten Sie in das GA -Eingangsfeld (Name oder Gruppenadresse), um die KNX GA zu
 | Status bei Startup lesen | Lesen Sie den aktuellen Wert bei Start/Wiederverbindung und senden Sie an KNX (Standard: no) |
 
 **Abbildung**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Bewegung |KNX -Gruppenadresse (boolean) für Kamerabewegungen. Empfohlener DPT: <b> 1.001 </b> |

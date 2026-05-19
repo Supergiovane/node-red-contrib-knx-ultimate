@@ -16,6 +16,7 @@ Panoramica ##
 - Per motivi di sicurezza, modificare il nome predefinito.
 Nota: dopo l'esecuzione della scrittura, `<name> _Write` verrà automaticamente cancellato per evitare la scrittura ripetuta.
 ## impostare
+
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | KNX Gateway. |

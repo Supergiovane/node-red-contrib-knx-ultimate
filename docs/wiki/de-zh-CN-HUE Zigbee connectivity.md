@@ -11,6 +11,7 @@ permalink: /wiki/de-zh-CN-HUE%20Zigbee%20connectivity
 Geben Sie den KNX -Gerätenamen oder die Gruppenadresse in das Feld GA ein und assoziieren automatisch bei der Eingabe.
 
 **konventionell**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | KNX Gateway zum Freigabestatus |
@@ -18,6 +19,7 @@ Geben Sie den KNX -Gerätenamen oder die Gruppenadresse in das Feld GA ein und a
 | Farbtonsensor | HUE -Sensor/Gerät zur Verfügung stellt ZigBee -Verbindungsinformationen (Autokaponetion) |
 
 **Abbildung**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Status | Kartieren Sie die KNX -Gruppenadresse der Zigbee -Konnektivität._true_ Wenn verbunden, sonst _false_. |

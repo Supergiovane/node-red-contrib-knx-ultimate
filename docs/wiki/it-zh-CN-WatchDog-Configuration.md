@@ -17,6 +17,7 @@ Watchdog fornisce test a due livelli:
 - Ethernet + KNX -TP: controlla l'intero collegamento (Ethernet → TP).È richiesto un dispositivo fisico che risponde alle richieste di lettura.
 Adatto per allarmi di errore di errore/connessione (notifiche e -mail, commutazione automatica del gateway di backup, ecc.).
 ## Impostazioni (impostazioni)
+
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | Gateway KNX selezionato. |
@@ -30,6 +31,7 @@ Adatto per allarmi di errore di errore/connessione (notifiche e -mail, commutazi
 > Ethernet + KNX TP: rilevamento completo (supporta router/interfaccia).Invia leggi al dispositivo fisico e attendi la risposta;Verranno segnalati eventuali guasti su Ethernet o TP.Si prega di configurare uno stato **** GA in ETS per un attuatore che risponde alla lettura. <br/>
 <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" walidth = "90%"> <br/>
 ## opzioni avanzate
+
 | Proprietà | Descrizione |
 |-|-|
 | Retry Interval (in secondi) | Intervallo di rilevamento in secondi. |

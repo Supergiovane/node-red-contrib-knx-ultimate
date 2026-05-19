@@ -8,16 +8,19 @@ permalink: /wiki/es-zh-CN-HUE%20Battery
 <p> Este nodo sincroniza el nivel de batería del dispositivo HUE para KNX y desencadena un evento cuando cambia el valor.</p>
 Ingrese el nombre del dispositivo KNX o la dirección de grupo en el campo GA para completar automáticamente; Haga clic en el botón Actualizar junto al "Sensor Hue" para recargar la lista de dispositivos Hue.
 **convencional**
+
 | Propiedades | Descripción |
 |-|-|
 | KNX GW | KNX Gateway para liberar potencia (la configuración de mapeo KNX se mostrará solo después de la selección).|
 | Puente Hue | Puente de Hue utilizado. |
 | Sensor de tono |Dispositivo/sensor HUE que proporciona información de energía (admite la finalización automática y la actualización).|
 **Cartografía**
+
 | Propiedades | Descripción |
 |-|-|
 | Batería | Dirección de grupo KNX del porcentaje de batería (0-100%), DPT recomendado: <b> 5.001 </b>. |
 **Comportamiento**
+
 |Propiedades | Descripción |
 |-|-|
 | Lea el estado en el inicio | Lea el poder actual durante la implementación/reconexión y publique a KNX.Valor predeterminado: "Sí".|

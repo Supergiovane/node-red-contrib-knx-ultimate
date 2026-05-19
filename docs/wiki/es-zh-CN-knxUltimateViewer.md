@@ -9,6 +9,7 @@ permalink: /wiki/es-zh-CN-knxUltimateViewer
 Muestre todas las direcciones de grupo y sus valores en el ensamblaje del tablero.<br/>
 </p>
 # Visor de KNX
+
 | Propiedades | Descripción |
 |-|-|
 | Puerta de entrada | KNX Gateway |

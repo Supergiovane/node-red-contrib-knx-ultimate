@@ -8,6 +8,7 @@ permalink: /wiki/IoT-Bridge-Configuration
 # KNX ↔ IoT Bridge
 The bridge normalises KNX telegrams into structured messages that can be consumed by IoT transports (MQTT, REST, Modbus) and accepts flow inputs to write back to the KNX bus. It mirrors the runtime logic of the Node-RED editor help and shows how to hook the node to third-party connectors.
 ## Mapping recap
+
 | Field | Purpose | Notes |
 | -- | -- | -- |
 | **Label** | Friendly name | Used in the status text and `msg.bridge.label`. |

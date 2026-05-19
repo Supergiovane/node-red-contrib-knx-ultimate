@@ -8,6 +8,7 @@ permalink: /wiki/es-zh-CN-HUE%20Contact%20sensor
 <P> Este nodo asigna el evento del sensor de contacto de tono a la dirección del grupo KNX.</p>
 Comience a ingresar el campo GA, el nombre o la dirección de grupo del dispositivo KNX, y el dispositivo disponible comienza a mostrar al ingresar.
 **General**
+
 | Propiedades | Descripción |
 |-|-|
 | KNX GW | Seleccione el portal KNX para usar |

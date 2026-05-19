@@ -10,18 +10,21 @@ Il nodo Logger registra tutti i messaggi e emette un file XML compatibile con il
 È possibile salvarlo su disco con il nodo file o inviarlo a FTP, ecc.Questo file può essere utilizzato in ETS per diagnosticare o riprodurre messaggi di riproduzione.
 Questo nodo può anche contare il numero di messaggi (al secondo o intervallo personalizzato). <br/> <a href = "/node-red-contrib-knx-ultimate/wiki/logger-sample" target = "_ blank"> L'esempio è qui </a>
 ## impostare
+
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | KNX Gateway.|
 | Argomento | L'argomento del nodo.|
 | Nome | Nome nodo. |
 ## ETS File diagnostiche del bus compatibile
+
 | Proprietà | Descrizione |
 |-|-|
 | Timer di avvio automatico | Avviare automaticamente il timer quando distribuito o avviato.|
 | Output Nuovo XML ogni (in minuti) | Quanti minuti è output XML compatibile con ETS?|
 | Numero massimo di righe (0 = nessun limite) | Il numero massimo di righe di XML in questa finestra temporale; 0 significa nessun limite.|
 ## contatore di messaggi KNX
+
 | Proprietà | Descrizione |
 |-|-|
 | Timer di avvio automatico | Avviare automaticamente il timer quando distribuito o avviato.|

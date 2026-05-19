@@ -12,6 +12,7 @@ Il nodo plug Hue maps Philips Hue Smart Sockets to KNX Group Indirizzati da impl
 - Feedback di stato dalla piattaforma Hue;
 - Monitoraggio opzionale `Power_state` (ON/STANDBY).
 ## configurazione
+
 |Fields | Descrizione |
 |-|-|
 | KNX GW | Gateway KNX usati |

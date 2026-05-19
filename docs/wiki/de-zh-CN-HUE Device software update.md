@@ -12,6 +12,7 @@ Geben Sie den Namen oder die Gruppenadresse des KNX -Geräts im Feld GA ein, und
 Sie tippen.
 
 **Allgemein**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | Wählen Sie das zu verwendende KNX -Portal |
@@ -19,6 +20,7 @@ Sie tippen.
 | Hue -Gerät | Zu überwachender Farbtöne (Autokaponetion) |
 
 **Abbildung**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Status | KNX -Gruppenadresse für Mapping -Software -Updates: _true_ verfügbar/Vorbereitung/Installation, ansonsten _false_ |

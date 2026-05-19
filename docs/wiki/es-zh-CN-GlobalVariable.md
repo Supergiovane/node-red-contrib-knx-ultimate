@@ -17,6 +17,7 @@ Y permita escribir en el bus KNX a través de esta variable.
 - Por razones de seguridad, modifique el nombre predeterminado.
 Nota: Después de ejecutar la escritura, `<same> _Write` se borrará automáticamente para evitar la escritura repetida.
 ## configuración
+
 | Propiedades | Descripción |
 |-|-|
 | Puerta de entrada | KNX Gateway.|

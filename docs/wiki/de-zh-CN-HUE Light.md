@@ -9,6 +9,7 @@ permalink: /wiki/de-zh-CN-HUE%20Light
 <p> Mit diesem Knoten können Sie Philips -Tonlichter und gruppierte Lichter steuern und den Status dieses Lichts an den KNX -Bus senden.</p>
 
 **Allgemein**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | Wählen Sie das zu verwendende KNX -Portal |
@@ -23,6 +24,7 @@ Hier können Sie die KNX -Adresse auswählen, die Sie mit den verfügbaren Tonli
 Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und das verfügbare Gerät wird beim Eingeben angezeigt.
 
 **ändern**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Kontrolle | Mit diesem GA wird das Tonlicht durch booleschen KNX -Wert von True/False | ein-/ausgeschaltet |
@@ -31,6 +33,7 @@ Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und
 <br/>
 
 **dim**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Kontrolle dim | Relativ verdunkeltes Dimmen.Sie können die Dimmgeschwindigkeit in der Registerkarte \*\* _behavior einstellen.|
@@ -39,8 +42,7 @@ Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und
 | Dunkle Geschwindigkeit (MS) | Winzige Geschwindigkeit in Millisekunden.Dies funktioniert für **Licht ** und auch für**einstellbare weiße \*\*geplante Datenpunkte.Es wird von 0% bis 100% berechnet.|
 | Die neueste schwache Helligkeit |Die niedrigste Helligkeit, die das Licht erreichen kann.Wenn Sie beispielsweise das Licht drehen möchten, hört das Licht auf, an der angegebenen Helligkeit %zu dimmen.|
 | Maximale schwache Helligkeit | Maximale Helligkeit, die die Lampe erreichen kann. Wenn Sie beispielsweise das Licht einstellen möchten, hört das Licht auf, an der angegebenen Helligkeit %zu dimmen. |
-
-<br/> ** einstellbares Weiß** | Eigenschaften | Beschreibung |
+| **einstellbares Weiß** | Eigenschaften | Beschreibung |
 |-|-|
 |Kontrolle dim | Verwenden Sie DPT 3.007 Dimming, um die weiße Temperatur der Tonlampe zu ändern. Sie können die Dimmgeschwindigkeit in \*\* _behavior_ \*\* Tab einstellen. |
 | Kontrolle % | Verwenden Sie DPT 5.001, um die weiße Farbtemperatur zu ändern. 0 ist warm, 100 ist kalt |
@@ -51,6 +53,7 @@ Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und
 <br/>
 
 \*\*Rgb/hsv \*\*
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | ** RGB -Teil** ||
@@ -66,6 +69,7 @@ Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und
 Tipp: Für die "V" (Helligkeit) des HSV verwenden Sie bitte die Standardsteuerungen der Registerkarte ** Dim** .
 
 <br/> **Wirkung** _Non-Hue Basic Effects_
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Blink | _true_ blinkt das Licht, _false_ hört auf zu blinken. Alternative Schalter, geeignet für Eingabeaufforderungen.Unterstützt alle Farbtöne.|
@@ -78,8 +82,8 @@ In der Tabelle ** Hue native Effekte** den KNX -Wert auf die durch das Gerät un
 - Senden Sie kartierte KNX -Werte, um den entsprechenden Effekt auszulösen.
 - (optional) Konfigurieren Sie eine Statusgruppenadresse: Wenn die Hue Bridge die Effektänderung meldet, schreibt der Knoten den Kartenwert zurück;Wenn keine Karte gefunden wird, wird der ursprüngliche Effektname gesendet (die Textklasse -DPT ist erforderlich, z. B. 16.xxx).
 
-<br/> **Verhalten** | Eigenschaften | Beschreibung |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------/ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Verhalten** | Eigenschaften | Beschreibung |
+| -- | -- | -- |
 | Lesen Sie den Status beim Start | Lesen Sie den Status des Farbtonlichts im Start von Knotenrot oder die vollständige Bereitstellung von Knoten-Red und senden Sie diesen Status an den KNX-Bus |
 | KNX Helligkeitsstatus | Immer wenn das Tonlicht ein-/ausgeschaltet ist, wird der Status der KNX -Helligkeitsgruppe aktualisiert.Die Option ist ** 0% senden, wenn der Farbton ausgeschaltet ist.Wenn der Farbton eingeschaltet ist, stellen Sie die vorherigen Werte (Standard -KNX -Verhalten) wieder her und ** * wie ist (Standard -Hue -Verhalten)**.Wenn Sie einen KNX -Dimmer mit Helligkeitsstatus wie MDT haben, lautet die empfohlene Option \*\*\*, und wenn das Hue -Licht ausgeschaltet ist, senden Sie 0%.Wenn der Ton eingeschaltet ist, stellen Sie den vorherigen Wert (Standard -KNX -Verhalten) \*\*\*| wieder her. |
 | Lokalen Hue-Cache durch KNX-Bus-Schreibtelegramme aktualisieren | Erweiterte Option, standardmaessig aktiviert. Wenn aktiv, aktualisieren Schreibtelegramme vom KNX-Bus sofort auch den lokal gecachten Hue-Zustand des Nodes, ohne auf Feedback/Ereignisse der Hue Bridge zu warten. Das sorgt fuer schnellere lokale Reaktionen und konsistentere sofortige KNX-Leseantworten, besonders wenn Leuchte oder Gruppe AUS sind. Deaktivieren Sie die Option, wenn der Cache nur echten Rueckmeldungen/Ereignissen der Hue Bridge folgen soll. |

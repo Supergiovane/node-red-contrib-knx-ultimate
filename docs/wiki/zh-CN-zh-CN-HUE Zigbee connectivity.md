@@ -11,6 +11,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Zigbee%20connectivity
 在 GA 字段输入 KNX 设备名或组地址，输入时会自动联想。
 
 **常规**
+
 |属性|说明|
 |--|--|
 | KNX GW | 用于发布状态的 KNX 网关 |
@@ -18,6 +19,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Zigbee%20connectivity
 | HUE Sensor | 提供 Zigbee 连接信息的 HUE 传感器/设备（自动补全） |
 
 **映射**
+
 |属性|说明|
 |--|--|
 | 状态 | 映射 Zigbee 连接性的 KNX 组地址。连接时为 _true_，否则 _false_。|

@@ -6,15 +6,18 @@ permalink: /wiki/it-Staircase-Configuration
 ---
 ---
 # Temporizzatore scale
-Il nodo **Temporizzatore scale KNX** replica il timer delle luci scala. Quando la GA di impulso riceve un fronte attivo il portone viene acceso, parte il conto alla rovescia e (se configurato) viene emesso un preavviso prima dello spegnimento. Sono disponibili override manuale, blocco e generazione di eventi per l'integrazione con Node-RED.
+Il nodo **Temporizzatore scale KNX** replica il timer delle luci scala. Quando la GA di impulso riceve un fronte attivo la luce scala viene accesa, parte il conto alla rovescia e (se configurato) viene emesso un preavviso prima dello spegnimento. Sono disponibili override manuale, blocco e generazione di eventi per l'integrazione con Node-RED.
+
 ## Indirizzi di gruppo
-|Scopo|Proprietà|Note|
-|--|--|--|
+
+| Scopo | Proprietà | Note |
+| -- | -- | -- |
 | Impulso | `Trigger GA` (`gaTrigger`) | Il valore `1` avvia o estende il timer. Con l'opzione "Il valore 0 annulla" lo `0` spegne subito la luce. |
 | Uscita | `Output GA` (`gaOutput`) | Pilota l'attuatore (DPT predefinito 1.001). |
 | Stato | `Status GA` (`gaStatus`) | Replica lo stato attivo e il flag di preavviso. |
 | Override | `gaOverride` | Mantiene la luce accesa finché resta a `1` e sospende il timer. |
 | Blocco | `gaBlock` | Evita nuove attivazioni e può forzare lo spegnimento. |
+
 ## Timer e preavviso
 - **Durata timer** definisce il tempo base del ciclo.
 - **Nuovo impulso** consente di riavviare, prolungare o ignorare gli impulsi successivi.

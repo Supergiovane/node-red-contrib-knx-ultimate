@@ -11,6 +11,7 @@ permalink: /wiki/de-zh-CN-HUE%20Humidity%20sensor
 Starten Sie die Eingabe (Name oder Gruppenadresse) im GA -Feld, um die KNX GA zu verbinden.Das Matching -Gerät wird beim Eingang angezeigt.
 
 **konventionell**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX Gateway | Wählen Sie das zu verwendende KNX -Gateway |
@@ -19,6 +20,7 @@ Starten Sie die Eingabe (Name oder Gruppenadresse) im GA -Feld, um die KNX GA zu
 | Status bei Startup lesen | Lesen Sie den aktuellen Wert bei Start/Wiederverbindung und senden Sie an KNX (Standard: no) |
 
 **Abbildung**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 |Luftfeuchtigkeit | KNX GA mit relativer Luftfeuchtigkeit %. Empfohlener DPT: <b> 9.007 </b> |

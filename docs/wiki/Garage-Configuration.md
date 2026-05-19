@@ -8,6 +8,7 @@ permalink: /wiki/Garage-Configuration
 # Garage Door configuration
 The **KNX Garage** node drives a motorised door using dedicated group addresses for direct commands, toggle impulses, hold-open / disable logic and safety sensors. It can optionally re-close the door after a timeout, emit movement / obstruction indicators and report events to the Node-RED flow.
 ## Group addresses
+
 | Purpose | Property | Notes |
 | -- | -- | -- |
 | Direct command | `Command GA` (`gaCommand`) | Boolean GA: `true` opens, `false` closes. Default DPT 1.001. |

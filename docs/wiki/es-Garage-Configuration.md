@@ -8,6 +8,7 @@ permalink: /wiki/es-Garage-Configuration
 # Puerta de garaje
 El nodo **KNX Garage** controla un portón motorizado con GA dedicadas a mandos booleanos o impulsos, integra fotocélula y estado de obstrucción, permite mantener abierto o deshabilitar la lógica y dispone de cierre automático.
 ## Direcciones de grupo
+
 |Propósito|Propiedad|Notas|
 |--|--|--|
 | Mando directo | `Command GA` (`gaCommand`) | GA booleana: `true` abre, `false` cierra (DPT 1.001). |

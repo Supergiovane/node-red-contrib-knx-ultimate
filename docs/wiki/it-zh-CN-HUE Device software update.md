@@ -9,12 +9,14 @@ permalink: /wiki/it-zh-CN-HUE%20Device%20software%20update
 Inizia a digitare il nome o l'indirizzo di gruppo del dispositivo KNX nel campo GA e i dispositivi disponibili iniziano a visualizzare
 Stai digitando.
 **Generale**
+
 | Proprietà | Descrizione |
 |-|-|
 | KNX GW | Seleziona il portale KNX da utilizzare |
 | Bridge Hua | Seleziona il bridge tone da usare |
 | Dispositivo Hue | Dispositivo HUE da monitorare (completamento automatico) |
 **mappatura**
+
 | Proprietà | Descrizione |
 |-|-|
 | Stato | Indirizzo di gruppo KNX per gli aggiornamenti del software di mappatura: _true_ disponibile/preparazione/installazione, altrimenti _false_ |

@@ -8,6 +8,7 @@ permalink: /wiki/fr-Garage-Configuration
 # Porte de garage
 Le nœud **KNX Garage** pilote un portail motorisé en utilisant des GA dédiées pour les commandes booléennes ou par impulsion, gère la cellule photo/obstruction, autorise le maintien ouvert ou la désactivation et propose une refermeture automatique.
 ## Adresses de groupe
+
 |Usage|Propriété|Remarques|
 |--|--|--|
 | Commande directe | `Command GA` (`gaCommand`) | GA booléenne : `true` ouvre, `false` ferme (DPT 1.001). |

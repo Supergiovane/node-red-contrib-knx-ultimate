@@ -14,6 +14,7 @@ Questo nodo viene utilizzato per registrarsi con Hue Bridge.
 Imposta l'IP del ponte e fai clic su **Connetti** . \
 Puoi anche riempire manualmente le credenziali.
 **convenzionale**
+
 | Proprietà | Descrizione |
 |-|-|
 | IP |L'IP di Hue Bridge (richiede fisso). |

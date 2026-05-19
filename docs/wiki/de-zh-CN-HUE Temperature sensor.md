@@ -11,6 +11,7 @@ permalink: /wiki/de-zh-CN-HUE%20Temperature%20sensor
 Geben Sie in das Feld GA (Name oder Gruppenadresse) ein, um die KNX GA zu verkn체pfen.Ger채tevorschl채ge werden bei der Eingabe angezeigt.
 
 **Allgemein**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | W채hlen Sie das zu verwendende KNX -Gateway |
@@ -19,6 +20,7 @@ Geben Sie in das Feld GA (Name oder Gruppenadresse) ein, um die KNX GA zu verkn�
 | Status bei Startup lesen | Lesen Sie den aktuellen Wert w채hrend des Starts/Wiederverbindens und senden Sie an KNX (Standard: no) |
 
 **Abbildung**
+
 | Eigenschaften |Beschreibung |
 |-|-|
 | Temperatur | Temperatur (째 C) KNX GA. Empfohlener DPT: <b> 9.001 </b> |

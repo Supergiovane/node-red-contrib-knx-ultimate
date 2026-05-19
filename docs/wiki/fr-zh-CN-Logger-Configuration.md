@@ -10,18 +10,21 @@ Le nœud d'enregistrement enregistre tous les messages et publie un fichier XML 
 Vous pouvez l'enregistrer sur le disque avec le nœud de fichier, ou l'envoyer à FTP, etc.Ce fichier peut être utilisé dans ETS pour diagnostiquer ou lire des messages.
 Ce nœud peut également compter le nombre de messages (par seconde ou intervalle personnalisé).<br/> <a href = "/node-red-contrib-knx-ultimate/wiki/Logger-sample" Target = "_ Blank"> L'exemple est ici </a>
 ## installation
+
 | Propriétés | Description |
 |-|-|
 | Passerelle | KNX Gateway. |
 | Sujet | Le sujet du nœud. |
 | Nom | Nom du nœud. |
 ## fichiers de diagnostic de bus compatibles ETS
+
 |Propriétés |Description |
 |-|-|
 | Timer de démarrage automatique | Démarrez automatiquement la minuterie lors du déploiement ou du démarrage.|
 | Nouveau payload toutes les (en minutes) | Combien de minutes la sortie XML compatible ETS?|
 | Nombre maximum de lignes dans XML (0 = aucune limite) | Le nombre maximal de lignes de XML dans cette fenêtre temporelle; 0 signifie aucune limite. Lorsque la sauvegarde sur fichier est également activée, cette valeur représente le nombre maximal de lignes du fichier; à l’atteinte de cette limite, le fichier est **tourné**, en supprimant progressivement les lignes les plus anciennes.|
 ## compteur de messages KNX
+
 | Propriétés | Description |
 |-|-|
 | Timer de démarrage automatique | Démarrez automatiquement la minuterie lors du déploiement ou du démarrage.|

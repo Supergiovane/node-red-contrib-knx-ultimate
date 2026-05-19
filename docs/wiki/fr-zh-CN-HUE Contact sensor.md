@@ -8,6 +8,7 @@ permalink: /wiki/fr-zh-CN-HUE%20Contact%20sensor
 <p> Ce nœud mappe l'événement du capteur de contact Hue à l'adresse du groupe KNX.</p>
 Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphérique KNX et le périphérique disponible commence à s'afficher lors de l'entrée.
 **Général**
+
 | Propriétés | Description |
 |-|-|
 | KNX GW | Sélectionnez le portail KNX à utiliser |

@@ -9,6 +9,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 <p>此节点使您可以控制飞利浦色调灯和分组的灯光，还可以将此灯的状态发送到KNX巴士。</p>
 
 **一般的**
+
 |属性|描述|
 | - | - |
 |KNX GW |选择要使用的KNX门户|
@@ -23,6 +24,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 开始输入GA字段，KNX设备的名称或组地址，可用设备在输入时开始显示。
 
 **转变**
+
 |属性|描述|
 | - | - |
 |控制|此GA用于通过布尔值KNX值为TRUE/FALSE打开/关闭色调灯|
@@ -31,6 +33,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 <br/>
 
 **暗淡**
+
 |属性|描述|
 | - | - |
 |控制DIM |相对变暗的色调光。您可以在\*\* _行为_ **选项卡中设置调光速度。|
@@ -43,6 +46,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 <br/>
 
 **可调白**
+
 |属性|描述|
 | - | - |
 |控制DIM |使用DPT 3.007调光更改色调灯的白色温度。您可以在\*\* _行为_ \*\*选项卡中设置调光速度。 |
@@ -54,6 +58,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 <br/>
 
 \*\* RGB/HSV \*\*
+
 |属性|描述|
 | - | - |
 | **RGB 部分** ||
@@ -73,6 +78,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light
 **效果**
 
 _非 Hue 基础效果_
+
 |属性|描述|
 | - | - |
 |眨眼|_true_ 闪烁灯光， _false_ 停止闪烁。交替开关，适用于提示。支持所有 HUE 灯。|

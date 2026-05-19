@@ -9,6 +9,7 @@ permalink: /wiki/es-zh-CN-HATranslator
 Puede convertir la carga útil de entrada a verdadero /falso booleano.<Br />
 Cada línea en el cuadro de texto representa un comando de traducción.<br/>
 Puede agregar sus propias líneas de traducción.<br/>
+
 | Propiedades | Descripción |
 |-|-|
 | Nombre | Nombre del nodo. |

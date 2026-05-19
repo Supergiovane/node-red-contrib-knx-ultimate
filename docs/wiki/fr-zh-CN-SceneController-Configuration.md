@@ -8,6 +8,7 @@ permalink: /wiki/fr-zh-CN-SceneController-Configuration
 # Contrôleur de scène
 Ce nœud est cohérent avec le contrôleur de scène KNX: la scène peut être enregistrée et rappelée.
 Paramètres de nœud ##
+
 | Propriétés | Description |
 |-|-|
 | Passerelle | Gateway KNX sélectionné. |
@@ -18,6 +19,7 @@ Paramètres de nœud ##
 ## Configuration du scénario
 Comme un vrai contrôleur de scène KNX, ajoutez des appareils à la scène; Chaque ligne représente un appareil.
 Une fois qu'une nouvelle valeur est reçue du bus, le nœud enregistrera automatiquement la dernière valeur de l'actionneur de la scène.
+
 | Propriétés | Description |
 |-|-|
 | Ajouter le bouton | Ajoutez une nouvelle ligne.|

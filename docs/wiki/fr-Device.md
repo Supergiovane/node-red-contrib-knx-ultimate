@@ -228,8 +228,9 @@ msg = {
 }
 ```
 
- ** Exemple de charge utile** | Propriété | Description |
+** Exemple de charge utile**
 
+| Propriété | Description |
 |-|-|
 | Échantillon | Cela lui donnera un indice sur ce qu'il faut écrire dans un nœud de fonction externe, si vous souhaitez contrôler le nœud via un nœud de fonction Node-Red. |
 

@@ -18,6 +18,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Bridge%20configuration
 也可以手动填写凭据。
 
 **常规**
+
 |属性|说明|
 |--|--|
 | IP | HUE Bridge 的 IP（需固定）。|

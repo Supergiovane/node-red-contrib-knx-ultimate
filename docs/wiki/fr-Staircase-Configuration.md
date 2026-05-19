@@ -8,6 +8,7 @@ permalink: /wiki/fr-Staircase-Configuration
 # Temporisateur d'escalier
 Le nœud **KNX Staircase** émule un éclairage d'escalier temporisé. Lorsqu'un front actif est reçu sur la GA d'impulsion la lampe s'allume, le compte à rebours démarre et un préavis peut être envoyé avant l'extinction. Override manuel, blocage et émission d'événements sont également pris en charge.
 ## Adresses de groupe
+
 |Usage|Propriété|Remarques|
 |--|--|--|
 | Impulsion | `Trigger GA` (`gaTrigger`) | La valeur `1` démarre ou prolonge le minuteur. Avec l'option « La valeur 0 annule » un `0` éteint immédiatement. |

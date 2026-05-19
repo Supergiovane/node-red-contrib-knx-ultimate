@@ -8,6 +8,7 @@ permalink: /wiki/fr-IoT-Bridge-Configuration
 # Passerelle KNX ↔ IoT
 La passerelle normalise les télégrammes KNX en messages structurés prêts pour les transports IoT (MQTT, REST, Modbus) et accepte des entrées du flow pour écrire de nouveau sur le bus KNX. Ce guide résume la configuration et les nœuds tiers recommandés.
 ## Récapitulatif des champs
+
 | Champ | But | Remarques |
 | -- | -- | -- |
 | **Label** | Nom lisible | Affiché dans le statut et `msg.bridge.label`. |

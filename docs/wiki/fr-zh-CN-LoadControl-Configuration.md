@@ -11,6 +11,7 @@ L'appareil est intelligemment arrêté, vérifiant la consommation possible de l
 Le nœud peut réactiver automatiquement la charge.<br/>
 Ce nœud arrête un périphérique (ou périphériques) à la fois en fonction de l'ordre que vous choisissez.<br/>
 **Général**
+
 | Propriétés | Description |
 |-|-|
 | Gateway | KNX Portal. Il est également possible de ne sélectionner aucune passerelle.Dans ce cas, seuls les messages entrés dans le nœud seront pris en compte.|
@@ -25,6 +26,7 @@ Sélectionnez l'appareil pour désactiver.Entrez le nom du périphérique ou son
 Entrez n'importe quelle adresse de groupe indiquant la consommée par l'appareil sélectionné dans la première ligne. **Il s'agit d'un paramètre facultatif** .Si l'appareil consomme plus qu'une certaine quantité de watts, cela signifie qu'il est utilisé.Si elle est moins consommée, l'appareil sera considéré comme "non utilisé" et l'appareil sera immédiatement désactivé.<br/>
 Si \ *Autorecovery \* est activé, le périphérique sera automatiquement réactivé lorsque le retard de réinitialisation expire.
 ## Entrer
+
 | Propriétés | Description |
 | - |- |
 | `msg.readstatus = true` | Forcer le bus KNX de chaque appareil dans la liste pour lire la valeur. _ **Le nœud lui-même a effectué toutes les opérations** _, mais si nécessaire, vous pouvez utiliser cette commande pour forcer une reliure de la valeur actuelle dans Watt. | | |

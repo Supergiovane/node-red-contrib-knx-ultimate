@@ -11,6 +11,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light%20sensor
 每当环境光变化时会输出 Lux 值。在 GA 字段输入 KNX 设备名或组地址（自动补全）以进行关联。
 
 **一般的**
+
 |属性|描述|
 | - | - |
 |KNX GW |选择要使用的KNX门户|
@@ -19,6 +20,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Light%20sensor
 |在启动时阅读状态|阅读启动时的状态，并在启动/重新连接时将事件发射到KNX总线上。（默认"否”）|
 
 **映射**
+
 |属性|说明|
 |--|--|
 | Lux | 接收 Lux 数值的 KNX 组地址 |

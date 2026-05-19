@@ -7,6 +7,7 @@ permalink: /wiki/it-zh-CN-HUE%20Light
 ---
 <p> Questo nodo ti consente di controllare le luci del tono di Philips e le luci raggruppate e anche inviare lo stato di questa luce al bus KNX.</p>
 **Generale**
+
 | Proprietà | Descrizione |
 |-|-|
 | KNX GW | Seleziona il portale KNX da utilizzare |
@@ -17,12 +18,14 @@ permalink: /wiki/it-zh-CN-HUE%20Light
 Qui puoi selezionare l'indirizzo KNX che si desidera collegare alle luci/stato di tono disponibili.<br/>
 Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo KNX e il dispositivo disponibile inizia a visualizzare quando si entra.
 **modifica**
+
 | Proprietà | Descrizione |
 |-|-|
 | Control | Questo GA viene utilizzato per attivare/spento la luce tono dal valore booleano KNX di True/False |
 | Stato | Collegalo all'indirizzo del gruppo di stato Switch della luce |
 <br/>
 **Dim**
+
 | Proprietà | Descrizione |
 |-|-|
 | Control Dim | Dimmio relativamente buio.È possibile impostare la velocità di attenuazione nella scheda \*\* _behavior_ **.|
@@ -33,6 +36,7 @@ Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo
 | Massima luminosità fioca |Massima luminosità che la lampada può ottenere.Ad esempio, se si desidera regolare la luce, la luce smetterà di attenuare la luminosità specificata. |
 <br/>
 **bianco regolabile**
+
 | Proprietà | Descrizione |
 |-|-|
 | Control Dim |Utilizzare DPT 3.007 Dimming per cambiare la temperatura bianca della lampada tono.È possibile impostare la velocità di attenuazione nella scheda \*\* _behavior_ \*\*. |
@@ -43,6 +47,7 @@ Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo
 | Invertire la direzione fioca | Invertire la direzione fioca.|
 <br/>
 \*\*Rgb/hsv \*\*
+
 | Proprietà | Descrizione |
 |-|-|
 | **Parte RGB** ||
@@ -58,6 +63,7 @@ Suggerimento: per la "V" (luminosità) dell'HSV, utilizzare i controlli standard
 <br/>
 **Effetto**
 _Non-hue Basic Effects_
+
 | Proprietà | Descrizione |
 |-|-|
 | Blink | _true_ lampeggia la luce, _false_ smette di lampeggiare. Interruttori alternativi, adatti per i prompt.Supporta tutte le luci Hue.|
@@ -68,8 +74,9 @@ Nella tabella **Native Effects** , mappare il valore KNX agli effetti supportati
 - (Opzionale) Configurare un indirizzo del gruppo di stato: quando Hue Bridge segnala l'effetto cambia, il nodo scrive il valore della mappa;Se non viene trovata alcuna mappa, viene inviato il nome dell'effetto originale (è richiesta la classe di testo DPT, ad esempio 16.xxx).
 <br/>
 **Comportamento**
+
 | Proprietà | Descrizione |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -- | -- |
 | Leggi lo stato all'avvio | Leggi lo stato della luce Hue nell'avvio di nodo-rosso o la distribuzione completa di rosso nodo e quindi invia tale stato al bus KNX |
 | Stato di luminosità KNX | Ogni volta che la luce del tono viene attivata/spenta, viene aggiornato lo stato dell'indirizzo del gruppo di luminosità KNX. L'opzione è **inviare lo 0% quando la tonalità è spenta. Quando la tonalità è attivata, ripristina i valori precedenti (comportamento KNX predefinito) e ** * come è (comportamento della tonalità predefinito)**. Se si dispone di un Dimmer KNX con stato di luminosità, come MDT, l'opzione consigliata è \*\*\*e quando la luce HUE è spenta, invia lo 0%.Quando il tono è acceso, ripristina il valore precedente (comportamento KNX predefinito) \*\*\*|
 | Aggiorna lo stato HUE locale in cache dai write KNX | Opzione avanzata, abilitata di default. Se attiva, i write che arrivano dal bus KNX aggiornano subito anche lo stato HUE locale in cache del nodo, senza attendere feedback/eventi dal bridge Hue. Questo rende le reazioni locali piu rapide e le risposte immediate ai read KNX piu coerenti, soprattutto quando la luce o il grouped_light sono spenti. Disattivala se preferisci che la cache segua solo il feedback/evento reale del bridge Hue. |

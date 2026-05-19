@@ -11,6 +11,7 @@ permalink: /wiki/de-zh-CN-HUE%20Battery
 Geben Sie den KNX -Gerätenamen oder die Gruppenadresse in das Feld GA ein, um automatisch abzuschließen. Klicken Sie auf die Schaltfläche Aktualisieren neben dem "Hue -Sensor", um die Liste der Farbtöne Geräte neu zu laden.
 
 **konventionell**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | KNX -Gateway zum Freigeben von Strom (KNX -Mapping -Einstellungen werden erst nach der Auswahl angezeigt).|
@@ -18,11 +19,13 @@ Geben Sie den KNX -Gerätenamen oder die Gruppenadresse in das Feld GA ein, um a
 | Farbtonsensor |Hue -Gerät/Sensor, der Strominformationen liefert (unterstützt automatische Fertigstellung und Aktualisierung).|
 
 **Abbildung**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Batterie | KNX-Gruppenadresse des Batterieprozentsatzes (0-100%), empfohlener DPT: <b> 5.001 </b>. |
 
 **Verhalten**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Status im Start | lesen | Lesen Sie die aktuelle Leistung während der Bereitstellung/Wiederverbindung und veröffentlichen Sie an KNX. Standardwert: "Ja".|

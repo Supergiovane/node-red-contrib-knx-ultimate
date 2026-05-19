@@ -7,6 +7,7 @@ permalink: /wiki/fr-zh-CN-HUE%20Light
 ---
 <p> Ce nœud vous permet de contrôler les lumières de tonalité Philips et les lumières groupées, et d'envoyer également l'état de cette lumière dans le bus KNX.</p>
 **Général**
+
 | Propriétés | Description |
 |-|-|
 | KNX GW | Sélectionnez le portail KNX à utiliser |
@@ -17,12 +18,14 @@ permalink: /wiki/fr-zh-CN-HUE%20Light
 Ici, vous pouvez sélectionner l'adresse KNX que vous souhaitez lier aux lumières / statuts de tonalité disponibles.<br/>
 Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphérique KNX et le périphérique disponible commence à s'afficher lors de l'entrée.
 **changement**
+
 | Propriétés | Description |
 |-|-|
 | Contrôle | Ce GA est utilisé pour allumer / éteindre la lumière de ton par la valeur booléenne KNX de True / False |
 | Statut | Le lier à l'adresse du groupe d'état du commutateur de la lumière |
 <br/>
 **faible**
+
 | Propriétés | Description |
 |-|-|
 | Contrôle DIM | Semballage relativement assombri.Vous pouvez définir la vitesse de gradation dans l'onglet \ *\* _Behavior_ **.|
@@ -33,6 +36,7 @@ Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphé
 | Luminosité maximale DIM |Luminosité maximale que la lampe peut atteindre.Par exemple, si vous souhaitez ajuster la lumière, la lumière cessera de gradier à la luminosité spécifiée%. |
 <br/>
 **blanc réglable**
+
 | Propriétés | Description |
 |-|-|
 | Contrôle DIM |Utilisez DPT 3.007 Semballage pour changer la température blanche de la lampe de ton.Vous pouvez définir la vitesse de gradation dans l'onglet \ *\* _Behavior_ \ *\*. |
@@ -43,6 +47,7 @@ Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphé
 | Inverser la direction sombre | Inverser la direction sombre.|
 <br/>
 \ *\* Rgb / hsv \ *\*
+
 | Propriétés | Description |
 |-|-|
 | **Partie RGB** ||
@@ -58,6 +63,7 @@ CONSEIL: Pour le "V" (luminosité) du HSV, veuillez utiliser les contrôles stan
 <br/>
 **Effet**
 _NE-HUE BASIC EFFETS_
+
 | Propriétés | Description |
 |-|-|
 | Blink | _true_ clignote la lumière, _false_ arrête de clignoter. Des interrupteurs alternatifs, adaptés aux invites.Prend en charge toutes les lumières de la teinte.|
@@ -68,8 +74,9 @@ Dans le tableau des effets natifs **Hue** , mappez la valeur KNX aux effets pris
 - (Facultatif) Configurer une adresse de groupe d'état: Lorsque le pont de teinte rapporte l'effet change, le nœud écrit la valeur de la carte; Si aucune carte n'est trouvée, le nom d'effet d'origine est envoyé (la classe de texte DPT est requise, par exemple 16.xxx).
 <br/>
 **Comportement**
+
 | Propriétés | Description |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -- | -- |
 | Lire l'état au démarrage | Lisez l'état de la lumière des teintes dans le démarrage de Node-Red ou le déploiement complet de Node-Red, puis envoyez ce statut au bus KNX |
 | Statut de luminosité KNX | Chaque fois que la lumière de ton est allumée / désactivée, l'état de l'adresse du groupe de luminosité KNX est mis à jour. L'option est **Envoyer 0% lorsque la teinte est désactivée. Lorsque la teinte est activée, restaurez les valeurs précédentes (comportement KNX par défaut) et ** * comme IS (comportement de la teinte par défaut)**. Si vous avez un gradateur KNX avec un statut de luminosité, tel que MDT, l'option recommandée est \* \ *\*, et lorsque la lumière de Hue est éteinte, envoyez 0%. Lorsque la tonalité est activée, restaurez la valeur précédente (comportement KNX par défaut) \ *\* \ * |
 | Mettre à jour l'état Hue local en cache à partir des écritures du bus KNX | Option avancee, activee par defaut. Lorsqu'elle est activee, les ecritures recues depuis le bus KNX mettent aussi a jour immediatement l'etat Hue local en cache du noeud, sans attendre les retours/evenements du pont Hue. Cela apporte des reactions locales plus rapides et des reponses immediates de lecture KNX plus coherentes, surtout lorsque la lumiere ou le groupe est eteint. Desactivez-la si vous preferez que le cache suive uniquement les retours/evenements reels du pont Hue. |

@@ -12,6 +12,7 @@ Los mapas de nodo Hue Plug Philips Hue Smart Sockets a las direcciones del grupo
 - Comentarios de estado de la plataforma HUE;
 - Monitoreo opcional `power_state` (On/Standby).
 ## Configuración
+
 |Campos | Descripción |
 |-|-|
 | KNX GW | Puertas de enlace KNX utilizadas |

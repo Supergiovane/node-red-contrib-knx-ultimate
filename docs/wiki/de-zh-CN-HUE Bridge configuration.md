@@ -18,6 +18,7 @@ Stellen Sie die IP der Brücke ein und klicken Sie auf **Connect** . \
 Sie können die Anmeldeinformationen auch manuell ausfüllen.
 
 **konventionell**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | IP |IP der Hue Bridge (erfordert fest). |

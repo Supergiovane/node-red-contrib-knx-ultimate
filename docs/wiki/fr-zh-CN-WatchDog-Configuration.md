@@ -17,6 +17,7 @@ Watchdog fournit des tests à deux niveaux:
 - Ethernet + KNX - TP: vérifiez l'intégralité du lien (Ethernet → TP).Un appareil physique qui répond aux demandes de lecture est requis.
 Convient pour les alarmes d'erreur d'erreur / connexion (notifications par e-mail, commutation automatique de passerelle de sauvegarde, etc.).
 ## Paramètres (paramètres)
+
 | Propriétés | Description |
 |-|-|
 | Passerelle | Gateway KNX sélectionné. |
@@ -28,6 +29,7 @@ Convient pour les alarmes d'erreur d'erreur / connexion (notifications par e-mai
 > Ethernet: détecter les connexions entre KNX-ultimate (unicast) et l'interface KNX / IP. <br/>
 > Ethernet + KNX TP: détection complète (prend en charge le routeur / interface).Envoyer lire à l'appareil physique et attendre la réponse;Toute échec sur Ethernet ou TP sera signalée.Veuillez configurer un **État** GA dans ETS pour un actionneur qui répond à la lecture. <br/>
 ## Options avancées
+
 | Propriétés | Description |
 |-|-|
 | Intervalle de réception (en secondes) | Intervalle de détection en secondes. |

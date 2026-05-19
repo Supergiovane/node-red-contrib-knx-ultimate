@@ -12,6 +12,7 @@ Le nœud Hue Plug mappe Philips Hue Smart Sockets aux adresses du groupe KNX à 
 - Feedback d'état de la plate-forme Hue;
 - Surveillance `Power_State` (ON / STANDY) facultative.
 Configuration ##
+
 | Champs |Description |
 |-|-|
 | KNX GW | Passerelles KNX utilisées |

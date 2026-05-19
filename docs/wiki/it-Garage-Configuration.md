@@ -8,6 +8,7 @@ permalink: /wiki/it-Garage-Configuration
 # Porta garage
 Il nodo **KNX Garage** comanda un portone motorizzato con GA dedicate ai comandi diretti o a impulso, integra fotocellula e stato di ostruzione, permette il blocco della richiusura e la disabilitazione e può richiudere automaticamente dopo un intervallo.
 ## Indirizzi di gruppo
+
 |Scopo|Proprietà|Note|
 |--|--|--|
 | Comando diretto | `Command GA` (`gaCommand`) | GA booleana: `true` apre, `false` chiude (DPT 1.001). |

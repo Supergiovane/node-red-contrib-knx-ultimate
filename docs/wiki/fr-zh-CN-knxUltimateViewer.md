@@ -9,6 +9,7 @@ permalink: /wiki/fr-zh-CN-knxUltimateViewer
 Affichez toutes les adresses de groupe et leurs valeurs dans l'assemblage du tableau de bord.<br/>
 </p>
 Visionneuse # KNX
+
 | Propriétés | Description |
 |-|-|
 | Passerelle | KNX Gateway |

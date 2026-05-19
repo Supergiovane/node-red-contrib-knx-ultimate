@@ -11,6 +11,7 @@ permalink: /wiki/de-zh-CN-HUE%20Light%20sensor
 Der Lux -Wert wird ausgegeben, wenn sich das Umgebungslicht ändert.Geben Sie den KNX -Gerätenamen oder die Gruppenadresse (automatisch vervollständigt) in das Feld GA für die Assoziation ein.
 
 **Allgemein**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | KNX GW | Wählen Sie das zu verwendende KNX -Portal |
@@ -19,6 +20,7 @@ Der Lux -Wert wird ausgegeben, wenn sich das Umgebungslicht ändert.Geben Sie de
 | Status beim Start lesen |Status beim Start lesen und Ereignisse beim KNX -Bus beim Start/Wiederverbinden übertragen. (Standard "nein") |
 
 **Abbildung**
+
 | Eigenschaften | Beschreibung |
 |-|-|
 | Lux | KNX -Gruppenadresse, die Lux -Werte empfängt |

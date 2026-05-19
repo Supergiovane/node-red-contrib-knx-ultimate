@@ -8,6 +8,7 @@ permalink: /wiki/es-Staircase-Configuration
 # Temporizador de escalera
 El nodo **KNX Staircase** reproduce el comportamiento de un temporizador de escalera. Cuando la GA de impulso recibe un `1` la luz se enciende, se inicia la cuenta atrás y, si está configurado, se avisa antes de apagar. También admite override manual, bloqueo y emisión de eventos para Node-RED.
 ## Direcciones de grupo
+
 |Propósito|Propiedad|Notas|
 |--|--|--|
 | Impulso | `Trigger GA` (`gaTrigger`) | El valor `1` inicia o prolonga el temporizador. Con "El valor 0 cancela" un `0` apaga la luz. |

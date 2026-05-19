@@ -8,6 +8,7 @@ permalink: /wiki/es-zh-CN-HUE%20Camera%20motion
 <P> El nodo de movimiento de la cámara Hue escucha eventos de movimiento de la cámara Philips Hue y los mapas detectados/estados no detectados a KNX.</p>
 Comience a ingresar en el cuadro de entrada GA (nombre o dirección de grupo) para asociar el KNX GA;El dispositivo coincidente se mostrará cuando se ingrese.
 **convencional**
+
 | Propiedades | Descripción |
 |-|-|
 | KNX Gateway | Seleccione la puerta de enlace KNX para usar |
@@ -15,6 +16,7 @@ Comience a ingresar en el cuadro de entrada GA (nombre o dirección de grupo) pa
 | Sensor de tono | Sensor de movimiento de la cámara Hue (complete automáticamente cuando se ingresa) |
 | Leer el estado al inicio | Lea el valor actual al inicio/reconexión y envíe a KNX (predeterminado: no) |
 **Cartografía**
+
 | Propiedades | Descripción |
 |-|-|
 | Movimiento |Dirección de grupo KNX (booleano) para el movimiento de la cámara. DPT recomendado: <b> 1.001 </b> |

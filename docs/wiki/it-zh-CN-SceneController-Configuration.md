@@ -8,6 +8,7 @@ permalink: /wiki/it-zh-CN-SceneController-Configuration
 # Controller di scena
 Questo nodo è coerente con il controller della scena KNX: la scena può essere salvata e richiamata.
 Impostazioni del nodo ##
+
 | Proprietà | Descrizione |
 |-|-|
 | Gateway | Gateway KNX selezionato. |
@@ -18,6 +19,7 @@ Impostazioni del nodo ##
 ## configurazione dello scenario
 Come un vero controller di scena KNX, aggiungi dispositivi alla scena;Ogni riga rappresenta un dispositivo.
 Una volta ricevuto un nuovo valore dal bus, il nodo registrerà automaticamente l'ultimo valore dell'attuatore nella scena.
+
 | Proprietà | Descrizione |
 |-|-|
 |Aggiungi pulsante | Aggiungi una nuova riga. |

@@ -10,13 +10,18 @@ Le nœud enregistre tous les télégrammes qui sont transférés dans le bus KNX
 Il répond ensuite à la demande de lecture en renvoyant ces valeurs mémorisées au bus en fonction de la demande.
 Si l'adresse du groupe à lire n'a pas encore de valeur, le nœud répondra avec la valeur par défaut.
 Ce nœud répondra uniquement à l'adresse de groupe spécifiée dans le champ **Response** JSON.
-Par défaut, il existe un texte JSON précompilé * ***"Response" que vous pouvez simplement modifier / supprimer du contenu.Veuillez vous assurer que** n'appuyez pas sur **pour l'utiliser!!!** Configuration**| Propriétés | Description |
+Par défaut, il existe un texte JSON précompilé * ***"Response" que vous pouvez simplement modifier / supprimer du contenu.Veuillez vous assurer que** n'appuyez pas sur **pour l'utiliser!!!
+
+** Configuration**
+
+| Propriétés | Description |
 |-|-|
 | Passerelle | Sélectionnez le portail KNX à utiliser |
 | Réponse | Node répondra à une demande de lecture de l'adresse de groupe spécifiée dans ce tableau JSON.Le format est spécifié ci-dessous.|
 <br/>
 \ *\* JSON Format \ *\*
 JSON est toujours un tableau d'objets contenant chaque instruction.Chaque instruction indique au nœud quoi faire.
+
 | Propriétés | Description |
 |-|-|
 | Remarque | ** Clé de note facultative** Remarque pour obtenir des rappels.Il ne sera utilisé nulle part.|

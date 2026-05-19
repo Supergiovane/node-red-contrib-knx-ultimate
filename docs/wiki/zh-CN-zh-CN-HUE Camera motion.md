@@ -11,6 +11,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Camera%20motion
 在 GA 输入框（名称或组地址）中开始输入，即可关联 KNX GA；输入时会显示匹配的设备。
 
 **常规**
+
 |属性|说明|
 |--|--|
 | KNX 网关 | 选择要使用的 KNX 网关 |
@@ -19,6 +20,7 @@ permalink: /wiki/zh-CN-zh-CN-HUE%20Camera%20motion
 | 启动时读取状态 | 启动/重新连接时读取当前值并发送到 KNX（默认：否） |
 
 **映射**
+
 |属性|说明|
 |--|--|
 | 运动 | 摄像头运动的 KNX 组地址（布尔值）。推荐 DPT：<b>1.001</b> |
