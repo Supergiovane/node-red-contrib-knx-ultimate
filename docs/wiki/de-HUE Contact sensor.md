@@ -15,6 +15,7 @@ Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, 
 |KNX-Gateway |Wählen Sie das zu verwendende KNX -Gateway |
 |Hue Bridge |Wählen Sie die zu verwendende Hue Bridge aus |
 | Hue-Kontaktsensor | Zu verwendender HUE-Kontaktsensor (Autocomplete) |
+
 |Eigenschaft |Beschreibung |
 |-------- |------------------------------------------------------------------------------------------------------------------ |
 | Kontakt | Bei Öffnen/Schließen senden: _true_ (aktiv/offen), sonst _false_ |

@@ -15,6 +15,7 @@ Commencez à taper le champ GA, le nom ou l'adresse de groupe de votre appareil 
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
 |Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
 |Capteur de contact de la teinte |Capteur de contact de la teinte à utiliser (assortiment automatique pendant la frappe). |
+
 |Propriété |Description |
 |-|-|
 |Contact |Lorsque le contact s'ouvre / ferme, envoyez une valeur KNX: _true_ sur actif / ouvert, sinon _false_.|

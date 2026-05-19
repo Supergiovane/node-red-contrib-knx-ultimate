@@ -228,9 +228,8 @@ msg = {
 }
 ```
 
-** Muestra de carga útil**
+ ** Muestra de carga útil** | Propiedad | Descripción |
 
-| Propiedad | Descripción |
 |-|-|
 | Muestra | Esto le dará una pista sobre qué escribir en un nodo de función externa, si desea controlar el nodo a través de un nodo de función de nodo-rojo. |
 

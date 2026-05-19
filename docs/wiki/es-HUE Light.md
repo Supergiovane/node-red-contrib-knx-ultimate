@@ -49,8 +49,10 @@ Comenzar a escribir en el campo GA (nombre o dirección de grupo); Aparecen suge
 | Control Dim | Cambie la temperatura blanca usando DPT 3.007 atenuación. La velocidad se establece en la pestaña **comportamiento** . |
 | Control % | Cambie la temperatura blanca usando DPT 5.001. 0 = completo cálido, 100 = frío completo. |
 | Estado %| Estado de temperatura GA. DPT 5.001 Valor absoluto: 0 = completo cálido, 100 = frío completo. |
-| Control Kelvin | **DPT 7.600: ** Temperatura establecida en Kelvin usando el rango KNX 2000-6535 (convertido en Hue Mirek).  <br/> <br/> **DPT 9.002:** Temperatura establecida usando el rango de Hue 2000-6535 K (la ambiente comienza a 2200 K). Las conversiones pueden introducir pequeñas desviaciones. |
-| Estado Kelvin | **DPT 7.600: ** Lea la temperatura en Kelvin usando el rango KNX 2000-6535 (convertido desde el tono).  <br/> <br/> **DPT 9.002:** Temperatura de lectura usando el rango de Hue 2000-6535 K (la ambiente comienza en 2200 K). Las conversiones pueden introducir pequeñas desviaciones. |
+| Control Kelvin | **DPT 7.600: ** Temperatura establecida en Kelvin usando el rango KNX 2000-6535 (convertido en Hue Mirek). 
+**DPT 9.002:** Temperatura establecida usando el rango de Hue 2000-6535 K (la ambiente comienza a 2200 K). Las conversiones pueden introducir pequeñas desviaciones. |
+| Estado Kelvin | **DPT 7.600: ** Lea la temperatura en Kelvin usando el rango KNX 2000-6535 (convertido desde el tono). 
+**DPT 9.002:** Temperatura de lectura usando el rango de Hue 2000-6535 K (la ambiente comienza en 2200 K). Las conversiones pueden introducir pequeñas desviaciones. |
 | Invertir la dirección tenue | Invierte la dirección tenue. |
 
 **RGB/HSV**
@@ -88,11 +90,14 @@ Use la tabla **Hue Native Effects** para asignar sus valores de KNX a los efecto
 **Comportamiento**
 
 | Propiedad | Descripción |
-| -- | -- |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------- |
 | Leer el estado al inicio | Lea el estado de la luz del tono en la inicio de nodo-rojo o el despliegue completo de Node-Red, y envíe ese estado al bus KNX |
 | Estado de brillo KNX | Actualiza el estado de la dirección del grupo de brillo KNX, siempre que la lámpara de tono se encienda/apague. Las opciones son **cuando la luz del tono está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento de KNX predeterminado) ** y**dejar como es (comportamiento de tono predeterminado) ** . Si tiene KNX Dimmer con estado de brillo, como MDT, la opción sugerida es _**cuando la luz del tono está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento predeterminado KNX)** _ |
 | Actualizar el estado local en caché de Hue a partir de escrituras del bus KNX | Opcion avanzada, activada por defecto. Si esta activa, las escrituras que llegan desde el bus KNX tambien actualizan inmediatamente el estado local en cache de Hue del nodo, sin esperar al feedback/evento del bridge Hue. Esto da reacciones locales mas rapidas y respuestas inmediatas de lectura KNX mas coherentes, especialmente cuando la luz o el grupo estan apagados. Desactivela si prefiere que la cache siga solo el feedback/evento real del bridge Hue. |
-| Encender el comportamiento | Establece el comportamiento de sus luces cuando se enciende. Puede elegir entre diferentes comportamientos.  <br/> **Seleccione Color: ** La luz se encenderá con el color de su elección. Para cambiar el color, simplemente haga clic en el selector de color (debajo del control de color_select).  <br/> **Seleccione la temperatura y el brillo: ** La luz se encenderá con la temperatura (Kelvin) y el brillo (0-100) de su elección.  <br/> <br/> **Ninguna:** La luz retendrá su último estado. En caso de que haya habilitado la iluminación nocturna, después de finalizar la noche, la lámpara reanudará el estado de color/temperatura/brillo establecido durante el día. |
+| Encender el comportamiento | Establece el comportamiento de sus luces cuando se enciende. Puede elegir entre diferentes comportamientos. 
+ **Seleccione Color: ** La luz se encenderá con el color de su elección. Para cambiar el color, simplemente haga clic en el selector de color (debajo del control de color_select). 
+**Seleccione la temperatura y el brillo: ** La luz se encenderá con la temperatura (Kelvin) y el brillo (0-100) de su elección. 
+**Ninguna:** La luz retendrá su último estado. En caso de que haya habilitado la iluminación nocturna, después de finalizar la noche, la lámpara reanudará el estado de color/temperatura/brillo establecido durante el día. |
 | Iluminación nocturna | Permite establecer un color/brillo de luz particular por la noche. Las opciones son las mismas que el día. Puede seleccionar una temperatura/brillo o color. Una temperatura acogedora de 2700 Kelvin, con un brillo del 10% o 20%, es una buena opción para la luz nocturna del baño. |
 | Día/noche | Seleccione la dirección de grupo utilizada para establecer el comportamiento diurno/nocturno. El valor de la dirección de grupo es _true_ if Daytime, _false_ si nocturno. |
 | Invertir valor día/noche | Invierta los valores de la dirección de grupo _day/noche_. El valor predeterminado está **sin control** . |

@@ -15,6 +15,7 @@ Start typing in the GA field, the name or group address of your KNX device, the 
 | KNX GW | Select the KNX gateway to be used |
 | Hue Bridge | Select the Hue Bridge to be used |
 | Hue Contact Sensor | Hue contact sensor to be used (autocomplete while typing).|
+
 | Property | Description |
 |--|--|
 | Contact | When the contact opens/closes, send KNX value: _true_ on active/open, otherwise _false_. |

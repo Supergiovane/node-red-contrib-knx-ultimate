@@ -39,7 +39,6 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - **Archivia anche i telegrammi catturati su disco**: salva i telegrammi anche in `knxultimatestorage/knxai/history/<node-id>/YYYY-MM-DD.jsonl`, oltre che in RAM.
 - **Retention archivio su disco (giorni)**: numero di giorni mantenuti su disco prima della cancellazione automatica dei file piu' vecchi.
 - **Eventi massimi in memoria**: numero massimo di telegrammi mantenuti in RAM.
-- I telegrammi con `echoed: true` sono copie passthrough interne (dal pin input al pin output dello stesso nodo), non traffico reale del BUS KNX: escluderli da statistiche e analisi anomalie del bus.
 - **Invia summary automatico (secondi, 0=off)**: intervallo di emissione summary periodica.
 - **Dimensione lista Top**: numero di group address/sorgenti nella classifica summary.
 - **Rileva pattern semplici (A -> B)**: abilita rilevamento transizioni/pattern.

@@ -35,9 +35,8 @@ permalink: /wiki/es-Gateway-configuration
 > • _knx Tunneling IP Secure_ protege el apretón de manos de la conexión con una contraseña de puesta en marcha. Dependiendo del modo seleccionado, la contraseña puede provenir del llavero o ingresarse manualmente.\
 > • KNX/IP Secure (handshake del túnel) solo se aplica a los transportes IP (Tunnel TCP / routing seguro). KNX Data Secure protege los telegramas de direcciones de grupo y puede usarse tanto sobre IP (túnel/enrutamiento) como sobre TP vía Serial FT1.2 cuando se proporciona un archivo keyring de ETS.
 
-**Avanzado**
+ **Avanzado** | Propiedad | Descripción |
 
-| Propiedad | Descripción |
 |-|-|
 | Suprimir los telegramas repetidos (r-flag) FOM BUS | Ignore los repetidos telegramas de KNX que provengan del autobús. El valor predeterminado no está marcado. |
 | Suprimir la solicitud ACK en el modo de túnel | Habilite si tiene una puerta de enlace KNX/IP muy antigua. Ignora el procedimiento ACK y acepta todos los telegramas. El valor predeterminado no está marcado. |
@@ -49,16 +48,14 @@ permalink: /wiki/es-Gateway-configuration
 | Formato personalizado | Se usa cuando se selecciona **Personalizado (tokens)**. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Usa `[texto]` para literales. |
 | Locale (anular) | Locale opcional (BCP47), por ejemplo `es-ES` o `en-GB`. Se usa para los nombres de mes (`MMM`) cuando el formato es personalizado. |
 
-**Importación de archivos ETS**
+ ** Importación de archivos ETS** | Propiedad | Descripción |
 
-| Propiedad | Descripción |
 |-|-|
 | Si la dirección del grupo no tiene punto de datos | Si una dirección de grupo no tiene un punto de datos, permite elegir si detiene la importación, importar un punto de datos falso de 1.001 o omitir la importación de esa dirección de grupo |
 | Lista de direcciones de grupo ETS | Use esta sección para importar su archivo CSV o ESF ETS. Puede ** Pegar el contenido del archivo CSV o ESF ** o**Establecer la ruta del archivo** , por ejemplo _./pi/homecsv.csv_. Consulte los enlaces de ayuda para obtener más infos. |
 
-**Utilidad**
+ **Utilidad** | Propiedad | Descripción |
 
-| Propiedad | Descripción |
 |-|-|
 | Recopilar información de depuración para la solución de problemas | Haga clic en el botón y agréguelo al problema de GitHub que desea abrir, me ayudará mucho a ayudarlo. |
 | Obtenga todos los usados ​​GA para el filtro de enrutamiento KNX | Presione Leer para recuperar una lista de texto sin formato de todas las direcciones grupales que pertenecen a esta puerta de enlace, que se ha utilizado en los flujos. Puede usar esta lista para completar su tabla de filtro de enrutador KNX/IP. |

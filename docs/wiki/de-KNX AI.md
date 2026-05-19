@@ -39,7 +39,6 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 - **Captured telegrams also on disk archivieren**: Speichert Telegramme zusätzlich zu RAM in `knxultimatestorage/knxai/history/<node-id>/YYYY-MM-DD.jsonl`.
 - **Aufbewahrung des Festplattenarchivs (Tage)**: Anzahl Tage, die Archivdateien auf Platte behalten werden, bevor sie automatisch gelöscht werden.
 - **Max stored events**: Maximale Anzahl Telegramme im Speicher.
-- Telegramme mit `echoed: true` sind interne Passthrough-Kopien (vom Eingangspin zum Ausgangspin desselben Nodes), also kein echter KNX-Busverkehr: für Busstatistik/Anomalieanalyse ausschließen.
 - **Auto emit summary (seconds, 0=off)**: Periodisches Summary-Intervall.
 - **Top list size**: Anzahl Top-Gruppenadressen/Quellen in der Summary.
 - **Detect simple patterns (A -> B)**: Aktiviert Übergangs-/Pattern-Erkennung.

@@ -25,7 +25,13 @@ _ **The scene node automatically saves the updated values of all actuators belon
 | Property | Description |
 | ------------- | ---------------------------------------------------------------------------------------------------- |
 | ADD button | Add a row to the list. |
-| Row's field | First field is the group address, second is the datapoint, third is the default value for this device in the scene (this can be overridden by the _scene save_ function). Below, is the device name. <br/> <br/> To insert a _pause_, type **wait ** in the first field and a number in the last field, that represents the time (in milliseconds) of the pause, for example**2000 **  <br/> <br/> The **wait** command accepts values in seconds, minutes or hours. <br/> <br/> To set seconds, add**s ** after the numeric value, for example (**12s ** ) <br/> <br/> To set minutes, add**m ** after the numeric value, for example (**5m ** ) <br/> <br/> To set hours, add**h ** after the numeric value, for example (**1h** )  |
+| Row's field | First field is the group address, second is the datapoint, third is the default value for this device in the scene (this can be overridden by the _scene save_ function). Below, is the device name.
+ To insert a _pause_, type **wait ** in the first field and a number in the last field, that represents the time (in milliseconds) of the pause, for example**2000 ** 
+
+The**wait ** command accept also values indicating seconds, minutes or hours.
+To set a value in seconds, add**s ** after the numeric value, for example (**12s ** )
+To set a value in minutes, add**m ** after the numeric value, for example (**5m ** )
+To set a value in hours, add**h ** after the numeric value, for example (**1h** ) |
 | Remove button | Remove a device from the list. |
 
 # MESSAGE OUTPUT FROM THE SCENE CONTROLLER NODE
