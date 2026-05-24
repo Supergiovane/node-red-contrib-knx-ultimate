@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 4.3.18** - May 2026<br/>
+
+- Bump Engine to 5.5.8
+- Security: removed unused dependency `translate-google` (which transitively pulled in the critically vulnerable `safe-eval` package). No functionality was affected as the package was never referenced in the codebase.<br/>
+- Security: applied `npm audit fix` to resolve moderate and high vulnerabilities in `brace-expansion`, `diff`, `minimatch`, `picomatch`, `postcss`, and `vite`.<br/>
+- Tests: added unit test suites for `payloadManipulation` (Manipulate), `utils` (ToBoolean, fetchFromObject), `ColorConverter` (kelvin/mirek, scale, brightness, HSV/RGB, hexRgb, xyBriToRgb) and `XYFromRGB_Supergiovane` (calculateXYFromRGB) — 83 new tests, total suite 117 passing.<br/>
+
 **Version 4.3.17** - May 2026<br/>
 
 - Examples: expanded the `examples/` folder to provide dedicated Node-RED flow files for all remaining KNX Ultimate nodes, including `KNX Staircase`, `KNX Garage`, `KNX Load Control`, `KNX IoT Bridge`, `KNX Auto Responder`, `KNX Alerter`, `KNX Global Context`, `KNX HA Translator`, and the full Philips Hue node set.<br/>
