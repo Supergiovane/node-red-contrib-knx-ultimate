@@ -9,9 +9,9 @@
           "external": false
         },
         {
-          "label": "GitHub Repository",
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate",
-          "external": true
+          "label": "Getting Started",
+          "url": "/wiki/Getting-Started",
+          "external": false
         },
         {
           "label": "Changelog",
@@ -421,9 +421,9 @@
           "external": false
         },
         {
-          "label": "Repository GitHub",
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate",
-          "external": true
+          "label": "Come iniziare",
+          "url": "/wiki/it-Getting-Started",
+          "external": false
         },
         {
           "label": "Changelog",
@@ -833,9 +833,9 @@
           "external": false
         },
         {
-          "label": "GitHub-Repository",
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate",
-          "external": true
+          "label": "Erste Schritte",
+          "url": "/wiki/de-Getting-Started",
+          "external": false
         },
         {
           "label": "Changelog",
@@ -1245,9 +1245,9 @@
           "external": false
         },
         {
-          "label": "Dépôt GitHub",
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate",
-          "external": true
+          "label": "Prise en main",
+          "url": "/wiki/fr-Getting-Started",
+          "external": false
         },
         {
           "label": "Changelog",
@@ -1657,9 +1657,9 @@
           "external": false
         },
         {
-          "label": "Repositorio GitHub",
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate",
-          "external": true
+          "label": "Primeros pasos",
+          "url": "/wiki/es-Getting-Started",
+          "external": false
         },
         {
           "label": "Changelog",
@@ -2069,9 +2069,9 @@
           "external": false
         },
         {
-          "label": "GitHub 仓库",
-          "url": "https://github.com/Supergiovane/node-red-contrib-knx-ultimate",
-          "external": true
+          "label": "快速开始",
+          "url": "/wiki/zh-CN-Getting-Started",
+          "external": false
         },
         {
           "label": "Changelog",
