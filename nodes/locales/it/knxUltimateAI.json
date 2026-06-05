@@ -50,6 +50,7 @@
     "selectlists": {
       "llmProvider": {
         "openai_compat": "Compatibile OpenAI (chat/completions)",
+        "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama (locale, beta)"
       }
     },

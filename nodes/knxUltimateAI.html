@@ -112,9 +112,11 @@
             try { RED.sidebar.show("help"); } catch (error) { }
             const OPENAI_COMPAT_DEFAULT_CHAT_URL = "https://api.openai.com/v1/chat/completions";
             const OLLAMA_DEFAULT_CHAT_URL = "http://localhost:11434/api/chat";
+            const ANTHROPIC_DEFAULT_CHAT_URL = "https://api.anthropic.com/v1/messages";
             const OLLAMA_LIBRARY_URL = "https://ollama.com/library";
             const OPENAI_COMPAT_DEFAULT_MODELS = ["gpt-5.4", "gpt-4o-mini"];
             const OLLAMA_DEFAULT_MODEL = "llama3.1";
+            const ANTHROPIC_DEFAULT_MODEL = "claude-opus-4-8";
 
             $("#knx-ai-accordion").accordion({
                 header: "h3",
@@ -214,6 +216,10 @@
             const isOpenAiDefaultUrl = (value) => normalizeUrl(value) === normalizeUrl(OPENAI_COMPAT_DEFAULT_CHAT_URL);
             const isOllamaDefaultUrl = (value) => normalizeUrl(value) === normalizeUrl(OLLAMA_DEFAULT_CHAT_URL);
             const isOpenAiDefaultModel = (value) => OPENAI_COMPAT_DEFAULT_MODELS.indexOf(String(value || "").trim().toLowerCase()) >= 0;
+            const DEFAULT_CHAT_URLS = [OPENAI_COMPAT_DEFAULT_CHAT_URL, OLLAMA_DEFAULT_CHAT_URL, ANTHROPIC_DEFAULT_CHAT_URL];
+            const DEFAULT_MODELS = OPENAI_COMPAT_DEFAULT_MODELS.concat([OLLAMA_DEFAULT_MODEL, ANTHROPIC_DEFAULT_MODEL]);
+            const isAnyDefaultUrl = (value) => DEFAULT_CHAT_URLS.some((u) => normalizeUrl(u) === normalizeUrl(value));
+            const isAnyDefaultModel = (value) => DEFAULT_MODELS.indexOf(String(value || "").trim().toLowerCase()) >= 0;
 
             const applyProviderDefaults = (provider) => {
                 const $baseUrl = $("#node-input-llmBaseUrl");
@@ -221,14 +227,15 @@
                 const currentBaseUrl = String($baseUrl.val() || "").trim();
                 const currentModel = String($model.val() || "").trim();
 
-                if (provider === "ollama") {
-                    if (!currentBaseUrl || isOpenAiDefaultUrl(currentBaseUrl)) $baseUrl.val(OLLAMA_DEFAULT_CHAT_URL);
-                    if (!currentModel || isOpenAiDefaultModel(currentModel)) $model.val(OLLAMA_DEFAULT_MODEL);
-                    return;
-                }
+                const urlByProvider = { ollama: OLLAMA_DEFAULT_CHAT_URL, anthropic: ANTHROPIC_DEFAULT_CHAT_URL, openai_compat: OPENAI_COMPAT_DEFAULT_CHAT_URL };
+                const modelByProvider = { ollama: OLLAMA_DEFAULT_MODEL, anthropic: ANTHROPIC_DEFAULT_MODEL, openai_compat: OPENAI_COMPAT_DEFAULT_MODELS[0] };
+                const targetUrl = urlByProvider[provider] || OPENAI_COMPAT_DEFAULT_CHAT_URL;
+                const targetModel = modelByProvider[provider] || OPENAI_COMPAT_DEFAULT_MODELS[0];
 
-                if (!currentBaseUrl || isOllamaDefaultUrl(currentBaseUrl)) $baseUrl.val(OPENAI_COMPAT_DEFAULT_CHAT_URL);
-                if (!currentModel || String(currentModel).trim().toLowerCase() === OLLAMA_DEFAULT_MODEL) $model.val(OPENAI_COMPAT_DEFAULT_MODELS[0]);
+                // Only overwrite when the field is empty or still holds another provider's default,
+                // so a user's custom base URL / model is never clobbered when switching providers.
+                if (!currentBaseUrl || isAnyDefaultUrl(currentBaseUrl)) $baseUrl.val(targetUrl);
+                if (!currentModel || isAnyDefaultModel(currentModel)) $model.val(targetModel);
             };
 
             const refreshModels = () => {
@@ -461,6 +468,7 @@
                     <label style="width:290px" for="node-input-llmProvider"><i class="fa fa-cog"></i> <span data-i18n="knxUltimateAI.properties.llmProvider"></span></label>
                     <select style="width:100%" id="node-input-llmProvider">
                         <option value="openai_compat" data-i18n="knxUltimateAI.selectlists.llmProvider.openai_compat"></option>
+                        <option value="anthropic" data-i18n="knxUltimateAI.selectlists.llmProvider.anthropic"></option>
                         <option value="ollama" data-i18n="knxUltimateAI.selectlists.llmProvider.ollama"></option>
                     </select>
                 </div>

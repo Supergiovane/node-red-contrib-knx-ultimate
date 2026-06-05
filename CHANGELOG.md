@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.3.20** - June 2026<br/>
+
+- KNX AI: new **Flow Builder** (BETA) tab in the AI web page — describe an automation in plain language and the AI generates a ready-to-import **Node-RED flow** (JSON) using KNX Ultimate nodes, the Philips Hue nodes and native Function/logic nodes, wired to your imported group addresses. Copy the JSON and paste it via Node-RED *Menu > Import*. Generated node ids, wiring and config-node references are validated and rewired server-side before output.<br/>
+- KNX AI: added **Anthropic (Claude)** as an LLM provider alongside OpenAI-compatible and Ollama. Uses Claude's native Messages API; model and API key are configurable from the node (default `claude-opus-4-8`), with model auto-discovery.<br/>
+- KNX AI: Flow Builder UI is fully localized (EN/IT/DE/FR/ES) and laid out side-by-side (prompt and generated JSON); minor sidebar fix so long menu labels are no longer truncated.<br/>
+
 **Version 4.3.19** - June 2026<br/>
 
 - Docs: reworked the multilingual **FAQ & Troubleshoot** wiki pages — rewrote the **ES/FR** pages in the clean concise style, removed a garbled machine-translated tail from the **IT** page, and deleted 5 orphan FAQ files not referenced in the navigation.<br/>

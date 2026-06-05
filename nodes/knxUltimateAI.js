@@ -18,6 +18,362 @@ let adminEndpointsRegistered = false
 const aiRuntimeNodes = new Map()
 const knxAiVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateAI-vue')
 
+// ---------------------------------------------------------------------------
+// KNX AI Flow Builder helpers
+// Build a node "catalog" (type + editable fields) from this package's own
+// editor .html files, so the LLM knows exactly which node types and config
+// fields it can emit when generating a Node-RED flow to paste in the editor.
+// ---------------------------------------------------------------------------
+
+// Native Node-RED core nodes we explicitly allow in generated flows.
+const KNX_AI_FLOW_CORE_NODES = [
+  { type: 'tab', paletteLabel: 'Flow tab (do not emit, added automatically)', category: 'config', inputs: 0, outputs: 0, fields: {} },
+  { type: 'inject', paletteLabel: 'inject (manual/scheduled trigger)', category: 'common', inputs: 0, outputs: 1, fields: { name: {}, props: {}, repeat: {}, crontab: {}, once: {}, topic: {}, payload: {}, payloadType: {} } },
+  { type: 'debug', paletteLabel: 'debug (sidebar log)', category: 'common', inputs: 1, outputs: 0, fields: { name: {}, active: {}, complete: {}, console: {}, tosidebar: {} } },
+  { type: 'function', paletteLabel: 'function (custom JavaScript)', category: 'function', inputs: 1, outputs: 1, fields: { name: {}, func: {}, outputs: {}, initialize: {}, finalize: {} } },
+  { type: 'switch', paletteLabel: 'switch (route by rules)', category: 'function', inputs: 1, outputs: 1, fields: { name: {}, property: {}, propertyType: {}, rules: {}, outputs: {} } },
+  { type: 'change', paletteLabel: 'change (set/move/delete properties)', category: 'function', inputs: 1, outputs: 1, fields: { name: {}, rules: {} } },
+  { type: 'range', paletteLabel: 'range (scale a number)', category: 'function', inputs: 1, outputs: 1, fields: { name: {}, minin: {}, maxin: {}, minout: {}, maxout: {}, action: {}, round: {}, property: {} } },
+  { type: 'delay', paletteLabel: 'delay (delay/rate limit)', category: 'function', inputs: 1, outputs: 1, fields: { name: {}, pauseType: {}, timeout: {}, timeoutUnits: {}, rate: {}, rateUnits: {} } },
+  { type: 'trigger', paletteLabel: 'trigger (send-then-reset / debounce)', category: 'function', inputs: 1, outputs: 1, fields: { name: {}, op1: {}, op2: {}, duration: {}, units: {}, reset: {} } },
+  { type: 'comment', paletteLabel: 'comment (annotation)', category: 'common', inputs: 0, outputs: 0, fields: { name: {}, info: {} } },
+  { type: 'link in', paletteLabel: 'link in', category: 'common', inputs: 0, outputs: 1, fields: { name: {}, links: {} } },
+  { type: 'link out', paletteLabel: 'link out', category: 'common', inputs: 1, outputs: 0, fields: { name: {}, links: {} } }
+]
+
+// Scan a JS object literal body (the text between its outer braces) and return,
+// for each top-level key, the inner object text. String- and comment-aware so
+// commented-out entries (e.g. "//buttonState: {value:true}") are ignored.
+const knxAiScanObjectEntries = (body) => {
+  const entries = {}
+  const len = body.length
+  let i = 0
+  let depth = 0
+  let pendingKey = ''
+  let collecting = ''
+  let innerStart = -1
+  while (i < len) {
+    const c = body[i]
+    const next = body[i + 1]
+    if (c === '/' && next === '/') {
+      i += 2
+      while (i < len && body[i] !== '\n') i++
+      continue
+    }
+    if (c === '/' && next === '*') {
+      i += 2
+      while (i < len && !(body[i] === '*' && body[i + 1] === '/')) i++
+      i += 2
+      continue
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      i++
+      while (i < len) {
+        if (body[i] === '\\') { i += 2; continue }
+        if (body[i] === c) { i++; break }
+        i++
+      }
+      continue
+    }
+    if (c === '{') {
+      if (depth === 0 && pendingKey) { collecting = pendingKey; innerStart = i + 1 }
+      depth++
+      i++
+      continue
+    }
+    if (c === '}') {
+      depth--
+      if (depth === 0 && collecting) {
+        entries[collecting] = body.slice(innerStart, i)
+        collecting = ''
+        pendingKey = ''
+      }
+      i++
+      continue
+    }
+    if (depth === 0 && /[A-Za-z_$]/.test(c)) {
+      let j = i
+      while (j < len && /[A-Za-z0-9_$]/.test(body[j])) j++
+      pendingKey = body.slice(i, j)
+      i = j
+      continue
+    }
+    i++
+  }
+  return entries
+}
+
+// Given full text and the index of an opening brace, return the substring up to
+// and including the matching closing brace (string/comment aware).
+const knxAiSliceBalanced = (text, openIndex) => {
+  const len = text.length
+  let i = openIndex
+  let depth = 0
+  while (i < len) {
+    const c = text[i]
+    const next = text[i + 1]
+    if (c === '/' && next === '/') {
+      i += 2
+      while (i < len && text[i] !== '\n') i++
+      continue
+    }
+    if (c === '/' && next === '*') {
+      i += 2
+      while (i < len && !(text[i] === '*' && text[i + 1] === '/')) i++
+      i += 2
+      continue
+    }
+    if (c === '"' || c === "'" || c === '`') {
+      i++
+      while (i < len) {
+        if (text[i] === '\\') { i += 2; continue }
+        if (text[i] === c) { i++; break }
+        i++
+      }
+      continue
+    }
+    if (c === '{') depth++
+    else if (c === '}') {
+      depth--
+      if (depth === 0) return text.slice(openIndex, i + 1)
+    }
+    i++
+  }
+  return text.slice(openIndex)
+}
+
+const knxAiMatchAfter = (text, regex) => {
+  const m = regex.exec(text)
+  return m ? m[1] : ''
+}
+
+// Parse one editor `defaults: { ... }` block into a field map.
+// Each field becomes { configType, isConfig } where configType is set when the
+// field references a config node (e.g. server: { type: 'knxUltimate-config' }).
+const knxAiParseDefaultsFields = (defaultsBody) => {
+  const fields = {}
+  const entries = knxAiScanObjectEntries(defaultsBody)
+  Object.keys(entries).forEach((key) => {
+    const inner = entries[key] || ''
+    const configType = knxAiMatchAfter(inner, /\btype\s*:\s*['"]([^'"]+)['"]/)
+    fields[key] = configType ? { configType, isConfig: true } : {}
+  })
+  return fields
+}
+
+let knxAiPackageNodeCatalogCache = null
+
+// Read every registerType(...) declaration in this package's editor .html files
+// and return a catalog: [{ type, paletteLabel, category, inputs, outputs, fields }].
+const buildKnxAiPackageNodeCatalog = () => {
+  if (knxAiPackageNodeCatalogCache) return knxAiPackageNodeCatalogCache
+  const catalog = []
+  const seen = new Set()
+  let nodeMap = {}
+  try {
+    const pkg = require(path.join(__dirname, '..', 'package.json'))
+    nodeMap = (pkg['node-red'] && pkg['node-red'].nodes) || {}
+  } catch (error) {
+    nodeMap = {}
+  }
+  Object.keys(nodeMap).forEach((mapKey) => {
+    try {
+      const jsRel = String(nodeMap[mapKey] || '')
+      const base = path.basename(jsRel).replace(/\.js$/i, '')
+      const htmlPath = path.join(__dirname, `${base}.html`)
+      if (!fs.existsSync(htmlPath)) return
+      const html = fs.readFileSync(htmlPath, 'utf8')
+      const re = /registerType\(\s*['"]([^'"]+)['"]\s*,\s*\{/g
+      let m
+      while ((m = re.exec(html))) {
+        const type = m[1]
+        if (seen.has(type)) continue
+        seen.add(type)
+        const objOpen = html.indexOf('{', m.index + m[0].length - 1)
+        if (objOpen < 0) continue
+        const objText = knxAiSliceBalanced(html, objOpen)
+        const category = knxAiMatchAfter(objText, /\bcategory\s*:\s*['"]([^'"]+)['"]/)
+        const paletteLabel = knxAiMatchAfter(objText, /\bpaletteLabel\s*:\s*['"]([^'"]+)['"]/)
+        const inputsRaw = knxAiMatchAfter(objText, /\binputs\s*:\s*(\d+)/)
+        const outputsRaw = knxAiMatchAfter(objText, /\boutputs\s*:\s*(\d+)/)
+        let fields = {}
+        const defIdx = objText.search(/\bdefaults\s*:\s*\{/)
+        if (defIdx >= 0) {
+          const braceIdx = objText.indexOf('{', defIdx)
+          const defaultsBlock = knxAiSliceBalanced(objText, braceIdx)
+          fields = knxAiParseDefaultsFields(defaultsBlock.slice(1, -1))
+        }
+        catalog.push({
+          type,
+          paletteLabel: paletteLabel || type,
+          category: category || '',
+          inputs: inputsRaw === '' ? 1 : Number(inputsRaw),
+          outputs: outputsRaw === '' ? 1 : Number(outputsRaw),
+          isConfig: category === 'config',
+          fields
+        })
+      }
+    } catch (error) {
+      // skip nodes we cannot parse
+    }
+  })
+  knxAiPackageNodeCatalogCache = catalog
+  return catalog
+}
+
+// Combined catalog (package + core), the set of config-node types, and a
+// per-type map of which fields are config references.
+const buildKnxAiFlowCatalog = () => {
+  const packageNodes = buildKnxAiPackageNodeCatalog()
+  const all = packageNodes.concat(KNX_AI_FLOW_CORE_NODES)
+  const configTypes = new Set()
+  const configFieldsByType = {}
+  const allowedTypes = new Set()
+  all.forEach((node) => {
+    allowedTypes.add(node.type)
+    if (node.isConfig) configTypes.add(node.type)
+    const refs = []
+    Object.keys(node.fields || {}).forEach((field) => {
+      const meta = node.fields[field]
+      if (meta && meta.isConfig && meta.configType) {
+        refs.push({ field, configType: meta.configType })
+        configTypes.add(meta.configType)
+      }
+    })
+    if (refs.length) configFieldsByType[node.type] = refs
+  })
+  return { nodes: all, packageNodes, configTypes, configFieldsByType, allowedTypes }
+}
+
+// Render the catalog as a compact text block for the LLM system/user prompt.
+const renderKnxAiCatalogForPrompt = (catalog) => {
+  const lines = []
+  catalog.nodes
+    .filter(node => node.type !== 'tab')
+    .forEach((node) => {
+      const fieldNames = Object.keys(node.fields || {}).map((field) => {
+        const meta = node.fields[field]
+        return (meta && meta.isConfig && meta.configType) ? `${field}[ref:${meta.configType}]` : field
+      })
+      const io = `${node.inputs}in/${node.outputs}out`
+      const fieldsText = fieldNames.length ? ` | fields: ${fieldNames.join(', ')}` : ''
+      lines.push(`- ${node.type} — ${node.paletteLabel} (${io})${fieldsText}`)
+    })
+  return lines.join('\n')
+}
+
+// Try hard to extract a JSON flow (array of node objects) from an LLM reply.
+const parseKnxAiFlowFromLlm = (content) => {
+  const raw = String(content || '').trim()
+  if (!raw) return { nodes: [], notes: '', error: 'Empty model response' }
+  let text = raw
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  if (fence) text = fence[1].trim()
+  const tryParse = (candidate) => {
+    try { return JSON.parse(candidate) } catch (error) { return undefined }
+  }
+  const fromObject = (obj) => {
+    if (Array.isArray(obj)) return { nodes: obj, notes: '' }
+    if (obj && typeof obj === 'object') {
+      const nodes = Array.isArray(obj.flow) ? obj.flow : (Array.isArray(obj.nodes) ? obj.nodes : null)
+      if (nodes) return { nodes, notes: String(obj.notes || obj.comment || '') }
+    }
+    return null
+  }
+  let parsed = tryParse(text)
+  if (parsed === undefined) {
+    const firstArr = text.indexOf('[')
+    const lastArr = text.lastIndexOf(']')
+    const firstObj = text.indexOf('{')
+    const lastObj = text.lastIndexOf('}')
+    if (firstArr >= 0 && lastArr > firstArr) parsed = tryParse(text.slice(firstArr, lastArr + 1))
+    if (parsed === undefined && firstObj >= 0 && lastObj > firstObj) parsed = tryParse(text.slice(firstObj, lastObj + 1))
+  }
+  if (parsed === undefined) return { nodes: [], notes: '', error: 'Could not parse JSON from model response' }
+  const shaped = fromObject(parsed)
+  if (!shaped) return { nodes: [], notes: '', error: 'Model response did not contain a flow array' }
+  return { nodes: shaped.nodes, notes: shaped.notes, error: '' }
+}
+
+// Validate / normalize the generated nodes into an importable flow:
+//  - drops invalid + tab nodes, regenerates unique ids, rewires references
+//  - puts every wire-able node on a fresh flow tab
+//  - points config references at real existing config nodes when possible
+const normalizeKnxAiGeneratedFlow = ({ rawNodes, catalog, knxServerId, existingConfigByType, genId }) => {
+  const warnings = []
+  const allowedTypes = catalog.allowedTypes
+  const configTypes = catalog.configTypes
+  const configFieldsByType = catalog.configFieldsByType
+  const input = Array.isArray(rawNodes) ? rawNodes : []
+
+  // Keep only objects with a usable type; skip tab nodes (we add our own) and
+  // config nodes (we reference existing ones instead of duplicating them).
+  const kept = []
+  input.forEach((node) => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) return
+    const type = String(node.type || '').trim()
+    if (!type || type === 'tab') return
+    if (configTypes.has(type)) {
+      warnings.push(`Skipped a generated config node of type "${type}"; existing config nodes are reused instead.`)
+      return
+    }
+    if (!allowedTypes.has(type)) {
+      warnings.push(`Node type "${type}" is not part of the allowed catalog and may not import cleanly.`)
+    }
+    kept.push(node)
+  })
+
+  // Map old ids -> fresh ids for every kept node.
+  const idRemap = new Map()
+  kept.forEach((node) => {
+    const oldId = String(node.id || '').trim()
+    const newId = genId()
+    if (oldId) idRemap.set(oldId, newId)
+    node.id = newId
+  })
+
+  const tabId = genId()
+  let x = 140
+  let y = 80
+  const out = kept.map((node) => {
+    const type = String(node.type).trim()
+    node.z = tabId
+    if (!Number.isFinite(Number(node.x))) { node.x = x }
+    if (!Number.isFinite(Number(node.y))) { node.y = y; y += 70; if (y > 80 + 70 * 6) { y = 80; x += 220 } }
+    // Remap wires (arrays of arrays of node ids).
+    if (Array.isArray(node.wires)) {
+      node.wires = node.wires.map(port => (Array.isArray(port)
+        ? port.map(id => idRemap.get(String(id)) || String(id))
+        : []))
+    } else {
+      node.wires = type === 'link out' || type === 'debug' || type === 'comment' ? [] : [[]]
+    }
+    // Resolve config-node references.
+    const refs = configFieldsByType[type] || []
+    refs.forEach(({ field, configType }) => {
+      const current = String(node[field] || '').trim()
+      if (current && idRemap.has(current)) {
+        node[field] = idRemap.get(current)
+        return
+      }
+      const existing = existingConfigByType.get(configType) || []
+      if (configType === 'knxUltimate-config' && knxServerId) {
+        if (!current || !existing.some(c => c.id === current)) node[field] = knxServerId
+        return
+      }
+      if (!current || !existing.some(c => c.id === current)) {
+        if (existing.length === 1) node[field] = existing[0].id
+        else if (existing.length > 1) warnings.push(`Node "${type}" needs a ${configType} config: set it manually after import (several available).`)
+        else { node[field] = ''; warnings.push(`Node "${type}" needs a ${configType} config node, but none exists yet. Configure it after import.`) }
+      }
+    })
+    return node
+  })
+
+  const tabNode = { id: tabId, type: 'tab', label: 'KNX AI generated flow', disabled: false, info: '' }
+  return { nodes: [tabNode].concat(out), warnings, tabId }
+}
+
 const sendKnxAiVueIndex = (req, res) => {
   const entryPath = path.join(knxAiVueDistDir, 'index.html')
   fs.readFile(entryPath, 'utf8', (error, html) => {
@@ -2363,6 +2719,47 @@ const deriveModelsUrlFromBaseUrl = (baseUrl) => {
 
 const OPENAI_COMPAT_DEFAULT_CHAT_URL = 'https://api.openai.com/v1/chat/completions'
 const OLLAMA_DEFAULT_CHAT_URL = 'http://localhost:11434/api/chat'
+const ANTHROPIC_DEFAULT_MESSAGES_URL = 'https://api.anthropic.com/v1/messages'
+const ANTHROPIC_DEFAULT_MODELS_URL = 'https://api.anthropic.com/v1/models'
+const ANTHROPIC_API_VERSION = '2023-06-01'
+const ANTHROPIC_DEFAULT_MODEL = 'claude-opus-4-8'
+
+// Anthropic's native Messages API (/v1/messages) is not OpenAI-compatible: it uses
+// x-api-key + anthropic-version headers and a {role, content[]} response shape.
+const buildAnthropicHeaders = (apiKey) => ({
+  'x-api-key': String(apiKey || ''),
+  'anthropic-version': ANTHROPIC_API_VERSION
+})
+
+// Concatenate the text blocks of an Anthropic Messages API response (thinking
+// blocks, if any, are ignored: we only want the visible answer text).
+const extractAnthropicText = (json) => {
+  if (!json || !Array.isArray(json.content)) return ''
+  return json.content
+    .filter(block => block && block.type === 'text' && typeof block.text === 'string')
+    .map(block => block.text)
+    .join('')
+    .trim()
+}
+
+// Resolve the /v1/models URL from a configured /v1/messages base URL.
+const deriveAnthropicModelsUrl = (baseUrl) => {
+  const raw = String(baseUrl || '').trim()
+  if (!raw) return ANTHROPIC_DEFAULT_MODELS_URL
+  try {
+    const u = new URL(raw)
+    const path = u.pathname || '/'
+    if (/\/messages\/?$/.test(path)) {
+      u.pathname = path.replace(/\/messages\/?$/, '/models')
+      return u.toString()
+    }
+    if (/\/models\/?$/.test(path)) return u.toString()
+    u.pathname = '/v1/models'
+    return u.toString()
+  } catch (error) {
+    return ANTHROPIC_DEFAULT_MODELS_URL
+  }
+}
 
 const normalizeUrlForCompare = (value) => {
   const raw = String(value || '').trim()
@@ -3557,6 +3954,33 @@ module.exports = function (RED) {
       }
     })
 
+    RED.httpAdmin.post('/knxUltimateAI/sidebar/flow/generate', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
+      try {
+        const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
+        const prompt = req.body?.prompt ? String(req.body.prompt) : ''
+        const language = req.body?.language
+          ? String(req.body.language)
+          : extractLanguageCodeFromHeader(req.headers && req.headers['accept-language'] ? String(req.headers['accept-language']) : '', 'en')
+        if (!nodeId) {
+          res.status(400).json({ error: 'Missing nodeId' })
+          return
+        }
+        if (!prompt.trim()) {
+          res.status(400).json({ error: 'Missing prompt' })
+          return
+        }
+        const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
+        if (!n || n.type !== 'knxUltimateAI' || typeof n.generateAiFlow !== 'function') {
+          res.status(404).json({ error: 'KNX AI node not found' })
+          return
+        }
+        const ret = await n.generateAiFlow({ prompt, language })
+        res.json(ret)
+      } catch (error) {
+        res.status(error.status || 500).json({ error: error.message || String(error) })
+      }
+    })
+
     RED.httpAdmin.post('/knxUltimateAI/sidebar/test-plans/save', RED.auth.needsPermission('knxUltimate-config.write'), async (req, res) => {
       try {
         const nodeId = req.body?.nodeId ? String(req.body.nodeId) : ''
@@ -3744,6 +4168,15 @@ module.exports = function (RED) {
           return
         }
 
+        if (provider === 'anthropic') {
+          const modelsUrl = deriveAnthropicModelsUrl(baseUrl)
+          const json = await getJson({ url: modelsUrl, headers: buildAnthropicHeaders(apiKey) })
+          let ids = (json && Array.isArray(json.data)) ? json.data.map(m => m && m.id).filter(Boolean) : []
+          ids.sort()
+          res.json({ provider, baseUrl: modelsUrl, models: ids, filtered: false })
+          return
+        }
+
         // OpenAI-compatible: /v1/models
         const modelsUrl = deriveModelsUrlFromBaseUrl(baseUrl)
         const headers = {}
@@ -3851,13 +4284,17 @@ module.exports = function (RED) {
 
     node.llmEnabled = config.llmEnabled !== undefined ? coerceBoolean(config.llmEnabled) : false
     node.llmProvider = config.llmProvider || 'openai_compat'
-    node.llmBaseUrl = config.llmBaseUrl || 'https://api.openai.com/v1/chat/completions'
+    node.llmBaseUrl = config.llmBaseUrl || ''
     if (node.llmProvider === 'ollama') {
       node.llmBaseUrl = resolveOllamaChatUrl(node.llmBaseUrl)
+    } else if (node.llmProvider === 'anthropic') {
+      node.llmBaseUrl = node.llmBaseUrl || ANTHROPIC_DEFAULT_MESSAGES_URL
+    } else {
+      node.llmBaseUrl = node.llmBaseUrl || 'https://api.openai.com/v1/chat/completions'
     }
     // Prefer Node-RED credentials store, fallback to legacy config field (backward compatible)
     node.llmApiKey = sanitizeApiKey((node.credentials && node.credentials.llmApiKey) ? node.credentials.llmApiKey : (config.llmApiKey || ''))
-    node.llmModel = config.llmModel || 'gpt-4o-mini'
+    node.llmModel = config.llmModel || (node.llmProvider === 'anthropic' ? ANTHROPIC_DEFAULT_MODEL : 'gpt-4o-mini')
     node.llmSystemPrompt = config.llmSystemPrompt || 'You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.'
     node.llmTemperature = (config.llmTemperature === undefined || config.llmTemperature === '') ? 0.2 : Number(config.llmTemperature)
     node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 50000 : Number(config.llmMaxTokens)
@@ -7126,6 +7563,23 @@ module.exports = function (RED) {
         return { provider: 'ollama', model: body.model, content, finishReason: String(json && json.done_reason ? json.done_reason : '') }
       }
 
+      if (node.llmProvider === 'anthropic') {
+        // Anthropic native Messages API (not OpenAI-compatible).
+        const url = node.llmBaseUrl || ANTHROPIC_DEFAULT_MESSAGES_URL
+        const headers = buildAnthropicHeaders(node.llmApiKey)
+        const sys = systemPrompt || node.llmSystemPrompt || ''
+        const body = {
+          model: node.llmModel || ANTHROPIC_DEFAULT_MODEL,
+          max_tokens: resolvedMaxTokens,
+          messages: [{ role: 'user', content: userContent }]
+        }
+        if (sys) body.system = sys
+        const json = await postJson({ url, headers, body, timeoutMs: effectiveTimeoutMs })
+        const content = extractAnthropicText(json)
+        const finishReason = String(json && json.stop_reason ? json.stop_reason : '')
+        return { provider: 'anthropic', model: body.model, content, finishReason }
+      }
+
       // Default: OpenAI-compatible chat/completions
       const url = node.llmBaseUrl || 'https://api.openai.com/v1/chat/completions'
       const headers = {}
@@ -7251,6 +7705,114 @@ module.exports = function (RED) {
           translationModel: translation.model || ''
         },
         testPlans: buildAiTestPlansSnapshot()
+      }
+    }
+
+    node.generateAiFlow = async ({ prompt, language } = {}) => {
+      const question = String(prompt || '').trim()
+      if (!question) throw new Error('Missing prompt')
+      const targetLanguage = normalizeLanguageCode(language, 'en')
+      const catalog = buildKnxAiFlowCatalog()
+
+      // Discover existing config nodes (KNX server, Hue bridge, ...) so generated
+      // nodes can reference real ids instead of inventing them.
+      const existingConfigByType = new Map()
+      if (typeof RED.nodes.eachNode === 'function') {
+        RED.nodes.eachNode((n) => {
+          if (!n || !catalog.configTypes.has(n.type)) return
+          const list = existingConfigByType.get(n.type) || []
+          list.push({ id: n.id, name: String(n.name || n.label || '').trim() })
+          existingConfigByType.set(n.type, list)
+        })
+      }
+      const knxServerId = (node.serverKNX && node.serverKNX.id) ? node.serverKNX.id : ''
+      const knxServerName = (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : ''
+
+      // KNX group-address context (capped to keep the prompt within budget).
+      const fullGaCatalog = getGaCatalogSnapshot()
+      const GA_LIMIT = 600
+      const gaLines = fullGaCatalog.slice(0, GA_LIMIT).map((item) => {
+        const ga = String(item.ga || '').trim()
+        const dpt = String(item.dpt || '').trim() || '?'
+        const label = String(item.label || '').trim()
+        const role = String(item.role || '').trim() || 'neutral'
+        return `${ga} | dpt ${dpt} | ${role} | ${label}`
+      })
+      const gaTruncated = fullGaCatalog.length > GA_LIMIT
+
+      const configLines = []
+      if (knxServerId) configLines.push(`knxUltimate-config (KNX bus): id="${knxServerId}"${knxServerName ? ` name="${knxServerName}"` : ''} — USE THIS for the "server" field of knxUltimate nodes.`)
+      existingConfigByType.forEach((list, type) => {
+        list.forEach((cfg) => {
+          if (type === 'knxUltimate-config' && cfg.id === knxServerId) return
+          configLines.push(`${type}: id="${cfg.id}"${cfg.name ? ` name="${cfg.name}"` : ''}`)
+        })
+      })
+
+      const systemPrompt = [
+        'You are a Node-RED flow generator for the node-red-contrib-knx-ultimate package.',
+        'From the user request you output a single Node-RED flow (a JSON array of node objects) that the user will import via the editor (Menu > Import > paste JSON).',
+        '',
+        'STRICT OUTPUT RULES:',
+        '- Reply with ONLY a JSON object: {"flow": [ ...node objects... ], "notes": "<short explanation in the user language>"}. No prose, no markdown fences.',
+        '- Use ONLY node types from the CATALOG below. Never invent node types or field names.',
+        '- Every node needs a unique string "id", a "type", and (for wire-able nodes) a "wires" array of arrays of target node ids.',
+        '- Connect nodes by listing the downstream node id inside the upstream node\'s "wires".',
+        '- For KNX devices use type "knxUltimate": set "server" to the given KNX config id, "topic" to the group address, "setTopicType":"str", "dpt" to the DPT. To READ from the bus keep "notifywrite":true and use the node\'s output. To WRITE to the bus, set "outputtype":"write" and send a msg.payload to its input.',
+        '- Put automation logic in "function" nodes (plain JavaScript, must `return msg;`). Prefer function nodes over exotic nodes when in doubt.',
+        '- Reference config nodes (KNX server, Hue bridge, ...) ONLY by the ids listed in EXISTING CONFIG NODES. Do not create config/tab nodes; the importer adds the tab automatically.',
+        '- Give each node sensible "x" and "y" coordinates for a left-to-right layout.',
+        '- Only use group addresses from the KNX GROUP ADDRESSES list. If the request needs a GA that is not listed, explain it in "notes" and leave that node\'s topic empty.'
+      ].join('\n')
+
+      const userContent = [
+        `USER REQUEST (answer notes in language "${targetLanguage}"):`,
+        question,
+        '',
+        'NODE CATALOG (type — description (Nin/Mout) | fields; [ref:X] = id of an X config node):',
+        renderKnxAiCatalogForPrompt(catalog),
+        '',
+        'EXISTING CONFIG NODES (reference these ids):',
+        configLines.length ? configLines.join('\n') : '(none found)',
+        '',
+        `KNX GROUP ADDRESSES (ga | dpt | role | label)${gaTruncated ? ` — showing first ${GA_LIMIT} of ${fullGaCatalog.length}` : ''}:`,
+        gaLines.length ? gaLines.join('\n') : '(no group addresses imported)',
+        '',
+        'Return the JSON object now.'
+      ].join('\n')
+
+      const configuredMaxTokens = Math.max(12000, Number(node.llmMaxTokens) || 0)
+      const ret = await callLLMChat({ systemPrompt, userContent, maxTokensOverride: configuredMaxTokens })
+      const parsed = parseKnxAiFlowFromLlm(ret && ret.content)
+      if (parsed.error && (!parsed.nodes || parsed.nodes.length === 0)) {
+        throw new Error(`The model did not return a valid flow: ${parsed.error}`)
+      }
+      const genId = (typeof RED.util === 'object' && typeof RED.util.generateId === 'function')
+        ? RED.util.generateId
+        : () => Math.random().toString(16).slice(2, 10) + Math.random().toString(16).slice(2, 10)
+      const normalized = normalizeKnxAiGeneratedFlow({
+        rawNodes: parsed.nodes,
+        catalog,
+        knxServerId,
+        existingConfigByType,
+        genId
+      })
+      const flow = normalized.nodes
+      return {
+        ok: true,
+        flow,
+        flowJson: JSON.stringify(flow, null, 2),
+        notes: parsed.notes || '',
+        warnings: normalized.warnings,
+        generation: {
+          provider: ret && ret.provider ? ret.provider : '',
+          model: ret && ret.model ? ret.model : '',
+          finishReason: ret && ret.finishReason ? ret.finishReason : '',
+          nodeCount: Math.max(0, flow.length - 1),
+          gaTruncated,
+          language: targetLanguage,
+          languageName: languageNameFromCode(targetLanguage)
+        }
       }
     }
 

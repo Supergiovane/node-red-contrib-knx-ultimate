@@ -124,6 +124,7 @@ let uiTranslateApplying = false
 const DYNAMIC_UI_PATTERNS = {
   it: {
     countAreas: '{{count}} aree',
+    countNodes: '{{count}} nodi',
     countSavedPlans: '{{count}} piani salvati',
     countAvailable: '{{count}} disponibili',
     countVisible: '{{count}} visibili',
@@ -140,6 +141,7 @@ const DYNAMIC_UI_PATTERNS = {
   },
   de: {
     countAreas: '{{count}} Bereiche',
+    countNodes: '{{count}} Knoten',
     countSavedPlans: '{{count}} gespeicherte Pläne',
     countAvailable: '{{count}} verfügbar',
     countVisible: '{{count}} sichtbar',
@@ -156,6 +158,7 @@ const DYNAMIC_UI_PATTERNS = {
   },
   fr: {
     countAreas: '{{count}} zones',
+    countNodes: '{{count}} nœuds',
     countSavedPlans: '{{count}} plans enregistrés',
     countAvailable: '{{count}} disponibles',
     countVisible: '{{count}} visibles',
@@ -172,6 +175,7 @@ const DYNAMIC_UI_PATTERNS = {
   },
   es: {
     countAreas: '{{count}} áreas',
+    countNodes: '{{count}} nodos',
     countSavedPlans: '{{count}} planes guardados',
     countAvailable: '{{count}} disponibles',
     countVisible: '{{count}} visibles',
@@ -188,6 +192,7 @@ const DYNAMIC_UI_PATTERNS = {
   },
   'zh-CN': {
     countAreas: '{{count}} 个区域',
+    countNodes: '{{count}} 个节点',
     countSavedPlans: '{{count}} 个已保存计划',
     countAvailable: '{{count}} 可用',
     countVisible: '{{count}} 可见',
@@ -372,6 +377,8 @@ function translateDynamicUiText (text) {
   if (!langPatterns) return ''
   let match = text.match(/^(\d+)\sareas$/i)
   if (match) return translateTemplate(langPatterns.countAreas, { count: match[1] })
+  match = text.match(/^(\d+)\snodes$/i)
+  if (match) return translateTemplate(langPatterns.countNodes, { count: match[1] })
   match = text.match(/^(\d+)\ssaved plans$/i)
   if (match) return translateTemplate(langPatterns.countSavedPlans, { count: match[1] })
   match = text.match(/^(\d+)\savailable$/i)
@@ -593,6 +600,11 @@ const state = reactive({
   lastError: '',
   chatMessages: [],
   chatDraft: '',
+  flowBuilderPrompt: '',
+  flowBuilderGenerating: false,
+  flowBuilderResult: null,
+  flowBuilderError: '',
+  flowBuilderCopied: false,
   pollStateHandle: null,
   pollNodesHandle: null
 })
@@ -2936,6 +2948,54 @@ async function sendAsk (questionOverride = '') {
   }
 }
 
+async function generateFlow () {
+  const prompt = String(state.flowBuilderPrompt || '').trim()
+  if (!prompt || !state.selectedNodeId || state.flowBuilderGenerating) return
+  state.flowBuilderGenerating = true
+  state.flowBuilderError = ''
+  state.flowBuilderCopied = false
+  setStatus('Generating flow...')
+  try {
+    const data = await requestJson(apiUrl('flow/generate'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nodeId: state.selectedNodeId, prompt, language: uiLanguage.value })
+    })
+    state.flowBuilderResult = data || null
+    setStatus('Ready')
+  } catch (error) {
+    state.flowBuilderResult = null
+    state.flowBuilderError = error.message || 'Flow generation failed'
+    setStatus(state.flowBuilderError)
+  } finally {
+    state.flowBuilderGenerating = false
+  }
+}
+
+async function copyFlowJson () {
+  const json = state.flowBuilderResult && state.flowBuilderResult.flowJson ? state.flowBuilderResult.flowJson : ''
+  if (!json) return
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(json)
+    } else {
+      const area = document.createElement('textarea')
+      area.value = json
+      area.style.position = 'fixed'
+      area.style.opacity = '0'
+      document.body.appendChild(area)
+      area.select()
+      document.execCommand('copy')
+      document.body.removeChild(area)
+    }
+    state.flowBuilderCopied = true
+    setStatus('Flow JSON copied to clipboard')
+    setTimeout(() => { state.flowBuilderCopied = false }, 2500)
+  } catch (error) {
+    state.flowBuilderError = error.message || 'Could not copy to clipboard'
+  }
+}
+
 async function saveAreaDefinition () {
   const area = selectedArea.value
   if (!state.selectedNodeId || state.areaSaving) return
@@ -4550,6 +4610,14 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Assistant</span>
           </span>
         </button>
+        <button class="tab-button" :class="{ active: state.activeTab === 'flowBuilder' }" type="button" title="Flow Builder" aria-label="Flow Builder" @click="activateSidebarTab('flowBuilder')">
+          <span class="sidebar-nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M2 5h8v4H6v2h6.2a3 3 0 0 1 2.8-2H22v4h-7a1 1 0 0 0-1 1v0a1 1 0 0 0 1 1h7v4h-7a3 3 0 0 1-2.8-2H6v2h4v4H2v-4h2v-6H2zm18 0h2v4h-2z"/></svg>
+          </span>
+          <span class="sidebar-nav-copy">
+            <span class="sidebar-nav-title">Flow Builder</span>
+          </span>
+        </button>
         <button class="tab-button" :class="{ active: state.activeTab === 'settings' }" type="button" title="Settings" aria-label="Settings" @click="activateSidebarTab('settings')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M19.14 12.94a7.43 7.43 0 0 0 .05-.94 7.43 7.43 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.18 7.18 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.9 2h-3.8a.5.5 0 0 0-.49.42l-.36 2.54a7.18 7.18 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.48a.5.5 0 0 0 .12.64l2.03 1.58a7.43 7.43 0 0 0-.05.94 7.43 7.43 0 0 0 .05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.39 1.04.71 1.63.94l.36 2.54a.5.5 0 0 0 .49.42h3.8a.5.5 0 0 0 .49-.42l.36-2.54c.59-.23 1.13-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.2A3.2 3.2 0 1 1 12 8.8a3.2 3.2 0 0 1 0 6.4z"/></svg>
@@ -5650,6 +5718,67 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
+      <section v-if="state.activeTab === 'flowBuilder'" class="card card-flow-builder">
+        <div class="card-head">
+          <h2>Flow Builder <span class="beta-badge">BETA</span></h2>
+          <span class="meta-chip">{{ nodeInfo.llmEnabled ? 'AI enabled' : 'AI disabled' }}</span>
+        </div>
+        <div class="flow-builder-split">
+          <div class="flow-builder-pane flow-builder-input">
+            <p class="flow-builder-hint">
+              Describe the automation in plain language. The AI generates a Node-RED flow using KNX Ultimate nodes, the Hue nodes and native Function/logic nodes, wired to your imported group addresses. Copy the JSON, then in Node-RED use Menu &gt; Import and paste it.
+            </p>
+            <div class="flow-builder-compose">
+              <textarea
+                v-model="state.flowBuilderPrompt"
+                class="flow-builder-textarea"
+                rows="6"
+                :disabled="state.flowBuilderGenerating || !nodeInfo.llmEnabled"
+                placeholder="e.g. When the Hue motion sensor in the living room detects movement, switch on the living room light."
+              ></textarea>
+              <div class="flow-builder-actions">
+                <button
+                  class="primary-button"
+                  type="button"
+                  :disabled="state.flowBuilderGenerating || !nodeInfo.llmEnabled || !String(state.flowBuilderPrompt || '').trim()"
+                  @click="generateFlow()"
+                >
+                  {{ state.flowBuilderGenerating ? 'Generating...' : 'Generate flow' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="flow-builder-pane flow-builder-output">
+            <article v-if="state.flowBuilderGenerating" class="flow-builder-pending">
+              <span class="chat-pending-spinner" aria-hidden="true"></span>
+              <span>Generating flow...</span>
+            </article>
+
+            <article v-else-if="state.flowBuilderError" class="flow-builder-error">
+              <pre>{{ state.flowBuilderError }}</pre>
+            </article>
+
+            <div v-else-if="state.flowBuilderResult" class="flow-builder-result">
+              <p v-if="state.flowBuilderResult.notes" class="flow-builder-notes">{{ state.flowBuilderResult.notes }}</p>
+              <ul v-if="state.flowBuilderResult.warnings && state.flowBuilderResult.warnings.length" class="flow-builder-warnings">
+                <li v-for="(warn, idx) in state.flowBuilderResult.warnings" :key="idx">{{ warn }}</li>
+              </ul>
+              <div class="flow-builder-result-head">
+                <span class="meta-chip">{{ (state.flowBuilderResult.generation && state.flowBuilderResult.generation.nodeCount) || 0 }} nodes</span>
+                <span v-if="state.flowBuilderResult.generation && state.flowBuilderResult.generation.model" class="meta-chip">{{ state.flowBuilderResult.generation.model }}</span>
+                <button class="secondary-button" type="button" @click="copyFlowJson()">
+                  {{ state.flowBuilderCopied ? 'Copied!' : 'Copy JSON' }}
+                </button>
+              </div>
+              <pre class="flow-builder-json">{{ state.flowBuilderResult.flowJson }}</pre>
+            </div>
+
+            <p v-else class="flow-builder-placeholder">The generated flow JSON will appear here.</p>
+          </div>
+        </div>
+      </section>
+
       <section v-if="state.activeTab === 'settings'" class="card card-settings">
         <div class="card-head">
           <div>
@@ -5783,7 +5912,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .page-shell {
-  --sidebar-expanded-width: 210px;
+  --sidebar-expanded-width: 240px;
   --sidebar-collapsed-width: 60px;
   --sidebar-current-width: var(--sidebar-expanded-width);
   width: min(1600px, calc(100% - 24px));
@@ -6227,7 +6356,8 @@ onBeforeUnmount(() => {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  white-space: nowrap;
+  white-space: normal;
+  line-height: 1.15;
   padding-left: 10px;
 }
 
@@ -6653,7 +6783,8 @@ onBeforeUnmount(() => {
 .card-flow,
 .card-areas,
 .card-profiles,
-.card-settings {
+.card-settings,
+.card-flow-builder {
   grid-column: span 12;
 }
 
@@ -7958,6 +8089,165 @@ onBeforeUnmount(() => {
 @keyframes chat-pending-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+.card-flow-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.beta-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ff9800;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+
+.flow-builder-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.flow-builder-pane {
+  flex: 1 1 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flow-builder-input {
+  flex: 1 1 300px;
+  max-width: 520px;
+}
+
+.flow-builder-output {
+  flex: 1.6 1 340px;
+  min-height: 120px;
+}
+
+.flow-builder-placeholder {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px dashed rgba(90, 102, 122, 0.3);
+  border-radius: var(--soft-radius, 10px);
+  color: var(--muted-text, #5a667a);
+  font-size: 13px;
+  text-align: center;
+}
+
+.flow-builder-hint {
+  margin: 0;
+  color: var(--muted-text, #5a667a);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.flow-builder-compose {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow-builder-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+  padding: 10px 12px;
+  border: 1px solid rgba(90, 102, 122, 0.28);
+  border-radius: var(--soft-radius, 10px);
+  font: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.flow-builder-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.flow-builder-pending {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted-text, #5a667a);
+  font-size: 13px;
+}
+
+.flow-builder-error {
+  border: 1px solid rgba(214, 69, 69, 0.4);
+  background: rgba(214, 69, 69, 0.08);
+  border-radius: var(--soft-radius, 10px);
+  padding: 8px 12px;
+}
+
+.flow-builder-error pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #b3261e;
+  font-size: 13px;
+}
+
+.flow-builder-result {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow-builder-notes {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.flow-builder-warnings {
+  margin: 0;
+  padding-left: 18px;
+  color: #8a6d00;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.flow-builder-result-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flow-builder-result-head .secondary-button {
+  margin-left: auto;
+}
+
+.flow-builder-json {
+  margin: 0;
+  max-height: 420px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid rgba(90, 102, 122, 0.22);
+  border-radius: var(--soft-radius, 10px);
+  background: #1e2330;
+  color: #e6e9f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
 }
 
 :deep(.chat-svg-wrap) {
