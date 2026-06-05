@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 4.3.19** - June 2026<br/>
+
+- Docs: reworked the multilingual **FAQ & Troubleshoot** wiki pages — rewrote the **ES/FR** pages in the clean concise style, removed a garbled machine-translated tail from the **IT** page, and deleted 5 orphan FAQ files not referenced in the navigation.<br/>
+- Docs: added a dedicated FAQ section about **Weinzierl (73x) KNX/IP interfaces** that may need *Suppress ACK request* (e.g. over VPN/high-latency links), in all 6 languages.<br/>
+- Editor: when a **Weinzierl** interface is selected from the discovery dropdown in the gateway config node, *Suppress ACK request* is now enabled automatically (it only enables it, never overrides a manual choice, and shows an info notification).<br/>
+
 **Version 4.3.18** - May 2026<br/>
 
 - Bump Engine to 5.5.8
