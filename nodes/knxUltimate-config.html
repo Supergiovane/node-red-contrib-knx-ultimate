@@ -716,6 +716,20 @@
                     } catch (e) { }
                     $("#node-config-input-physAddr").val(`${prefix}.${rnd}`)
                     autoSelectEthernetInterfaceForHost({ force: true })
+                    // Weinzierl KNX/IP Interfaces (e.g. 73x series) may not return the L_Data.req ACK
+                    // in time, especially over VPN/high-latency links. Auto-enable "Suppress ACK request"
+                    // when such an interface is detected by its friendly name. We only turn it on (never off),
+                    // so a manual choice is never silently reverted.
+                    try {
+                        if (/weinzierl|\b73\d\b/i.test(String(gateway.name || ''))) {
+                            const $ack = $("#node-config-input-suppressACKRequest")
+                            if (!$ack.prop('checked')) {
+                                $ack.prop('checked', true)
+                                blinkBackgroundArray(["#node-config-input-suppressACKRequest"])
+                                try { RED.notify(node._('knxUltimate-config.properties.weinzierl_ack_autoenabled'), { type: 'info', timeout: 6000 }) } catch (e) { }
+                            }
+                        }
+                    } catch (e) { }
                     blinkBackgroundArray(["#node-config-input-host", "#node-config-input-port", "#node-config-input-name", "#node-config-input-physAddr"])
                     return false
                 },

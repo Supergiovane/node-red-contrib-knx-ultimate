@@ -19,6 +19,7 @@
             "discovering": "Ricerca in corso...",
             "interfaces_found": "interfacce trovate.",
             "discovery_failed": "Ricerca fallita.",
+            "weinzierl_ack_autoenabled": "Interfaccia Weinzierl rilevata: ho attivato automaticamente 'Suppress ACK request'. Puoi disattivarlo nella scheda Avanzate.",
             "address": "Indirizzo",
             "iface_auto": "Auto",
             "iface_manual": "Inserisci manualmente il nome dell'interfaccia",

@@ -50,6 +50,12 @@ Eventuell ist Filtering im Router/Interface aktiv.
 - In ETS **Forwarding** erlauben oder physikalische Adresse des Config-Nodes nach Filtertabellen anpassen.
 - Mit **knxd** : Filtertabellen prüfen und physikalische Adresse anpassen.
 
+## Ich kann nicht auf den Bus schreiben (Weinzierl- oder ähnliches KNX/IP-Interface)
+
+Manche KNX/IP- **Interfaces ** , etwa die Serie**Weinzierl KNX IP Interface 73x** , liefern das `L_Data.req`-ACK nicht rechtzeitig zurück, besonders über**VPN- oder Verbindungen mit hoher Latenz** . Dann kannst du zwar empfangen, das Schreiben auf den Bus schlägt aber stillschweigend fehl.
+
+- Aktiviere **Suppress ACK request ** im [Gateway-Konfigurations-Node](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration). Bei einer über VPN angebundenen Weinzierl 732 hat dies das Schreiben nachweislich behoben.
+
 ## Falsche Werte
 
 - Passenden Datapoint nutzen (Temperatur: `9.001`).

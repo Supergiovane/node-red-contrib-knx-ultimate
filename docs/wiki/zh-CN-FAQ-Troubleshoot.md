@@ -50,6 +50,12 @@ permalink: /wiki/zh-CN-FAQ-Troubleshoot
 - 在 ETS 中允许 **Forwarding** ；或依据路由器的过滤表，调整 Config-Node 的物理地址。
 - 使用 **knxd** 时请检查过滤表并相应调整物理地址。
 
+## 使用 Weinzierl（或类似）KNX/IP Interface 时无法写入总线
+
+某些 KNX/IP **Interface ** （如**Weinzierl KNX IP Interface 73x** 系列）可能不会在预期时间内返回 `L_Data.req` 的 ACK，**经 VPN 或高延迟链路** 时尤为明显。此时你能接收报文，但向总线写入会悄无声息地失败。
+
+- 在 [Gateway configuration 节点](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration) 中启用 **Suppress ACK request** 。在经 VPN 连接的 Weinzierl 732 上，此设置已被确认可解决写入问题。
+
 ## 数值错误
 
 - 使用正确的 Datapoint（温度：`9.001`）。

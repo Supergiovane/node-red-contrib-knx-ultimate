@@ -19,6 +19,7 @@
             "discovering": "Discovering...",
             "interfaces_found": "interfaces found.",
             "discovery_failed": "Discovery failed.",
+            "weinzierl_ack_autoenabled": "Weinzierl interface detected: 'Suppress ACK request' has been enabled automatically. You can disable it in the Advanced tab.",
             "address": "Address",
             "iface_auto": "Auto",
             "iface_manual": "Manually enter interface's name",

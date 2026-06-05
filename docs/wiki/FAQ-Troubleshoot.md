@@ -33,6 +33,9 @@ You may have other Node-Red KNX Plug-ins installed.
 Your KNX/IP Router/Interface may have filtering active.
 - Check in ETS if the router has filtering enabled. If yes, either allow **forwarding** in all configuration pages of your KNX Router, or change the physical address of the knx-ultimate config node according to your router's filter tables.
 - If you're using **knxd** , please check the filtering tables and change the KNX config node physycal address accordingly.
+## I CAN'T WRITE TO THE BUS WITH A WEINZIERL (OR SIMILAR) KNX/IP INTERFACE
+Some KNX/IP **Interfaces ** , like the**Weinzierl KNX IP Interface 73x** series, may not return the `L_Data.req` acknowledge (ACK) within the expected time, especially over**VPN or high-latency links** . In that case you can receive telegrams but writing to the bus silently fails.
+- Enable **Suppress ACK request ** in the [Gateway configuration node](/node-red-contrib-knx-ultimate/wiki/Gateway-configuration). This was confirmed to fix writing on a Weinzierl 732 reached through a VPN.
 ## WRONG VALUES FROM THE NODE
 - Make sure to use the right datapoint. For example, for temperature, use 9.001
 - When possible, import the ETS csv file in the Gateway configuration node. You'lll have always the right Datapoints!

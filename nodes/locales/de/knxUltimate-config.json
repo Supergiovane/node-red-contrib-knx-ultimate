@@ -19,6 +19,7 @@
             "discovering": "Suche...",
             "interfaces_found": "Schnittstellen gefunden.",
             "discovery_failed": "Suche fehlgeschlagen.",
+            "weinzierl_ack_autoenabled": "Weinzierl-Interface erkannt: 'Suppress ACK request' wurde automatisch aktiviert. Du kannst es im Tab 'Erweitert' deaktivieren.",
             "address": "Adresse",
             "iface_auto": "Auto",
             "iface_manual": "Schnittstellennamen manuell eingeben",

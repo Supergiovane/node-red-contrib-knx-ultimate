@@ -19,6 +19,7 @@
             "discovering": "正在发现...",
             "interfaces_found": "个接口已发现。",
             "discovery_failed": "发现失败。",
+            "weinzierl_ack_autoenabled": "检测到 Weinzierl 接口：已自动启用 'Suppress ACK request'。你可以在「高级」选项卡中关闭它。",
             "address": "地址",
             "iface_auto": "自动",
             "iface_manual": "手动输入接口名称",
