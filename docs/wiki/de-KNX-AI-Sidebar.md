@@ -17,6 +17,7 @@ Diese Seite behält den historischen Namen `KNX-AI-Sidebar` aus Kompatibilitäts
 - Bereiche mit KI-Unterstützung erstellen und verwalten.
 - Geführte Tests ausführen und klare Ergebnisse lesen.
 - Den Assistenten fragen: "Was stimmt nicht?"
+- Aus einer Beschreibung in normaler Sprache einen importfertigen Node-RED-Flow erzeugen (Flow Builder, BETA).
 
 ## Schnell starten
 
@@ -32,7 +33,22 @@ Diese Seite behält den historischen Namen `KNX-AI-Sidebar` aus Kompatibilitäts
 - **Test Results**: Historie mit pass/warn/fail.
 - **Ask**: Fragen in natürlicher Sprache stellen.
   Wenn das Festplattenarchiv im Node aktiv ist, durchsucht Ask standardmäßig das Archiv und fällt ohne explizites Datum auf die letzten 24 Stunden zurück.
+- **Flow Builder** (BETA): eine Automatisierung in Worten beschreiben und einen Node-RED-Flow (JSON) zum Einfügen im Editor erhalten.
 - **Settings**: Node-Auswahl und Import/Export.
+
+## Flow Builder (BETA)
+
+Aus einem Satz einen funktionierenden Node-RED-Flow machen.
+
+1. Öffne **Flow Builder** und schreibe, was du willst, zum Beispiel: *"Wenn das Flurlicht eingeschaltet wird, schalte das Bad-Licht im Erdgeschoss ein und nach 10 Sekunden wieder aus."*
+2. Drücke **Generate flow**. Die KI baut den Flow mit KNX-Ultimate-Knoten, den Philips-Hue-Knoten und nativen Function-/Logik-Knoten, verdrahtet mit deinen importierten Gruppenadressen.
+3. Drücke **Copy JSON**, öffne dann in Node-RED **Menu > Import** und füge ihn ein.
+
+Gut zu wissen:
+
+- Es ist BETA: Prüfe die erzeugten Knoten vor dem Deploy.
+- Knoten-IDs und Verdrahtung werden automatisch neu aufgebaut, und KNX-/Hue-Config-Referenzen zeigen auf deine vorhandenen Config-Knoten.
+- Funktioniert mit jedem konfigurierten LLM-Anbieter (OpenAI-kompatibel, Anthropic/Claude oder Ollama).
 
 ## Empfohlener Ablauf (erste Nutzung)
 
@@ -58,4 +74,4 @@ Das ist normal: Die Seite blockiert Klicks bis zum Ende, damit keine falschen Ä
 
 - Mindestens ein konfigurierter KNX-AI-Node.
 - Ein verbundenes und laufendes Gateway.
-- Für Chat-Antworten: LLM aktivieren und API-Key im KNX-AI-Node eintragen.
+- Für Chat-Antworten und den Flow Builder: LLM im KNX-AI-Node aktivieren, mit konfiguriertem Anbieter — OpenAI-kompatibel, **Anthropic (Claude)** oder Ollama (lokal). Für Cloud-Anbieter ist ein API-Key nötig.

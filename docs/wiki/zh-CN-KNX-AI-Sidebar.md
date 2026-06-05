@@ -17,6 +17,7 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 - 在 AI 帮助下创建和管理区域。
 - 执行引导式测试并查看清晰结果。
 - 直接问助手“哪里有问题？”。
+- 用自然语言描述即可生成可直接导入的 Node-RED 流程（Flow Builder，测试版）。
 
 ## 快速开始
 
@@ -32,7 +33,22 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 - **Test Results**：pass/warn/fail 历史。
 - **Ask**：用自然语言提问。
   如果节点中启用了磁盘归档，Ask 默认会查询该归档；若没有明确日期，则默认查看最近 24 小时。
+- **Flow Builder**（测试版）：用一句话描述自动化，即可得到可粘贴到编辑器的 Node-RED 流程（JSON）。
 - **Settings**：节点选择与导入/导出。
+
+## Flow Builder（测试版）
+
+把一句话变成可用的 Node-RED 流程。
+
+1. 打开 **Flow Builder**，写下你的需求，例如：*“当走廊灯打开时，打开一楼卫生间的灯，并在 10 秒后关闭。”*
+2. 点击 **Generate flow**。AI 会使用 KNX Ultimate 节点、Philips Hue 节点以及原生 Function/逻辑节点生成流程，并连接到你导入的组地址。
+3. 点击 **Copy JSON**，然后在 Node-RED 中打开 **Menu > Import** 粘贴即可。
+
+须知：
+
+- 这是测试版：部署前请检查生成的节点。
+- 节点 id 和连线会自动重建，KNX/Hue 配置节点引用会指向你已有的配置节点。
+- 适用于任何已配置的 LLM 提供商（OpenAI 兼容、Anthropic/Claude 或 Ollama）。
 
 ## 推荐使用流程（首次）
 
@@ -58,4 +74,4 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 
 - 至少有一个已配置的 KNX AI 节点。
 - 网关已连接并正常运行。
-- 如需聊天回答：在 KNX AI 节点中启用 LLM，并配置 API key。
+- 如需聊天回答和 Flow Builder：在 KNX AI 节点中启用 LLM，并配置一个提供商 —— OpenAI 兼容、**Anthropic (Claude)** 或 Ollama（本地）。云端提供商需要 API key。

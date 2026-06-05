@@ -17,6 +17,7 @@ Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 - Creer et gerer des zones avec l'aide de l'IA.
 - Lancer des tests guides et lire des resultats clairs.
 - Demander a l'assistant : "qu'est-ce qui ne va pas ?"
+- Generer un flux Node-RED pret a importer a partir d'une description en langage naturel (Flow Builder, BETA).
 
 ## Demarrage rapide
 
@@ -32,7 +33,22 @@ Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 - **Test Results** : historique pass/warn/fail.
 - **Ask** : poser une question en langage naturel.
   Si l'archive disque est activée dans le nœud, Ask consulte cette archive par défaut et, sans date explicite, utilise les dernières 24 heures.
+- **Flow Builder** (BETA) : decrivez une automatisation avec des mots et obtenez un flux Node-RED (JSON) a coller dans l'editeur.
 - **Settings** : selection du nœud et import/export.
+
+## Flow Builder (BETA)
+
+Transformez une phrase en un flux Node-RED fonctionnel.
+
+1. Ouvrez **Flow Builder** et ecrivez ce que vous voulez, par exemple : *"Quand la lumiere du couloir s'allume, allume la lumiere de la salle de bain du rez-de-chaussee puis eteins-la apres 10 secondes."*
+2. Appuyez sur **Generate flow**. L'IA construit le flux avec les nœuds KNX Ultimate, les nœuds Philips Hue et les nœuds natifs Function/logique, relies a vos adresses de groupe importees.
+3. Appuyez sur **Copy JSON**, puis dans Node-RED ouvrez **Menu > Import** et collez-le.
+
+Bon a savoir :
+
+- C'est une BETA : verifiez les nœuds generes avant le deploiement.
+- Les id des nœuds et le cablage sont reconstruits automatiquement, et les references aux nœuds de configuration KNX/Hue pointent vers vos nœuds de configuration existants.
+- Fonctionne avec n'importe quel fournisseur LLM configure (compatible OpenAI, Anthropic/Claude ou Ollama).
 
 ## Parcours conseille (premiere utilisation)
 
@@ -58,4 +74,4 @@ C'est normal : la page bloque les clics jusqu'a la fin pour eviter les modificat
 
 - Au moins un nœud KNX AI configure.
 - Une passerelle connectee et active.
-- Pour les reponses du chat : LLM active et cle API configuree dans le nœud KNX AI.
+- Pour les reponses du chat et le Flow Builder : LLM active dans le nœud KNX AI, avec un fournisseur configure — compatible OpenAI, **Anthropic (Claude)** ou Ollama (local). Une cle API est requise pour les fournisseurs cloud.

@@ -17,6 +17,7 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - Create and manage areas with AI support.
 - Run guided tests and read clear results.
 - Ask the assistant "what is wrong?" and get quick suggestions.
+- Generate a ready-to-import Node-RED flow from a plain-language description (Flow Builder, BETA).
 
 ## Open it quickly
 
@@ -32,7 +33,22 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - **Test Results**: pass/warn/fail history.
 - **Ask**: type a question in natural language.
   If disk archive is enabled in the node, Ask searches archived telegrams by default and falls back to the last 24 hours when no explicit date is provided.
+- **Flow Builder** (BETA): describe an automation in plain words and get a Node-RED flow (JSON) to paste into the editor.
 - **Settings**: node selection and import/export.
+
+## Flow Builder (BETA)
+
+Turn a sentence into a working Node-RED flow.
+
+1. Open **Flow Builder** and write what you want, for example: *"When the corridor light turns on, switch on the ground-floor bathroom light and turn it off after 10 seconds."*
+2. Press **Generate flow**. The AI builds the flow using KNX Ultimate nodes, the Philips Hue nodes and native Function/logic nodes, wired to your imported group addresses.
+3. Press **Copy JSON**, then in Node-RED open **Menu > Import** and paste it.
+
+Good to know:
+
+- It is BETA: review the generated nodes before you deploy.
+- Node ids and wiring are rebuilt automatically, and KNX/Hue config references point to your existing config nodes.
+- Works with any configured LLM provider (OpenAI-compatible, Anthropic/Claude, or Ollama).
 
 ## First guided workflow
 
@@ -58,4 +74,4 @@ This is normal: the page blocks clicks until the operation ends, to prevent acci
 
 - At least one configured KNX AI node.
 - A gateway connected and running.
-- For chat answers: LLM enabled and API key configured in the KNX AI node.
+- For chat answers and Flow Builder: LLM enabled in the KNX AI node, with a provider configured — OpenAI-compatible, **Anthropic (Claude)**, or Ollama (local). An API key is required for cloud providers.

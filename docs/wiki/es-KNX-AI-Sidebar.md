@@ -17,6 +17,7 @@ Esta pagina mantiene el nombre historico `KNX-AI-Sidebar` por compatibilidad.
 - Crear y gestionar areas con ayuda de IA.
 - Ejecutar pruebas guiadas y leer resultados claros.
 - Preguntar al asistente: "que esta fallando?"
+- Generar un flujo de Node-RED listo para importar a partir de una descripcion en lenguaje natural (Flow Builder, BETA).
 
 ## Inicio rapido
 
@@ -32,7 +33,22 @@ Esta pagina mantiene el nombre historico `KNX-AI-Sidebar` por compatibilidad.
 - **Test Results**: historial pass/warn/fail.
 - **Ask**: escribir preguntas en lenguaje natural.
   Si el archivo en disco está activado en el nodo, Ask consulta ese archivo por defecto y, sin fecha explícita, usa las últimas 24 horas.
+- **Flow Builder** (BETA): describe una automatizacion con palabras y obten un flujo de Node-RED (JSON) para pegar en el editor.
 - **Settings**: seleccion de nodo e import/export.
+
+## Flow Builder (BETA)
+
+Convierte una frase en un flujo de Node-RED funcional.
+
+1. Abre **Flow Builder** y escribe lo que quieres, por ejemplo: *"Cuando se encienda la luz del pasillo, enciende la luz del baño de la planta baja y apágala después de 10 segundos."*
+2. Pulsa **Generate flow**. La IA construye el flujo usando los nodos KNX Ultimate, los nodos Philips Hue y los nodos nativos Function/lógicos, conectados a tus direcciones de grupo importadas.
+3. Pulsa **Copy JSON** y luego en Node-RED abre **Menu > Import** y pégalo.
+
+Conviene saber:
+
+- Está en BETA: revisa los nodos generados antes de desplegar.
+- Los id de nodo y el cableado se reconstruyen automáticamente, y las referencias a config-node KNX/Hue apuntan a tus config-node existentes.
+- Funciona con cualquier proveedor LLM configurado (compatible con OpenAI, Anthropic/Claude u Ollama).
 
 ## Flujo recomendado (primera vez)
 
@@ -58,4 +74,4 @@ Es normal: la pagina bloquea los clics hasta terminar para evitar cambios accide
 
 - Al menos un nodo KNX AI configurado.
 - Un gateway conectado y en marcha.
-- Para respuestas en chat: LLM activado y API key configurada en el nodo KNX AI.
+- Para respuestas en chat y para el Flow Builder: LLM activado en el nodo KNX AI, con un proveedor configurado — compatible con OpenAI, **Anthropic (Claude)** u Ollama (local). Los proveedores en la nube requieren API key.

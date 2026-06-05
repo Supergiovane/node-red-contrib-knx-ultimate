@@ -43,13 +43,21 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 - Rendered responses support Markdown for clear explanations and action points.
 - Prompt context can include KNX events, project inventory, and docs snippets (node settings dependent).
 
-## 6) Settings and operations
+## 6) Flow Builder (BETA)
+
+- Describe an automation in plain language and generate an importable Node-RED flow (JSON).
+- Uses KNX Ultimate nodes, the Philips Hue nodes and native Function/logic nodes, wired to your imported group addresses.
+- Generated node ids, wiring and config-node references (KNX server, Hue bridge) are validated and rewired server-side before output.
+- Copy the JSON and paste it in Node-RED via **Menu > Import**. Review the result before deploying (it is BETA).
+- Works with any configured LLM provider: OpenAI-compatible, Anthropic (Claude), or Ollama.
+
+## 7) Settings and operations
 
 - Select the target `knxUltimateAI` node and manage runtime options.
 - Configure node-level options exposed by the backend settings APIs.
 - Import/export configuration bundles for backup and migration workflows.
 
-## 7) UI behavior
+## 8) UI behavior
 
 - Responsive sidebar layout (desktop + mobile).
 - Persistent local preferences (selected node, active tab, refresh mode, panel state).
@@ -60,3 +68,4 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 - Investigate loops/spam on specific group addresses.
 - Validate area behavior with repeatable active tests.
 - Accelerate commissioning and post-deploy verification with AI-guided diagnostics.
+- Scaffold automations quickly by generating a Node-RED flow from a plain-language description (Flow Builder).
