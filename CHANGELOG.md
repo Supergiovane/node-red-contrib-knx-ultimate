@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.22** - June 2026<br/>
+
+- Hue config node: when the user clicks **"I already have the credentials"** to enter the connection data manually, the now-useless **CONNECT** button is hidden.<br/>
+
 **Version 4.3.21** - June 2026<br/>
 
 - KNXUltimate engine: updated to 5.5.9.<br/>
