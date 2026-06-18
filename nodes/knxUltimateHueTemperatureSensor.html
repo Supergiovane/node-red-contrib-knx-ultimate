@@ -573,3 +573,34 @@
 
   <input type="hidden" id="node-input-hueDevice">
 </script>
+
+
+<script type="text/markdown" data-help-name="knxUltimateHueTemperatureSensor">
+<p>This node reads temperature (°C) from a Hue temperature sensor and maps it to KNX.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue temperature sensor | Hue temperature sensor (autocomplete while typing) |
+| Read status at startup | On startup/reconnect, read current value and send it to KNX (default: no) |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Temp | KNX GA for temperature in Celsius. Recommended DPT: <b>9.001</b> |
+
+### Outputs
+
+1. Standard output
+   : `msg.payload` (number): current temperature in °C
+
+### Details
+
+`msg.payload` carries the numeric temperature value.
+</script>

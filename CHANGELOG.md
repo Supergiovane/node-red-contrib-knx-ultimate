@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.23** - June 2026<br/>
+
+- Hue nodes: fixed the **help text** not appearing in the editor sidebar when selecting a node. The help is now declared inline in each node's main HTML file (sidebar reads help from there; the `locales/` files keep providing translations). Affected nodes: Light/Outlet, Area Motion, Battery, Button, Contact Sensor, Light Sensor, Motion, Scene, Tap Dial, Temperature Sensor, Zigbee Connectivity and Device Software Update. Also closed an unterminated template `<script>` tag in the Hue Light node.<br/>
+
 **Version 4.3.22** - June 2026<br/>
 
 - Hue config node: when the user clicks **"I already have the credentials"** to enter the connection data manually, the now-useless **CONNECT** button is hidden.<br/>
