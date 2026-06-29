@@ -23,7 +23,13 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
     node.hueDevice = config.hueDevice
-    node.initializingAtStart = false
+    // Re-publish the authoritative contact state at startup and after every event-stream
+    // (re)connection. Without this, any contact_report event missed during an SSE reconnect
+    // gap leaves KNX stuck on the last value seen (see issue #514).
+    node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === 'yes')
+    // Timestamp (ms) of the last contact_report.changed we already applied to KNX. Used to
+    // ignore stale/out-of-order reports (e.g. replays after a reconnect).
+    node.lastContactChangedTs = undefined
 
     const pushStatus = (status) => {
       if (!status) return
@@ -92,6 +98,18 @@ module.exports = function (RED) {
         if (_event.id === config.hueDevice) {
           if (!_event.hasOwnProperty('contact_report')) {
             return
+          }
+
+          // contact_report.state is always the real current state (per Hue API v2), and
+          // contact_report.changed is when it last changed. Ignore reports that are not newer
+          // than the last one applied, so stale/replayed events after an SSE reconnect can't
+          // flip KNX to a wrong state (issue #514).
+          const changedTs = _event.contact_report.changed !== undefined ? new Date(_event.contact_report.changed).getTime() : NaN
+          if (!Number.isNaN(changedTs)) {
+            if (node.lastContactChangedTs !== undefined && changedTs <= node.lastContactChangedTs) {
+              return
+            }
+            node.lastContactChangedTs = changedTs
           }
 
           const knxMsgPayload = {}

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 4.3.24** - June 2026<br/>
+
+- Hue **Contact Sensor** and **Motion** nodes: fixed the state on the KNX bus getting stuck on a wrong value (e.g. a contact sensor showing **closed** while the door stayed open) after the Hue event-stream reconnected. The nodes now re-publish the authoritative state at startup and after every (re)connection, and ignore stale/out-of-order reports by checking the `contact_report.changed` / `motion_report.changed` timestamp. Closes [#514](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/514).<br/>
+
 **Version 4.3.23** - June 2026<br/>
 
 - Hue nodes: fixed the **help text** not appearing in the editor sidebar when selecting a node. The help is now declared inline in each node's main HTML file (sidebar reads help from there; the `locales/` files keep providing translations). Affected nodes: Light/Outlet, Area Motion, Battery, Button, Contact Sensor, Light Sensor, Motion, Scene, Tap Dial, Temperature Sensor, Zigbee Connectivity and Device Software Update. Also closed an unterminated template `<script>` tag in the Hue Light node.<br/>

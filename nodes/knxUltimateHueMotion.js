@@ -23,7 +23,13 @@ module.exports = function (RED) {
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
     node.hueDevice = config.hueDevice
-    node.initializingAtStart = false
+    // Re-publish the authoritative motion state at startup and after every event-stream
+    // (re)connection, so events missed during an SSE reconnect gap don't leave KNX stuck
+    // on a wrong value (same root cause as the contact sensor, issue #514).
+    node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === 'yes')
+    // Timestamp (ms) of the last motion_report.changed we already applied to KNX. Used to
+    // ignore stale/out-of-order reports (e.g. replays after a reconnect).
+    node.lastMotionChangedTs = undefined
     const pinsSetting = (config.enableNodePINS === undefined || config.enableNodePINS === 'yes' || config.enableNodePINS === true)
     node.enableNodePINS = pinsSetting ? 'yes' : 'no'
     node.outputs = pinsSetting ? 1 : 0
@@ -97,6 +103,18 @@ module.exports = function (RED) {
       try {
         if (_event.id === config.hueDevice) {
           if (!_event.hasOwnProperty('motion') || _event.motion.motion === undefined) return
+
+          // Ignore reports that are not newer than the last one applied, so stale/replayed
+          // events after an SSE reconnect can't push a wrong state to KNX (issue #514).
+          const motionChanged = _event.motion.motion_report !== undefined ? _event.motion.motion_report.changed : undefined
+          const changedTs = motionChanged !== undefined ? new Date(motionChanged).getTime() : NaN
+          if (!Number.isNaN(changedTs)) {
+            if (node.lastMotionChangedTs !== undefined && changedTs <= node.lastMotionChangedTs) {
+              return
+            }
+            node.lastMotionChangedTs = changedTs
+          }
+
           const knxMsgPayload = {}
           knxMsgPayload.topic = config.GAmotion
           knxMsgPayload.dpt = config.dptmotion
