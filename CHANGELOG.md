@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 5.0.0** - June 2026<br/>
+
+- KNXUltimate engine: updated to **6.0.0** (see the engine [CHANGELOG](https://github.com/Supergiovane/knxultimate/blob/main/CHANGELOG.md)).<br/>
+- KNX config node: new **"Reveal keyring passwords"** button in the **Utility** tab, enabled only when **KNX Secure** is selected. It shows, in clear text, all the keyring passwords (interfaces, backbone, group addresses and devices keys/passwords) plus the general keyring password, decoded from the loaded keyring file. Localized in EN/IT/DE/FR/ES/zh-CN.<br/>
+
 **Version 4.3.24** - June 2026<br/>
 
 - Hue **Contact Sensor** and **Motion** nodes: fixed the state on the KNX bus getting stuck on a wrong value (e.g. a contact sensor showing **closed** while the door stayed open) after the Hue event-stream reconnected. The nodes now re-publish the authoritative state at startup and after every (re)connection, and ignore stale/out-of-order reports by checking the `contact_report.changed` / `motion_report.changed` timestamp. Closes [#514](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/514).<br/>

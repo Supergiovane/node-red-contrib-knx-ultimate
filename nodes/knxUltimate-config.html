@@ -164,13 +164,13 @@
                 active: (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0,
                 activate: function (event, ui) {
                     node.knxSecureSelected = $(ui.newTab).index() === 1;
-                    try { updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); } catch (e) { }
+                    try { updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); updateRevealKeyringButton(); } catch (e) { }
                 }
             });
             // Ensure the correct tab is enforced after all UI init
             try {
                 const initialActive = (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0;
-                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); }, 0);
+                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); updateRevealKeyringButton(); }, 0);
             } catch (e) { }
 
             // Keyring ACE editor setup
@@ -1041,6 +1041,56 @@
                 } catch (e) { }
             });
 
+            // Utility: reveal all keyring passwords in clear text.
+            // Enabled only when KNX Secure is selected.
+            function updateRevealKeyringButton() {
+                try {
+                    const isSecure = isSecureTabActive();
+                    $("#revealkeyringpwd").prop('disabled', !isSecure)
+                        .css('opacity', isSecure ? 1 : 0.5)
+                        .css('cursor', isSecure ? 'pointer' : 'not-allowed');
+                } catch (e) { }
+            }
+            updateRevealKeyringButton();
+
+            $("#revealkeyringpwd").click(function () {
+                if (!isSecureTabActive()) return;
+                try {
+                    const keyring = (node._keyringEditor && typeof node._keyringEditor.getValue === 'function')
+                        ? node._keyringEditor.getValue()
+                        : $("#node-config-input-keyringFileXML").val();
+                    const pwd = $("#node-config-input-keyringFilePassword").val();
+                    const params = { serverId: node.id };
+                    if (typeof keyring === 'string' && keyring.trim() !== '') params.keyring = keyring.trim();
+                    // '__PWRD__' is the Node-RED placeholder for an unchanged password credential:
+                    // never send it, so the backend falls back to the real stored credential.
+                    if (typeof pwd === 'string' && pwd.trim() !== '' && pwd !== '__PWRD__') params.pwd = pwd.trim();
+                    $("#divDebugText").show();
+                    $("#debugText").val(node._('knxUltimate-config.utility.reveal_keyring_loading'));
+                    const scrollToDebugText = function () {
+                        try {
+                            const el = document.getElementById('debugText');
+                            if (el && typeof el.scrollIntoView === 'function') {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        } catch (e) { }
+                    };
+                    scrollToDebugText();
+                    $.getJSON('knxUltimateKeyringDump', params, (data) => {
+                        if (data && data.ok) {
+                            $("#debugText").val(data.dump);
+                        } else {
+                            const code = (data && data.error) ? data.error : 'UNEXPECTED_ERROR';
+                            $("#debugText").val(node._('knxUltimate-config.utility.reveal_keyring_fail') + ' (' + code + ')');
+                        }
+                        scrollToDebugText();
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        const err = (errorThrown || textStatus || '').toString();
+                        $("#debugText").val(node._('knxUltimate-config.utility.reveal_keyring_fail') + (err ? (': ' + err) : ''));
+                    });
+                } catch (e) { }
+            });
+
 
 
         },
@@ -1569,8 +1619,14 @@
                     <input type="button" id="clearpersistga" class="ui-button ui-corner-all ui-widget"
                         style="background-color:#FFD2D2;width:150px" data-i18n="[value]knxUltimate-config.utility.clear_persist_button">
                 </div>
-	            
-	            <div class="form-row" id="divDebugText" style="display: none;">                
+
+                <div class="form-row">
+                    <label><i class="fa fa-key"></i> <span data-i18n="knxUltimate-config.utility.reveal_keyring_label"></span></label>
+                    <input type="button" id="revealkeyringpwd" class="ui-button ui-corner-all ui-widget"
+                        style="background-color:#FFE9B3;width:150px" data-i18n="[value]knxUltimate-config.utility.reveal_keyring_button">
+                </div>
+
+	            <div class="form-row" id="divDebugText" style="display: none;">
 	                <textarea rows="10" id="debugText" style="width:100%"></textarea>
 	            </div>
 	        </p>

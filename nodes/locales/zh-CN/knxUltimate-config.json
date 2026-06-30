@@ -140,7 +140,11 @@
             "clear_persist_ok": "删除",
             "clear_persist_cancel": "取消",
             "clear_persist_done": "已删除持久化 GA 缓存。",
-            "clear_persist_fail": "无法删除持久化 GA 缓存"
+            "clear_persist_fail": "无法删除持久化 GA 缓存",
+            "reveal_keyring_label": "以明文显示密钥环密码 (KNX Secure)",
+            "reveal_keyring_button": "显示",
+            "reveal_keyring_loading": "正在解码密钥环，请稍候...",
+            "reveal_keyring_fail": "无法解码密钥环。请检查密钥环文件和通用密码。"
         }
     }
 }

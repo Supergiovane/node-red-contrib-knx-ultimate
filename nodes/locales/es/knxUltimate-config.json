@@ -148,7 +148,11 @@
       "clear_persist_ok": "Eliminar",
       "clear_persist_cancel": "Cancelar",
       "clear_persist_done": "Caché persistente de GA eliminada.",
-      "clear_persist_fail": "No se puede eliminar la caché persistente de GA"
+      "clear_persist_fail": "No se puede eliminar la caché persistente de GA",
+      "reveal_keyring_label": "Mostrar las contraseñas del keyring en texto claro (KNX Secure)",
+      "reveal_keyring_button": "Mostrar",
+      "reveal_keyring_loading": "Decodificando el keyring, espere...",
+      "reveal_keyring_fail": "No se puede decodificar el keyring. Comprueba el archivo keyring y la contraseña general."
     }
   }
 }

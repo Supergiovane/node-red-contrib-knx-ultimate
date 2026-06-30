@@ -148,7 +148,11 @@
             "clear_persist_ok": "Delete",
             "clear_persist_cancel": "Cancel",
             "clear_persist_done": "Persisted GA cache deleted.",
-            "clear_persist_fail": "Unable to delete persisted GA cache"
+            "clear_persist_fail": "Unable to delete persisted GA cache",
+            "reveal_keyring_label": "Reveal keyring passwords in clear text (KNX Secure)",
+            "reveal_keyring_button": "Reveal",
+            "reveal_keyring_loading": "Decoding keyring, please wait...",
+            "reveal_keyring_fail": "Unable to decode the keyring. Check the keyring file and the general password."
         }
     }
 }
