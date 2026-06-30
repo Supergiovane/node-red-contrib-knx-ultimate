@@ -1,7 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 Crea collegamenti bidirezionali tra indirizzi di gruppo KNX e canali IoT (topic MQTT, endpoint REST, registri Modbus). Ogni mappatura può scalare i valori, formattare il payload ed esporre metadati per i nodi successivi.
+
+> **Due modalità.** Usa il selettore **Modalità** in cima al nodo:
+> - **Bridge IoT** (predefinito) — il comportamento classico descritto qui sotto (lista di mappature, messaggi di output MQTT/REST/Modbus).
+> - **MQTT / Home Assistant (nativo)** — il nodo si connette direttamente a un broker MQTT e fa da ponte KNX ↔ MQTT in entrambe le direzioni, pubblicando il discovery MQTT di Home Assistant così le entità compaiono automaticamente.
+
+## Modalità MQTT / Home Assistant
+
+Un bridge MQTT nativo con discovery di Home Assistant. Richiede un broker MQTT raggiungibile sia da Node-RED che da Home Assistant, con l'integrazione MQTT attiva in HA. Tutte le entità compaiono sotto un unico dispositivo con il nome di questo nodo.
+
+- **URL broker / Nome utente / Password** — connessione al tuo broker MQTT.
+- **Topic di base / Prefisso discovery** — topic radice per i topic di stato/comando e il prefisso discovery di HA (predefinito `homeassistant`).
+- **Indirizzi di gruppo da esporre** — ogni indirizzo importato nel gateway KNX (lista ETS) è elencato con una checkbox. Gli indirizzi spuntati vengono pubblicati come entità Home Assistant, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Usa il filtro e i pulsanti *Seleziona tutti* / *Deseleziona tutti*. Per impostazione predefinita sono tutti selezionati.
+- **Tapparelle e Termostati** — raggruppano più indirizzi in un'unica entità:
+    - *Tapparella*: GA su/giù (1.008), GA stop opzionale (1.007), GA posizione comando/stato opzionale (5.001). *Inverti posizione* mappa la convenzione KNX (0% = aperto) su Home Assistant (100% = aperto).
+    - *Termostato*: GA temperatura attuale (9.001), GA setpoint comando/stato (9.001), GA on/off opzionale (1.001 → off/heat), più temperatura min/max e step.
+
+I valori dal bus KNX vengono pubblicati su MQTT e i datapoint scrivibili accettano comandi da Home Assistant. I tipi di datapoint provengono dalla lista ETS importata se disponibili, altrimenti dai default KNX (1.008 su/giù, 1.007 stop, 5.001 posizione, 9.001 temperatura, 1.001 on/off); per uno stato affidabile, gli indirizzi usati da tapparelle/termostati dovrebbero essere presenti nell'import ETS.
+
+---
+
+Il resto di questo aiuto descrive la modalità classica **Bridge IoT**.
 
 ## Input
 

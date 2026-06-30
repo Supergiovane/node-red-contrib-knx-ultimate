@@ -6,9 +6,45 @@ permalink: /wiki/de-IoT-Bridge-Configuration
 ---
 ---
 
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 Der Bridge normalisiert KNX-Telegramme zu strukturierten Nachrichten für IoT-Transporte (MQTT, REST, Modbus) und nimmt Flow-Eingaben entgegen, um zurück in den KNX-Bus zu schreiben. Diese Seite fasst die Konfiguration und empfohlene Drittanbieter-Nodes zusammen.
+
+<p align="center">
+  <img src="/node-red-contrib-knx-ultimate/assets/home-assistant-logo.png" alt="Home Assistant" height="46">
+  &nbsp;&nbsp;&nbsp;
+  <img src="/node-red-contrib-knx-ultimate/assets/mqtt-logo.svg" alt="MQTT" height="38">
+</p>
+
+## Betriebsmodus
+
+Der Node hat einen **Modus**-Schalter:
+
+- **IoT-Bridge** (Standard) — das unten beschriebene Verhalten: eine Zuordnungsliste, die KNX-Telegramme in MQTT/REST/Modbus-Ausgabemeldungen umwandelt und umgekehrt.
+- **MQTT / Home Assistant (nativ)** — der Node verbindet sich direkt mit einem MQTT-Broker und überbrückt KNX ↔ MQTT in beide Richtungen, mit Home-Assistant-MQTT-Discovery, sodass KNX automatisch in Home Assistant erscheint. Keine `mqtt in`/`mqtt out`-Verdrahtung nötig.
+
+## Modus MQTT / Home Assistant
+
+Voraussetzungen: ein MQTT-Broker, der sowohl von Node-RED als auch von Home Assistant erreichbar ist, mit aktivierter MQTT-Integration in HA. Alle Entitäten werden unter einem einzigen HA-Gerät mit dem Namen des Nodes gruppiert.
+
+| Feld | Zweck |
+| -- | -- |
+| **Broker-URL / Benutzername / Passwort** | Verbindung zum MQTT-Broker. |
+| **Basis-Topic** | Wurzel der Status-/Befehls-Topics (Standard `knx-ultimate`). |
+| **HA-Discovery veröffentlichen / Discovery-Präfix** | Aktiviert Home-Assistant-MQTT-Discovery und legt das Präfix fest (Standard `homeassistant`). |
+| **Bereitzustellende Gruppenadressen** | Kontrollkästchenliste aller im Gateway importierten Adressen (ETS). Angehakte Adressen werden zu HA-Entitäten, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Filter + Alle/Keine auswählen; standardmäßig alle ausgewählt. |
+| **Rollläden & Thermostate** | Zusammengesetzte Entitäten, die mehrere Adressen bündeln (siehe unten). |
+
+### Rollläden & Thermostate
+
+Rollläden und Thermostate fassen mehrere Gruppenadressen zu einer HA-Entität zusammen und können daher nicht aus einem einzelnen DPT abgeleitet werden - fügen Sie sie in der Liste hinzu:
+
+- **Rollladen**: Auf/Ab-GA (1.008), optionale Stopp-GA (1.007), optionale Positions-GA Befehl/Status (5.001). *Position invertieren* bildet KNX (0% = offen) auf Home Assistant (100% = offen) ab.
+- **Thermostat**: GA Ist-Temperatur (9.001), GA Sollwert Befehl/Status (9.001), optionale Ein/Aus-GA (1.001 → off/heat), plus Min-/Max-Temperatur und Schrittweite.
+
+Die Datenpunkttypen werden aus dem ETS-Import gelesen, sofern vorhanden, andernfalls aus KNX-Standardwerten. Für zuverlässige Statuswerte sollten die von Rollläden/Thermostaten verwendeten Adressen im ETS-Import enthalten sein.
+
+> **Native KNX-Integration vs. MQTT-Bridge.** Wenn Home Assistant bereits über seine eingebaute KNX-Integration mit KNX kommuniziert, werden Rollläden/Klima dort mit Gruppenadressen konfiguriert und diese MQTT-Bridge wird nicht benötigt. Verwenden Sie diesen Modus, wenn Node-RED den KNX-Bus besitzt und Home Assistant alles über MQTT sieht.
 
 ## Feldübersicht
 

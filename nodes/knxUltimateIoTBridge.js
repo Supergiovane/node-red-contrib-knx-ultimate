@@ -22,7 +22,7 @@ module.exports = function (RED) {
       return
     }
 
-    node.name = config.name || 'KNX IoT Bridge'
+    node.name = config.name || 'KNX MQTT - IoT'
     node.outputtopic = config.outputtopic || ''
 
     node.listenallga = true
@@ -39,6 +39,20 @@ module.exports = function (RED) {
     node.acceptFlowInput = config.acceptFlowInput !== false // default true
 
     node.mappings = Array.isArray(config.mappings) ? config.mappings : []
+
+    // Operation mode: 'iot' (classic IoT mappings, default) or 'homeassistant' (native
+    // MQTT bridge with Home Assistant discovery for every group address + cover/climate).
+    node.nodeMode = config.nodeMode === 'homeassistant' ? 'homeassistant' : 'iot'
+    node.mqttUrl = typeof config.mqttUrl === 'string' ? config.mqttUrl.trim() : ''
+    node.mqttBaseTopic = typeof config.mqttBaseTopic === 'string' && config.mqttBaseTopic.trim() !== '' ? config.mqttBaseTopic.trim() : 'knx-ultimate'
+    node.mqttDiscovery = config.mqttDiscovery !== false && config.mqttDiscovery !== 'false'
+    node.mqttDiscoveryPrefix = typeof config.mqttDiscoveryPrefix === 'string' && config.mqttDiscoveryPrefix.trim() !== '' ? config.mqttDiscoveryPrefix.trim() : 'homeassistant'
+    node.mqttCustomEntities = Array.isArray(config.mqttCustomEntities) ? config.mqttCustomEntities : []
+    // Group addresses to expose as simple entities. Once the user curates the list
+    // (mqttExposeConfigured), only the listed GAs are exposed; otherwise all imported GAs are.
+    node.mqttExposeConfigured = config.mqttExposeConfigured === true
+    node.mqttExposedGAs = Array.isArray(config.mqttExposedGAs) ? config.mqttExposedGAs : []
+    node.mqttBridge = null
 
     const safeNumber = (value, fallback = 0) => {
       if (value === null || value === undefined || value === '') return fallback
@@ -140,6 +154,85 @@ module.exports = function (RED) {
         pushStatus({ fill, shape, text: buildStatusText(`${text}${extra}${valueStr}`) })
       } catch (error) {
         if (node.sysLogger) node.sysLogger.error(`Status update failed: ${error.message}`)
+      }
+    }
+
+    // HOME ASSISTANT (MQTT) BRIDGE -----------------------------------------------------------
+    node.startMqttBridge = () => {
+      if (node.mqttBridge !== null) return // already running
+      if (!node.mqttUrl) {
+        pushStatus({ fill: 'red', shape: 'dot', text: 'MQTT broker URL missing' })
+        return
+      }
+      try {
+        // Lazy-require so the node still loads if the optional mqtt dependency is missing.
+        const { createMqttBridge } = require('./lib/mqtt-bridge.js')
+        node.mqttBridge = createMqttBridge({
+          node,
+          url: node.mqttUrl,
+          baseTopic: node.mqttBaseTopic,
+          discovery: node.mqttDiscovery,
+          discoveryPrefix: node.mqttDiscoveryPrefix,
+          username: node.credentials ? node.credentials.mqttUsername : undefined,
+          password: node.credentials ? node.credentials.mqttPassword : undefined,
+          groupAddresses: (node.serverKNX && Array.isArray(node.serverKNX.csv)) ? node.serverKNX.csv : [],
+          customEntities: node.mqttCustomEntities,
+          // null => expose all imported GAs (until the user curates the list).
+          exposedGAs: node.mqttExposeConfigured ? node.mqttExposedGAs : null,
+          onCommand: ({ ga, dpt, value }) => {
+            // A Home Assistant command arrived: write it to the KNX bus.
+            try {
+              node.serverKNX.sendKNXTelegramToKNXEngine({
+                grpaddr: ga,
+                payload: value,
+                dpt,
+                outputtype: 'write',
+                nodecallerid: node.id
+              })
+            } catch (error) {
+              if (node.sysLogger) node.sysLogger.error('HA bridge write failed (' + ga + '): ' + error.message)
+            }
+          },
+          onStatus: (status) => {
+            if (!status) return
+            if (status.state === 'connected') {
+              pushStatus({ fill: 'green', shape: 'dot', text: 'HA connected (' + (status.detail || '0') + ' entities)' })
+            } else if (status.state === 'error') {
+              pushStatus({ fill: 'red', shape: 'dot', text: 'MQTT ' + (status.detail || 'error') })
+            } else if (status.state === 'reconnect' || status.state === 'offline') {
+              pushStatus({ fill: 'yellow', shape: 'ring', text: 'MQTT ' + status.state })
+            }
+          }
+        })
+        node.mqttBridge.connect()
+        pushStatus({ fill: 'grey', shape: 'ring', text: 'HA mode: connecting (' + node.mqttBridge.entityCount + ' entities)' })
+      } catch (error) {
+        node.mqttBridge = null
+        if (node.sysLogger) node.sysLogger.error('startMqttBridge failed: ' + error.message)
+        pushStatus({ fill: 'red', shape: 'dot', text: 'MQTT bridge: ' + error.message })
+      }
+    }
+
+    node.stopMqttBridge = (done) => {
+      const bridge = node.mqttBridge
+      node.mqttBridge = null
+      let called = false
+      const cb = () => {
+        if (called) return
+        called = true
+        if (typeof done === 'function') {
+          try { done() } catch (error) { /* ignore */ }
+        }
+      }
+      if (!bridge) {
+        cb()
+        return
+      }
+      try {
+        bridge.close(cb)
+      } catch (error) {
+        if (node.sysLogger) node.sysLogger.error('stopMqttBridge error: ' + (error && error.message))
+        cb()
       }
     }
 
@@ -339,6 +432,15 @@ module.exports = function (RED) {
         const destination = msg.knx && msg.knx.destination ? msg.knx.destination : sanitizeString(msg.topic)
         if (!destination) return
 
+        // Home Assistant mode: mirror the decoded value to MQTT and stop (no IoT mappings).
+        if (node.nodeMode === 'homeassistant') {
+          const event = msg.knx ? msg.knx.event : undefined
+          if (node.mqttBridge && event !== 'GroupValue_Read') {
+            node.mqttBridge.publishState(destination, msg.payload)
+          }
+          return
+        }
+
         const meta = {
           event: msg.knx ? msg.knx.event : undefined,
           source: msg.knx ? msg.knx.source : undefined,
@@ -382,6 +484,11 @@ module.exports = function (RED) {
     node.handleSend = handleKnxTelegram
 
     node.on('input', (msg, send, done) => {
+      // In Home Assistant mode, commands flow in over MQTT, not via the flow input.
+      if (node.nodeMode === 'homeassistant') {
+        if (done) done()
+        return
+      }
       if (!node.acceptFlowInput) {
         if (done) done()
         return
@@ -446,14 +553,30 @@ module.exports = function (RED) {
     })
 
     node.on('close', (done) => {
-      if (node.serverKNX && typeof node.serverKNX.removeClient === 'function') {
-        try {
-          node.serverKNX.removeClient(node)
-        } catch (error) {
-          /* empty */
+      // Always call done() exactly once, even if something throws, so a deploy / Node-RED exit
+      // is never blocked by the bridge teardown.
+      let finished = false
+      const finish = () => {
+        if (finished) return
+        finished = true
+        if (typeof done === 'function') {
+          try { done() } catch (error) { /* ignore */ }
         }
       }
-      if (done) done()
+      try {
+        if (node.serverKNX && typeof node.serverKNX.removeClient === 'function') {
+          try {
+            node.serverKNX.removeClient(node)
+          } catch (error) {
+            /* empty */
+          }
+        }
+        // Stop the MQTT bridge (best-effort, hard-capped so redeploy never blocks on the broker).
+        node.stopMqttBridge(finish)
+      } catch (error) {
+        if (node.sysLogger) node.sysLogger.error('close handler error: ' + (error && error.message))
+        finish()
+      }
     })
 
     const registerClient = () => {
@@ -492,9 +615,18 @@ module.exports = function (RED) {
     }
 
     registerClient()
-    updateIdleStatus()
-    issueInitialReads()
+    if (node.nodeMode === 'homeassistant') {
+      node.startMqttBridge()
+    } else {
+      updateIdleStatus()
+      issueInitialReads()
+    }
   }
 
-  RED.nodes.registerType('knxUltimateIoTBridge', knxUltimateIoTBridge)
+  RED.nodes.registerType('knxUltimateIoTBridge', knxUltimateIoTBridge, {
+    credentials: {
+      mqttUsername: { type: 'text' },
+      mqttPassword: { type: 'password' }
+    }
+  })
 }

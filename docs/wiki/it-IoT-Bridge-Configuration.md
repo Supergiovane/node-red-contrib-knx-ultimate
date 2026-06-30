@@ -5,8 +5,41 @@ lang: it
 permalink: /wiki/it-IoT-Bridge-Configuration
 ---
 ---
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 Il bridge normalizza i telegrammi KNX in messaggi strutturati per trasporti IoT (MQTT, REST, Modbus) e accetta input dal flow per riscrivere sul bus. Qui trovi una guida rapida e i collegamenti consigliati ai nodi di trasporto di Node-RED.
+<p align="center">
+  <img src="/node-red-contrib-knx-ultimate/assets/home-assistant-logo.png" alt="Home Assistant" height="46">
+  &nbsp;&nbsp;&nbsp;
+  <img src="/node-red-contrib-knx-ultimate/assets/mqtt-logo.svg" alt="MQTT" height="38">
+</p>
+
+## Modalità di funzionamento
+Il nodo ha un selettore **Modalità**:
+
+- **Bridge IoT** (predefinito) — il comportamento descritto qui sotto: una lista di mappature che trasforma i telegrammi KNX in messaggi di output MQTT/REST/Modbus e viceversa.
+- **MQTT / Home Assistant (nativo)** — il nodo si connette direttamente a un broker MQTT e fa da ponte KNX ↔ MQTT in entrambe le direzioni, pubblicando il discovery MQTT di Home Assistant così KNX compare automaticamente in Home Assistant. Non serve cablare nodi `mqtt in`/`mqtt out`.
+
+## Modalità MQTT / Home Assistant
+Requisiti: un broker MQTT raggiungibile sia da Node-RED che da Home Assistant, con l'integrazione MQTT attiva in HA. Tutte le entità sono raggruppate sotto un unico dispositivo HA con il nome del nodo.
+
+| Campo | Scopo |
+| -- | -- |
+| **URL broker / Nome utente / Password** | Connessione al broker MQTT. |
+| **Topic di base** | Radice dei topic di stato/comando (predefinito `knx-ultimate`). |
+| **Pubblica discovery HA / Prefisso discovery** | Abilita il discovery MQTT di Home Assistant e ne imposta il prefisso (predefinito `homeassistant`). |
+| **Indirizzi di gruppo da esporre** | Lista con checkbox di ogni indirizzo importato nel gateway (ETS). Gli indirizzi spuntati diventano entità HA, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleziona tutti / nessuno; tutti selezionati di default. |
+| **Tapparelle e Termostati** | Entità composite che aggregano più indirizzi (vedi sotto). |
+
+### Tapparelle e Termostati
+Tapparelle e termostati combinano più indirizzi di gruppo in un'unica entità HA, quindi non possono essere dedotti da un singolo DPT - aggiungili nella lista:
+
+- **Tapparella**: GA su/giù (1.008), GA stop opzionale (1.007), GA posizione comando/stato opzionale (5.001). *Inverti posizione* mappa KNX (0% = aperto) su Home Assistant (100% = aperto).
+- **Termostato**: GA temperatura attuale (9.001), GA setpoint comando/stato (9.001), GA on/off opzionale (1.001 → off/heat), più temperatura min/max e step.
+
+I tipi di datapoint vengono letti dall'import ETS se disponibili, altrimenti dai default KNX. Per uno stato affidabile, gli indirizzi usati da tapparelle/termostati dovrebbero essere presenti nell'import ETS.
+
+> **Integrazione KNX nativa vs bridge MQTT.** Se Home Assistant comunica già con KNX tramite la sua integrazione KNX nativa, tapparelle/clima si configurano lì con i group address e questo bridge MQTT non serve. Usa questa modalità quando è Node-RED a possedere il bus KNX e Home Assistant vede tutto via MQTT.
+
 ## Riepilogo mappatura
 
 | Campo | Scopo | Note |

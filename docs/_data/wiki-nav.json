@@ -144,7 +144,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/IoT-Bridge-Configuration",
           "external": false
         }
@@ -314,7 +314,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
@@ -556,7 +556,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/it-IoT-Bridge-Configuration",
           "external": false
         }
@@ -726,7 +726,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
@@ -968,7 +968,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/de-IoT-Bridge-Configuration",
           "external": false
         }
@@ -1138,7 +1138,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
@@ -1380,7 +1380,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/fr-IoT-Bridge-Configuration",
           "external": false
         }
@@ -1550,7 +1550,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },
@@ -1792,7 +1792,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/es-IoT-Bridge-Configuration",
           "external": false
         }
@@ -1962,7 +1962,7 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
+          "label": "MQTT - IoT",
           "url": "/wiki/-Sample---IoT-Bridge",
           "external": false
         },

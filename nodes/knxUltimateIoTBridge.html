@@ -11,7 +11,19 @@
             emitOnChangeOnly: { value: true },
             readOnDeploy: { value: true },
             acceptFlowInput: { value: true },
-            mappings: { value: [] }
+            mappings: { value: [] },
+            nodeMode: { value: 'iot' },
+            mqttUrl: { value: '' },
+            mqttBaseTopic: { value: 'knx-ultimate' },
+            mqttDiscovery: { value: true },
+            mqttDiscoveryPrefix: { value: 'homeassistant' },
+            mqttCustomEntities: { value: [] },
+            mqttExposedGAs: { value: [] },
+            mqttExposeConfigured: { value: false }
+        },
+        credentials: {
+            mqttUsername: { type: 'text' },
+            mqttPassword: { type: 'password' }
         },
         inputs: 1,
         outputs: 2,
@@ -277,6 +289,180 @@
             (node.mappings || []).forEach((m) => {
                 container.editableList('addItem', { mapping: m });
             });
+
+            // Operation mode toggle: show IoT mapping fields or Home Assistant (MQTT) fields.
+            try {
+                if (node.mqttDiscovery === undefined) $('#node-input-mqttDiscovery').prop('checked', true);
+                function refreshMode() {
+                    const ha = $('#node-input-nodeMode').val() === 'homeassistant';
+                    $('.ha-mode-row').toggle(ha);
+                    $('.iot-mode-row').toggle(!ha);
+                }
+                $('#node-input-nodeMode').on('change', refreshMode);
+                refreshMode();
+            } catch (error) { }
+
+            // Home Assistant: selectable list of group addresses to expose as simple entities.
+            try {
+                const savedSet = new Set(Array.isArray(node.mqttExposedGAs) ? node.mqttExposedGAs : []);
+                const exposeConfigured = node.mqttExposeConfigured === true;
+
+                function updateGaCount() {
+                    const total = $('#mqtt-ga-list input.mqtt-ga-cb').length;
+                    const sel = $('#mqtt-ga-list input.mqtt-ga-cb:checked').length;
+                    $('#mqtt-ga-count').text(sel + ' / ' + total + ' ' + node._('knxUltimateIoTBridge.ha.exposed_count'));
+                }
+
+                function buildGaList() {
+                    const list = $('#mqtt-ga-list').empty();
+                    const sid = oNodeServer ? oNodeServer.id : ($('#node-input-server').val() || '');
+                    if (!sid) {
+                        list.append($('<div/>').css('color', '#999').text(node._('knxUltimateIoTBridge.ha.no_gateway')));
+                        updateGaCount();
+                        return;
+                    }
+                    $.getJSON('knxUltimatecsv?nodeID=' + sid, function (data) {
+                        list.empty();
+                        if (!Array.isArray(data) || data.length === 0) {
+                            list.append($('<div/>').css('color', '#999').text(node._('knxUltimateIoTBridge.ha.no_ga')));
+                            updateGaCount();
+                            return;
+                        }
+                        data.forEach(function (item) {
+                            if (!item || !item.ga) return;
+                            // Use a <div> (not <label>) so Node-RED's ".form-row label" width rule
+                            // doesn't squash the columns; keep everything on a single line.
+                            const row = $('<div/>').addClass('mqtt-ga-row').css({
+                                display: 'flex', gap: '8px', alignItems: 'center', padding: '3px 2px',
+                                width: '100%', whiteSpace: 'nowrap', cursor: 'pointer', borderBottom: '1px solid #f3f3f3'
+                            }).appendTo(list);
+                            const cb = $('<input/>', { type: 'checkbox', class: 'mqtt-ga-cb', value: item.ga, style: 'width:auto; margin:0; flex:0 0 auto;' }).appendTo(row);
+                            cb.prop('checked', exposeConfigured ? savedSet.has(item.ga) : true);
+                            $('<span/>').css({ flex: '0 0 auto', fontFamily: 'monospace', minWidth: '64px' }).text(item.ga).appendTo(row);
+                            $('<span/>').css({ flex: '1 1 auto', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#444' }).attr('title', item.devicename || '').text(item.devicename || '').appendTo(row);
+                            $('<span/>').css({ flex: '0 0 auto', color: '#888', fontSize: '11px' }).text('DPT' + (item.dpt || '')).appendTo(row);
+                            row.on('click', function (ev) {
+                                if (ev.target === cb[0]) return;
+                                cb.prop('checked', !cb.prop('checked'));
+                                updateGaCount();
+                            });
+                        });
+                        $('#mqtt-ga-list input.mqtt-ga-cb').on('change', updateGaCount);
+                        updateGaCount();
+                    }).fail(function () {
+                        list.empty().append($('<div/>').css('color', '#c0392b').text(node._('knxUltimateIoTBridge.ha.csv_error')));
+                        updateGaCount();
+                    });
+                }
+
+                $('#mqtt-ga-all').on('click', function (e) { e.preventDefault(); $('#mqtt-ga-list .mqtt-ga-row:visible').find('input.mqtt-ga-cb').prop('checked', true); updateGaCount(); });
+                $('#mqtt-ga-none').on('click', function (e) { e.preventDefault(); $('#mqtt-ga-list .mqtt-ga-row:visible').find('input.mqtt-ga-cb').prop('checked', false); updateGaCount(); });
+                $('#mqtt-ga-filter').on('input', function () {
+                    const term = ($(this).val() || '').toLowerCase();
+                    $('#mqtt-ga-list .mqtt-ga-row').each(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(term) !== -1);
+                    });
+                });
+
+                buildGaList();
+                $('#node-input-server').on('change', buildGaList);
+            } catch (error) { }
+
+            // Home Assistant composite entities (cover / climate): editable list.
+            try {
+                const T = (k) => node._('knxUltimateIoTBridge.ha.' + k);
+                const coverFields = ['gaUpDown', 'gaStop', 'gaPosSet', 'gaPosState'];
+                const climateFields = ['gaCurrentTemp', 'gaSetpointSet', 'gaSetpointState', 'gaOnOff'];
+
+                // Group-address autocomplete, identical to the mapping GA field (and the
+                // knxUltimate node): suggests GAs from the gateway's ETS CSV.
+                function attachGaAutocomplete(input) {
+                    try {
+                        if (oNodeServer && oNodeServer.id && typeof KNX_enableSecureFormatting === 'function') {
+                            KNX_enableSecureFormatting(input, oNodeServer.id);
+                        }
+                    } catch (error) { }
+                    input.autocomplete({
+                        minLength: 0,
+                        source: function (request, response) {
+                            const sid = oNodeServer ? oNodeServer.id : ($('#node-input-server').val() || '');
+                            if (!sid) { response([]); return; }
+                            $.getJSON('knxUltimatecsv?nodeID=' + sid, (data) => {
+                                response($.map(data || [], (value) => {
+                                    const search = (value.ga + ' (' + value.devicename + ') DPT' + value.dpt);
+                                    if (htmlUtilsfullCSVSearch(search, request.term + ' 1.')) {
+                                        return {
+                                            label: value.ga + ' # ' + value.devicename + ' # ' + value.dpt,
+                                            value: value.ga
+                                        };
+                                    }
+                                    return null;
+                                }));
+                            });
+                        }
+                    });
+                    input.on('focus.knxUltimateIoTBridge click.knxUltimateIoTBridge', function () {
+                        try { $(this).autocomplete('search', ''); } catch (error) { }
+                    });
+                }
+
+                function gaRow(parent, key, value) {
+                    const row = $('<div/>').addClass('form-row').css({ margin: '2px 0' }).appendTo(parent);
+                    $('<label/>').css({ width: '160px' }).text(T('ce_' + key)).appendTo(row);
+                    const input = $('<input/>', { type: 'text', class: 'ce-' + key })
+                        .attr('placeholder', '1/2/3').css({ width: '130px' }).val(value || '').appendTo(row);
+                    attachGaAutocomplete(input);
+                    return input;
+                }
+                function numRow(parent, key, value) {
+                    const row = $('<div/>').addClass('form-row').css({ margin: '2px 0' }).appendTo(parent);
+                    $('<label/>').css({ width: '160px' }).text(T('ce_' + key)).appendTo(row);
+                    return $('<input/>', { type: 'number', class: 'ce-' + key, step: 'any' })
+                        .css({ width: '90px' }).val(value).appendTo(row);
+                }
+
+                $('#node-input-mqttentities-container').css('min-width', '560px').editableList({
+                    sortable: true,
+                    removable: true,
+                    addItem: function (rowEl, index, data) {
+                        const e = data.entity || {};
+                        const block = $('<div/>').css({ padding: '4px 2px' }).appendTo(rowEl);
+                        const head = $('<div/>').addClass('form-row').css({ display: 'flex', gap: '10px', alignItems: 'center', margin: '2px 0' }).appendTo(block);
+                        const typeSel = $('<select/>', { class: 'ce-type' }).css({ width: '120px' }).appendTo(head);
+                        typeSel.append($('<option/>', { value: 'cover', text: T('ce_type_cover') }));
+                        typeSel.append($('<option/>', { value: 'climate', text: T('ce_type_climate') }));
+                        typeSel.val(e.type === 'climate' ? 'climate' : 'cover');
+                        $('<input/>', { type: 'text', class: 'ce-name' })
+                            .attr('placeholder', T('ce_name')).css({ flex: '1 1 180px' }).val(e.name || '').appendTo(head);
+
+                        const coverBox = $('<div/>', { class: 'ce-cover-box' }).appendTo(block);
+                        coverFields.forEach((f) => gaRow(coverBox, f, e[f]));
+                        const invRow = $('<div/>').addClass('form-row').css({ margin: '2px 0' }).appendTo(coverBox);
+                        const invLabel = $('<label/>', { style: 'width:auto; display:flex; align-items:center; gap:6px; cursor:pointer;' }).appendTo(invRow);
+                        const inv = $('<input/>', { type: 'checkbox', class: 'ce-invertPosition', style: 'margin:0; width:auto;' }).appendTo(invLabel);
+                        $('<span/>').text(T('ce_invertPosition')).appendTo(invLabel);
+                        inv.prop('checked', e.invertPosition !== false);
+
+                        const climateBox = $('<div/>', { class: 'ce-climate-box' }).appendTo(block);
+                        climateFields.forEach((f) => gaRow(climateBox, f, e[f]));
+                        numRow(climateBox, 'minTemp', e.minTemp === undefined ? 5 : e.minTemp);
+                        numRow(climateBox, 'maxTemp', e.maxTemp === undefined ? 35 : e.maxTemp);
+                        numRow(climateBox, 'tempStep', e.tempStep === undefined ? 0.5 : e.tempStep);
+
+                        function refreshType() {
+                            const t = typeSel.val();
+                            coverBox.toggle(t === 'cover');
+                            climateBox.toggle(t === 'climate');
+                        }
+                        typeSel.on('change', refreshType);
+                        refreshType();
+                    }
+                });
+
+                (node.mqttCustomEntities || []).forEach((en) => {
+                    $('#node-input-mqttentities-container').editableList('addItem', { entity: en });
+                });
+            } catch (error) { }
         },
         oneditsave: function () {
             const node = this;
@@ -303,6 +489,43 @@
                     property: row.find('.bridge-property').val()
                 });
             });
+            // Serialize Home Assistant composite entities (cover / climate).
+            try {
+                const entities = [];
+                $('#node-input-mqttentities-container').editableList('items').each(function () {
+                    const row = $(this);
+                    const type = row.find('.ce-type').val();
+                    const entity = { type: type, name: (row.find('.ce-name').val() || '').trim() };
+                    if (type === 'cover') {
+                        ['gaUpDown', 'gaStop', 'gaPosSet', 'gaPosState'].forEach((f) => {
+                            entity[f] = (row.find('.ce-' + f).val() || '').trim();
+                        });
+                        entity.invertPosition = row.find('.ce-invertPosition').is(':checked');
+                    } else {
+                        ['gaCurrentTemp', 'gaSetpointSet', 'gaSetpointState', 'gaOnOff'].forEach((f) => {
+                            entity[f] = (row.find('.ce-' + f).val() || '').trim();
+                        });
+                        entity.minTemp = parseFloat(row.find('.ce-minTemp').val());
+                        entity.maxTemp = parseFloat(row.find('.ce-maxTemp').val());
+                        entity.tempStep = parseFloat(row.find('.ce-tempStep').val());
+                    }
+                    entities.push(entity);
+                });
+                node.mqttCustomEntities = entities;
+            } catch (error) { }
+            // Serialize the selected group addresses to expose (only when the list is populated,
+            // so a failed/unopened list never wipes a previous selection).
+            try {
+                if ($('#node-input-nodeMode').val() === 'homeassistant') {
+                    const cbs = $('#mqtt-ga-list input.mqtt-ga-cb');
+                    if (cbs.length > 0) {
+                        const exposed = [];
+                        cbs.each(function () { if ($(this).is(':checked')) exposed.push($(this).val()); });
+                        node.mqttExposedGAs = exposed;
+                        node.mqttExposeConfigured = true;
+                    }
+                }
+            } catch (error) { }
             try {
                 RED.sidebar.show('info');
             } catch (error) { }
@@ -331,36 +554,79 @@
         <input type="text" id="node-input-name" />
     </div>
     <div class="form-row">
+        <label for="node-input-nodeMode" data-i18n="knxUltimateIoTBridge.node-input-nodeMode"></label>
+        <select id="node-input-nodeMode" style="width:auto;">
+            <option value="iot" data-i18n="knxUltimateIoTBridge.mode.iot"></option>
+            <option value="homeassistant" data-i18n="knxUltimateIoTBridge.mode.homeassistant"></option>
+        </select>
+    </div>
+
+    <!-- IoT (classic) mode fields -->
+    <div class="form-row iot-mode-row">
         <label for="node-input-outputtopic" data-i18n="knxUltimateIoTBridge.node-input-outputtopic"></label>
         <input type="text" id="node-input-outputtopic" />
     </div>
-    <div class="form-row" style="display:flex; align-items:flex-start; gap:8px;">
+    <div class="form-row iot-mode-row" style="display:flex; align-items:flex-start; gap:8px;">
         <input type="checkbox" id="node-input-emitOnChangeOnly" style="width:auto; margin-top:4px;" />
-        <label for="node-input-emitOnChangeOnly" style="flex:1; margin:0;">
-            <span data-i18n="knxUltimateIoTBridge.node-input-emitOnChangeOnly"></span>
-        </label>
+        <label for="node-input-emitOnChangeOnly" style="flex:1; margin:0;" data-i18n="knxUltimateIoTBridge.node-input-emitOnChangeOnly"></label>
     </div>
-    <div class="form-row" style="display:flex; align-items:flex-start; gap:8px;">
+    <div class="form-row iot-mode-row" style="display:flex; align-items:flex-start; gap:8px;">
         <input type="checkbox" id="node-input-readOnDeploy" style="width:auto; margin-top:4px;" />
-        <label for="node-input-readOnDeploy" style="flex:1; margin:0;">
-            <span data-i18n="knxUltimateIoTBridge.node-input-readOnDeploy"></span>
-        </label>
+        <label for="node-input-readOnDeploy" style="flex:1; margin:0;" data-i18n="knxUltimateIoTBridge.node-input-readOnDeploy"></label>
     </div>
-    <div class="form-row" style="display:flex; align-items:flex-start; gap:8px;">
+    <div class="form-row iot-mode-row" style="display:flex; align-items:flex-start; gap:8px;">
         <input type="checkbox" id="node-input-acceptFlowInput" style="width:auto; margin-top:4px;" />
-        <label for="node-input-acceptFlowInput" style="flex:1; margin:0;">
-            <span data-i18n="knxUltimateIoTBridge.node-input-acceptFlowInput"></span>
-        </label>
+        <label for="node-input-acceptFlowInput" style="flex:1; margin:0;" data-i18n="knxUltimateIoTBridge.node-input-acceptFlowInput"></label>
     </div>
-    <div class="form-row node-input-mapping-container-row">
+    <div class="form-row node-input-mapping-container-row iot-mode-row">
         <label style="width:auto;" data-i18n="knxUltimateIoTBridge.section_mappings"></label>
         <ol id="node-input-mapping-container"></ol>
+    </div>
+
+    <!-- Home Assistant (MQTT) mode fields -->
+    <div class="form-row ha-mode-row">
+        <label for="node-input-mqttUrl" data-i18n="knxUltimateIoTBridge.ha.broker_url"></label>
+        <input type="text" id="node-input-mqttUrl" placeholder="mqtt://localhost:1883" />
+    </div>
+    <div class="form-row ha-mode-row">
+        <label for="node-input-mqttUsername" data-i18n="knxUltimateIoTBridge.ha.username"></label>
+        <input type="text" id="node-input-mqttUsername" data-i18n="[placeholder]knxUltimateIoTBridge.ha.optional" />
+    </div>
+    <div class="form-row ha-mode-row">
+        <label for="node-input-mqttPassword" data-i18n="knxUltimateIoTBridge.ha.password"></label>
+        <input type="password" id="node-input-mqttPassword" data-i18n="[placeholder]knxUltimateIoTBridge.ha.optional" />
+    </div>
+    <div class="form-row ha-mode-row">
+        <label for="node-input-mqttBaseTopic" data-i18n="knxUltimateIoTBridge.ha.base_topic"></label>
+        <input type="text" id="node-input-mqttBaseTopic" placeholder="knx-ultimate" />
+    </div>
+    <div class="form-row ha-mode-row" style="display:flex; align-items:flex-start; gap:8px;">
+        <input type="checkbox" id="node-input-mqttDiscovery" style="width:auto; margin-top:4px;" />
+        <label for="node-input-mqttDiscovery" style="flex:1; margin:0;" data-i18n="knxUltimateIoTBridge.ha.discovery"></label>
+    </div>
+    <div class="form-row ha-mode-row">
+        <label for="node-input-mqttDiscoveryPrefix" data-i18n="knxUltimateIoTBridge.ha.discovery_prefix"></label>
+        <input type="text" id="node-input-mqttDiscoveryPrefix" placeholder="homeassistant" />
+    </div>
+    <div class="form-row ha-mode-row" id="rowMqttGaSelect">
+        <label style="width:auto; font-weight:600;" data-i18n="knxUltimateIoTBridge.ha.exposed_gas"></label>
+        <div style="margin:4px 0; display:flex; gap:6px; align-items:center;">
+            <input type="text" id="mqtt-ga-filter" data-i18n="[placeholder]knxUltimateIoTBridge.ha.filter_placeholder" style="flex:1 1 auto;">
+            <button type="button" id="mqtt-ga-all" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="knxUltimateIoTBridge.ha.select_all"></button>
+            <button type="button" id="mqtt-ga-none" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="knxUltimateIoTBridge.ha.select_none"></button>
+        </div>
+        <div id="mqtt-ga-count" style="font-size:11px; color:#666; margin:2px 0;"></div>
+        <div id="mqtt-ga-list" style="max-height:220px; overflow:auto; border:1px solid #ccc; padding:6px; border-radius:4px; background:#fff;"></div>
+    </div>
+    <div class="form-row ha-mode-row node-input-mqttentities-container-row">
+        <label style="width:auto; font-weight:600;" data-i18n="knxUltimateIoTBridge.ha.custom_entities"></label>
+        <ol id="node-input-mqttentities-container"></ol>
     </div>
     <br/><br/><br/><br/>
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
-## KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 Configure bidirectional maps between KNX group addresses and IoT backends such as MQTT, REST APIs or Modbus registers. Each mapping can scale values, format payloads and define single direction behaviour.
 
@@ -383,5 +649,29 @@ Configure bidirectional maps between KNX group addresses and IoT backends such a
 - Place HTTP or MQTT nodes after the bridge outputs to perform the actual transport.
 - Use `msg.bridge.id` to route acknowledgements or correlate responses.
 - Enable "Read KNX values on deploy" to bootstrap dashboards after deploys.
+
+## Mode
+
+The **Mode** selector switches the node between two behaviours:
+
+- **IoT bridge** (default): the classic behaviour described above (mapping list, MQTT/REST/Modbus output messages).
+- **MQTT / Home Assistant (native)**: the node connects directly to an MQTT broker and bridges KNX ↔ MQTT both ways, publishing Home Assistant MQTT Discovery so entities appear automatically.
+
+## MQTT / Home Assistant mode
+
+Native MQTT bridge with Home Assistant discovery. Every group address imported in the KNX gateway (ETS list) can be exposed automatically as a Home Assistant entity (switch, sensor, binary_sensor, number, text), chosen from its datapoint type (DPT). KNX bus values are published to MQTT and writable datapoints accept commands from Home Assistant.
+
+Requires an MQTT broker reachable by both Node-RED and Home Assistant, with the MQTT integration enabled in HA. Entities appear under a device named after this node.
+
+### Group addresses to expose
+Tick the group addresses you want to publish to Home Assistant. By default every imported address is selected. Addresses used by a cover/thermostat (below) are handled there and don't need to be ticked here. Use the filter box and the Select all / Select none buttons to curate large lists.
+
+### Covers & Thermostats
+Covers and thermostats group several group addresses into one Home Assistant entity, so they cannot be created automatically from the DPT - add them in the list:
+
+- **Cover**: Up/Down GA (DPT 1.008), optional Stop GA (1.007), optional Set/Status position GA (5.001). *Invert position* maps the KNX convention (0% = open) to Home Assistant (100% = open).
+- **Thermostat**: Current temperature GA (9.001), Setpoint set/status GA (9.001), optional On/Off GA (1.001 → off/heat), plus min/max temperature and step.
+
+Datapoint types come from the imported ETS list when available, otherwise from the KNX defaults shown above. For reliable status feedback, those group addresses should be present in the ETS import.
 
 </script>

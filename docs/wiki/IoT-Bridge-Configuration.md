@@ -5,8 +5,41 @@ lang: en
 permalink: /wiki/IoT-Bridge-Configuration
 ---
 ---
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 The bridge normalises KNX telegrams into structured messages that can be consumed by IoT transports (MQTT, REST, Modbus) and accepts flow inputs to write back to the KNX bus. It mirrors the runtime logic of the Node-RED editor help and shows how to hook the node to third-party connectors.
+<p align="center">
+  <img src="/node-red-contrib-knx-ultimate/assets/home-assistant-logo.png" alt="Home Assistant" height="46">
+  &nbsp;&nbsp;&nbsp;
+  <img src="/node-red-contrib-knx-ultimate/assets/mqtt-logo.svg" alt="MQTT" height="38">
+</p>
+
+## Operating mode
+The node has a **Mode** selector:
+
+- **IoT bridge** (default) — the behaviour described below: a list of mappings that turn KNX telegrams into MQTT/REST/Modbus output messages and back.
+- **MQTT / Home Assistant (native)** — the node connects directly to an MQTT broker and bridges KNX ↔ MQTT both ways, publishing Home Assistant MQTT Discovery so KNX appears automatically in Home Assistant. No `mqtt in`/`mqtt out` wiring is needed.
+
+## MQTT / Home Assistant mode
+Requirements: an MQTT broker reachable by both Node-RED and Home Assistant, with the MQTT integration enabled in HA. All entities are grouped under a single HA device named after the node.
+
+| Field | Purpose |
+| -- | -- |
+| **Broker URL / Username / Password** | MQTT broker connection. |
+| **Base topic** | Root of the state/command topics (default `knx-ultimate`). |
+| **Publish HA discovery / Discovery prefix** | Enable Home Assistant MQTT Discovery and set its prefix (default `homeassistant`). |
+| **Group addresses to expose** | Checkbox list of every address imported in the gateway (ETS). Ticked addresses become HA entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Filter + Select all / none; all selected by default. |
+| **Covers & Thermostats** | Composite entities that aggregate several addresses (see below). |
+
+### Covers & Thermostats
+Covers and thermostats combine several group addresses into one HA entity, so they can't be derived from a single DPT - add them in the list:
+
+- **Cover**: Up/Down GA (1.008), optional Stop GA (1.007), optional Set/Status position GA (5.001). *Invert position* maps KNX (0% = open) to Home Assistant (100% = open).
+- **Thermostat**: current temperature GA (9.001), setpoint set/status GA (9.001), optional On/Off GA (1.001 → off/heat), plus min/max temperature and step.
+
+Datapoint types are read from the ETS import when available, otherwise from KNX defaults. For reliable status, the addresses used by covers/thermostats should be present in the ETS import.
+
+> **Native KNX integration vs MQTT bridge.** If Home Assistant already talks to KNX through its built-in KNX integration, covers/climate are configured there with group addresses and this MQTT bridge is not needed. Use this mode when Node-RED owns the KNX bus and Home Assistant sees everything over MQTT.
+
 ## Mapping recap
 
 | Field | Purpose | Notes |

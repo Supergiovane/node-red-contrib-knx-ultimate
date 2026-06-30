@@ -1,7 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 Create bidirectional bridges between KNX group addresses and IoT channels (MQTT topics, REST endpoints, Modbus registers). Each mapping can scale values, stringify payloads and expose metadata for downstream nodes.
+
+> **Two modes.** Use the **Mode** selector at the top of the node:
+> - **IoT bridge** (default) — the classic behaviour documented below (mapping list, MQTT/REST/Modbus output messages).
+> - **MQTT / Home Assistant (native)** — the node connects directly to an MQTT broker and bridges KNX ↔ MQTT both ways, publishing Home Assistant MQTT Discovery so entities appear automatically.
+
+## MQTT / Home Assistant mode
+
+A native MQTT bridge with Home Assistant discovery. It needs an MQTT broker reachable by both Node-RED and Home Assistant, with the MQTT integration enabled in HA. All entities appear under a single device named after this node.
+
+- **Broker URL / Username / Password** — connection to your MQTT broker.
+- **Base topic / Discovery prefix** — root topic for state/command topics and the HA discovery prefix (default `homeassistant`).
+- **Group addresses to expose** — every address imported in the KNX gateway (ETS list) is shown with a checkbox. Ticked addresses are published as Home Assistant entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Use the filter box and the *Select all* / *Select none* buttons. By default all addresses are selected.
+- **Covers & Thermostats** — group several addresses into one entity:
+    - *Cover*: Up/Down GA (1.008), optional Stop GA (1.007), optional Set/Status position GA (5.001). *Invert position* maps the KNX convention (0% = open) to Home Assistant (100% = open).
+    - *Thermostat*: current temperature GA (9.001), setpoint set/status GA (9.001), optional On/Off GA (1.001 → off/heat), plus min/max temperature and step.
+
+KNX bus values are published to MQTT and writable datapoints accept commands from Home Assistant. Datapoint types come from the imported ETS list when available, otherwise from KNX defaults (1.008 up/down, 1.007 stop, 5.001 position, 9.001 temperature, 1.001 on/off); for reliable status feedback the addresses used by covers/thermostats should be present in the ETS import.
+
+---
+
+The rest of this help describes the classic **IoT bridge** mode.
 
 ## Inputs
 
@@ -63,7 +84,7 @@ Create bidirectional bridges between KNX group addresses and IoT channels (MQTT 
 
 ### Modbus register sync
 
-- Pair the IoT Bridge with `node-red-contrib-modbus` `modbus-flex-write` nodes. Output&nbsp;1 carries the Modbus address in `msg.address` and the value in `msg.payload`.
+- Pair the MQTT - IoT with `node-red-contrib-modbus` `modbus-flex-write` nodes. Output&nbsp;1 carries the Modbus address in `msg.address` and the value in `msg.payload`.
 
 ## Sample Flow
 

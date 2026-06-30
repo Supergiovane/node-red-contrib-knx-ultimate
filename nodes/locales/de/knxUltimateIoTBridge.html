@@ -1,7 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 Erstellen Sie bidirektionale Brücken zwischen KNX-Gruppenadressen und IoT-Kanälen (MQTT-Themen, REST-Endpunkte, Modbus-Register). Jede Zuordnung kann Werte skalieren, Payloads formatieren und Metadaten für nachgelagerte Nodes bereitstellen.
+
+> **Zwei Modi.** Verwenden Sie den **Modus**-Schalter oben im Node:
+> - **IoT-Bridge** (Standard) — das unten beschriebene klassische Verhalten (Zuordnungsliste, MQTT/REST/Modbus-Ausgabemeldungen).
+> - **MQTT / Home Assistant (nativ)** — der Node verbindet sich direkt mit einem MQTT-Broker und überbrückt KNX ↔ MQTT in beide Richtungen, mit Home-Assistant-MQTT-Discovery, sodass Entitäten automatisch erscheinen.
+
+## Modus MQTT / Home Assistant
+
+Eine native MQTT-Bridge mit Home-Assistant-Discovery. Benötigt einen MQTT-Broker, der sowohl von Node-RED als auch von Home Assistant erreichbar ist, mit aktivierter MQTT-Integration in HA. Alle Entitäten erscheinen unter einem einzigen Gerät mit dem Namen dieses Nodes.
+
+- **Broker-URL / Benutzername / Passwort** — Verbindung zu Ihrem MQTT-Broker.
+- **Basis-Topic / Discovery-Präfix** — Root-Topic für Status-/Befehls-Topics und das HA-Discovery-Präfix (Standard `homeassistant`).
+- **Bereitzustellende Gruppenadressen** — jede im KNX-Gateway importierte Adresse (ETS-Liste) wird mit einem Kontrollkästchen angezeigt. Angehakte Adressen werden als Home-Assistant-Entitäten veröffentlicht, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Verwenden Sie das Filterfeld und die Schaltflächen *Alle auswählen* / *Keine auswählen*. Standardmäßig sind alle Adressen ausgewählt.
+- **Rollläden & Thermostate** — fassen mehrere Adressen zu einer Entität zusammen:
+    - *Rollladen*: Auf/Ab-GA (1.008), optionale Stopp-GA (1.007), optionale Positions-GA Befehl/Status (5.001). *Position invertieren* bildet die KNX-Konvention (0% = offen) auf Home Assistant (100% = offen) ab.
+    - *Thermostat*: GA Ist-Temperatur (9.001), GA Sollwert Befehl/Status (9.001), optionale Ein/Aus-GA (1.001 → off/heat), plus Min-/Max-Temperatur und Schrittweite.
+
+KNX-Buswerte werden an MQTT veröffentlicht und beschreibbare Datenpunkte akzeptieren Befehle von Home Assistant. Die Datenpunkttypen stammen aus der importierten ETS-Liste, sofern vorhanden, andernfalls aus KNX-Standardwerten (1.008 Auf/Ab, 1.007 Stopp, 5.001 Position, 9.001 Temperatur, 1.001 Ein/Aus); für zuverlässige Statuswerte sollten die von Rollläden/Thermostaten verwendeten Adressen im ETS-Import enthalten sein.
+
+---
+
+Der Rest dieser Hilfe beschreibt den klassischen **IoT-Bridge**-Modus.
 
 ## Eingänge
 

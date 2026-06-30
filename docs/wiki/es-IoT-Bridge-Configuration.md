@@ -5,8 +5,41 @@ lang: es
 permalink: /wiki/es-IoT-Bridge-Configuration
 ---
 ---
-# Puente KNX ↔ IoT
+# MQTT Home Assistant - IoT
 El puente normaliza los telegramas KNX en mensajes estructurados listos para transportes IoT (MQTT, REST, Modbus) y acepta entradas del flow para escribir de vuelta en el bus KNX. Esta guía resume la configuración y cómo enlazarla con nodos de terceros.
+<p align="center">
+  <img src="/node-red-contrib-knx-ultimate/assets/home-assistant-logo.png" alt="Home Assistant" height="46">
+  &nbsp;&nbsp;&nbsp;
+  <img src="/node-red-contrib-knx-ultimate/assets/mqtt-logo.svg" alt="MQTT" height="38">
+</p>
+
+## Modo de funcionamiento
+El nodo tiene un selector **Modo**:
+
+- **Bridge IoT** (predeterminado) — el comportamiento descrito abajo: una lista de mapeos que convierte los telegramas KNX en mensajes de salida MQTT/REST/Modbus y viceversa.
+- **MQTT / Home Assistant (nativo)** — el nodo se conecta directamente a un broker MQTT y hace de puente KNX ↔ MQTT en ambos sentidos, publicando el descubrimiento MQTT de Home Assistant para que KNX aparezca automáticamente en Home Assistant. No hace falta cablear nodos `mqtt in`/`mqtt out`.
+
+## Modo MQTT / Home Assistant
+Requisitos: un broker MQTT accesible tanto por Node-RED como por Home Assistant, con la integración MQTT activada en HA. Todas las entidades se agrupan bajo un único dispositivo HA con el nombre del nodo.
+
+| Campo | Propósito |
+| -- | -- |
+| **URL del broker / Usuario / Contraseña** | Conexión al broker MQTT. |
+| **Topic base** | Raíz de los topics de estado/comando (predeterminado `knx-ultimate`). |
+| **Publicar descubrimiento HA / Prefijo de descubrimiento** | Activa el descubrimiento MQTT de Home Assistant y define su prefijo (predeterminado `homeassistant`). |
+| **Direcciones de grupo a exponer** | Lista con casillas de cada dirección importada en la pasarela (ETS). Las direcciones marcadas se convierten en entidades HA, tipadas automáticamente a partir del DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleccionar todo / nada; todas seleccionadas por defecto. |
+| **Persianas y termostatos** | Entidades compuestas que agrupan varias direcciones (ver abajo). |
+
+### Persianas y termostatos
+Las persianas y termostatos combinan varias direcciones de grupo en una sola entidad HA, por lo que no pueden deducirse de un único DPT - añádelos en la lista:
+
+- **Persiana**: GA subir/bajar (1.008), GA stop opcional (1.007), GA posición comando/estado opcional (5.001). *Invertir posición* asigna KNX (0% = abierto) a Home Assistant (100% = abierto).
+- **Termostato**: GA temperatura actual (9.001), GA consigna comando/estado (9.001), GA on/off opcional (1.001 → off/heat), además de temperatura mín/máx y paso.
+
+Los tipos de datapoint se leen de la importación ETS cuando están disponibles; en caso contrario, de los valores KNX por defecto. Para un estado fiable, las direcciones usadas por persianas/termostatos deberían estar presentes en la importación ETS.
+
+> **Integración KNX nativa vs puente MQTT.** Si Home Assistant ya se comunica con KNX mediante su integración KNX integrada, las persianas/clima se configuran allí con las direcciones de grupo y este puente MQTT no es necesario. Usa este modo cuando Node-RED posee el bus KNX y Home Assistant lo ve todo a través de MQTT.
+
 ## Resumen de campos
 
 | Campo | Propósito | Notas |

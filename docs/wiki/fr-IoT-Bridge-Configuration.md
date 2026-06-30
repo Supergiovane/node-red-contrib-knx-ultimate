@@ -5,8 +5,41 @@ lang: fr
 permalink: /wiki/fr-IoT-Bridge-Configuration
 ---
 ---
-# Passerelle KNX ↔ IoT
+# MQTT Home Assistant - IoT
 La passerelle normalise les télégrammes KNX en messages structurés prêts pour les transports IoT (MQTT, REST, Modbus) et accepte des entrées du flow pour écrire de nouveau sur le bus KNX. Ce guide résume la configuration et les nœuds tiers recommandés.
+<p align="center">
+  <img src="/node-red-contrib-knx-ultimate/assets/home-assistant-logo.png" alt="Home Assistant" height="46">
+  &nbsp;&nbsp;&nbsp;
+  <img src="/node-red-contrib-knx-ultimate/assets/mqtt-logo.svg" alt="MQTT" height="38">
+</p>
+
+## Mode de fonctionnement
+Le nœud dispose d'un sélecteur **Mode** :
+
+- **Passerelle IoT** (par défaut) — le comportement décrit ci-dessous : une liste de correspondances qui transforme les télégrammes KNX en messages de sortie MQTT/REST/Modbus et inversement.
+- **MQTT / Home Assistant (natif)** — le nœud se connecte directement à un broker MQTT et fait le pont KNX ↔ MQTT dans les deux sens, en publiant la découverte MQTT de Home Assistant pour que KNX apparaisse automatiquement dans Home Assistant. Aucun câblage `mqtt in`/`mqtt out` nécessaire.
+
+## Mode MQTT / Home Assistant
+Prérequis : un broker MQTT accessible à la fois par Node-RED et Home Assistant, avec l'intégration MQTT activée dans HA. Toutes les entités sont regroupées sous un seul appareil HA portant le nom du nœud.
+
+| Champ | Rôle |
+| -- | -- |
+| **URL du broker / Nom d'utilisateur / Mot de passe** | Connexion au broker MQTT. |
+| **Topic de base** | Racine des topics d'état/commande (par défaut `knx-ultimate`). |
+| **Publier la découverte HA / Préfixe de découverte** | Active la découverte MQTT de Home Assistant et définit son préfixe (par défaut `homeassistant`). |
+| **Adresses de groupe à exposer** | Liste à cases de chaque adresse importée dans la passerelle (ETS). Les adresses cochées deviennent des entités HA, typées automatiquement d'après le DPT (switch, sensor, binary_sensor, number, text). Filtre + Tout sélectionner / désélectionner ; toutes sélectionnées par défaut. |
+| **Volets et thermostats** | Entités composites qui regroupent plusieurs adresses (voir ci-dessous). |
+
+### Volets et thermostats
+Les volets et thermostats combinent plusieurs adresses de groupe en une seule entité HA, ils ne peuvent donc pas être déduits d'un seul DPT - ajoutez-les dans la liste :
+
+- **Volet** : GA montée/descente (1.008), GA stop optionnelle (1.007), GA position commande/état optionnelle (5.001). *Inverser la position* fait correspondre KNX (0% = ouvert) à Home Assistant (100% = ouvert).
+- **Thermostat** : GA température actuelle (9.001), GA consigne commande/état (9.001), GA marche/arrêt optionnelle (1.001 → off/heat), plus températures min/max et pas.
+
+Les types de points de données sont lus depuis l'import ETS lorsqu'ils sont disponibles, sinon depuis les valeurs KNX par défaut. Pour un retour d'état fiable, les adresses utilisées par les volets/thermostats doivent être présentes dans l'import ETS.
+
+> **Intégration KNX native vs passerelle MQTT.** Si Home Assistant communique déjà avec KNX via son intégration KNX intégrée, les volets/climat s'y configurent avec les adresses de groupe et cette passerelle MQTT n'est pas nécessaire. Utilisez ce mode lorsque Node-RED possède le bus KNX et que Home Assistant voit tout via MQTT.
+
 ## Récapitulatif des champs
 
 | Champ | But | Remarques |

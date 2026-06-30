@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 5.0.1** - June 2026<br/>
+
+- **IoT Bridge** node (renamed **MQTT - IoT** in the UI): new **MQTT / Home Assistant (native)** mode selectable via a *Mode* dropdown. In this mode the node connects directly to an MQTT broker and bridges KNX ↔ MQTT both ways, publishing **Home Assistant MQTT Discovery** so KNX appears automatically in Home Assistant (no `mqtt in`/`mqtt out` wiring needed). The classic IoT bridge mode is unchanged.<br/>
+  - Every group address imported in the KNX gateway (ETS list) can be **exposed automatically** as a Home Assistant entity (switch, sensor, binary_sensor, number, text), typed from its DPT. A checkbox list with filter and *Select all / none* lets you choose exactly which GAs to publish.<br/>
+  - New **Covers & Thermostats** editor: composite entities that aggregate several GAs (cover with up/down, stop and position including KNX↔HA position inversion; thermostat with current temperature, setpoint and optional on/off). The cover/thermostat GA fields have **ETS group-address autocomplete**, like the KNX device node.<br/>
+  - Robust lifecycle: the MQTT broker is closed gracefully on deploy / Node-RED exit (retained `offline`, forced disconnect, hard-capped so a slow or unreachable broker never blocks a deploy); all MQTT event handlers are fully guarded.<br/>
+  - Editor help and online docs updated, plus Home Assistant / MQTT logos on the docs pages. Localized in EN/IT/DE/FR/ES/zh-CN.<br/>
+
 **Version 5.0.0** - June 2026<br/>
 
 - KNXUltimate engine: updated to **6.0.1** (see the engine [CHANGELOG](https://github.com/Supergiovane/knxultimate/blob/main/CHANGELOG.md)).<br/>

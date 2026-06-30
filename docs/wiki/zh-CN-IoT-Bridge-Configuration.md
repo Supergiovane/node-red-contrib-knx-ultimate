@@ -6,9 +6,45 @@ permalink: /wiki/zh-CN-IoT-Bridge-Configuration
 ---
 ---
 
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modbus）的结构化消息，并允许通过 Flow 输入写回 KNX 总线。本文概述配置要点以及推荐的第三方节点。
+
+<p align="center">
+  <img src="/node-red-contrib-knx-ultimate/assets/home-assistant-logo.png" alt="Home Assistant" height="46">
+  &nbsp;&nbsp;&nbsp;
+  <img src="/node-red-contrib-knx-ultimate/assets/mqtt-logo.svg" alt="MQTT" height="38">
+</p>
+
+## 运行模式
+
+该节点有一个**模式**选择器：
+
+- **IoT 桥接**（默认）— 下文描述的行为：一个映射列表，将 KNX 电报转换为 MQTT/REST/Modbus 输出消息，反之亦然。
+- **MQTT / Home Assistant（原生）** — 节点直接连接 MQTT broker，在 KNX ↔ MQTT 之间双向桥接，并发布 Home Assistant MQTT 自动发现，使 KNX 自动出现在 Home Assistant 中。无需连接 `mqtt in`/`mqtt out` 节点。
+
+## MQTT / Home Assistant 模式
+
+要求：一个 Node-RED 和 Home Assistant 都能访问的 MQTT broker，并在 HA 中启用 MQTT 集成。所有实体都归在以该节点命名的同一个 HA 设备下。
+
+| 字段 | 用途 |
+| -- | -- |
+| **Broker URL / 用户名 / 密码** | MQTT broker 连接。 |
+| **基础主题** | 状态/命令主题的根（默认 `knx-ultimate`）。 |
+| **发布 HA 自动发现 / 自动发现前缀** | 启用 Home Assistant MQTT 自动发现并设置前缀（默认 `homeassistant`）。 |
+| **要暴露的组地址** | 网关中导入的每个地址（ETS）的复选框列表。勾选的地址会成为 HA 实体，并根据 DPT 自动分类（switch、sensor、binary_sensor、number、text）。筛选 + 全选/全不选；默认全部选中。 |
+| **卷帘与温控器** | 聚合多个地址的组合实体（见下文）。 |
+
+### 卷帘与温控器
+
+卷帘和温控器将多个组地址组合成一个 HA 实体，因此无法从单个 DPT 推导得出 - 请在列表中添加：
+
+- **卷帘**：上/下 GA (1.008)、可选停止 GA (1.007)、可选位置 设置/状态 GA (5.001)。*反转位置* 将 KNX（0% = 打开）映射到 Home Assistant（100% = 打开）。
+- **温控器**：当前温度 GA (9.001)、设定值 设置/状态 GA (9.001)、可选开/关 GA (1.001 → off/heat)，以及最低/最高温度和步长。
+
+数据点类型在可用时取自 ETS 导入，否则取自 KNX 默认值。为获得可靠的状态反馈，卷帘/温控器使用的地址应包含在 ETS 导入中。
+
+> **原生 KNX 集成 vs MQTT 桥接。** 如果 Home Assistant 已通过其内置 KNX 集成与 KNX 通信，卷帘/暖通会在那里用组地址配置，无需此 MQTT 桥接。当 Node-RED 掌管 KNX 总线、Home Assistant 通过 MQTT 查看一切时，使用此模式。
 
 ## 字段速览
 

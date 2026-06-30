@@ -1,7 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
-# Passerelle KNX ↔ IoT
+# MQTT Home Assistant - IoT
 
 Créez des ponts bidirectionnels entre des adresses de groupe KNX et des canaux IoT (topics MQTT, points de terminaison REST, registres Modbus). Chaque correspondance peut mettre à l’échelle les valeurs, formater les charges utiles et exposer des métadonnées aux nœuds suivants.
+
+> **Deux modes.** Utilisez le sélecteur **Mode** en haut du nœud :
+> - **Passerelle IoT** (par défaut) — le comportement classique décrit ci-dessous (liste de correspondances, messages de sortie MQTT/REST/Modbus).
+> - **MQTT / Home Assistant (natif)** — le nœud se connecte directement à un broker MQTT et fait le pont KNX ↔ MQTT dans les deux sens, en publiant la découverte MQTT de Home Assistant pour que les entités apparaissent automatiquement.
+
+## Mode MQTT / Home Assistant
+
+Une passerelle MQTT native avec découverte Home Assistant. Nécessite un broker MQTT accessible à la fois par Node-RED et Home Assistant, avec l'intégration MQTT activée dans HA. Toutes les entités apparaissent sous un seul appareil portant le nom de ce nœud.
+
+- **URL du broker / Nom d'utilisateur / Mot de passe** — connexion à votre broker MQTT.
+- **Topic de base / Préfixe de découverte** — topic racine pour les topics d'état/commande et le préfixe de découverte HA (par défaut `homeassistant`).
+- **Adresses de groupe à exposer** — chaque adresse importée dans la passerelle KNX (liste ETS) est affichée avec une case à cocher. Les adresses cochées sont publiées comme entités Home Assistant, typées automatiquement d'après le DPT (switch, sensor, binary_sensor, number, text). Utilisez le champ de filtre et les boutons *Tout sélectionner* / *Tout désélectionner*. Par défaut, toutes les adresses sont sélectionnées.
+- **Volets et thermostats** — regroupent plusieurs adresses en une seule entité :
+    - *Volet* : GA montée/descente (1.008), GA stop optionnelle (1.007), GA position commande/état optionnelle (5.001). *Inverser la position* fait correspondre la convention KNX (0% = ouvert) à Home Assistant (100% = ouvert).
+    - *Thermostat* : GA température actuelle (9.001), GA consigne commande/état (9.001), GA marche/arrêt optionnelle (1.001 → off/heat), plus températures min/max et pas.
+
+Les valeurs du bus KNX sont publiées sur MQTT et les points de données inscriptibles acceptent les commandes de Home Assistant. Les types de points de données proviennent de la liste ETS importée lorsqu'elle est disponible, sinon des valeurs KNX par défaut (1.008 montée/descente, 1.007 stop, 5.001 position, 9.001 température, 1.001 marche/arrêt) ; pour un retour d'état fiable, les adresses utilisées par les volets/thermostats doivent être présentes dans l'import ETS.
+
+---
+
+Le reste de cette aide décrit le mode classique **Passerelle IoT**.
 
 ## Entrées
 

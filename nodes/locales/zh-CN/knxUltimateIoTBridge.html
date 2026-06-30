@@ -1,7 +1,28 @@
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
-# KNX ↔ IoT Bridge
+# MQTT Home Assistant - IoT
 
 在 KNX 组地址与 IoT 通道（MQTT 主题、REST 接口、Modbus 寄存器）之间创建双向桥接。每条映射都可以对数值进行缩放、格式化载荷，并向后续节点暴露元数据。
+
+> **两种模式。** 使用节点顶部的**模式**选择器：
+> - **IoT 桥接**（默认）— 下文描述的经典行为（映射列表，MQTT/REST/Modbus 输出消息）。
+> - **MQTT / Home Assistant（原生）** — 节点直接连接 MQTT broker，在 KNX ↔ MQTT 之间双向桥接，并发布 Home Assistant MQTT 自动发现，使实体自动出现。
+
+## MQTT / Home Assistant 模式
+
+带 Home Assistant 自动发现的原生 MQTT 桥接。需要一个 Node-RED 和 Home Assistant 都能访问的 MQTT broker，并在 HA 中启用 MQTT 集成。所有实体都出现在以该节点命名的同一个设备下。
+
+- **Broker URL / 用户名 / 密码** — 连接到你的 MQTT broker。
+- **基础主题 / 自动发现前缀** — 状态/命令主题的根主题以及 HA 自动发现前缀（默认 `homeassistant`）。
+- **要暴露的组地址** — KNX 网关中导入的每个地址（ETS 列表）都带有一个复选框。勾选的地址会作为 Home Assistant 实体发布，并根据 DPT 自动分类（switch、sensor、binary_sensor、number、text）。可使用筛选框和*全选* / *全不选*按钮。默认全部选中。
+- **卷帘与温控器** — 将多个地址组合成一个实体：
+    - *卷帘*：上/下 GA (1.008)、可选停止 GA (1.007)、可选位置 设置/状态 GA (5.001)。*反转位置* 将 KNX 约定（0% = 打开）映射到 Home Assistant（100% = 打开）。
+    - *温控器*：当前温度 GA (9.001)、设定值 设置/状态 GA (9.001)、可选开/关 GA (1.001 → off/heat)，以及最低/最高温度和步长。
+
+KNX 总线的值会发布到 MQTT，可写的数据点接受来自 Home Assistant 的命令。数据点类型在可用时取自导入的 ETS 列表，否则取自 KNX 默认值（1.008 上/下、1.007 停止、5.001 位置、9.001 温度、1.001 开/关）；为获得可靠的状态反馈，卷帘/温控器使用的地址应包含在 ETS 导入中。
+
+---
+
+本帮助的其余部分描述经典的 **IoT 桥接**模式。
 
 ## 输入
 

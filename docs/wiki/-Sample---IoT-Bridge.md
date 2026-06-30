@@ -4,16 +4,16 @@ title: "-Sample---IoT-Bridge"
 lang: en
 permalink: /wiki/-Sample---IoT-Bridge
 ---
-# KNX ↔ IoT Bridge (sample)
+# KNX ↔ MQTT - IoT (sample)
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-iot-bridge.svg" width="95%"><br/>
 
-This sample shows how to use the **KNX ↔ IoT Bridge** node to:
+This sample shows how to use the **KNX ↔ MQTT - IoT** node to:
 
 - publish KNX updates to an MQTT topic (Output 1)
 - accept MQTT commands and write them back to KNX (Output 2 = write/ack)
 
-For the full node reference see: [IoT Bridge configuration](/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration)
+For the full node reference see: [MQTT - IoT configuration](/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration)
 
 ## KNX ↔ MQTT round-trip
 
@@ -28,7 +28,7 @@ For the full node reference see: [IoT Bridge configuration](/node-red-contrib-kn
   {
     "id": "f2c6bd1f9d7b91b1",
     "type": "tab",
-    "label": "KNX IoT Bridge sample",
+    "label": "KNX MQTT - IoT sample",
     "disabled": false,
     "info": ""
   },
