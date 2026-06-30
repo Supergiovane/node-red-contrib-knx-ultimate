@@ -8,7 +8,7 @@
 
 **Version 5.0.0** - June 2026<br/>
 
-- KNXUltimate engine: updated to **6.0.0** (see the engine [CHANGELOG](https://github.com/Supergiovane/knxultimate/blob/main/CHANGELOG.md)).<br/>
+- KNXUltimate engine: updated to **6.0.1** (see the engine [CHANGELOG](https://github.com/Supergiovane/knxultimate/blob/main/CHANGELOG.md)).<br/>
 - KNX config node: new **"Reveal keyring passwords"** button in the **Utility** tab, enabled only when **KNX Secure** is selected. It shows, in clear text, all the keyring passwords (interfaces, backbone, group addresses and devices keys/passwords) plus the general keyring password, decoded from the loaded keyring file. Localized in EN/IT/DE/FR/ES/zh-CN.<br/>
 
 **Version 4.3.24** - June 2026<br/>

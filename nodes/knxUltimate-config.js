@@ -24,6 +24,12 @@ const loggerClass = require('./utils/sysLogger')
 const payloadRounder = require('./utils/payloadManipulation')
 const utils = require('./utils/utils')
 
+// Versions logged once at startup (node package + KNXUltimate engine)
+let NODE_VERSION = 'unknown'
+try { NODE_VERSION = require('../package.json').version } catch (e) { /* empty */ }
+let KNX_ENGINE_VERSION = 'unknown'
+try { KNX_ENGINE_VERSION = require('knxultimate/package.json').version } catch (e) { /* empty */ }
+
 // DATAPONT MANIPULATION HELPERS
 // ####################
 const sortBy = (field) => (a, b) => {
@@ -185,6 +191,11 @@ const findAutoEthernetInterface = (targetIP) => {
 }
 
 module.exports = (RED) => {
+  // Log node and KNXUltimate engine versions once, at Node-RED startup.
+  try {
+    RED.log.info(`KNXUltimate: node-red-contrib-knx-ultimate v${NODE_VERSION} (KNXUltimate engine v${KNX_ENGINE_VERSION})`)
+  } catch (e) { /* empty */ }
+
   function knxUltimateConfigNode (config) {
     RED.nodes.createNode(this, config)
     const node = this
