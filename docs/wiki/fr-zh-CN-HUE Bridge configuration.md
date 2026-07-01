@@ -20,4 +20,5 @@ Vous pouvez également remplir les informations d'identification manuellement.
 | Connectez-vous | Commencez le processus d'enregistrement avec Hue Bridge.Cliquez sur **Connexion ** et l'ID de pont sera lu automatiquement.Vous pouvez ensuite choisir d'enregistrer un nouvel diplôme, ou**définir manuellement les informations d'identification** pour remplir les champs manuellement.|
 | Nom | Le nom de Hue Bridge. |
 | Révéler |Afficher les paires de clés (nom d'utilisateur et clé client) pour une copie facile dans d'autres endroits.|
+
 ![image.png](../ img / hude-config.png)

@@ -23,6 +23,7 @@ Remarque: Une fois l'écriture exécutée, `<name> _write` sera automatiquement 
 | Nom variable | Le nom de base de la variable globale.`<name> _read` et` <name> _write` sont créés. N'utilisez pas le nom par défaut pour des raisons de sécurité.|
 | Exposer en tant que variable globale |Sélectionnez si et comment exposer les variables globales. Si vous n'avez pas besoin d'écrire, il est recommandé de régler en lecture seule.|
 | Intervalle d'écriture de bus | Poll `<nom> _Write` et écrivez dans le bus.|
+
 ## objet msg en variable
 
 ```javascript

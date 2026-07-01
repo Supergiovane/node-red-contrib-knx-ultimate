@@ -28,8 +28,10 @@ Der Node speichert automatisch aktualisierte Werte aller Aktoren der Szene, soba
 |--|--|
 | ADD | Zeile hinzufügen. |
 | Zeilenfelder | 1) Gruppenadresse 2) Datapoint 3) Default-Wert in der Szene (durch Scene Save überschreibbar). Darunter: Gerätename.
+
  Eine Pause einfügen: **wait ** im ersten Feld und eine Zahl im letzten Feld (Millisekunden), z. B. `2000`.
 **wait** akzeptiert auch Sekunden/Minuten/Stunden: `12s`, `5m`, `1h`. |
+
 | Remove | Gerät/Zeile entfernen. |
 
 ## Ausgaben

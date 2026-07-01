@@ -15,11 +15,13 @@ Entrez dans le champ GA (nom ou adresse de groupe) pour associer le KNX GA;Les s
 | Hue Bridge | Sélectionnez le pont Hue à utiliser |
 | Capteur de teinte | Capteur de température de la teinte (Compléter automatiquement en entrée) |
 | Lire l'état au démarrage | Lisez la valeur actuelle pendant le démarrage / reconnexion et envoyez à KNX (par défaut: non) |
+
 **Mappage**
 
 | Propriétés |Description |
 |-|-|
 | Température | Température (° C) KNX GA. DPT recommandé: <b> 9.001 </b> |
+
 ### Sortir
 1. Sortie standard
 : `msg.payload` (nombre): température du courant (° C)

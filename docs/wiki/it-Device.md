@@ -64,6 +64,7 @@ Lo script viene eseguito a ogni msg in ingresso o a ogni telegramma ricevuto dal
 |Proprietà|Descrizione|
 |--|--|
 | Search GA | Disponibile solo se hai importato il file ETS. Inizia a digitare e seleziona il GA da inserire nel codice, poi incolla il campo completo nella funzione `getGAValue`. 
+
  **getGAValue('0/0/1 table nord lamp')** |
 
 ### Oggetti e funzioni disponibili nel codice

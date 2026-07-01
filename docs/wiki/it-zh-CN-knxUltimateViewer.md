@@ -14,6 +14,7 @@ Visualizza tutti gli indirizzi di gruppo e i loro valori nel gruppo dashboard.<b
 |-|-|
 | Gateway | KNX Gateway |
 | Nome | Nome nodo |
+
 # Pin di output
 1. Indirizzo di gruppo (dashboard)
 : payload (html): connettiti direttamente al nodo <b> modello </b> di dashboard; Genera una tabella contenente tutto il gas e i valori.

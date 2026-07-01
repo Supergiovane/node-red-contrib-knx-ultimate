@@ -16,6 +16,7 @@ Impostazioni del nodo ##
 | Scene Salva | **DataPoint ** e**Valore trigger** . L'indirizzo di gruppo utilizzato per salvare la scena (come `0/0/2`).Quando un nodo riceve un messaggio, salva il valore corrente di tutti i dispositivi nella scena (archiviazione non volatile).DPT è il tipo per salvare GA; Trigger Value Trigger Save (Dim supra). |
 | Nome nodo | Nome nodo (scrivi "Ricorda: ... / Salva: ..."). |
 | Argomento | L'argomento del nodo. |
+
 ## configurazione dello scenario
 Come un vero controller di scena KNX, aggiungi dispositivi alla scena;Ogni riga rappresenta un dispositivo.
 Una volta ricevuto un nuovo valore dal bus, il nodo registrerà automaticamente l'ultimo valore dell'attuatore nella scena.
@@ -25,6 +26,7 @@ Una volta ricevuto un nuovo valore dal bus, il nodo registrerà automaticamente 
 |Aggiungi pulsante | Aggiungi una nuova riga. |
 | Campo di riga |1) Indirizzo di gruppo 2) DataPoint 3) Valore della scena predefinito (può essere sovrascritto per salvataggio di scena).Il nome del dispositivo è sotto.<br/> Inserisci pausa: compila **Aspetta ** nella prima colonna e compila l'ultima colonna per la durata (millisecondi), come `2000`.<br/>**Wait** supporta anche secondi/minuto/ora: `12s`,` 5m`, `1H`. |
 | Rimuovere |Rimuovere questa linea del dispositivo.|
+
 Output del nodo ##
 
 ```javascript

@@ -14,17 +14,20 @@ Digitare la casella di input GA (nome o indirizzo di gruppo) per associare KNX G
 | KNX Gateway | Seleziona il gateway KNX da utilizzare |
 | Bridge Hue | Seleziona il ponte Hue da usare |
 | Button Hue | Pulsante Hue da utilizzare (completato automaticamente quando input) |
+
 **interruttore**
 
 | Proprietà | Descrizione |
 |-|-|
 | Interruttore | GA attivato da <code> corto \ _release </code> (rilascio press breve). |
 | Stato GA |Feedback opzionale GA Quando è abilitato "Valore di commutazione per evento" per mantenere sincronizzato lo stato interno.|
+
 **DIMMULIPLEX**
 
 | Proprietà | Descrizione |
 |-|-|
 | Dimming | <code> Long \ _press </code>/<code> ripetizione </code> GA utilizzato per il bighellone durante l'evento (di solito DPT 3.007). |
+
 **Comportamento**
 
 |Proprietà | Descrizione |
@@ -32,6 +35,7 @@ Digitare la casella di input GA (nome o indirizzo di gruppo) per associare KNX G
 | Switch Values ​​per ogni evento | Se abilitato, passare automaticamente tra <code> true/false </code> e la direzione di dimming.|
 | Carico di commutazione |Carico fisso inviato a KNX/Processo quando la commutazione è disabilitata.|
 | Carico di oscuramento | Dimpido di dignaggio fisso inviato a KNX/Flow quando la commutazione è disabilitata. |
+
 ### Produzione
 1. Output standard
 : `msg.payload` è un oggetto booleano o oscurante;`msg.event` è una stringa di eventi Hue (ad esempio` short_release`, `ripetizioni`).

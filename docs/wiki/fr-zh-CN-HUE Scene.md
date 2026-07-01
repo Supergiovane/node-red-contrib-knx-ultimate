@@ -17,6 +17,7 @@ Le nœud **Hue Scene** publie la scène Hue à KNX et peut envoyer les événeme
 | KNX GW | Une passerelle KNX qui fournit un répertoire d'adresse d'achèvement automatique.|
 | Hue Bridge | Hue Bridge qui héberge la scène. |
 | Scène de la teinte |Scène à appeler (la complétion automatique est prise en charge; le bouton de rafraîchissement reprendra la liste).|
+
 Onglet de mappage ###
 
 | Propriétés | Description |
@@ -26,10 +27,12 @@ Onglet de mappage ###
 | Nom | Nom de l'instruction pour rappeler GA.|
 | # | Affiché lorsque KNX Scene DPT est sélectionné, utilisé pour sélectionner le numéro de scène à envoyer.|
 | Statut GA | Boolean GA en option pour faire des commentaires si la scène est active.|
+
 Onglet Multi-Scene ###
 
 | Propriétés | Description |
 |-|-|
 | Rappelons GA | Utilisez GA de DPT 18.001 pour sélectionner une scène par le numéro de scène KNX. |
 | Liste des scènes |Liste modifiable pour correspondre au numéro de scène KNX à la scène Hue et à son mode d'appel.Faites glisser des barres pour réorganiser.|
+
 > ℹ️ Les commandes liées au KNX ne seront affichées qu'après avoir sélectionné la passerelle KNX; L'onglet Mappage restera caché jusqu'à la configuration du pont Hue et de la passerelle KNX.

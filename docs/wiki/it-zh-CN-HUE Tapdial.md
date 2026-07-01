@@ -16,15 +16,18 @@ Tab ###
 | KNX GW | KNX Gateway per il completamento automatico GA.|
 | Bridge Hue | Hue Bridge fornisce il ponte Hue di Tap Dial. |
 | Quadrante tocco di tonalità |Dispositivo a manopola (supporta il completamento automatico; pulsante Aggiorna per re-elenco).|
+
 Scheda di mappatura ###
 
 | Proprietà | Descrizione |
 |-|-|
 | Rotante ga | Indirizzo del gruppo KNX che riceve eventi di rotazione (supporta DPT 3.007, 5.001, 232.600). |
 | Nome | Descrizione Nome di Ga. |
+
 ### Produzione
 
 |#| Porta | Payload |
 |-|-|-|-|
 | 1 | Output standard | `msg.payload` (oggetto) Evento di tonalità originale generato da tap compositura. |
+
 > ℹ️ I controlli relativi a KNX verranno visualizzati solo dopo aver selezionato il gateway KNX;La scheda di mappatura rimarrà nascosta fino a quando non saranno configurati sia il ponte Hue che il gateway KNX.

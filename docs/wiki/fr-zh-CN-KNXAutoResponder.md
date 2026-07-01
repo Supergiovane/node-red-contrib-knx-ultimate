@@ -5,7 +5,7 @@ lang: fr
 permalink: /wiki/fr-zh-CN-KNXAutoResponder
 ---
 ---
-<p> Ce nœud répondra à la demande de lecture du bus KNX.
+ Ce nœud répondra à la demande de lecture du bus KNX.
 Le nœud enregistre tous les télégrammes qui sont transférés dans le bus KNX et stockent les valeurs en mémoire.
 Il répond ensuite à la demande de lecture en renvoyant ces valeurs mémorisées au bus en fonction de la demande.
 Si l'adresse du groupe à lire n'a pas encore de valeur, le nœud répondra avec la valeur par défaut.
@@ -18,6 +18,7 @@ Par défaut, il existe un texte JSON précompilé * ***"Response" que vous pouve
 |-|-|
 | Passerelle | Sélectionnez le portail KNX à utiliser |
 | Réponse | Node répondra à une demande de lecture de l'adresse de groupe spécifiée dans ce tableau JSON.Le format est spécifié ci-dessous.|
+
 <br/>
 \ *\* JSON Format \ *\*
 JSON est toujours un tableau d'objets contenant chaque instruction.Chaque instruction indique au nœud quoi faire.
@@ -28,6 +29,7 @@ JSON est toujours un tableau d'objets contenant chaque instruction.Chaque instru
 | GA | Adresse du groupe.Vous pouvez également utiliser ".." des pièces sauvages à des groupes d'adresses spécifiques.".." ne peut être utilisé qu'avec le troisième niveau GA, par exemple: \ *\* 1/1/0..257**.Veuillez consulter l'échantillon ci-dessous.|
 | DPT | Point de données d'adresse de groupe, format "1.001".Si le fichier ETS CSV a été importé, **Facultatif \* \ *. |
 | Par défaut |Lorsque la valeur d'adresse du composant n'a pas été rappelée par le nœud, il est envoyé au bus dans une réponse de demande de lecture.| ** Commençons par une commande** Le nœud de répondeur automatique répondra à une demande de lecture à l'adresse du groupe 2/7/1.Si ce n'est pas encore en mémoire, il répondra avec _true _. |
+
 Le fichier ETS CSV doit être importé, sinon vous devez également ajouter la touche __"DPT": "1.001" \ *\*.
 
 ```json

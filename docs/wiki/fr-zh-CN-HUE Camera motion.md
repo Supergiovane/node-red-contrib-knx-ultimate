@@ -15,11 +15,13 @@ Commencez à entrer dans la zone d'entrée GA (nom ou adresse de groupe) pour as
 | Hue Bridge | Sélectionnez le pont Hue à utiliser |
 | Capteur de teinte | Capteur de mouvement de la caméra Hue (terminer automatiquement lorsque la saisie) |
 | Lire l'état au démarrage | Lisez la valeur actuelle au démarrage / reconnexion et envoyez à KNX (par défaut: non) |
+
 **Mappage**
 
 | Propriétés | Description |
 |-|-|
 | Mouvement |Adresse du groupe KNX (booléen) pour le mouvement de la caméra. DPT recommandé: <b> 1.001 </b> |
+
 ### Sortir
 1. Sortie standard
 : `msg.payload` (booléen):« true »lorsque le mouvement est détecté, sinon« false »

@@ -25,6 +25,7 @@ Adecuado para alarmas de falla de error/conexión (notificaciones por correo ele
 |Nombre | Nombre del nodo. |
 | Auto Iniciar el temporizador de vigilancia | Inicie automáticamente el temporizador de implementación/inicio.|
 | Verificación Nivel | Ver arriba. |
+
 **COMPROBAR NIVEL**
 > Ethernet: detectar conexiones entre KNX -Ulimate (unicast) y la interfaz KNX/IP. <br/>
 <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width = "90%"> <br/>
@@ -36,6 +37,7 @@ Adecuado para alarmas de falla de error/conexión (notificaciones por correo ele
 |-|-|
 | Intervalo de reintento (en segundos) | Intervalo de detección en segundos. |
 | Número de reintento antes de dar un error |Cuántas fallas consecutivas se informan. |
+
 # Salida Watchdog Salida
 Watchdog emite un mensaje cuando la detección interna encuentra una falla, o un nodo ultimatizado de KNX informa un error en el proceso. ** Problema de conexión de Watchdog** <a href = "/node-red-contrib-knx-ultimate/wiki/watchdog-configuration" target = "_ en blanco"> ver aquí para obtener detalles </a>
 

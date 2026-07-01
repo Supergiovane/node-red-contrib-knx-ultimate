@@ -18,6 +18,7 @@ Le nœud **KNX Garage** pilote un portail motorisé en utilisant des GA dédiée
 | Maintien ouvert | `gaHoldOpen` | Annule la refermeture automatique tant que la valeur reste à true. |
 | Désactivation | `gaDisable` | Bloque toute action générée par le nœud (mode maintenance). |
 | Cellule photo | `gaPhotocell` | Passe à true lorsqu'un obstacle coupe le faisceau ; le nœud rouvre et signale l'obstruction. |
+
 ## Refermeture automatique
 - Activez le temporisateur pour envoyer la fermeture après le délai configuré.
 - Maintien ouvert ou désactivation suspendent le timer tant qu'ils sont actifs.

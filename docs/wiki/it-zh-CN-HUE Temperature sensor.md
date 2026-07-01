@@ -15,11 +15,13 @@ Immettere nel campo GA (nome o indirizzo di gruppo) per associare KNX GA;I sugge
 | Bridge Hue | Seleziona il ponte Hue da usare |
 | Sensore Hue | Sensore di temperatura Hue (completato automaticamente quando input) |
 | Leggi lo stato all'avvio | Leggi il valore corrente durante l'avvio/riconnessione e invia a KNX (impostazione predefinita: no) |
+
 **mappatura**
 
 | Proprietà | Descrizione |
 |-|-|
 |Temperatura | Temperatura (° C) KNX GA. DPT consigliato: <b> 9.001 </b> |
+
 ### Produzione
 1. Output standard
 : `msg.payload` (numero): temperatura di corrente (° C)

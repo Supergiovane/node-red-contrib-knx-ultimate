@@ -16,6 +16,7 @@ Paramètres de nœud ##
 | Scene sauve | **DataPoint ** et**Valeur de déclenchement** . L'adresse de groupe utilisée pour enregistrer la scène (comme `0/0 / 2`).Lorsqu'un nœud reçoit un message, il enregistre la valeur actuelle de tous les appareils dans la scène (stockage non volatile).DPT est le type pour sauver GA; La valeur de déclenchement déclenche des sauvegardes (Dim supra).|
 | Nom du nœud | Nom du nœud (écrivez "Rappel:… / Save:…"). |
 | Sujet |Le sujet du nœud. |
+
 ## Configuration du scénario
 Comme un vrai contrôleur de scène KNX, ajoutez des appareils à la scène; Chaque ligne représente un appareil.
 Une fois qu'une nouvelle valeur est reçue du bus, le nœud enregistrera automatiquement la dernière valeur de l'actionneur de la scène.
@@ -25,6 +26,7 @@ Une fois qu'une nouvelle valeur est reçue du bus, le nœud enregistrera automat
 | Ajouter le bouton | Ajoutez une nouvelle ligne.|
 | Champ de ligne | 1) Adresse du groupe 2) Datapoint 3) Valeur de scène par défaut (peut être écrasée par Scene Save).Le nom de l'appareil est ci-dessous.<br/> Insérer une pause: remplissez **attendre ** dans la première colonne, et remplissez la dernière colonne pour la durée (millisecondes), comme «2000».<br/>**Wait** prend également en charge les secondes / minute / heure: `12S`,` 5M`, `1H`.|
 | Supprimer | Supprimer cette ligne d'appareil.|
+
 ## sortie de nœud
 
 ```javascript

@@ -14,6 +14,7 @@ Muestre todas las direcciones de grupo y sus valores en el ensamblaje del tabler
 |-|-|
 | Puerta de entrada | KNX Gateway |
 | Nombre | Nombre del nodo |
+
 # Pin de salida
 1. Dirección de grupo (tablero)
 : carga útil (html): conéctese directamente al nodo de plantilla <b> </b> del tablero; Genere una tabla que contenga todo el gas y los valores.

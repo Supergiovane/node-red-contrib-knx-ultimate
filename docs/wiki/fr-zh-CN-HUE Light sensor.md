@@ -15,11 +15,13 @@ La valeur lux est sortie chaque fois que la lumière ambiante change.Entrez le n
 | Hua Bridge | Sélectionnez le pont de ton à utiliser |
 | Capteur de teinte | Capteur de lumière Hue à utiliser (achèvement automatique) |
 | Lire l'état au démarrage | Lire l'état au démarrage et transmettre des événements au bus KNX au démarrage / reconnecter.(Par défaut "non") |
+
 **Mappage**
 
 | Propriétés | Description |
 |-|-|
 | Lux | Adresse du groupe KNX qui reçoit des valeurs lux |
+
 ### Sortir
 1. Sortie standard
 : charge utile (numéro): valeur lux actuelle

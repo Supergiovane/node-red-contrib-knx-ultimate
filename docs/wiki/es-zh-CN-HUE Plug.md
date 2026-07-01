@@ -23,6 +23,7 @@ Los mapas de nodo Hue Plug Philips Hue Smart Sockets a las direcciones del grupo
 | Estado de potencia | Dirección de grupo opcional para mapear tono `power_state` |
 | Leer el estado al inicio | Envíe el estado actual inmediatamente durante la implementación |
 | Pin | Habilite el pin de entrada/salida de Node-Red Red para control avanzado o reenvío de eventos |
+
 ## Recomendaciones KNX
 - Se recomienda el control y el estado para usar DPT 1.xxx.
 - `power_state` se puede asignar a un valor booleano (true = on, false = standby), o usar la clase de texto DPT para mostrar la cadena original.

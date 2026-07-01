@@ -17,6 +17,7 @@ Este nodo también puede contar el número de mensajes (por segundo o intervalo 
 | Puerta de entrada | KNX Gateway. |
 | Tema | El tema del nodo. |
 | Nombre | Nombre del nodo. |
+
 ## Archivos de diagnóstico de bus compatibles con ETS
 
 |Propiedades | Descripción |
@@ -24,12 +25,14 @@ Este nodo también puede contar el número de mensajes (por segundo o intervalo 
 | Temporizador de inicio automático | Inicie automáticamente el temporizador cuando se despliegue o se inicie. |
 |Salida nueva XML cada (en minutos) | ¿Cuántos minutos sale XML compatible con ETS? |
 | Número máximo de filas (0 = sin límite) |El número máximo de filas de XML en esta ventana de tiempo; 0 significa que no hay límite. Cuando también está activado el guardado en archivo, este valor representa el número máximo de filas del archivo; al alcanzar el límite, el archivo se **rotará**, eliminando progresivamente las filas más antiguas. |
+
 ## contador de mensajes KNX
 
 | Propiedades |Descripción |
 |-|-|
 | Temporizador de inicio automático | Inicie automáticamente el temporizador cuando se despliegue o se inicie.|
 | Intervalo de conteo (en segundos) | El intervalo para la salida cuenta del proceso en segundos.|
+
 ---
 #Salida del nodo
 **Pin 1: XML compatible con ETS**

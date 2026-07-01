@@ -4,6 +4,7 @@ title: "SampleAlerter"
 lang: en
 permalink: /wiki/SampleAlerter
 ---
+{% raw %}
 # ALERTER NODE SAMPLE
 
 With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true** .
@@ -40,3 +41,4 @@ In this example, an alerting system displays to a touchscreen, the open windows 
 ```
 
 </details>
+{% endraw %}

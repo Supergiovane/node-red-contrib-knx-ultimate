@@ -50,6 +50,7 @@ Starten Sie das Feld GA, den Namen oder die Gruppenadresse des KNX -Geräts, und
 | Kontrolle Kelvin | ** DPT 7.600: ** Set von KNX Range 2000-6535 K (konvertieren in Hue Mirek). <br/>**DPT 9.002:** Set von Hue Range 2000-6535 K (Ambiente beginnt ab 2200 K).Die Umwandlung kann zu leichten Abweichungen führen |
 | Status Kelvin | ** DPT 7.600: ** Kelvin lesen (KNX 2000-6535, Umwandlung).<br/>**DPT 9.002:** Hue Range 2000-6535 K; Die Konvertierung kann leichte Abweichungen haben |
 | Umgekehrt die schwache Richtung | Die schwache Richtung umkehren. |
+
 <br/>
 
 \*\*Rgb/hsv \*\*

@@ -14,16 +14,19 @@ Entrez le nom du périphérique KNX ou l'adresse de groupe dans le champ GA pour
 | KNX GW | KNX Gateway qui reçoit l'état de mouvement (les paramètres KNX ne sont affichés qu'après la sélection) |
 | Hue Bridge | Utilisé par Hue Bridge |
 | Capteur de teinte | Capteur de mouvement Hue à utiliser (prend en charge l'achèvement automatique et la rafraîchissement) |
+
 **Mappage**
 
 | Propriétés | Description |
 |-|-|
 | Motion | Adresse de groupe KNX correspondante; Envoyez «True» lorsque le mouvement est détecté et envoyez «False» lorsque le ralenti est restauré (DPT recommandé: <b> 1.001 </b>) |
+
 **Comportement**
 
 | Propriétés | Description |
 |-|-|
 | Pin de sortie de nœud | Afficher ou masquer la sortie du nœud-rouge; Reste activé lorsque la passerelle KNX n'est pas sélectionnée pour s'assurer que les événements de teinte peuvent toujours saisir le processus |
+
 > ℹ️ Lorsque la passerelle KNX n'est pas sélectionnée, le champ KNX est automatiquement masqué et le nœud peut être utilisé comme une pure teinte → Écouteur rouge.
 ### Sortir
 1. Sortie standard - «msg.payload» (booléen)

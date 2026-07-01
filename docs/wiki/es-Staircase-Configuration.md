@@ -16,6 +16,7 @@ El nodo **KNX Staircase** reproduce el comportamiento de un temporizador de esca
 | Estado | `Status GA` (`gaStatus`) | Refleja el estado activo y el preaviso. |
 | Override | `gaOverride` | Mantiene la luz encendida mientras sea `1` y pausa el temporizador. |
 | Bloqueo | `gaBlock` | Evita nuevas activaciones y puede forzar el apagado. |
+
 ## Temporizador y preaviso
 - **Duración del temporizador** define la duración base.
 - **Nuevo impulso** permite reiniciar, extender o ignorar impulsos adicionales.

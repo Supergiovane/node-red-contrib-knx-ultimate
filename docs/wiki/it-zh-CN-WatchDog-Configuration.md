@@ -25,6 +25,7 @@ Adatto per allarmi di errore di errore/connessione (notifiche e -mail, commutazi
 | Nome | Nome nodo. |
 |Auto Avvia il timer del cane da guardia | Avviare automaticamente il timer su distribuzione/avvio. |
 | Controlla livello |Vedi sopra. |
+
 **Controlla livello**
 > Ethernet: rilevare connessioni tra KNX -ultimo (unicast) e l'interfaccia KNX/IP. <br/>
 <img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width = "90%"> <br/>
@@ -36,6 +37,7 @@ Adatto per allarmi di errore di errore/connessione (notifiche e -mail, commutazi
 |-|-|
 | Retry Interval (in secondi) | Intervallo di rilevamento in secondi. |
 | Numero di pensionati prima di dare un errore |Quanti fallimenti consecutivi sono riportati. |
+
 # Output del watchdog
 Il cane da guardia emette un messaggio quando il rilevamento interno trova un errore o un nodo KNX -ultimo riporta un errore nel processo. ** Problema di connessione di Watchdog** <a href = "/node-red-contrib-knx-ultimate/wiki/watchdog-configuration" target = "_ blank"> vedi qui per i dettagli </a>
 

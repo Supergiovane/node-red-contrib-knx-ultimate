@@ -15,11 +15,13 @@ Inizia ad inserire nella casella di input GA (nome o indirizzo di gruppo) per as
 | Bridge Hue | Seleziona il ponte Hue da usare |
 | Sensore Hue | Sensore di movimento della fotocamera Hue (completato automaticamente quando input) |
 | Leggi lo stato all'avvio | Leggi il valore corrente all'avvio/riconnessione e invia a KNX (impostazione predefinita: no) |
+
 **mappatura**
 
 | Proprietà | Descrizione |
 |-|-|
 | Movimento |Indirizzo di gruppo KNX (booleano) per il movimento della telecamera. DPT consigliato: <b> 1.001 </b> |
+
 ### Produzione
 1. Output standard
 : `msg.payload` (booleano):` vero` quando viene rilevato il movimento, altrimenti `false`

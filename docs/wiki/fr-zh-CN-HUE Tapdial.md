@@ -16,15 +16,18 @@ Onglet ###
 | KNX GW | KNX Gateway for GA Automatic Competion.|
 | Hue Bridge | Hue Bridge fournit le pont Hue de Tap Dial. |
 | Hue Tap Dial |Appareil bouton (prend en charge l'achèvement automatique; bouton de rafraîchissement pour recueillir la liste).|
+
 Onglet de mappage ###
 
 | Propriétés | Description |
 |-|-|
 | GA rotatif | Adresse du groupe KNX qui reçoit des événements de rotation (prend en charge DPT 3.007, 5.001, 232.600).|
 | Nom |Description Nom de GA. |
+
 ### Sortir
 
 | # | Port | Télélée utile |
 |-|-| - | - |
 | 1 | Sortie standard | `msg.payload` (objet) Événement de teinte d'origine généré par Tap Dial. |
+
 > ℹ️ Les commandes liées au KNX ne seront affichées qu'après avoir sélectionné la passerelle KNX; L'onglet Mappage restera caché jusqu'à la configuration du pont Hue et de la passerelle KNX.

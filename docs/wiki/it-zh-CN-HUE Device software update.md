@@ -15,12 +15,14 @@ Stai digitando.
 | KNX GW | Seleziona il portale KNX da utilizzare |
 | Bridge Hua | Seleziona il bridge tone da usare |
 | Dispositivo Hue | Dispositivo HUE da monitorare (completamento automatico) |
+
 **mappatura**
 
 | Proprietà | Descrizione |
 |-|-|
 | Stato | Indirizzo di gruppo KNX per gli aggiornamenti del software di mappatura: _true_ disponibile/preparazione/installazione, altrimenti _false_ |
 | Leggi lo stato all'avvio | Leggi e pubblica su KNX durante l'avvio/riconnessione (predefinito "Sì") |
+
 ### Produzione
 1. Output standard
 : payload (booleano): flag di aggiornamento.

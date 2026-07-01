@@ -13,6 +13,7 @@ permalink: /wiki/it-zh-CN-HUE%20Light
 | KNX GW | Seleziona il portale KNX da utilizzare |
 | Bridge Hua | Seleziona il bridge tone da usare |
 | Nome | Lampada da tonalità o luce raggruppata per tonalità.Le luci e i gruppi disponibili quando si digita iniziano. |
+
 <br/>
 **Opzioni**
 Qui puoi selezionare l'indirizzo KNX che si desidera collegare alle luci/stato di tono disponibili.<br/>
@@ -23,6 +24,7 @@ Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo
 |-|-|
 | Control | Questo GA viene utilizzato per attivare/spento la luce tono dal valore booleano KNX di True/False |
 | Stato | Collegalo all'indirizzo del gruppo di stato Switch della luce |
+
 <br/>
 **Dim**
 
@@ -34,6 +36,7 @@ Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo
 | Dark Speed ​​(MS) | Piccola velocità in millisecondi.Funziona per ** Light ** e anche per**Punti di dati pianificati White \*\*. È calcolato dallo 0% al 100%.|
 | L'ultima luminosità del fiocchi |La luminosità più bassa che la luce può ottenere.Ad esempio, se si desidera abbassare la luce, la luce smette di attenuare la luminosità specificata.|
 | Massima luminosità fioca |Massima luminosità che la lampada può ottenere.Ad esempio, se si desidera regolare la luce, la luce smetterà di attenuare la luminosità specificata. |
+
 <br/>
 **bianco regolabile**
 
@@ -45,6 +48,7 @@ Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo
 | Controllo Kelvin | **DPT 7.600: ** Impostato da KNX Range 2000-6535 K (Converti in Hue Mirek). <br/>**DPT 9.002:** Set da Hue Range 2000-6535 K (Ambiance inizia da 2200 K).La conversione può portare a lievi deviazioni |
 | Stato Kelvin | **DPT 7.600: ** Leggi Kelvin (KNX 2000-6535, conversione).<br/>**dpt 9.002:** Leggi Hue Range 2000-6535 K; La conversione può avere lievi deviazioni |
 | Invertire la direzione fioca | Invertire la direzione fioca.|
+
 <br/>
 \*\*Rgb/hsv \*\*
 
@@ -59,6 +63,7 @@ Inizia ad immettere il campo GA, il nome o l'indirizzo di gruppo del dispositivo
 | Control S Dimming |Utilizzare DPT 3.007 per cambiare la saturazione; Speed ​​in **Comportamento** Impostazioni |
 | State S% | Indirizzo del gruppo di stato saturo di luce. |
 | Dark Speed ​​(MS) |Velocità in miniatura dal fondo alla scala più alta di Milisecondi. |
+
 Suggerimento: per la "V" (luminosità) dell'HSV, utilizzare i controlli standard della scheda **Dim** .
 <br/>
 **Effetto**
@@ -68,6 +73,7 @@ _Non-hue Basic Effects_
 |-|-|
 | Blink | _true_ lampeggia la luce, _false_ smette di lampeggiare. Interruttori alternativi, adatti per i prompt.Supporta tutte le luci Hue.|
 |Color Loop | _true_ avvia il ciclo, _false_ arresta il loop.Cambia il colore in modo casuale a intervalli fissi, solo per le luci da tonalità che supportano la luce del colore.L'effetto inizia circa 10 secondi dopo aver emesso il comando. |
+
 _HUE Effect nativo_
 Nella tabella **Native Effects** , mappare il valore KNX agli effetti supportati dal dispositivo (ad esempio, `candela`,` camino`, `prism`).Ogni riga associa un valore KNX (booleano, numerico o testo, a seconda del punto dati selezionato) con un effetto restituito dal ponte.Questo sarà:
 - Invia valori KNX mappati per attivare l'effetto corrispondente;
@@ -87,6 +93,7 @@ Nella tabella **Native Effects** , mappare il valore KNX agli effetti supportati
 | Leggi lo stato all'avvio |Leggi lo stato all'avvio e trasmetti gli eventi al bus KNX all'avvio/riconnessione. (Predefinito "no") |
 | Forza modalità diurna |È possibile forzare la modalità diurna cambiando manualmente le luci descritte qui: \*\*Passa alla modalità giorno spegnendo rapidamente Ligth e quindi (solo questa luce) (solo questa luce) \*\*Fai l'azione descritta e funziona solo su questa luce per passare alla modalità Day. \*\*Passa alla modalità giornaliera chiudendo rapidamente il ligth e quindi accendendo (applicando tutti i nodi di luce).|
 | Pin di ingresso/output del nodo |Nascondere o visualizzare il pin di ingresso/output.Il pin di input/output consente al nodo di accettare l'ingresso del traffico e di inviare l'output MSG al traffico. L'MSG di input deve rispettare lo standard API V.2 HUE.Ecco un MSG di esempio che accende la luce: <code> msg.on = {"on": true} </code>. Vedi \ [Pagina API HUE ufficiale](§url0§) |
+
 Note ###
 La funzione Dimming funziona in modalità \*\*kNX \ `start \` \ `'' 'e st off' **.Per iniziare a oscurarsi, basta inviare un KNX Telegram "Start".Per smettere di oscurarsi, invia un telegramma KNX "Stop".Per favore** Ricorda \*\*, quando imposti il ​​muro, ricorda.
 <br/>

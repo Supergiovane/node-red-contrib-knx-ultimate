@@ -16,6 +16,7 @@ Este nodo es consistente con el controlador de la escena KNX: la escena se puede
 | Guardar escena | **DataPoint ** y**Valor de activación** . La dirección de grupo utilizada para guardar la escena (como `0/0/2`).Cuando un nodo recibe un mensaje, guarda el valor actual de todos los dispositivos en la escena (almacenamiento no volátil).DPT es el tipo para guardar GA; Valor de activación Los disparadores Guardar (Dim supra).|
 | Nombre del nodo | Nombre del nodo (escribir "Recuerde: ... / Guardar: ...").|
 | Tema | El tema del nodo. |
+
 ## Configuración de escenarios
 Como un controlador de escena KNX real, agregue dispositivos a la escena; Cada fila representa un dispositivo.
 Una vez que se recibe un nuevo valor del bus, el nodo registrará automáticamente el último valor del actuador en la escena.
@@ -25,6 +26,7 @@ Una vez que se recibe un nuevo valor del bus, el nodo registrará automáticamen
 | Botón Agregar | Agregue una nueva fila. |
 | Campo de fila |1) Dirección de grupo 2) punto de datos 3) Valor de escena predeterminado (se puede sobrescribir mediante la guardia de la escena).El nombre del dispositivo está a continuación.<br/> Insertar pausa: complete **espera ** en la primera columna y complete la última columna para la duración (milisegundos), como `2000`.<br/>**espera** también admite segundos/minuto/hora: `12s`,` 5m`, `1H`.|
 | Eliminar | Elimine esta línea de dispositivo.|
+
 ## Salida del nodo
 
 ```javascript

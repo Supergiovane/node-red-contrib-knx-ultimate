@@ -6,7 +6,7 @@ permalink: /wiki/zh-CN-zh-CN-HATranslator
 ---
 ---
 
-<p>此节点将输入msg转换为有效的true/false值。<p>
+此节点将输入msg转换为有效的true/false值。
 
 它可以将输入有效载荷转换为true /false布尔值。<br />
 文本框中的每一行代表一个翻译命令。<br/>

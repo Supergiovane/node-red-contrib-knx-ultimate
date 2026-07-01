@@ -16,6 +16,7 @@ Questo nodo può anche contare il numero di messaggi (al secondo o intervallo pe
 | Gateway | KNX Gateway.|
 | Argomento | L'argomento del nodo.|
 | Nome | Nome nodo. |
+
 ## ETS File diagnostiche del bus compatibile
 
 | Proprietà | Descrizione |
@@ -23,12 +24,14 @@ Questo nodo può anche contare il numero di messaggi (al secondo o intervallo pe
 | Timer di avvio automatico | Avviare automaticamente il timer quando distribuito o avviato.|
 | Output Nuovo XML ogni (in minuti) | Quanti minuti è output XML compatibile con ETS?|
 | Numero massimo di righe (0 = nessun limite) | Il numero massimo di righe di XML in questa finestra temporale; 0 significa nessun limite.|
+
 ## contatore di messaggi KNX
 
 | Proprietà | Descrizione |
 |-|-|
 | Timer di avvio automatico | Avviare automaticamente il timer quando distribuito o avviato.|
 | Contare l'intervallo (in secondi) | L'intervallo per l'outputing dei conteggi al processo in pochi secondi.|
+
 ---
 #Node output
 **PIN 1: ETS compatibile XML**

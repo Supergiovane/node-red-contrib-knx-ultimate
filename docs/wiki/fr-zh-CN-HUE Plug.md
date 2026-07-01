@@ -23,6 +23,7 @@ Configuration ##
 | Statut de puissance | Adresse de groupe facultative pour le mappage Hue `Power_State` |
 | Lire l'état au démarrage | Envoyez l'état actuel immédiatement pendant le déploiement |
 | PIN | Activer la broche d'entrée / sortie du nœud-rouge pour un contrôle avancé ou un transfert d'événements |
+
 ## Recommandations KNX
 - Le contrôle et l'état sont recommandés pour utiliser DPT 1.xxx.
 - `Power_State` peut être mappé à une valeur booléenne (true = on, false = standby), ou utiliser la classe de texte DPT pour afficher la chaîne d'origine.

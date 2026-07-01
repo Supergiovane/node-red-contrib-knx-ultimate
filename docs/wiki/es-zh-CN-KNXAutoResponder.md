@@ -5,7 +5,7 @@ lang: es
 permalink: /wiki/es-zh-CN-KNXAutoResponder
 ---
 ---
-<p> Este nodo responderá a la solicitud de lectura del bus KNX.
+ Este nodo responderá a la solicitud de lectura del bus KNX.
 El nodo registra todos los telegramas que se transfieren al bus KNX y almacenan los valores en la memoria.
 Luego responde a la solicitud de lectura enviando dichos valores memorizados al bus en función de la solicitud.
 Si la dirección del grupo que se lee aún no tiene valor, el nodo responderá con el valor predeterminado.
@@ -16,6 +16,7 @@ De manera predeterminada, hay un texto JSON de "respuesta" **Precompilado ** que
 |-|-|
 | Puerta de enlace | seleccione el portal KNX para usar |
 | Respuesta | El nodo responderá a una solicitud de lectura de la dirección de grupo especificada en esta matriz JSON.El formato se especifica a continuación.|
+
 <br/>
 \*\*json format \*\*
 JSON siempre es una variedad de objetos que contienen cada instrucción. Cada instrucción le dice al nodo qué hacer.
@@ -26,6 +27,7 @@ JSON siempre es una variedad de objetos que contienen cada instrucción. Cada in
 | Ga |Dirección grupal.También puede usar ".." monedas salvajes para grupos específicos de direcciones.".." solo se puede usar con el tercer nivel de GA, por ejemplo: \*\*1/1/0..257 **. Consulte la muestra a continuación.|
 | Dpt |Punto de datos de dirección de grupo, formato "1.001".Si se ha importado el archivo CSV ETS,** Opcional \*\*. |
 | Predeterminado |Cuando el valor de la dirección del componente no ha sido recordado por el nodo, se envía al bus en una respuesta de solicitud de lectura.|
+
 **Comencemos con un comando**
 El nodo de autorponder responderá a una solicitud de lectura en la dirección del grupo 2/7/1.Si aún no está en la memoria, responderá con _true _.
 El archivo CSV ETS debe importarse, de lo contrario también debe agregar la tecla __"dpt": "1.001" \*\*.

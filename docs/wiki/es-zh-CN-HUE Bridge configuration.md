@@ -21,4 +21,5 @@ También puede completar las credenciales manualmente.
 | Conectar | Inicie el proceso de registro con Hue Bridge.Haga clic en **Conecte ** y la ID del puente se lee automáticamente.Luego puede optar por registrar una nueva credencial, o**establecer credenciales manualmente** para completar los campos manualmente.|
 | Nombre | El nombre del puente Hue. |
 | Revelar |Mostrar pares de teclas (nombre de usuario y clave de cliente) para una fácil copia a otros lugares.|
+
 ![Image.png](../ img/hude-config.png)

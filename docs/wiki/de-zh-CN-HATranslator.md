@@ -6,7 +6,7 @@ permalink: /wiki/de-zh-CN-HATranslator
 ---
 ---
 
-<p> Dieser Knoten konvertiert Eingabe -MSG in einen gültigen wahren/falschen Wert.<p>
+ Dieser Knoten konvertiert Eingabe -MSG in einen gültigen wahren/falschen Wert.
 
 Es kann die Eingangsnutzlast in true /false boolean umwandeln.<br />
 Jede Zeile im Textfeld stellt einen Übersetzungsbefehl dar. <br/>

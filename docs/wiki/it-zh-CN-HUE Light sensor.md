@@ -15,11 +15,13 @@ Il valore Lux viene emesso ogni volta che la luce ambientale cambia.Immettere il
 | Bridge Hua | Seleziona il bridge tone da usare |
 | Sensore Hue | Sensore di luce Hue da utilizzare (completamento automatico) |
 | Leggi lo stato all'avvio | Leggi lo stato all'avvio e trasmetti gli eventi al bus KNX all'avvio/riconnessione.(Predefinito "no") |
+
 **mappatura**
 
 | Proprietà | Descrizione |
 |-|-|
 | Lux | Indirizzo di gruppo KNX che riceve valori Lux |
+
 ### Produzione
 1. Output standard
 : payload (numero): valore Lux corrente

@@ -14,6 +14,7 @@ Visionneuse # KNX
 |-|-|
 | Passerelle | KNX Gateway |
 | Nom | Nom du nœud |
+
 # Broche de sortie
 1. Adresse du groupe (tableau de bord)
 : Payload (HTML): Connectez-vous directement au modèle <b> modèle </b> du tableau de bord; Générez un tableau contenant tous les gaz et les valeurs.

@@ -65,6 +65,7 @@ If enabled, "f(x)" indication will be added to node's name.
 |Property|Description|
 |--|--|
 | Search GA | It's a helper only avaiable if the ETS file has been imported. Start typing and select the group address you wish to add to the code. Then copy the full field and paste it into the getGAValue function. 
+
  **getGAValue('0/0/1 table nord lamp')** |
 
 ### List of common object and functions you can use in the code

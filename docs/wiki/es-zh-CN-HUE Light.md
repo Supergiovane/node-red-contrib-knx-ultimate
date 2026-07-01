@@ -13,6 +13,7 @@ permalink: /wiki/es-zh-CN-HUE%20Light
 | KNX GW | Seleccione el portal KNX para usar |
 | Puente Hua | Seleccione el puente de tono para usar |
 | Nombre | Lámpara de tono o luz agrupada por Hue.Las luces y los grupos que están disponibles cuando escriben comienzan a aparecer. |
+
 <br/>
 **Opciones**
 Aquí puede seleccionar la dirección KNX que desea vincular a las luces/estado de tono disponibles.<br/>
@@ -23,6 +24,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 |-|-|
 | Control | Este GA se usa para encender/apagar la luz de tono por el valor booleano de KNX de True/False |
 | Estado | Enlace a la dirección de grupo de estado Switch de la luz |
+
 <br/>
 **oscuro**
 
@@ -34,6 +36,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 | Velocidad oscura (MS) | Pequeña velocidad en milisegundos.Esto funciona para ** Light ** , y también para**Puntos de datos programados de White \*\*ajustable.Se calcula de 0% a 100%.|
 | El último brillo tenue | El brillo más bajo que la luz puede lograr.Por ejemplo, si desea bajar la luz, la luz deja de atenuar en el %de brillo especificado.|
 | Brillo tenue máximo | Brillo máximo que la lámpara puede lograr.Por ejemplo, si desea ajustar la luz, la luz dejará de atenuar en el % especificado del brillo.|
+
 <br/>
 **Blanco ajustable**
 
@@ -45,6 +48,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 | Control Kelvin | **DPT 7.600: ** Establecido por KNX Range 2000-6535 K (convertir a Hue Mirek).<br/>**DPT 9.002:** Establecido por Hue Range 2000-6535 K (el ambiente comienza desde 2200 K).La conversión puede conducir a ligeras desviaciones |
 | Estado Kelvin | **DPT 7.600: ** Lea Kelvin (KNX 2000-6535, conversión).<br/>**DPT 9.002:** Leer el rango de tono 2000-6535 K; La conversión puede tener ligeras desviaciones |
 | Revertir la dirección tenue | Invierta la dirección tenue.|
+
 <br/>
 \*\*Rgb/hsv \*\*
 
@@ -59,6 +63,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 | Control s atenuado |Use DPT 3.007 para cambiar la saturación; Velocidad en **Comportamiento** Configuración |
 | Estado S% | Dirección de grupo estatal saturado de luz. |
 | Velocidad oscura (MS) |Velocidad en miniatura desde el fondo hasta la escala más alta en milisegundos.|
+
 Consejo: Para la "V" (brillo) del HSV, utilice los controles estándar de la pestaña **Dim** .
 <br/>
 **Efecto**
@@ -68,6 +73,7 @@ _Non-Hue Efectos básicos_
 |-|-|
 | Blink | _true_ flashea la luz, _false_ deja de flashear. Interruptores alternativos, adecuados para indicaciones.Admite todas las luces de tono.|
 |Color Loop | _true_ inicia el bucle, _false_ detiene el bucle.Cambie el color al azar a intervalos fijos, solo para luces de tono que admiten la luz de color.El efecto comienza unos 10 segundos después de emitir el comando.|
+
 _Hue Effect nativo_
 En la tabla **Hue Native Effects** , asigne el valor de KNX a los efectos respaldados por el accesorio (por ejemplo, `vela ',` chimenea`, `prism`).Cada línea asocia un valor KNX (booleano, numérico o texto, dependiendo del punto de datos seleccionado) con un efecto devuelto por el puente.Esto lo hará:
 - Enviar valores de KNX asignados para activar el efecto correspondiente;
@@ -87,6 +93,7 @@ En la tabla **Hue Native Effects** , asigne el valor de KNX a los efectos respal
 | Lea el estado del inicio |Lea el estado al inicio y transmita los eventos al bus KNX en Startup/Reconex.(Predeterminado "no") |
 |Modo nocturno de portada |Puede sobrescribir el modo de noche cambiando manualmente las luces descritas aquí: \*\*al modo de día apagando rápidamente la lighia y luego (solo esta luz) (solo esta luz) \*\*HAGA LA ACCIÓN DESCRIBA Y SOLO FUNCIONA EN ESTA LA LUZ para cambiar al modo de día.\*\*Cambia al modo diario cerrando rápidamente la lighia y luego enciende (aplicando todos los nodos de luz).|
 | PIN de entrada/salida de nodo | Ocultar o mostrar el pin de entrada/salida.El pin de entrada/salida permite que el nodo acepte la entrada de tráfico y envíe la salida de MSG al tráfico.El MSG de entrada debe cumplir con el estándar HUE API v.2.Aquí hay un mensaje de muestra que enciende la luz: <code> msg.on = {"on": true} </code>.Ver \ [Página de API de Hue oficial](§URL0§) |
+
 ### Notas
 La función de atenuación funciona en \*\*KNX MODE \ `Start \` \ `'' '' y ST OFF ' **.Para comenzar a atenuar, solo envíe un telegrama KNX "Inicio".Para dejar de atenuar, envíe un telegrama de "parar" KNX.Por favor** Recuerde \*\*, cuando configure la pared, recuerde.
 <br/>

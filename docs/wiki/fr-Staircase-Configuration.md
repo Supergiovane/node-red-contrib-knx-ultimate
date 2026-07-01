@@ -16,6 +16,7 @@ Le nœud **KNX Staircase** émule un éclairage d'escalier temporisé. Lorsqu'un
 | État | `Status GA` (`gaStatus`) | Reflète l'état actif et le préavis. |
 | Override | `gaOverride` | Maintient l'éclairage allumé et suspend le minuteur tant que la valeur vaut `1`. |
 | Blocage | `gaBlock` | Empêche les nouvelles impulsions et peut forcer l'arrêt. |
+
 ## Minuteur et préavis
 - **Durée du minuteur** définit la durée de base.
 - **Nouvelle impulsion** permet de redémarrer, prolonger ou ignorer les impulsions supplémentaires.

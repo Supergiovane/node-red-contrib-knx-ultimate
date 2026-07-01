@@ -25,6 +25,7 @@ Convient pour les alarmes d'erreur d'erreur / connexion (notifications par e-mai
 | Nom | Nom du nœud. |
 |Démarrer automatiquement la minuterie de chien de garde | Démarrez automatiquement la minuterie sur le déploiement / démarrage. |
 | Niveau de contrôle |Voir ci-dessus. |
+
 **Vérifier le niveau**
 > Ethernet: détecter les connexions entre KNX-ultimate (unicast) et l'interface KNX / IP. <br/>
 > Ethernet + KNX TP: détection complète (prend en charge le routeur / interface).Envoyer lire à l'appareil physique et attendre la réponse;Toute échec sur Ethernet ou TP sera signalée.Veuillez configurer un **État** GA dans ETS pour un actionneur qui répond à la lecture. <br/>
@@ -34,6 +35,7 @@ Convient pour les alarmes d'erreur d'erreur / connexion (notifications par e-mai
 |-|-|
 | Intervalle de réception (en secondes) | Intervalle de détection en secondes. |
 | Nombre de réessayer avant de donner une erreur |Combien d'échecs consécutifs sont signalés. |
+
 # Sortie de chien de garde
 Watchdog publie un message lorsque la détection interne trouve un défaut, ou qu'un nœud ultime KNX signale une erreur dans le processus.
 **Problème de connexion de Watchdog**

@@ -4,6 +4,7 @@ title: "-Sample---IoT-Bridge"
 lang: en
 permalink: /wiki/-Sample---IoT-Bridge
 ---
+{% raw %}
 # KNX ↔ MQTT - IoT (sample)
 
 <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/sample-iot-bridge.svg" width="95%"><br/>
@@ -218,3 +219,4 @@ For the full node reference see: [MQTT - IoT configuration](/node-red-contrib-kn
 1. Deploy the flow.
 2. Toggle the KNX GA `0/1/5` (ETS, button, etc) and check the Debug panel: **Output 1** publishes `msg.topic=knx/garage/light`.
 3. Publish `true/false` (or `on/off`) to `knx/garage/light/set` and check **Output 2** for the write/ack details.
+{% endraw %}

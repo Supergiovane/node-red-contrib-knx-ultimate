@@ -24,6 +24,7 @@ Nota: Después de ejecutar la escritura, `<same> _Write` se borrará automática
 | Nombre variable | El nombre básico de la variable global.Se crean `<Name> _read` y` <Name> _Write`. No use el nombre predeterminado por razones de seguridad.|
 | Exponer como variable global | Seleccione si y cómo exponer variables globales y cómo.Si no necesita escribir, se recomienda establecer en solo lectura.|
 | Intervalo de escritura de bus | Encuesta `<Name> _Write` y escriba en el bus.|
+
 ## Objeto Msg en variable
 
 ```javascript

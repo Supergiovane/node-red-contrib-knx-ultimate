@@ -6,7 +6,7 @@ permalink: /wiki/es-zh-CN-LoadControl-Configuration
 ---
 ---
 # Nodo de control de carga KNX
-<p> Usando el nodo de control de carga, puede administrar automáticamente la desconexión de la carga (lavadora, horno, etc.) cuando el consumo actual excede un cierto umbral.
+ Usando el nodo de control de carga, puede administrar automáticamente la desconexión de la carga (lavadora, horno, etc.) cuando el consumo actual excede un cierto umbral.
 El dispositivo se apaga de manera inteligente, verificando el posible consumo del dispositivo para determinar si está apagado con otros dispositivos.<br/>
 El nodo puede reactivar automáticamente la carga.<br/>
 Este nodo apaga un dispositivo (o dispositivos) a la vez según el pedido que elija. <br/>
@@ -19,6 +19,7 @@ Este nodo apaga un dispositivo (o dispositivos) a la vez según el pedido que el
 | Límite WH | Umbral máximo que el medidor puede soportar.Cuando se excede este umbral, el nodo comienza a cerrar el dispositivo. |
 | Retrasado (s) (s) |Indica en segundos, lo que indica que el nodo evaluará la frecuencia de consumo y apagará cada dispositivo. |
 | Retraso en (s) |indica en segundos, lo que indica que el nodo evalúa la frecuencia consumida y enciende cada dispositivo que está cerrado.|
+
 <br/>
 **Control de carga**
 Aquí puede agregar el dispositivo para apagar en caso de sobrecarga.<br/>
@@ -34,6 +35,7 @@ Si \*Autorecovery \* está habilitado, el dispositivo se reactivará automática
 | `msg.disable = true` |deshabilitar el control de carga. |
 | `msg.reset = true` | Restablecer el estado del nodo y reabrir todos los dispositivos. |
 | `msg.shedding` | cadena.__ "" """"umbendo- "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" Use este mensaje para forzar el temporizador de caída a comenzar/parar, ignorando la dirección de grupo \*\* Monitor WH \*\*. |
+
 ## Producción
 1. Salida estándar
 : Carga de pago (cadena | objeto): salida estándar del comando.

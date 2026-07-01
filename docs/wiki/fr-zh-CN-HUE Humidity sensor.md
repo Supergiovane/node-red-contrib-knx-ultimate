@@ -15,11 +15,13 @@ Commencez à entrer (nom ou adresse de groupe) dans le champ GA pour associer le
 | Hue Bridge | Sélectionnez le pont Hue à utiliser |
 | Capteur de teinte | Capteur d'humidité de la teinte (Complétez automatiquement lorsque vous entrez) |
 | Lire l'état au démarrage | Lisez la valeur actuelle au démarrage / reconnexion et envoyez à KNX (par défaut: non) |
+
 **Mappage**
 
 | Propriétés | Description |
 |-|-|
 |Humidité | KNX GA avec humidité relative%. DPT recommandé: <b> 9.007 </b> |
+
 ### Sortir
 1. Sortie standard
 : `msg.payload` (numéro): Humidité relative actuelle (%)

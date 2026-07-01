@@ -15,12 +15,14 @@ Vous tapez.
 | KNX GW | Sélectionnez le portail KNX à utiliser |
 | Hua Bridge | Sélectionnez le pont de ton à utiliser |
 | Dispositif Hue | Dispositif de teinte à surveiller (assureur automatique) |
+
 **Mappage**
 
 | Propriétés | Description |
 |-|-|
 | Statut | Adresse du groupe KNX pour le mappage des mises à jour du logiciel: _true_ Disponible / préparation / installation, sinon _false_ |
 | Lire l'état au démarrage | Lire et publier sur KNX pendant le démarrage / reconnexion (par défaut "Oui") |
+
 ### Sortir
 1. Sortie standard
 : charge utile (booléen): mettent à jour le drapeau.

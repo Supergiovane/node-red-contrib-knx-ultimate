@@ -17,6 +17,7 @@ Panoramica della scheda ###
 | KNX GW | Un gateway KNX che fornisce directory di indirizzi di completamento automatico.|
 | Bridge Hue | Hue Bridge che ospita la scena. |
 | SCENA HUE |Scena da chiamare (il completamento automatico è supportato; il pulsante di aggiornamento riprenderà l'elenco).|
+
 Scheda di mappatura ###
 
 | Proprietà | Descrizione |
@@ -26,10 +27,12 @@ Scheda di mappatura ###
 | Nome |Nome dell'istruzione per richiamare GA. |
 | # |Visualizzato quando viene selezionata la scena KNX DPT, utilizzata per selezionare il numero di scena da inviare.|
 | Stato GA | Opzionale GA booleano al feedback se la scena è attiva.|
+
 Scheda ### multi-scene
 
 | Proprietà | Descrizione |
 |-|-|
 | Ricorda Ga | Usa GA di DPT 18.001 per selezionare una scena per numero di scena KNX. |
 | Elenco delle scene |Elenco modificabile per corrispondere al numero della scena KNX alla scena Hue e alla sua modalità chiamata.Drag bar da riordinare. |
+
 > ℹ️ I controlli relativi a KNX verranno visualizzati solo dopo aver selezionato il gateway KNX; La scheda di mappatura rimarrà nascosta fino a quando non saranno configurati sia il ponte Hue che il gateway KNX.

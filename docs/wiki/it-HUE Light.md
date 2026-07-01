@@ -50,9 +50,13 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) e i dispositivi disp
 |Controllo % | Cambia la temperatura del bianco con DPT 5.001. 0 = caldo, 100 = freddo |
 |Stato %| GA di stato temperatura (DPT 5.001). 0 = caldo, 100 = freddo |
 |Controllo Kelvin | **DPT 7.600: ** imposta in Kelvin con range KNX 2000-6535 (convertito in mirek).
+
 **DPT 9.002:** imposta in Kelvin con range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
+
 |Stato Kelvin | **DPT 7.600: ** leggi in Kelvin via range KNX 2000-6535 (convertito).
+
 **DPT 9.002:** leggi in Kelvin via range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
+
 |Inverti Dim Direction |Inverte la direzione fioca.|
 
 **RGB/HSV**
@@ -95,9 +99,11 @@ La tabella **Effetti nativi HUE** consente di associare valori KNX agli effetti 
 |Stato di luminosità KNX |Aggiorna lo stato dell'indirizzo del gruppo di luminosità KNX, ogni volta che la lampada Hue viene accesa/disattivata.Le opzioni sono \*\* quando Hue Light è spento, inviare lo 0%.Quando accesa, ripristinare il valore precedente (comportamento KNX predefinito) \*\* e \*\* lasciano come (comportamento di tonalità predefinito) \*\*.Se si dispone di Dimmer KNX con stato di luminosità, come MDT, l'opzione suggerita è \*\*\*quando la luce della tonalità è disattivata, inviare lo 0%.Quando accesa, ripristinare il valore precedente (comportamento KNX predefinito) \*\*\* |
 |Aggiorna lo stato HUE locale in cache dai write KNX |Opzione avanzata, abilitata di default. Se attiva, i write che arrivano dal bus KNX aggiornano subito anche lo stato HUE locale in cache del nodo, senza attendere feedback/eventi dal bridge Hue. Questo rende le reazioni locali piu rapide e le risposte immediate ai read KNX piu coerenti, soprattutto quando la luce o il grouped_light sono spenti. Disattivala se preferisci che la cache segua solo il feedback/evento reale del bridge Hue. |
 |Accendi comportamento |Imposta il comportamento delle luci quando acceso.Puoi scegliere tra comportamenti diversi. 
+
  \*\* Seleziona colore: \*\* La luce verrà accesa con il colore di tua scelta.Per cambiare il colore, fai clic sul selettore dei colori (sotto il controll&#x6F;_&#x53;eleziona colore_). 
  \*\* Seleziona temperatura e luminosità: \*\* La luce verrà accesa con la temperatura (kelvin) e la luminosità (0-100) di tua scelta. 
  \*\* Nessuna: \*\* La luce manterrà il suo ultimo stato.Nel caso in cui tu abbia abilitato l'illuminazione notturna, dopo la fine della notte, la lampada riprenderà lo stato del colore/temperatura/luminosità fissata al giorno.|
+
 |Illuminazione notturna |Permette di impostare un particolare colore/luminosità della luce di notte.Le opzioni sono le stesse del giorno.È possibile selezionare una temperatura/luminosità o colore.Una temperatura accogliente di 2700 Kelvin, con una luminosità del 10% o 20%, è una buona scelta per la luce notturna del bagno |
 |Giorno/notte |Seleziona l'indirizzo di gruppo utilizzato per impostare il comportamento giorno/notte.Il valore dell'indirizzo di gruppo è _true_ se giorno, _false_ se notturno.|
 |Valore giorno/notte invertito |Inverti i valori dell'indirizzo di gruppo _day/night_.Il valore predefinito è \*\* non controllato **.|

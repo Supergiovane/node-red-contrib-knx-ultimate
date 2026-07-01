@@ -21,4 +21,5 @@ Puoi anche riempire manualmente le credenziali.
 | Connetti | Avvia il processo di registrazione con Hue Bridge.Fare clic su **Connetti ** e l'ID bridge verrà letto automaticamente.È quindi possibile scegliere di registrare una nuova credenziale o**impostare manualmente le credenziali** per riempire manualmente i campi.|
 | Nome | Il nome di Hue Bridge. |
 | Rivelare |Visualizza coppie di tasti (nome utente e chiave client) per una facile copia in altri luoghi.|
+
 ![Image.png](../ img/hude-config.png)

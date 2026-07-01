@@ -17,6 +17,7 @@ Comience a ingresar el campo GA, el nombre o la dirección de grupo del disposit
 | Propiedades | Descripción |
 | ----------------------------------------------------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------- |
 | Contacto | Cuando el sensor está encendido/apagado: envíe el valor KNX _true_ (activar/on), de lo contrario _false_ |
+
 ### Producción
 1. Salida estándar
 : Carga útil (Bolean): salida estándar del comando.

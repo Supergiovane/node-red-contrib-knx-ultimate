@@ -15,11 +15,13 @@ El valor de Lux se emite cada vez que cambia la luz ambiental.Ingrese el nombre 
 | Puente Hua | Seleccione el puente de tono para usar |
 | Sensor de tono | Sensor de luz Hue para usar (finalización automática) |
 | Lea el estado del inicio | Lea el estado al inicio y transmita los eventos al bus KNX en Startup/Reconex.(Predeterminado "no") |
+
 **Cartografía**
 
 | Propiedades | Descripción |
 |-|-|
 | Lux | Dirección de grupo KNX que recibe valores de lux |
+
 ### Producción
 1. Salida estándar
 : carga útil (número): valor de lux actual

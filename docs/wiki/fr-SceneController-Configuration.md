@@ -26,8 +26,10 @@ _ **Le nœud de scène enregistre automatiquement les valeurs mises à jour de t
 |------------- |------------------------------------------------------------------------------------------------ |
 |Ajouter le bouton |Ajoutez une ligne à la liste.|
 |Champ de la ligne |Le premier champ est l'adresse de groupe, la deuxième est le point de données, le troisième est la valeur par défaut de ce périphérique dans la scène (cela peut être remplacé par la fonction _Scene Save_).Ci-dessous, le nom du périphérique est ci-dessous.( **12s ** ) 
+
  Pour définir une valeur en minutes, ajoutez**m ** après la valeur numérique, par exemple (**5m ** ) 
  Pour définir une valeur en heures, ajoutez**h ** après la valeur numérique, par exemple (**1h** ) |
+
 |Supprimer le bouton |Supprimer un appareil de la liste.|
 
 # Sortie du message du nœud de contrôleur de scène

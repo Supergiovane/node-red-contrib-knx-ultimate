@@ -18,6 +18,7 @@ The **KNX Garage** node drives a motorised door using dedicated group addresses 
 | Photocell sensor | `Photocell GA` (`gaPhotocell`) | Should go `true` when the beam is interrupted; the node reopens and raises obstruction. |
 | Movement indicator | `Moving GA` (`gaMoving`) | Optional. Pulsed when the node commands movement so other devices can follow the state. |
 | Obstruction flag | `Obstruction GA` (`gaObstruction`) | Mirrors the obstruction state for supervision or alarms. |
+
 All addresses accept custom DPTs if different datatypes are required.
 ## Automatic re-close
 * Enable **Auto re-close** to start a timer whenever the door becomes open.

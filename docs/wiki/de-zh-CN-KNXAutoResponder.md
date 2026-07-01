@@ -6,7 +6,7 @@ permalink: /wiki/de-zh-CN-KNXAutoResponder
 ---
 ---
 
-<p> Dieser Knoten antwortet auf die Leseanforderung des KNX -Busses.
+ Dieser Knoten antwortet auf die Leseanforderung des KNX -Busses.
 
 Der Knoten zeichnet alle Telegramme auf, die in den KNX -Bus übertragen werden und die Werte im Speicher speichern.
 Anschließend wird auf die Leseanforderung geantwortet, indem solche gemerkten Werte anhand der Anfrage an den Bus zurücksendet werden.

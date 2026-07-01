@@ -16,6 +16,7 @@ The **KNX Staircase** node emulates the typical stairwell timer using KNX group 
 | Status report | `Status GA` (`gaStatus`) | Mirrors the active state and pre-warning flag. Optional. |
 | Override | `Override GA` (`gaOverride`) | Keeps the light permanently on while true and suspends the timer. |
 | Block | `Block GA` (`gaBlock`) | Prevents new activations. Can optionally force the output off. |
+
 All group addresses accept custom DPTs, allowing integration with multi-byte actuators or logic addresses.
 ## Timer behaviour
 * **Timer duration** sets the base countdown in seconds.

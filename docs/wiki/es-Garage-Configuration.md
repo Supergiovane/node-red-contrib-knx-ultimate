@@ -18,6 +18,7 @@ El nodo **KNX Garage** controla un portón motorizado con GA dedicadas a mandos 
 | Mantener abierto | `gaHoldOpen` | Cancela el cierre automático mientras permanezca a true. |
 | Deshabilitar | `gaDisable` | Bloquea cualquier orden emitida por el nodo (modo mantenimiento). |
 | Fotocélula | `gaPhotocell` | Debe activarse cuando la fotocélula detecta un obstáculo; el nodo reabre y marca obstrucción. |
+
 ## Cierre automático
 - Activa el temporizador de cierre para enviar la orden tras el retraso configurado.
 - Mantener abierto o deshabilitar anulan el contador mientras estén activos.

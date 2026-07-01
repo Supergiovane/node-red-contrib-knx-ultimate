@@ -65,6 +65,7 @@ S'il est activé, l'indication "f (x)" sera ajoutée au nom du nœud.
 | Propriété | Description |
 |-|-|
 | Recherche GA | C'est un assistant uniquement si le fichier ETS a été importé. Commencez à taper et sélectionnez l'adresse de groupe que vous souhaitez ajouter au code. Copiez ensuite le champ complet et collez-le dans la fonction GetGavalue. 
+
  **getGavalue ('0/0/1 Table Nord Lamp')** |
 
 ### Liste d'objets et de fonctions communes que vous pouvez utiliser dans le code

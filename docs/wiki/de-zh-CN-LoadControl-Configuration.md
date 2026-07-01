@@ -8,7 +8,7 @@ permalink: /wiki/de-zh-CN-LoadControl-Configuration
 
 # KNX -Laststeuerungsknoten
 
-<p> Verwenden des Laststeuerungsknotens können Sie die Trennung der Last (Waschmaschine, Ofen usw.) automatisch verwalten, wenn der aktuelle Verbrauch einen bestimmten Schwellenwert überschreitet.
+ Verwenden des Laststeuerungsknotens können Sie die Trennung der Last (Waschmaschine, Ofen usw.) automatisch verwalten, wenn der aktuelle Verbrauch einen bestimmten Schwellenwert überschreitet.
 
 Das Gerät wird intelligent heruntergefahren und überprüft den möglichen Verbrauch des Geräts, um festzustellen, ob es mit anderen Geräten ausgeschaltet ist.<br/>
 Der Knoten kann die Last automatisch reaktivieren.<br/>

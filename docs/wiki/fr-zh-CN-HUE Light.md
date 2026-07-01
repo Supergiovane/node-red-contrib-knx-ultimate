@@ -13,6 +13,7 @@ permalink: /wiki/fr-zh-CN-HUE%20Light
 | KNX GW | Sélectionnez le portail KNX à utiliser |
 | Hua Bridge | Sélectionnez le pont de ton à utiliser |
 | Nom | Lampe de teinte ou la lumière groupée par Hue.Les lumières et les groupes disponibles lorsque vous tapez commencent à apparaître. |
+
 <br/>
 **Options**
 Ici, vous pouvez sélectionner l'adresse KNX que vous souhaitez lier aux lumières / statuts de tonalité disponibles.<br/>
@@ -23,6 +24,7 @@ Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphé
 |-|-|
 | Contrôle | Ce GA est utilisé pour allumer / éteindre la lumière de ton par la valeur booléenne KNX de True / False |
 | Statut | Le lier à l'adresse du groupe d'état du commutateur de la lumière |
+
 <br/>
 **faible**
 
@@ -34,6 +36,7 @@ Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphé
 | Vitesse sombre (ms) | Petite vitesse en millisecondes.Cela fonctionne pour ** Light ** , ainsi que pour**Réglable White \* \ * Points de données planifiés.Il est calculé de 0% à 100%.|
 | La dernière luminosité sombre | La luminosité la plus basse que la lumière peut atteindre.Par exemple, si vous souhaitez refuser la lumière, la lumière cesse de gradir à la luminosité spécifiée%.|
 | Luminosité maximale DIM |Luminosité maximale que la lampe peut atteindre.Par exemple, si vous souhaitez ajuster la lumière, la lumière cessera de gradier à la luminosité spécifiée%. |
+
 <br/>
 **blanc réglable**
 
@@ -45,6 +48,7 @@ Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphé
 | Contrôle Kelvin | **DPT 7.600: ** Set par KNX Range 2000-6535 K (Converti à Hue Mirek). <br/>**DPT 9.002:** Set par Hue Range 2000-6535 K (l'ambiance commence à partir de 2200 K).La conversion peut entraîner de légères déviations |
 | Statut Kelvin | **DPT 7.600: ** Lire Kelvin (KNX 2000-6535, conversion).<br/>**DPT 9.002:** LIRE GAMME HUE 2000-6535 K; La conversion peut avoir de légères déviations |
 | Inverser la direction sombre | Inverser la direction sombre.|
+
 <br/>
 \ *\* Rgb / hsv \ *\*
 
@@ -59,6 +63,7 @@ Commencez à entrer dans le champ GA, le nom ou l'adresse de groupe du périphé
 | Contrôle S Semballage |Utilisez DPT 3.007 pour changer la saturation; Vitesse dans **Comportement** Paramètres |
 | État S% | Adresse du groupe d'état saturé léger. |
 | Vitesse sombre (ms) |vitesse miniature du bas à l'échelle la plus élevée en millisecondes.|
+
 CONSEIL: Pour le "V" (luminosité) du HSV, veuillez utiliser les contrôles standard de l'onglet **Dim** .
 <br/>
 **Effet**
@@ -68,6 +73,7 @@ _NE-HUE BASIC EFFETS_
 |-|-|
 | Blink | _true_ clignote la lumière, _false_ arrête de clignoter. Des interrupteurs alternatifs, adaptés aux invites.Prend en charge toutes les lumières de la teinte.|
 |Boucle de couleur | _true_ démarre la boucle, _false_ arrête la boucle.Changez la couleur au hasard à intervalles fixes, uniquement pour les lumières de teinte qui prennent en charge la lumière de la couleur.L'effet commence environ 10 secondes après la publication de la commande. |
+
 _Hue Effet natif_
 Dans le tableau des effets natifs **Hue** , mappez la valeur KNX aux effets pris en charge par le luminaire (par exemple, «bougie», `foyer», «prisme»).Chaque ligne associe une valeur KNX (booléen, numérique ou texte, selon le point de données sélectionné) avec un effet renvoyé par le pont.Ce sera:
 - Envoyer des valeurs KNX mappées pour déclencher l'effet correspondant;
@@ -87,6 +93,7 @@ Dans le tableau des effets natifs **Hue** , mappez la valeur KNX aux effets pris
 | Lire l'état au démarrage |Lire l'état au démarrage et transmettre des événements au bus KNX au démarrage / reconnecter.(Par défaut "non") |
 |Couvrir le mode nuit |Vous pouvez écraser le mode nocturne en changeant manuellement les lumières décrites ici: \ *\* Passez au mode jour en éteignant rapidement la ligth puis (cette lumière uniquement) (cette lumière uniquement) \ *\* effectuez l'action décrite et ne fonctionne que sur ce mode de la lumière pour passer au mode jour.\ *\* Passez en mode quotidien en fermant rapidement la ligth, puis en allumant (appliquant tous les nœuds lumineux).|
 | Pin d'entrée / sortie de nœud | Masquer ou afficher la broche d'entrée / sortie.La broche d'entrée / sortie permet au nœud d'accepter l'entrée de trafic et d'envoyer la sortie MSG au trafic.Le MSG d'entrée doit se conformer à la norme API V.2 Hue.Voici un exemple de msg qui allume la lumière: <code> msg.on = {"on": true} </code>. Voir \ [Page officielle de l'API Hue](§Url0§) |
+
 ### Notes
 La fonction de dégagements fonctionne en mode \ *\* knx \ `start \` \ `'' 'et st off' **. Pour commencer à graver, envoyez simplement un télégramme KNX "start".Pour arrêter de tuer, envoyez un télégramme KNX "stop".S'il vous plaît** N'oubliez pas \* \ *, lorsque vous configurez le mur, n'oubliez pas.
 <br/>

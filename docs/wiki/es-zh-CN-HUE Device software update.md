@@ -15,12 +15,14 @@ Estás escribiendo.
 | KNX GW | Seleccione el portal KNX para usar |
 | Puente Hua | Seleccione el puente de tono para usar |
 | Dispositivo de tono | Dispositivo HUE a ser monitoreado (Autocompleto) |
+
 **Cartografía**
 
 | Propiedades | Descripción |
 |-|-|
 | Estado | Dirección de grupo KNX para actualizaciones de software: _true_ disponible/preparación/instalación, de lo contrario _false_ |
 | Leer el estado al inicio | Lea y publique en KNX durante el inicio/reconexión (predeterminado "sí") |
+
 ### Producción
 1. Salida estándar
 : carga útil (boolean): indicador de actualización.

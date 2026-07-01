@@ -18,6 +18,7 @@ Il nodo **KNX Garage** comanda un portone motorizzato con GA dedicate ai comandi
 | Blocco richiusura | `gaHoldOpen` | Mantiene aperto e cancella la richiusura automatica finché resta a true. |
 | Disabilitazione | `gaDisable` | Blocca qualsiasi comando emesso dal nodo (modo manutenzione/manuale). |
 | Fotocellula | `gaPhotocell` | Va a true quando la fotocellula rileva un ostacolo; il nodo riapre e segnala l'ostruzione. |
+
 ## Richiusura automatica
 - Abilita il timer di richiusura per inviare automaticamente il comando di chiusura dopo il tempo impostato.
 - Il timer è sospeso mentre blocco richiusura o disabilitazione sono attivi.
