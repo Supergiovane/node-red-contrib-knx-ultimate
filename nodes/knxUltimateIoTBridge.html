@@ -13,12 +13,16 @@
             acceptFlowInput: { value: true },
             mappings: { value: [] },
             nodeMode: { value: 'iot' },
+            haBusMode: { value: 'standalone' },
+            inputs: { value: 1 },
+            outputs: { value: 2 },
             mqttUrl: { value: '' },
             mqttBaseTopic: { value: 'knx-ultimate' },
             mqttDiscovery: { value: true },
             mqttDiscoveryPrefix: { value: 'homeassistant' },
             mqttCustomEntities: { value: [] },
             mqttExposedGAs: { value: [] },
+            mqttReadOnlyGAs: { value: [] },
             mqttExposeConfigured: { value: false }
         },
         credentials: {
@@ -27,7 +31,19 @@
         },
         inputs: 1,
         outputs: 2,
+        inputLabels: function () {
+            // Flow-msg mode: the input pin carries KNX bus telegrams from a universal node.
+            if (this.nodeMode === 'homeassistant' && this.haBusMode === 'flow') {
+                return this._('knxUltimateIoTBridge.labels.inputKnxBus');
+            }
+            return undefined;
+        },
         outputLabels: function (index) {
+            if (this.nodeMode === 'homeassistant') {
+                // Stand-alone HA has no outputs; flow mode emits KNX writes on the single pin.
+                if (this.haBusMode === 'flow' && index === 0) return this._('knxUltimateIoTBridge.labels.outputKnxWrite');
+                return undefined;
+            }
             if (index === 0) return this._('knxUltimateIoTBridge.labels.outputKnxToIoT');
             if (index === 1) return this._('knxUltimateIoTBridge.labels.outputIoTToKnx');
         },
@@ -297,14 +313,18 @@
                     const ha = $('#node-input-nodeMode').val() === 'homeassistant';
                     $('.ha-mode-row').toggle(ha);
                     $('.iot-mode-row').toggle(!ha);
+                    // The flow-mode hint is only relevant while the "flow msg" bus mode is picked.
+                    $('.ha-flow-hint').toggle(ha && $('#node-input-haBusMode').val() === 'flow');
                 }
                 $('#node-input-nodeMode').on('change', refreshMode);
+                $('#node-input-haBusMode').on('change', refreshMode);
                 refreshMode();
             } catch (error) { }
 
             // Home Assistant: selectable list of group addresses to expose as simple entities.
             try {
                 const savedSet = new Set(Array.isArray(node.mqttExposedGAs) ? node.mqttExposedGAs : []);
+                const readOnlySet = new Set(Array.isArray(node.mqttReadOnlyGAs) ? node.mqttReadOnlyGAs : []);
                 const exposeConfigured = node.mqttExposeConfigured === true;
 
                 function updateGaCount() {
@@ -341,8 +361,14 @@
                             $('<span/>').css({ flex: '0 0 auto', fontFamily: 'monospace', minWidth: '64px' }).text(item.ga).appendTo(row);
                             $('<span/>').css({ flex: '1 1 auto', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#444' }).attr('title', item.devicename || '').text(item.devicename || '').appendTo(row);
                             $('<span/>').css({ flex: '0 0 auto', color: '#888', fontSize: '11px' }).text('DPT' + (item.dpt || '')).appendTo(row);
+                            // Read-only toggle: expose the GA to HA but never accept commands back to KNX.
+                            const roLabel = $('<label/>').css({ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '3px', margin: '0', fontSize: '11px', color: '#888', cursor: 'pointer' }).appendTo(row);
+                            const ro = $('<input/>', { type: 'checkbox', class: 'mqtt-ga-ro', value: item.ga, style: 'width:auto; margin:0;' }).appendTo(roLabel);
+                            ro.prop('checked', readOnlySet.has(item.ga));
+                            $('<span/>').text(node._('knxUltimateIoTBridge.ha.read_only')).appendTo(roLabel);
+                            roLabel.on('click', function (ev) { ev.stopPropagation(); });
                             row.on('click', function (ev) {
-                                if (ev.target === cb[0]) return;
+                                if (ev.target === cb[0] || ev.target === ro[0]) return;
                                 cb.prop('checked', !cb.prop('checked'));
                                 updateGaCount();
                             });
@@ -357,6 +383,9 @@
 
                 $('#mqtt-ga-all').on('click', function (e) { e.preventDefault(); $('#mqtt-ga-list .mqtt-ga-row:visible').find('input.mqtt-ga-cb').prop('checked', true); updateGaCount(); });
                 $('#mqtt-ga-none').on('click', function (e) { e.preventDefault(); $('#mqtt-ga-list .mqtt-ga-row:visible').find('input.mqtt-ga-cb').prop('checked', false); updateGaCount(); });
+                // Flag / unflag read-only for the currently visible GAs (respects the filter).
+                $('#mqtt-ga-ro-all').on('click', function (e) { e.preventDefault(); $('#mqtt-ga-list .mqtt-ga-row:visible').find('input.mqtt-ga-ro').prop('checked', true); });
+                $('#mqtt-ga-ro-none').on('click', function (e) { e.preventDefault(); $('#mqtt-ga-list .mqtt-ga-row:visible').find('input.mqtt-ga-ro').prop('checked', false); });
                 $('#mqtt-ga-filter').on('input', function () {
                     const term = ($(this).val() || '').toLowerCase();
                     $('#mqtt-ga-list .mqtt-ga-row').each(function () {
@@ -520,10 +549,27 @@
                     const cbs = $('#mqtt-ga-list input.mqtt-ga-cb');
                     if (cbs.length > 0) {
                         const exposed = [];
+                        const readOnly = [];
                         cbs.each(function () { if ($(this).is(':checked')) exposed.push($(this).val()); });
+                        $('#mqtt-ga-list input.mqtt-ga-ro').each(function () { if ($(this).is(':checked')) readOnly.push($(this).val()); });
                         node.mqttExposedGAs = exposed;
+                        node.mqttReadOnlyGAs = readOnly;
                         node.mqttExposeConfigured = true;
                     }
+                }
+            } catch (error) { }
+            // Adjust the pins to the selected mode:
+            //  - IoT:            1 input,  2 outputs (stream + ack)
+            //  - HA flow-msg:    1 input,  1 output  (KNX bus in / KNX write out)
+            //  - HA stand-alone: 0 inputs, 0 outputs (talks to the gateway only)
+            try {
+                if ($('#node-input-nodeMode').val() === 'homeassistant') {
+                    const flow = $('#node-input-haBusMode').val() === 'flow';
+                    node.inputs = flow ? 1 : 0;
+                    node.outputs = flow ? 1 : 0;
+                } else {
+                    node.inputs = 1;
+                    node.outputs = 2;
                 }
             } catch (error) { }
             try {
@@ -585,6 +631,17 @@
 
     <!-- Home Assistant (MQTT) mode fields -->
     <div class="form-row ha-mode-row">
+        <label for="node-input-haBusMode" data-i18n="knxUltimateIoTBridge.ha.bus_mode"></label>
+        <select id="node-input-haBusMode" style="width:auto;">
+            <option value="standalone" data-i18n="knxUltimateIoTBridge.ha.bus_standalone"></option>
+            <option value="flow" data-i18n="knxUltimateIoTBridge.ha.bus_flow"></option>
+        </select>
+    </div>
+    <div class="form-row ha-mode-row ha-flow-hint" style="margin-top:-4px;">
+        <label style="width:auto;">&nbsp;</label>
+        <span style="font-size:11px; color:#888;" data-i18n="knxUltimateIoTBridge.ha.bus_flow_hint"></span>
+    </div>
+    <div class="form-row ha-mode-row">
         <label for="node-input-mqttUrl" data-i18n="knxUltimateIoTBridge.ha.broker_url"></label>
         <input type="text" id="node-input-mqttUrl" placeholder="mqtt://localhost:1883" />
     </div>
@@ -614,6 +671,9 @@
             <input type="text" id="mqtt-ga-filter" data-i18n="[placeholder]knxUltimateIoTBridge.ha.filter_placeholder" style="flex:1 1 auto;">
             <button type="button" id="mqtt-ga-all" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="knxUltimateIoTBridge.ha.select_all"></button>
             <button type="button" id="mqtt-ga-none" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="knxUltimateIoTBridge.ha.select_none"></button>
+            <span style="border-left:1px solid #ccc; align-self:stretch;"></span>
+            <button type="button" id="mqtt-ga-ro-all" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="[title]knxUltimateIoTBridge.ha.read_only_bulk;knxUltimateIoTBridge.ha.read_only_all"></button>
+            <button type="button" id="mqtt-ga-ro-none" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="[title]knxUltimateIoTBridge.ha.read_only_bulk;knxUltimateIoTBridge.ha.read_only_none"></button>
         </div>
         <div id="mqtt-ga-count" style="font-size:11px; color:#666; margin:2px 0;"></div>
         <div id="mqtt-ga-list" style="max-height:220px; overflow:auto; border:1px solid #ccc; padding:6px; border-radius:4px; background:#fff;"></div>
@@ -663,8 +723,16 @@ Native MQTT bridge with Home Assistant discovery. Every group address imported i
 
 Requires an MQTT broker reachable by both Node-RED and Home Assistant, with the MQTT integration enabled in HA. Entities appear under a device named after this node.
 
+### KNX bus connection
+Choose how the node exchanges telegrams with KNX:
+
+- **Stand-alone** (default): the node talks to the KNX gateway directly and shows no input/output pins.
+- **Flow messages**: the node exposes an input pin and an output pin. Wire the output of a KNXUltimate node in **Universal** mode to the input (KNX bus → MQTT) and the output pin to the input of another KNXUltimate node in **Universal** mode (MQTT → KNX bus).
+
 ### Group addresses to expose
 Tick the group addresses you want to publish to Home Assistant. By default every imported address is selected. Addresses used by a cover/thermostat (below) are handled there and don't need to be ticked here. Use the filter box and the Select all / Select none buttons to curate large lists.
+
+Each row also has a **Read only** toggle: a read-only address is still published to Home Assistant (its state stays visible) but never accepts commands back to the KNX bus (switches become binary_sensors, numbers become sensors). The Set read only / Clear read only buttons apply it to all currently shown addresses.
 
 ### Covers & Thermostats
 Covers and thermostats group several group addresses into one Home Assistant entity, so they cannot be created automatically from the DPT - add them in the list:

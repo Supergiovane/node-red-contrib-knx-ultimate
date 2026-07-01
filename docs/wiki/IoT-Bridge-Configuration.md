@@ -24,10 +24,11 @@ Requirements: an MQTT broker reachable by both Node-RED and Home Assistant, with
 
 | Field | Purpose |
 | -- | -- |
+| **KNX bus connection** | *Stand-alone* (default): the node talks to the KNX gateway directly and shows no input/output pins. *Flow messages*: the node exposes an input pin and an output pin — wire the output of a KNXUltimate node in **Universal** mode to the input (KNX bus → MQTT) and the output pin to the input of another KNXUltimate node in **Universal** mode (MQTT → KNX bus). |
 | **Broker URL / Username / Password** | MQTT broker connection. |
 | **Base topic** | Root of the state/command topics (default `knx-ultimate`). |
 | **Publish HA discovery / Discovery prefix** | Enable Home Assistant MQTT Discovery and set its prefix (default `homeassistant`). |
-| **Group addresses to expose** | Checkbox list of every address imported in the gateway (ETS). Ticked addresses become HA entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Filter + Select all / none; all selected by default. |
+| **Group addresses to expose** | Checkbox list of every address imported in the gateway (ETS). Ticked addresses become HA entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Filter + Select all / none; all selected by default. Each row also has a **Read only** toggle: a read-only address is still published to Home Assistant (state visible) but never accepts commands back to the KNX bus (switches become binary_sensors, numbers become sensors). The *Set read only* / *Clear read only* buttons apply it to all currently shown addresses. |
 | **Covers & Thermostats** | Composite entities that aggregate several addresses (see below). |
 
 ### Covers & Thermostats

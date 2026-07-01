@@ -29,10 +29,11 @@ Voraussetzungen: ein MQTT-Broker, der sowohl von Node-RED als auch von Home Assi
 
 | Feld | Zweck |
 | -- | -- |
+| **KNX-Bus-Verbindung** | *Eigenständig* (Standard): der Knoten kommuniziert direkt mit dem KNX-Gateway und zeigt keine Ein-/Ausgangs-Pins. *Flow-Nachrichten*: der Knoten zeigt einen Eingangs- und einen Ausgangs-Pin — verbinden Sie den Ausgang eines KNXUltimate-Knotens im **Universal**-Modus mit dem Eingangs-Pin (KNX-Bus → MQTT) und den Ausgangs-Pin mit dem Eingang eines weiteren KNXUltimate-Knotens im **Universal**-Modus (MQTT → KNX-Bus). |
 | **Broker-URL / Benutzername / Passwort** | Verbindung zum MQTT-Broker. |
 | **Basis-Topic** | Wurzel der Status-/Befehls-Topics (Standard `knx-ultimate`). |
 | **HA-Discovery veröffentlichen / Discovery-Präfix** | Aktiviert Home-Assistant-MQTT-Discovery und legt das Präfix fest (Standard `homeassistant`). |
-| **Bereitzustellende Gruppenadressen** | Kontrollkästchenliste aller im Gateway importierten Adressen (ETS). Angehakte Adressen werden zu HA-Entitäten, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Filter + Alle/Keine auswählen; standardmäßig alle ausgewählt. |
+| **Bereitzustellende Gruppenadressen** | Kontrollkästchenliste aller im Gateway importierten Adressen (ETS). Angehakte Adressen werden zu HA-Entitäten, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Filter + Alle/Keine auswählen; standardmäßig alle ausgewählt. Jede Zeile hat zudem die Option **Nur lesen**: eine schreibgeschützte Adresse wird weiterhin an Home Assistant veröffentlicht (Status sichtbar), akzeptiert aber nie Befehle zurück auf den KNX-Bus (switch werden zu binary_sensor, number zu sensor). Die Schaltflächen *Nur lesen setzen* / *Nur lesen entfernen* wenden dies auf alle angezeigten Adressen an. |
 | **Rollläden & Thermostate** | Zusammengesetzte Entitäten, die mehrere Adressen bündeln (siehe unten). |
 
 ### Rollläden & Thermostate

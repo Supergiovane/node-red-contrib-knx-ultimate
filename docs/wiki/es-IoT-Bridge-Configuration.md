@@ -24,10 +24,11 @@ Requisitos: un broker MQTT accesible tanto por Node-RED como por Home Assistant,
 
 | Campo | Propósito |
 | -- | -- |
+| **Conexión al bus KNX** | *Autónomo* (predeterminado): el nodo habla directamente con la pasarela KNX y no muestra pines de entrada/salida. *Mensajes de flujo*: el nodo expone un pin de entrada y uno de salida — conecta la salida de un nodo KNXUltimate en modo **Universal** al pin de entrada (bus KNX → MQTT) y el pin de salida a la entrada de otro nodo KNXUltimate en modo **Universal** (MQTT → bus KNX). |
 | **URL del broker / Usuario / Contraseña** | Conexión al broker MQTT. |
 | **Topic base** | Raíz de los topics de estado/comando (predeterminado `knx-ultimate`). |
 | **Publicar descubrimiento HA / Prefijo de descubrimiento** | Activa el descubrimiento MQTT de Home Assistant y define su prefijo (predeterminado `homeassistant`). |
-| **Direcciones de grupo a exponer** | Lista con casillas de cada dirección importada en la pasarela (ETS). Las direcciones marcadas se convierten en entidades HA, tipadas automáticamente a partir del DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleccionar todo / nada; todas seleccionadas por defecto. |
+| **Direcciones de grupo a exponer** | Lista con casillas de cada dirección importada en la pasarela (ETS). Las direcciones marcadas se convierten en entidades HA, tipadas automáticamente a partir del DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleccionar todo / nada; todas seleccionadas por defecto. Cada fila tiene además la opción **Solo lectura**: una dirección de solo lectura se sigue publicando en Home Assistant (estado visible) pero nunca acepta comandos de vuelta al bus KNX (los switch pasan a binary_sensor y los number a sensor). Los botones *Marcar solo lectura* / *Quitar solo lectura* la aplican a todas las direcciones mostradas. |
 | **Persianas y termostatos** | Entidades compuestas que agrupan varias direcciones (ver abajo). |
 
 ### Persianas y termostatos

@@ -29,6 +29,14 @@
       "select_all": "Select all",
       "select_none": "Select none",
       "exposed_count": "selected",
+      "read_only": "Read only",
+      "read_only_bulk": "Read only for shown addresses:",
+      "read_only_all": "Set read only",
+      "read_only_none": "Clear read only",
+      "bus_mode": "KNX bus connection",
+      "bus_standalone": "Stand-alone (via the gateway)",
+      "bus_flow": "Flow messages (input/output pins)",
+      "bus_flow_hint": "Wire a KNXUltimate node in Universal mode to the input pin (KNX → MQTT) and another one to the output pin (MQTT → KNX).",
       "no_gateway": "Select a KNX gateway first.",
       "no_ga": "No group addresses found. Import the ETS list in the KNX gateway.",
       "csv_error": "Unable to load the group address list from the gateway.",
@@ -113,7 +121,9 @@
     },
     "labels": {
       "outputKnxToIoT": "KNX → IoT stream",
-      "outputIoTToKnx": "IoT → KNX acknowledgements"
+      "outputIoTToKnx": "IoT → KNX acknowledgements",
+      "inputKnxBus": "KNX bus in (from a Universal node)",
+      "outputKnxWrite": "KNX write out (to a Universal node)"
     }
   }
 }

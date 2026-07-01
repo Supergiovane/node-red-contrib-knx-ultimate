@@ -24,10 +24,11 @@ Prérequis : un broker MQTT accessible à la fois par Node-RED et Home Assistant
 
 | Champ | Rôle |
 | -- | -- |
+| **Connexion au bus KNX** | *Autonome* (par défaut) : le nœud communique directement avec la passerelle KNX et n'affiche pas de broches d'entrée/sortie. *Messages de flux* : le nœud expose une broche d'entrée et une de sortie — reliez la sortie d'un nœud KNXUltimate en mode **Universel** à la broche d'entrée (bus KNX → MQTT) et la broche de sortie à l'entrée d'un autre nœud KNXUltimate en mode **Universel** (MQTT → bus KNX). |
 | **URL du broker / Nom d'utilisateur / Mot de passe** | Connexion au broker MQTT. |
 | **Topic de base** | Racine des topics d'état/commande (par défaut `knx-ultimate`). |
 | **Publier la découverte HA / Préfixe de découverte** | Active la découverte MQTT de Home Assistant et définit son préfixe (par défaut `homeassistant`). |
-| **Adresses de groupe à exposer** | Liste à cases de chaque adresse importée dans la passerelle (ETS). Les adresses cochées deviennent des entités HA, typées automatiquement d'après le DPT (switch, sensor, binary_sensor, number, text). Filtre + Tout sélectionner / désélectionner ; toutes sélectionnées par défaut. |
+| **Adresses de groupe à exposer** | Liste à cases de chaque adresse importée dans la passerelle (ETS). Les adresses cochées deviennent des entités HA, typées automatiquement d'après le DPT (switch, sensor, binary_sensor, number, text). Filtre + Tout sélectionner / désélectionner ; toutes sélectionnées par défaut. Chaque ligne dispose aussi de l'option **Lecture seule** : une adresse en lecture seule est toujours publiée vers Home Assistant (état visible) mais n'accepte jamais de commandes vers le bus KNX (les switch deviennent des binary_sensor et les number des sensor). Les boutons *Activer lecture seule* / *Retirer lecture seule* l'appliquent à toutes les adresses affichées. |
 | **Volets et thermostats** | Entités composites qui regroupent plusieurs adresses (voir ci-dessous). |
 
 ### Volets et thermostats

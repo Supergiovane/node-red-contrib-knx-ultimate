@@ -29,6 +29,14 @@
       "select_all": "Tout sélectionner",
       "select_none": "Tout désélectionner",
       "exposed_count": "sélectionnées",
+      "read_only": "Lecture seule",
+      "read_only_bulk": "Lecture seule pour les adresses affichées :",
+      "read_only_all": "Activer lecture seule",
+      "read_only_none": "Retirer lecture seule",
+      "bus_mode": "Connexion au bus KNX",
+      "bus_standalone": "Autonome (via la passerelle)",
+      "bus_flow": "Messages de flux (broches entrée/sortie)",
+      "bus_flow_hint": "Reliez un nœud KNXUltimate en mode Universel à la broche d'entrée (KNX → MQTT) et un autre à la broche de sortie (MQTT → KNX).",
       "no_gateway": "Sélectionnez d'abord une passerelle KNX.",
       "no_ga": "Aucune adresse de groupe trouvée. Importez la liste ETS dans la passerelle KNX.",
       "csv_error": "Impossible de charger la liste des adresses de groupe depuis la passerelle.",
@@ -113,7 +121,9 @@
     },
     "labels": {
       "outputKnxToIoT": "Flux KNX → IoT",
-      "outputIoTToKnx": "Accusés IoT → KNX"
+      "outputIoTToKnx": "Accusés IoT → KNX",
+      "inputKnxBus": "Entrée bus KNX (depuis un nœud Universel)",
+      "outputKnxWrite": "Sortie écriture KNX (vers un nœud Universel)"
     }
   }
 }

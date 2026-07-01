@@ -11,9 +11,12 @@ Erstellen Sie bidirektionale Brücken zwischen KNX-Gruppenadressen und IoT-Kanä
 
 Eine native MQTT-Bridge mit Home-Assistant-Discovery. Benötigt einen MQTT-Broker, der sowohl von Node-RED als auch von Home Assistant erreichbar ist, mit aktivierter MQTT-Integration in HA. Alle Entitäten erscheinen unter einem einzigen Gerät mit dem Namen dieses Nodes.
 
+- **KNX-Bus-Verbindung** — wie der Knoten Telegramme mit KNX austauscht:
+    - *Eigenständig* (Standard) — der Knoten kommuniziert direkt mit dem KNX-Gateway und hat keine Ein-/Ausgangs-Pins.
+    - *Flow-Nachrichten* — der Knoten zeigt einen Eingangs- und einen Ausgangs-Pin. Verbinden Sie den Ausgang eines KNXUltimate-Knotens im **Universal**-Modus mit dem Eingangs-Pin (KNX-Bus → MQTT) und den Ausgangs-Pin mit dem Eingang eines weiteren KNXUltimate-Knotens im **Universal**-Modus (MQTT → KNX-Bus).
 - **Broker-URL / Benutzername / Passwort** — Verbindung zu Ihrem MQTT-Broker.
 - **Basis-Topic / Discovery-Präfix** — Root-Topic für Status-/Befehls-Topics und das HA-Discovery-Präfix (Standard `homeassistant`).
-- **Bereitzustellende Gruppenadressen** — jede im KNX-Gateway importierte Adresse (ETS-Liste) wird mit einem Kontrollkästchen angezeigt. Angehakte Adressen werden als Home-Assistant-Entitäten veröffentlicht, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Verwenden Sie das Filterfeld und die Schaltflächen *Alle auswählen* / *Keine auswählen*. Standardmäßig sind alle Adressen ausgewählt.
+- **Bereitzustellende Gruppenadressen** — jede im KNX-Gateway importierte Adresse (ETS-Liste) wird mit einem Kontrollkästchen angezeigt. Angehakte Adressen werden als Home-Assistant-Entitäten veröffentlicht, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Verwenden Sie das Filterfeld und die Schaltflächen *Alle auswählen* / *Keine auswählen*. Standardmäßig sind alle Adressen ausgewählt. Jede Zeile hat zudem eine Option **Nur lesen**: eine schreibgeschützte Adresse wird weiterhin an Home Assistant veröffentlicht (ihr Status bleibt sichtbar), akzeptiert aber nie Befehle zurück auf den KNX-Bus (switch werden zu binary_sensor, number zu sensor). Die Schaltflächen *Nur lesen setzen* / *Nur lesen entfernen* wenden dies auf alle aktuell angezeigten Adressen an.
 - **Rollläden & Thermostate** — fassen mehrere Adressen zu einer Entität zusammen:
     - *Rollladen*: Auf/Ab-GA (1.008), optionale Stopp-GA (1.007), optionale Positions-GA Befehl/Status (5.001). *Position invertieren* bildet die KNX-Konvention (0% = offen) auf Home Assistant (100% = offen) ab.
     - *Thermostat*: GA Ist-Temperatur (9.001), GA Sollwert Befehl/Status (9.001), optionale Ein/Aus-GA (1.001 → off/heat), plus Min-/Max-Temperatur und Schrittweite.

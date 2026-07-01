@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 5.0.2** - July 2026<br/>
+
+- **IoT Bridge** node, **MQTT / Home Assistant (native)** mode:<br/>
+  - New **Read only** flag per group address in the *Group addresses to expose* list: a read-only GA is still published to Home Assistant (its state stays visible) but never accepts commands back to the KNX bus (switches are exposed as `binary_sensor`, numbers/text as `sensor`). Added *Set read only* / *Clear read only* buttons that apply it to all currently shown (filtered) addresses.<br/>
+  - New **KNX bus connection** selector: *Stand-alone* (default, talks to the KNX gateway directly) or *Flow messages*, which enables the node's input/output pins — wire a **KNXUltimate** node in Universal mode to the input (KNX bus → MQTT) and another to the output (MQTT → KNX bus). Pins are shown only when needed (none in stand-alone, one input + one output in flow mode).<br/>
+  - Editor help and online docs updated in EN/IT/DE/FR/ES/zh-CN.<br/>
+
 **Version 5.0.1** - June 2026<br/>
 
 - **IoT Bridge** node (renamed **MQTT - IoT** in the UI): new **MQTT / Home Assistant (native)** mode selectable via a *Mode* dropdown. In this mode the node connects directly to an MQTT broker and bridges KNX ↔ MQTT both ways, publishing **Home Assistant MQTT Discovery** so KNX appears automatically in Home Assistant (no `mqtt in`/`mqtt out` wiring needed). The classic IoT bridge mode is unchanged.<br/>

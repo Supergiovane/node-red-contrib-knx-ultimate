@@ -11,9 +11,12 @@ Crea collegamenti bidirezionali tra indirizzi di gruppo KNX e canali IoT (topic 
 
 Un bridge MQTT nativo con discovery di Home Assistant. Richiede un broker MQTT raggiungibile sia da Node-RED che da Home Assistant, con l'integrazione MQTT attiva in HA. Tutte le entità compaiono sotto un unico dispositivo con il nome di questo nodo.
 
+- **Connessione al bus KNX** — come il nodo scambia telegrammi con KNX:
+    - *Stand-alone* (predefinito) — il nodo parla direttamente col gateway KNX e non ha PIN di ingresso/uscita.
+    - *Messaggi di flow* — il nodo mostra un PIN di ingresso e uno di uscita. Collega l'uscita di un nodo KNXUltimate in modalità **Universale** al PIN di ingresso (bus KNX → MQTT) e il PIN di uscita all'ingresso di un altro nodo KNXUltimate in modalità **Universale** (MQTT → bus KNX).
 - **URL broker / Nome utente / Password** — connessione al tuo broker MQTT.
 - **Topic di base / Prefisso discovery** — topic radice per i topic di stato/comando e il prefisso discovery di HA (predefinito `homeassistant`).
-- **Indirizzi di gruppo da esporre** — ogni indirizzo importato nel gateway KNX (lista ETS) è elencato con una checkbox. Gli indirizzi spuntati vengono pubblicati come entità Home Assistant, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Usa il filtro e i pulsanti *Seleziona tutti* / *Deseleziona tutti*. Per impostazione predefinita sono tutti selezionati.
+- **Indirizzi di gruppo da esporre** — ogni indirizzo importato nel gateway KNX (lista ETS) è elencato con una checkbox. Gli indirizzi spuntati vengono pubblicati come entità Home Assistant, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Usa il filtro e i pulsanti *Seleziona tutti* / *Deseleziona tutti*. Per impostazione predefinita sono tutti selezionati. Ogni riga ha inoltre un'opzione **Sola lettura**: un indirizzo in sola lettura viene comunque pubblicato su Home Assistant (lo stato resta visibile) ma non accetta mai comandi verso il bus KNX (gli switch diventano binary_sensor, i number diventano sensor). I pulsanti *Imposta sola lettura* / *Togli sola lettura* la applicano a tutti gli indirizzi attualmente mostrati.
 - **Tapparelle e Termostati** — raggruppano più indirizzi in un'unica entità:
     - *Tapparella*: GA su/giù (1.008), GA stop opzionale (1.007), GA posizione comando/stato opzionale (5.001). *Inverti posizione* mappa la convenzione KNX (0% = aperto) su Home Assistant (100% = aperto).
     - *Termostato*: GA temperatura attuale (9.001), GA setpoint comando/stato (9.001), GA on/off opzionale (1.001 → off/heat), più temperatura min/max e step.

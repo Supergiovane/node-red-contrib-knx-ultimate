@@ -78,6 +78,12 @@ function createMqttBridge (options) {
   const exposeFilter = Array.isArray(opts.exposedGAs)
     ? new Set(opts.exposedGAs.map((g) => normalizeGa(g)).filter((g) => g !== ''))
     : null
+  // GAs the user marked read-only: exposed as read-only HA entities (no command topic).
+  const readOnlyFilter = new Set(
+    (Array.isArray(opts.readOnlyGAs) ? opts.readOnlyGAs : [])
+      .map((g) => normalizeGa(g))
+      .filter((g) => g !== '')
+  )
 
   const gatewayName = (node && node.name) || 'KNX Gateway'
   const gatewaySlug = slugify(node && node.name, '') || slugify(node && node.id, 'knx')
@@ -311,6 +317,12 @@ function createMqttBridge (options) {
     if (baseSlug === '' || simpleSeen.has(ga)) return
     simpleSeen.add(ga)
     const map = ha.mapDptToHa(entry.dpt)
+    // Read-only GAs are downgraded to a state-only domain and never get a command topic,
+    // so Home Assistant can display them but can't write back to the KNX bus.
+    const isReadOnly = readOnlyFilter.has(ga)
+    const domain = isReadOnly
+      ? (map.domain === 'switch' ? 'binary_sensor' : (map.domain === 'number' || map.domain === 'text' ? 'sensor' : map.domain))
+      : map.domain
     const slug = uniqueSlug(baseSlug)
     const uniqueId = `${deviceId}_${slug}`
     const name = (typeof entry.devicename === 'string' && entry.devicename.trim()) ? entry.devicename.trim() : ga
@@ -327,7 +339,7 @@ function createMqttBridge (options) {
       payload_not_available: 'offline',
       device: deviceBlock
     }
-    switch (map.domain) {
+    switch (domain) {
       case 'switch':
         config.command_topic = commandTopic
         config.payload_on = 'true'
@@ -357,13 +369,13 @@ function createMqttBridge (options) {
         if (map.deviceClass) config.device_class = map.deviceClass
         break
     }
-    addDiscovery(map.domain, slug, config)
+    addDiscovery(domain, slug, config)
 
     // KNX -> MQTT: publish the decoded value to the state topic.
     addPublisher(ga, (value) => pub(stateTopic, ha.formatValueForMqtt(value), true))
 
-    // MQTT -> KNX: writable domains accept commands.
-    if (map.writable === true) {
+    // MQTT -> KNX: writable domains accept commands (unless the GA is read-only).
+    if (map.writable === true && !isReadOnly) {
       const dpt = entry.dpt
       commandHandlers.set(commandTopic, (text) => {
         const value = ha.parseCommandFromMqtt(text, dpt)

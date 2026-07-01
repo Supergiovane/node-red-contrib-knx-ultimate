@@ -11,9 +11,12 @@ Create bidirectional bridges between KNX group addresses and IoT channels (MQTT 
 
 A native MQTT bridge with Home Assistant discovery. It needs an MQTT broker reachable by both Node-RED and Home Assistant, with the MQTT integration enabled in HA. All entities appear under a single device named after this node.
 
+- **KNX bus connection** — how the node exchanges telegrams with KNX:
+    - *Stand-alone* (default) — the node talks to the KNX gateway directly and has no input/output pins.
+    - *Flow messages* — the node exposes an input pin and an output pin. Wire the output of a KNXUltimate node in **Universal** mode to the input (KNX bus → MQTT) and the output pin to the input of another KNXUltimate node in **Universal** mode (MQTT → KNX bus).
 - **Broker URL / Username / Password** — connection to your MQTT broker.
 - **Base topic / Discovery prefix** — root topic for state/command topics and the HA discovery prefix (default `homeassistant`).
-- **Group addresses to expose** — every address imported in the KNX gateway (ETS list) is shown with a checkbox. Ticked addresses are published as Home Assistant entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Use the filter box and the *Select all* / *Select none* buttons. By default all addresses are selected.
+- **Group addresses to expose** — every address imported in the KNX gateway (ETS list) is shown with a checkbox. Ticked addresses are published as Home Assistant entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Use the filter box and the *Select all* / *Select none* buttons. By default all addresses are selected. Each row also has a **Read only** toggle: a read-only address is still published to Home Assistant (its state stays visible) but never accepts commands back to the KNX bus (switches become binary_sensors, numbers become sensors). The *Set read only* / *Clear read only* buttons apply it to all currently shown addresses.
 - **Covers & Thermostats** — group several addresses into one entity:
     - *Cover*: Up/Down GA (1.008), optional Stop GA (1.007), optional Set/Status position GA (5.001). *Invert position* maps the KNX convention (0% = open) to Home Assistant (100% = open).
     - *Thermostat*: current temperature GA (9.001), setpoint set/status GA (9.001), optional On/Off GA (1.001 → off/heat), plus min/max temperature and step.

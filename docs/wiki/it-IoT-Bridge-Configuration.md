@@ -24,10 +24,11 @@ Requisiti: un broker MQTT raggiungibile sia da Node-RED che da Home Assistant, c
 
 | Campo | Scopo |
 | -- | -- |
+| **Connessione al bus KNX** | *Stand-alone* (predefinito): il nodo parla direttamente col gateway KNX e non mostra PIN di ingresso/uscita. *Messaggi di flow*: il nodo espone un PIN di ingresso e uno di uscita — collega l'uscita di un nodo KNXUltimate in modalità **Universale** al PIN di ingresso (bus KNX → MQTT) e il PIN di uscita all'ingresso di un altro nodo KNXUltimate in modalità **Universale** (MQTT → bus KNX). |
 | **URL broker / Nome utente / Password** | Connessione al broker MQTT. |
 | **Topic di base** | Radice dei topic di stato/comando (predefinito `knx-ultimate`). |
 | **Pubblica discovery HA / Prefisso discovery** | Abilita il discovery MQTT di Home Assistant e ne imposta il prefisso (predefinito `homeassistant`). |
-| **Indirizzi di gruppo da esporre** | Lista con checkbox di ogni indirizzo importato nel gateway (ETS). Gli indirizzi spuntati diventano entità HA, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleziona tutti / nessuno; tutti selezionati di default. |
+| **Indirizzi di gruppo da esporre** | Lista con checkbox di ogni indirizzo importato nel gateway (ETS). Gli indirizzi spuntati diventano entità HA, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleziona tutti / nessuno; tutti selezionati di default. Ogni riga ha inoltre l'opzione **Sola lettura**: un indirizzo in sola lettura viene comunque pubblicato su Home Assistant (stato visibile) ma non accetta mai comandi verso il bus KNX (gli switch diventano binary_sensor, i number diventano sensor). I pulsanti *Imposta sola lettura* / *Togli sola lettura* la applicano a tutti gli indirizzi mostrati. |
 | **Tapparelle e Termostati** | Entità composite che aggregano più indirizzi (vedi sotto). |
 
 ### Tapparelle e Termostati

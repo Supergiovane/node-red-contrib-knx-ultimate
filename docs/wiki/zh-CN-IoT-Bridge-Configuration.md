@@ -29,10 +29,11 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 
 | 字段 | 用途 |
 | -- | -- |
+| **KNX 总线连接** | *独立*（默认）：节点直接与 KNX 网关通信，不显示输入/输出端口。*流消息*：节点显示一个输入端口和一个输出端口——将一个**通用**模式 KNXUltimate 节点的输出连接到输入端口（KNX 总线 → MQTT），并将输出端口连接到另一个**通用**模式 KNXUltimate 节点的输入（MQTT → KNX 总线）。 |
 | **Broker URL / 用户名 / 密码** | MQTT broker 连接。 |
 | **基础主题** | 状态/命令主题的根（默认 `knx-ultimate`）。 |
 | **发布 HA 自动发现 / 自动发现前缀** | 启用 Home Assistant MQTT 自动发现并设置前缀（默认 `homeassistant`）。 |
-| **要暴露的组地址** | 网关中导入的每个地址（ETS）的复选框列表。勾选的地址会成为 HA 实体，并根据 DPT 自动分类（switch、sensor、binary_sensor、number、text）。筛选 + 全选/全不选；默认全部选中。 |
+| **要暴露的组地址** | 网关中导入的每个地址（ETS）的复选框列表。勾选的地址会成为 HA 实体，并根据 DPT 自动分类（switch、sensor、binary_sensor、number、text）。筛选 + 全选/全不选；默认全部选中。每一行还有**只读**开关：只读地址仍会发布到 Home Assistant（状态可见），但绝不接受回写到 KNX 总线的命令（switch 变为 binary_sensor，number 变为 sensor）。*设为只读* / *取消只读*按钮会将其应用到当前显示的所有地址。 |
 | **卷帘与温控器** | 聚合多个地址的组合实体（见下文）。 |
 
 ### 卷帘与温控器

@@ -29,6 +29,14 @@
       "select_all": "Seleziona tutti",
       "select_none": "Deseleziona tutti",
       "exposed_count": "selezionati",
+      "read_only": "Sola lettura",
+      "read_only_bulk": "Sola lettura per gli indirizzi mostrati:",
+      "read_only_all": "Imposta sola lettura",
+      "read_only_none": "Togli sola lettura",
+      "bus_mode": "Connessione al bus KNX",
+      "bus_standalone": "Stand-alone (tramite il gateway)",
+      "bus_flow": "Messaggi di flow (PIN ingresso/uscita)",
+      "bus_flow_hint": "Collega un nodo KNXUltimate in modalità Universale al PIN di ingresso (KNX → MQTT) e un altro al PIN di uscita (MQTT → KNX).",
       "no_gateway": "Seleziona prima un gateway KNX.",
       "no_ga": "Nessun indirizzo di gruppo trovato. Importa la lista ETS nel gateway KNX.",
       "csv_error": "Impossibile caricare la lista degli indirizzi di gruppo dal gateway.",
@@ -113,7 +121,9 @@
     },
     "labels": {
       "outputKnxToIoT": "Flusso KNX → IoT",
-      "outputIoTToKnx": "Ack IoT → KNX"
+      "outputIoTToKnx": "Ack IoT → KNX",
+      "inputKnxBus": "Ingresso bus KNX (da un nodo Universale)",
+      "outputKnxWrite": "Uscita scrittura KNX (verso un nodo Universale)"
     }
   }
 }

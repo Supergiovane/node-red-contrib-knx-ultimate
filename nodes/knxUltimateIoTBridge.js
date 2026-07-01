@@ -43,6 +43,10 @@ module.exports = function (RED) {
     // Operation mode: 'iot' (classic IoT mappings, default) or 'homeassistant' (native
     // MQTT bridge with Home Assistant discovery for every group address + cover/climate).
     node.nodeMode = config.nodeMode === 'homeassistant' ? 'homeassistant' : 'iot'
+    // Home Assistant bus wiring: 'standalone' (default) talks to the KNX gateway directly,
+    // 'flow' uses the node's input/output pins instead (wire a KNXUltimate universal node to
+    // both): the input pin feeds KNX bus telegrams in, the output pin emits telegrams to write.
+    node.haBusMode = config.haBusMode === 'flow' ? 'flow' : 'standalone'
     node.mqttUrl = typeof config.mqttUrl === 'string' ? config.mqttUrl.trim() : ''
     node.mqttBaseTopic = typeof config.mqttBaseTopic === 'string' && config.mqttBaseTopic.trim() !== '' ? config.mqttBaseTopic.trim() : 'knx-ultimate'
     node.mqttDiscovery = config.mqttDiscovery !== false && config.mqttDiscovery !== 'false'
@@ -52,6 +56,9 @@ module.exports = function (RED) {
     // (mqttExposeConfigured), only the listed GAs are exposed; otherwise all imported GAs are.
     node.mqttExposeConfigured = config.mqttExposeConfigured === true
     node.mqttExposedGAs = Array.isArray(config.mqttExposedGAs) ? config.mqttExposedGAs : []
+    // Group addresses the user marked as read-only: they are still exposed (state is
+    // published to HA) but never accept commands back to the KNX bus.
+    node.mqttReadOnlyGAs = Array.isArray(config.mqttReadOnlyGAs) ? config.mqttReadOnlyGAs : []
     node.mqttBridge = null
 
     const safeNumber = (value, fallback = 0) => {
@@ -179,9 +186,22 @@ module.exports = function (RED) {
           customEntities: node.mqttCustomEntities,
           // null => expose all imported GAs (until the user curates the list).
           exposedGAs: node.mqttExposeConfigured ? node.mqttExposedGAs : null,
+          // GAs exposed as read-only (state only, no command topic back to KNX).
+          readOnlyGAs: node.mqttReadOnlyGAs,
           onCommand: ({ ga, dpt, value }) => {
             // A Home Assistant command arrived: write it to the KNX bus.
             try {
+              if (node.haBusMode === 'flow') {
+                // Flow mode: emit a message on the (single) output pin for a downstream
+                // KNXUltimate universal node to write to the bus (destination + dpt + payload).
+                node.send({
+                  topic: ga,
+                  destination: ga,
+                  dpt: dpt || '',
+                  payload: value
+                })
+                return
+              }
               node.serverKNX.sendKNXTelegramToKNXEngine({
                 grpaddr: ga,
                 payload: value,
@@ -426,6 +446,18 @@ module.exports = function (RED) {
       }
     }
 
+    // Home Assistant mode: mirror a decoded KNX telegram to MQTT. Works with a telegram coming
+    // from the gateway (standalone) or from the input pin (flow mode); both share the shape
+    // produced by the KNXUltimate universal node ({ payload, knx: { destination, event } }).
+    const publishKnxToMqtt = (msg) => {
+      if (!msg || !node.mqttBridge) return
+      const destination = msg.knx && msg.knx.destination ? msg.knx.destination : sanitizeString(msg.topic)
+      if (!destination) return
+      const event = msg.knx ? msg.knx.event : undefined
+      if (event === 'GroupValue_Read') return // read requests carry no value
+      node.mqttBridge.publishState(destination, msg.payload)
+    }
+
     const handleKnxTelegram = (msg) => {
       try {
         if (!msg) return
@@ -434,10 +466,7 @@ module.exports = function (RED) {
 
         // Home Assistant mode: mirror the decoded value to MQTT and stop (no IoT mappings).
         if (node.nodeMode === 'homeassistant') {
-          const event = msg.knx ? msg.knx.event : undefined
-          if (node.mqttBridge && event !== 'GroupValue_Read') {
-            node.mqttBridge.publishState(destination, msg.payload)
-          }
+          publishKnxToMqtt(msg)
           return
         }
 
@@ -484,8 +513,11 @@ module.exports = function (RED) {
     node.handleSend = handleKnxTelegram
 
     node.on('input', (msg, send, done) => {
-      // In Home Assistant mode, commands flow in over MQTT, not via the flow input.
+      // In Home Assistant mode, commands flow in over MQTT, not via the flow input. The one
+      // exception is 'flow' bus mode, where the input pin carries KNX bus telegrams (from a
+      // KNXUltimate universal node) that must be mirrored to MQTT.
       if (node.nodeMode === 'homeassistant') {
+        if (node.haBusMode === 'flow') publishKnxToMqtt(msg)
         if (done) done()
         return
       }
@@ -614,7 +646,10 @@ module.exports = function (RED) {
       }
     }
 
-    registerClient()
+    // In HA 'flow' mode the KNX telegrams arrive on the input pin, so we must NOT subscribe to
+    // the gateway's client feed (that would double-publish and bypass the intended wiring).
+    const useFlowBus = node.nodeMode === 'homeassistant' && node.haBusMode === 'flow'
+    if (!useFlowBus) registerClient()
     if (node.nodeMode === 'homeassistant') {
       node.startMqttBridge()
     } else {

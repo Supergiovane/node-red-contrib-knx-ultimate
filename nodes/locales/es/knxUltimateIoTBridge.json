@@ -29,6 +29,14 @@
       "select_all": "Seleccionar todo",
       "select_none": "Deseleccionar todo",
       "exposed_count": "seleccionadas",
+      "read_only": "Solo lectura",
+      "read_only_bulk": "Solo lectura para las direcciones mostradas:",
+      "read_only_all": "Marcar solo lectura",
+      "read_only_none": "Quitar solo lectura",
+      "bus_mode": "Conexión al bus KNX",
+      "bus_standalone": "Autónomo (a través del gateway)",
+      "bus_flow": "Mensajes de flujo (pines entrada/salida)",
+      "bus_flow_hint": "Conecta un nodo KNXUltimate en modo Universal al pin de entrada (KNX → MQTT) y otro al pin de salida (MQTT → KNX).",
       "no_gateway": "Selecciona primero una pasarela KNX.",
       "no_ga": "No se encontraron direcciones de grupo. Importa la lista ETS en la pasarela KNX.",
       "csv_error": "No se pudo cargar la lista de direcciones de grupo desde la pasarela.",
@@ -113,7 +121,9 @@
     },
     "labels": {
       "outputKnxToIoT": "Flujo KNX → IoT",
-      "outputIoTToKnx": "Confirmaciones IoT → KNX"
+      "outputIoTToKnx": "Confirmaciones IoT → KNX",
+      "inputKnxBus": "Entrada bus KNX (desde un nodo Universal)",
+      "outputKnxWrite": "Salida escritura KNX (hacia un nodo Universal)"
     }
   }
 }

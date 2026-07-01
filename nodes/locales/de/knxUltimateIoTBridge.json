@@ -29,6 +29,14 @@
       "select_all": "Alle auswählen",
       "select_none": "Keine auswählen",
       "exposed_count": "ausgewählt",
+      "read_only": "Nur lesen",
+      "read_only_bulk": "Nur lesen für angezeigte Adressen:",
+      "read_only_all": "Nur lesen setzen",
+      "read_only_none": "Nur lesen entfernen",
+      "bus_mode": "KNX-Bus-Verbindung",
+      "bus_standalone": "Eigenständig (über das Gateway)",
+      "bus_flow": "Flow-Nachrichten (Ein-/Ausgangs-Pins)",
+      "bus_flow_hint": "Verbinde einen KNXUltimate-Knoten im Universal-Modus mit dem Eingangs-Pin (KNX → MQTT) und einen weiteren mit dem Ausgangs-Pin (MQTT → KNX).",
       "no_gateway": "Wähle zuerst ein KNX-Gateway aus.",
       "no_ga": "Keine Gruppenadressen gefunden. Importiere die ETS-Liste im KNX-Gateway.",
       "csv_error": "Die Gruppenadressliste konnte nicht vom Gateway geladen werden.",
@@ -113,7 +121,9 @@
     },
     "labels": {
       "outputKnxToIoT": "Strom KNX → IoT",
-      "outputIoTToKnx": "Bestätigungen IoT → KNX"
+      "outputIoTToKnx": "Bestätigungen IoT → KNX",
+      "inputKnxBus": "KNX-Bus-Eingang (von einem Universal-Knoten)",
+      "outputKnxWrite": "KNX-Schreibausgang (zu einem Universal-Knoten)"
     }
   }
 }

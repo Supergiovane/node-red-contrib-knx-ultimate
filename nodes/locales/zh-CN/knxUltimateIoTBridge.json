@@ -29,6 +29,14 @@
       "select_all": "全选",
       "select_none": "全不选",
       "exposed_count": "已选择",
+      "read_only": "只读",
+      "read_only_bulk": "对显示的地址设为只读：",
+      "read_only_all": "设为只读",
+      "read_only_none": "取消只读",
+      "bus_mode": "KNX 总线连接",
+      "bus_standalone": "独立（通过网关）",
+      "bus_flow": "流消息（输入/输出端口）",
+      "bus_flow_hint": "将一个通用模式的 KNXUltimate 节点接到输入端口（KNX → MQTT），另一个接到输出端口（MQTT → KNX）。",
       "no_gateway": "请先选择一个 KNX 网关。",
       "no_ga": "未找到组地址。请在 KNX 网关中导入 ETS 列表。",
       "csv_error": "无法从网关加载组地址列表。",
@@ -113,7 +121,9 @@
     },
     "labels": {
       "outputKnxToIoT": "KNX → IoT 流",
-      "outputIoTToKnx": "IoT → KNX 确认"
+      "outputIoTToKnx": "IoT → KNX 确认",
+      "inputKnxBus": "KNX 总线输入（来自通用节点）",
+      "outputKnxWrite": "KNX 写入输出（发送到通用节点）"
     }
   }
 }
