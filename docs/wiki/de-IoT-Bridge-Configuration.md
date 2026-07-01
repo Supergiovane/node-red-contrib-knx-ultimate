@@ -4,6 +4,7 @@ title: "IoT-Bridge-Configuration"
 lang: de
 permalink: /wiki/de-IoT-Bridge-Configuration
 ---
+{% raw %}
 ---
 
 # MQTT Home Assistant - IoT
@@ -202,3 +203,4 @@ Leiten Sie Ausgang 1 in `http request` und nutzen Sie die Antwort samt `bridge.r
 - Für spezielle Modbus-Fließkommaformate kann ein `function`-Node das gewünschte Byte-Layout erzeugen.
 
 Viel Erfolg beim Bridging!
+{% endraw %}

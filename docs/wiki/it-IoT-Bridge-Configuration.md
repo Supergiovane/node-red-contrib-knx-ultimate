@@ -4,6 +4,7 @@ title: "IoT-Bridge-Configuration"
 lang: it
 permalink: /wiki/it-IoT-Bridge-Configuration
 ---
+{% raw %}
 ---
 # MQTT Home Assistant - IoT
 Il bridge normalizza i telegrammi KNX in messaggi strutturati per trasporti IoT (MQTT, REST, Modbus) e accetta input dal flow per riscrivere sul bus. Qui trovi una guida rapida e i collegamenti consigliati ai nodi di trasporto di Node-RED.
@@ -53,6 +54,7 @@ I tipi di datapoint vengono letti dall'import ETS se disponibili, altrimenti dai
 | **Template** | Formattazione stringa | Segnaposto `{{value}}`, `{{ga}}`, `{{type}}`, `{{target}}`, `{{label}}`, `{{isoTimestamp}}`. |
 | **Scala / Offset** | Conversione numerica | Applicata KNX→IoT; in IoT→KNX viene invertita. |
 | **Timeout / Tentativi** | Suggerimenti pass-through | Servono ai nodi a valle per gestire ritentativi/timeouts. |
+
 ## Trasporti tipici
 ### MQTT broker
 - **Pubblicazione**: collega l'uscita 1 al nodo core `mqtt out`. Il bridge imposta `msg.topic` e `msg.payload` già pronti per il broker.
@@ -178,3 +180,4 @@ Instrada l'uscita 1 verso `http request` e usa la risposta per log o retry basat
 - L'uscita 2 replica sempre il payload arrivato dal mondo IoT con i metadati `bridge`: utile per il debug di scaling.
 - Per registri Modbus floating usa un `function` per comporre il formato richiesto dal dispositivo (16/32 bit).
 Buon bridging!
+{% endraw %}

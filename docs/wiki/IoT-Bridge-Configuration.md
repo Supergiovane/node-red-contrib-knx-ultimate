@@ -4,6 +4,7 @@ title: "IoT-Bridge-Configuration"
 lang: en
 permalink: /wiki/IoT-Bridge-Configuration
 ---
+{% raw %}
 ---
 # MQTT Home Assistant - IoT
 The bridge normalises KNX telegrams into structured messages that can be consumed by IoT transports (MQTT, REST, Modbus) and accepts flow inputs to write back to the KNX bus. It mirrors the runtime logic of the Node-RED editor help and shows how to hook the node to third-party connectors.
@@ -53,6 +54,7 @@ Datapoint types are read from the ETS import when available, otherwise from KNX 
 | **Template** | String payload formatter | Use placeholders `{{value}}`, `{{ga}}`, `{{type}}`, `{{target}}`, `{{label}}`, `{{isoTimestamp}}`. |
 | **Scale / Offset** | Numeric conversion | Applied KNX→IoT; inverse is used IoT→KNX. |
 | **Timeout / Retry** | Pass-through hints | Convey the desired retry/window to downstream nodes. |
+
 ## Typical transports
 ### MQTT broker
 - **Publishing**: wire output 1 to the core `mqtt out` node. The bridge sets `msg.topic` and `msg.payload` so you can publish directly.
@@ -178,3 +180,4 @@ Pipe output 1 into an `http request` node pointing at the same URL. Use the resp
 - Output 2 always mirrors the original `msg.payload` received from the IoT side under `bridge` metadata—log it to diagnose scaling issues.
 - For Modbus floats, pair the bridge with a `function` node to convert to the register format required by your specific device (e.g., 16-bit vs 32-bit).
 Happy bridging!
+{% endraw %}

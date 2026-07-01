@@ -4,6 +4,7 @@ title: "IoT-Bridge-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-IoT-Bridge-Configuration
 ---
+{% raw %}
 ---
 
 # MQTT Home Assistant - IoT
@@ -202,3 +203,4 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 - 若设备需要特定 Modbus 浮点格式，可插入 `function` 节点生成所需字节序。
 
 祝你桥接顺利！
+{% endraw %}
