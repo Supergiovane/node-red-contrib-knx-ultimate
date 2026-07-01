@@ -18,7 +18,7 @@
   "dependencies": {
     "dns-sync": "0.2.1",
     "google-translate-tts": "^0.3.0",
-    "js-yaml": "4.1.1",
+    "js-yaml": "4.2.0",
     "knxultimate": "6.0.1",
     "lodash": "4.18.1",
     "mqtt": "^5.15.1",
