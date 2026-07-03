@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 5.0.3** - July 2026<br/>
+
+- Added a link to the **KNX-Ultimate YouTube tutorials playlist** at the top of every node's configuration panel, so the video tutorials are one click away from any node.<br/>
+
 **Version 5.0.2** - July 2026<br/>
 
 - **IoT Bridge** node, **MQTT / Home Assistant (native)** mode:<br/>
