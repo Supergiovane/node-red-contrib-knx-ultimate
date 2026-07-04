@@ -150,8 +150,18 @@ module.exports = (RED) => {
 
     setTimeout(() => {
       (async () => {
-        await node.initMatterConnection()
-        node.startWatchdogTimer()
+        try {
+          await node.initMatterConnection()
+        } catch (error) {
+          // Never let a failed startup (missing dependency, corrupted storage...) become
+          // an unhandled rejection: the watchdog will retry the connection later.
+          node.sysLogger?.error(`matter-config: startup error: ${error.message}`)
+        }
+        try {
+          node.startWatchdogTimer()
+        } catch (error) {
+          node.sysLogger?.error(`matter-config: watchdog start error: ${error.message}`)
+        }
       })()
     }, 5000)
 
@@ -178,23 +188,27 @@ module.exports = (RED) => {
     // END functions called from the nodes -------------------------------------------------------------
 
     node.addClient = (_Node) => {
-      if (node.nodeClients.filter((x) => x.id === _Node.id).length !== 0) return
-      node.nodeClients.push(_Node)
-      if (node.linkStatus !== 'connected') {
-        _Node.setNodeStatusMatter({
-          fill: 'grey',
+      try {
+        if (node.nodeClients.filter((x) => x.id === _Node.id).length !== 0) return
+        node.nodeClients.push(_Node)
+        if (node.linkStatus !== 'connected') {
+          safeClientCall(_Node, () => _Node.setNodeStatusMatter({
+            fill: 'grey',
+            shape: 'ring',
+            text: 'Waiting for Matter controller'
+          }), 'setNodeStatusMatter')
+          return
+        }
+        safeClientCall(_Node, () => _Node.setNodeStatusMatter({
+          fill: 'green',
           shape: 'ring',
-          text: 'Waiting for Matter controller'
-        })
-        return
+          text: 'Ready'
+        }), 'setNodeStatusMatter')
+        // If the paired node already has values in cache, do the initial read straight away
+        safeClientCall(_Node, () => _Node.handleMatterNodeInitialized(), 'handleMatterNodeInitialized')
+      } catch (error) {
+        node.sysLogger?.error(`matter-config: addClient error: ${error.message}`)
       }
-      _Node.setNodeStatusMatter({
-        fill: 'green',
-        shape: 'ring',
-        text: 'Ready'
-      })
-      // If the paired node already has values in cache, do the initial read straight away
-      safeClientCall(_Node, () => _Node.handleMatterNodeInitialized(), 'handleMatterNodeInitialized')
     }
 
     node.removeClient = (_Node) => {

@@ -190,7 +190,13 @@ class classMatter extends EventEmitter {
       },
       passcode
     }, { connectNodeAfterCommissioning: false })
-    await this._attachNode(nodeId)
+    try {
+      await this._attachNode(nodeId)
+    } catch (error) {
+      // Pairing succeeded: never report it as failed just because the first connection
+      // attempt errored. The node will be attached again at the next controller start.
+      this._log('warn', `classMatter: commission: node ${nodeId} paired but not yet attached: ${error.message}`)
+    }
     return nodeId.toString()
   }
 
@@ -225,20 +231,28 @@ class classMatter extends EventEmitter {
       this._log('warn', `classMatter: getCommissionedNodesDetails: ${error.message}`)
     }
     details.forEach((detail) => {
-      const key = detail.nodeId.toString()
-      const node = this.pairedNodes.get(key)
-      let basicInfo = detail.basicInformationData || {}
       try {
-        if (node !== undefined && node.basicInformation !== undefined) basicInfo = node.basicInformation
-      } catch (error) { /* empty */ }
-      retArray.push({
-        nodeId: key,
-        name: basicInfo.nodeLabel || basicInfo.productLabel || basicInfo.productName || detail.advertisedName || `Node ${key}`,
-        vendorName: basicInfo.vendorName || '',
-        productName: basicInfo.productName || '',
-        serialNumber: basicInfo.serialNumber || '',
-        connectionState: node !== undefined ? this.nodeStateToString(node.connectionState) : 'disconnected'
-      })
+        const key = detail.nodeId.toString()
+        const node = this.pairedNodes.get(key)
+        let basicInfo = detail.basicInformationData || {}
+        try {
+          if (node !== undefined && node.basicInformation !== undefined) basicInfo = node.basicInformation
+        } catch (error) { /* empty */ }
+        let connectionState = 'disconnected'
+        try {
+          if (node !== undefined) connectionState = this.nodeStateToString(node.connectionState)
+        } catch (error) { /* empty */ }
+        retArray.push({
+          nodeId: key,
+          name: basicInfo.nodeLabel || basicInfo.productLabel || basicInfo.productName || detail.advertisedName || `Node ${key}`,
+          vendorName: basicInfo.vendorName || '',
+          productName: basicInfo.productName || '',
+          serialNumber: basicInfo.serialNumber || '',
+          connectionState
+        })
+      } catch (error) {
+        this._log('warn', `classMatter: getCommissionedNodesDetails item: ${error.message}`)
+      }
     })
     return retArray
   }
@@ -274,9 +288,14 @@ class classMatter extends EventEmitter {
   }
 
   _findClusterClient = (node, _endpointId, _clusterId) => {
-    const endpoint = this._findEndpoint(node, _endpointId)
-    if (endpoint === undefined) return undefined
-    return endpoint.getAllClusterClients().find((cc) => Number(cc.id) === Number(_clusterId))
+    try {
+      const endpoint = this._findEndpoint(node, _endpointId)
+      if (endpoint === undefined) return undefined
+      return endpoint.getAllClusterClients().find((cc) => Number(cc.id) === Number(_clusterId))
+    } catch (error) {
+      this._logThrottled('warn', 'matter:findcluster', `classMatter: _findClusterClient: ${error.message}`)
+      return undefined
+    }
   }
 
   // Returns the full structure of a commissioned node: endpoints, clusters, attributes (with cached values) and commands.
@@ -291,7 +310,13 @@ class classMatter extends EventEmitter {
         deviceTypes = endpoint.getDeviceTypes().map((dt) => dt.name)
       } catch (error) { /* empty */ }
       const clusters = []
-      endpoint.getAllClusterClients().forEach((cc) => {
+      let clusterClients = []
+      try {
+        clusterClients = endpoint.getAllClusterClients()
+      } catch (error) {
+        this._logThrottled('warn', 'matter:structure:clients', `classMatter: getNodeStructure getAllClusterClients: ${error.message}`)
+      }
+      clusterClients.forEach((cc) => {
         try {
           const attributes = []
           Object.keys(cc.attributes).forEach((attrName) => {
@@ -326,12 +351,16 @@ class classMatter extends EventEmitter {
           this._logThrottled('warn', 'matter:structure', `classMatter: getNodeStructure cluster error: ${error.message}`)
         }
       })
-      retEndpoints.push({
-        endpointId: Number(endpoint.number),
-        name: endpoint.name,
-        deviceTypes,
-        clusters
-      })
+      try {
+        retEndpoints.push({
+          endpointId: Number(endpoint.number),
+          name: endpoint.name,
+          deviceTypes,
+          clusters
+        })
+      } catch (error) {
+        this._logThrottled('warn', 'matter:structure:endpoint', `classMatter: getNodeStructure endpoint error: ${error.message}`)
+      }
     })
     return { nodeId: _nodeIdString, endpoints: retEndpoints }
   }

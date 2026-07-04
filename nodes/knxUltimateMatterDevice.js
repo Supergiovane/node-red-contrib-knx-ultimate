@@ -108,23 +108,30 @@ module.exports = function (RED) {
 
     // Send the cached Matter value of a status mapping to KNX
     const sendCachedStatusToKNX = (mapping, outputtype = 'write') => {
-      const manager = getMatterManager()
-      if (manager === undefined) return false
-      const rawValue = manager.getCachedAttribute(node.matterNodeId, mapping.endpointId, mapping.clusterId, mapping.target)
-      if (rawValue === undefined) return false
-      const payload = matterKnxConverter.matterToKnx(mapping.clusterId, mapping.target, rawValue)
-      if (payload === undefined) return false
-      sendMappingToKNX(mapping, payload, outputtype)
-      return true
+      try {
+        const manager = getMatterManager()
+        if (manager === undefined) return false
+        const rawValue = manager.getCachedAttribute(node.matterNodeId, mapping.endpointId, mapping.clusterId, mapping.target)
+        if (rawValue === undefined) return false
+        const payload = matterKnxConverter.matterToKnx(mapping.clusterId, mapping.target, rawValue)
+        if (payload === undefined) return false
+        sendMappingToKNX(mapping, payload, outputtype)
+        return true
+      } catch (error) {
+        node.setNodeStatusMatter({ fill: 'red', shape: 'dot', text: `Cached status error ${error.message}`, payload: '' })
+        return false
+      }
     }
 
     // KNX -> Matter
     node.handleSend = (msg) => {
+      if (!msg || !msg.knx) return
       if (node.matterNodeId === '') {
         node.setNodeStatusMatter({ fill: 'red', shape: 'ring', text: 'Missing Matter device selection', payload: '' })
         return
       }
       try {
+        if (!Array.isArray(node.mappings)) return
         if (msg.knx.event === 'GroupValue_Read') {
           // Respond to read requests with the cached Matter values
           node.mappings.filter((m) => m.direction === 'status' && m.ga === msg.knx.destination).forEach((mapping) => {
@@ -231,8 +238,12 @@ module.exports = function (RED) {
     }
 
     if (node.serverKNX) {
-      node.serverKNX.removeClient(node)
-      node.serverKNX.addClient(node)
+      try {
+        node.serverKNX.removeClient(node)
+        node.serverKNX.addClient(node)
+      } catch (error) {
+        RED.log.error(`knxUltimateMatterDevice: register KNX client error ${error.message}`)
+      }
     }
     if (node.serverMatter) {
       try {
@@ -284,8 +295,12 @@ module.exports = function (RED) {
     })
 
     node.on('close', () => {
-      if (node.serverKNX) node.serverKNX.removeClient(node)
-      if (node.serverMatter) node.serverMatter.removeClient(node)
+      try {
+        if (node.serverKNX) node.serverKNX.removeClient(node)
+      } catch (error) { /* empty */ }
+      try {
+        if (node.serverMatter) node.serverMatter.removeClient(node)
+      } catch (error) { /* empty */ }
     })
   }
 
