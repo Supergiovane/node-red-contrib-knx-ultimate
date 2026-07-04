@@ -402,10 +402,17 @@
                 const T = (k) => node._('knxUltimateIoTBridge.ha.' + k);
                 const coverFields = ['gaUpDown', 'gaStop', 'gaPosSet', 'gaPosState'];
                 const climateFields = ['gaCurrentTemp', 'gaSetpointSet', 'gaSetpointState', 'gaOnOff'];
+                // DPT main-type each field expects, used to filter the GA autocomplete so
+                // e.g. the position GAs suggest DPT 5.x and the temperature GAs suggest 9.x
+                // instead of everything defaulting to 1.x.
+                const gaDptFilter = {
+                    gaUpDown: '1.', gaStop: '1.', gaPosSet: '5.', gaPosState: '5.',
+                    gaCurrentTemp: '9.', gaSetpointSet: '9.', gaSetpointState: '9.', gaOnOff: '1.'
+                };
 
                 // Group-address autocomplete, identical to the mapping GA field (and the
                 // knxUltimate node): suggests GAs from the gateway's ETS CSV.
-                function attachGaAutocomplete(input) {
+                function attachGaAutocomplete(input, dptFilter) {
                     try {
                         if (oNodeServer && oNodeServer.id && typeof KNX_enableSecureFormatting === 'function') {
                             KNX_enableSecureFormatting(input, oNodeServer.id);
@@ -419,7 +426,7 @@
                             $.getJSON('knxUltimatecsv?nodeID=' + sid, (data) => {
                                 response($.map(data || [], (value) => {
                                     const search = (value.ga + ' (' + value.devicename + ') DPT' + value.dpt);
-                                    if (htmlUtilsfullCSVSearch(search, request.term + ' 1.')) {
+                                    if (htmlUtilsfullCSVSearch(search, request.term + ' ' + (dptFilter || '1.'))) {
                                         return {
                                             label: value.ga + ' # ' + value.devicename + ' # ' + value.dpt,
                                             value: value.ga
@@ -440,7 +447,7 @@
                     $('<label/>').css({ width: '160px' }).text(T('ce_' + key)).appendTo(row);
                     const input = $('<input/>', { type: 'text', class: 'ce-' + key })
                         .attr('placeholder', '1/2/3').css({ width: '130px' }).val(value || '').appendTo(row);
-                    attachGaAutocomplete(input);
+                    attachGaAutocomplete(input, gaDptFilter[key]);
                     return input;
                 }
                 function numRow(parent, key, value) {

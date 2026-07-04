@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 5.0.4** - July 2026<br/>
+
+- **IoT Bridge** node, **Covers & Thermostats** editor: fixed the group-address autocomplete, which suggested only DPT **1.x** addresses in every field. Each field now filters by the datapoint it expects: cover **Set/Status position** GAs list DPT **5.x** (5.001), and the thermostat **Current temperature** and **Setpoint set/status** GAs list DPT **9.x** (9.001). Up/Down, Stop and On/Off keep their 1.x filter.<br/>
+
 **Version 5.0.3** - July 2026<br/>
 
 - Added a link to the **KNX-Ultimate YouTube tutorials playlist** at the top of every node's configuration panel, so the video tutorials are one click away from any node.<br/>
