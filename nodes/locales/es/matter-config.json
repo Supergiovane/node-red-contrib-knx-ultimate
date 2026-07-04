@@ -1,0 +1,26 @@
+{
+  "matter-config": {
+    "properties": {
+      "title": "Controlador Matter",
+      "intro": "Este nodo es un controlador Matter (con su propia fabric). Empareja aquí tus dispositivos Matter y usa el nodo \"Matter Device\" para mapearlos a direcciones de grupo KNX. Haz deploy primero y vuelve aquí para emparejar dispositivos.",
+      "node-config-input-name": "Nombre",
+      "fabric_label": "Etiqueta de fabric",
+      "pairing_title": "Emparejar un nuevo dispositivo",
+      "pairing_help": "Introduce el código de emparejamiento manual de 11 dígitos (p.ej. 3497-011-2332) o el contenido del código QR (MT:....). El dispositivo debe estar accesible en la red IP (WiFi/Ethernet o Thread mediante border router). Si ya está emparejado con otro controlador (Alexa, Google, Apple), usa su función \"compartir/emparejar con otro hub\" para obtener un nuevo código.",
+      "pairing_code": "Código de emparejamiento",
+      "pair_button": "EMPAREJAR",
+      "devices_title": "Dispositivos emparejados",
+      "col_name": "Nombre",
+      "col_product": "Producto",
+      "col_state": "Estado",
+      "no_devices": "Aún no hay dispositivos emparejados.",
+      "unpair_confirm": "Eliminar (retirar) el dispositivo",
+      "unpair_ok": "Dispositivo eliminado.",
+      "deploy_first": "Haz deploy de este nodo de configuración primero e inténtalo de nuevo.",
+      "pairing_code_missing": "Introduce un código de emparejamiento.",
+      "pairing_wait": "Emparejamiento en curso. Puede tardar hasta un minuto...",
+      "pairing_failed": "Emparejamiento fallido",
+      "pairing_ok": "¡Dispositivo emparejado correctamente!"
+    }
+  }
+}

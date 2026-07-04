@@ -1,0 +1,586 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    (function () {
+        RED.nodes.registerType('knxUltimateMatterDevice', {
+            category: 'KNX Ultimate Matter',
+            color: '#D7C7E9',
+            defaults: {
+                server: { type: 'knxUltimate-config', required: false },
+                serverMatter: { type: 'matter-config', required: true },
+                name: { value: '' },
+                matterNodeId: { value: '' },
+                mappings: { value: [] },
+                readStatusAtStartup: { value: 'yes' },
+                enableNodePINS: { value: 'no' },
+                outputs: { value: 0 },
+                inputs: { value: 0 }
+            },
+            inputs: 0,
+            outputs: 0,
+            icon: 'node-matter-icon.svg',
+            label() {
+                return this.name || 'Matter Device (BETA)';
+            },
+            paletteLabel: 'Matter Device (BETA)',
+            oneditprepare() {
+                try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+                const node = this;
+
+                let oNodeServer = RED.nodes.node($('#node-input-server').val());
+                $('#node-input-server').on('change.knxUltimateMatterDevice', function () {
+                    try { oNodeServer = RED.nodes.node($(this).val()); } catch (error) { /* empty */ }
+                });
+                const oNodeServerMatter = () => RED.nodes.node($('#node-input-serverMatter').val());
+
+                // ------------------------------------------------------------------
+                // Suggested KNX DPT for well known Matter clusters/targets
+                // ------------------------------------------------------------------
+                const suggestDPT = (clusterId, kind, targetName) => {
+                    const cid = Number(clusterId);
+                    switch (cid) {
+                        case 6: return '1.001'; // OnOff
+                        case 8: return '5.001'; // LevelControl
+                        case 3: return '1.017'; // Identify
+                        case 258: // WindowCovering
+                            if (targetName.indexOf('Percent') !== -1) return '5.001';
+                            if (targetName === 'stopMotion') return '1.017';
+                            return '1.008';
+                        case 768: // ColorControl
+                            if (targetName.toLowerCase().indexOf('colortemperature') !== -1) return '7.600';
+                            return '5.001';
+                        case 513: // Thermostat
+                            if (targetName === 'systemMode') return '20.102';
+                            return '9.001';
+                        case 514: return '5.001'; // FanControl
+                        case 1026: return '9.001'; // Temperature
+                        case 1029: return '9.007'; // Humidity
+                        case 1024: return '9.004'; // Illuminance
+                        case 1030: return '1.011'; // Occupancy
+                        case 69: return '1.002'; // BooleanState
+                        case 257: return '1.001'; // DoorLock
+                        case 47: return '5.001'; // PowerSource (battery)
+                        case 144: return '14.056'; // ElectricalPowerMeasurement (W)
+                        case 145: return '13.013'; // ElectricalEnergyMeasurement (kWh)
+                        default: return '';
+                    }
+                };
+
+                // ------------------------------------------------------------------
+                // Curated, human friendly Matter functions (simple view).
+                // Each entry maps a cluster target to a localized label (friendly.* keys).
+                // ------------------------------------------------------------------
+                const CURATED_TARGETS = {
+                    command: [
+                        { clusterId: 6, targetKind: 'command', target: 'on', key: 'onoff_switch' },
+                        { clusterId: 6, targetKind: 'command', target: 'toggle', key: 'onoff_toggle' },
+                        { clusterId: 8, targetKind: 'command', target: 'moveToLevelWithOnOff', key: 'level_set' },
+                        { clusterId: 768, targetKind: 'command', target: 'moveToColorTemperature', key: 'colortemp_set' },
+                        { clusterId: 258, targetKind: 'command', target: 'upOrOpen', key: 'cover_updown' },
+                        { clusterId: 258, targetKind: 'command', target: 'stopMotion', key: 'cover_stop' },
+                        { clusterId: 258, targetKind: 'command', target: 'goToLiftPercentage', key: 'cover_position_set' },
+                        { clusterId: 258, targetKind: 'command', target: 'goToTiltPercentage', key: 'cover_tilt_set' },
+                        { clusterId: 513, targetKind: 'attribute', target: 'occupiedHeatingSetpoint', key: 'thermo_heatsp_set' },
+                        { clusterId: 513, targetKind: 'attribute', target: 'occupiedCoolingSetpoint', key: 'thermo_coolsp_set' },
+                        { clusterId: 514, targetKind: 'attribute', target: 'percentSetting', key: 'fan_speed_set' },
+                        { clusterId: 257, targetKind: 'command', target: 'lockDoor', key: 'lock_cmd' },
+                        { clusterId: 3, targetKind: 'command', target: 'identify', key: 'identify_cmd' }
+                    ],
+                    status: [
+                        { clusterId: 6, targetKind: 'attribute', target: 'onOff', key: 'onoff_state' },
+                        { clusterId: 8, targetKind: 'attribute', target: 'currentLevel', key: 'level_state' },
+                        { clusterId: 768, targetKind: 'attribute', target: 'colorTemperatureMireds', key: 'colortemp_state' },
+                        { clusterId: 258, targetKind: 'attribute', target: 'currentPositionLiftPercent100ths', key: 'cover_position_state' },
+                        { clusterId: 258, targetKind: 'attribute', target: 'currentPositionTiltPercent100ths', key: 'cover_tilt_state' },
+                        { clusterId: 513, targetKind: 'attribute', target: 'localTemperature', key: 'thermo_localtemp' },
+                        { clusterId: 513, targetKind: 'attribute', target: 'occupiedHeatingSetpoint', key: 'thermo_heatsp_state' },
+                        { clusterId: 513, targetKind: 'attribute', target: 'occupiedCoolingSetpoint', key: 'thermo_coolsp_state' },
+                        { clusterId: 514, targetKind: 'attribute', target: 'percentCurrent', key: 'fan_speed_state' },
+                        { clusterId: 257, targetKind: 'attribute', target: 'lockState', key: 'lock_state' },
+                        { clusterId: 1026, targetKind: 'attribute', target: 'measuredValue', key: 'temp_measured' },
+                        { clusterId: 1029, targetKind: 'attribute', target: 'measuredValue', key: 'humidity_measured' },
+                        { clusterId: 1024, targetKind: 'attribute', target: 'measuredValue', key: 'illuminance_measured' },
+                        { clusterId: 1030, targetKind: 'attribute', target: 'occupancy', key: 'occupancy_state' },
+                        { clusterId: 69, targetKind: 'attribute', target: 'stateValue', key: 'contact_state' },
+                        { clusterId: 47, targetKind: 'attribute', target: 'batPercentRemaining', key: 'battery_percent' },
+                        { clusterId: 144, targetKind: 'attribute', target: 'activePower', key: 'power_active' },
+                        { clusterId: 144, targetKind: 'attribute', target: 'voltage', key: 'power_voltage' },
+                        { clusterId: 144, targetKind: 'attribute', target: 'activeCurrent', key: 'power_current' },
+                        { clusterId: 145, targetKind: 'attribute', target: 'cumulativeEnergyImported', key: 'energy_imported' },
+                        { clusterId: 59, targetKind: 'attribute', target: 'currentPosition', key: 'switch_position' }
+                    ]
+                };
+
+                // i18n helper: returns null when the key has no translation
+                const i18nOrNull = (subKey) => {
+                    const text = node._('knxUltimateMatterDevice.' + subKey);
+                    if (!text || text.indexOf(subKey) !== -1 || text.indexOf('knxUltimateMatterDevice') !== -1) return null;
+                    return text;
+                };
+                const friendlyLabel = (key) => i18nOrNull('friendly.' + key);
+                const devTypeLabel = (deviceType) => {
+                    const clean = (deviceType || '').toString().replace(/^MA-/i, '').replace(/[^a-zA-Z]/g, '').toLowerCase();
+                    return i18nOrNull('devtype.' + clean) || deviceType;
+                };
+                // "currentPositionLiftPercent100ths" -> "Current position lift percent 100ths"
+                const prettifyName = (name) => (name || '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/^./, (c) => c.toUpperCase());
+
+                // Converts the raw cached Matter value into the same human unit shown in the friendly label
+                const formatCachedValue = (key, raw) => {
+                    if (raw === undefined || raw === null || typeof raw === 'object') {
+                        if (key === 'energy_imported' && raw && raw.energy !== undefined) return Math.round(Number(raw.energy) / 10000) / 100;
+                        if (key === 'occupancy_state' && raw && typeof raw === 'object') return raw.occupied === true;
+                        return undefined;
+                    }
+                    switch (key) {
+                        case 'level_state': return Math.round(Number(raw) * 100 / 254);
+                        case 'cover_position_state': case 'cover_tilt_state': return Math.round(Number(raw) / 100);
+                        case 'thermo_localtemp': case 'thermo_heatsp_state': case 'thermo_coolsp_state': case 'temp_measured': case 'humidity_measured': return Math.round(Number(raw)) / 100;
+                        case 'colortemp_state': return Number(raw) > 0 ? Math.round(1000000 / Number(raw)) : undefined;
+                        case 'battery_percent': return Math.round(Number(raw) / 2);
+                        case 'power_active': case 'power_voltage': case 'power_current': return Math.round(Number(raw)) / 1000;
+                        case 'illuminance_measured': return Math.round(Math.pow(10, (Number(raw) - 1) / 10000));
+                        case 'lock_state': return Number(raw) === 1;
+                        default: return raw;
+                    }
+                };
+
+                // ------------------------------------------------------------------
+                // Matter device picker (autocomplete on the name field, like Hue nodes)
+                // ------------------------------------------------------------------
+                const $deviceName = $('#node-input-name');
+                const $refreshButton = $('.matter-refresh-devices');
+                const $loadingIndicator = $('.matter-devices-loading');
+                let cachedDevices = [];
+                let deviceStructure = null; // { endpoints: [...] } of the selected device
+
+                function fetchDevices(matterServer, term, response, { forceRefresh = false } = {}) {
+                    if (!matterServer) { response([]); return; }
+                    if (!forceRefresh && cachedDevices.length > 0) {
+                        response(filterDevices(cachedDevices, term));
+                        return;
+                    }
+                    $loadingIndicator.show();
+                    $.getJSON(`KNXUltimateMatterGetNodes?serverId=${encodeURIComponent(matterServer.id)}&_=${Date.now()}`, (data) => {
+                        cachedDevices = (data && Array.isArray(data.devices)) ? data.devices : [];
+                        response(filterDevices(cachedDevices, term));
+                    }).always(() => {
+                        $loadingIndicator.hide();
+                    }).fail(() => {
+                        cachedDevices = [];
+                        response([]);
+                    });
+                }
+
+                function filterDevices(devices, term) {
+                    const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+                    return $.map(devices, (value) => {
+                        const sSearch = `${value.name} ${value.vendorName} ${value.productName} ${value.nodeId}`;
+                        if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+                            return {
+                                matterNodeId: value.nodeId,
+                                label: `${value.name} (${value.vendorName} ${value.productName}) [${value.connectionState}]`,
+                                value: value.name
+                            };
+                        }
+                        return null;
+                    });
+                }
+
+                $deviceName.autocomplete({
+                    minLength: 0,
+                    source(request, response) {
+                        const matterServer = oNodeServerMatter();
+                        if (!matterServer) { response([]); return; }
+                        fetchDevices(matterServer, request.term, response);
+                    },
+                    select(event, ui) {
+                        $('#node-input-matterNodeId').val(ui.item.matterNodeId);
+                        loadStructure(ui.item.matterNodeId);
+                    }
+                }).focus(function () {
+                    $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+                });
+
+                $refreshButton.on('click.knxUltimateMatterDevice', () => {
+                    cachedDevices = [];
+                    const matterServer = oNodeServerMatter();
+                    if (!matterServer) return;
+                    fetchDevices(matterServer, '', () => {
+                        $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
+                    }, { forceRefresh: true });
+                });
+
+                // ------------------------------------------------------------------
+                // Structure of the selected device -> options of the target selects
+                // ------------------------------------------------------------------
+                const targetValueOf = (ep, cluster, targetKind, targetName) => JSON.stringify({
+                    endpointId: ep.endpointId, clusterId: cluster.id, clusterName: cluster.name, targetKind, target: targetName
+                });
+
+                const endpointGroupLabel = (ep) => {
+                    const types = (ep.deviceTypes || []).map(devTypeLabel).join(', ');
+                    return `${node._('knxUltimateMatterDevice.endpoint')} ${ep.endpointId} · ${types || ep.name}`;
+                };
+
+                function buildTargetOptions($select, direction, selectedValue) {
+                    $select.empty();
+                    $select.append($('<option></option>').attr('value', '').text(node._('knxUltimateMatterDevice.select_target')));
+                    let totalAdded = 0;
+                    const structureEndpoints = (deviceStructure && Array.isArray(deviceStructure.endpoints)) ? deviceStructure.endpoints : [];
+                    structureEndpoints.forEach((ep) => {
+                        const $group = $('<optgroup></optgroup>').attr('label', endpointGroupLabel(ep));
+                        let added = 0;
+                        // Only the curated, human friendly functions actually exposed by the device
+                        (CURATED_TARGETS[direction] || []).forEach((entry) => {
+                            const cluster = (ep.clusters || []).find((c) => Number(c.id) === entry.clusterId);
+                            if (!cluster) return;
+                            const pool = entry.targetKind === 'command' ? (cluster.commands || []) : (cluster.attributes || []);
+                            const item = pool.find((el) => el.name === entry.target);
+                            if (!item) return;
+                            const label = friendlyLabel(entry.key) || prettifyName(entry.target);
+                            let cachedText = '';
+                            if (direction === 'status') {
+                                const current = formatCachedValue(entry.key, item.value);
+                                if (current !== undefined) cachedText = `  [${current}]`;
+                            }
+                            $group.append($('<option></option>')
+                                .attr('value', targetValueOf(ep, cluster, entry.targetKind, entry.target))
+                                .attr('title', `${cluster.name}.${entry.target}`)
+                                .text(`${label}${cachedText}`));
+                            added += 1;
+                        });
+                        if (added > 0) {
+                            $select.append($group);
+                            totalAdded += added;
+                        }
+                    });
+                    if (totalAdded === 0 && structureEndpoints.length > 0) {
+                        $select.append($('<option></option>').attr('value', '').attr('disabled', 'disabled').text(node._('knxUltimateMatterDevice.no_simple_targets')));
+                    }
+                    if (selectedValue) {
+                        // Re-select by content (attribute cached values change the labels, not the values).
+                        // This must work even while the device structure is still loading (or unavailable),
+                        // otherwise the stored mapping would be lost on save.
+                        $select.val(selectedValue);
+                        if (!$select.val()) {
+                            // The stored mapping is not in the current list (structure not loaded yet, device
+                            // offline or hidden by the simple view): keep it anyway
+                            $select.append($('<option></option>').attr('value', selectedValue).text(`${node._('knxUltimateMatterDevice.stored_target')}: ${targetToLabel(selectedValue)}`));
+                            $select.val(selectedValue);
+                        }
+                    }
+                    // Remember the selection so async rebuilds never lose it
+                    $select.data('storedTargetValue', $select.val() || selectedValue || '');
+                }
+
+                function curatedEntryOf(target) {
+                    return CURATED_TARGETS.command.concat(CURATED_TARGETS.status).find((e) => e.clusterId === Number(target.clusterId) && e.target === target.target && e.targetKind === target.targetKind);
+                }
+
+                function targetToLabel(jsonValue) {
+                    try {
+                        const t = JSON.parse(jsonValue);
+                        const curated = curatedEntryOf(t);
+                        const friendly = curated ? friendlyLabel(curated.key) : null;
+                        if (friendly) return `${friendly} (EP${t.endpointId})`;
+                        return `EP${t.endpointId} ${t.clusterName || t.clusterId}.${t.target}`;
+                    } catch (error) {
+                        return jsonValue;
+                    }
+                }
+
+                function refreshAllTargetSelects() {
+                    $('#node-input-mapping-container').editableList('items').each(function () {
+                        const row = $(this);
+                        const $direction = row.find('.matter-direction');
+                        const $target = row.find('.matter-target');
+                        // Prefer the live selection, fall back to the remembered one (the select can be
+                        // temporarily empty while the device structure is being fetched)
+                        const selected = $target.val() || $target.data('storedTargetValue') || '';
+                        buildTargetOptions($target, $direction.val(), selected);
+                    });
+                }
+
+                function loadStructure(nodeId) {
+                    deviceStructure = null;
+                    const matterServer = oNodeServerMatter();
+                    if (!matterServer || !nodeId) { refreshAllTargetSelects(); return; }
+                    $loadingIndicator.show();
+                    $.getJSON(`KNXUltimateMatterGetStructure?serverId=${encodeURIComponent(matterServer.id)}&nodeId=${encodeURIComponent(nodeId)}&_=${Date.now()}`, (data) => {
+                        if (data && !data.error) {
+                            deviceStructure = data;
+                        } else if (data && data.error) {
+                            RED.notify(data.error, { type: 'warning' });
+                        }
+                        refreshAllTargetSelects();
+                    }).always(() => {
+                        $loadingIndicator.hide();
+                    }).fail(() => {
+                        refreshAllTargetSelects();
+                    });
+                }
+
+                // ------------------------------------------------------------------
+                // Mappings editable list
+                // ------------------------------------------------------------------
+                function createLabeledField(row, key, element, options = {}) {
+                    const wrapper = $('<div/>', {
+                        style: 'display:flex; flex-direction:column; margin-right:10px;'
+                    }).appendTo(row);
+                    if (options.width) wrapper.css('width', options.width);
+                    if (options.flex) wrapper.css('flex', options.flex);
+                    $('<span/>', {
+                        text: node._('knxUltimateMatterDevice.fields.' + key),
+                        style: 'font-size:11px; color:#666; margin-bottom:2px;'
+                    }).appendTo(wrapper);
+                    element.css('width', '100%');
+                    element.appendTo(wrapper);
+                    return element;
+                }
+
+                const container = $('#node-input-mapping-container');
+                container.css('min-height', '260px').css('min-width', '640px').editableList({
+                    sortable: true,
+                    removable: true,
+                    addItem: function (row, index, data) {
+                        const mapping = $.extend(true, {
+                            direction: 'command',
+                            ga: '',
+                            dpt: '',
+                            gaName: '',
+                            endpointId: '',
+                            clusterId: '',
+                            clusterName: '',
+                            targetKind: '',
+                            target: ''
+                        }, data.mapping);
+
+                        const block = $('<div/>').appendTo(row);
+                        const topRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px' }).appendTo(block);
+                        const bottomRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px', marginTop: '6px' }).appendTo(block);
+
+                        // Direction
+                        const $direction = $('<select/>', { class: 'matter-direction' });
+                        $direction.append($('<option></option>').attr('value', 'command').text(node._('knxUltimateMatterDevice.direction.command')));
+                        $direction.append($('<option></option>').attr('value', 'status').text(node._('knxUltimateMatterDevice.direction.status')));
+                        createLabeledField(topRow, 'direction', $direction, { width: '170px' });
+                        $direction.val(mapping.direction || 'command');
+
+                        // Matter target
+                        const $target = $('<select/>', { class: 'matter-target' });
+                        createLabeledField(topRow, 'target', $target, { flex: '1 1 320px' });
+                        const storedTargetValue = mapping.target !== '' ? JSON.stringify({ endpointId: mapping.endpointId, clusterId: mapping.clusterId, clusterName: mapping.clusterName, targetKind: mapping.targetKind, target: mapping.target }) : '';
+                        buildTargetOptions($target, $direction.val(), storedTargetValue);
+
+                        $direction.on('change', function () {
+                            buildTargetOptions($target, $(this).val(), $target.val() || $target.data('storedTargetValue') || '');
+                        });
+
+                        // GA
+                        const $ga = $('<input/>', { type: 'text', class: 'matter-ga', placeholder: '1/1/1' }).val(mapping.ga);
+                        createLabeledField(bottomRow, 'ga', $ga, { width: '110px' });
+                        try {
+                            if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($ga, oNodeServer.id);
+                        } catch (error) { /* empty */ }
+
+                        // DPT
+                        const $dpt = $('<input/>', { type: 'text', class: 'matter-dpt', placeholder: '1.001' }).val(mapping.dpt);
+                        createLabeledField(bottomRow, 'dpt', $dpt, { width: '90px' });
+
+                        // GA name
+                        const $gaName = $('<input/>', { type: 'text', class: 'matter-ganame' }).val(mapping.gaName);
+                        createLabeledField(bottomRow, 'ganame', $gaName, { flex: '1 1 220px' });
+
+                        $ga.autocomplete({
+                            minLength: 0,
+                            source(request, response) {
+                                if (!oNodeServer) { response([]); return; }
+                                $.getJSON(`knxUltimatecsv?nodeID=${oNodeServer.id}`, (data) => {
+                                    response($.map(data, (value) => {
+                                        const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+                                        if (htmlUtilsfullCSVSearch(search, request.term)) {
+                                            return {
+                                                label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                                                value: value.ga,
+                                                dpt: value.dpt
+                                            };
+                                        }
+                                        return null;
+                                    }));
+                                });
+                            },
+                            select(event, ui) {
+                                if (!$dpt.val()) $dpt.val(ui.item.dpt);
+                                if (!$gaName.val()) $gaName.val(ui.item.label.split('#')[1]?.trim() || '');
+                            }
+                        });
+                        $ga.on('focus.knxUltimateMatterDevice click.knxUltimateMatterDevice', function () {
+                            try { $(this).autocomplete('search', ''); } catch (error) { /* empty */ }
+                        });
+
+                        // Suggest the DPT when a Matter target is picked
+                        $target.on('change', function () {
+                            const val = $(this).val();
+                            if (!val) return;
+                            $target.data('storedTargetValue', val);
+                            try {
+                                const t = JSON.parse(val);
+                                const suggested = suggestDPT(t.clusterId, t.targetKind, t.target);
+                                if (suggested !== '' && !$dpt.val()) $dpt.val(suggested);
+                                if (!$gaName.val()) {
+                                    const curated = curatedEntryOf(t);
+                                    const friendly = curated ? friendlyLabel(curated.key) : null;
+                                    $gaName.val(friendly || `${t.clusterName || ''} ${t.target}`.trim());
+                                }
+                            } catch (error) { /* empty */ }
+                        });
+                    }
+                });
+
+                (node.mappings || []).forEach((m) => {
+                    container.editableList('addItem', { mapping: m });
+                });
+
+                // Load the structure of the already selected device
+                if (node.matterNodeId) {
+                    loadStructure(node.matterNodeId);
+                }
+
+                $('#node-input-serverMatter').on('change.knxUltimateMatterDevice', () => {
+                    cachedDevices = [];
+                });
+
+                $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
+                $('#node-input-enableNodePINS').val(node.enableNodePINS || 'no');
+            },
+            oneditsave() {
+                try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+                const node = this;
+                const items = $('#node-input-mapping-container').editableList('items');
+                node.mappings = [];
+                items.each(function () {
+                    const row = $(this);
+                    const $targetSelect = row.find('.matter-target');
+                    // Fall back to the remembered value: the select can be empty while the
+                    // device structure is still loading, and the mapping must never be lost.
+                    const targetValue = $targetSelect.val() || $targetSelect.data('storedTargetValue');
+                    if (!targetValue) return; // Skip incomplete rows
+                    let target = {};
+                    try { target = JSON.parse(targetValue); } catch (error) { return; }
+                    node.mappings.push({
+                        direction: row.find('.matter-direction').val(),
+                        ga: (row.find('.matter-ga').val() || '').trim(),
+                        dpt: (row.find('.matter-dpt').val() || '').trim(),
+                        gaName: (row.find('.matter-ganame').val() || '').trim(),
+                        endpointId: target.endpointId,
+                        clusterId: target.clusterId,
+                        clusterName: target.clusterName,
+                        targetKind: target.targetKind,
+                        target: target.target
+                    });
+                });
+                this.enableNodePINS = $('#node-input-enableNodePINS').val();
+                this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
+                this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
+            },
+            oneditcancel() {
+                try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+            }
+        });
+    }());
+</script>
+
+<script type="text/html" data-template-name="knxUltimateMatterDevice">
+  <div class="form-row" style="margin-bottom:10px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-serverMatter">
+      <i class="fa fa-share-alt"></i>
+      <span data-i18n="knxUltimateMatterDevice.matter_controller"></span>
+    </label>
+    <input type="text" id="node-input-serverMatter">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name">
+      <i class="fa fa-microchip"></i> <span data-i18n="knxUltimateMatterDevice.matter_device"></span>
+    </label>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateMatterDevice.device_placeholder" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button matter-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-refresh"></i>
+    </button>
+    <span class="matter-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <div class="form-tips" style="margin-bottom:8px;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateMatterDevice.mapping_help"></span>
+  </div>
+
+  <div class="form-row node-input-mapping-container-row">
+    <ol id="node-input-mapping-container"></ol>
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <label for="node-input-readStatusAtStartup" style="width:220px;">
+      <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterDevice.read_status_startup"></span>
+    </label>
+    <select id="node-input-readStatusAtStartup" style="width:180px;">
+      <option value="yes" data-i18n="knxUltimateMatterDevice.opt_yes_emit"></option>
+      <option value="no" data-i18n="knxUltimateMatterDevice.opt_no"></option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-enableNodePINS" style="width:220px;">
+      <i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterDevice.node_pins"></span>
+    </label>
+    <select id="node-input-enableNodePINS" style="width:180px;">
+      <option value="no" data-i18n="knxUltimateMatterDevice.node_pins_hide"></option>
+      <option value="yes" data-i18n="knxUltimateMatterDevice.node_pins_show"></option>
+    </select>
+  </div>
+
+  <input type="hidden" id="node-input-matterNodeId">
+
+  <br/>
+   <br/>
+    <br/>
+    <br/>
+   <br/>
+    <br/>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateMatterDevice">
+Bridges a **Matter device** to **KNX group addresses**. This node is in **BETA**.
+
+Select a Matter device (previously paired in the Matter Controller configuration node), then add mappings between KNX group addresses and the Matter clusters exposed by the device.
+
+Each mapping has a direction:
+
+- **KNX → Matter (command)**: a telegram received on the group address invokes a Matter cluster command (or writes an attribute). Example: GA `1/1/1` DPT 1.001 → `OnOff.on/off`.
+- **Matter → KNX (status)**: when the subscribed Matter attribute changes, its value is converted and written to the group address. Example: `OnOff.onOff` → GA `1/1/2` DPT 1.001. GroupValue_Read requests on the group address are answered with the cached value.
+
+Well-known clusters (OnOff, LevelControl, WindowCovering, Thermostat, ColorControl, sensors, DoorLock, battery, power/energy measurement) are automatically converted to/from the appropriate KNX DPT values (scaling, units). Other clusters are passed through raw.
+
+If you enable the **node PINs**, you can also:
+
+- send raw commands from the flow: `msg.payload = { endpointId: 1, clusterId: 6, command: "toggle" }` or `{ endpointId: 1, clusterId: 8, attribute: "onLevel", value: 128 }`
+- receive every attribute change and cluster event of the device on the output pin.
+</script>

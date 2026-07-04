@@ -1,0 +1,26 @@
+{
+  "matter-config": {
+    "properties": {
+      "title": "Matter Controller",
+      "intro": "Dieser Node ist ein Matter-Controller (mit eigener Fabric). Kopple hier deine Matter-Geräte und verwende dann den \"Matter Device\"-Node, um sie auf KNX-Gruppenadressen abzubilden. Zuerst deployen, dann hierher zurückkehren, um Geräte zu koppeln.",
+      "node-config-input-name": "Name",
+      "fabric_label": "Fabric-Bezeichnung",
+      "pairing_title": "Neues Gerät koppeln",
+      "pairing_help": "Gib den 11-stelligen manuellen Kopplungscode (z.B. 3497-011-2332) oder den QR-Code-Inhalt (MT:....) ein. Das Gerät muss über das IP-Netzwerk erreichbar sein (WLAN/Ethernet oder Thread über Border Router). Ist das Gerät bereits mit einem anderen Controller (Alexa, Google, Apple) gekoppelt, nutze dessen Funktion \"mit weiterem Hub teilen\", um einen neuen Code zu erhalten.",
+      "pairing_code": "Kopplungscode",
+      "pair_button": "KOPPELN",
+      "devices_title": "Gekoppelte Geräte",
+      "col_name": "Name",
+      "col_product": "Produkt",
+      "col_state": "Status",
+      "no_devices": "Noch keine Geräte gekoppelt.",
+      "unpair_confirm": "Gerät entfernen (dekommissionieren)",
+      "unpair_ok": "Gerät entfernt.",
+      "deploy_first": "Bitte zuerst diesen Konfigurations-Node deployen und erneut versuchen.",
+      "pairing_code_missing": "Bitte einen Kopplungscode eingeben.",
+      "pairing_wait": "Kopplung läuft. Dies kann bis zu einer Minute dauern...",
+      "pairing_failed": "Kopplung fehlgeschlagen",
+      "pairing_ok": "Gerät erfolgreich gekoppelt!"
+    }
+  }
+}

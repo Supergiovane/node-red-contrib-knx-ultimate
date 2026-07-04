@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "5.0.4",
+  "version": "5.1.0",
   "description": "Control your KNX and KNX Secure intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control, ETS group address importer, KNX AI for diagnosticsand KNX routing between interfaces. Easy to use and highly configurable.",
   "files": [
     "nodes/",
@@ -16,6 +16,8 @@
     "LICENSE"
   ],
   "dependencies": {
+    "@matter/main": "^0.17.4",
+    "@project-chip/matter.js": "^0.17.4",
     "dns-sync": "0.2.1",
     "google-translate-tts": "^0.3.0",
     "js-yaml": "4.2.0",
@@ -67,7 +69,9 @@
       "knxUltimateHuedevice_software_update": "/nodes/knxUltimateHuedevice_software_update.js",
       "knxUltimateHuePlug": "/nodes/knxUltimateHuePlug.js",
       "knxUltimateHueHumiditySensor": "/nodes/knxUltimateHueHumiditySensor.js",
-      "knxUltimateHueCameraMotion": "/nodes/knxUltimateHueCameraMotion.js"
+      "knxUltimateHueCameraMotion": "/nodes/knxUltimateHueCameraMotion.js",
+      "matter-config": "/nodes/matter-config.js",
+      "knxUltimateMatterDevice": "/nodes/knxUltimateMatterDevice.js"
     }
   },
   "repository": {

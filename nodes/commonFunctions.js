@@ -944,6 +944,68 @@ module.exports = (RED) => {
       }
     })
 
+    // MATTER: returns the list of commissioned Matter devices of a matter-config node
+    RED.httpAdmin.get('/KNXUltimateMatterGetNodes', RED.auth.needsPermission('matter-config.read'), (req, res) => {
+      try {
+        const matterServer = RED.nodes.getNode(req.query.serverId)
+        if (matterServer === null || matterServer === undefined) {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        res.json({ devices: matterServer.getCommissionedNodesDetails() })
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterGetNodes: ${error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
+    // MATTER: returns endpoints/clusters/attributes/commands of a commissioned Matter device
+    RED.httpAdmin.get('/KNXUltimateMatterGetStructure', RED.auth.needsPermission('matter-config.read'), (req, res) => {
+      try {
+        const matterServer = RED.nodes.getNode(req.query.serverId)
+        if (matterServer === null || matterServer === undefined) {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        res.json(matterServer.getNodeStructure(req.query.nodeId))
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterGetStructure: ${error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
+    // MATTER: commissions (pairs) a new Matter device using a pairing code or QR code string
+    RED.httpAdmin.get('/KNXUltimateMatterPair', RED.auth.needsPermission('matter-config.write'), async (req, res) => {
+      try {
+        const matterServer = RED.nodes.getNode(req.query.serverId)
+        if (matterServer === null || matterServer === undefined) {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        const nodeId = await matterServer.commission(req.query.code)
+        res.json({ nodeId })
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterPair: ${error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
+    // MATTER: decommissions (unpairs) a Matter device
+    RED.httpAdmin.get('/KNXUltimateMatterUnpair', RED.auth.needsPermission('matter-config.write'), async (req, res) => {
+      try {
+        const matterServer = RED.nodes.getNode(req.query.serverId)
+        if (matterServer === null || matterServer === undefined) {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        await matterServer.removeCommissionedNode(req.query.nodeId)
+        res.json({ status: 'ok' })
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterUnpair: ${error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
     RED.httpAdmin.get('/knxUltimateDpts', (req, res) => {
       try {
         const dpts = Object.entries(dptlib.dpts).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy('base'))

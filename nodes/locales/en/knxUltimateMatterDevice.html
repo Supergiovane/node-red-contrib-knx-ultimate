@@ -1,0 +1,56 @@
+<script type="text/markdown" data-help-name="knxUltimateMatterDevice">
+# Matter Device (BETA)
+
+> This node is in **BETA**: it works, but details may still change between releases.
+
+## Overview
+
+The Matter Device node bridges a **Matter device** to **KNX group addresses**. The node acts through the *Matter Controller* configuration node, which commissions (pairs) the devices into its own Matter fabric.
+
+- **Control** any commissioned Matter device from the KNX bus (on/off, dimming, covers, thermostats, locks, ...).
+- **Track** every attribute of the device on KNX group addresses (status feedback, sensors, power metering, battery...).
+- Fully generic: the mapping list is built from the **real endpoints/clusters** exposed by the device.
+
+## Configuration
+
+|Field|Description|
+|--|--|
+| KNX GW | KNX gateway used for telegrams |
+| Matter Ctrl | The Matter Controller configuration node (where you pair the devices) |
+| Device | Pick the commissioned Matter device from the autocomplete list |
+| Mappings | One row per group address ↔ Matter cluster mapping |
+| Read status at startup | When enabled, the node emits the current cached values on deploy/connection |
+| Node Input/Output PINs | Enable Node-RED input/output pins for raw Matter access |
+
+## Mappings
+
+The target list shows the supported functions with friendly names such as *"On/Off switch"* or *"Instantaneous power (W)"*, filtered on what the device really exposes and with the current value shown in brackets.
+
+Each mapping row has a **direction**:
+
+- **KNX → Matter (command)**: a telegram received on the group address invokes a Matter cluster command or writes an attribute. Example: GA `1/1/1` DPT 1.001 → `OnOff.on/off` (the boolean payload selects on or off automatically).
+- **Matter → KNX (status)**: whenever the subscribed Matter attribute changes, its value is converted and written to the group address. `GroupValue_Read` requests are answered with the cached value.
+
+Well-known clusters are converted automatically to KNX-friendly values:
+
+|Cluster|Conversion|
+|--|--|
+| OnOff | boolean (DPT 1.001) |
+| LevelControl | 0-254 ↔ percent (DPT 5.001) |
+| WindowCovering | percent100ths ↔ percent (DPT 5.001), up/down (DPT 1.008) |
+| ColorControl | mireds ↔ Kelvin (DPT 7.600) |
+| Thermostat | centi-°C ↔ °C (DPT 9.001) |
+| Temperature/Humidity | centi-units ↔ units (DPT 9.001/9.007) |
+| Illuminance | log scale ↔ Lux (DPT 9.004) |
+| PowerSource | half-percent ↔ percent battery (DPT 5.001) |
+| Electrical Power/Energy | mW ↔ W (DPT 14.056), mWh ↔ kWh (DPT 13.013) |
+
+Other clusters/attributes are passed through raw; the DPT you pick performs the final KNX encoding.
+
+## Node PINs
+
+If you enable the node PINs:
+
+- **Input**: send raw commands: `msg.payload = { endpointId: 1, clusterId: 6, command: "toggle" }` or attribute writes: `msg.payload = { endpointId: 1, clusterId: 8, attribute: "onLevel", value: 128 }`
+- **Output**: receives every attribute change (`msg.matter` contains the full event) and every cluster event (button presses etc.).
+</script>

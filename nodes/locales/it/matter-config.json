@@ -1,0 +1,26 @@
+{
+  "matter-config": {
+    "properties": {
+      "title": "Controller Matter",
+      "intro": "Questo nodo è un controller Matter (con una propria fabric). Associa qui i tuoi dispositivi Matter, poi usa il nodo \"Matter Device\" per mapparli sugli indirizzi di gruppo KNX. Fai prima il deploy del nodo, poi torna qui per associare i dispositivi.",
+      "node-config-input-name": "Nome",
+      "fabric_label": "Etichetta fabric",
+      "pairing_title": "Associa un nuovo dispositivo",
+      "pairing_help": "Inserisci il codice di abbinamento manuale a 11 cifre (es. 3497-011-2332) o il contenuto del QR code (MT:....). Il dispositivo deve essere raggiungibile sulla rete IP (WiFi/Ethernet o Thread tramite border router). Se il dispositivo è già associato a un altro controller (Alexa, Google, Apple), usa la funzione \"condividi/abbina con altro hub\" per ottenere un nuovo codice.",
+      "pairing_code": "Codice abbinamento",
+      "pair_button": "ASSOCIA",
+      "devices_title": "Dispositivi associati",
+      "col_name": "Nome",
+      "col_product": "Prodotto",
+      "col_state": "Stato",
+      "no_devices": "Nessun dispositivo ancora associato.",
+      "unpair_confirm": "Rimuovere (decommissionare) il dispositivo",
+      "unpair_ok": "Dispositivo rimosso.",
+      "deploy_first": "Fai prima il deploy di questo nodo di configurazione, poi riprova.",
+      "pairing_code_missing": "Inserisci un codice di abbinamento.",
+      "pairing_wait": "Abbinamento in corso. Può richiedere fino a un minuto...",
+      "pairing_failed": "Abbinamento fallito",
+      "pairing_ok": "Dispositivo associato con successo!"
+    }
+  }
+}

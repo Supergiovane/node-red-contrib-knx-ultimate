@@ -1,0 +1,56 @@
+<script type="text/markdown" data-help-name="knxUltimateMatterDevice">
+# Dispositivo Matter (BETA)
+
+> Questo nodo è in **BETA**: funziona, ma alcuni dettagli potrebbero cambiare tra una release e l'altra.
+
+## Panoramica
+
+Il nodo Matter Device fa da ponte tra un **dispositivo Matter** e gli **indirizzi di gruppo KNX**. Il nodo opera tramite il nodo di configurazione *Matter Controller*, che associa (commissiona) i dispositivi nella propria fabric Matter.
+
+- **Controlla** qualsiasi dispositivo Matter associato dal bus KNX (on/off, dimmerazione, tapparelle, termostati, serrature, ...).
+- **Riporta** ogni attributo del dispositivo sugli indirizzi di gruppo KNX (stati, sensori, misure di potenza, batteria...).
+- Completamente generico: la lista delle mappature è costruita dagli **endpoint/cluster reali** esposti dal dispositivo.
+
+## Configurazione
+
+|Campo|Descrizione|
+|--|--|
+| GW KNX | Gateway KNX usato per i telegrammi |
+| Ctrl Matter | Il nodo di configurazione Matter Controller (dove associ i dispositivi) |
+| Dispositivo | Scegli il dispositivo Matter associato dalla lista con autocompletamento |
+| Mappature | Una riga per ogni mappatura indirizzo di gruppo ↔ cluster Matter |
+| Leggi lo stato all'avvio | Se abilitato, il nodo emette i valori correnti in cache al deploy/connessione |
+| PIN Input/Output del nodo | Abilita i pin input/output Node-RED per l'accesso Matter grezzo |
+
+## Mappature
+
+La lista delle destinazioni mostra le funzioni supportate con nomi comprensibili come *"Interruttore On/Off"* o *"Potenza istantanea consumata (W)"*, filtrate su ciò che il dispositivo espone realmente e con il valore attuale tra parentesi quadre.
+
+Ogni riga di mappatura ha una **direzione**:
+
+- **KNX → Matter (comando)**: un telegramma ricevuto sull'indirizzo di gruppo invoca un comando del cluster Matter o scrive un attributo. Esempio: GA `1/1/1` DPT 1.001 → `OnOff.on/off` (il payload booleano seleziona automaticamente on oppure off).
+- **Matter → KNX (stato)**: quando l'attributo Matter sottoscritto cambia, il valore viene convertito e scritto sull'indirizzo di gruppo. Le richieste `GroupValue_Read` ricevono in risposta il valore in cache.
+
+I cluster più comuni vengono convertiti automaticamente in valori adatti a KNX:
+
+|Cluster|Conversione|
+|--|--|
+| OnOff | booleano (DPT 1.001) |
+| LevelControl | 0-254 ↔ percentuale (DPT 5.001) |
+| WindowCovering | percent100ths ↔ percentuale (DPT 5.001), su/giù (DPT 1.008) |
+| ColorControl | mired ↔ Kelvin (DPT 7.600) |
+| Thermostat | centi-°C ↔ °C (DPT 9.001) |
+| Temperatura/Umidità | centi-unità ↔ unità (DPT 9.001/9.007) |
+| Luminosità | scala logaritmica ↔ Lux (DPT 9.004) |
+| PowerSource | mezzi-percento ↔ percentuale batteria (DPT 5.001) |
+| Potenza/Energia elettrica | mW ↔ W (DPT 14.056), mWh ↔ kWh (DPT 13.013) |
+
+Gli altri cluster/attributi passano senza conversione; il DPT che scegli esegue la codifica KNX finale.
+
+## PIN del nodo
+
+Se abiliti i PIN del nodo:
+
+- **Input**: invia comandi grezzi: `msg.payload = { endpointId: 1, clusterId: 6, command: "toggle" }` oppure scritture di attributi: `msg.payload = { endpointId: 1, clusterId: 8, attribute: "onLevel", value: 128 }`
+- **Output**: riceve ogni variazione di attributo (`msg.matter` contiene l'evento completo) e ogni evento dei cluster (pressioni di pulsanti ecc.).
+</script>

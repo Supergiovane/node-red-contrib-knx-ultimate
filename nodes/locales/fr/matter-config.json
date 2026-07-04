@@ -1,0 +1,26 @@
+{
+  "matter-config": {
+    "properties": {
+      "title": "Contrôleur Matter",
+      "intro": "Ce nœud est un contrôleur Matter (avec sa propre fabric). Appairez ici vos appareils Matter, puis utilisez le nœud \"Matter Device\" pour les mapper sur des adresses de groupe KNX. Déployez d'abord le nœud, puis revenez ici pour appairer les appareils.",
+      "node-config-input-name": "Nom",
+      "fabric_label": "Étiquette de fabric",
+      "pairing_title": "Appairer un nouvel appareil",
+      "pairing_help": "Saisissez le code d'appairage manuel à 11 chiffres (ex. 3497-011-2332) ou le contenu du QR code (MT:....). L'appareil doit être joignable sur le réseau IP (WiFi/Ethernet ou Thread via border router). S'il est déjà appairé à un autre contrôleur (Alexa, Google, Apple), utilisez sa fonction \"partager/appairer avec un autre hub\" pour obtenir un nouveau code.",
+      "pairing_code": "Code d'appairage",
+      "pair_button": "APPAIRER",
+      "devices_title": "Appareils appairés",
+      "col_name": "Nom",
+      "col_product": "Produit",
+      "col_state": "État",
+      "no_devices": "Aucun appareil appairé pour le moment.",
+      "unpair_confirm": "Supprimer (retirer) l'appareil",
+      "unpair_ok": "Appareil supprimé.",
+      "deploy_first": "Déployez d'abord ce nœud de configuration, puis réessayez.",
+      "pairing_code_missing": "Veuillez saisir un code d'appairage.",
+      "pairing_wait": "Appairage en cours. Cela peut prendre jusqu'à une minute...",
+      "pairing_failed": "Échec de l'appairage",
+      "pairing_ok": "Appareil appairé avec succès !"
+    }
+  }
+}

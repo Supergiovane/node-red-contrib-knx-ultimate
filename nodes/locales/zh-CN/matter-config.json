@@ -1,0 +1,26 @@
+{
+  "matter-config": {
+    "properties": {
+      "title": "Matter 控制器",
+      "intro": "此节点是一个 Matter 控制器（拥有自己的 fabric）。在此配对您的 Matter 设备，然后使用 \"Matter Device\" 节点将其映射到 KNX 组地址。请先部署该节点，然后回到这里配对设备。",
+      "node-config-input-name": "名称",
+      "fabric_label": "Fabric 标签",
+      "pairing_title": "配对新设备",
+      "pairing_help": "输入 11 位手动配对码（例如 3497-011-2332）或二维码内容（MT:....）。设备必须可通过 IP 网络访问（WiFi/以太网或通过边界路由器的 Thread）。如果设备已与其他控制器（Alexa、Google、Apple）配对，请使用其\"与其他中枢共享/配对\"功能获取新的配对码。",
+      "pairing_code": "配对码",
+      "pair_button": "配对",
+      "devices_title": "已配对设备",
+      "col_name": "名称",
+      "col_product": "产品",
+      "col_state": "状态",
+      "no_devices": "尚未配对任何设备。",
+      "unpair_confirm": "移除（解除配对）设备",
+      "unpair_ok": "设备已移除。",
+      "deploy_first": "请先部署此配置节点，然后重试。",
+      "pairing_code_missing": "请输入配对码。",
+      "pairing_wait": "正在配对，最多可能需要一分钟...",
+      "pairing_failed": "配对失败",
+      "pairing_ok": "设备配对成功！"
+    }
+  }
+}

@@ -1,0 +1,226 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('matter-config', {
+        category: 'config',
+        defaults: {
+            name: { value: "Matter Controller" },
+            fabricLabel: { value: "KNX-Ultimate" }
+        },
+        oneditprepare: function () {
+            // Go to the help panel
+            try {
+                RED.sidebar.show("help");
+            } catch (error) { }
+
+            var node = this;
+            var $pairButton = $("#matterPairButton");
+            var $pairingCode = $("#matter-pairing-code");
+            var $devicesBody = $("#matter-devices-body");
+            var $refreshDevices = $("#matterRefreshDevices");
+            var $pairSpinner = $("#matterPairSpinner");
+
+            function renderDevices(devices) {
+                $devicesBody.empty();
+                if (!Array.isArray(devices) || devices.length === 0) {
+                    $devicesBody.append('<tr><td colspan="5" style="text-align:center; color:#999;">' + RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.no_devices") + '</td></tr>');
+                    return;
+                }
+                devices.forEach(function (dev) {
+                    var stateColor = dev.connectionState === 'connected' ? '#1b7d33' : '#c00';
+                    var $tr = $('<tr></tr>');
+                    $tr.append($('<td></td>').text(dev.name || ''));
+                    $tr.append($('<td></td>').text((dev.vendorName || '') + (dev.productName ? ' ' + dev.productName : '')));
+                    $tr.append($('<td style="font-family:monospace;"></td>').text(dev.nodeId));
+                    $tr.append($('<td></td>').append($('<span></span>').css('color', stateColor).text(dev.connectionState)));
+                    var $unpair = $('<button type="button" class="red-ui-button" style="color:#c00; border-color:#c00;"><i class="fa fa-trash"></i></button>');
+                    $unpair.on('click', function () {
+                        var confirmMsg = RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.unpair_confirm") + ' "' + (dev.name || dev.nodeId) + '"?';
+                        if (!window.confirm(confirmMsg)) return;
+                        $unpair.prop('disabled', true);
+                        $.getJSON('KNXUltimateMatterUnpair?serverId=' + node.id + '&nodeId=' + encodeURIComponent(dev.nodeId), function (data) {
+                            if (data && data.error) {
+                                RED.notify(data.error, { type: 'error' });
+                            } else {
+                                RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.unpair_ok"), { type: 'success' });
+                            }
+                            loadDevices();
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            RED.notify('Unpair failed: ' + (errorThrown || textStatus), { type: 'error' });
+                            $unpair.prop('disabled', false);
+                        });
+                    });
+                    $tr.append($('<td style="text-align:right;"></td>').append($unpair));
+                    $devicesBody.append($tr);
+                });
+            }
+
+            function loadDevices() {
+                $devicesBody.empty();
+                $devicesBody.append('<tr><td colspan="5" style="text-align:center;"><i class="fa fa-circle-notch fa-spin"></i></td></tr>');
+                $.getJSON('KNXUltimateMatterGetNodes?serverId=' + node.id + '&_=' + Date.now(), function (data) {
+                    if (data && data.error) {
+                        $devicesBody.empty();
+                        $devicesBody.append('<tr><td colspan="5" style="text-align:center; color:#c00;">' + data.error + '</td></tr>');
+                        return;
+                    }
+                    renderDevices(data && data.devices ? data.devices : []);
+                }).fail(function () {
+                    $devicesBody.empty();
+                    $devicesBody.append('<tr><td colspan="5" style="text-align:center; color:#999;">' + RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.deploy_first") + '</td></tr>');
+                });
+            }
+
+            $refreshDevices.on('click', function () {
+                loadDevices();
+            });
+
+            $pairButton.on('click', function () {
+                var code = ($pairingCode.val() || '').trim();
+                if (code === '') {
+                    RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_code_missing"), { type: 'warning' });
+                    return;
+                }
+                $pairButton.prop('disabled', true);
+                $pairSpinner.show();
+                var myNotification = RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_wait"), {
+                    modal: false,
+                    fixed: true,
+                    type: 'info'
+                });
+                $.ajax({
+                    url: 'KNXUltimateMatterPair?serverId=' + node.id + '&code=' + encodeURIComponent(code),
+                    dataType: 'json',
+                    timeout: 180000
+                }).done(function (data) {
+                    if (data && data.error) {
+                        RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_failed") + ': ' + data.error, { type: 'error', timeout: 8000 });
+                    } else {
+                        RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_ok") + ' (Node ID ' + data.nodeId + ')', { type: 'success' });
+                        $pairingCode.val('');
+                        loadDevices();
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    var msg = '';
+                    try { msg = jqXHR.responseJSON.error; } catch (e) { msg = errorThrown || textStatus; }
+                    RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_failed") + ': ' + msg, { type: 'error', timeout: 8000 });
+                }).always(function () {
+                    if (myNotification) myNotification.close();
+                    $pairButton.prop('disabled', false);
+                    $pairSpinner.hide();
+                });
+            });
+
+            loadDevices();
+        },
+        oneditsave: function () {
+            // Return to the info tab
+            try {
+                RED.sidebar.show("info");
+            } catch (error) { }
+        },
+        label: function () {
+            return this.name || "Matter Controller";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="matter-config">
+  <div class="form-row" style="margin-bottom:10px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+
+  <div class="form-row">
+    <b><span data-i18n="matter-config.properties.title"></span></b>
+    <p align="center" style="margin:8px 0;">
+      <svg width="70" height="77" viewBox="0 8 40 44" xmlns="http://www.w3.org/2000/svg" aria-label="Matter" style="vertical-align:middle;">
+        <g fill="currentColor" stroke="none">
+          <circle cx="20" cy="30" r="4.5"/>
+          <g>
+            <rect x="18.4" y="9" width="3.2" height="11"/>
+            <path d="M 14.5 18.5 L 25.5 18.5 L 20 25.5 Z"/>
+          </g>
+          <g transform="rotate(120 20 30)">
+            <rect x="18.4" y="9" width="3.2" height="11"/>
+            <path d="M 14.5 18.5 L 25.5 18.5 L 20 25.5 Z"/>
+          </g>
+          <g transform="rotate(240 20 30)">
+            <rect x="18.4" y="9" width="3.2" height="11"/>
+            <path d="M 14.5 18.5 L 25.5 18.5 L 20 25.5 Z"/>
+          </g>
+        </g>
+      </svg>
+      <br/>
+      <span style="font-size:18px; font-weight:600; letter-spacing:1px;">matter</span>
+    </p>
+    <p><span data-i18n="matter-config.properties.intro"></span></p>
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-name">
+      <i class="fa fa-tag"></i>
+      <span data-i18n="matter-config.properties.node-config-input-name"></span>
+    </label>
+    <input type="text" id="node-config-input-name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-fabricLabel">
+      <i class="fa fa-id-card"></i>
+      <span data-i18n="matter-config.properties.fabric_label"></span>
+    </label>
+    <input type="text" id="node-config-input-fabricLabel" placeholder="KNX-Ultimate">
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <b><i class="fa fa-qrcode"></i>&nbsp;<span data-i18n="matter-config.properties.pairing_title"></span></b>
+    <p><span data-i18n="matter-config.properties.pairing_help"></span></p>
+  </div>
+
+  <div class="form-row">
+    <label for="matter-pairing-code">
+      <i class="fa fa-key"></i>
+      <span data-i18n="matter-config.properties.pairing_code"></span>
+    </label>
+    <input type="text" id="matter-pairing-code" placeholder="3497-011-2332 or MT:Y.K90...." style="width:250px;">
+    <button type="button" id="matterPairButton" class="red-ui-button" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-link"></i>&nbsp;<span data-i18n="matter-config.properties.pair_button"></span>
+    </button>
+    <span id="matterPairSpinner" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <b><i class="fa fa-microchip"></i>&nbsp;<span data-i18n="matter-config.properties.devices_title"></span></b>
+    <button type="button" id="matterRefreshDevices" class="red-ui-button" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-refresh"></i>
+    </button>
+  </div>
+
+  <div class="form-row">
+    <table style="width:100%; border-collapse:collapse;" class="red-ui-editableList">
+      <thead>
+        <tr style="border-bottom:1px solid #ccc; text-align:left;">
+          <th data-i18n="matter-config.properties.col_name"></th>
+          <th data-i18n="matter-config.properties.col_product"></th>
+          <th>Node ID</th>
+          <th data-i18n="matter-config.properties.col_state"></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="matter-devices-body"></tbody>
+    </table>
+  </div>
+
+  <br/>
+   <br/>
+    <br/>
+    <br/>
+   <br/>
+    <br/>
+</script>

@@ -1,0 +1,26 @@
+{
+  "matter-config": {
+    "properties": {
+      "title": "Matter Controller",
+      "intro": "This node is a Matter controller (its own fabric). Pair your Matter devices here, then use the \"Matter Device\" node to map them to KNX group addresses. Deploy the node first, then come back here to pair devices.",
+      "node-config-input-name": "Name",
+      "fabric_label": "Fabric label",
+      "pairing_title": "Pair a new device",
+      "pairing_help": "Enter the 11-digit manual pairing code (e.g. 3497-011-2332) or the QR code content (MT:....). The device must be reachable on the IP network (WiFi/Ethernet or Thread via border router). If the device is already paired with another controller (Alexa, Google, Apple), use its \"share/pair with another hub\" function to obtain a new pairing code.",
+      "pairing_code": "Pairing code",
+      "pair_button": "PAIR",
+      "devices_title": "Commissioned devices",
+      "col_name": "Name",
+      "col_product": "Product",
+      "col_state": "State",
+      "no_devices": "No devices paired yet.",
+      "unpair_confirm": "Remove (decommission) the device",
+      "unpair_ok": "Device removed.",
+      "deploy_first": "Deploy this configuration node first, then try again.",
+      "pairing_code_missing": "Please enter a pairing code.",
+      "pairing_wait": "Pairing in progress. It can take up to a minute...",
+      "pairing_failed": "Pairing failed",
+      "pairing_ok": "Device paired successfully!"
+    }
+  }
+}

@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 5.1.0** - July 2026<br/>
+
+- New **Matter integration (BETA)**: control any commissioned **Matter device** from the KNX bus and track its states on KNX group addresses.<br/>
+  - New **Matter Controller** configuration node: a full Matter controller with its own fabric (based on [matter.js](https://github.com/project-chip/matter.js)). Pair devices directly from the editor using the 11-digit manual pairing code or the QR code content (`MT:...`); commissioning works over the IP network (WiFi/Ethernet or Thread via border router). The commissioned devices list shows name, product, node ID and connection state, with one-click unpair. Fabric credentials are stored under `knxultimatestorage/matter` in the Node-RED user directory.<br/>
+  - New **Matter Device (BETA)** node: pick a paired Matter device and map KNX group addresses to its functions with a dynamic mapping list. The function list is **human friendly**: it shows only the functions the device really exposes, with plain-language localized names (e.g. *"On/Off switch"*, *"Instantaneous power (W)"*, *"Room temperature (°C)"*) and the current value in brackets, instead of raw Matter cluster/attribute names. Friendly endpoint names for 34 common device types (smart plug, dimmable light, cover, thermostat, sensors...).<br/>
+  - Mappings are bidirectional: **KNX → Matter** (commands/attribute writes, e.g. GA 1/1/1 DPT 1.001 → OnOff) and **Matter → KNX** (attribute changes written to the GA; `GroupValue_Read` requests answered from the cache). Automatic value conversion for the common clusters: OnOff, LevelControl (0-254 ↔ %), WindowCovering (percent100ths ↔ %, up/down), ColorControl (mireds ↔ Kelvin), Thermostat and temperature/humidity sensors (centi-units ↔ units), illuminance (log scale ↔ Lux), battery (half-percent ↔ %), power/energy metering (mW ↔ W, mWh ↔ kWh), door lock, occupancy and contact sensors.<br/>
+  - Selecting a function pre-fills the **suggested KNX DPT** and the GA name; the group address field has the usual **ETS autocomplete**. Optional node input/output pins for raw Matter access from the flow. Editor and help localized in EN/IT/DE/FR/ES/zh-CN.<br/>
+
 **Version 5.0.4** - July 2026<br/>
 
 - **IoT Bridge** node, **Covers & Thermostats** editor: fixed the group-address autocomplete, which suggested only DPT **1.x** addresses in every field. Each field now filters by the datapoint it expects: cover **Set/Status position** GAs list DPT **5.x** (5.001), and the thermostat **Current temperature** and **Setpoint set/status** GAs list DPT **9.x** (9.001). Up/Down, Stop and On/Off keep their 1.x filter.<br/>
