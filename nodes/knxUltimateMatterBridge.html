@@ -3,6 +3,26 @@
 
 <script type="text/javascript">
     (function () {
+        let lastEditSize = null;
+
+        // Grows the devices list to fill the edit panel (the user can drag the panel border to enlarge it).
+        // Called on panel resize and after async content (pairing QR) changes the row heights.
+        function resizeDevicesList(size) {
+            try {
+                if (size) lastEditSize = size;
+                if (!lastEditSize) return;
+                const rows = $('#dialog-form>div:not(.node-input-devices-container-row)');
+                let height = lastEditSize.height;
+                for (let i = 0; i < rows.length; i++) {
+                    height -= $(rows[i]).outerHeight(true);
+                }
+                const editorRow = $('#dialog-form>div.node-input-devices-container-row');
+                height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')));
+                height += 16;
+                $('#node-input-devices-container').editableList('height', Math.max(220, height));
+            } catch (error) { /* empty */ }
+        }
+
         RED.nodes.registerType('knxUltimateMatterBridge', {
             category: 'KNX Ultimate Matter',
             color: '#D7C7E9',
@@ -267,6 +287,9 @@
                     }).fail(() => {
                         $pairingBody.empty();
                         $pairingBody.append($('<p style="color:#999;"></p>').text(node._('knxUltimateMatterBridge.pairing.deploy_first')));
+                    }).always(() => {
+                        // The pairing panel (QR code!) changes the row heights: refit the devices list
+                        resizeDevicesList();
                     });
                 }
 
@@ -322,6 +345,9 @@
             },
             oneditcancel() {
                 try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+            },
+            oneditresize(size) {
+                resizeDevicesList(size);
             }
         });
     }());

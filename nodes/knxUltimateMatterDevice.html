@@ -487,6 +487,20 @@
             },
             oneditcancel() {
                 try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+            },
+            oneditresize(size) {
+                // Grow the mappings list to fill the edit panel (drag the panel border to enlarge it)
+                try {
+                    const rows = $('#dialog-form>div:not(.node-input-mapping-container-row)');
+                    let height = size.height;
+                    for (let i = 0; i < rows.length; i++) {
+                        height -= $(rows[i]).outerHeight(true);
+                    }
+                    const editorRow = $('#dialog-form>div.node-input-mapping-container-row');
+                    height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')));
+                    height += 16;
+                    $('#node-input-mapping-container').editableList('height', Math.max(220, height));
+                } catch (error) { /* empty */ }
             }
         });
     }());
