@@ -428,10 +428,14 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     // (node PINs); the flow reports the state back through the input PIN.
     class KnxRvcRunModeServer extends RvcRunModeServer {
       changeToMode ({ newMode }) {
-        const result = ModeUtils.assertModeChange(this.state.supportedModes, this.state.currentMode, newMode)
-        if (result.status !== 0) return result
-        this.state.currentMode = newMode
-        return result
+        try {
+          const result = ModeUtils.assertModeChange(this.state.supportedModes, this.state.currentMode, newMode)
+          if (result.status !== 0) return result
+          this.state.currentMode = newMode
+          return result
+        } catch (error) {
+          return { status: 2, statusText: error.message } // GenericFailure
+        }
       }
     }
     class KnxRvcOperationalStateServer extends RvcOperationalStateServer {
