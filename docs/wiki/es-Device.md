@@ -65,7 +65,6 @@ Si está habilitado, la indicación "F (x)" se agregará al nombre del nodo.
 | Propiedad | Descripción |
 |-|-|
 | Buscar ga | Es un ayudante solo disponible si se ha importado el archivo ETS. Comience a escribir y seleccione la dirección de grupo que desea agregar al código. Luego copie el campo completo y péguelo en la función GetGavalue. 
-
  **getGavalue ('0/0/1 Table Nord Lamp')** |
 
 ### Lista de objetos y funciones comunes que puede usar en el código

@@ -1,0 +1,80 @@
+{
+  "knxUltimateMatterBridge": {
+    "title": "Matter Bridge (BETA)",
+    "bridge_name": "Nombre del bridge Matter",
+    "port": "Puerto",
+    "devices_help": "Añade los dispositivos KNX a exponer en Matter. El \"Nombre\" es el que Alexa/Google/Apple muestran y usan para los comandos de voz. GA de comando = se escribe cuando el asistente envía un comando; GA de estado = se lee del bus para mantener la app actualizada.",
+    "read_status_startup": "Leer las direcciones de grupo de estado al inicio",
+    "opt_yes": "Sí",
+    "opt_no": "No",
+    "node_pins": "PINes de entrada/salida del nodo",
+    "node_pins_hide": "Ocultar",
+    "node_pins_show": "Mostrar PINes de entrada/salida",
+    "fields": {
+      "type": "Tipo de dispositivo",
+      "name": "Nombre (mostrado por Alexa y cía.)",
+      "name_placeholder": "p.ej. Luz cocina",
+      "invert": "Invertir posición %"
+    },
+    "functions": {
+      "fn_onoff_cmd": "GA comando On/Off",
+      "fn_onoff_status": "GA estado On/Off",
+      "fn_level_cmd": "GA comando regulación %",
+      "fn_level_status": "GA estado regulación %",
+      "fn_sensor_ga": "GA estado del sensor",
+      "fn_updown": "GA comando Subir/Bajar",
+      "fn_stop": "GA comando Stop",
+      "fn_position_cmd": "GA comando posición %",
+      "fn_position_status": "GA estado posición %",
+      "fn_currenttemp": "GA temperatura actual",
+      "fn_setpoint_cmd": "GA comando consigna",
+      "fn_setpoint_status": "GA estado consigna",
+      "fn_rgb_cmd": "GA comando color RGB (DPT 232.600)",
+      "fn_rgb_status": "GA estado color RGB (DPT 232.600)",
+      "fn_ct_cmd": "GA comando temperatura de color (Kelvin)",
+      "fn_ct_status": "GA estado temperatura de color (Kelvin)",
+      "fn_smoke_ga": "GA estado alarma de humo",
+      "fn_co_ga": "GA estado alarma CO (opcional)",
+      "fn_leak_ga": "GA estado fuga de agua",
+      "fn_co2_ga": "GA estado CO2 (ppm, DPT 9.008)",
+      "fn_fanspeed_cmd": "GA comando velocidad ventilador %",
+      "fn_fanspeed_status": "GA estado velocidad ventilador %"
+    },
+    "types": {
+      "onofflight": "Luz On/Off",
+      "dimmablelight": "Luz regulable",
+      "rgblight": "Luz RGB (color)",
+      "colortemperaturelight": "Luz blanco dinámico (temperatura de color)",
+      "onoffplug": "Enchufe (on/off)",
+      "temperaturesensor": "Sensor de temperatura",
+      "humiditysensor": "Sensor de humedad",
+      "lightsensor": "Sensor de luz (Lux)",
+      "occupancysensor": "Sensor de presencia",
+      "contactsensor": "Sensor de contacto",
+      "windowcovering": "Persiana / Cortina",
+      "thermostat": "Termostato (calefacción)",
+      "fan": "Ventilador / VMC",
+      "smokecoalarm": "Alarma humo/CO",
+      "waterleakdetector": "Detector de fugas de agua",
+      "airqualitysensor": "Sensor de calidad del aire (CO2)",
+      "robotvacuum": "Robot aspirador (solo flow, vía PINes del nodo)"
+    },
+    "pairing": {
+      "title": "Emparejamiento (Alexa, Google Home, Apple Home...)",
+      "not_running": "El bridge Matter aún no está en ejecución. Haz deploy, espera unos segundos y pulsa actualizar.",
+      "commissioned": "Bridge emparejado con estos controladores:",
+      "awaiting": "Esperando emparejamiento. Escanea el código QR o introduce el código manual en tu app Matter:",
+      "qr_link": "Abrir el código QR en el navegador",
+      "deploy_first": "Haz deploy de este nodo primero y pulsa actualizar.",
+      "reset_button": "Restablecer emparejamiento",
+      "reset_confirm": "¿Eliminar TODOS los controladores emparejados y reiniciar el emparejamiento? Los dispositivos desaparecerán de Alexa/Google/Apple.",
+      "reset_ok": "Emparejamiento restablecido. El bridge vuelve a estar en espera de emparejamiento."
+    }
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nombre",
+    "knx_gw": "GW KNX"
+  }
+}

@@ -1,0 +1,29 @@
+---
+layout: wiki
+title: "Matter-Controller-Configuration"
+lang: zh-CN
+permalink: /wiki/zh-CN-Matter-Controller-Configuration
+---
+# Matter 控制器
+
+## 概述
+
+此配置节点是一个完整的 **Matter 控制器**：它创建自己的 Matter *fabric* 并将您的 Matter 设备配对（调试）进来。配对后的设备可供 **Matter Device** 节点使用，将它们映射到 KNX 组地址。
+
+控制器通过 **IP 网络**（WiFi、以太网或经边界路由器的 Thread）与设备通信。不支持蓝牙配对：设备必须已经可以通过网络访问。
+
+## 配对设备
+
+1. 先**部署**此配置节点（控制器必须已运行）。
+2. 重新打开节点并输入**配对码**：11 位手动配对码（例如 `3497-011-2332`）或二维码内容（`MT:....`）。
+3. 点击**配对**。调试过程最多可能需要一分钟。
+
+如果设备是全新的且仅支持蓝牙配对，请先用厂商 App 或其他 Matter 控制器（Alexa、Google Home、Apple Home）配对，然后使用其**"与其他中枢共享/配对"**功能为 KNX-Ultimate 生成新的配对码。这样设备可以同时加入多个 fabric。
+
+## 存储
+
+Fabric 凭据和已配对设备保存在 Node-RED 用户目录下的 `knxultimatestorage/matter` 文件夹中。删除该文件夹将移除所有配对。
+
+## 移除设备
+
+使用已配对设备列表中的垃圾桶按钮。控制器会尝试正确地解除设备调试；如果设备无法访问，仍会从 fabric 中移除（之后可能需要对设备进行恢复出厂设置）。

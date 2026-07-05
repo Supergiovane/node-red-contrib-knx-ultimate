@@ -50,13 +50,9 @@ Im GA-Feld Geräte-Name oder GA eingeben; Vorschläge erscheinen während der Ei
 | Control % | Weißtemperatur mit DPT 5.001; 0 = warm, 100 = kalt |
 | Status % | GA für Temperatur-Status (DPT 5.001; 0 = warm, 100 = kalt) |
 | Control kelvin | **DPT 7.600: ** Kelvin im KNX-Bereich 2000-6535 (Konvertierung nach HUE mirek).
-
 **DPT 9.002:** Kelvin im HUE-Bereich 2000-6535 K (Ambiance ab 2200 K). Kleine Abweichungen durch Konvertierung möglich |
-
 | Status kelvin | **DPT 7.600: ** Kelvin lesen (KNX-Bereich 2000-6535, konvertiert).
-
 **DPT 9.002:** Kelvin lesen (HUE-Bereich 2000-6535 K). Kleine Abweichungen möglich |
-
 | Invert dim direction | Dimmrichtung invertieren |
 
 **RGB/HSV**

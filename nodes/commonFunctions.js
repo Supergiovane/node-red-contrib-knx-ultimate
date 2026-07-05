@@ -1006,6 +1006,37 @@ module.exports = (RED) => {
       }
     })
 
+    // MATTER BRIDGE: returns the pairing info (QR code, manual code, commissioned fabrics) of a bridge node
+    RED.httpAdmin.get('/KNXUltimateMatterBridgeInfo', RED.auth.needsPermission('knxUltimateMatterBridge.read'), (req, res) => {
+      try {
+        const bridgeNode = RED.nodes.getNode(req.query.nodeId)
+        if (bridgeNode === null || bridgeNode === undefined || typeof bridgeNode.getBridgePairingInfo !== 'function') {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        res.json(bridgeNode.getBridgePairingInfo())
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterBridgeInfo: ${error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
+    // MATTER BRIDGE: factory reset (removes all paired controllers, restarts pairing advertising)
+    RED.httpAdmin.get('/KNXUltimateMatterBridgeReset', RED.auth.needsPermission('knxUltimateMatterBridge.write'), async (req, res) => {
+      try {
+        const bridgeNode = RED.nodes.getNode(req.query.nodeId)
+        if (bridgeNode === null || bridgeNode === undefined || typeof bridgeNode.factoryResetBridge !== 'function') {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        await bridgeNode.factoryResetBridge()
+        res.json({ status: 'ok' })
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterBridgeReset: ${error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
     RED.httpAdmin.get('/knxUltimateDpts', (req, res) => {
       try {
         const dpts = Object.entries(dptlib.dpts).filter(onlyDptKeys).map(extractBaseNo).sort(sortBy('base'))

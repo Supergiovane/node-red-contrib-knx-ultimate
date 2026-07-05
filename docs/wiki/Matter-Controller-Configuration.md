@@ -1,0 +1,29 @@
+---
+layout: wiki
+title: "Matter-Controller-Configuration"
+lang: en
+permalink: /wiki/Matter-Controller-Configuration
+---
+# Matter Controller
+
+## Overview
+
+This configuration node is a full **Matter controller**: it creates its own Matter *fabric* and commissions (pairs) your Matter devices into it. The paired devices are then available to the **Matter Device** nodes, which map them to KNX group addresses.
+
+The controller talks to the devices over the **IP network** (WiFi, Ethernet, or Thread through a border router). Bluetooth commissioning is not supported: the device must already be reachable on the network.
+
+## Pairing a device
+
+1. **Deploy** this configuration node first (the controller must be running).
+2. Open the node again and enter the **pairing code**: either the 11-digit manual code (e.g. `3497-011-2332`) or the QR code content (`MT:....`).
+3. Click **PAIR**. Commissioning can take up to a minute.
+
+If the device is brand new and only supports Bluetooth commissioning, first pair it with its vendor app or another Matter controller (Alexa, Google Home, Apple Home), then use that controller's **"share / pair with another hub"** function to generate a new pairing code for KNX-Ultimate. This way the device joins multiple fabrics at once.
+
+## Storage
+
+The fabric credentials and the paired devices are stored in the `knxultimatestorage/matter` folder inside your Node-RED user directory. Deleting that folder unpairs everything.
+
+## Removing a device
+
+Use the trash button in the commissioned devices list. The controller tries to decommission the device properly; if it is unreachable, it is removed from the fabric anyway (a factory reset of the device may then be needed).

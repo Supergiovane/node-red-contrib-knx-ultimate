@@ -45,7 +45,10 @@ const HELP_TO_WIKI = new Map([
   ['knxUltimateHuePlug', 'HUE Plug'],
   ['knxUltimateAI', 'KNX AI'],
   ['knxUltimateMultiRouting', 'KNX Multi Routing'],
-  ['knxUltimateRouterFilter', 'KNX Router Filter']
+  ['knxUltimateRouterFilter', 'KNX Router Filter'],
+  ['matter-config', 'Matter-Controller-Configuration'],
+  ['knxUltimateMatterDevice', 'Matter-Device'],
+  ['knxUltimateMatterBridge', 'Matter-Bridge']
 ])
 
 function extractMarkdown (htmlPath) {

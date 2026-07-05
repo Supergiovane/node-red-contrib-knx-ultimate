@@ -1,0 +1,80 @@
+{
+  "knxUltimateMatterBridge": {
+    "title": "Matter Bridge (BETA)",
+    "bridge_name": "Matter bridge name",
+    "port": "Port",
+    "devices_help": "Add the KNX devices to expose on Matter. The \"Name\" is what Alexa/Google/Apple will show and use for voice commands. Command GA = written when the assistant sends a command; Status GA = read from the bus to keep the app updated.",
+    "read_status_startup": "Read the status group addresses at startup",
+    "opt_yes": "Yes",
+    "opt_no": "No",
+    "node_pins": "Node Input/Output PINs",
+    "node_pins_hide": "Hide",
+    "node_pins_show": "Show node input/output PINs",
+    "fields": {
+      "type": "Device type",
+      "name": "Name (shown by Alexa & Co.)",
+      "name_placeholder": "e.g. Kitchen light",
+      "invert": "Invert position %"
+    },
+    "functions": {
+      "fn_onoff_cmd": "On/Off command GA",
+      "fn_onoff_status": "On/Off status GA",
+      "fn_level_cmd": "Dimming % command GA",
+      "fn_level_status": "Dimming % status GA",
+      "fn_sensor_ga": "Sensor status GA",
+      "fn_updown": "Up/Down command GA",
+      "fn_stop": "Stop command GA",
+      "fn_position_cmd": "Position % command GA",
+      "fn_position_status": "Position % status GA",
+      "fn_currenttemp": "Current temperature GA",
+      "fn_setpoint_cmd": "Setpoint command GA",
+      "fn_setpoint_status": "Setpoint status GA",
+      "fn_rgb_cmd": "RGB color command GA (DPT 232.600)",
+      "fn_rgb_status": "RGB color status GA (DPT 232.600)",
+      "fn_ct_cmd": "Color temperature command GA (Kelvin)",
+      "fn_ct_status": "Color temperature status GA (Kelvin)",
+      "fn_smoke_ga": "Smoke alarm status GA",
+      "fn_co_ga": "CO alarm status GA (optional)",
+      "fn_leak_ga": "Leak status GA",
+      "fn_co2_ga": "CO2 status GA (ppm, DPT 9.008)",
+      "fn_fanspeed_cmd": "Fan speed % command GA",
+      "fn_fanspeed_status": "Fan speed % status GA"
+    },
+    "types": {
+      "onofflight": "On/Off light",
+      "dimmablelight": "Dimmable light",
+      "rgblight": "RGB color light",
+      "colortemperaturelight": "Tunable white light (color temperature)",
+      "onoffplug": "Plug / Socket (on/off)",
+      "temperaturesensor": "Temperature sensor",
+      "humiditysensor": "Humidity sensor",
+      "lightsensor": "Light sensor (Lux)",
+      "occupancysensor": "Occupancy sensor",
+      "contactsensor": "Contact sensor",
+      "windowcovering": "Cover / Shutter",
+      "thermostat": "Thermostat (heating)",
+      "fan": "Fan / Ventilation",
+      "smokecoalarm": "Smoke/CO alarm",
+      "waterleakdetector": "Water leak detector",
+      "airqualitysensor": "Air quality sensor (CO2)",
+      "robotvacuum": "Robot vacuum (flow-only, via node PINs)"
+    },
+    "pairing": {
+      "title": "Pairing (Alexa, Google Home, Apple Home...)",
+      "not_running": "The Matter bridge is not running yet. Deploy, wait a few seconds, then click refresh.",
+      "commissioned": "Bridge paired with these controllers:",
+      "awaiting": "Awaiting pairing. Scan the QR code or enter the manual code in your Matter app:",
+      "qr_link": "Open the QR code in the browser",
+      "deploy_first": "Deploy this node first, then click refresh.",
+      "reset_button": "Reset pairing",
+      "reset_confirm": "Remove ALL paired controllers and restart pairing? The devices will disappear from Alexa/Google/Apple.",
+      "reset_ok": "Pairing reset. The bridge is now advertising for pairing again."
+    }
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "knx_gw": "KNX GW"
+  }
+}

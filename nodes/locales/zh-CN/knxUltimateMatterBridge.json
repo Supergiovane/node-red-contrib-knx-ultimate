@@ -1,0 +1,80 @@
+{
+  "knxUltimateMatterBridge": {
+    "title": "Matter Bridge (BETA)",
+    "bridge_name": "Matter 桥接器名称",
+    "port": "端口",
+    "devices_help": "添加要在 Matter 上公开的 KNX 设备。\"名称\"是 Alexa/Google/Apple 显示并用于语音命令的名称。命令 GA = 助手发送命令时写入；状态 GA = 从总线读取以保持 App 更新。",
+    "read_status_startup": "启动时读取状态组地址",
+    "opt_yes": "是",
+    "opt_no": "否",
+    "node_pins": "节点输入/输出引脚",
+    "node_pins_hide": "隐藏",
+    "node_pins_show": "显示节点输入/输出引脚",
+    "fields": {
+      "type": "设备类型",
+      "name": "名称（Alexa 等显示）",
+      "name_placeholder": "例如 厨房灯",
+      "invert": "反转位置 %"
+    },
+    "functions": {
+      "fn_onoff_cmd": "开/关 命令 GA",
+      "fn_onoff_status": "开/关 状态 GA",
+      "fn_level_cmd": "调光 % 命令 GA",
+      "fn_level_status": "调光 % 状态 GA",
+      "fn_sensor_ga": "传感器状态 GA",
+      "fn_updown": "上/下 命令 GA",
+      "fn_stop": "停止 命令 GA",
+      "fn_position_cmd": "位置 % 命令 GA",
+      "fn_position_status": "位置 % 状态 GA",
+      "fn_currenttemp": "当前温度 GA",
+      "fn_setpoint_cmd": "设定点 命令 GA",
+      "fn_setpoint_status": "设定点 状态 GA",
+      "fn_rgb_cmd": "RGB 颜色命令 GA (DPT 232.600)",
+      "fn_rgb_status": "RGB 颜色状态 GA (DPT 232.600)",
+      "fn_ct_cmd": "色温命令 GA（开尔文）",
+      "fn_ct_status": "色温状态 GA（开尔文）",
+      "fn_smoke_ga": "烟雾报警状态 GA",
+      "fn_co_ga": "CO 报警状态 GA（可选）",
+      "fn_leak_ga": "漏水状态 GA",
+      "fn_co2_ga": "CO2 状态 GA（ppm，DPT 9.008）",
+      "fn_fanspeed_cmd": "风扇速度 % 命令 GA",
+      "fn_fanspeed_status": "风扇速度 % 状态 GA"
+    },
+    "types": {
+      "onofflight": "开关灯",
+      "dimmablelight": "调光灯",
+      "rgblight": "RGB 彩色灯",
+      "colortemperaturelight": "色温灯（可调白光）",
+      "onoffplug": "插座（开/关）",
+      "temperaturesensor": "温度传感器",
+      "humiditysensor": "湿度传感器",
+      "lightsensor": "光照传感器 (Lux)",
+      "occupancysensor": "人体传感器",
+      "contactsensor": "门磁传感器",
+      "windowcovering": "窗帘 / 卷帘",
+      "thermostat": "温控器（采暖）",
+      "fan": "风扇 / 新风",
+      "smokecoalarm": "烟雾/CO 报警器",
+      "waterleakdetector": "漏水探测器",
+      "airqualitysensor": "空气质量传感器 (CO2)",
+      "robotvacuum": "扫地机器人（仅 Flow，通过节点引脚）"
+    },
+    "pairing": {
+      "title": "配对（Alexa、Google Home、Apple Home...）",
+      "not_running": "Matter 桥接器尚未运行。请先部署，等待几秒后点击刷新。",
+      "commissioned": "桥接器已与以下控制器配对：",
+      "awaiting": "等待配对。请在您的 Matter App 中扫描二维码或输入手动配对码：",
+      "qr_link": "在浏览器中打开二维码",
+      "deploy_first": "请先部署此节点，然后点击刷新。",
+      "reset_button": "重置配对",
+      "reset_confirm": "移除所有已配对的控制器并重新开始配对？设备将从 Alexa/Google/Apple 中消失。",
+      "reset_ok": "配对已重置。桥接器重新进入配对模式。"
+    }
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "名称",
+    "knx_gw": "KNX 网关"
+  }
+}

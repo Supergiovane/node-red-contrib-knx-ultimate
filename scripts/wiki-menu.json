@@ -472,6 +472,55 @@
       ]
     },
     {
+      "key": "matter",
+      "labels": {
+        "en": "Matter",
+        "it": "Matter",
+        "de": "Matter",
+        "fr": "Matter",
+        "es": "Matter",
+        "zh": "Matter"
+      },
+      "items": [
+        {
+          "type": "page",
+          "labels": {
+            "en": "Matter Controller",
+            "it": "Controller Matter",
+            "de": "Matter Controller",
+            "fr": "Contrôleur Matter",
+            "es": "Controlador Matter",
+            "zh": "Matter 控制器"
+          },
+          "page": "Matter-Controller-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Matter Device (BETA)",
+            "it": "Matter Device (BETA)",
+            "de": "Matter Device (BETA)",
+            "fr": "Matter Device (BETA)",
+            "es": "Matter Device (BETA)",
+            "zh": "Matter 设备 (BETA)"
+          },
+          "page": "Matter-Device"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Matter Bridge (BETA)",
+            "it": "Matter Bridge (BETA)",
+            "de": "Matter Bridge (BETA)",
+            "fr": "Matter Bridge (BETA)",
+            "es": "Matter Bridge (BETA)",
+            "zh": "Matter 桥接器 (BETA)"
+          },
+          "page": "Matter-Bridge"
+        }
+      ]
+    },
+    {
       "key": "samples",
       "labels": {
         "en": "Samples",

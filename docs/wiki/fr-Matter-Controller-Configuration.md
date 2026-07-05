@@ -1,0 +1,29 @@
+---
+layout: wiki
+title: "Matter-Controller-Configuration"
+lang: fr
+permalink: /wiki/fr-Matter-Controller-Configuration
+---
+# Contrôleur Matter
+
+## Vue d'ensemble
+
+Ce nœud de configuration est un **contrôleur Matter** complet : il crée sa propre *fabric* Matter et y appaire (commissionne) vos appareils Matter. Les appareils appairés sont ensuite disponibles pour les nœuds **Matter Device**, qui les mappent sur des adresses de groupe KNX.
+
+Le contrôleur communique avec les appareils via le **réseau IP** (WiFi, Ethernet ou Thread via un border router). L'appairage Bluetooth n'est pas pris en charge : l'appareil doit déjà être joignable sur le réseau.
+
+## Appairer un appareil
+
+1. **Déployez** d'abord ce nœud de configuration (le contrôleur doit être en fonction).
+2. Rouvrez le nœud et saisissez le **code d'appairage** : le code manuel à 11 chiffres (ex. `3497-011-2332`) ou le contenu du QR code (`MT:....`).
+3. Cliquez sur **APPAIRER**. Le commissionnement peut prendre jusqu'à une minute.
+
+Si l'appareil est neuf et ne prend en charge que l'appairage Bluetooth, appairez-le d'abord avec l'app du fabricant ou un autre contrôleur Matter (Alexa, Google Home, Apple Home), puis utilisez sa fonction **« partager / appairer avec un autre hub »** pour générer un nouveau code pour KNX-Ultimate. L'appareil rejoint ainsi plusieurs fabrics à la fois.
+
+## Stockage
+
+Les identifiants de la fabric et les appareils appairés sont enregistrés dans le dossier `knxultimatestorage/matter` du répertoire utilisateur de Node-RED. Supprimer ce dossier efface tous les appairages.
+
+## Supprimer un appareil
+
+Utilisez le bouton corbeille dans la liste des appareils appairés. Le contrôleur essaie de retirer l'appareil proprement ; s'il est injoignable, il est quand même supprimé de la fabric (une réinitialisation d'usine de l'appareil peut alors être nécessaire).

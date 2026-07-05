@@ -1,0 +1,429 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    (function () {
+        RED.nodes.registerType('knxUltimateMatterBridge', {
+            category: 'KNX Ultimate Matter',
+            color: '#D7C7E9',
+            defaults: {
+                server: { type: 'knxUltimate-config', required: false },
+                name: { value: '' },
+                bridgeDeviceName: { value: 'KNX-Ultimate Bridge' },
+                bridgePort: { value: 5540, validate: RED.validators.number() },
+                readStatusAtStartup: { value: 'yes' },
+                enableNodePINS: { value: 'no' },
+                devices: { value: [] },
+                outputs: { value: 0 },
+                inputs: { value: 0 }
+            },
+            inputs: 0,
+            outputs: 0,
+            icon: 'node-matter-icon.svg',
+            label() {
+                return this.name || 'Matter Bridge (BETA)';
+            },
+            paletteLabel: 'Matter Bridge (BETA)',
+            oneditprepare() {
+                try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+                const node = this;
+
+                let oNodeServer = RED.nodes.node($('#node-input-server').val());
+                $('#node-input-server').on('change.knxUltimateMatterBridge', function () {
+                    try { oNodeServer = RED.nodes.node($(this).val()); } catch (error) { /* empty */ }
+                });
+
+                // GA fields of each virtual device type.
+                // dir 'command' = Matter -> KNX (GA written on Alexa commands), 'status' = KNX -> Matter.
+                const TYPE_FIELDS = {
+                    onofflight: [
+                        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.001' }
+                    ],
+                    onoffplug: [
+                        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.001' }
+                    ],
+                    dimmablelight: [
+                        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'Level', labelKey: 'fn_level_cmd', dir: 'command', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'LevelStatus', labelKey: 'fn_level_status', dir: 'status', dptPrefix: '5.', fallbackDpt: '5.001' }
+                    ],
+                    rgblight: [
+                        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'Level', labelKey: 'fn_level_cmd', dir: 'command', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'LevelStatus', labelKey: 'fn_level_status', dir: 'status', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'RGB', labelKey: 'fn_rgb_cmd', dir: 'command', dptPrefix: '232.', fallbackDpt: '232.600' },
+                        { key: 'RGBStatus', labelKey: 'fn_rgb_status', dir: 'status', dptPrefix: '232.', fallbackDpt: '232.600' }
+                    ],
+                    colortemperaturelight: [
+                        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.001' },
+                        { key: 'Level', labelKey: 'fn_level_cmd', dir: 'command', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'LevelStatus', labelKey: 'fn_level_status', dir: 'status', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'CT', labelKey: 'fn_ct_cmd', dir: 'command', dptPrefix: '7.', fallbackDpt: '7.600' },
+                        { key: 'CTStatus', labelKey: 'fn_ct_status', dir: 'status', dptPrefix: '7.', fallbackDpt: '7.600' }
+                    ],
+                    temperaturesensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dir: 'status', dptPrefix: '9.', fallbackDpt: '9.001' }],
+                    humiditysensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dir: 'status', dptPrefix: '9.', fallbackDpt: '9.007' }],
+                    lightsensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dir: 'status', dptPrefix: '9.', fallbackDpt: '9.004' }],
+                    occupancysensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.011' }],
+                    contactsensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.002' }],
+                    windowcovering: [
+                        { key: 'UpDown', labelKey: 'fn_updown', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.008' },
+                        { key: 'Stop', labelKey: 'fn_stop', dir: 'command', dptPrefix: '1.', fallbackDpt: '1.017' },
+                        { key: 'Position', labelKey: 'fn_position_cmd', dir: 'command', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'PositionStatus', labelKey: 'fn_position_status', dir: 'status', dptPrefix: '5.', fallbackDpt: '5.001' }
+                    ],
+                    thermostat: [
+                        { key: 'CurrentTemp', labelKey: 'fn_currenttemp', dir: 'status', dptPrefix: '9.', fallbackDpt: '9.001' },
+                        { key: 'Setpoint', labelKey: 'fn_setpoint_cmd', dir: 'command', dptPrefix: '9.', fallbackDpt: '9.001' },
+                        { key: 'SetpointStatus', labelKey: 'fn_setpoint_status', dir: 'status', dptPrefix: '9.', fallbackDpt: '9.001' }
+                    ],
+                    smokecoalarm: [
+                        { key: 'Smoke', labelKey: 'fn_smoke_ga', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.005' },
+                        { key: 'CO', labelKey: 'fn_co_ga', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.005' }
+                    ],
+                    waterleakdetector: [{ key: 'Status', labelKey: 'fn_leak_ga', dir: 'status', dptPrefix: '1.', fallbackDpt: '1.005' }],
+                    airqualitysensor: [{ key: 'Status', labelKey: 'fn_co2_ga', dir: 'status', dptPrefix: '9.', fallbackDpt: '9.008' }],
+                    fan: [
+                        { key: 'FanSpeed', labelKey: 'fn_fanspeed_cmd', dir: 'command', dptPrefix: '5.', fallbackDpt: '5.001' },
+                        { key: 'FanSpeedStatus', labelKey: 'fn_fanspeed_status', dir: 'status', dptPrefix: '5.', fallbackDpt: '5.001' }
+                    ],
+                    robotvacuum: [] // Flow-only: no GA fields, controlled via the node PINs
+                };
+                const TYPE_ORDER = ['onofflight', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'onoffplug', 'windowcovering', 'thermostat', 'fan', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'robotvacuum'];
+
+                function createLabeledField(row, labelText, element, options = {}) {
+                    const wrapper = $('<div/>', {
+                        style: 'display:flex; flex-direction:column; margin-right:10px;'
+                    }).appendTo(row);
+                    if (options.width) wrapper.css('width', options.width);
+                    if (options.flex) wrapper.css('flex', options.flex);
+                    $('<span/>', {
+                        text: labelText,
+                        style: 'font-size:11px; color:#666; margin-bottom:2px;'
+                    }).appendTo(wrapper);
+                    element.css('width', '100%');
+                    element.appendTo(wrapper);
+                    element.data('fieldWrapper', wrapper);
+                    return element;
+                }
+
+                function attachGaAutocomplete($ga, $dptHidden, fieldDef) {
+                    $ga.autocomplete({
+                        minLength: 0,
+                        source(request, response) {
+                            if (!oNodeServer) { response([]); return; }
+                            $.getJSON(`knxUltimatecsv?nodeID=${oNodeServer.id}`, (data) => {
+                                response($.map(data, (value) => {
+                                    const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+                                    if (htmlUtilsfullCSVSearch(search, `${request.term} ${fieldDef.dptPrefix}`)) {
+                                        return {
+                                            label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                                            value: value.ga,
+                                            dpt: value.dpt
+                                        };
+                                    }
+                                    return null;
+                                }));
+                            });
+                        },
+                        select(event, ui) {
+                            $dptHidden.val(ui.item.dpt || fieldDef.fallbackDpt);
+                        }
+                    });
+                    $ga.on('focus.knxUltimateMatterBridge click.knxUltimateMatterBridge', function () {
+                        try { $(this).autocomplete('search', ''); } catch (error) { /* empty */ }
+                    });
+                    try {
+                        if (oNodeServer && oNodeServer.id) KNX_enableSecureFormatting($ga, oNodeServer.id);
+                    } catch (error) { /* empty */ }
+                }
+
+                // ------------------------------------------------------------------
+                // Devices editable list
+                // ------------------------------------------------------------------
+                const container = $('#node-input-devices-container');
+                container.css('min-height', '260px').css('min-width', '640px').editableList({
+                    sortable: true,
+                    removable: true,
+                    addItem: function (row, index, data) {
+                        const device = $.extend(true, { id: '', type: 'onofflight', name: '' }, data.device);
+                        if (!device.id) {
+                            try { device.id = RED.util.generateId(); } catch (error) { device.id = Math.random().toString(16).slice(2); }
+                        }
+                        row.data('deviceId', device.id);
+
+                        const block = $('<div/>').appendTo(row);
+                        const topRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px' }).appendTo(block);
+                        const gaRow = $('<div/>').addClass('form-row').css({ display: 'flex', alignItems: 'flex-end', flexWrap: 'wrap', gap: '10px', marginTop: '6px' }).appendTo(block);
+
+                        // Type
+                        const $type = $('<select/>', { class: 'mb-type' });
+                        TYPE_ORDER.forEach((t) => {
+                            $type.append($('<option></option>').attr('value', t).text(node._('knxUltimateMatterBridge.types.' + t)));
+                        });
+                        createLabeledField(topRow, node._('knxUltimateMatterBridge.fields.type'), $type, { width: '190px' });
+                        $type.val(device.type || 'onofflight');
+
+                        // Name (the one Alexa & Co. show and use)
+                        const $name = $('<input/>', { type: 'text', class: 'mb-name' }).attr('placeholder', node._('knxUltimateMatterBridge.fields.name_placeholder')).val(device.name);
+                        createLabeledField(topRow, node._('knxUltimateMatterBridge.fields.name'), $name, { flex: '1 1 220px' });
+
+                        // Position inversion (covers only)
+                        const $invertWrapper = $('<label/>', { style: 'display:flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid #ced4da; border-radius:4px; cursor:pointer;' }).appendTo(topRow);
+                        const $invert = $('<input/>', { type: 'checkbox', class: 'mb-invert', style: 'width:auto; margin:0;' }).appendTo($invertWrapper);
+                        $('<span/>', { text: node._('knxUltimateMatterBridge.fields.invert'), style: 'font-size:12px;' }).appendTo($invertWrapper);
+                        $invert.prop('checked', device.invertPosition === true);
+
+                        // GA fields: created for every possible function; visibility follows the selected type
+                        const allFieldKeys = {};
+                        Object.keys(TYPE_FIELDS).forEach((t) => {
+                            TYPE_FIELDS[t].forEach((f) => { allFieldKeys[f.key] = f; });
+                        });
+                        const gaInputs = {};
+                        Object.keys(allFieldKeys).forEach((key) => {
+                            const fieldDef = allFieldKeys[key];
+                            // The "corrupted key" fallbacks recover values saved by versions where the
+                            // jQuery UI autocomplete class polluted the field key extraction.
+                            const gaValue = device[`ga${key}`] !== undefined ? device[`ga${key}`] : (device[`ga${key} ui-autocomplete-input`] || '');
+                            const dptValue = device[`dpt${key}`] !== undefined ? device[`dpt${key}`] : (device[`dpt${key} ui-autocomplete-input`] || '');
+                            const $ga = $('<input/>', { type: 'text', class: `mb-ga-${key}`, placeholder: '1/1/1' }).val(gaValue);
+                            const $dpt = $('<input/>', { type: 'hidden', class: `mb-dpt-${key}` }).val(dptValue);
+                            createLabeledField(gaRow, '', $ga, { width: '120px' });
+                            gaRow.append($dpt);
+                            attachGaAutocomplete($ga, $dpt, fieldDef);
+                            gaInputs[key] = { $ga, $dpt, fieldDef };
+                        });
+
+                        const updateTypePresentation = () => {
+                            const selected = $type.val();
+                            const active = TYPE_FIELDS[selected] || [];
+                            Object.keys(gaInputs).forEach((key) => {
+                                const entry = gaInputs[key];
+                                const fieldForType = active.find((f) => f.key === key);
+                                const wrapper = entry.$ga.data('fieldWrapper');
+                                if (fieldForType) {
+                                    wrapper.show();
+                                    wrapper.find('span').first().text(node._('knxUltimateMatterBridge.functions.' + fieldForType.labelKey));
+                                } else {
+                                    wrapper.hide();
+                                }
+                            });
+                            if (selected === 'windowcovering') $invertWrapper.show();
+                            else $invertWrapper.hide();
+                        };
+                        $type.on('change', updateTypePresentation);
+                        updateTypePresentation();
+                    }
+                });
+
+                (node.devices || []).forEach((d) => {
+                    container.editableList('addItem', { device: d });
+                });
+
+                // ------------------------------------------------------------------
+                // Pairing panel
+                // ------------------------------------------------------------------
+                const $pairingBody = $('#mb-pairing-body');
+                const $refreshPairing = $('#mb-refresh-pairing');
+                const $resetButton = $('#mb-factory-reset');
+
+                function loadPairingInfo() {
+                    $pairingBody.html('<i class="fa fa-circle-notch fa-spin"></i>');
+                    $.getJSON(`KNXUltimateMatterBridgeInfo?nodeId=${node.id}&_=${Date.now()}`, (info) => {
+                        $pairingBody.empty();
+                        if (info.error) {
+                            $pairingBody.append($('<p style="color:#999;"></p>').text(info.error));
+                            return;
+                        }
+                        if (!info.running) {
+                            $pairingBody.append($('<p style="color:#999;"></p>').text(node._('knxUltimateMatterBridge.pairing.not_running')));
+                            return;
+                        }
+                        if (info.commissioned) {
+                            $pairingBody.append($('<p style="color:#1b7d33;"></p>').text(`${node._('knxUltimateMatterBridge.pairing.commissioned')} (${info.fabrics.length})`));
+                            info.fabrics.forEach((f) => {
+                                $pairingBody.append($('<div style="margin-left:10px;"></div>').text(`• ${f.label || 'Controller'} (vendor ${f.vendorId})`));
+                            });
+                            $resetButton.show();
+                            return;
+                        }
+                        $pairingBody.append($('<p style="color:#b8860b;"></p>').text(node._('knxUltimateMatterBridge.pairing.awaiting')));
+                        if (info.manualPairingCode) {
+                            $pairingBody.append($('<p></p>').append($('<b style="font-size:18px; letter-spacing:2px;"></b>').text(info.manualPairingCode)));
+                        }
+                        if (info.qrAscii) {
+                            $pairingBody.append($('<pre style="font-family:monospace; line-height:1.05; font-size:7px; display:inline-block; padding:6px; background:#fff; color:#000;"></pre>').text(info.qrAscii));
+                        }
+                        if (info.qrPairingCode) {
+                            const url = `https://project-chip.github.io/connectedhomeip/qrcode.html?data=${encodeURIComponent(info.qrPairingCode)}`;
+                            $pairingBody.append($('<p></p>').append($('<a target="_blank"></a>').attr('href', url).text(node._('knxUltimateMatterBridge.pairing.qr_link'))));
+                        }
+                        $resetButton.hide();
+                    }).fail(() => {
+                        $pairingBody.empty();
+                        $pairingBody.append($('<p style="color:#999;"></p>').text(node._('knxUltimateMatterBridge.pairing.deploy_first')));
+                    });
+                }
+
+                $refreshPairing.on('click.knxUltimateMatterBridge', () => loadPairingInfo());
+                $resetButton.on('click.knxUltimateMatterBridge', () => {
+                    if (!window.confirm(node._('knxUltimateMatterBridge.pairing.reset_confirm'))) return;
+                    $resetButton.prop('disabled', true);
+                    $.getJSON(`KNXUltimateMatterBridgeReset?nodeId=${node.id}`, (data) => {
+                        if (data && data.error) RED.notify(data.error, { type: 'error' });
+                        else RED.notify(node._('knxUltimateMatterBridge.pairing.reset_ok'), { type: 'success' });
+                        loadPairingInfo();
+                    }).always(() => $resetButton.prop('disabled', false));
+                });
+
+                loadPairingInfo();
+
+                $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
+                $('#node-input-enableNodePINS').val(node.enableNodePINS || 'no');
+            },
+            oneditsave() {
+                try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+                const node = this;
+                const items = $('#node-input-devices-container').editableList('items');
+                node.devices = [];
+                items.each(function () {
+                    const row = $(this);
+                    const type = row.find('.mb-type').val();
+                    const device = {
+                        id: row.data('deviceId') || '',
+                        type,
+                        name: (row.find('.mb-name').val() || '').trim()
+                    };
+                    if (!device.name) return; // Skip incomplete rows
+                    if (type === 'windowcovering') device.invertPosition = row.find('.mb-invert').is(':checked');
+                    row.find('input[class*="mb-ga-"]').each(function () {
+                        const $ga = $(this);
+                        // The class attribute may contain extra classes added by jQuery UI
+                        // (e.g. "mb-ga-OnOff ui-autocomplete-input"): extract the key safely.
+                        const match = ($ga.attr('class') || '').match(/mb-ga-([A-Za-z0-9]+)/);
+                        if (!match) return;
+                        const key = match[1];
+                        const ga = ($ga.val() || '').trim();
+                        if (ga !== '') {
+                            device[`ga${key}`] = ga;
+                            device[`dpt${key}`] = (row.find(`.mb-dpt-${key}`).val() || '').trim();
+                        }
+                    });
+                    node.devices.push(device);
+                });
+                this.enableNodePINS = $('#node-input-enableNodePINS').val() || 'no';
+                this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
+                this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
+            },
+            oneditcancel() {
+                try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+            }
+        });
+    }());
+</script>
+
+<script type="text/html" data-template-name="knxUltimateMatterBridge">
+  <div class="form-row" style="margin-bottom:10px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name">
+      <i class="fa fa-tag"></i> <span data-i18n="common.name"></span>
+    </label>
+    <input type="text" id="node-input-name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-bridgeDeviceName" style="width:180px;">
+      <i class="fa fa-share-alt"></i> <span data-i18n="knxUltimateMatterBridge.bridge_name"></span>
+    </label>
+    <input type="text" id="node-input-bridgeDeviceName" style="width:220px;">
+    <label for="node-input-bridgePort" style="width:60px; text-align:right;"><span data-i18n="knxUltimateMatterBridge.port"></span></label>
+    <input type="number" id="node-input-bridgePort" style="width:90px;">
+  </div>
+
+  <div class="form-tips" style="margin-bottom:8px;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateMatterBridge.devices_help"></span>
+  </div>
+
+  <div class="form-row node-input-devices-container-row">
+    <ol id="node-input-devices-container"></ol>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-readStatusAtStartup" style="width:260px;">
+      <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterBridge.read_status_startup"></span>
+    </label>
+    <select id="node-input-readStatusAtStartup" style="width:120px;">
+      <option value="yes" data-i18n="knxUltimateMatterBridge.opt_yes"></option>
+      <option value="no" data-i18n="knxUltimateMatterBridge.opt_no"></option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-enableNodePINS" style="width:260px;">
+      <i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterBridge.node_pins"></span>
+    </label>
+    <select id="node-input-enableNodePINS" style="width:220px;">
+      <option value="no" data-i18n="knxUltimateMatterBridge.node_pins_hide"></option>
+      <option value="yes" data-i18n="knxUltimateMatterBridge.node_pins_show"></option>
+    </select>
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <b><i class="fa fa-qrcode"></i>&nbsp;<span data-i18n="knxUltimateMatterBridge.pairing.title"></span></b>
+    <button type="button" id="mb-refresh-pairing" class="red-ui-button" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-refresh"></i>
+    </button>
+    <button type="button" id="mb-factory-reset" class="red-ui-button" style="margin-left:6px; color:#c00; border-color:#c00; display:none;">
+      <i class="fa fa-trash"></i>&nbsp;<span data-i18n="knxUltimateMatterBridge.pairing.reset_button"></span>
+    </button>
+  </div>
+  <div class="form-row" id="mb-pairing-body" style="text-align:center;"></div>
+
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateMatterBridge">
+Exposes **KNX group addresses as Matter devices** (bridge). This node is in **BETA**.
+
+Add your KNX virtual devices (lights, plugs, dimmers, sensors), deploy, then open the node again: it shows the **pairing code and QR code**. Scan it with Alexa, Google Home or Apple Home: the app sees a Matter bridge with all your KNX devices inside, using the names you typed.
+
+- **Matter → KNX**: commands from the voice assistant write to the *command* group addresses.
+- **KNX → Matter**: telegrams on the *status* group addresses update the Matter attributes (and the app UI).
+
+The device must be reachable over the IP network; IPv6 link-local must be enabled on the Node-RED host (standard Matter requirement).
+
+If you enable the **node PINs** you can also talk to the bridge from the flow:
+
+- input: `msg.payload = { device: "Kitchen light", function: "onoff", value: true }` updates the Matter state without the KNX bus
+- output: every command from a Matter controller is forwarded as `msg` (topic = device name, payload = value, `msg.matter` = raw command)
+</script>

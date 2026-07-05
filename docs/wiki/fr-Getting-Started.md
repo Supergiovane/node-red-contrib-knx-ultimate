@@ -1,6 +1,6 @@
 ---
 layout: wiki
-title: "Getting Started"
+title: "Getting-Started"
 lang: fr
 permalink: /wiki/fr-Getting-Started
 ---

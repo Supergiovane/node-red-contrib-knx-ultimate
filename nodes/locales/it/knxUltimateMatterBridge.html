@@ -1,0 +1,64 @@
+<script type="text/markdown" data-help-name="knxUltimateMatterBridge">
+# Matter Bridge (BETA)
+
+> Questo nodo è in **BETA**: funziona, ma alcuni dettagli potrebbero cambiare tra una release e l'altra.
+
+## Panoramica
+
+Il nodo Matter Bridge espone gli **indirizzi di gruppo KNX come dispositivi Matter**: Alexa, Google Home, Apple Home (o qualunque controller Matter) associano questo bridge **una sola volta** e vedono tutti i dispositivi KNX configurati, con i nomi che hai scelto, pronti per il controllo da app e vocale.
+
+È la direzione opposta del nodo *Matter Device*: lì KNX controlla un dispositivo Matter, qui i controller Matter controllano KNX.
+
+## Configurazione
+
+|Campo|Descrizione|
+|--|--|
+| GW KNX | Gateway KNX usato per i telegrammi. **Opzionale**: senza gateway il bridge funziona in modalità solo-flow — abilita i PIN del nodo e piloti ogni dispositivo con i messaggi del flow |
+| Nome del bridge Matter | Come viene chiamato il bridge stesso nelle app Matter |
+| Porta | Porta UDP del server Matter (default 5540). Un solo nodo bridge per istanza Node-RED. |
+| Dispositivi | I dispositivi virtuali KNX esposti su Matter (vedi sotto) |
+| Leggi i GA di stato all'avvio | Invia una `GroupValue_Read` a ogni GA di stato all'avvio, per popolare gli attributi Matter |
+
+## Dispositivi
+
+Ogni riga è un dispositivo mostrato da Alexa & Co. Scegli il **tipo**, dagli il **nome** che l'assistente userà, poi compila gli indirizzi di gruppo (con autocompletamento ETS):
+
+|Tipo|Indirizzi di gruppo|
+|--|--|
+| Luce On/Off, Presa | GA comando On/Off, GA stato On/Off (DPT 1.001) |
+| Luce dimmerabile | + GA comando/stato dimmer % (DPT 5.001) |
+| Luce RGB (colore) | + GA comando/stato colore RGB (DPT 232.600). Il colore Matter (hue/saturation o XY, dalla ruota colore dell'app) viene convertito da/verso la terna RGB KNX |
+| Luce bianco dinamico | + GA comando/stato temperatura colore in Kelvin (DPT 7.600) |
+| Tapparella / Tenda | Su/Giù (DPT 1.008), Stop (DPT 1.017), posizione % comando/stato (DPT 5.001), inversione posizione opzionale |
+| Termostato (riscaldamento) | GA temperatura attuale, GA comando/stato setpoint (DPT 9.001) |
+| Ventola / VMC | GA comando/stato velocità % (DPT 5.001) |
+| Sensori (temperatura, umidità, luminosità, presenza, contatto) | Un GA di stato ciascuno |
+| Rilevatore fumo/CO | GA stato allarme fumo + GA stato allarme CO opzionale (DPT 1.005): notifiche critiche sul telefono |
+| Rilevatore allagamento | GA stato allagamento (DPT 1.005) |
+| Sensore qualità aria (CO2) | GA stato CO2 in ppm (DPT 9.008); la classe qualità aria (buona/discreta/moderata/scarsa...) è derivata automaticamente |
+| Robot aspirapolvere | **Solo-flow**: nessun indirizzo di gruppo. Abilita i PIN del nodo: i comandi dell'assistente ("avvia pulizia", pausa/riprendi/torna alla base) arrivano sull'output come `rvcmode`/`rvccommand`; riporta lo stato con `msg.payload = { device, function: "rvcstate", value: "running"\|"docked"\|"charging"\|"paused"\|"error" }` e la modalità con `function: "rvcmode", value: "cleaning"\|"idle"`. Integra il tuo Roomba/Roborock con qualsiasi nodo Node-RED ed esponilo ad Alexa/Apple |
+
+- **GA comando**: scritto sul bus KNX quando l'assistente invia un comando.
+- **GA stato**: letto dal bus per tenere aggiornati gli attributi Matter (e le app).
+
+## Abbinamento
+
+1. Fai il **deploy**, attendi qualche secondo, poi riapri il nodo.
+2. Il pannello di abbinamento mostra il **QR code** e il **codice manuale**: scansiona o digita in Alexa / Google Home / Apple Home ("aggiungi dispositivo Matter").
+3. Più controller possono essere abbinati allo stesso bridge (multi-fabric Matter).
+
+Il pulsante **Reset abbinamento** rimuove tutti i controller abbinati e riavvia l'advertising di abbinamento.
+
+## PIN del nodo
+
+Se abiliti i PIN input/output del nodo:
+
+- **Input**: aggiorna lo stato Matter di un dispositivo virtuale dal flow, senza passare dal bus KNX: `msg.payload = { device: "Luce cucina", function: "onoff", value: true }` (`device` accetta il nome o l'id interno; `function` è una tra `onoff`, `level`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`). Utile per esporre ad Alexa & Co. valori calcolati nel flow (es. un sensore virtuale).
+- **Output**: ogni comando ricevuto da un controller Matter viene inoltrato al flow: `msg.topic` = nome del dispositivo, `msg.payload` = valore, `msg.matter` = il comando grezzo. I dispositivi senza GA di comando diventano **dispositivi solo-flow**: il comando arriva al tuo flow e decidi tu cosa farne.
+
+## Note
+
+- L'host Node-RED deve avere **IPv6 link-local** attivo (requisito standard Matter) ed essere raggiungibile dal controller sulla rete locale.
+- L'identità del bridge è salvata in `knxultimatestorage/matter` nella directory utente di Node-RED: i re-deploy NON richiedono un nuovo abbinamento.
+- Rinomina e aggiunta di dispositivi vengono recepite automaticamente dai controller; se rimuovi un dispositivo, sparisce dalle app.
+</script>
