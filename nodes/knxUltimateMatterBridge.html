@@ -4,13 +4,15 @@
 <script type="text/javascript">
     (function () {
         let lastEditSize = null;
+        let manualListResize = false;
+        let programmaticListHeight = -1;
 
-        // Grows the devices list to fill the edit panel (the user can drag the panel border to enlarge it).
-        // Called on panel resize and after async content (pairing QR) changes the row heights.
+        // Grows the devices list to fill the edit panel. Once the user grabs the native
+        // resize grip of the list, the manual height wins and the auto-fit backs off.
         function resizeDevicesList(size) {
             try {
                 if (size) lastEditSize = size;
-                if (!lastEditSize) return;
+                if (!lastEditSize || manualListResize) return;
                 const rows = $('#dialog-form>div:not(.node-input-devices-container-row)');
                 let height = lastEditSize.height;
                 for (let i = 0; i < rows.length; i++) {
@@ -19,7 +21,33 @@
                 const editorRow = $('#dialog-form>div.node-input-devices-container-row');
                 height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')));
                 height += 16;
-                $('#node-input-devices-container').editableList('height', Math.max(220, height));
+                const target = Math.max(220, height);
+                programmaticListHeight = target;
+                $('#node-input-devices-container').editableList('height', target);
+            } catch (error) { /* empty */ }
+        }
+
+        // Adds the native browser resize grip (bottom-right corner) to the list container,
+        // so the user can drag it to any height, exactly like a textarea.
+        function enableManualListResize(container) {
+            try {
+                manualListResize = false;
+                programmaticListHeight = -1;
+                const $ui = container.closest('.red-ui-editableList-container');
+                if (!$ui.length) return;
+                $ui.css('resize', 'vertical');
+                if (window.ResizeObserver) {
+                    const observer = new ResizeObserver(() => {
+                        try {
+                            const h = $ui.outerHeight();
+                            // A height change we did not set programmatically = the user dragged the grip
+                            if (programmaticListHeight > 0 && Math.abs(h - programmaticListHeight) > 8) {
+                                manualListResize = true;
+                            }
+                        } catch (error) { /* empty */ }
+                    });
+                    observer.observe($ui[0]);
+                }
             } catch (error) { /* empty */ }
         }
 
@@ -244,6 +272,8 @@
                 (node.devices || []).forEach((d) => {
                     container.editableList('addItem', { device: d });
                 });
+
+                enableManualListResize(container);
 
                 // ------------------------------------------------------------------
                 // Pairing panel

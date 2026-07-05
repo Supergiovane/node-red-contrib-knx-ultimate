@@ -3,6 +3,32 @@
 
 <script type="text/javascript">
     (function () {
+        let manualListResize = false;
+        let programmaticListHeight = -1;
+
+        // Adds the native browser resize grip (bottom-right corner) to the mappings list,
+        // so the user can drag it to any height, exactly like a textarea.
+        function enableManualListResize(container) {
+            try {
+                manualListResize = false;
+                programmaticListHeight = -1;
+                const $ui = container.closest('.red-ui-editableList-container');
+                if (!$ui.length) return;
+                $ui.css('resize', 'vertical');
+                if (window.ResizeObserver) {
+                    const observer = new ResizeObserver(() => {
+                        try {
+                            const h = $ui.outerHeight();
+                            if (programmaticListHeight > 0 && Math.abs(h - programmaticListHeight) > 8) {
+                                manualListResize = true;
+                            }
+                        } catch (error) { /* empty */ }
+                    });
+                    observer.observe($ui[0]);
+                }
+            } catch (error) { /* empty */ }
+        }
+
         RED.nodes.registerType('knxUltimateMatterDevice', {
             category: 'KNX Ultimate Matter',
             color: '#D7C7E9',
@@ -443,6 +469,8 @@
                     container.editableList('addItem', { mapping: m });
                 });
 
+                enableManualListResize(container);
+
                 // Load the structure of the already selected device
                 if (node.matterNodeId) {
                     loadStructure(node.matterNodeId);
@@ -489,8 +517,10 @@
                 try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
             },
             oneditresize(size) {
-                // Grow the mappings list to fill the edit panel (drag the panel border to enlarge it)
+                // Grow the mappings list to fill the edit panel. Once the user grabs the native
+                // resize grip of the list, the manual height wins and the auto-fit backs off.
                 try {
+                    if (manualListResize) return;
                     const rows = $('#dialog-form>div:not(.node-input-mapping-container-row)');
                     let height = size.height;
                     for (let i = 0; i < rows.length; i++) {
@@ -499,7 +529,9 @@
                     const editorRow = $('#dialog-form>div.node-input-mapping-container-row');
                     height -= (parseInt(editorRow.css('marginTop')) + parseInt(editorRow.css('marginBottom')));
                     height += 16;
-                    $('#node-input-mapping-container').editableList('height', Math.max(220, height));
+                    const target = Math.max(220, height);
+                    programmaticListHeight = target;
+                    $('#node-input-mapping-container').editableList('height', target);
                 } catch (error) { /* empty */ }
             }
         });
