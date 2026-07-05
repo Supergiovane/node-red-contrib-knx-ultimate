@@ -69,7 +69,10 @@
       "reset_button": "Restablecer emparejamiento",
       "reset_confirm": "¿Eliminar TODOS los controladores emparejados y reiniciar el emparejamiento? Los dispositivos desaparecerán de Alexa/Google/Apple.",
       "reset_ok": "Emparejamiento restablecido. El bridge vuelve a estar en espera de emparejamiento."
-    }
+    },
+    "bridge": "Bridge Matter",
+    "device_name": "Nombre (mostrado por Alexa y cía.)",
+    "device_help": "Elige el tipo de dispositivo y dale el nombre que usará el asistente de voz, luego rellena las direcciones de grupo. El gateway KNX es opcional: sin él, habilita los PINes del nodo y controla el dispositivo desde el flow."
   },
   "common": {
     "ga": "GA",

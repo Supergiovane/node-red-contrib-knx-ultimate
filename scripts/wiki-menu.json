@@ -510,11 +510,23 @@
           "type": "page",
           "labels": {
             "en": "Matter Bridge (BETA)",
-            "it": "Matter Bridge (BETA)",
+            "it": "Bridge Matter (BETA)",
             "de": "Matter Bridge (BETA)",
-            "fr": "Matter Bridge (BETA)",
-            "es": "Matter Bridge (BETA)",
+            "fr": "Bridge Matter (BETA)",
+            "es": "Bridge Matter (BETA)",
             "zh": "Matter 桥接器 (BETA)"
+          },
+          "page": "Matter-Bridge-Configuration"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Matter Bridge device (BETA)",
+            "it": "Matter Bridge device (BETA)",
+            "de": "Matter Bridge device (BETA)",
+            "fr": "Matter Bridge device (BETA)",
+            "es": "Matter Bridge device (BETA)",
+            "zh": "Matter Bridge 设备 (BETA)"
           },
           "page": "Matter-Bridge"
         }

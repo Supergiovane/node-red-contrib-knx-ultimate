@@ -69,7 +69,10 @@
       "reset_button": "Kopplung zurücksetzen",
       "reset_confirm": "ALLE gekoppelten Controller entfernen und die Kopplung neu starten? Die Geräte verschwinden aus Alexa/Google/Apple.",
       "reset_ok": "Kopplung zurückgesetzt. Die Bridge wartet wieder auf Kopplung."
-    }
+    },
+    "bridge": "Matter-Bridge",
+    "device_name": "Name (von Alexa & Co. angezeigt)",
+    "device_help": "Wähle den Gerätetyp und gib ihm den Namen, den der Sprachassistent verwendet, dann fülle die Gruppenadressen aus. Das KNX-Gateway ist optional: ohne, aktiviere die Node-PINs und steuere das Gerät über den Flow."
   },
   "common": {
     "ga": "GA",

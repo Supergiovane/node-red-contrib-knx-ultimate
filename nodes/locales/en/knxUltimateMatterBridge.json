@@ -69,7 +69,10 @@
       "reset_button": "Reset pairing",
       "reset_confirm": "Remove ALL paired controllers and restart pairing? The devices will disappear from Alexa/Google/Apple.",
       "reset_ok": "Pairing reset. The bridge is now advertising for pairing again."
-    }
+    },
+    "bridge": "Matter bridge",
+    "device_name": "Name (shown by Alexa & Co.)",
+    "device_help": "Pick the device type and give it the name the voice assistant will use, then fill the group addresses. The KNX gateway is optional: without it, enable the node PINs and drive the device from the flow."
   },
   "common": {
     "ga": "GA",

@@ -69,7 +69,10 @@
       "reset_button": "Réinitialiser l'appairage",
       "reset_confirm": "Supprimer TOUS les contrôleurs appairés et relancer l'appairage ? Les appareils disparaîtront d'Alexa/Google/Apple.",
       "reset_ok": "Appairage réinitialisé. Le bridge attend de nouveau un appairage."
-    }
+    },
+    "bridge": "Bridge Matter",
+    "device_name": "Nom (affiché par Alexa & Co.)",
+    "device_help": "Choisissez le type d'appareil et donnez-lui le nom que l'assistant vocal utilisera, puis remplissez les adresses de groupe. La passerelle KNX est optionnelle : sans elle, activez les PIN du nœud et pilotez l'appareil depuis le flux."
   },
   "common": {
     "ga": "GA",

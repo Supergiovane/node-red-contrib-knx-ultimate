@@ -69,7 +69,10 @@
       "reset_button": "重置配对",
       "reset_confirm": "移除所有已配对的控制器并重新开始配对？设备将从 Alexa/Google/Apple 中消失。",
       "reset_ok": "配对已重置。桥接器重新进入配对模式。"
-    }
+    },
+    "bridge": "Matter 桥接器",
+    "device_name": "名称（Alexa 等显示）",
+    "device_help": "选择设备类型并输入语音助手将使用的名称，然后填写组地址。KNX 网关是可选的：没有网关时，启用节点引脚并从流程驱动设备。"
   },
   "common": {
     "ga": "GA",

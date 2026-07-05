@@ -1,0 +1,34 @@
+<script type="text/markdown" data-help-name="matterbridge-config">
+# Bridge Matter (BETA)
+
+> Questo nodo è in **BETA**: funziona, ma alcuni dettagli potrebbero cambiare tra una release e l'altra.
+
+## Panoramica
+
+Questo nodo di configurazione è il **bridge Matter vero e proprio**: esegue il server Matter che Alexa, Google Home, Apple Home (o qualunque controller Matter) associano **una sola volta**. Ogni nodo **Matter Bridge device** nei tuoi flow punta qui e compare nelle app come un dispositivo del bridge.
+
+## Configurazione
+
+|Campo|Descrizione|
+|--|--|
+| Nome | Il nome di questo nodo di configurazione in Node-RED |
+| Nome del bridge Matter | Come viene chiamato il bridge stesso nelle app Matter |
+| Porta | Porta UDP del server Matter (default 5540). Ogni bridge richiede la propria porta, quindi puoi eseguire **più bridge indipendenti** |
+
+## Abbinamento
+
+1. Fai il **deploy**, attendi qualche secondo, poi riapri questo nodo.
+2. Il pannello di abbinamento mostra il **QR code** e il **codice manuale**: scansiona o digita in Alexa / Google Home / Apple Home ("aggiungi dispositivo Matter").
+3. Più controller possono essere abbinati allo stesso bridge (multi-fabric Matter).
+
+Il pulsante **Reset abbinamento** rimuove tutti i controller abbinati e riavvia l'advertising di abbinamento.
+
+## Identità e archiviazione
+
+L'identità del bridge è legata a questo nodo di configurazione ed è salvata in `knxultimatestorage/matter` nella directory utente di Node-RED: i re-deploy (anche cambiando porta o nome) **NON** richiedono un nuovo abbinamento. Solo eliminando questo nodo di configurazione e creandone uno nuovo cambia l'identità — in quel caso rimuovi il vecchio bridge dall'app Matter e riabbina.
+
+## Note
+
+- L'host Node-RED deve avere **IPv6 link-local** attivo (requisito standard Matter) ed essere raggiungibile dai controller sulla rete locale.
+- I nodi device aggiunti/rinominati/rimossi vengono recepiti dai controller abbinati in pochi secondi, senza riabbinare.
+</script>

@@ -1,0 +1,20 @@
+{
+  "matterbridge-config": {
+    "properties": {
+      "title": "Matter Bridge",
+      "intro": "This configuration node is the Matter bridge itself: Alexa, Google Home, Apple Home (or any Matter controller) pair it once and see every KNX device you attach to it. Add \"Matter Bridge device\" nodes across your flows and point them here. Deploy first, then reopen to get the pairing code.",
+      "node-config-input-name": "Name",
+      "bridge_name": "Matter bridge name",
+      "port": "Port",
+      "pairing_title": "Pairing (Alexa, Google Home, Apple Home...)",
+      "not_running": "The Matter bridge is not running yet. Deploy, wait a few seconds, then click refresh.",
+      "commissioned": "Bridge paired with these controllers:",
+      "awaiting": "Awaiting pairing. Scan the QR code or enter the manual code in your Matter app:",
+      "qr_link": "Open the QR code in the browser",
+      "deploy_first": "Deploy this configuration node first, then click refresh.",
+      "reset_button": "Reset pairing",
+      "reset_confirm": "Remove ALL paired controllers and restart pairing? The devices will disappear from Alexa/Google/Apple.",
+      "reset_ok": "Pairing reset. The bridge is now advertising for pairing again."
+    }
+  }
+}

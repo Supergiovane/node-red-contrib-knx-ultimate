@@ -1,0 +1,38 @@
+---
+layout: wiki
+title: "Matter-Bridge-Configuration"
+lang: fr
+permalink: /wiki/fr-Matter-Bridge-Configuration
+---
+# Bridge Matter (BETA)
+
+> Ce nœud est en **BETA** : il fonctionne, mais des détails peuvent encore changer entre les versions.
+
+## Vue d'ensemble
+
+Ce nœud de configuration est le **bridge Matter lui-même** : il exécute le serveur Matter qu'Alexa, Google Home, Apple Home (ou tout contrôleur Matter) appairent **une seule fois**. Chaque nœud **Matter Bridge device** de vos flux pointe ici et apparaît dans les apps comme un appareil du bridge.
+
+## Configuration
+
+|Champ|Description|
+|--|--|
+| Nom | Le nom de ce nœud de configuration dans Node-RED |
+| Nom du bridge Matter | Le nom du bridge lui-même dans les apps Matter |
+| Port | Port UDP du serveur Matter (5540 par défaut). Chaque bridge a besoin de son propre port, vous pouvez donc exécuter **plusieurs bridges indépendants** |
+
+## Appairage
+
+1. **Déployez**, attendez quelques secondes, puis rouvrez ce nœud.
+2. Le panneau d'appairage montre le **QR code** et le **code manuel** : scannez ou saisissez-le dans Alexa / Google Home / Apple Home (« ajouter un appareil Matter »).
+3. Plusieurs contrôleurs peuvent être appairés au même bridge (multi-fabric Matter).
+
+Le bouton **Réinitialiser l'appairage** supprime tous les contrôleurs appairés et relance l'annonce d'appairage.
+
+## Identité et stockage
+
+L'identité du bridge est liée à ce nœud de configuration et enregistrée dans `knxultimatestorage/matter` du répertoire utilisateur de Node-RED : les re-deploys (même en changeant port ou nom) ne nécessitent **PAS** de nouvel appairage. Seule la suppression de ce nœud de configuration et la création d'un nouveau changent l'identité — dans ce cas supprimez l'ancien bridge de l'app Matter et appairez de nouveau.
+
+## Notes
+
+- L'hôte Node-RED doit avoir **IPv6 link-local** activé (exigence standard de Matter) et être joignable par les contrôleurs sur le réseau local.
+- Les nœuds d'appareil ajoutés/renommés/supprimés sont pris en compte en quelques secondes, sans nouvel appairage.

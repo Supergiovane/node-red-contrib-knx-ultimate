@@ -1,0 +1,20 @@
+{
+  "matterbridge-config": {
+    "properties": {
+      "title": "Bridge Matter",
+      "intro": "Ce nœud de configuration est le bridge Matter lui-même : Alexa, Google Home, Apple Home (ou tout contrôleur Matter) l'appairent une fois et voient tous les appareils KNX que vous y rattachez. Ajoutez des nœuds \"Matter Bridge device\" dans vos flux et pointez-les ici. Déployez d'abord, puis rouvrez pour obtenir le code d'appairage.",
+      "node-config-input-name": "Nom",
+      "bridge_name": "Nom du bridge Matter",
+      "port": "Port",
+      "pairing_title": "Appairage (Alexa, Google Home, Apple Home...)",
+      "not_running": "Le bridge Matter n'est pas encore démarré. Déployez, attendez quelques secondes puis cliquez sur actualiser.",
+      "commissioned": "Bridge appairé avec ces contrôleurs :",
+      "awaiting": "En attente d'appairage. Scannez le QR code ou saisissez le code manuel dans votre app Matter :",
+      "qr_link": "Ouvrir le QR code dans le navigateur",
+      "deploy_first": "Déployez d'abord ce nœud de configuration, puis cliquez sur actualiser.",
+      "reset_button": "Réinitialiser l'appairage",
+      "reset_confirm": "Supprimer TOUS les contrôleurs appairés et relancer l'appairage ? Les appareils disparaîtront d'Alexa/Google/Apple.",
+      "reset_ok": "Appairage réinitialisé. Le bridge attend de nouveau un appairage."
+    }
+  }
+}

@@ -1,27 +1,25 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
-# Matter Bridge (BETA)
+# Matter Bridge device (BETA)
 
 > This node is in **BETA**: it works, but details may still change between releases.
 
 ## Overview
 
-The Matter Bridge node exposes **KNX group addresses as Matter devices**: Alexa, Google Home, Apple Home (or any Matter controller) commission this bridge **once** and see all your configured KNX devices, with the names you typed, ready for app and voice control.
+Each Matter Bridge device node exposes **one KNX device as a Matter device**: the paired controllers (Alexa, Google Home, Apple Home...) see it, with the name you typed, ready for app and voice control. Point it to a **Matter Bridge** configuration node (the actual bridge, paired once - the pairing QR code lives there) and add as many device nodes as you want, anywhere in your flows.
 
-This is the opposite direction of the *Matter Device* node: there KNX controls a Matter device, here Matter controllers control KNX.
+This is the opposite direction of the *Matter Device* node: there KNX controls a Matter device, here the Matter controllers control KNX.
 
 ## Configuration
 
 |Field|Description|
 |--|--|
-| KNX GW | KNX gateway used for telegrams. **Optional**: without a gateway the bridge works in flow-only mode — enable the node PINs and drive every device with flow messages |
-| Matter bridge name | How the bridge itself is named in the Matter apps |
-| Port | UDP port of the Matter server (default 5540). Only one bridge node per Node-RED instance. |
-| Devices | The KNX virtual devices exposed on Matter (see below) |
-| Read status at startup | Sends a `GroupValue_Read` to every status GA at startup, so the Matter attributes are populated |
+| Matter bridge | The Matter Bridge configuration node this device belongs to |
+| KNX GW | KNX gateway used for telegrams. **Optional**: without it the device runs in flow-only mode via the node PINs. Auto-selected when your project has only one gateway |
+| Name | What Alexa & Co. show and use for voice commands |
+| Device type | The Matter device type (see below); it drives which group address fields appear |
+| Read status at startup | Sends a `GroupValue_Read` to the status GAs at startup, so the Matter attributes are populated |
 
-## Devices
-
-Each row is one device shown by Alexa & Co. Pick the **type**, give it the **name** the assistant will use, then fill the group addresses (with ETS autocomplete):
+## Device types and group addresses
 
 |Type|Group addresses|
 |--|--|
@@ -36,29 +34,20 @@ Each row is one device shown by Alexa & Co. Pick the **type**, give it the **nam
 | Smoke/CO alarm | Smoke alarm status GA + optional CO alarm status GA (DPT 1.005): critical notifications on the phone |
 | Water leak detector | Leak status GA (DPT 1.005) |
 | Air quality sensor (CO2) | CO2 status GA in ppm (DPT 9.008); the air quality class (good/fair/moderate/poor...) is derived automatically |
-| Robot vacuum | **Flow-only**: no group addresses. Enable the node PINs: commands from the assistant ("start cleaning", pause/resume/go home) arrive on the output as `rvcmode`/`rvccommand`; report the state back with `msg.payload = { device, function: "rvcstate", value: "running"|"docked"|"charging"|"paused"|"error" }` and the mode with `function: "rvcmode", value: "cleaning"|"idle"`. Integrate your Roomba/Roborock with any Node-RED node and expose it to Alexa/Apple |
+| Robot vacuum | **Flow-only**: no group addresses. Enable the node PINs: assistant commands ("start cleaning", pause/resume/go home) arrive on the output as `rvcmode`/`rvccommand`; report the state back with `msg.payload = { function: "rvcstate", value: "running"|"docked"|"charging"|"paused"|"error" }` and the mode with `function: "rvcmode", value: "cleaning"|"idle"` |
 
 - **Command GA**: written to the KNX bus when the assistant sends a command.
 - **Status GA**: read from the bus to keep the Matter attributes (and the apps) updated.
-
-## Pairing
-
-1. **Deploy**, wait a few seconds, then open the node again.
-2. The pairing panel shows the **QR code** and the **manual pairing code**: scan or type it in Alexa / Google Home / Apple Home ("add Matter device").
-3. Multiple controllers can be paired with the same bridge (Matter multi-fabric).
-
-The **Reset pairing** button removes all paired controllers and restarts the pairing advertising.
 
 ## Node PINs
 
 If you enable the node input/output PINs:
 
-- **Input**: update the Matter state of a virtual device from the flow, without going through the KNX bus: `msg.payload = { device: "Kitchen light", function: "onoff", value: true }` (`device` accepts the name or the internal id; `function` is one of `onoff`, `level`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`). Useful to expose flow-computed values (e.g. a virtual sensor) to Alexa & Co.
-- **Output**: every command received from a Matter controller is forwarded to the flow: `msg.topic` = device name, `msg.payload` = value, `msg.matter` = the raw command. Devices without a command GA become **flow-only devices**: the command reaches your flow and you decide what to do with it.
+- **Input**: update the Matter state from the flow, without the KNX bus: `msg.payload = { function: "onoff", value: true }` (`function` is one of `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Useful to expose flow-computed values (e.g. a virtual sensor) to Alexa & Co.
+- **Output**: every command received from a Matter controller is forwarded to the flow: `msg.topic` = device name, `msg.payload` = value, `msg.matter` = the raw command. A device without command GAs becomes a **flow-only device**.
 
 ## Notes
 
-- The Node-RED host must have **IPv6 link-local** enabled (standard Matter requirement) and be reachable from the controller on the local network.
-- The bridge identity is stored in `knxultimatestorage/matter` inside the Node-RED user directory: re-deploys do NOT require a new pairing.
-- Device renames/additions are picked up by the controllers automatically; if you remove a device, it disappears from the apps.
+- The Matter identity of the device is tied to this node: deleting the node and creating a new one makes the apps see a brand-new device.
+- Added/renamed/removed device nodes are picked up by the paired controllers within seconds, without re-pairing the bridge.
 </script>

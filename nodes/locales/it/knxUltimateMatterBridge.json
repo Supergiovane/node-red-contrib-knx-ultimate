@@ -69,7 +69,10 @@
       "reset_button": "Reset abbinamento",
       "reset_confirm": "Rimuovere TUTTI i controller abbinati e riavviare l'abbinamento? I dispositivi spariranno da Alexa/Google/Apple.",
       "reset_ok": "Abbinamento resettato. Il bridge è di nuovo in attesa di abbinamento."
-    }
+    },
+    "bridge": "Bridge Matter",
+    "device_name": "Nome (mostrato da Alexa & Co.)",
+    "device_help": "Scegli il tipo di dispositivo e dagli il nome che userà l'assistente vocale, poi compila gli indirizzi di gruppo. Il gateway KNX è opzionale: senza, abilita i PIN del nodo e piloti il dispositivo dal flow."
   },
   "common": {
     "ga": "GA",

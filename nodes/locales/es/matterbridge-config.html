@@ -1,0 +1,34 @@
+<script type="text/markdown" data-help-name="matterbridge-config">
+# Bridge Matter (BETA)
+
+> Este nodo está en **BETA**: funciona, pero algunos detalles pueden cambiar entre versiones.
+
+## Descripción general
+
+Este nodo de configuración es el **bridge Matter en sí**: ejecuta el servidor Matter que Alexa, Google Home, Apple Home (o cualquier controlador Matter) emparejan **una sola vez**. Cada nodo **Matter Bridge device** de tus flows apunta aquí y aparece en las apps como un dispositivo del bridge.
+
+## Configuración
+
+|Campo|Descripción|
+|--|--|
+| Nombre | El nombre de este nodo de configuración en Node-RED |
+| Nombre del bridge Matter | Cómo se llama el bridge en las apps Matter |
+| Puerto | Puerto UDP del servidor Matter (por defecto 5540). Cada bridge necesita su propio puerto, por lo que puedes ejecutar **varios bridges independientes** |
+
+## Emparejamiento
+
+1. Haz **deploy**, espera unos segundos y vuelve a abrir este nodo.
+2. El panel de emparejamiento muestra el **código QR** y el **código manual**: escanéalo o escríbelo en Alexa / Google Home / Apple Home ("añadir dispositivo Matter").
+3. Se pueden emparejar varios controladores con el mismo bridge (multi-fabric Matter).
+
+El botón **Restablecer emparejamiento** elimina todos los controladores emparejados y reinicia el anuncio de emparejamiento.
+
+## Identidad y almacenamiento
+
+La identidad del bridge está ligada a este nodo de configuración y se guarda en `knxultimatestorage/matter` dentro del directorio de usuario de Node-RED: los re-deploys (incluso cambiando puerto o nombre) **NO** requieren un nuevo emparejamiento. Solo borrar este nodo de configuración y crear uno nuevo cambia la identidad — en ese caso elimina el bridge antiguo de la app Matter y vuelve a emparejar.
+
+## Notas
+
+- El host de Node-RED debe tener **IPv6 link-local** habilitado (requisito estándar de Matter) y ser accesible desde los controladores en la red local.
+- Los nodos de dispositivo añadidos/renombrados/eliminados se detectan en pocos segundos, sin volver a emparejar.
+</script>

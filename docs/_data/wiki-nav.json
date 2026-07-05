@@ -250,6 +250,11 @@
         },
         {
           "label": "Matter Bridge (BETA)",
+          "url": "/wiki/Matter-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "Matter Bridge device (BETA)",
           "url": "/wiki/Matter-Bridge",
           "external": false
         }
@@ -681,7 +686,12 @@
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
+          "label": "Bridge Matter (BETA)",
+          "url": "/wiki/it-Matter-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "Matter Bridge device (BETA)",
           "url": "/wiki/it-Matter-Bridge",
           "external": false
         }
@@ -1114,6 +1124,11 @@
         },
         {
           "label": "Matter Bridge (BETA)",
+          "url": "/wiki/de-Matter-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "Matter Bridge device (BETA)",
           "url": "/wiki/de-Matter-Bridge",
           "external": false
         }
@@ -1545,7 +1560,12 @@
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
+          "label": "Bridge Matter (BETA)",
+          "url": "/wiki/fr-Matter-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "Matter Bridge device (BETA)",
           "url": "/wiki/fr-Matter-Bridge",
           "external": false
         }
@@ -1977,7 +1997,12 @@
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
+          "label": "Bridge Matter (BETA)",
+          "url": "/wiki/es-Matter-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "Matter Bridge device (BETA)",
           "url": "/wiki/es-Matter-Bridge",
           "external": false
         }
@@ -2410,6 +2435,11 @@
         },
         {
           "label": "Matter 桥接器 (BETA)",
+          "url": "/wiki/zh-CN-Matter-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "Matter Bridge 设备 (BETA)",
           "url": "/wiki/zh-CN-Matter-Bridge",
           "external": false
         }

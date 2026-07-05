@@ -48,6 +48,7 @@ const HELP_TO_WIKI = new Map([
   ['knxUltimateRouterFilter', 'KNX Router Filter'],
   ['matter-config', 'Matter-Controller-Configuration'],
   ['knxUltimateMatterDevice', 'Matter-Device'],
+  ['matterbridge-config', 'Matter-Bridge-Configuration'],
   ['knxUltimateMatterBridge', 'Matter-Bridge']
 ])
 

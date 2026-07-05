@@ -4,13 +4,13 @@ title: "Matter-Bridge"
 lang: it
 permalink: /wiki/it-Matter-Bridge
 ---
-# Matter Bridge (BETA)
+# Matter Bridge device (BETA)
 
 > Questo nodo è in **BETA**: funziona, ma alcuni dettagli potrebbero cambiare tra una release e l'altra.
 
 ## Panoramica
 
-Il nodo Matter Bridge espone gli **indirizzi di gruppo KNX come dispositivi Matter**: Alexa, Google Home, Apple Home (o qualunque controller Matter) associano questo bridge **una sola volta** e vedono tutti i dispositivi KNX configurati, con i nomi che hai scelto, pronti per il controllo da app e vocale.
+Ogni nodo Matter Bridge device espone **un dispositivo KNX come dispositivo Matter**: i controller abbinati (Alexa, Google Home, Apple Home...) lo vedono, con il nome che hai scelto, pronto per il controllo da app e vocale. Puntalo a un nodo di configurazione **Bridge Matter** (il bridge vero e proprio, abbinato una sola volta - il QR di abbinamento vive lì) e aggiungi quanti nodi device vuoi, ovunque nei tuoi flow.
 
 È la direzione opposta del nodo *Matter Device*: lì KNX controlla un dispositivo Matter, qui i controller Matter controllano KNX.
 
@@ -18,15 +18,13 @@ Il nodo Matter Bridge espone gli **indirizzi di gruppo KNX come dispositivi Matt
 
 |Campo|Descrizione|
 |--|--|
-| GW KNX | Gateway KNX usato per i telegrammi. **Opzionale**: senza gateway il bridge funziona in modalità solo-flow — abilita i PIN del nodo e piloti ogni dispositivo con i messaggi del flow |
-| Nome del bridge Matter | Come viene chiamato il bridge stesso nelle app Matter |
-| Porta | Porta UDP del server Matter (default 5540). Un solo nodo bridge per istanza Node-RED. |
-| Dispositivi | I dispositivi virtuali KNX esposti su Matter (vedi sotto) |
-| Leggi i GA di stato all'avvio | Invia una `GroupValue_Read` a ogni GA di stato all'avvio, per popolare gli attributi Matter |
+| Bridge Matter | Il nodo di configurazione Bridge Matter a cui appartiene questo dispositivo |
+| GW KNX | Gateway KNX usato per i telegrammi. **Opzionale**: senza, il dispositivo funziona in modalità solo-flow tramite i PIN del nodo. Selezionato automaticamente se il progetto ha un solo gateway |
+| Nome | Quello che Alexa & Co. mostrano e usano per i comandi vocali |
+| Tipo dispositivo | Il tipo di dispositivo Matter (vedi sotto); determina quali campi indirizzo di gruppo compaiono |
+| Leggi lo stato all'avvio | Invia una `GroupValue_Read` ai GA di stato all'avvio, per popolare gli attributi Matter |
 
-## Dispositivi
-
-Ogni riga è un dispositivo mostrato da Alexa & Co. Scegli il **tipo**, dagli il **nome** che l'assistente userà, poi compila gli indirizzi di gruppo (con autocompletamento ETS):
+## Tipi di dispositivo e indirizzi di gruppo
 
 |Tipo|Indirizzi di gruppo|
 |--|--|
@@ -41,28 +39,19 @@ Ogni riga è un dispositivo mostrato da Alexa & Co. Scegli il **tipo**, dagli il
 | Rilevatore fumo/CO | GA stato allarme fumo + GA stato allarme CO opzionale (DPT 1.005): notifiche critiche sul telefono |
 | Rilevatore allagamento | GA stato allagamento (DPT 1.005) |
 | Sensore qualità aria (CO2) | GA stato CO2 in ppm (DPT 9.008); la classe qualità aria (buona/discreta/moderata/scarsa...) è derivata automaticamente |
-| Robot aspirapolvere | **Solo-flow**: nessun indirizzo di gruppo. Abilita i PIN del nodo: i comandi dell'assistente ("avvia pulizia", pausa/riprendi/torna alla base) arrivano sull'output come `rvcmode`/`rvccommand`; riporta lo stato con `msg.payload = { device, function: "rvcstate", value: "running"\|"docked"\|"charging"\|"paused"\|"error" }` e la modalità con `function: "rvcmode", value: "cleaning"\|"idle"`. Integra il tuo Roomba/Roborock con qualsiasi nodo Node-RED ed esponilo ad Alexa/Apple |
+| Robot aspirapolvere | **Solo-flow**: nessun indirizzo di gruppo. Abilita i PIN del nodo: i comandi dell'assistente ("avvia pulizia", pausa/riprendi/torna alla base) arrivano sull'output come `rvcmode`/`rvccommand`; riporta lo stato con `msg.payload = { function: "rvcstate", value: "running"\|"docked"\|"charging"\|"paused"\|"error" }` e la modalità con `function: "rvcmode", value: "cleaning"\|"idle"` |
 
 - **GA comando**: scritto sul bus KNX quando l'assistente invia un comando.
 - **GA stato**: letto dal bus per tenere aggiornati gli attributi Matter (e le app).
-
-## Abbinamento
-
-1. Fai il **deploy**, attendi qualche secondo, poi riapri il nodo.
-2. Il pannello di abbinamento mostra il **QR code** e il **codice manuale**: scansiona o digita in Alexa / Google Home / Apple Home ("aggiungi dispositivo Matter").
-3. Più controller possono essere abbinati allo stesso bridge (multi-fabric Matter).
-
-Il pulsante **Reset abbinamento** rimuove tutti i controller abbinati e riavvia l'advertising di abbinamento.
 
 ## PIN del nodo
 
 Se abiliti i PIN input/output del nodo:
 
-- **Input**: aggiorna lo stato Matter di un dispositivo virtuale dal flow, senza passare dal bus KNX: `msg.payload = { device: "Luce cucina", function: "onoff", value: true }` (`device` accetta il nome o l'id interno; `function` è una tra `onoff`, `level`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`). Utile per esporre ad Alexa & Co. valori calcolati nel flow (es. un sensore virtuale).
-- **Output**: ogni comando ricevuto da un controller Matter viene inoltrato al flow: `msg.topic` = nome del dispositivo, `msg.payload` = valore, `msg.matter` = il comando grezzo. I dispositivi senza GA di comando diventano **dispositivi solo-flow**: il comando arriva al tuo flow e decidi tu cosa farne.
+- **Input**: aggiorna lo stato Matter dal flow, senza passare dal bus KNX: `msg.payload = { function: "onoff", value: true }` (`function` è una tra `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile per esporre ad Alexa & Co. valori calcolati nel flow (es. un sensore virtuale).
+- **Output**: ogni comando ricevuto da un controller Matter viene inoltrato al flow: `msg.topic` = nome del dispositivo, `msg.payload` = valore, `msg.matter` = il comando grezzo. Un dispositivo senza GA di comando diventa un **dispositivo solo-flow**.
 
 ## Note
 
-- L'host Node-RED deve avere **IPv6 link-local** attivo (requisito standard Matter) ed essere raggiungibile dal controller sulla rete locale.
-- L'identità del bridge è salvata in `knxultimatestorage/matter` nella directory utente di Node-RED: i re-deploy NON richiedono un nuovo abbinamento.
-- Rinomina e aggiunta di dispositivi vengono recepite automaticamente dai controller; se rimuovi un dispositivo, sparisce dalle app.
+- L'identità Matter del dispositivo è legata a questo nodo: eliminando il nodo e creandone uno nuovo, le app vedono un dispositivo nuovo di zecca.
+- I nodi device aggiunti/rinominati/rimossi vengono recepiti dai controller abbinati in pochi secondi, senza riabbinare il bridge.

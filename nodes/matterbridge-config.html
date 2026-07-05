@@ -1,0 +1,121 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('matterbridge-config', {
+        category: 'config',
+        defaults: {
+            name: { value: '' },
+            bridgeDeviceName: { value: 'KNX-Ultimate Bridge' },
+            bridgePort: { value: 5540, required: true, validate: RED.validators.number() }
+        },
+        oneditprepare: function () {
+            try { RED.sidebar.show('help'); } catch (error) { }
+
+            var node = this;
+            var $pairingBody = $('#mbc-pairing-body');
+            var $refreshPairing = $('#mbc-refresh-pairing');
+            var $resetButton = $('#mbc-factory-reset');
+
+            var t = function (key) {
+                return RED._('node-red-contrib-knx-ultimate/matterbridge-config:matterbridge-config.properties.' + key);
+            };
+
+            function loadPairingInfo() {
+                $pairingBody.html('<i class="fa fa-circle-notch fa-spin"></i>');
+                $.getJSON('KNXUltimateMatterBridgeInfo?configId=' + node.id + '&_=' + Date.now(), function (info) {
+                    $pairingBody.empty();
+                    if (info.error) {
+                        $pairingBody.append($('<p style="color:#999;"></p>').text(info.error));
+                        return;
+                    }
+                    if (!info.running) {
+                        $pairingBody.append($('<p style="color:#999;"></p>').text(t('not_running')));
+                        return;
+                    }
+                    if (info.commissioned) {
+                        $pairingBody.append($('<p style="color:#1b7d33;"></p>').text(t('commissioned') + ' (' + info.fabrics.length + ')'));
+                        info.fabrics.forEach(function (f) {
+                            $pairingBody.append($('<div style="margin-left:10px;"></div>').text('• ' + (f.label || 'Controller') + ' (vendor ' + f.vendorId + ')'));
+                        });
+                        $resetButton.show();
+                        return;
+                    }
+                    $pairingBody.append($('<p style="color:#b8860b;"></p>').text(t('awaiting')));
+                    if (info.manualPairingCode) {
+                        $pairingBody.append($('<p></p>').append($('<b style="font-size:18px; letter-spacing:2px;"></b>').text(info.manualPairingCode)));
+                    }
+                    if (info.qrAscii) {
+                        $pairingBody.append($('<pre style="font-family:monospace; line-height:1.05; font-size:7px; display:inline-block; padding:6px; background:#fff; color:#000;"></pre>').text(info.qrAscii));
+                    }
+                    if (info.qrPairingCode) {
+                        var url = 'https://project-chip.github.io/connectedhomeip/qrcode.html?data=' + encodeURIComponent(info.qrPairingCode);
+                        $pairingBody.append($('<p></p>').append($('<a target="_blank"></a>').attr('href', url).text(t('qr_link'))));
+                    }
+                    $resetButton.hide();
+                }).fail(function () {
+                    $pairingBody.empty();
+                    $pairingBody.append($('<p style="color:#999;"></p>').text(t('deploy_first')));
+                });
+            }
+
+            $refreshPairing.on('click', function () { loadPairingInfo(); });
+            $resetButton.on('click', function () {
+                if (!window.confirm(t('reset_confirm'))) return;
+                $resetButton.prop('disabled', true);
+                $.getJSON('KNXUltimateMatterBridgeReset?configId=' + node.id, function (data) {
+                    if (data && data.error) RED.notify(data.error, { type: 'error' });
+                    else RED.notify(t('reset_ok'), { type: 'success' });
+                    loadPairingInfo();
+                }).always(function () { $resetButton.prop('disabled', false); });
+            });
+
+            loadPairingInfo();
+        },
+        oneditsave: function () {
+            try { RED.sidebar.show('info'); } catch (error) { }
+        },
+        label: function () {
+            return this.name || this.bridgeDeviceName || 'Matter Bridge';
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="matterbridge-config">
+  <div class="form-row" style="margin-bottom:10px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+
+  <div class="form-row">
+    <b><span data-i18n="matterbridge-config.properties.title"></span></b>
+    <p><span data-i18n="matterbridge-config.properties.intro"></span></p>
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-name">
+      <i class="fa fa-tag"></i> <span data-i18n="matterbridge-config.properties.node-config-input-name"></span>
+    </label>
+    <input type="text" id="node-config-input-name">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-bridgeDeviceName" style="width:180px;">
+      <i class="fa fa-share-alt"></i> <span data-i18n="matterbridge-config.properties.bridge_name"></span>
+    </label>
+    <input type="text" id="node-config-input-bridgeDeviceName" style="width:220px;">
+    <label for="node-config-input-bridgePort" style="width:60px; text-align:right;"><span data-i18n="matterbridge-config.properties.port"></span></label>
+    <input type="number" id="node-config-input-bridgePort" style="width:90px;">
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <b><i class="fa fa-qrcode"></i>&nbsp;<span data-i18n="matterbridge-config.properties.pairing_title"></span></b>
+    <button type="button" id="mbc-refresh-pairing" class="red-ui-button" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-refresh"></i>
+    </button>
+    <button type="button" id="mbc-factory-reset" class="red-ui-button" style="margin-left:6px; color:#c00; border-color:#c00; display:none;">
+      <i class="fa fa-trash"></i>&nbsp;<span data-i18n="matterbridge-config.properties.reset_button"></span>
+    </button>
+  </div>
+  <div class="form-row" id="mbc-pairing-body" style="text-align:center;"></div>
+</script>
