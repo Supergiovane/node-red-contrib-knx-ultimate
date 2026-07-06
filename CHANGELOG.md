@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 5.2.3** - July 2026<br/>
+
+- **MQTT / Home Assistant bridge — Entity name format**: new selector to reshape the names exposed to Home Assistant. The ETS import builds each name with the group-address path first (e.g. `(Lights->Ground floor) Living room`); now you can choose *As imported from ETS* (default), *Name first* (`Living room (Lights->Ground floor)`), *Name only* (`Living room`) or *Name + group address* (`Living room (0/1/2)`). Changing it only updates the friendly name (the `unique_id`/`object_id` stay stable, so existing entities are not duplicated).<br/>
+  - The group-address list in the editor now previews the chosen format **live**: pick a format and every row is re-labelled instantly, exactly as it will appear in Home Assistant, without reloading the list or losing the expose / read-only ticks.<br/>
+  - Entity names are sanitized before publishing: ASCII control characters are stripped and runs of whitespace collapsed (ETS exports sometimes lose an accented character and leave a double space, e.g. `Velocità vento` → `Velocit  vento`), and a name that would be empty falls back to the group address.<br/>
+- **Documentation**: node help and the online IoT-Bridge page updated for the new option in all six languages (EN/IT/DE/FR/ES/zh-CN).<br/>
+
 **Version 5.2.2** - July 2026<br/>
 
 - New **Matter Bridge (BETA)**: exposes **KNX group addresses as Matter devices**. Alexa, Google Home, Apple Home (or any Matter controller) commission the bridge once — via QR code or 11-digit manual code shown in the editor — and see all your KNX devices with the names you typed, ready for app and voice control. It is the opposite direction of the Matter Device node introduced in 5.1.0.<br/>

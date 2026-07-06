@@ -29,6 +29,7 @@ Requisiti: un broker MQTT raggiungibile sia da Node-RED che da Home Assistant, c
 | **URL broker / Nome utente / Password** | Connessione al broker MQTT. |
 | **Topic di base** | Radice dei topic di stato/comando (predefinito `knx-ultimate`). |
 | **Pubblica discovery HA / Prefisso discovery** | Abilita il discovery MQTT di Home Assistant e ne imposta il prefisso (predefinito `homeassistant`). |
+| **Formato nome entità** | Come costruire i nomi delle entità HA a partire dall'import ETS, i cui nomi iniziano con il percorso dei gruppi, es. `(Luci->Piano terra) Soggiorno`. Opzioni: *Come importato da ETS* (predefinito), *Prima il nome* (`Soggiorno (Luci->Piano terra)`), *Solo il nome* (`Soggiorno`), *Nome + indirizzo di gruppo* (`Soggiorno (0/1/2)`). |
 | **Indirizzi di gruppo da esporre** | Lista con checkbox di ogni indirizzo importato nel gateway (ETS). Gli indirizzi spuntati diventano entità HA, tipizzate automaticamente dal DPT (switch, sensor, binary_sensor, number, text). Filtro + Seleziona tutti / nessuno; tutti selezionati di default. Ogni riga ha inoltre l'opzione **Sola lettura**: un indirizzo in sola lettura viene comunque pubblicato su Home Assistant (stato visibile) ma non accetta mai comandi verso il bus KNX (gli switch diventano binary_sensor, i number diventano sensor). I pulsanti *Imposta sola lettura* / *Togli sola lettura* la applicano a tutti gli indirizzi mostrati. |
 | **Tapparelle e Termostati** | Entità composite che aggregano più indirizzi (vedi sotto). |
 

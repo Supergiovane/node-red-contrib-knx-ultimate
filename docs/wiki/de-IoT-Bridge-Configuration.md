@@ -34,6 +34,7 @@ Voraussetzungen: ein MQTT-Broker, der sowohl von Node-RED als auch von Home Assi
 | **Broker-URL / Benutzername / Passwort** | Verbindung zum MQTT-Broker. |
 | **Basis-Topic** | Wurzel der Status-/Befehls-Topics (Standard `knx-ultimate`). |
 | **HA-Discovery veröffentlichen / Discovery-Präfix** | Aktiviert Home-Assistant-MQTT-Discovery und legt das Präfix fest (Standard `homeassistant`). |
+| **Format des Entitätsnamens** | Wie die HA-Entitätsnamen aus dem ETS-Import gebildet werden, dessen Namen mit dem Gruppenpfad beginnen, z. B. `(Licht->Erdgeschoss) Wohnzimmer`. Optionen: *Wie aus ETS importiert* (Standard), *Name zuerst* (`Wohnzimmer (Licht->Erdgeschoss)`), *Nur der Name* (`Wohnzimmer`), *Name + Gruppenadresse* (`Wohnzimmer (0/1/2)`). |
 | **Bereitzustellende Gruppenadressen** | Kontrollkästchenliste aller im Gateway importierten Adressen (ETS). Angehakte Adressen werden zu HA-Entitäten, automatisch nach dem DPT typisiert (switch, sensor, binary_sensor, number, text). Filter + Alle/Keine auswählen; standardmäßig alle ausgewählt. Jede Zeile hat zudem die Option **Nur lesen**: eine schreibgeschützte Adresse wird weiterhin an Home Assistant veröffentlicht (Status sichtbar), akzeptiert aber nie Befehle zurück auf den KNX-Bus (switch werden zu binary_sensor, number zu sensor). Die Schaltflächen *Nur lesen setzen* / *Nur lesen entfernen* wenden dies auf alle angezeigten Adressen an. |
 | **Rollläden & Thermostate** | Zusammengesetzte Entitäten, die mehrere Adressen bündeln (siehe unten). |
 

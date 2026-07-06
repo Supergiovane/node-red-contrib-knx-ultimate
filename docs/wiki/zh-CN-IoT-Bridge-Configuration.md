@@ -34,6 +34,7 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 | **Broker URL / 用户名 / 密码** | MQTT broker 连接。 |
 | **基础主题** | 状态/命令主题的根（默认 `knx-ultimate`）。 |
 | **发布 HA 自动发现 / 自动发现前缀** | 启用 Home Assistant MQTT 自动发现并设置前缀（默认 `homeassistant`）。 |
+| **实体名称格式** | 如何根据 ETS 导入生成 HA 实体名称；ETS 导入的名称以组地址路径开头，例如 `(灯光->一层) 客厅`。选项：*按 ETS 导入原样*（默认）、*名称在前*（`客厅 (灯光->一层)`）、*仅名称*（`客厅`）、*名称 + 组地址*（`客厅 (0/1/2)`）。 |
 | **要暴露的组地址** | 网关中导入的每个地址（ETS）的复选框列表。勾选的地址会成为 HA 实体，并根据 DPT 自动分类（switch、sensor、binary_sensor、number、text）。筛选 + 全选/全不选；默认全部选中。每一行还有**只读**开关：只读地址仍会发布到 Home Assistant（状态可见），但绝不接受回写到 KNX 总线的命令（switch 变为 binary_sensor，number 变为 sensor）。*设为只读* / *取消只读*按钮会将其应用到当前显示的所有地址。 |
 | **卷帘与温控器** | 聚合多个地址的组合实体（见下文）。 |
 

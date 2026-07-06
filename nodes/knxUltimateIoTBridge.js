@@ -51,6 +51,9 @@ module.exports = function (RED) {
     node.mqttBaseTopic = typeof config.mqttBaseTopic === 'string' && config.mqttBaseTopic.trim() !== '' ? config.mqttBaseTopic.trim() : 'knx-ultimate'
     node.mqttDiscovery = config.mqttDiscovery !== false && config.mqttDiscovery !== 'false'
     node.mqttDiscoveryPrefix = typeof config.mqttDiscoveryPrefix === 'string' && config.mqttDiscoveryPrefix.trim() !== '' ? config.mqttDiscoveryPrefix.trim() : 'homeassistant'
+    // Entity name format for the exposed GAs: 'full' (ETS path + name, as imported),
+    // 'name-first' (name first, path after), 'name-only' (path removed), 'name-ga' (name + GA).
+    node.mqttNameFormat = typeof config.mqttNameFormat === 'string' && config.mqttNameFormat.trim() !== '' ? config.mqttNameFormat.trim() : 'full'
     node.mqttCustomEntities = Array.isArray(config.mqttCustomEntities) ? config.mqttCustomEntities : []
     // Group addresses to expose as simple entities. Once the user curates the list
     // (mqttExposeConfigured), only the listed GAs are exposed; otherwise all imported GAs are.
@@ -180,6 +183,7 @@ module.exports = function (RED) {
           baseTopic: node.mqttBaseTopic,
           discovery: node.mqttDiscovery,
           discoveryPrefix: node.mqttDiscoveryPrefix,
+          nameFormat: node.mqttNameFormat,
           username: node.credentials ? node.credentials.mqttUsername : undefined,
           password: node.credentials ? node.credentials.mqttPassword : undefined,
           groupAddresses: (node.serverKNX && Array.isArray(node.serverKNX.csv)) ? node.serverKNX.csv : [],

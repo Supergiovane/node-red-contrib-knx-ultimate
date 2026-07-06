@@ -29,6 +29,7 @@ Requirements: an MQTT broker reachable by both Node-RED and Home Assistant, with
 | **Broker URL / Username / Password** | MQTT broker connection. |
 | **Base topic** | Root of the state/command topics (default `knx-ultimate`). |
 | **Publish HA discovery / Discovery prefix** | Enable Home Assistant MQTT Discovery and set its prefix (default `homeassistant`). |
+| **Entity name format** | How the HA entity names are built from the ETS import, whose names start with the group-address path, e.g. `(Lights->Ground floor) Living room`. Options: *As imported from ETS* (default), *Name first* (`Living room (Lights->Ground floor)`), *Name only* (`Living room`), *Name + group address* (`Living room (0/1/2)`). |
 | **Group addresses to expose** | Checkbox list of every address imported in the gateway (ETS). Ticked addresses become HA entities, typed automatically from the DPT (switch, sensor, binary_sensor, number, text). Filter + Select all / none; all selected by default. Each row also has a **Read only** toggle: a read-only address is still published to Home Assistant (state visible) but never accepts commands back to the KNX bus (switches become binary_sensors, numbers become sensors). The *Set read only* / *Clear read only* buttons apply it to all currently shown addresses. |
 | **Covers & Thermostats** | Composite entities that aggregate several addresses (see below). |
 

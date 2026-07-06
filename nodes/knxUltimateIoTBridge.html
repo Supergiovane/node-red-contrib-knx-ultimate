@@ -12,7 +12,7 @@
             readOnDeploy: { value: true },
             acceptFlowInput: { value: true },
             mappings: { value: [] },
-            nodeMode: { value: 'iot' },
+            nodeMode: { value: 'homeassistant' },
             haBusMode: { value: 'standalone' },
             inputs: { value: 1 },
             outputs: { value: 2 },
@@ -20,6 +20,7 @@
             mqttBaseTopic: { value: 'knx-ultimate' },
             mqttDiscovery: { value: true },
             mqttDiscoveryPrefix: { value: 'homeassistant' },
+            mqttNameFormat: { value: 'full' },
             mqttCustomEntities: { value: [] },
             mqttExposedGAs: { value: [] },
             mqttReadOnlyGAs: { value: [] },
@@ -327,6 +328,41 @@
                 const readOnlySet = new Set(Array.isArray(node.mqttReadOnlyGAs) ? node.mqttReadOnlyGAs : []);
                 const exposeConfigured = node.mqttExposeConfigured === true;
 
+                // Mirror of formatEntityName() in lib/mqtt-bridge.js so the preview here matches
+                // exactly what gets published to Home Assistant (control chars stripped, whitespace
+                // collapsed, ETS path reshaped per the chosen format).
+                function sanitizeGaName(value) {
+                    return String(value == null ? '' : value)
+                        .replace(/[\u0000-\u001f\u007f]/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+                function formatGaName(raw, ga, format) {
+                    const full = sanitizeGaName(raw);
+                    if (full === '') return ga;
+                    if (!format || format === 'full') return full;
+                    const m = full.match(/^\(([^)]*)\)\s*(.*)$/);
+                    const path = m ? m[1].trim() : '';
+                    const name = m ? (m[2].trim() || ga) : full;
+                    let result;
+                    switch (format) {
+                        case 'name-first': result = path ? (name + ' (' + path + ')') : name; break;
+                        case 'name-only': result = name; break;
+                        case 'name-ga': result = name + ' (' + ga + ')'; break;
+                        default: result = full;
+                    }
+                    return sanitizeGaName(result) || ga;
+                }
+                // Re-label every GA row from its stored raw name using the currently selected format.
+                function applyGaNameFormat() {
+                    const fmt = $('#node-input-mqttNameFormat').val() || 'full';
+                    $('#mqtt-ga-list .mqtt-ga-name').each(function () {
+                        const span = $(this);
+                        const text = formatGaName(span.data('raw'), span.data('ga'), fmt);
+                        span.text(text).attr('title', text);
+                    });
+                }
+
                 function updateGaCount() {
                     const total = $('#mqtt-ga-list input.mqtt-ga-cb').length;
                     const sel = $('#mqtt-ga-list input.mqtt-ga-cb:checked').length;
@@ -359,7 +395,9 @@
                             const cb = $('<input/>', { type: 'checkbox', class: 'mqtt-ga-cb', value: item.ga, style: 'width:auto; margin:0; flex:0 0 auto;' }).appendTo(row);
                             cb.prop('checked', exposeConfigured ? savedSet.has(item.ga) : true);
                             $('<span/>').css({ flex: '0 0 auto', fontFamily: 'monospace', minWidth: '64px' }).text(item.ga).appendTo(row);
-                            $('<span/>').css({ flex: '1 1 auto', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#444' }).attr('title', item.devicename || '').text(item.devicename || '').appendTo(row);
+                            // Keep the raw ETS name + GA on the element so applyGaNameFormat() can
+                            // re-label it live when the "Entity name format" select changes.
+                            $('<span/>').addClass('mqtt-ga-name').css({ flex: '1 1 auto', minWidth: '0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#444' }).data('raw', item.devicename || '').data('ga', item.ga).appendTo(row);
                             $('<span/>').css({ flex: '0 0 auto', color: '#888', fontSize: '11px' }).text('DPT' + (item.dpt || '')).appendTo(row);
                             // Read-only toggle: expose the GA to HA but never accept commands back to KNX.
                             const roLabel = $('<label/>').css({ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '3px', margin: '0', fontSize: '11px', color: '#888', cursor: 'pointer' }).appendTo(row);
@@ -374,6 +412,7 @@
                             });
                         });
                         $('#mqtt-ga-list input.mqtt-ga-cb').on('change', updateGaCount);
+                        applyGaNameFormat();
                         updateGaCount();
                     }).fail(function () {
                         list.empty().append($('<div/>').css('color', '#c0392b').text(node._('knxUltimateIoTBridge.ha.csv_error')));
@@ -395,6 +434,8 @@
 
                 buildGaList();
                 $('#node-input-server').on('change', buildGaList);
+                // Live-preview the entity naming: re-label the list when the format select changes.
+                $('#node-input-mqttNameFormat').on('change', applyGaNameFormat);
             } catch (error) { }
 
             // Home Assistant composite entities (cover / climate): editable list.
@@ -675,6 +716,19 @@
         <label for="node-input-mqttDiscoveryPrefix" data-i18n="knxUltimateIoTBridge.ha.discovery_prefix"></label>
         <input type="text" id="node-input-mqttDiscoveryPrefix" placeholder="homeassistant" />
     </div>
+    <div class="form-row ha-mode-row">
+        <label for="node-input-mqttNameFormat" data-i18n="knxUltimateIoTBridge.ha.name_format"></label>
+        <select id="node-input-mqttNameFormat" style="width:70%;">
+            <option value="full" data-i18n="knxUltimateIoTBridge.ha.name_format_full"></option>
+            <option value="name-first" data-i18n="knxUltimateIoTBridge.ha.name_format_name_first"></option>
+            <option value="name-only" data-i18n="knxUltimateIoTBridge.ha.name_format_name_only"></option>
+            <option value="name-ga" data-i18n="knxUltimateIoTBridge.ha.name_format_name_ga"></option>
+        </select>
+    </div>
+    <div class="form-row ha-mode-row" style="margin-top:-4px;">
+        <label style="width:auto;">&nbsp;</label>
+        <span style="font-size:11px; color:#888;" data-i18n="knxUltimateIoTBridge.ha.name_format_hint"></span>
+    </div>
     <div class="form-row ha-mode-row" id="rowMqttGaSelect">
         <label style="width:auto; font-weight:600;" data-i18n="knxUltimateIoTBridge.ha.exposed_gas"></label>
         <div style="margin:4px 0; display:flex; gap:6px; align-items:center;">
@@ -732,6 +786,9 @@ The **Mode** selector switches the node between two behaviours:
 Native MQTT bridge with Home Assistant discovery. Every group address imported in the KNX gateway (ETS list) can be exposed automatically as a Home Assistant entity (switch, sensor, binary_sensor, number, text), chosen from its datapoint type (DPT). KNX bus values are published to MQTT and writable datapoints accept commands from Home Assistant.
 
 Requires an MQTT broker reachable by both Node-RED and Home Assistant, with the MQTT integration enabled in HA. Entities appear under a device named after this node.
+
+### Entity name format
+The ETS import builds each name with the group-address path first, e.g. `(Lights->Ground floor) Living room`. The **Entity name format** selector controls how the Home Assistant entity names are built: *As imported from ETS* (default), *Name first* (`Living room (Lights->Ground floor)`), *Name only* (`Living room`) or *Name + group address* (`Living room (0/1/2)`).
 
 ### KNX bus connection
 Choose how the node exchanges telegrams with KNX:

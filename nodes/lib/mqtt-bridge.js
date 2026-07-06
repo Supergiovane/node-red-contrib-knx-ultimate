@@ -48,6 +48,45 @@ function normalizeGa (ga) {
   return typeof ga === 'string' ? ga.trim() : ''
 }
 
+// Clean up an entity name for Home Assistant: strip ASCII control characters and collapse
+// runs of whitespace (ETS exports sometimes lose an accented char and leave a double space,
+// e.g. "Velocità vento" -> "Velocit  vento"). This keeps the friendly name and the entity_id
+// HA derives from it tidy, and never lets an all-blank/control-only string through.
+function sanitizeEntityName (value) {
+  return String(value == null ? '' : value)
+    // eslint-disable-next-line no-control-regex
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+// ETS imports (CSV and ESF) build devicename as "(Main group->Middle group) GA name":
+// the group-address path first, then the actual GA name. Reshape it according to the
+// entity-name format chosen by the user for Home Assistant.
+function formatEntityName (raw, ga, format) {
+  const full = sanitizeEntityName(raw)
+  if (full === '') return ga
+  if (!format || format === 'full') return full
+  const match = full.match(/^\(([^)]*)\)\s*(.*)$/)
+  const path = match ? match[1].trim() : ''
+  const name = match ? (match[2].trim() || ga) : full
+  let result
+  switch (format) {
+    case 'name-first':
+      result = path ? `${name} (${path})` : name
+      break
+    case 'name-only':
+      result = name
+      break
+    case 'name-ga':
+      result = `${name} (${ga})`
+      break
+    default:
+      result = full
+  }
+  return sanitizeEntityName(result) || ga
+}
+
 function toFiniteNumber (value, fallback) {
   const n = Number(value)
   return Number.isFinite(n) ? n : fallback
@@ -69,6 +108,9 @@ function createMqttBridge (options) {
   const discoveryPrefix = (typeof opts.discoveryPrefix === 'string' && opts.discoveryPrefix.trim()) || 'homeassistant'
   const username = typeof opts.username === 'string' && opts.username ? opts.username : undefined
   const password = typeof opts.password === 'string' && opts.password ? opts.password : undefined
+  // How simple per-GA entity names are built from the ETS devicename: 'full' (as imported),
+  // 'name-first' (GA name first, path after), 'name-only' (path stripped), 'name-ga' (name + GA).
+  const nameFormat = typeof opts.nameFormat === 'string' && opts.nameFormat ? opts.nameFormat : 'full'
 
   // Source per-GA entities: [{ ga, dpt, devicename }]
   const sourceGAs = Array.isArray(opts.groupAddresses) ? opts.groupAddresses : []
@@ -325,7 +367,7 @@ function createMqttBridge (options) {
       : map.domain
     const slug = uniqueSlug(baseSlug)
     const uniqueId = `${deviceId}_${slug}`
-    const name = (typeof entry.devicename === 'string' && entry.devicename.trim()) ? entry.devicename.trim() : ga
+    const name = formatEntityName(entry.devicename, ga, nameFormat)
     const stateTopic = `${root}/${slug}/state`
     const commandTopic = `${root}/${slug}/set`
 
