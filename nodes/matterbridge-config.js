@@ -28,7 +28,9 @@ module.exports = (RED) => {
 
     node.name = config.name === undefined || config.name === '' ? 'Matter Bridge' : config.name
     node.bridgePort = Number(config.bridgePort) || 5540
-    node.bridgeDeviceName = config.bridgeDeviceName === undefined || config.bridgeDeviceName === '' ? 'KNX-Ultimate Bridge' : config.bridgeDeviceName
+    // Name advertised to the Matter controllers (Alexa/Google honor it; Apple Home forces manual naming).
+    // If left empty, fall back to this config node's own name so the bridge is never anonymous.
+    node.bridgeDeviceName = config.bridgeDeviceName === undefined || config.bridgeDeviceName === '' ? node.name : config.bridgeDeviceName
     node.matterInstanceId = `knxultimate-bridge-${node.id.replace(/[^a-zA-Z0-9]/g, '')}`
     node.matterStoragePath = path.join(RED.settings.userDir || '.', 'knxultimatestorage', 'matter')
 

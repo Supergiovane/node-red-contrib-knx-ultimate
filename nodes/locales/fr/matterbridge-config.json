@@ -5,6 +5,7 @@
       "intro": "Ce nœud de configuration est le bridge Matter lui-même : Alexa, Google Home, Apple Home (ou tout contrôleur Matter) l'appairent une fois et voient tous les appareils KNX que vous y rattachez. Ajoutez des nœuds \"Matter Bridge device\" dans vos flux et pointez-les ici. Déployez d'abord, puis rouvrez pour obtenir le code d'appairage.",
       "node-config-input-name": "Nom",
       "bridge_name": "Nom du bridge Matter",
+      "bridge_name_ph": "Laisser vide pour utiliser le nom du nœud",
       "port": "Port",
       "pairing_title": "Appairage (Alexa, Google Home, Apple Home...)",
       "not_running": "Le bridge Matter n'est pas encore démarré. Déployez, attendez quelques secondes puis cliquez sur actualiser.",

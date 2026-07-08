@@ -12,7 +12,7 @@ Dieser Konfigurations-Node ist die **Matter-Bridge selbst**: Er betreibt den Mat
 |Feld|Beschreibung|
 |--|--|
 | Name | Der Name dieses Konfigurations-Nodes in Node-RED |
-| Name der Matter-Bridge | Wie die Bridge selbst in den Matter-Apps heißt |
+| Name der Matter-Bridge | Wie die Bridge selbst in den Matter-Apps heißt. **Leer lassen, um den Namen dieses Nodes zu verwenden.** |
 | Port | UDP-Port des Matter-Servers (Standard 5540). Jede Bridge braucht ihren eigenen Port, daher sind **mehrere unabhängige Bridges** möglich |
 
 ## Kopplung
@@ -31,4 +31,5 @@ Die Bridge-Identität ist an diesen Konfigurations-Node gebunden und wird in `kn
 
 - Der Node-RED-Host muss **IPv6 link-local** aktiviert haben (Standard-Matter-Anforderung) und von den Controllern im lokalen Netzwerk erreichbar sein.
 - Hinzugefügte/umbenannte/entfernte Device-Nodes werden von den gekoppelten Controllern innerhalb von Sekunden übernommen, ohne neue Kopplung.
+- **Namen:** Alexa und Google Home übernehmen die hier gesetzten Namen (Bridge-Name und Device-Node-Namen). **Apple Home ignoriert sie und verlangt, jedes Zubehör bei der Einrichtung manuell zu benennen** — eine Einschränkung von Apple, nicht der Bridge.
 </script>

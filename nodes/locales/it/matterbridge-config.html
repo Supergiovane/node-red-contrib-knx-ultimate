@@ -12,7 +12,7 @@ Questo nodo di configurazione è il **bridge Matter vero e proprio**: esegue il 
 |Campo|Descrizione|
 |--|--|
 | Nome | Il nome di questo nodo di configurazione in Node-RED |
-| Nome del bridge Matter | Come viene chiamato il bridge stesso nelle app Matter |
+| Nome del bridge Matter | Come viene chiamato il bridge stesso nelle app Matter. **Lascia vuoto per riusare il Nome di questo nodo.** |
 | Porta | Porta UDP del server Matter (default 5540). Ogni bridge richiede la propria porta, quindi puoi eseguire **più bridge indipendenti** |
 
 ## Abbinamento
@@ -31,4 +31,5 @@ L'identità del bridge è legata a questo nodo di configurazione ed è salvata i
 
 - L'host Node-RED deve avere **IPv6 link-local** attivo (requisito standard Matter) ed essere raggiungibile dai controller sulla rete locale.
 - I nodi device aggiunti/rinominati/rimossi vengono recepiti dai controller abbinati in pochi secondi, senza riabbinare.
+- **Nomi:** Alexa e Google Home rispettano i nomi che imposti qui (nome del bridge e nomi dei nodi device). **Apple Home li ignora e ti chiede di nominare manualmente ogni accessorio durante l'abbinamento** — è un limite di Apple, non del bridge.
 </script>

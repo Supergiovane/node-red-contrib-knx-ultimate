@@ -5,6 +5,7 @@
       "intro": "此配置节点就是 Matter 桥接器本身：Alexa、Google Home、Apple Home（或任何 Matter 控制器）配对一次即可看到你挂接的所有 KNX 设备。在流程中添加 \"Matter Bridge device\" 节点并指向这里。先部署，然后重新打开获取配对码。",
       "node-config-input-name": "名称",
       "bridge_name": "Matter 桥接器名称",
+      "bridge_name_ph": "留空则使用节点名称",
       "port": "端口",
       "pairing_title": "配对（Alexa、Google Home、Apple Home...）",
       "not_running": "Matter 桥接器尚未运行。请先部署，等待几秒后点击刷新。",

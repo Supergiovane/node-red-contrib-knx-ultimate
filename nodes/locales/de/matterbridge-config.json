@@ -5,6 +5,7 @@
       "intro": "Dieser Konfigurations-Node ist die Matter-Bridge selbst: Alexa, Google Home, Apple Home (oder jeder Matter-Controller) koppeln sie einmal und sehen alle KNX-Geräte, die du ihr zuweist. Füge \"Matter Bridge device\"-Nodes in deinen Flows hinzu und verweise sie hierher. Zuerst deployen, dann erneut öffnen für den Kopplungscode.",
       "node-config-input-name": "Name",
       "bridge_name": "Name der Matter-Bridge",
+      "bridge_name_ph": "Leer lassen, um den Node-Namen zu verwenden",
       "port": "Port",
       "pairing_title": "Kopplung (Alexa, Google Home, Apple Home...)",
       "not_running": "Die Matter-Bridge läuft noch nicht. Deployen, ein paar Sekunden warten und dann auf Aktualisieren klicken.",

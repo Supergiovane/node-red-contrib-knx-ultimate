@@ -5,6 +5,7 @@
       "intro": "Questo nodo di configurazione è il bridge Matter vero e proprio: Alexa, Google Home, Apple Home (o qualunque controller Matter) lo associano una volta sola e vedono tutti i dispositivi KNX che gli colleghi. Aggiungi i nodi \"Matter Bridge device\" nei tuoi flow e puntali qui. Fai prima il deploy, poi riapri per ottenere il codice di abbinamento.",
       "node-config-input-name": "Nome",
       "bridge_name": "Nome del bridge Matter",
+      "bridge_name_ph": "Lascia vuoto per usare il nome del nodo",
       "port": "Porta",
       "pairing_title": "Abbinamento (Alexa, Google Home, Apple Home...)",
       "not_running": "Il bridge Matter non è ancora in esecuzione. Fai il deploy, attendi qualche secondo e clicca aggiorna.",

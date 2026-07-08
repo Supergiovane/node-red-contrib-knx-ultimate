@@ -17,7 +17,7 @@ This configuration node is the **Matter bridge itself**: it runs the Matter serv
 |Field|Description|
 |--|--|
 | Name | The name of this configuration node in Node-RED |
-| Matter bridge name | How the bridge itself is named in the Matter apps |
+| Matter bridge name | How the bridge itself is named in the Matter apps. **Leave it empty to reuse this node's Name.** |
 | Port | UDP port of the Matter server (default 5540). Each bridge needs its own port, so you can run **multiple independent bridges** |
 
 ## Pairing
@@ -36,3 +36,4 @@ The bridge identity is tied to this configuration node and stored in `knxultimat
 
 - The Node-RED host must have **IPv6 link-local** enabled (standard Matter requirement) and be reachable from the controllers on the local network.
 - Device nodes added/renamed/removed are picked up by the paired controllers within seconds, without re-pairing.
+- **Naming:** Alexa and Google Home honor the names you set here (bridge name and device node names). **Apple Home ignores them and asks you to name each accessory manually during setup** — this is an Apple limitation, not a bridge issue.

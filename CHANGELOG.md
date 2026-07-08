@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 5.2.4** - July 2026<br/>
+
+- **Matter Bridge — bridge name**: the *Matter bridge name* field (the name Alexa/Google/Apple show for the bridge itself) now falls back to the configuration node's own **Name** when left empty, instead of the generic `KNX-Ultimate Bridge`. The field is empty by default with a placeholder hint, so a freshly named bridge is never anonymous during pairing.<br/>
+  - **Naming clarification**: Alexa and Google Home honor the names set on the bridge and on the device nodes, so they appear automatically in the apps. **Apple Home deliberately ignores the provided names and asks you to name each accessory manually during setup** — this is an Apple/HomeKit limitation, not a bridge issue. Node help and the online docs now document this difference in all six languages (EN/IT/DE/FR/ES/zh-CN).<br/>
+
 **Version 5.2.3** - July 2026<br/>
 
 - **MQTT / Home Assistant bridge — Entity name format**: new selector to reshape the names exposed to Home Assistant. The ETS import builds each name with the group-address path first (e.g. `(Lights->Ground floor) Living room`); now you can choose *As imported from ETS* (default), *Name first* (`Living room (Lights->Ground floor)`), *Name only* (`Living room`) or *Name + group address* (`Living room (0/1/2)`). Changing it only updates the friendly name (the `unique_id`/`object_id` stay stable, so existing entities are not duplicated).<br/>

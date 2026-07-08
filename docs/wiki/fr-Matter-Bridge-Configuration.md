@@ -17,7 +17,7 @@ Ce nœud de configuration est le **bridge Matter lui-même** : il exécute le se
 |Champ|Description|
 |--|--|
 | Nom | Le nom de ce nœud de configuration dans Node-RED |
-| Nom du bridge Matter | Le nom du bridge lui-même dans les apps Matter |
+| Nom du bridge Matter | Le nom du bridge lui-même dans les apps Matter. **Laissez vide pour réutiliser le Nom de ce nœud.** |
 | Port | Port UDP du serveur Matter (5540 par défaut). Chaque bridge a besoin de son propre port, vous pouvez donc exécuter **plusieurs bridges indépendants** |
 
 ## Appairage
@@ -36,3 +36,4 @@ L'identité du bridge est liée à ce nœud de configuration et enregistrée dan
 
 - L'hôte Node-RED doit avoir **IPv6 link-local** activé (exigence standard de Matter) et être joignable par les contrôleurs sur le réseau local.
 - Les nœuds d'appareil ajoutés/renommés/supprimés sont pris en compte en quelques secondes, sans nouvel appairage.
+- **Noms :** Alexa et Google Home respectent les noms définis ici (nom du bridge et noms des nœuds d'appareil). **Apple Home les ignore et vous demande de nommer chaque accessoire manuellement lors de la configuration** — c'est une limite d'Apple, pas du bridge.
