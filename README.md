@@ -1,7 +1,16 @@
+<p align="center">
+  <img src="img/logo-supervibe.png" alt="KNX Ultimate - Max Supervibe" width="200">
+</p>
+
 ![Logo](img/logo-big.png)
 
-<br/>
+## The most popular KNX node for Node-RED
 
+KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter, MQTT, diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.
+
+<br/>
+<br/>
+<br/>
 
 [![NPM version][npm-version-image]][npm-url]
 [![Node.js version][node-version-image]][npm-url]
@@ -14,7 +23,6 @@
 [![MIT License][license-image]][license-url]
 [![JavaScript Style Guide][standard-image]][standard-url]
 [![Youtube][youtube-image]][youtube-url]
-
 
 <p align="center">
   <img src="img/readmemain.png" alt="Sample Node" width="70%">
@@ -61,5 +69,4 @@
 [flows-url]: https://flows.nodered.org/node/node-red-contrib-knx-ultimate
 [paypal-image]: https://img.shields.io/badge/Support-PayPal-blue
 [paypal-url]: https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758
-
 [docs-button-image]: https://img.shields.io/badge/Docs-Open%20Documentation-0d4c70?style=for-the-badge&logo=book&logoColor=f4fbff
