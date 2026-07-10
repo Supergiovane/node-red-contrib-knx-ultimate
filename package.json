@@ -82,12 +82,22 @@
   },
   "keywords": [
     "node-red",
+    "node-red-contrib",
     "KNX",
+    "knx-secure",
     "ETS",
     "eib",
     "konnex",
     "IOT",
-    "philips hue"
+    "philips hue",
+    "hue",
+    "matter",
+    "mqtt",
+    "home-assistant",
+    "building-automation",
+    "home-automation",
+    "smarthome",
+    "routing"
   ],
   "author": "Massimo Saccani (Supergiovane)",
   "license": "MIT",
