@@ -1,0 +1,56 @@
+{
+  "_README": "Copy this file to 'config.local.json' (git-ignored) and fill in your REAL values. Never commit real IPs/tokens/passwords. Leave any GA you do not want to test as an empty string.",
+
+  "knx": {
+    "ipAddr": "192.168.1.100",
+    "ipPort": 3671,
+    "hostProtocol": "TunnelUDP",
+    "physAddr": "15.15.250",
+    "_note_hostProtocol": "TunnelUDP (IP tunneling), TunnelTCP (secure), or Multicast (IP routing, ipAddr 224.0.23.12)"
+  },
+
+  "hue": {
+    "host": "192.168.1.50",
+    "username": "PUT-HUE-APPLICATION-KEY-HERE",
+    "clientkey": "PUT-HUE-CLIENTKEY-HERE",
+    "bridgeid": "",
+    "deviceName": "Test Hue lamp (for reference)",
+    "deviceId": "hue-resource-id-of-the-light",
+    "grouped": false
+  },
+
+  "matter": {
+    "userDir": "/Users/you/.node-red",
+    "storagePath": "",
+    "instanceId": "",
+    "fabricLabel": "KNX-Ultimate",
+    "deviceName": "Test Matter lamp (for reference)",
+    "nodeId": "",
+    "endpointId": 1,
+    "_note": "userDir = your REAL Node-RED userDir: the commissioned Matter fabric lives in <userDir>/knxultimatestorage/matter. instanceId is auto-detected when empty. nodeId = the commissioned node id (run 'npm run avviaquesto-itest:matterlight -- --list'). IMPORTANT: your Node-RED must be STOPPED while the matter tests run (one active controller per fabric)."
+  },
+
+  "nodered": {
+    "port": 1881,
+    "connectWaitMs": 12000,
+    "_note": "Used by avviaquesto-itest:nodered-knx: a private Node-RED instance is spawned on this port; connectWaitMs is the grace time for KNX+Hue to connect before commands."
+  },
+
+  "light": {
+    "GALightSwitch": "1/1/1", "dptLightSwitch": "1.001",
+    "GALightState": "1/1/2", "dptLightState": "1.001",
+    "GALightBrightness": "1/1/3", "dptLightBrightness": "5.001",
+    "GALightBrightnessState": "1/1/4", "dptLightBrightnessState": "5.001",
+    "GALightKelvin": "1/1/5", "dptLightKelvin": "7.600",
+    "GALightKelvinState": "1/1/6", "dptLightKelvinState": "7.600",
+    "GALightColor": "1/1/7", "dptLightColor": "232.600",
+    "GALightColorState": "1/1/8", "dptLightColorState": "232.600"
+  },
+
+  "test": {
+    "stepDelayMs": 4000,
+    "warmKelvin": 2700,
+    "coldKelvin": 6000,
+    "dimLowPct": 30
+  }
+}

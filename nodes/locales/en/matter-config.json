@@ -8,6 +8,7 @@
       "pairing_title": "Pair a new device",
       "pairing_help": "Enter the 11-digit manual pairing code (e.g. 3497-011-2332) or the QR code content (MT:....). The device must be reachable on the IP network (WiFi/Ethernet or Thread via border router). If the device is already paired with another controller (Alexa, Google, Apple), use its \"share/pair with another hub\" function to obtain a new pairing code.",
       "pairing_code": "Pairing code",
+      "pairing_name": "Device name",
       "pair_button": "PAIR",
       "devices_title": "Commissioned devices",
       "col_name": "Name",
@@ -20,7 +21,11 @@
       "pairing_code_missing": "Please enter a pairing code.",
       "pairing_wait": "Pairing in progress. It can take up to a minute...",
       "pairing_failed": "Pairing failed",
-      "pairing_ok": "Device paired successfully!"
+      "pairing_ok": "Device paired successfully!",
+      "pairing_hint": "Prefer the QR code (MT:…): it carries the full device discriminator. The manual code stores only a short discriminator and can't reliably tell identical devices apart (e.g. several Shelly of the same model), which may pair the wrong one or report it as already commissioned. Pair one device at a time; if it's already paired elsewhere, factory-reset it first.",
+      "rename_button": "Rename",
+      "rename_prompt": "New device name",
+      "rename_ok": "Device renamed."
     }
   }
 }

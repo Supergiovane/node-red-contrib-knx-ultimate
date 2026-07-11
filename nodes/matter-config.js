@@ -176,14 +176,19 @@ module.exports = (RED) => {
       return node.matterManager.getNodeStructure(_nodeId)
     }
 
-    node.commission = async (_pairingCode) => {
+    node.commission = async (_pairingCode, _options = {}) => {
       if (node.matterManager === null) throw new Error('Matter controller not started')
-      return node.matterManager.commission(_pairingCode)
+      return node.matterManager.commission(_pairingCode, _options)
     }
 
     node.removeCommissionedNode = async (_nodeId) => {
       if (node.matterManager === null) throw new Error('Matter controller not started')
       return node.matterManager.removeNode(_nodeId)
+    }
+
+    node.renameCommissionedNode = async (_nodeId, _label) => {
+      if (node.matterManager === null) throw new Error('Matter controller not started')
+      return node.matterManager.renameNode(_nodeId, _label)
     }
     // END functions called from the nodes -------------------------------------------------------------
 

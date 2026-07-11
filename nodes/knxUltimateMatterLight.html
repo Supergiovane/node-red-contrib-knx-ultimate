@@ -1,0 +1,2132 @@
+'use strict'
+
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+
+<script type="text/javascript">
+  (function () {
+
+    RED.nodes.registerType("knxUltimateMatterLight", {
+      category: "KNX Ultimate Matter",
+      color: "#8FE3D4",
+      defaults: {
+        //buttonState: {value: true},
+        server: { type: "knxUltimate-config", required: false },
+        serverMatter: { type: "matter-config", required: true },
+        matterNodeId: { value: "" },
+        matterEndpointId: { value: 1 },
+        matterDeviceName: { value: "" },
+        matterDeviceCapabilities: { value: "" },
+        name: { value: "" },
+
+        nameLightSwitch: { value: "" },
+        GALightSwitch: { value: "" },
+        dptLightSwitch: { value: "" },
+
+        nameLightState: { value: "" },
+        GALightState: { value: "" },
+        dptLightState: { value: "" },
+
+        nameLightDIM: { value: "" },
+        GALightDIM: { value: "" },
+        dptLightDIM: { value: "" },
+
+        // TAB Color ---------------------------
+        nameLightColor: { value: "" },
+        GALightColor: { value: "" },
+        dptLightColor: { value: "" },
+
+        nameLightColorState: { value: "" },
+        GALightColorState: { value: "" },
+        dptLightColorState: { value: "" },
+
+        // HSV H hue Color change
+        nameLightHSV_H_DIM: { value: "" },
+        GALightHSV_H_DIM: { value: "" },
+        dptLightHSV_H_DIM: { value: "" },
+
+        nameLightHSV_H_State: { value: "" },
+        GALightHSV_H_State: { value: "" },
+        dptLightHSV_H_State: { value: "" },
+
+        // HSV S saturation change
+        nameLightHSV_S_DIM: { value: "" },
+        GALightHSV_S_DIM: { value: "" },
+        dptLightHSV_S_DIM: { value: "" },
+
+        nameLightHSV_S_State: { value: "" },
+        GALightHSV_S_State: { value: "" },
+        dptLightHSV_S_State: { value: "" },
+        // -------------------------------------
+
+        nameLightKelvinDIM: { value: "" },
+        GALightKelvinDIM: { value: "" },
+        dptLightKelvinDIM: { value: "" },
+
+        nameLightKelvinPercentage: { value: "" },
+        GALightKelvinPercentage: { value: "" },
+        dptLightKelvinPercentage: { value: "" },
+
+        nameLightKelvinPercentageState: { value: "" },
+        GALightKelvinPercentageState: { value: "" },
+        dptLightKelvinPercentageState: { value: "" },
+
+        nameLightKelvin: { value: "" },
+        GALightKelvin: { value: "" },
+        dptLightKelvin: { value: "" },
+
+        nameLightKelvinState: { value: "" },
+        GALightKelvinState: { value: "" },
+        dptLightKelvinState: { value: "" },
+
+        nameLightBrightness: { value: "" },
+        GALightBrightness: { value: "" },
+        dptLightBrightness: { value: "" },
+
+        nameLightBrightnessState: { value: "" },
+        GALightBrightnessState: { value: "" },
+        dptLightBrightnessState: { value: "" },
+
+        nameLightBlink: { value: "" },
+        GALightBlink: { value: "" },
+        dptLightBlink: { value: "" },
+
+        nameLightColorCycle: { value: "" },
+        GALightColorCycle: { value: "" },
+        dptLightColorCycle: { value: "" },
+
+        nameDaylightSensor: { value: "" },
+        GADaylightSensor: { value: "" },
+        dptDaylightSensor: { value: "" },
+
+        specifySwitchOnBrightness: { value: "temperature" },
+        colorAtSwitchOnDayTime: { value: '{"kelvin":3000, "brightness":100 }' },
+
+        enableDayNightLighting: { value: "no" },
+        colorAtSwitchOnNightTime: { value: '{ "kelvin":2700, "brightness":20 }' },
+
+        invertDayNight: { value: false },
+        invertDimTunableWhiteDirection: { value: false },
+
+        updateKNXBrightnessStatusOnHUEOnOff: { value: "no" },
+        dimSpeed: { value: 5000, required: false },
+        HSVDimSpeed: { value: 5000, required: false },
+        minDimLevelLight: { value: 10, required: false },
+        maxDimLevelLight: { value: 100, required: false },
+        readStatusAtStartup: { value: "yes" },
+        enableNodePINS: { value: "no" },
+
+        outputs: { value: 0 },
+        inputs: { value: 0 },
+
+        restoreDayMode: { value: "no" }, // Starting from v 4.1.31
+        updateLocalStateFromKNXWrite: { value: true } // Starting from v 4.1.31
+      },
+      inputs: 0,
+      outputs: 0,
+      icon: "node-matter-icon.svg",
+      label: function () {
+        return this.name || this.matterDeviceName || "Matter Light/Outlet (BETA)";
+      },
+      paletteLabel: "Matter Light/Outlet (BETA)",
+      oneditprepare: function () {
+        // Go to the help panel
+        try {
+          RED.sidebar.show("help");
+        } catch (error) { }
+
+
+        var node = this; // Starting from v 4.1.31
+        $("#node-input-updateLocalStateFromKNXWrite").prop("checked", node.updateLocalStateFromKNXWrite === true || node.updateLocalStateFromKNXWrite === "true"); // Starting from v 4.1.31
+        const ensureConfigSelection = (selector) => {
+          if ($(selector).val() !== "_ADD_") return;
+          try {
+            $(selector).prop("selectedIndex", 0);
+          } catch (error) {
+            // Ignore UI quirks for legacy Node-RED versions
+          }
+        };
+        ["#node-input-serverMatter"].forEach(ensureConfigSelection);
+
+        function ensureVerticalTabsStyle() {
+          if ($('#knxUltimateMatterLightVerticalTabs').length) return;
+          const style = `
+            <style id="knxUltimateMatterLightVerticalTabs">
+              .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+                display: flex;
+                border: none;
+                padding: 0;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav {
+                flex: 0 0 180px;
+                border-right: 1px solid #ccc;
+                border-left: none;
+                border-top: none;
+                border-bottom: none;
+                padding: 0.5em 0.3em;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li {
+                float: none;
+                width: 100%;
+                margin: 0 0 2px 0;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li a {
+                display: block;
+                width: 100%;
+                white-space: normal;
+                position: relative;
+                border-bottom: none !important;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+                border-bottom: none !important;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 50%;
+                height: 3px;
+                background: currentColor;
+              }
+              .hue-vertical-tabs .ui-tabs-panel {
+                flex: 1;
+                padding: 0.8em 1em;
+                box-sizing: border-box;
+                border: none;
+                background: transparent;
+              }
+              .hue-vertical-tabs .form-row > dt {
+                flex: 1 1 auto;
+                margin: 0;
+              }
+              .hue-vertical-tabs hr {
+                width: 100%;
+                border: 0;
+                border-top: 1px solid #ccc;
+                margin: 8px 0;
+              }
+            </style>`;
+          $('head').append(style);
+        }
+
+        function onEditPrepare() {
+          ensureVerticalTabsStyle();
+          const $knxServerInput = $("#node-input-server");
+          const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+          // Variable names kept from the Hue-born code; they now point to the Matter widgets.
+          const $hueServerInput = $("#node-input-serverMatter");
+          const $hueDeviceInput = $("#node-input-matterNodeId");
+          const $deviceNameInput = $("#node-input-matterDeviceName");
+          const $matterEndpointInput = $("#node-input-matterEndpointId");
+          const $matterCapabilitiesInput = $("#node-input-matterDeviceCapabilities");
+          const $nodeNameInput = $("#node-input-name");
+          const $refreshDevicesButton = $(".hue-refresh-devices");
+          const $locateDeviceButton = $(".hue-locate-device");
+          const $hueDevicesLoading = $(".hue-devices-loading");
+          let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
+          node._cachedHueLightDevices = cachedHueDevices;
+          const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
+          if (($hueDeviceInput.val() || '').trim() === '' && node.matterNodeId) {
+            $hueDeviceInput.val(node.matterNodeId);
+          }
+          if (($matterEndpointInput.val() || '').trim() === '' && node.matterEndpointId) {
+            $matterEndpointInput.val(node.matterEndpointId);
+          }
+          if (($matterCapabilitiesInput.val() || '').trim() === '' && node.matterDeviceCapabilities) {
+            $matterCapabilitiesInput.val(node.matterDeviceCapabilities);
+          }
+          if (($nodeNameInput.val() || '').trim() === '' && node.name) {
+            $nodeNameInput.val(node.name);
+          }
+          if (($deviceNameInput.val() || '').trim() === '' && node.matterNodeId && node.name) {
+            $deviceNameInput.val(node.name);
+          }
+          let selectedMatterDeviceName = ($deviceNameInput.val() || '').trim();
+          let showingNoHueDevicesPlaceholder = false;
+          const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+          let locateSessionActive = false;
+          let locateAutoResetTimer = null;
+          let locatePendingRequest = null;
+          node.__stopHueLocateSession = null;
+          node.__cleanupNodeRemovalListener = null;
+          if (!node.__locateSessionInfo) node.__locateSessionInfo = null;
+          node.__hueLocateActive = false;
+
+          const clearLocateAutoReset = () => {
+            if (locateAutoResetTimer !== null) {
+              clearTimeout(locateAutoResetTimer);
+              locateAutoResetTimer = null;
+            }
+          };
+
+          const scheduleLocateAutoReset = (durationMs) => {
+            clearLocateAutoReset();
+            const ms = Number(durationMs);
+            if (!Number.isFinite(ms) || ms <= 0) return;
+            locateAutoResetTimer = setTimeout(() => {
+              updateLocateButtonState(false);
+            }, ms);
+          };
+
+          const updateLocateButtonState = (isActive) => {
+            locateSessionActive = !!isActive;
+            node.__hueLocateActive = locateSessionActive;
+            if (!locateSessionActive) {
+              clearLocateAutoReset();
+              node.__locateSessionInfo = null;
+            }
+            if (!$locateDeviceButton.length) return;
+            const $icon = $locateDeviceButton.find('i').first();
+            if ($icon.length) {
+              $icon.removeClass('fa-stop fa-play').addClass(locateSessionActive ? 'fa fa-stop' : 'fa fa-play');
+            }
+            const title = locateSessionActive
+              ? (node._('knxUltimateMatterLight.locate_stop_title') || 'Stop Hue locate')
+              : (node._('knxUltimateMatterLight.locate_start_title') || 'Locate selected Hue device');
+            $locateDeviceButton.attr('title', title);
+          };
+
+          const removeNodeRemovalListener = () => {
+            if (typeof node.__cleanupNodeRemovalListener === 'function') {
+              try {
+                RED.events.removeListener('nodes:remove', node.__cleanupNodeRemovalListener);
+              } catch (error) { /* empty */ }
+              node.__cleanupNodeRemovalListener = null;
+            }
+          };
+
+          const collectRemovedIds = (input, bucket = new Set()) => {
+            if (!input) return bucket;
+            if (Array.isArray(input)) {
+              input.forEach((entry) => collectRemovedIds(entry, bucket));
+              return bucket;
+            }
+            if (typeof input === 'string') {
+              bucket.add(input);
+              return bucket;
+            }
+            if (typeof input === 'object') {
+              if (input.id) bucket.add(input.id);
+              if (input.nodes) collectRemovedIds(input.nodes, bucket);
+            }
+            return bucket;
+          };
+
+          const handleNodeRemoved = (payload) => {
+            const ids = collectRemovedIds(payload);
+            if (ids.has(node.id) && typeof node.__stopHueLocateSession === 'function') {
+              node.__stopHueLocateSession();
+              removeNodeRemovalListener();
+            }
+          };
+          RED.events.on('nodes:remove', handleNodeRemoved);
+          node.__cleanupNodeRemovalListener = handleNodeRemoved;
+
+          const buildLocateContext = ({ allowStored = false } = {}) => {
+            const hueServerId = resolveHueServerValue({ allowStored });
+            const rawDevice = getHueDeviceValue({ allowStored });
+            if (!hueServerId || !rawDevice) return null;
+            const parts = String(rawDevice).split('#');
+            const deviceId = (parts[0] || '').trim();
+            if (deviceId === '') return null;
+            const deviceType = (parts[1] || 'light').trim() || 'light';
+            return { serverId: hueServerId, deviceId, deviceType };
+          };
+
+          const performLocateRequest = ({ silent = false, allowStoredContext = false, action } = {}) => {
+            const context = buildLocateContext({ allowStored: allowStoredContext });
+            if (!context) {
+              if (!silent) {
+                const message = !resolveHueServerValue({ allowStored: true })
+                  ? (node._('knxUltimateMatterLight.locate_no_bridge') || 'Select a Hue bridge first')
+                  : (node._('knxUltimateMatterLight.locate_no_device') || 'Select a Hue device first');
+                RED.notify(message, 'warning');
+              }
+              updateLocateButtonState(false);
+              return null;
+            }
+            if ($locateDeviceButton.length) {
+              $locateDeviceButton.prop('disabled', true);
+            }
+            const effectiveAction = action || (locateSessionActive ? 'stop' : 'start');
+            const request = $.ajax({
+              type: 'POST',
+              url: 'KNXUltimateLocateHueDevice',
+              data: {
+                serverId: context.serverId,
+                deviceId: context.deviceId,
+                deviceType: context.deviceType,
+                action: effectiveAction
+              }
+            });
+            locatePendingRequest = request;
+            if (!allowStoredContext && effectiveAction === 'start') {
+              node.__locateSessionInfo = {
+                serverId: context.serverId,
+                deviceId: context.deviceId,
+                deviceType: context.deviceType
+              };
+            } else if (!node.__locateSessionInfo && effectiveAction !== 'stop') {
+              node.__locateSessionInfo = {
+                serverId: context.serverId,
+                deviceId: context.deviceId,
+                deviceType: context.deviceType
+              };
+            }
+            request.done((response) => {
+              const statusValue = (response && typeof response.status === 'string') ? response.status.toLowerCase() : 'started';
+              let messageKey;
+              if (effectiveAction === 'stop' || statusValue === 'stopped') {
+                messageKey = 'knxUltimateMatterLight.locate_stopped';
+                node.__locateSessionInfo = null;
+                updateLocateButtonState(false);
+                clearLocateAutoReset();
+              } else if (effectiveAction === 'start' || statusValue === 'started') {
+                messageKey = 'knxUltimateMatterLight.locate_started';
+                node.__locateSessionInfo = {
+                  serverId: context.serverId,
+                  deviceId: context.deviceId,
+                  deviceType: context.deviceType
+                };
+                updateLocateButtonState(true);
+                scheduleLocateAutoReset(response && typeof response.expiresInMs === 'number' ? response.expiresInMs : 600000);
+              } else {
+                messageKey = 'knxUltimateMatterLight.locate_success';
+                node.__locateSessionInfo = null;
+                updateLocateButtonState(false);
+                clearLocateAutoReset();
+              }
+              if (!silent) {
+                const message = node._(messageKey) || (statusValue === 'stopped' ? 'Locate stopped' : 'Locate command sent');
+                RED.notify(message, 'success');
+              }
+            }).fail((xhr) => {
+              let message;
+              if (xhr && xhr.responseJSON && xhr.responseJSON.error) {
+                message = xhr.responseJSON.error;
+              }
+              updateLocateButtonState(false);
+              clearLocateAutoReset();
+              if (!silent) {
+                RED.notify(message || (node._('knxUltimateMatterLight.locate_error') || 'Unable to locate Hue device'), 'error');
+              }
+            }).always(() => {
+              locatePendingRequest = null;
+              if ($locateDeviceButton.length) {
+                $locateDeviceButton.prop('disabled', false);
+              }
+            });
+            return request;
+          };
+
+          const resolveKnxServerValue = () => {
+            const domValue = $knxServerInput.val();
+            if (domValue !== undefined && domValue !== null && domValue !== '') {
+              return domValue;
+            }
+            if (node.server !== undefined && node.server !== null) {
+              return node.server;
+            }
+            return '';
+          };
+
+          const hasKnxServerSelected = () => {
+            const val = resolveKnxServerValue();
+            if (val === undefined || val === null) return false;
+            return !KNX_EMPTY_VALUES.has(val);
+          };
+
+          const resolveHueServerValue = ({ allowStored = false } = {}) => {
+            if ($hueServerInput.length) {
+              const domValue = $hueServerInput.val();
+              if (domValue !== undefined && domValue !== null) {
+                const trimmed = String(domValue).trim();
+                if (trimmed !== '' && !HUE_EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return trimmed;
+              }
+            }
+            if (node.serverMatter !== undefined && node.serverMatter !== null) {
+              const stored = String(node.serverMatter).trim();
+              if (stored !== '' && !HUE_EMPTY_SERVER_VALUES.has(stored.toLowerCase())) return stored;
+            }
+            if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.serverId) {
+              return node.__locateSessionInfo.serverId;
+            }
+            return '';
+          };
+
+          const getHueServerConfig = () => {
+            const id = resolveHueServerValue();
+            if (id === '') return null;
+            try {
+              return RED.nodes.node(id) || null;
+            } catch (error) {
+              return null;
+            }
+          };
+
+          const resolveDeviceTypeSuffix = (deviceType) => {
+            const normalized = (deviceType || '').toLowerCase();
+            return normalized === 'grouped_light' ? '#grouped_light' : '#light';
+          };
+
+          const applyHueDevicesPlaceholder = (hasDevices) => {
+            if (!$deviceNameInput.length) return;
+            if (hasDevices) {
+              if (showingNoHueDevicesPlaceholder) {
+                showingNoHueDevicesPlaceholder = false;
+                $deviceNameInput.attr('placeholder', defaultHueDevicePlaceholder);
+              }
+              return;
+            }
+            const message = node._('knxUltimateMatterLight.no_devices') || defaultHueDevicePlaceholder;
+            showingNoHueDevicesPlaceholder = true;
+            $deviceNameInput.attr('placeholder', message);
+            if (($deviceNameInput.val() || '').trim() === '') {
+              $deviceNameInput.val('');
+            }
+          };
+
+          // Human-readable name of a bridged Matter light: the nodeLabel attribute
+          // (Bridged Device Basic Information), then productLabel, then a pretty type.
+          const matterEndpointLabel = (ep) => {
+            var val = null;
+            (ep.clusters || []).forEach((c) => {
+              (c.attributes || []).forEach((a) => {
+                if (val === null && a.name === 'nodeLabel' && a.value != null && String(a.value).trim() !== '') val = String(a.value).trim();
+              });
+            });
+            if (val === null) {
+              (ep.clusters || []).forEach((c) => {
+                (c.attributes || []).forEach((a) => {
+                  if (val === null && a.name === 'productLabel' && a.value != null && String(a.value).trim() !== '') val = String(a.value).trim();
+                });
+              });
+            }
+            return val;
+          };
+          const matterTypePretty = { 'ma-extendedcolorlight': 'Colour light', 'ma-colortemperaturelight': 'Tunable white', 'ma-dimmablelight': 'Dimmable light', 'ma-onofflight': 'On/off light', 'ma-onoffpluginunit': 'Plug', 'ma-dimmablepluginunit': 'Dimmable plug' };
+          const matterPrettyType = (raw) => {
+            const key = String(raw || '').toLowerCase();
+            if (matterTypePretty[key]) return matterTypePretty[key];
+            return String(raw || '').replace(/^ma-/i, '').replace(/light$/i, ' light') || 'Light';
+          };
+          const normalizeMatterToken = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const getMatterCluster = (ep, clusterId) => (ep.clusters || []).find((c) => Number(c.id) === Number(clusterId));
+          const hasMatterAttribute = (cluster, names) => {
+            const wanted = new Set(names.map(normalizeMatterToken));
+            return !!cluster && (cluster.attributes || []).some((a) => wanted.has(normalizeMatterToken(a.name)));
+          };
+          const hasMatterCommand = (cluster, names) => {
+            const wanted = new Set(names.map(normalizeMatterToken));
+            return !!cluster && (cluster.commands || []).some((cmd) => wanted.has(normalizeMatterToken(cmd.name)));
+          };
+          const matterCapabilitiesFromEndpoint = (ep) => {
+            const deviceTypes = (ep.deviceTypes || []).map(normalizeMatterToken);
+            const typeText = deviceTypes.join(' ');
+            const onOffCluster = getMatterCluster(ep, 6);
+            const levelCluster = getMatterCluster(ep, 8);
+            const colorCluster = getMatterCluster(ep, 768);
+            const hasColorTemperatureType = /colortemperature|extendedcolor/.test(typeText);
+            const hasColorType = /extendedcolor/.test(typeText);
+            const hasLevelType = /dimmable|colortemperature|extendedcolor/.test(typeText);
+            const hasColorTemperature = !!colorCluster && (
+              hasColorTemperatureType ||
+              hasMatterAttribute(colorCluster, ['colorTemperatureMireds', 'colorTempPhysicalMinMireds', 'colorTempPhysicalMaxMireds']) ||
+              hasMatterCommand(colorCluster, ['moveToColorTemperature'])
+            );
+            const hasColor = !!colorCluster && (
+              hasColorType ||
+              hasMatterAttribute(colorCluster, ['currentX', 'currentY', 'currentHue', 'currentSaturation']) ||
+              hasMatterCommand(colorCluster, ['moveToColor', 'moveToHue', 'moveToSaturation', 'moveToHueAndSaturation'])
+            );
+            return {
+              known: true,
+              onOff: !!onOffCluster || /onoff|dimmable|colortemperature|extendedcolor/.test(typeText),
+              level: !!levelCluster || hasLevelType,
+              colorTemperature: hasColorTemperature,
+              color: hasColor
+            };
+          };
+          const parseMatterCapabilities = (raw) => {
+            if (raw && typeof raw === 'object') return raw;
+            if (typeof raw !== 'string' || raw.trim() === '') return null;
+            try {
+              return JSON.parse(raw);
+            } catch (error) {
+              return null;
+            }
+          };
+          const serializeMatterCapabilities = (capabilities) => JSON.stringify(capabilities || {});
+          const getJSONPromise = (url) => new Promise((resolve, reject) => { $.getJSON(url, resolve).fail(reject); });
+
+          // Same name/contract as the Hue filter, on Matter items { value, matterNodeId, matterEndpointId }.
+          const filterHueDevices = (devices, term) => {
+            const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
+            return $.map(devices, (item) => {
+              if (!item || !item.matterNodeId) return null;
+              if (cleaned !== '' && !htmlUtilsfullCSVSearch(item.value, cleaned)) return null;
+              return item;
+            });
+          };
+
+          // Matter counterpart of the Hue device fetch: every commissioned node is
+          // expanded into its light endpoints (clusters OnOff 6 / Level 8 / Color 768),
+          // so a bridge (e.g. a Hue Bridge paired via Matter) lists each lamp.
+          const fetchHueDevices = (term, respond, { forceRefresh = false } = {}) => {
+            const matterServer = getHueServerConfig();
+            if (!matterServer) {
+              applyHueDevicesPlaceholder(true);
+              if (typeof respond === 'function') respond([]);
+              return;
+            }
+            if (!forceRefresh && Array.isArray(cachedHueDevices) && cachedHueDevices.length > 0) {
+              applyHueDevicesPlaceholder(true);
+              if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
+              return;
+            }
+            if ($hueDevicesLoading.length) {
+              $hueDevicesLoading.show();
+            }
+            getJSONPromise(`KNXUltimateMatterGetNodes?serverId=${encodeURIComponent(matterServer.id)}&_=${Date.now()}`)
+              .then((data) => {
+                const devices = (data && Array.isArray(data.devices)) ? data.devices : [];
+                return Promise.all(devices.map((d) =>
+                  getJSONPromise(`KNXUltimateMatterGetStructure?serverId=${encodeURIComponent(matterServer.id)}&nodeId=${encodeURIComponent(d.nodeId)}&_=${Date.now()}`)
+                    .then((s) => ({ device: d, endpoints: (s && Array.isArray(s.endpoints)) ? s.endpoints : [] }))
+                    .catch(() => ({ device: d, endpoints: [] }))
+                ));
+              })
+              .then((results) => {
+                const items = [];
+                results.forEach((entry) => {
+                  const device = entry.device;
+                  const lightEps = entry.endpoints.filter((ep) => Array.isArray(ep.clusters) && ep.clusters.some((c) => [6, 8, 768].indexOf(Number(c.id)) !== -1));
+                  const eps = lightEps.length ? lightEps : entry.endpoints.filter((ep) => Number(ep.endpointId) !== 0);
+                  const many = eps.length > 1;
+                  eps.forEach((ep) => {
+                    const label = matterEndpointLabel(ep);
+                    const typeRaw = (Array.isArray(ep.deviceTypes) && ep.deviceTypes.length) ? ep.deviceTypes[0] : ep.name;
+                    var text;
+                    if (label) text = device.name + ' › ' + label;
+                    else if (many) text = device.name + ' › ' + matterPrettyType(typeRaw) + ' ' + ep.endpointId;
+                    else text = device.name + ' (' + matterPrettyType(typeRaw) + ')';
+                    items.push({
+                      value: text,
+                      matterNodeId: String(device.nodeId),
+                      matterEndpointId: String(ep.endpointId),
+                      matterCapabilities: matterCapabilitiesFromEndpoint(ep)
+                    });
+                  });
+                });
+                cachedHueDevices = items;
+                node._cachedHueLightDevices = cachedHueDevices;
+                const selectedNodeId = String($hueDeviceInput.val() || node.matterNodeId || '');
+                const selectedEndpointId = String($matterEndpointInput.val() || node.matterEndpointId || '');
+                const selectedItem = items.find((item) => String(item.matterNodeId) === selectedNodeId && String(item.matterEndpointId) === selectedEndpointId);
+                if (selectedItem && selectedItem.matterCapabilities) {
+                  currentMatterCapabilities = selectedItem.matterCapabilities;
+                  $matterCapabilitiesInput.val(serializeMatterCapabilities(currentMatterCapabilities));
+                  node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
+                  applyMatterCapabilities(currentMatterCapabilities);
+                }
+                applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+                if (typeof respond === 'function') respond(filterHueDevices(items, term));
+              })
+              .catch(() => {
+                cachedHueDevices = [];
+                node._cachedHueLightDevices = cachedHueDevices;
+                applyHueDevicesPlaceholder(false);
+                if (typeof respond === 'function') respond([]);
+              })
+              .then(() => {
+                if ($hueDevicesLoading.length) {
+                  $hueDevicesLoading.hide();
+                }
+              });
+          };
+
+          // TIMER BLINK ####################################################
+          let blinkStatus = 2;
+          let timerBlinkBackground;
+          function blinkBackground(_elementIDwithHashAtTheBeginning) {
+            if (timerBlinkBackground !== undefined) clearInterval(timerBlinkBackground);
+            timerBlinkBackground = setInterval(() => {
+              if (isEven(blinkStatus)) $(_elementIDwithHashAtTheBeginning).css("background-color", "lightgreen");
+              if (!isEven(blinkStatus)) $(_elementIDwithHashAtTheBeginning).css("background-color", "");
+              blinkStatus += 1;
+              if (blinkStatus >= 14) {
+                clearInterval(timerBlinkBackground);
+                blinkStatus = 2;
+                $(_elementIDwithHashAtTheBeginning).css("background-color", "");
+              }
+            }, 100);
+          }
+          function isEven(n) {
+            return (n % 2 == 0);
+          }
+          // ################################################################
+
+
+          const $tabs = $("#tabs");
+          const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
+          const $pinSelect = $("#node-input-enableNodePINS");
+          const $pinInfoRow = $pinSectionRow.next('.form-tips');
+          let currentMatterCapabilities = parseMatterCapabilities($matterCapabilitiesInput.val() || node.matterDeviceCapabilities);
+          $tabs.addClass('hue-vertical-tabs');
+          $tabs.tabs(); // Tabs gestione KNX
+          $tabs.find('ul').addClass('ui-tabs-nav');
+          $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+
+          function getDPT(_dpt, _destinationWidget) {
+            // DPT Switch command
+            // ########################
+            const prefixes = Array.isArray(_dpt) ? _dpt : [_dpt];
+            $(_destinationWidget).empty();
+            if (!hasKnxServerSelected()) {
+              return;
+            }
+            const serverId = resolveKnxServerValue();
+            $.getJSON(`knxUltimateDpts?serverId=${serverId}&_=${Date.now()}`, (data) => {
+              data.forEach((dpt) => {
+                if (prefixes.some((prefix) => prefix === "" || dpt.value.startsWith(prefix))) {
+                  // Adjustment for HUE Temperature
+                  if (dpt.value.startsWith("7.600")) {
+                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute)"));
+                  } else if (dpt.value.startsWith("9.002")) {
+                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - HUE Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute_float)"));
+                  } else if (dpt.value.startsWith("5.001")) {
+                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - Homeassistant color_temperature_mode: relative"));
+                  } else {
+                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
+                  }
+                }
+              });
+              // Eval
+              const format = "node." + _destinationWidget.replace("#node-input-", "");
+              try {
+                if (format !== undefined) $(_destinationWidget).val(eval(format).toString());
+              } catch (error) { }
+            });
+          }
+
+          function getGroupAddress(_sourceWidgetAutocomplete, _destinationWidgetName, _destinationWidgetDPT, _additionalSearchTerm) {
+            $(_sourceWidgetAutocomplete).autocomplete({
+              minLength: 0,
+              source: function (request, response) {
+                if (!hasKnxServerSelected()) {
+                  response([]);
+                  return;
+                }
+                const serverId = resolveKnxServerValue();
+                $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
+                  response(
+                    $.map(data, function (value, key) {
+                      var sSearch = value.ga + " (" + value.devicename + ") DPT" + value.dpt;
+                      for (let index = 0; index < _additionalSearchTerm.length; index++) {
+                        const sDPT = _additionalSearchTerm[index];
+                        if (htmlUtilsfullCSVSearch(sSearch, request.term + " " + sDPT)) {
+                          return {
+                            label: value.ga + " # " + value.devicename + " # " + value.dpt, // Label for Display
+                            value: value.ga, // Value
+                          };
+                        }
+                      };
+                    })
+                  );
+                });
+              },
+              select: function (event, ui) {
+                // Sets Datapoint and device name automatically
+                var sDevName = ui.item.label.split("#")[1].trim();
+                try {
+                  sDevName = sDevName.substr(sDevName.indexOf(")") + 1).trim();
+                } catch (error) { }
+                $(_destinationWidgetName).val(sDevName);
+                var optVal = $(_destinationWidgetDPT + " option:contains('" + ui.item.label.split("#")[2].trim() + "')").attr("value");
+                const $dptSelect = $(_destinationWidgetDPT);
+                if (optVal !== undefined && optVal !== null) {
+                  $dptSelect.val(optVal).trigger('change');
+                } else {
+                  // Ensure downstream widgets refresh even when the DPT is missing
+                  $dptSelect.trigger('change');
+                }
+              },
+            }).focus(function () {
+              $(this).autocomplete('search', $(this).val() + 'exactmatch');
+            });
+            try {
+              if (hasKnxServerSelected()) {
+                const srv = RED.nodes.node(resolveKnxServerValue());
+                if (srv && srv.id) KNX_enableSecureFormatting($(_sourceWidgetAutocomplete), srv.id);
+              }
+            } catch (e) { }
+          }
+
+          const refreshKnxBindings = () => {
+            getDPT("1.", "#node-input-dptLightSwitch");
+            getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", ["1."]);
+
+            getDPT("1.", "#node-input-dptLightState");
+            getGroupAddress("#node-input-GALightState", "#node-input-nameLightState", "#node-input-dptLightState", ["1."]);
+
+            getDPT("3.007", "#node-input-dptLightDIM");
+            getGroupAddress("#node-input-GALightDIM", "#node-input-nameLightDIM", "#node-input-dptLightDIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightBrightness");
+            getGroupAddress("#node-input-GALightBrightness", "#node-input-nameLightBrightness", "#node-input-dptLightBrightness", ["5.001"]);
+
+            getDPT("5.001", "#node-input-dptLightBrightnessState");
+            getGroupAddress("#node-input-GALightBrightnessState", "#node-input-nameLightBrightnessState", "#node-input-dptLightBrightnessState", ["5.001"]);
+
+            getDPT("232.600", "#node-input-dptLightColor");
+            getGroupAddress("#node-input-GALightColor", "#node-input-nameLightColor", "#node-input-dptLightColor", ["232.600"]);
+
+            getDPT("232.600", "#node-input-dptLightColorState");
+            getGroupAddress("#node-input-GALightColorState", "#node-input-nameLightColorState", "#node-input-dptLightColorState", ["232.600"]);
+
+            getDPT("3.007", "#node-input-dptLightKelvinDIM");
+            getGroupAddress("#node-input-GALightKelvinDIM", "#node-input-nameLightKelvinDIM", "#node-input-dptLightKelvinDIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightKelvinPercentage");
+            getGroupAddress("#node-input-GALightKelvinPercentage", "#node-input-nameLightKelvinPercentage", "#node-input-dptLightKelvinPercentage", ["5.001"]);
+
+            getDPT("5.001", "#node-input-dptLightKelvinPercentageState");
+            getGroupAddress("#node-input-GALightKelvinPercentageState", "#node-input-nameLightKelvinPercentageState", "#node-input-dptLightKelvinPercentageState", ["5.001"]);
+
+            getDPT("1.", "#node-input-dptLightBlink");
+            getGroupAddress("#node-input-GALightBlink", "#node-input-nameLightBlink", "#node-input-dptLightBlink", ["1."]);
+
+            getDPT("1.", "#node-input-dptLightColorCycle");
+            getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", ["1."]);
+
+            getDPT("1.", "#node-input-dptDaylightSensor");
+            getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", ["1."]);
+
+            getDPT("7.600", "#node-input-dptLightKelvin");
+            getDPT("9.002", "#node-input-dptLightKelvin");
+            getDPT("9.002", "#node-input-dptLightKelvinState");
+            getDPT("7.600", "#node-input-dptLightKelvinState");
+            getGroupAddress("#node-input-GALightKelvin", "#node-input-nameLightKelvin", "#node-input-dptLightKelvin", ["7.600", "9.002"]);
+            getGroupAddress("#node-input-GALightKelvinState", "#node-input-nameLightKelvinState", "#node-input-dptLightKelvinState", ["7.600", "9.002"]);
+
+            // HSV ----------------------
+            // H
+            getDPT("3.007", "#node-input-dptLightHSV_H_DIM");
+            getGroupAddress("#node-input-GALightHSV_H_DIM", "#node-input-nameLightHSV_H_DIM", "#node-input-dptLightHSV_H_DIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightHSV_H_State");
+            getGroupAddress("#node-input-GALightHSV_H_State", "#node-input-nameLightHSV_H_State", "#node-input-dptLightHSV_H_State", ["5.001"]);
+
+            // S
+            getDPT("3.007", "#node-input-dptLightHSV_S_DIM");
+            getGroupAddress("#node-input-GALightHSV_S_DIM", "#node-input-nameLightHSV_S_DIM", "#node-input-dptLightHSV_S_DIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightHSV_S_State");
+            getGroupAddress("#node-input-GALightHSV_S_State", "#node-input-nameLightHSV_S_State", "#node-input-dptLightHSV_S_State", ["5.001"]);
+
+            // V
+            getDPT("3.007", "#node-input-dptLightHSV_V_DIM");
+            getGroupAddress("#node-input-GALightHSV_V_DIM", "#node-input-nameLightHSV_V_DIM", "#node-input-dptLightHSV_V_DIM", ["3.007"]);
+
+            getDPT("5.001", "#node-input-dptLightHSV_V_State");
+            getGroupAddress("#node-input-GALightHSV_V_State", "#node-input-nameLightHSV_V_State", "#node-input-dptLightHSV_V_State", ["5.001"]);
+            // END HSV ----------------------
+          };
+
+          refreshKnxBindings();
+
+          const getHueDeviceValue = ({ allowStored = false } = {}) => {
+            if ($hueDeviceInput.length) {
+              const domValue = $hueDeviceInput.val();
+              if (domValue !== undefined && domValue !== null && domValue !== '') {
+                return domValue;
+              }
+            }
+            if (node.matterNodeId !== undefined && node.matterNodeId !== null && node.matterNodeId !== '') {
+              return node.matterNodeId;
+            }
+            return '';
+          };
+
+          const getEffectiveMatterCapabilities = () => {
+            return currentMatterCapabilities || {
+              known: false,
+              onOff: true,
+              level: true,
+              colorTemperature: true,
+              color: true
+            };
+          };
+
+          const setMatterTabVisible = (tabId, visible) => {
+            const $link = $tabs.find(`a[href="#${tabId}"]`);
+            $link.closest('li').toggle(!!visible);
+            $(`#${tabId}`).toggle(!!visible);
+          };
+
+          const ensureVisibleMatterTabSelected = () => {
+            const $active = $tabs.find('ul.ui-tabs-nav li.ui-tabs-active');
+            if ($active.length && $active.is(':visible')) return;
+            const $firstVisible = $tabs.find('ul.ui-tabs-nav li:visible').first();
+            if (!$firstVisible.length) return;
+            const visibleIndex = $tabs.find('ul.ui-tabs-nav li').index($firstVisible);
+            if (visibleIndex >= 0) {
+              try { $tabs.tabs('option', 'active', visibleIndex); } catch (error) { /* empty */ }
+            }
+          };
+
+          const restrictSelectOptions = ($select, allowedValues, fallbackValue) => {
+            $select.find('option').each(function () {
+              const allowed = allowedValues.indexOf($(this).val()) !== -1;
+              $(this).prop('disabled', !allowed).toggle(allowed);
+            });
+            if (allowedValues.indexOf($select.val()) === -1) {
+              $select.val(fallbackValue);
+            }
+            $select.trigger('change');
+          };
+
+          const applyMatterCapabilities = (capabilities) => {
+            currentMatterCapabilities = capabilities || null;
+            const caps = getEffectiveMatterCapabilities();
+            const hasHueDevice = getHueDeviceValue() !== '';
+            const supportsSwitch = hasHueDevice && caps.onOff !== false;
+            const supportsDim = hasHueDevice && caps.level !== false;
+            const supportsTemperature = hasHueDevice && caps.colorTemperature === true;
+            const supportsColor = hasHueDevice && caps.color === true;
+            const hasRichBehaviour = supportsDim && (supportsTemperature || supportsColor);
+
+            setMatterTabVisible('tabs-1', supportsSwitch);
+            setMatterTabVisible('tabs-2', supportsDim);
+            setMatterTabVisible('tabs-3', supportsTemperature);
+            setMatterTabVisible('tabs-4', supportsColor);
+            setMatterTabVisible('tabs-6', hasHueDevice);
+            try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
+            ensureVisibleMatterTabSelected();
+
+            $("#divUpdateKNXBrightnessStatusOnHUEOnOff").toggle(supportsDim);
+            $("#divBehaviourBrightness").toggle(hasRichBehaviour);
+            const switchOnAllowed = ['no'];
+            const nightAllowed = ['no'];
+            if (supportsColor) {
+              switchOnAllowed.push('yes');
+              nightAllowed.push('yes');
+            }
+            if (supportsTemperature) {
+              switchOnAllowed.push('temperature');
+              nightAllowed.push('temperature');
+            }
+            restrictSelectOptions($("#node-input-specifySwitchOnBrightness"), switchOnAllowed, 'no');
+            restrictSelectOptions($("#node-input-enableDayNightLighting"), nightAllowed, 'no');
+          };
+
+          const updateTabsVisibility = () => {
+            const knxSelected = hasKnxServerSelected();
+            const hueDeviceSelected = getHueDeviceValue() !== '';
+            const shouldShowTabs = knxSelected && hueDeviceSelected;
+
+            if (shouldShowTabs) {
+              $tabs.show();
+              try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
+            } else {
+              $tabs.hide();
+            }
+            applyMatterCapabilities(currentMatterCapabilities);
+
+            if ($pinSelect.length) {
+              const desiredPins = knxSelected ? 'no' : 'yes';
+              if ($pinSelect.val() !== desiredPins) {
+                $pinSelect.val(desiredPins).trigger('change');
+              }
+            }
+
+            if ($pinSectionRow.length) {
+              $pinSectionRow.show();
+            }
+            if ($pinInfoRow.length) {
+              $pinInfoRow.show();
+            }
+          };
+          updateTabsVisibility();
+
+          $knxServerInput.on('change.knxUltimateMatterLight', () => {
+            refreshKnxBindings();
+            updateTabsVisibility();
+          });
+
+          $hueDeviceInput.on('change.knxUltimateMatterLight input.knxUltimateMatterLight', updateTabsVisibility);
+
+          if (($deviceNameInput.val() || '').trim() !== '') {
+            applyHueDevicesPlaceholder(true);
+          } else {
+            applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+          }
+
+          if ($deviceNameInput.length) {
+            if ($deviceNameInput.data('ui-autocomplete')) {
+              try { $deviceNameInput.autocomplete('destroy'); } catch (error) { /* empty */ }
+            }
+            $deviceNameInput.autocomplete({
+              minLength: 0,
+              source(request, response) {
+                fetchHueDevices(request.term, response);
+              },
+              select(event, ui) {
+                if (!ui.item || !ui.item.matterNodeId) {
+                  event.preventDefault();
+                  return;
+                }
+                $deviceNameInput.val(ui.item.value || '');
+                selectedMatterDeviceName = ui.item.value || '';
+                node.matterDeviceName = selectedMatterDeviceName;
+                node.name = selectedMatterDeviceName || node.name;
+                $nodeNameInput.val(node.name);
+                $hueDeviceInput.val(ui.item.matterNodeId);
+                node.matterNodeId = ui.item.matterNodeId;
+                $matterEndpointInput.val(ui.item.matterEndpointId);
+                node.matterEndpointId = ui.item.matterEndpointId;
+                currentMatterCapabilities = ui.item.matterCapabilities || null;
+                $matterCapabilitiesInput.val(currentMatterCapabilities ? serializeMatterCapabilities(currentMatterCapabilities) : '');
+                node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
+                applyMatterCapabilities(currentMatterCapabilities);
+                updateTabsVisibility();
+                setTimeout(() => {
+                  try { $deviceNameInput.autocomplete('close'); } catch (error) { /* empty */ }
+                }, 0);
+              },
+              focus(event, ui) {
+                event.preventDefault();
+              }
+            }).focus(function () {
+              $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+            }).on('input.knxUltimateMatterLight', function () {
+              const typedValue = $(this).val().trim();
+              if (typedValue === '' || typedValue !== selectedMatterDeviceName) {
+                $hueDeviceInput.val('');
+                $matterEndpointInput.val('');
+                $matterCapabilitiesInput.val('');
+                node.matterNodeId = '';
+                node.matterEndpointId = '';
+                node.matterDeviceCapabilities = '';
+                currentMatterCapabilities = null;
+                updateTabsVisibility();
+              }
+            });
+          }
+
+          if ($refreshDevicesButton.length) {
+            $refreshDevicesButton.off('.knxUltimateMatterLight').on('click.knxUltimateMatterLight', () => {
+              cachedHueDevices = [];
+              node._cachedHueLightDevices = cachedHueDevices;
+              fetchHueDevices('', () => {
+                if ($deviceNameInput.length) {
+                  $deviceNameInput.autocomplete('search', `${$deviceNameInput.val()}exactmatch`);
+                }
+              }, { forceRefresh: true });
+            });
+          }
+
+          if ($locateDeviceButton.length) {
+            $locateDeviceButton.off('.knxUltimateMatterLight').on('click.knxUltimateMatterLight', () => {
+              const desiredAction = locateSessionActive ? 'stop' : 'start';
+              performLocateRequest({ silent: false, action: desiredAction });
+            });
+            updateLocateButtonState(false);
+          }
+
+          if ($hueServerInput.length) {
+            $hueServerInput.off('.knxUltimateMatterLightDevices').on('change.knxUltimateMatterLightDevices', () => {
+              cachedHueDevices = [];
+              node._cachedHueLightDevices = cachedHueDevices;
+              showingNoHueDevicesPlaceholder = false;
+              applyHueDevicesPlaceholder(true);
+              node.__locateSessionInfo = null;
+              updateLocateButtonState(false);
+              if ($hueDevicesLoading.length) {
+                $hueDevicesLoading.hide();
+              }
+            });
+          }
+
+          node.__stopHueLocateSession = () => {
+            clearLocateAutoReset();
+            removeNodeRemovalListener();
+            const pending = locatePendingRequest;
+            if (pending && typeof pending.always === 'function') {
+              pending.always(() => {
+                if (node.__locateSessionInfo || locateSessionActive) {
+                  const followUp = performLocateRequest({ silent: true, allowStoredContext: true, action: 'stop' });
+                  if (!followUp || typeof followUp.then !== 'function') {
+                    updateLocateButtonState(false);
+                  }
+                } else {
+                  updateLocateButtonState(false);
+                }
+              });
+              return;
+            }
+            if (locateSessionActive || (node.__locateSessionInfo && node.__locateSessionInfo.deviceId)) {
+              const request = performLocateRequest({ silent: true, allowStoredContext: true, action: 'stop' });
+              if (!request || typeof request.then !== 'function') {
+                updateLocateButtonState(false);
+              }
+            } else {
+              updateLocateButtonState(false);
+            }
+          };
+
+          // Matter lights: expose the full switch-on options statically. The runtime
+          // sends only what the device supports; unsupported commands are ignored.
+          const populateSwitchOnCombos = () => {
+            $("#node-input-specifySwitchOnBrightness").empty()
+              .append($("<option>").val("no").text(node._("knxUltimateMatterLight.none")))
+              .append($("<option>").val("yes").text(node._("knxUltimateMatterLight.select_color")))
+              .append($("<option>").val("temperature").text(node._("knxUltimateMatterLight.select_temperature_brightness")));
+            $("#node-input-enableDayNightLighting").empty()
+              .append($("<option>").val("no").text(node._("knxUltimateMatterLight.opt_no")))
+              .append($("<option>").val("yes").text(node._("knxUltimateMatterLight.select_color")))
+              .append($("<option>").val("temperature").text(node._("knxUltimateMatterLight.select_temperature_brightness")));
+            $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness);
+            $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting);
+            $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
+            $("#divBehaviourBrightness").show();
+            $("#divColorCycle").show();
+            $("#comboTemperatureAtSwitchOn").show();
+            $("#comboTemperatureAtSwitchOnNightTime").show();
+            // "Get current" reads the state from the Hue bridge: not available on Matter.
+            $("#getColorAtSwitchOnDayTimeButton").hide();
+            $("#getColorAtSwitchOnNightTimeButton").hide();
+            applyMatterCapabilities(currentMatterCapabilities);
+          };
+          populateSwitchOnCombos();
+
+          const initialHueDeviceRaw = getHueDeviceValue();
+          if (initialHueDeviceRaw === '') {
+            updateTabsVisibility();
+            return;
+          }
+          $hueDeviceInput.val(initialHueDeviceRaw);
+          updateTabsVisibility();
+          if (!currentMatterCapabilities) {
+            fetchHueDevices('', () => { }, { forceRefresh: true });
+          }
+          // Show/Hide the div of the color at swich on
+          if (node.specifySwitchOnBrightness === "yes") {
+            $("#divColorsAtSwitchOn").show();
+            $("#divTemperatureAtSwitchOn").hide();
+          } else if (node.specifySwitchOnBrightness === "temperature") {
+            $("#divColorsAtSwitchOn").hide();
+            $("#divTemperatureAtSwitchOn").show();
+          } else {
+            $("#divColorsAtSwitchOn").hide();
+            $("#divTemperatureAtSwitchOn").hide();
+          }
+
+          $("#node-input-specifySwitchOnBrightness").on("change", function () {
+            if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
+              $("#divColorsAtSwitchOn").show();
+              $("#divTemperatureAtSwitchOn").hide();
+              blinkBackground("#colorPickerDay");
+            } else if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") {
+              $("#divColorsAtSwitchOn").hide();
+              $("#divTemperatureAtSwitchOn").show();
+            } else {
+              $("#divColorsAtSwitchOn").hide();
+              $("#divTemperatureAtSwitchOn").hide();
+            }
+          });
+
+          // Show/Hide and enable/disable day/night Lighting behaviour
+          if (node.enableDayNightLighting === "yes") {
+            $("#divEnableDayNightLighting").show();
+            $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+            $("#divColorsAtSwitchOnNightTime").show();
+            $("#divTemperatureAtSwitchOnNightTime").hide();
+          } else if (node.enableDayNightLighting === "temperature") {
+            $("#divEnableDayNightLighting").show();
+            $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+            $("#divColorsAtSwitchOnNightTime").hide();
+            $("#divTemperatureAtSwitchOnNightTime").show();
+          } else {
+            $("#divEnableDayNightLighting").hide();
+            $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
+          }
+
+          $("#node-input-enableDayNightLighting").on("change", function () {
+            if ($("#node-input-enableDayNightLighting").val() === "yes") {
+              $("#divEnableDayNightLighting").show();
+              $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+              $("#divColorsAtSwitchOnNightTime").show();
+              $("#divTemperatureAtSwitchOnNightTime").hide();
+              blinkBackground("#colorPickerNight")
+              $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateMatterLight.get_current"));
+            } else if ($("#node-input-enableDayNightLighting").val() === "temperature") {
+              $("#divEnableDayNightLighting").show();
+              $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
+              $("#divColorsAtSwitchOnNightTime").hide();
+              $("#divTemperatureAtSwitchOnNightTime").show();
+            } else {
+              $("#divEnableDayNightLighting").hide();
+              $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
+            }
+          });
+
+          // "Get current" (reading the live state from the Hue bridge) does not exist on
+          // Matter: the buttons are hidden by populateSwitchOnCombos above.
+
+          // Fill options for minDimLevel and maxDimLevel and comboBrightnessAtSwitchOn (for color brightness at switch on, with temperature toghedher)
+          for (let index = 100; index >= 0; index -= 5) {
+            if (index === 0) {
+              $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateMatterLight.switch_off")));
+              $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateMatterLight.switch_off")));
+              $("#comboBrightnessAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateMatterLight.switch_off")));
+            } else {
+              $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
+              $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "%"));
+              $("#comboBrightnessAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "%"));
+            }
+          }
+          // Temperatures, from 2000 to 6535K (circa)
+          for (let index = 2000; index <= 6500; index += 100) {
+            if (index === 2200) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_2200")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_2200")));
+            } else if (index === 2700) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_2700")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_2700")));
+            } else if (index === 3000) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_3000")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_3000")));
+            } else if (index === 3500) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_3500_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_3500_night")));
+            } else if (index === 4100) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_4100_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_4100_night")));
+            } else if (index === 5000) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_5000_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_5000_night")));
+            } else if (index === 6500) {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_6500_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix") + " " + node._("knxUltimateMatterLight.temp_desc_6500_night")));
+            } else {
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterLight.k_suffix")));
+            }
+          }
+
+
+          // Calculate kelvin/color
+          let json;
+          node.colorAtSwitchOnDayTime = node.colorAtSwitchOnDayTime.replace("geen", "green"); // Old bug in "geen" property
+          node.colorAtSwitchOnNightTime = node.colorAtSwitchOnNightTime.replace("geen", "green"); // Old bug in "geen" property
+          try {
+            json = JSON.parse(node.colorAtSwitchOnDayTime);
+          } catch (error) {
+            console.log("json = JSON.parse(node.colorAtSwitchOnDayTime) in HTML: " + error.message)
+          }
+          if (json !== undefined && json.kelvin !== undefined) {
+            // Kelvin
+            $("#comboTemperatureAtSwitchOn").val(json.kelvin);
+            $("#comboBrightnessAtSwitchOn").val(json.brightness);
+            if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('temperature'); // Adjust in case of mismatch (from old geen bug)
+          } else if (json !== undefined && json.red !== undefined) {
+            // Must transform RGB into HTML HEX color
+            try {
+              $("#node-input-colorAtSwitchOnDayTime").val("#" + rgbHex(json.red, json.green, json.blue));
+            } catch (error) {
+            }
+            $("#colorPickerDay").val($("#node-input-colorAtSwitchOnDayTime").val());
+            if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
+          } else {
+            // It's already an HEX color
+            $("#colorPickerDay").val(node.colorAtSwitchOnDayTime);
+            if (node.specifySwitchOnBrightness !== 'no') $("#node-input-specifySwitchOnBrightness").val('yes'); // Adjust in case of mismatch (from old geen bug)
+          }
+          //Night
+          json = undefined;
+          try {
+            json = JSON.parse(node.colorAtSwitchOnNightTime);
+          } catch (error) { }
+          if (json !== undefined && json.kelvin !== undefined) {
+            // Kelvin
+            $("#comboTemperatureAtSwitchOnNightTime").val(json.kelvin);
+            $("#comboBrightnessAtSwitchOnNightTime").val(json.brightness);
+            if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('temperature'); // Adjust in case of mismatch (from old geen bug)
+          } else if (json !== undefined && json.red !== undefined) {
+            // Must transform RGB into HTML HEX color
+            try {
+              $("#node-input-colorAtSwitchOnNightTime").val("#" + rgbHex(json.red, json.green, json.blue));
+            } catch (error) {
+            }
+            $("#colorPickerNight").val($("#node-input-colorAtSwitchOnNightTime").val());
+            if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
+          } else {
+            // It's already an HEX color
+            $("#colorPickerNight").val(node.colorAtSwitchOnNightTime);
+            if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
+          }
+          applyMatterCapabilities(currentMatterCapabilities);
+
+
+          $("#comboTemperatureAtSwitchOn, #comboBrightnessAtSwitchOn").on("change", function () {
+            $("#node-input-colorAtSwitchOnDayTime").val('{ "kelvin":' + $("#comboTemperatureAtSwitchOn").val() + ', "brightness":' + $("#comboBrightnessAtSwitchOn").val() + ' }');
+          });
+          $("#comboTemperatureAtSwitchOnNightTime, #comboBrightnessAtSwitchOnNightTime").on("change", function () {
+            $("#node-input-colorAtSwitchOnNightTime").val('{ "kelvin":' + $("#comboTemperatureAtSwitchOnNightTime").val() + ', "brightness":' + $("#comboBrightnessAtSwitchOnNightTime").val() + ' }');
+          });
+
+          // Create and put the JSON to node-input-colorAtSwitchOnDayTime
+          $("#colorPickerDay").on("change", function () {
+            $("#node-input-colorAtSwitchOnDayTime").val(this.value);
+          });
+          $("#colorPickerNight").on("change", function () {
+            $("#node-input-colorAtSwitchOnNightTime").val(this.value);
+          });
+
+
+          $("#node-input-minDimLevelLight").val(node.minDimLevelLight);
+          for (let index = 100; index >= 10; index--) {
+            $("#node-input-maxDimLevelLight").append(
+              $("<option>")
+                .val(index)
+                .text(index.toString() + "%")
+            );
+          }
+          $("#node-input-maxDimLevelLight").val(node.maxDimLevelLight);
+
+        }
+
+        function Go() {
+          $("#waitWindow").hide();
+          $("#mainWindow").show();
+          // $.post("banana", { func: "getNameAndTime" }, function (data) {
+          //   //alert(data.body); // John
+          // }, "json");
+          try {
+            RED.sidebar.show("help");
+          } catch (error) { }
+          onEditPrepare();
+        }
+
+
+        // The Matter controller needs no readiness poll here: the light list is fetched
+        // on demand by the autocomplete. Start the editor immediately.
+        $("#node-input-serverMatter").change(function () {
+          try {
+            node._cachedHueLightDevices = [];
+          } catch (error) { }
+        });
+        Go();
+        // ################################################################
+
+      },
+
+      oneditsave: function () {
+        // Return to the info tab
+        try {
+          RED.sidebar.show("info");
+        } catch (error) { }
+
+        //RED.sidebar.removeTab("tabNRColor");
+        if ($("#node-input-enableNodePINS").val() === "yes") {
+          this.outputs = 1;
+          this.inputs = 1;
+        } else {
+          this.outputs = 0;
+          this.inputs = 0;
+        }
+
+        this.updateLocalStateFromKNXWrite = $("#node-input-updateLocalStateFromKNXWrite").is(":checked"); // Starting from v 4.1.31
+        this.matterDeviceName = ($("#node-input-matterDeviceName").val() || '').trim();
+        this.matterNodeId = ($("#node-input-matterNodeId").val() || '').trim();
+        this.matterEndpointId = Number($("#node-input-matterEndpointId").val() || 1);
+        this.matterDeviceCapabilities = ($("#node-input-matterDeviceCapabilities").val() || '').trim();
+        this.name = this.matterDeviceName || this.name || '';
+        $("#node-input-name").val(this.name);
+        const parseSavedMatterCapabilities = (raw) => {
+          if (typeof raw !== 'string' || raw.trim() === '') return null;
+          try {
+            return JSON.parse(raw);
+          } catch (error) {
+            return null;
+          }
+        };
+        const clearUnsupportedFields = (fields) => {
+          fields.forEach((field) => {
+            this[field] = '';
+            $(`#node-input-${field}`).val('');
+          });
+        };
+        const savedCapabilities = parseSavedMatterCapabilities(this.matterDeviceCapabilities);
+        if (savedCapabilities && savedCapabilities.known === true) {
+          if (savedCapabilities.onOff === false) {
+            clearUnsupportedFields(['nameLightSwitch', 'GALightSwitch', 'dptLightSwitch', 'nameLightState', 'GALightState', 'dptLightState', 'nameLightBlink', 'GALightBlink', 'dptLightBlink']);
+          }
+          if (savedCapabilities.level === false) {
+            clearUnsupportedFields(['nameLightDIM', 'GALightDIM', 'dptLightDIM', 'nameLightBrightness', 'GALightBrightness', 'dptLightBrightness', 'nameLightBrightnessState', 'GALightBrightnessState', 'dptLightBrightnessState']);
+            this.updateKNXBrightnessStatusOnHUEOnOff = 'no';
+            $("#node-input-updateKNXBrightnessStatusOnHUEOnOff").val('no');
+          }
+          if (savedCapabilities.colorTemperature !== true) {
+            clearUnsupportedFields(['nameLightKelvinDIM', 'GALightKelvinDIM', 'dptLightKelvinDIM', 'nameLightKelvinPercentage', 'GALightKelvinPercentage', 'dptLightKelvinPercentage', 'nameLightKelvinPercentageState', 'GALightKelvinPercentageState', 'dptLightKelvinPercentageState', 'nameLightKelvin', 'GALightKelvin', 'dptLightKelvin', 'nameLightKelvinState', 'GALightKelvinState', 'dptLightKelvinState']);
+            this.invertDimTunableWhiteDirection = false;
+            $("#node-input-invertDimTunableWhiteDirection").prop('checked', false);
+          }
+          if (savedCapabilities.color !== true) {
+            clearUnsupportedFields(['nameLightColor', 'GALightColor', 'dptLightColor', 'nameLightColorState', 'GALightColorState', 'dptLightColorState', 'nameLightHSV_H_DIM', 'GALightHSV_H_DIM', 'dptLightHSV_H_DIM', 'nameLightHSV_H_State', 'GALightHSV_H_State', 'dptLightHSV_H_State', 'nameLightHSV_S_DIM', 'GALightHSV_S_DIM', 'dptLightHSV_S_DIM', 'nameLightHSV_S_State', 'GALightHSV_S_State', 'dptLightHSV_S_State', 'nameLightColorCycle', 'GALightColorCycle', 'dptLightColorCycle']);
+          }
+          if (savedCapabilities.level === false || (savedCapabilities.color !== true && savedCapabilities.colorTemperature !== true)) {
+            this.specifySwitchOnBrightness = 'no';
+            this.enableDayNightLighting = 'no';
+            $("#node-input-specifySwitchOnBrightness").val('no');
+            $("#node-input-enableDayNightLighting").val('no');
+          }
+        }
+        this._cachedHueLightDevices = [];
+        if (typeof this.__stopHueLocateSession === 'function') {
+          try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
+          this.__stopHueLocateSession = null;
+        }
+        if (typeof this.__cleanupNodeRemovalListener === 'function') {
+          try { RED.events.removeListener('nodes:remove', this.__cleanupNodeRemovalListener); } catch (error) { /* empty */ }
+          this.__cleanupNodeRemovalListener = null;
+        }
+        this.__locateSessionInfo = null;
+      },
+      oneditcancel: function () {
+        // Return to the info tab
+        try {
+          RED.sidebar.show("info");
+        } catch (error) { }
+        //RED.sidebar.removeTab("tabNRColor");
+        //RED.sidebar.show("help");
+
+        this._cachedHueLightDevices = [];
+        if (typeof this.__stopHueLocateSession === 'function') {
+          try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
+          this.__stopHueLocateSession = null;
+        }
+        if (typeof this.__cleanupNodeRemovalListener === 'function') {
+          try { RED.events.removeListener('nodes:remove', this.__cleanupNodeRemovalListener); } catch (error) { /* empty */ }
+          this.__cleanupNodeRemovalListener = null;
+        }
+        this.__locateSessionInfo = null;
+      },
+      oneditdelete: function () {
+        if (typeof this.oneditclose === 'function') {
+          try { this.oneditclose(); } catch (error) { /* empty */ }
+        }
+      },
+      oneditclose: function () {
+        if (typeof this.__stopHueLocateSession === 'function') {
+          try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
+        }
+        if (typeof this.__cleanupNodeRemovalListener === 'function') {
+          try { RED.events.removeListener('nodes:remove', this.__cleanupNodeRemovalListener); } catch (error) { /* empty */ }
+          this.__cleanupNodeRemovalListener = null;
+        }
+        this.__stopHueLocateSession = null;
+        this.__hueLocateActive = false;
+        this.__locateSessionInfo = null;
+      },
+      oneditresize: function (size) {
+        //var height = size.height;    
+        //$('.editor-tray-content').css({ "width": "2700px" });
+      }
+    });
+
+    function rgbHex(red, green, blue, alpha) {
+      const toHex = (red, green, blue, alpha) => ((blue | green << 8 | red << 16) | 1 << 24).toString(16).slice(1) + alpha;
+      const parseCssRgbString = (input) => {
+        const parts = input.replace(/rgba?\(([^)]+)\)/, '$1').split(/[,\s/]+/).filter(Boolean);
+        if (parts.length < 3) {
+          return;
+        }
+
+        const parseValue = (value, max) => {
+          value = value.trim();
+
+          if (value.endsWith('%')) {
+            return Math.min(Number.parseFloat(value) * max / 100, max);
+          }
+
+          return Math.min(Number.parseFloat(value), max);
+        };
+
+        const red = parseValue(parts[0], 255);
+        const green = parseValue(parts[1], 255);
+        const blue = parseValue(parts[2], 255);
+        let alpha;
+
+        if (parts.length === 4) {
+          alpha = parseValue(parts[3], 1);
+        }
+
+        return [red, green, blue, alpha];
+      };
+
+      let isPercent = (red + (alpha || '')).toString().includes('%');
+
+      if (typeof red === 'string' && !green) { // Single string parameter.
+        const parsed = parseCssRgbString(red);
+        if (!parsed) {
+          throw new TypeError('Invalid or unsupported color format.');
+        }
+
+        isPercent = false;
+        [red, green, blue, alpha] = parsed;
+      } else if (alpha !== undefined) {
+        alpha = Number.parseFloat(alpha);
+      }
+
+      if (typeof red !== 'number'
+        || typeof green !== 'number'
+        || typeof blue !== 'number'
+        || red > 255
+        || green > 255
+        || blue > 255
+      ) {
+        throw new TypeError('Expected three numbers below 256');
+      }
+
+      if (typeof alpha === 'number') {
+        if (!isPercent && alpha >= 0 && alpha <= 1) {
+          alpha = Math.round(255 * alpha);
+        } else if (isPercent && alpha >= 0 && alpha <= 100) {
+          alpha = Math.round(255 * alpha / 100);
+        } else {
+          throw new TypeError(`Expected alpha value (${alpha}) as a fraction or percentage`);
+        }
+
+        alpha = (alpha | 1 << 8).toString(16).slice(1); // eslint-disable-line no-mixed-operators
+      } else {
+        alpha = '';
+      }
+
+      return toHex(red, green, blue, alpha);
+    }
+  }())
+
+</script>
+
+
+
+<script type="text/html" data-template-name="knxUltimateMatterLight">
+  <div class="form-row" style="margin-bottom:10px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+  <div id="waitWindow">
+    <br/><br/>
+    <p align="center">
+      <i class="fa-solid fa-hourglass-start fa-spin-pulse fa-2x"></i><br/><br/>
+      <span data-i18n="hue-config.properties.wait_message"></span>
+    </p>
+  </div>
+  <div  id="mainWindow" hidden>
+    <div class="form-row">
+      <b><span data-i18n="knxUltimateMatterLight.title"></span></b>&nbsp&nbsp<span style="color:red" &nbsp &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a
+        target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u><span data-i18n="common.youtube_sample"></span></u></a>
+      <br />
+      <br />
+      <p align="center">
+        <i class="fa-regular fa-lightbulb fa-bounce fa-2x"></i>
+      </p>
+      <br />
+      <label for="node-input-server">
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
+        <span data-i18n="common.knx_gw"></span>
+      </label>
+      <input type="text" id="node-input-server" />
+    </div>
+
+    <div class="form-row">
+      <label for="node-input-serverMatter">
+        <i class="fa fa-circle-nodes"></i>
+        <span data-i18n="knxUltimateMatterLight.matter_controller"></span>
+      </label>
+      <input type="text" id="node-input-serverMatter" />
+    </div>
+
+    <br />
+    <p>
+      <b><span data-i18n="knxUltimateMatterLight.matter_section"></span></b>
+    </p>
+
+    <div class="form-row">
+      <label for="node-input-matterDeviceName">
+        <i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateMatterLight.matter_device"></span>
+      </label>
+      <input type="text" id="node-input-matterDeviceName" placeholder="Search your Matter light name"
+        style="flex:1 1 240px; min-width:240px; max-width:240px;" />
+      <button type="button" class="red-ui-button hue-refresh-devices"
+        style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;" title="Refresh Matter lights">
+        <i class="fa fa-sync"></i>
+      </button>
+      <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+        <i class="fa fa-circle-notch fa-spin"></i>
+      </span>
+      <input type="hidden" id="node-input-matterNodeId" />
+      <input type="hidden" id="node-input-matterEndpointId" />
+      <input type="hidden" id="node-input-matterDeviceCapabilities" />
+      <input type="hidden" id="node-input-name" />
+    </div>
+
+    <br />
+
+    <div id="tabs" style="display:none; width: 900px;">
+      <ul>
+        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> <span data-i18n="knxUltimateMatterLight.tabs.switch"></span></a></li>
+        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> <span data-i18n="knxUltimateMatterLight.tabs.dim"></span></a></li>
+        <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> <span data-i18n="knxUltimateMatterLight.tabs.tunable_white"></span></a></li>
+        <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateMatterLight.tabs.rgb_hsv"></span></a></li>
+        <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateMatterLight.tabs.behaviour"></span></a></li>
+      </ul>
+      <div id="tabs-1">
+        <p>
+        <div class="form-row">
+          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateMatterLight.control"></span></label>
+
+          <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightSwitch" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightSwitch" style="width:140px;"></select>
+
+          <label for="node-input-nameLightSwitch" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterLight.status"></span></label>
+
+          <label for="node-input-GALightState" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightState" style="width:140px;"></select>
+
+          <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightState" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        </p>
+      </div>
+      <div id="tabs-2">
+        <p>
+          <img src="resources/node-red-contrib-knx-ultimate/dim.png" style="width: 900px;">
+        <div class="form-row">
+          <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
+
+          <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightDIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+            %</label>
+
+          <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightBrightness" style="width:140px;"></select>
+
+          <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightBrightness" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <div class="form-row">
+          <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-question-circle"></i> Status %</label>
+
+          <label for="node-input-GALightBrightnessState" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightBrightnessState"
+            style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
+
+          <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightBrightnessState"
+            style="width:190px;margin-left: 5px; text-align: left;">
+        </div>   
+        <div class="form-row">
+          <label for="node-input-dimSpeed" style="width:260px">
+            <i class="fa fa-bolt"></i> Dim Speed (ms)
+          </label>
+          <input type="text" id="node-input-dimSpeed" placeholder='Default is 5000' style="width:210px">
+        </div>
+        <div class="form-row">
+          <label for="node-input-minDimLevelLight" style="width:260px;">
+            <i class="fa fa-clone"></i> Min Dim Brightness
+          </label>
+          <select id="node-input-minDimLevelLight">
+            <option value="useHueLightLevel" data-i18n="knxUltimateMatterLight.use_min_brightness"></option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="node-input-maxDimLevelLight" style="width:260px;">
+            <i class="fa fa-clone"></i> Max Dim Brightness
+          </label>
+          <select id="node-input-maxDimLevelLight"></select>
+        </div>    
+        </p>
+      </div>
+      <div id="tabs-3">
+        <p>
+          <img src="resources/node-red-contrib-knx-ultimate/tunablewhite.png" style="width: 900px;">
+        <div class="form-row">
+          <label for="node-input-nameLightKelvinDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control dim</label>
+
+          <label for="node-input-GALightKelvinDIM" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightKelvinDIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightKelvinDIM" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightKelvinDIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightKelvinDIM" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-nameLightKelvinDIM" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightKelvinPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+            %</label>
+
+          <label for="node-input-GALightKelvinPercentage" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightKelvinPercentage" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightKelvinPercentage" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightKelvinPercentage" style="width:140px;"></select>
+
+          <label for="node-input-nameLightKelvinPercentage"
+            style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+          <input type="text" id="node-input-nameLightKelvinPercentage" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightKelvinPercentageState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
+            %</label>
+
+          <label for="node-input-GALightKelvinPercentageState" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightKelvinPercentageState" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightKelvinPercentageState" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightKelvinPercentageState" style="width:140px;"></select>
+
+          <label for="node-input-nameLightKelvinPercentageState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-nameLightKelvinPercentageState" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
+            Kelvin</label>
+
+          <label for="node-input-GALightKelvin" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightKelvin" style="width:140px;"></select>
+
+          <label for="node-input-nameLightKelvin" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>        
+        <div class="form-row">
+          <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
+            Kelvin</label>
+          <label for="node-input-GALightKelvinState" style="width:20px;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-GALightKelvinState" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightKelvinState" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightKelvinState" style="width:140px;"></select>
+
+          <label for="node-input-nameLightKelvinState" style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-nameLightKelvinState" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label style="width:170px" for="node-input-invertDimTunableWhiteDirection">
+            <i class="fa fa-shuffle"></i> Invert dim direction
+          </label>
+          <input type="checkbox" id="node-input-invertDimTunableWhiteDirection"
+            style="display:inline-block; width:auto; vertical-align:top;" />
+        </div>
+        </p>
+      </div>
+      <div id="tabs-4">
+        <p>
+          <img src="resources/node-red-contrib-knx-ultimate/rgb.png" style="width: 900px;">
+          <p><b> RGB section</b></p>
+          <div class="form-row">
+          <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control rgb</label>
+
+          <label for="node-input-GALightColor" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightColor" style="width:140px;"></select>
+
+          <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> Status rgb</label>
+
+          <label for="node-input-GALightColorState" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightColorState" style="width:140px;"></select>
+
+          <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightColorState" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <p><b> HSV section</b></p>
+        <!-- // HSV Color change
+        // nameLightHSV_H_DIM: { value: "" },
+        // GALightHSV_H_DIM: { value: "" },
+        // dptLightHSV_H_DIM: { value: "" }, -->
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_H_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control H dim</label>
+
+          <label for="node-input-GALightHSV_H_DIM" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_H_DIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+ 
+          <label for="node-input-dptLightHSV_H_DIM" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightHSV_H_DIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_H_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_H_DIM" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_H_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status H %</label>
+
+          <label for="node-input-GALightHSV_H_State" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_H_State" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightHSV_H_State" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightHSV_H_State" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_H_State" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_H_State" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <!-- // HSV Saturation change
+        nameLightHSV_S_DIM: { value: "" },
+        GALightHSV_S_DIM: { value: "" },
+        dptLightHSV_S_DIM: { value: "" },
+        nameLightHSV_S_State: { value: "" },
+        GALightHSV_S_State: { value: "" },
+        dptLightHSV_S_State: { value: "" }, -->
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_S_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control S dim</label>
+
+          <label for="node-input-GALightHSV_S_DIM" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_S_DIM" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+ 
+          <label for="node-input-dptLightHSV_S_DIM" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightHSV_S_DIM" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_S_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_S_DIM" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-nameLightHSV_S_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status S %</label>
+
+          <label for="node-input-GALightHSV_S_State" style="width:20px;"><span
+              data-i18n="knxUltimateMatterLight.node-input-GALightState"></span></label>
+          <input type="text" id="node-input-GALightHSV_S_State" placeholder="Ex: 1/1/1"
+            style="width:70px;margin-left: 5px; text-align: left;">
+
+          <label for="node-input-dptLightHSV_S_State" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+          <select id="node-input-dptLightHSV_S_State" style="width:140px;"></select>
+
+          <label for="node-input-nameLightHSV_S_State" style="width:50px; margin-left: 0px; text-align: right;"><span
+              data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+          <input type="text" id="node-input-nameLightHSV_S_State" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+
+        <!-- // HSV V Brightness change
+        nameLightHSV_V_DIM: { value: "" },
+        GALightHSV_V_DIM: { value: "" },
+        dptLightHSV_V_DIM: { value: "" },
+        nameLightHSV_V_State: { value: "" },
+        GALightHSV_V_State: { value: "" },
+        dptLightHSV_V_State: { value: "" }, -->
+        <div class="form-row">
+          <label for="node-input-HSVDimSpeed" style="width:260px">
+            <i class="fa fa-bolt"></i> Dim Speed (ms)
+          </label>
+          <input type="text" id="node-input-HSVDimSpeed" placeholder='Default is 5000' style="width:210px">
+        </div>
+        
+        </p>
+      </div>
+      <div id="tabs-6">
+        <p>
+        <div class="form-row">
+          <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterLight.read_status_startup"></span></label>
+          <select id="node-input-readStatusAtStartup">
+            <option value="no" data-i18n="knxUltimateMatterLight.opt_no"></option>
+            <option value="yes" data-i18n="knxUltimateMatterLight.opt_yes_emit"></option>
+          </select>
+        </div>
+        <div class="form-row" id="divUpdateKNXBrightnessStatusOnHUEOnOff">
+          <label style="width:260px;" for="node-input-updateKNXBrightnessStatusOnHUEOnOff">
+            <i class="fa fa-tag"></i> <span data-i18n="knxUltimateMatterLight.knx_brightness_status"></span>
+          </label>
+          <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
+            <option value="onhueoff" data-i18n="knxUltimateMatterLight.knx_brightness_onhueoff"></option>
+            <option value="no" data-i18n="knxUltimateMatterLight.knx_brightness_no"></option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label style="width:260px;" for="node-input-updateLocalStateFromKNXWrite">
+            <i class="fa fa-database"></i> <span data-i18n="knxUltimateMatterLight.update_local_state_from_knx_write"></span>
+          </label>
+          <input type="checkbox" id="node-input-updateLocalStateFromKNXWrite" style="display:inline-block; width:auto; vertical-align:top;" />
+        </div>
+        <div class="form-tips" style="margin-left:260px;" data-i18n="knxUltimateMatterLight.update_local_state_from_knx_write_hint"></div><br/>
+        <div id ="divBehaviourBrightness">
+          <div class="form-row">
+            <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
+              <i class="fa fa-tag"></i> <span data-i18n="knxUltimateMatterLight.switch_on_behaviour"></span>
+            </label>
+            <select id="node-input-specifySwitchOnBrightness">
+              <option value="no" data-i18n="knxUltimateMatterLight.none"></option>
+              <option value="temperature" data-i18n="knxUltimateMatterLight.select_temperature_brightness"></option>
+              <option value="yes" data-i18n="knxUltimateMatterLight.select_color"></option>
+            </select>
+          </div>
+
+          <div class="form-row" id="divColorsAtSwitchOn">
+            <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+            </label>
+            <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
+            <input type="color" id="colorPickerDay" style="width:260px">
+            <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateMatterLight.get_current"></span></button>
+          </div>
+          <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
+            <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
+            </label>
+            <select style="width:12%;" id="comboTemperatureAtSwitchOn"></select>
+            <select  style="width:25%;" id="comboBrightnessAtSwitchOn"></select>      
+          </div>
+
+          <div id="divCCSBoxAtNightLighting">
+            <div class="form-row">
+              <label for="node-input-enableDayNightLighting" style="width:260px;">
+                <i class="fa fa-clone"></i> <span data-i18n="knxUltimateMatterLight.night_lighting"></span>
+              </label>
+              <select id="node-input-enableDayNightLighting">
+                <option value="no" data-i18n="knxUltimateMatterLight.no_night_lighting"></option>
+                <!-- <option value="temperature">Select temperature and brightness</option>
+                <option value="yes">Select color</option> -->
+              </select>
+            </div>
+
+            <div id="divEnableDayNightLighting">
+
+              <div class="form-row" id="divColorsAtSwitchOnNightTime">
+                <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
+                <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
+                <input type="color" id="colorPickerNight" style="width:260px">
+                <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateMatterLight.get_current"></span></button>
+              </div>
+              <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
+                <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
+                <select style="width:25%;" id="comboTemperatureAtSwitchOnNightTime"></select>
+                <select style="width:25%;" id="comboBrightnessAtSwitchOnNightTime"></select>      
+              </div>
+
+              <div class="form-row">
+                <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
+                  <span data-i18n="knxUltimateMatterLight.day_night"></span></label>
+                <label for="node-input-GADaylightSensor" style="width:20px;"><span data-i18n="common.ga"></span></label>
+                <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
+                  style="width:70px;margin-left: 5px; text-align: left;">
+
+                <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
+                <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
+
+                <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span
+                    data-i18n="knxUltimateMatterLight.node-input-name"></span></label>
+                <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
+              </div>
+              <div class="form-row">
+                <label style="width:170px" for="node-input-invertDayNight">
+                  <i class="fa fa-shuffle"></i> <span data-i18n="knxUltimateMatterLight.invert_day_night"></span>
+                </label>
+                <input type="checkbox" id="node-input-invertDayNight"
+                  style="display:inline-block; width:auto; vertical-align:top;" />
+              </div>
+              <div class="form-row">
+                <label for="node-input-restoreDayMode" style="width:260px;">
+                  <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterLight.override_night_mode"></span>
+                </label>
+                <select id="node-input-restoreDayMode">
+                  <option value="no" data-i18n="knxUltimateMatterLight.override_no"></option>
+                  <option value="setDayByFastSwitchLightSingle" data-i18n="knxUltimateMatterLight.override_set_day_fast_this"></option>
+                  <option value="setDayByFastSwitchLightALL" data-i18n="knxUltimateMatterLight.override_set_day_fast_all"></option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <br/>
+        </div>
+        <div class="form-row">
+          <label for="node-input-enableNodePINS" style="width:260px;">
+            <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterLight.node_pins"></span>
+          </label>
+          <select id="node-input-enableNodePINS">
+            <option value="no" data-i18n="knxUltimateMatterLight.node_pins_hide"></option>
+            <option value="yes" data-i18n="knxUltimateMatterLight.node_pins_show"></option>
+          </select>
+        </div>
+        </p>
+      </div>
+    </div>
+  </div>
+<br />
+</script>
+
+
+<script type="text/markdown" data-help-name="knxUltimateMatterLight">
+<p>This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.</p>
+
+**General**
+
+This node was born from the Hue Light node: same KNX group-address model and behaviour,
+with the Philips Hue engine replaced by the **Matter controller** engine. A Matter bridge
+(for example a Hue Bridge paired via Matter) is expanded into its lamps in the picker.
+Hue-only features (native effects, locate) are not available on Matter.
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Matter controller | Select the Matter controller configuration to be used |
+| Matter device | Matter light or plug to use (autocomplete while typing).|
+
+<br/>
+
+**OPTIONS**
+
+Here you can link KNX Group Addresses to the available Hue commands/states.<br/>
+Start typing in the GA field (name or Group Address); suggestions appear while you type.
+
+**Switch**
+
+|Property|Description|
+|--|--|
+| Control | This GA is used to turn on/off the Hue light via a boolean KNX value true/false|
+| Status | Link this to the light's switch status group address|
+
+<br/>
+
+**Dim**
+
+|Property|Description|
+|--|--|
+| Control dim | Relative DIM of the Hue light. You can set the dimming speed in the **Behaviour** tab. |
+| Control % | Changes the absolute Hue light's brightness (0-100%)|
+| Status % | Link this to the light's brightness status KNX group address |
+| Dim Speed (ms) | Dimming speed in milliseconds. Applies to both the light brightness and the tunable-white datapoints. Calculated over the 0%→100% range. |
+| Min Dim brightness | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %. |
+| Max Dim brightness | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %. |
+
+<br/>
+
+**Tunable White**
+
+|Property|Description|
+|--|--|
+| Control dim | Change white temperature using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
+| Control % | Change white temperature using DPT 5.001. 0 = full warm, 100 = full cold.|
+| Status %| Temperature status GA. DPT 5.001 absolute value: 0 = full warm, 100 = full cold.|
+| Control kelvin | **DPT 7.600: ** set temperature in Kelvin using the KNX range 2000-6535 (converted to Hue mirek).<br/>**DPT 9.002:** set temperature using Hue range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations.|
+| Status kelvin | **DPT 7.600: ** read temperature in Kelvin using KNX range 2000-6535 (converted from Hue).<br/>**DPT 9.002:** read temperature using Hue range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations. |
+| Invert dim direction | Inverts the DIM direction. |
+<br/>
+
+**RGB/HSV**
+
+|Property|Description|
+|--|--|
+| **RGB section** ||
+| Control rgb| Change color using RGB triplet (r,g,b). Gamut correction is handled. Sending a color turns the light on and sets color/brightness (perceptual). Sending r,g,b = 0 turns the light off. |
+| Status rgb | The light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+| **HSV section** ||
+| Color H dim | Cycle through HSV hue using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
+| Status H %| Status of the HSV chromatic circle.|
+| Control S dim | Changes the light's color saturation, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Status S %| The light color saturation status group address.|
+| Dim Speed (ms) | The dimming speed, in Milliseconds, from bottom to top scale. |
+
+For controlling the HSV "V” (brightness), use the standard controls under the **Dim** tab.
+
+<br/>
+
+**Effects**
+
+_Non-Hue basic effects_
+
+|Property|Description|
+|--|--|
+| Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all Hue lights. |
+| Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the Hue light's color at regular interval. Works with all Hue lights having color capabilities. The color effect will start 10 seconds after set. |
+
+<br/>
+
+**Behaviour**
+
+| Property | Description |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read status at startup | Read the Hue light status at node-red's startup or node-red's full deploy, and send that status to the KNX BUS |
+| KNX Brightness Status | Updates the KNX brightness group address status, whenever the Hue lamp is switched ON/OFF. The options are **When Hue light is Off send 0%. When Hue On, restore previous value (Default KNX behaviour) ** and**Leave as is (default Hue behaviour) ** . If you have KNX dimmer with brightness status, like MDT, the suggested option is _**When Hue light is Off send 0%. When Hue On, restore previous value (Default KNX behaviour)** _ |
+| Update local cached Hue state from KNX bus writes | Advanced option, enabled by default. When enabled, writes arriving from the KNX bus also update the node's local cached Hue state immediately, without waiting for feedback/events from the Hue bridge. This gives faster local reactions and more consistent immediate KNX read responses, especially while the light or grouped light is OFF. Disable it if you prefer the cache to follow only real feedback/events from the Hue bridge. |
+| Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/> **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).<br/>**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
+| Night Lighting | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for bathroom's night light.|
+| Day/Night | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime. |
+| Invert day/night value | Invert the values of _Day/Night_ group address. Default value is **unchecked** . |
+| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+| Force day mode | You can force the day mode by manually switching the light as described here: **Switch to DAY mode by rapid switching the ligth off then on (This light only) ** does what described and acts only on this light.**Switch to DAY mode by rapid switching the ligth off then on (apply yo ALL light nodes)** acts to ALL Light nodes, by setting the Day/Night group address to Day mode. |
+| Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the Hue API v.2 Standards. This is an example msg, that turns on the light: <code>msg.on = {"on":true}</code>. Please refer to the [official Hue Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) |
+
+### Note
+
+The Dimming function works in **KNX mode `start` and`stop` ** . To start dimming, send only one "start" KNX telegram. To stop dimming, send a "stop" KNX telegram. Please**remember that** , when you set your wall swiches properties.
+
+<br/>
+</script>

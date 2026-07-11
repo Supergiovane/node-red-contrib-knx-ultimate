@@ -8,6 +8,7 @@
       "pairing_title": "Neues Gerät koppeln",
       "pairing_help": "Gib den 11-stelligen manuellen Kopplungscode (z.B. 3497-011-2332) oder den QR-Code-Inhalt (MT:....) ein. Das Gerät muss über das IP-Netzwerk erreichbar sein (WLAN/Ethernet oder Thread über Border Router). Ist das Gerät bereits mit einem anderen Controller (Alexa, Google, Apple) gekoppelt, nutze dessen Funktion \"mit weiterem Hub teilen\", um einen neuen Code zu erhalten.",
       "pairing_code": "Kopplungscode",
+      "pairing_name": "Gerätename",
       "pair_button": "KOPPELN",
       "devices_title": "Gekoppelte Geräte",
       "col_name": "Name",
@@ -20,7 +21,10 @@
       "pairing_code_missing": "Bitte einen Kopplungscode eingeben.",
       "pairing_wait": "Kopplung läuft. Dies kann bis zu einer Minute dauern...",
       "pairing_failed": "Kopplung fehlgeschlagen",
-      "pairing_ok": "Gerät erfolgreich gekoppelt!"
+      "pairing_ok": "Gerät erfolgreich gekoppelt!",
+      "rename_button": "Umbenennen",
+      "rename_prompt": "Neuer Gerätename",
+      "rename_ok": "Gerät umbenannt."
     }
   }
 }

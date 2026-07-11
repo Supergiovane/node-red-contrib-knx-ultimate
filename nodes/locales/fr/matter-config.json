@@ -8,6 +8,7 @@
       "pairing_title": "Appairer un nouvel appareil",
       "pairing_help": "Saisissez le code d'appairage manuel à 11 chiffres (ex. 3497-011-2332) ou le contenu du QR code (MT:....). L'appareil doit être joignable sur le réseau IP (WiFi/Ethernet ou Thread via border router). S'il est déjà appairé à un autre contrôleur (Alexa, Google, Apple), utilisez sa fonction \"partager/appairer avec un autre hub\" pour obtenir un nouveau code.",
       "pairing_code": "Code d'appairage",
+      "pairing_name": "Nom de l'appareil",
       "pair_button": "APPAIRER",
       "devices_title": "Appareils appairés",
       "col_name": "Nom",
@@ -20,7 +21,10 @@
       "pairing_code_missing": "Veuillez saisir un code d'appairage.",
       "pairing_wait": "Appairage en cours. Cela peut prendre jusqu'à une minute...",
       "pairing_failed": "Échec de l'appairage",
-      "pairing_ok": "Appareil appairé avec succès !"
+      "pairing_ok": "Appareil appairé avec succès !",
+      "rename_button": "Renommer",
+      "rename_prompt": "Nouveau nom de l'appareil",
+      "rename_ok": "Appareil renommé."
     }
   }
 }

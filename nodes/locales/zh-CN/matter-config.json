@@ -8,6 +8,7 @@
       "pairing_title": "配对新设备",
       "pairing_help": "输入 11 位手动配对码（例如 3497-011-2332）或二维码内容（MT:....）。设备必须可通过 IP 网络访问（WiFi/以太网或通过边界路由器的 Thread）。如果设备已与其他控制器（Alexa、Google、Apple）配对，请使用其\"与其他中枢共享/配对\"功能获取新的配对码。",
       "pairing_code": "配对码",
+      "pairing_name": "设备名称",
       "pair_button": "配对",
       "devices_title": "已配对设备",
       "col_name": "名称",
@@ -20,7 +21,10 @@
       "pairing_code_missing": "请输入配对码。",
       "pairing_wait": "正在配对，最多可能需要一分钟...",
       "pairing_failed": "配对失败",
-      "pairing_ok": "设备配对成功！"
+      "pairing_ok": "设备配对成功！",
+      "rename_button": "重命名",
+      "rename_prompt": "新的设备名称",
+      "rename_ok": "设备已重命名。"
     }
   }
 }

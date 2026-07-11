@@ -16,9 +16,20 @@
             var node = this;
             var $pairButton = $("#matterPairButton");
             var $pairingCode = $("#matter-pairing-code");
+            var $pairingName = $("#matter-pairing-name");
             var $devicesBody = $("#matter-devices-body");
             var $refreshDevices = $("#matterRefreshDevices");
             var $pairSpinner = $("#matterPairSpinner");
+
+            function notifyPairingError(msg) {
+                var text = RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_failed") + ': ' + (msg || '');
+                try { console.error('[matter-config] ' + text); } catch (error) { }
+                RED.notify(text, {
+                    type: 'error',
+                    fixed: true,
+                    modal: false
+                });
+            }
 
             function renderDevices(devices) {
                 $devicesBody.empty();
@@ -33,6 +44,27 @@
                     $tr.append($('<td></td>').text((dev.vendorName || '') + (dev.productName ? ' ' + dev.productName : '')));
                     $tr.append($('<td style="font-family:monospace;"></td>').text(dev.nodeId));
                     $tr.append($('<td></td>').append($('<span></span>').css('color', stateColor).text(dev.connectionState)));
+                    var $rename = $('<button type="button" class="red-ui-button" style="margin-right:6px; color:#1b7d33; border-color:#1b7d33;" title="' + (RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.rename_button") || 'Rename') + '"><i class="fa fa-pencil"></i></button>');
+                    $rename.on('click', function () {
+                        var currentName = dev.name || '';
+                        var promptMsg = RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.rename_prompt") || 'New device name';
+                        var newName = window.prompt(promptMsg, currentName);
+                        if (newName === null) return;
+                        newName = (newName || '').trim();
+                        if (newName === '' || newName === currentName) return;
+                        $rename.prop('disabled', true);
+                        $.getJSON('KNXUltimateMatterRename?serverId=' + node.id + '&nodeId=' + encodeURIComponent(dev.nodeId) + '&name=' + encodeURIComponent(newName), function (data) {
+                            if (data && data.error) {
+                                RED.notify(data.error, { type: 'error', fixed: true });
+                            } else {
+                                RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.rename_ok") || 'Device renamed', { type: 'success' });
+                            }
+                            loadDevices();
+                        }).fail(function (jqXHR, textStatus, errorThrown) {
+                            RED.notify('Rename failed: ' + (errorThrown || textStatus), { type: 'error', fixed: true });
+                            $rename.prop('disabled', false);
+                        });
+                    });
                     var $unpair = $('<button type="button" class="red-ui-button" style="color:#c00; border-color:#c00;"><i class="fa fa-trash"></i></button>');
                     $unpair.on('click', function () {
                         var confirmMsg = RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.unpair_confirm") + ' "' + (dev.name || dev.nodeId) + '"?';
@@ -50,7 +82,7 @@
                             $unpair.prop('disabled', false);
                         });
                     });
-                    $tr.append($('<td style="text-align:right;"></td>').append($unpair));
+                    $tr.append($('<td style="text-align:right;"></td>').append($rename).append($unpair));
                     $devicesBody.append($tr);
                 });
             }
@@ -77,6 +109,7 @@
 
             $pairButton.on('click', function () {
                 var code = ($pairingCode.val() || '').trim();
+                var desiredName = ($pairingName.val() || '').trim();
                 if (code === '') {
                     RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_code_missing"), { type: 'warning' });
                     return;
@@ -89,21 +122,24 @@
                     type: 'info'
                 });
                 $.ajax({
-                    url: 'KNXUltimateMatterPair?serverId=' + node.id + '&code=' + encodeURIComponent(code),
+                    url: 'KNXUltimateMatterPair?serverId=' + node.id + '&code=' + encodeURIComponent(code) + (desiredName !== '' ? '&name=' + encodeURIComponent(desiredName) : ''),
                     dataType: 'json',
                     timeout: 180000
                 }).done(function (data) {
                     if (data && data.error) {
-                        RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_failed") + ': ' + data.error, { type: 'error', timeout: 8000 });
+                        notifyPairingError(data.error);
                     } else {
-                        RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_ok") + ' (Node ID ' + data.nodeId + ')', { type: 'success' });
+                        var pairedName = data.name || data.productName || data.nodeId;
+                        RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_ok") + ' ' + pairedName + ' (Node ID ' + data.nodeId + ')', { type: 'success' });
+                        if (data.renameError) RED.notify(data.renameError, { type: 'warning', fixed: true });
                         $pairingCode.val('');
+                        $pairingName.val('');
                         loadDevices();
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     var msg = '';
                     try { msg = jqXHR.responseJSON.error; } catch (e) { msg = errorThrown || textStatus; }
-                    RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_failed") + ': ' + msg, { type: 'error', timeout: 8000 });
+                    notifyPairingError(msg);
                 }).always(function () {
                     if (myNotification) myNotification.close();
                     $pairButton.prop('disabled', false);
@@ -191,6 +227,22 @@
     <span id="matterPairSpinner" style="margin-left:6px; display:none; color:#1b7d33;">
       <i class="fa fa-circle-notch fa-spin"></i>
     </span>
+  </div>
+
+  <div class="form-row">
+    <label for="matter-pairing-name">
+      <i class="fa fa-tag"></i>
+      <span data-i18n="matter-config.properties.pairing_name"></span>
+    </label>
+    <input type="text" id="matter-pairing-name" placeholder="Kitchen plug" style="width:250px;">
+  </div>
+  <div class="form-tips" style="margin: 4px 0 8px; font-size:12px;">
+    <i class="fa fa-circle-info" style="color:#1b7d33; margin-right:4px;"></i>
+    <span data-i18n="matter-config.properties.pairing_hint">Prefer the QR code (MT:…): it carries the full device discriminator. The manual code
+    stores only a short discriminator and cannot reliably tell identical devices apart
+    (e.g. several Shelly of the same model), which can pair the wrong one or report it as
+    already commissioned. Pair one device at a time; if a device is already paired
+    elsewhere, factory-reset it first.</span>
   </div>
 
   <hr/>

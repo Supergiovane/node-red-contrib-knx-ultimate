@@ -8,6 +8,7 @@
       "pairing_title": "Emparejar un nuevo dispositivo",
       "pairing_help": "Introduce el código de emparejamiento manual de 11 dígitos (p.ej. 3497-011-2332) o el contenido del código QR (MT:....). El dispositivo debe estar accesible en la red IP (WiFi/Ethernet o Thread mediante border router). Si ya está emparejado con otro controlador (Alexa, Google, Apple), usa su función \"compartir/emparejar con otro hub\" para obtener un nuevo código.",
       "pairing_code": "Código de emparejamiento",
+      "pairing_name": "Nombre del dispositivo",
       "pair_button": "EMPAREJAR",
       "devices_title": "Dispositivos emparejados",
       "col_name": "Nombre",
@@ -20,7 +21,10 @@
       "pairing_code_missing": "Introduce un código de emparejamiento.",
       "pairing_wait": "Emparejamiento en curso. Puede tardar hasta un minuto...",
       "pairing_failed": "Emparejamiento fallido",
-      "pairing_ok": "¡Dispositivo emparejado correctamente!"
+      "pairing_ok": "¡Dispositivo emparejado correctamente!",
+      "rename_button": "Renombrar",
+      "rename_prompt": "Nuevo nombre del dispositivo",
+      "rename_ok": "Dispositivo renombrado."
     }
   }
 }

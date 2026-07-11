@@ -982,10 +982,47 @@ module.exports = (RED) => {
           res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
           return
         }
-        const nodeId = await matterServer.commission(req.query.code)
-        res.json({ nodeId })
+        const nodeId = await matterServer.commission(req.query.code, { targetHost: req.query.targetHost })
+        const requestedName = String(req.query.name || '').trim()
+        let renameError = null
+        if (requestedName !== '') {
+          try {
+            await matterServer.renameCommissionedNode(nodeId, requestedName)
+          } catch (error) {
+            renameError = error.message
+            RED.log.warn(`Warn KNXUltimateMatterPair rename node ${nodeId}: ${error.message}`)
+          }
+        }
+        let device = null
+        try {
+          device = matterServer.getCommissionedNodesDetails().find((item) => String(item.nodeId) === String(nodeId)) || null
+        } catch (error) { /* empty */ }
+        res.json({ nodeId, name: device?.name, productName: device?.productName, vendorName: device?.vendorName, renameError })
       } catch (error) {
-        RED.log.error(`Err KNXUltimateMatterPair: ${error.message}`)
+        const targetHost = req.query.targetHost ? ` targetHost=${req.query.targetHost}` : ''
+        RED.log.error(`Err KNXUltimateMatterPair:${targetHost} ${error.stack || error.message}`)
+        res.json({ error: error.message })
+      }
+    })
+
+    // MATTER: renames a commissioned Matter device by writing BasicInformation.nodeLabel
+    RED.httpAdmin.get('/KNXUltimateMatterRename', RED.auth.needsPermission('matter-config.write'), async (req, res) => {
+      try {
+        const matterServer = RED.nodes.getNode(req.query.serverId)
+        if (matterServer === null || matterServer === undefined) {
+          res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        const nodeId = String(req.query.nodeId || '').trim()
+        const name = String(req.query.name || '').trim()
+        if (nodeId === '' || name === '') {
+          res.json({ error: 'Missing nodeId or name.' })
+          return
+        }
+        await matterServer.renameCommissionedNode(nodeId, name)
+        res.json({ status: 'ok', nodeId, name })
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterRename: ${error.stack || error.message}`)
         res.json({ error: error.message })
       }
     })

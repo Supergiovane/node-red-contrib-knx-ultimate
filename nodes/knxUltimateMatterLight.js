@@ -5,13 +5,52 @@
 const cloneDeep = require('lodash/cloneDeep')
 const dptlib = require('knxultimate').dptlib
 const hueColorConverter = require('./utils/colorManipulators/hueColorConverter')
+const { createLightEngine } = require('./utils/lightEngines')
+const { hueStateToCanonical, matterEventToHuePatch } = require('./utils/lightEngines/matterHueShim')
 
 module.exports = function (RED) {
-  function knxUltimateHueLight (config) {
+  function knxUltimateMatterLight (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
-    node.serverHue = RED.nodes.getNode(config.serverHue) || undefined
+    node.serverMatter = RED.nodes.getNode(config.serverMatter) || undefined
+    node.matterNodeId = config.matterNodeId !== undefined ? String(config.matterNodeId) : ''
+    node.matterEndpointId = config.matterEndpointId !== undefined ? Number(config.matterEndpointId) : 1
+    node.matterDeviceName = config.matterDeviceName !== undefined ? String(config.matterDeviceName) : ''
+
+    // Matter engine (adapter). The manager is resolved lazily at each write, because
+    // matter-config creates its matterManager asynchronously after the deploy.
+    node.lightEngine = createLightEngine('matter', {
+      deviceId: node.matterNodeId,
+      nodeId: node.matterNodeId,
+      endpointId: node.matterEndpointId
+    })
+
+    // Facade impersonating the hue-config node. The entire light logic below was born
+    // in the Hue Light node and is kept UNCHANGED: it speaks Hue-native state objects,
+    // and this boundary translates them to the Matter engine (strategy/adapter).
+    node.serverHue = {
+      get linkStatus () { return node.serverMatter ? node.serverMatter.linkStatus : 'disconnected' },
+      hueManager: {
+        writeHueQueueAdd: (_lightID, _state, _operation) => {
+          try {
+            if (!node.lightEngine) return
+            const patch = hueStateToCanonical(_state)
+            if (!patch) return
+            node.lightEngine.manager = node.serverMatter ? node.serverMatter.matterManager : undefined
+            node.lightEngine.applyState(patch)
+          } catch (error) {
+            RED.log.error('knxUltimateMatterLight: writeHueQueueAdd shim: ' + (error && error.message))
+          }
+        },
+        deleteHueQueue: () => { }
+      },
+      addClient: (_node) => { try { if (node.serverMatter) node.serverMatter.addClient(_node) } catch (error) { /* empty */ } },
+      removeClient: (_node) => { if (node.serverMatter) { try { node.serverMatter.removeClient(_node) } catch (error) { /* empty */ } } },
+      getAllLightsBelongingToTheGroup: async () => [],
+      getHueResourceSnapshot: async () => node.currentHUEDevice,
+      getAverageColorsXYBrightnessAndTemperature: async () => undefined
+    }
 
     // Convert for backward compatibility
     if (config.nameLightKelvinDIM === undefined) {
@@ -28,8 +67,8 @@ module.exports = function (RED) {
       config.dptLightKelvinPercentageState = config.dptLightHSVState
     }
 
+    node.name = config.name || node.matterDeviceName || 'Matter Light'
     node.topic = node.name
-    node.name = config.name === undefined ? 'Hue' : config.name
     node.outputtopic = node.name
     node.dpt = ''
     node.notifyreadrequest = true
@@ -47,12 +86,21 @@ module.exports = function (RED) {
     node.formatmultiplyvalue = 1
     node.formatnegativevalue = 'leave'
     node.formatdecimalsvalue = 2
-    node.currentHUEDevice = undefined // At start, this value is filled by a call to HUE api. It stores a value representing the current light status.
+    // Synthetic "current device" in Hue shape, kept in sync from the Matter attribute
+    // reports. It lets the whole Hue-born logic below run untouched on a Matter light.
+    node.currentHUEDevice = {
+      id: node.matterNodeId,
+      type: 'light',
+      on: { on: false },
+      dimming: { brightness: 100, min_dim_level: 0 },
+      color: { xy: { x: 0.3127, y: 0.329 }, gamut: undefined, gamut_type: undefined },
+      color_temperature: { mirek: 333, mirek_valid: true, mirek_schema: { mirek_minimum: 153, mirek_maximum: 500 } }
+    }
     node.HUEDeviceWhileDaytime = null// This retains the HUE device status while daytime, to be restored after nighttime elapsed.
     node.HUELightsBelongingToGroupWhileDaytime = null // Array contains all light belonging to the grouped_light (if grouped_light is selected)
     node.DayTime = true
-    node.isGrouped_light = config.hueDevice.split('#')[1] === 'grouped_light'
-    node.hueDevice = config.hueDevice.split('#')[0]
+    node.isGrouped_light = false // No grouped lights on Matter
+    node.hueDevice = node.matterNodeId
     node.initializingAtStart = (config.readStatusAtStartup === undefined || config.readStatusAtStartup === 'yes')
     config.specifySwitchOnBrightness = (config.specifySwitchOnBrightness === undefined || config.specifySwitchOnBrightness === '') ? 'temperature' : config.specifySwitchOnBrightness
     config.specifySwitchOnBrightnessNightTime = (config.specifySwitchOnBrightnessNightTime === undefined || config.specifySwitchOnBrightnessNightTime === '') ? 'no' : config.specifySwitchOnBrightnessNightTime
@@ -81,7 +129,7 @@ module.exports = function (RED) {
       try {
         config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime)
       } catch (error) {
-        RED.log.error(`knxUltimateHueLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime): ${error.message} : ${error.stack || ''} `)
+        RED.log.error(`knxUltimateMatterLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnDayTime): ${error.message} : ${error.stack || ''} `)
         config.colorAtSwitchOnDayTime = ''
       }
     }
@@ -97,7 +145,7 @@ module.exports = function (RED) {
       try {
         config.colorAtSwitchOnNightTime = JSON.parse(config.colorAtSwitchOnNightTime)
       } catch (error) {
-        RED.log.error(`knxUltimateHueLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnNightTime): ${error.message} : ${error.stack || ''} `)
+        RED.log.error(`knxUltimateMatterLight:  config.colorAtSwitchOnDayTime = JSON.parse(config.colorAtSwitchOnNightTime): ${error.message} : ${error.stack || ''} `)
         config.colorAtSwitchOnNightTime = ''
       }
     }
@@ -174,7 +222,7 @@ module.exports = function (RED) {
       (async () => {
         try {
           const groupLights = await node.serverHue.getAllLightsBelongingToTheGroup(node.hueDevice, false)
-          RED.log.debug(`knxUltimateHueLight: preset grouped_light children before group on. Group=${node.hueDevice} lights=${Array.isArray(groupLights) ? groupLights.length : 0}`)
+          RED.log.debug(`knxUltimateMatterLight: preset grouped_light children before group on. Group=${node.hueDevice} lights=${Array.isArray(groupLights) ? groupLights.length : 0}`)
           let hasWrittenAtLeastOneLight = false
           for (let index = 0; index < groupLights.length; index++) {
             const light = groupLights[index]
@@ -213,10 +261,10 @@ module.exports = function (RED) {
 
           const groupedLightState = { on: cloneDeep(_state.on) }
           if (_state.dynamics !== undefined) groupedLightState.dynamics = cloneDeep(_state.dynamics)
-          RED.log.debug(`knxUltimateHueLight: turning on grouped_light after children preset. Group=${node.hueDevice}`)
+          RED.log.debug(`knxUltimateMatterLight: turning on grouped_light after children preset. Group=${node.hueDevice}`)
           node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, groupedLightState, defaultOperation)
         } catch (error) {
-          RED.log.debug(`knxUltimateHueLight: node.writeHueState fallback to grouped_light write: ${error.message}`)
+          RED.log.debug(`knxUltimateMatterLight: node.writeHueState fallback to grouped_light write: ${error.message}`)
           node.serverHue.hueManager.writeHueQueueAdd(node.hueDevice, _state, defaultOperation)
         }
       })()
@@ -235,7 +283,7 @@ module.exports = function (RED) {
             node.serverHue.hueManager.deleteHueQueue(light.id)
           }
         } catch (error) {
-          RED.log.debug(`knxUltimateHueLight: node.deleteHueStateQueue: ${error.message}`)
+          RED.log.debug(`knxUltimateMatterLight: node.deleteHueStateQueue: ${error.message}`)
         }
       })()
     }
@@ -248,7 +296,7 @@ module.exports = function (RED) {
 
     // This function is called by the hue-config.js
     node.handleSend = (msg) => {
-      if (node.currentHUEDevice === undefined && node.serverHue?.linkStatus === 'connected') {
+      if (node.currentHUEDevice === undefined && node.serverHue.linkStatus === 'connected') {
         node.setNodeStatusHue({
           fill: 'yellow',
           shape: 'ring',
@@ -273,7 +321,7 @@ module.exports = function (RED) {
                     if (node.timerCheckForFastLightSwitch === null) {
                       node.timerCheckForFastLightSwitch = setTimeout(() => {
                         node.DayTime = false
-                        RED.log.debug('knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime to false after node.timerCheckForFastLightSwitch elapsed')
+                        RED.log.debug('knxUltimateMatterLight: node.timerCheckForFastLightSwitch: set daytime to false after node.timerCheckForFastLightSwitch elapsed')
                         node.timerCheckForFastLightSwitch = null
                       }, 10000) // 10 seconds
                     } else {
@@ -281,7 +329,7 @@ module.exports = function (RED) {
                         // Turn off the Day/Night group address
                         if (config.GADaylightSensor !== undefined && config.GADaylightSensor !== '') {
                           if (node.timerCheckForFastLightSwitch !== null) { clearTimeout(node.timerCheckForFastLightSwitch); node.timerCheckForFastLightSwitch = null }
-                          RED.log.debug(`knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime the group address ${config.GADaylightSensor}`)
+                          RED.log.debug(`knxUltimateMatterLight: node.timerCheckForFastLightSwitch: set daytime the group address ${config.GADaylightSensor}`)
                           node.serverKNX.sendKNXTelegramToKNXEngine({
                             grpaddr: config.GADaylightSensor,
                             payload: config.invertDayNight === false,
@@ -292,7 +340,7 @@ module.exports = function (RED) {
                         }
                       }
                       node.DayTime = true
-                      RED.log.debug('knxUltimateHueLight: node.timerCheckForFastLightSwitch: set daytime to true')
+                      RED.log.debug('knxUltimateMatterLight: node.timerCheckForFastLightSwitch: set daytime to true')
                     }
                   }
                 }
@@ -313,7 +361,7 @@ module.exports = function (RED) {
                     node.setNodeStatusHue({
                       fill: 'green',
                       shape: 'dot',
-                      text: 'KNX->HUE',
+                      text: 'KNX->Matter',
                       payload: 'Restore light status'
                     })
                     node.HUEDeviceWhileDaytime = null // Nullize the object.
@@ -341,7 +389,7 @@ module.exports = function (RED) {
                     node.setNodeStatusHue({
                       fill: 'green',
                       shape: 'dot',
-                      text: 'KNX->HUE',
+                      text: 'KNX->Matter',
                       payload: "Resuming all group's light"
                     })
                     node.HUELightsBelongingToGroupWhileDaytime = null // Nullize the object.
@@ -418,7 +466,7 @@ module.exports = function (RED) {
               node.setNodeStatusHue({
                 fill: 'green',
                 shape: 'dot',
-                text: 'KNX->HUE',
+                text: 'KNX->Matter',
                 payload: state
               })
               break
@@ -428,7 +476,7 @@ module.exports = function (RED) {
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
               node.hueDimming(msg.payload.decr_incr, msg.payload.data, config.dimSpeed)
               node.setNodeStatusHue({
-                fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: JSON.stringify(msg.payload)
+                fill: 'green', shape: 'dot', text: 'KNX->Matter', payload: JSON.stringify(msg.payload)
               })
               break
             case config.GALightHSV_H_DIM:
@@ -437,7 +485,7 @@ module.exports = function (RED) {
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
               node.hueDimmingHSV_H(msg.payload.decr_incr, msg.payload.data, config.HSVDimSpeed)
               node.setNodeStatusHue({
-                fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: JSON.stringify(msg.payload)
+                fill: 'green', shape: 'dot', text: 'KNX->Matter', payload: JSON.stringify(msg.payload)
               })
               break
             case config.GALightHSV_S_DIM:
@@ -446,7 +494,7 @@ module.exports = function (RED) {
               msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightDIM))
               node.hueDimmingHSV_S(msg.payload.decr_incr, msg.payload.data, config.HSVDimSpeed)
               node.setNodeStatusHue({
-                fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: JSON.stringify(msg.payload)
+                fill: 'green', shape: 'dot', text: 'KNX->Matter', payload: JSON.stringify(msg.payload)
               })
               break
             case config.GALightKelvin:
@@ -470,7 +518,7 @@ module.exports = function (RED) {
               node.setNodeStatusHue({
                 fill: 'green',
                 shape: 'dot',
-                text: 'KNX->HUE',
+                text: 'KNX->Matter',
                 payload: kelvinValue
               })
               break
@@ -497,7 +545,7 @@ module.exports = function (RED) {
               node.setNodeStatusHue({
                 fill: 'green',
                 shape: 'dot',
-                text: 'KNX->HUE Daytime',
+                text: 'KNX->Matter Daytime',
                 payload: node.DayTime
               })
 
@@ -510,7 +558,7 @@ module.exports = function (RED) {
                 msg.payload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(config.dptLightKelvinDIM))
                 node.hueDimmingTunableWhite(msg.payload.decr_incr, msg.payload.data, 5000)
                 node.setNodeStatusHue({
-                  fill: 'green', shape: 'dot', text: 'KNX->HUE', payload: JSON.stringify(msg.payload)
+                  fill: 'green', shape: 'dot', text: 'KNX->Matter', payload: JSON.stringify(msg.payload)
                 })
               }
               break
@@ -527,7 +575,7 @@ module.exports = function (RED) {
                 node.setNodeStatusHue({
                   fill: 'green',
                   shape: 'dot',
-                  text: 'KNX->HUE',
+                  text: 'KNX->Matter',
                   payload: state
                 })
               }
@@ -546,7 +594,7 @@ module.exports = function (RED) {
               node.setNodeStatusHue({
                 fill: 'green',
                 shape: 'dot',
-                text: 'KNX->HUE',
+                text: 'KNX->Matter',
                 payload: state
               })
               break
@@ -576,7 +624,7 @@ module.exports = function (RED) {
               node.setNodeStatusHue({
                 fill: 'green',
                 shape: 'dot',
-                text: 'KNX->HUE',
+                text: 'KNX->Matter',
                 payload: state
               })
               break
@@ -600,7 +648,7 @@ module.exports = function (RED) {
               node.setNodeStatusHue({
                 fill: 'green',
                 shape: 'dot',
-                text: 'KNX->HUE',
+                text: 'KNX->Matter',
                 payload: gaVal
               })
               break
@@ -636,7 +684,7 @@ module.exports = function (RED) {
                 node.setNodeStatusHue({
                   fill: 'green',
                   shape: 'dot',
-                  text: 'KNX->HUE',
+                  text: 'KNX->Matter',
                   payload: gaValColorCycle
                 })
               }
@@ -648,9 +696,9 @@ module.exports = function (RED) {
           node.status({
             fill: 'red',
             shape: 'dot',
-            text: `KNX->HUE errorRead ${error.message} (${formatTs(new Date())})`
+            text: `KNX->Matter errorRead ${error.message} (${formatTs(new Date())})`
           })
-          RED.log.error(`knxUltimateHueLight: node.handleSend:  if (msg.knx.event !== "GroupValue_Read"): ${error.message} : ${error.stack || ''} `)
+          RED.log.error(`knxUltimateMatterLight: node.handleSend:  if (msg.knx.event !== "GroupValue_Read"): ${error.message} : ${error.stack || ''} `)
         }
       }
 
@@ -734,9 +782,9 @@ module.exports = function (RED) {
         node.status({
           fill: 'red',
           shape: 'dot',
-          text: `KNX->HUE error :-( ${error.message} (${formatTs(new Date())})`
+          text: `KNX->Matter error :-( ${error.message} (${formatTs(new Date())})`
         })
-        RED.log.error(`knxUltimateHueLight: node.handleSend: if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined): ${error.message} : ${error.stack || ''} `)
+        RED.log.error(`knxUltimateMatterLight: node.handleSend: if (msg.knx.event === "GroupValue_Read" && node.currentHUEDevice !== undefined): ${error.message} : ${error.stack || ''} `)
       }
     }
 
@@ -1230,14 +1278,55 @@ module.exports = function (RED) {
         node.status({
           fill: 'red',
           shape: 'dot',
-          text: `HUE->KNX error ${node.id} ${error.message}. Seee Log`
+          text: `Matter->KNX error ${node.id} ${error.message}. Seee Log`
         })
-        RED.log.error(`knxUltimateHueLight: node.handleSendHUE = (_event): ${error.stack}`)
+        RED.log.error(`knxUltimateMatterLight: node.handleSendHUE = (_event): ${error.stack}`)
       }
       // })();
     }
 
     // Leave the name after "function", to avoid <anonymous function> in the stack trace, in caso of errors.
+    // ---- Matter -> KNX feedback (replaces the Hue event stream) -----------------
+    // Applies a feedback patch from the shim: updates the synthetic currentHUEDevice
+    // and reuses the very same updateKNX* writers of the Hue-born logic below.
+    node.applyMatterFeedback = function applyMatterFeedback (patch, _outputtype = 'write') {
+      if (!patch || node.currentHUEDevice === undefined) return
+      const dev = node.currentHUEDevice
+      const zeroBrightnessWhenOff = (config.updateKNXBrightnessStatusOnHUEOnOff === undefined || config.updateKNXBrightnessStatusOnHUEOnOff === 'onhueoff')
+      if (patch.on !== undefined) {
+        dev.on.on = !!patch.on
+        node.updateKNXLightState(dev.on.on, _outputtype)
+        if (zeroBrightnessWhenOff) node.updateKNXBrightnessState(dev.on.on ? dev.dimming.brightness : 0, _outputtype)
+      }
+      if (patch.brightnessPct !== undefined) {
+        dev.dimming.brightness = Number(patch.brightnessPct)
+        if (dev.on.on === true || !zeroBrightnessWhenOff) node.updateKNXBrightnessState(dev.dimming.brightness, _outputtype)
+      }
+      if (patch.mirek !== undefined) {
+        dev.color_temperature.mirek = patch.mirek
+        node.updateKNXLightKelvinState(patch.mirek, _outputtype)
+        node.updateKNXLightKelvinPercentageState(patch.mirek, _outputtype)
+      }
+      if (patch.xyX !== undefined) dev.color.xy.x = patch.xyX
+      if (patch.xyY !== undefined) dev.color.xy.y = patch.xyY
+      if (patch.xyX !== undefined || patch.xyY !== undefined) node.updateKNXLightColorState({ xy: { x: dev.color.xy.x, y: dev.color.xy.y } }, _outputtype)
+    }
+
+    // Called by matter-config on every attribute report of the subscription.
+    node.handleSendMatter = (_event) => {
+      try {
+        if (_event === undefined || _event.attributeName === undefined) return
+        if (String(_event.nodeId) !== String(node.matterNodeId)) return
+        if (Number(_event.endpointId) !== Number(node.matterEndpointId)) return
+        const patch = matterEventToHuePatch(_event)
+        if (patch) node.applyMatterFeedback(patch)
+      } catch (error) {
+        RED.log.error(`knxUltimateMatterLight: node.handleSendMatter: ${error.message}`)
+      }
+    }
+    node.handleMatterClusterEvent = () => { }
+    node.handleMatterNodeInitialized = () => { }
+
     node.updateKNXBrightnessState = function updateKNXBrightnessState (_value, _outputtype = 'write') {
       if (config.GALightBrightnessState !== undefined && config.GALightBrightnessState !== '') {
         const knxMsgPayload = {}
@@ -1259,7 +1348,7 @@ module.exports = function (RED) {
         node.setNodeStatusHue({
           fill: 'blue',
           shape: 'ring',
-          text: 'HUE->KNX Bright',
+          text: 'Matter->KNX Bright',
           payload: knxMsgPayload.payload
         })
       }
@@ -1288,7 +1377,7 @@ module.exports = function (RED) {
           node.setNodeStatusHue({
             fill: 'blue',
             shape: 'ring',
-            text: 'HUE->KNX On/Off',
+            text: 'Matter->KNX On/Off',
             payload: knxMsgPayload.payload
           })
         }
@@ -1321,7 +1410,7 @@ module.exports = function (RED) {
         node.setNodeStatusHue({
           fill: 'blue',
           shape: 'ring',
-          text: 'HUE->KNX Tunable White',
+          text: 'Matter->KNX Tunable White',
           payload: knxMsgPayload.payload
         })
       }
@@ -1356,7 +1445,7 @@ module.exports = function (RED) {
     //         node.setNodeStatusHue({
     //           fill: "blue",
     //           shape: "ring",
-    //           text: "HUE->KNX HSV (H)",
+    //           text: "Matter->KNX HSV (H)",
     //           payload: knxMsgPayload.payload,
     //         });
     //       }
@@ -1391,7 +1480,7 @@ module.exports = function (RED) {
     //         node.setNodeStatusHue({
     //           fill: "blue",
     //           shape: "ring",
-    //           text: "HUE->KNX HSV (H)",
+    //           text: "Matter->KNX HSV (H)",
     //           payload: knxMsgPayload.payload,
     //         });
     //       }
@@ -1431,7 +1520,7 @@ module.exports = function (RED) {
           node.setNodeStatusHue({
             fill: 'blue',
             shape: 'ring',
-            text: 'HUE->KNX Color',
+            text: 'Matter->KNX Color',
             payload: knxMsgPayload.payload
           })
         } catch (error) { }
@@ -1459,7 +1548,7 @@ module.exports = function (RED) {
         node.setNodeStatusHue({
           fill: 'blue',
           shape: 'ring',
-          text: 'HUE->KNX HSV (S)',
+          text: 'Matter->KNX HSV (S)',
           payload: knxMsgPayload.payload
         })
       }
@@ -1486,7 +1575,7 @@ module.exports = function (RED) {
         node.setNodeStatusHue({
           fill: 'blue',
           shape: 'ring',
-          text: 'HUE->KNX HSV (H)',
+          text: 'Matter->KNX HSV (H)',
           payload: knxMsgPayload.payload
         })
       }
@@ -1519,7 +1608,7 @@ module.exports = function (RED) {
           node.setNodeStatusHue({
             fill: 'blue',
             shape: 'ring',
-            text: 'HUE->KNX Kelvin',
+            text: 'Matter->KNX Kelvin',
             payload: knxMsgPayload.payload
           })
         }
@@ -1536,7 +1625,7 @@ module.exports = function (RED) {
         node.serverHue.removeClient(node)
         node.serverHue.addClient(node)
       } catch (error) {
-        RED.log.error('knxUltimateHueLight: if (node.serverKNX): ' + error.message)
+        RED.log.error('knxUltimateMatterLight: if (node.serverKNX): ' + error.message)
       }
     }
 
@@ -1547,14 +1636,14 @@ module.exports = function (RED) {
         node.setNodeStatusHue({
           fill: 'green',
           shape: 'dot',
-          text: '->HUE',
+          text: '->Matter',
           payload: 'Flow msg.'
         })
       } catch (error) {
         node.setNodeStatusHue({
           fill: 'red',
           shape: 'dot',
-          text: '->HUE',
+          text: '->Matter',
           payload: error.message
         })
       }
@@ -1576,5 +1665,5 @@ module.exports = function (RED) {
       done()
     })
   }
-  RED.nodes.registerType('knxUltimateHueLight', knxUltimateHueLight)
+  RED.nodes.registerType('knxUltimateMatterLight', knxUltimateMatterLight)
 }

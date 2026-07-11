@@ -8,6 +8,7 @@
       "pairing_title": "Associa un nuovo dispositivo",
       "pairing_help": "Inserisci il codice di abbinamento manuale a 11 cifre (es. 3497-011-2332) o il contenuto del QR code (MT:....). Il dispositivo deve essere raggiungibile sulla rete IP (WiFi/Ethernet o Thread tramite border router). Se il dispositivo è già associato a un altro controller (Alexa, Google, Apple), usa la funzione \"condividi/abbina con altro hub\" per ottenere un nuovo codice.",
       "pairing_code": "Codice abbinamento",
+      "pairing_name": "Nome dispositivo",
       "pair_button": "ASSOCIA",
       "devices_title": "Dispositivi associati",
       "col_name": "Nome",
@@ -20,7 +21,11 @@
       "pairing_code_missing": "Inserisci un codice di abbinamento.",
       "pairing_wait": "Abbinamento in corso. Può richiedere fino a un minuto...",
       "pairing_failed": "Abbinamento fallito",
-      "pairing_ok": "Dispositivo associato con successo!"
+      "pairing_ok": "Dispositivo associato con successo!",
+      "pairing_hint": "Preferisci il QR code (MT:…): contiene il discriminatore completo del dispositivo. Il codice manuale contiene solo un discriminatore corto e non distingue in modo affidabile dispositivi identici (es. più Shelly dello stesso modello), rischiando di associare quello sbagliato o segnalarlo come già registrato. Registra un dispositivo alla volta; se è già associato altrove, fai prima un factory reset.",
+      "rename_button": "Rinomina",
+      "rename_prompt": "Nuovo nome dispositivo",
+      "rename_ok": "Dispositivo rinominato."
     }
   }
 }

@@ -1,6 +1,22 @@
 /* eslint-disable max-len */
 import { EventEmitter } from 'events'
+import dns from 'dns/promises'
 import { setTimeout as pleaseWait } from 'timers/promises'
+
+// Last 4 hex chars of an id-ish string (serial, uniqueId, mDNS name...), uppercased.
+// Used to disambiguate identical device names (Shelly encode the MAC in the serial).
+const shortHexSuffix = (value) => {
+  if (value === undefined || value === null) return ''
+  const hex = String(value).replace(/[^0-9a-fA-F]/g, '')
+  if (hex.length >= 4) return hex.slice(-4).toUpperCase()
+  const alnum = String(value).replace(/[^0-9a-zA-Z]/g, '')
+  return alnum.length >= 4 ? alnum.slice(-4).toUpperCase() : alnum.toUpperCase()
+}
+
+const normalizeHostForCompare = (value) => {
+  if (value === undefined || value === null) return ''
+  return String(value).trim().toLowerCase().replace(/^\[/, '').replace(/\]$/, '').split('%')[0]
+}
 
 // Wrapper around the matter.js CommissioningController.
 // It mirrors the contract of hueEngine.mjs: an EventEmitter with a command queue,
@@ -54,13 +70,88 @@ class classMatter extends EventEmitter {
   _loadApi = async () => {
     if (this._api !== null) return this._api
     const { Environment, StorageService, Logger, LogLevel } = await import('@matter/main')
+    const { Seconds } = await import('@matter/general')
     const { CommissioningController, NodeStates } = await import('@project-chip/matter.js')
     const { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = await import('@matter/main/types')
-    const { GeneralCommissioning } = await import('@matter/main/clusters')
+    const { BasicInformation, GeneralCommissioning } = await import('@matter/main/clusters')
     this._api = {
-      Environment, StorageService, Logger, LogLevel, CommissioningController, NodeStates, ManualPairingCodeCodec, QrPairingCodeCodec, NodeId, GeneralCommissioning
+      Environment, StorageService, Logger, LogLevel, Seconds, CommissioningController, NodeStates, ManualPairingCodeCodec, QrPairingCodeCodec, NodeId, BasicInformation, GeneralCommissioning
     }
     return this._api
+  }
+
+  _resolveTargetHosts = async (_targetHost) => {
+    const host = normalizeHostForCompare(_targetHost)
+    if (host === '') return []
+    const ret = new Set([host])
+    try {
+      const entries = await dns.lookup(host, { all: true })
+      entries.forEach((entry) => {
+        const address = normalizeHostForCompare(entry.address)
+        if (address !== '') ret.add(address)
+      })
+    } catch (error) { /* Host may already be an IP or only resolvable by Matter/mDNS. */ }
+    return Array.from(ret)
+  }
+
+  _deviceHasTargetHost = (device, targetHosts) => {
+    if (!Array.isArray(targetHosts) || targetHosts.length === 0) return false
+    try {
+      return (device.addresses || []).some((address) => targetHosts.includes(normalizeHostForCompare(address.ip)))
+    } catch (error) {
+      return false
+    }
+  }
+
+  _discoverCommissionableDeviceAtHost = async (identifierData, discoveryCapabilities, targetHost) => {
+    const targetHosts = await this._resolveTargetHosts(targetHost)
+    if (targetHosts.length === 0) return undefined
+    const devices = await this.controller.discoverCommissionableDevices(
+      identifierData,
+      discoveryCapabilities,
+      undefined,
+      this._api.Seconds(20)
+    )
+    return devices.find((device) => this._deviceHasTargetHost(device, targetHosts))
+  }
+
+  _buildKnownAddressDiscoveryAttempts = (identifierData, discoveryCapabilities, targetHost) => {
+    const host = normalizeHostForCompare(targetHost)
+    if (host === '') return []
+    // Matter devices normally listen for commissioning on UDP/5540. Shelly's HTTP RPC
+    // gives us the device IP, not its mDNS service port, so try the standard PASE port
+    // before falling back to mDNS-filtered discovery.
+    return [{
+      identifierData,
+      discoveryCapabilities,
+      knownAddress: {
+        ip: host,
+        port: 5540,
+        type: 'udp'
+      }
+    }, {
+      identifierData,
+      discoveryCapabilities,
+      knownAddress: {
+        ip: host,
+        port: 5540
+      }
+    }]
+  }
+
+  _allocateCommissionNodeId = () => {
+    const commissioned = new Set()
+    try {
+      this.controller.getCommissionedNodes().forEach((nodeId) => commissioned.add(nodeId.toString()))
+    } catch (error) { /* empty */ }
+    try {
+      if (this.controller.nodeId !== undefined) commissioned.add(this.controller.nodeId.toString())
+    } catch (error) { /* empty */ }
+    for (let index = 0; index < 100; index++) {
+      const nodeId = this._api.NodeId.randomOperationalNodeId(this.controller.crypto)
+      if (!commissioned.has(nodeId.toString())) return nodeId
+    }
+    throw new Error('Unable to allocate a free Matter Node ID for commissioning')
   }
 
   nodeStateToString = (state) => {
@@ -164,13 +255,14 @@ class classMatter extends EventEmitter {
   }
 
   // Commission (pair) a new device using an 11-digit manual pairing code or a QR code string (MT:...)
-  commission = async (_pairingCode) => {
+  commission = async (_pairingCode, _options = {}) => {
     if (this.controller === null) throw new Error('Matter controller not started')
     const api = await this._loadApi()
     const code = (_pairingCode || '').toString().trim()
     if (code === '') throw new Error('Empty pairing code')
     let passcode
     let identifierData
+    const discoveryCapabilities = { onIpNetwork: true }
     if (code.toUpperCase().startsWith('MT:')) {
       const qr = api.QrPairingCodeCodec.decode(code)[0]
       passcode = qr.passcode
@@ -180,16 +272,65 @@ class classMatter extends EventEmitter {
       passcode = manual.passcode
       identifierData = { shortDiscriminator: manual.shortDiscriminator }
     }
-    const nodeId = await this.controller.commissionNode({
-      commissioning: {
-        regulatoryLocation: api.GeneralCommissioning.RegulatoryLocationType.IndoorOutdoor
-      },
-      discovery: {
+    let nodeId
+    try {
+      const commissioningNodeId = this._allocateCommissionNodeId()
+      this._log('info', `classMatter: commission: using Node ID ${commissioningNodeId.toString()} for new device`)
+      let discovery = {
         identifierData,
-        discoveryCapabilities: { onIpNetwork: true }
-      },
-      passcode
-    }, { connectNodeAfterCommissioning: false })
+        discoveryCapabilities
+      }
+      const targetHost = (_options?.targetHost || '').toString().trim()
+      if (targetHost !== '') {
+        const commissionableDevice = await this._discoverCommissionableDeviceAtHost(identifierData, discoveryCapabilities, targetHost)
+        discovery = commissionableDevice !== undefined
+          ? {
+              commissionableDevice,
+              discoveryCapabilities
+            }
+          : undefined
+      }
+      const discoveryAttempts = discovery !== undefined
+        ? [discovery]
+        : this._buildKnownAddressDiscoveryAttempts(identifierData, discoveryCapabilities, targetHost)
+      let lastError
+      for (const discoveryAttempt of discoveryAttempts) {
+        try {
+          nodeId = await this.controller.commissionNode({
+            commissioning: {
+              nodeId: commissioningNodeId,
+              regulatoryLocation: api.GeneralCommissioning.RegulatoryLocationType.IndoorOutdoor
+            },
+            discovery: discoveryAttempt,
+            passcode
+          }, { connectNodeAfterCommissioning: false })
+          lastError = undefined
+          break
+        } catch (error) {
+          lastError = error
+        }
+      }
+      if (nodeId === undefined) {
+        if (targetHost !== '' && discoveryAttempts.length > 0) {
+          throw new Error(`No commissionable Matter device matching this pairing code could be commissioned at ${targetHost}. Direct PASE on UDP/5540 and mDNS discovery both failed.${lastError ? ` Last error: ${lastError.message || lastError}` : ''}`)
+        }
+        throw lastError || new Error('Matter commissioning failed')
+      }
+    } catch (error) {
+      // The 11-digit MANUAL code carries only the 4-bit short discriminator, so several
+      // identical devices (e.g. same-model Shelly) look alike to discovery: it can reach
+      // the WRONG one — typically the first, already-commissioned device — and fail with a
+      // "node ID already commissioned" conflict. Point the user to the QR code.
+      const msg = String((error && error.message) || error)
+      const isManual = !code.toUpperCase().startsWith('MT:')
+      if (/already commissioned|can not be reused/i.test(msg)) {
+        throw new Error(`${msg} — the commissioner reached a device that is ALREADY paired to this controller.${isManual ? ' The MANUAL code can reach the wrong identical device (short discriminator): use the QR code (MT:...) to target the exact one.' : ''} If you really mean this device, factory-reset it (or unpair that node) and try again. Pair one device at a time.`)
+      }
+      if (isManual) {
+        throw new Error(`${msg} — tip: the MANUAL code can't tell identical devices apart (short discriminator). Use the QR code (MT:...) for a precise match, pair one device at a time, and factory-reset the device if it is already commissioned elsewhere.`)
+      }
+      throw error
+    }
     try {
       await this._attachNode(nodeId)
     } catch (error) {
@@ -234,7 +375,7 @@ class classMatter extends EventEmitter {
       try {
         const key = detail.nodeId.toString()
         const node = this.pairedNodes.get(key)
-        let basicInfo = detail.basicInformationData || {}
+        let basicInfo = detail.basicInformationData || detail.deviceData?.basicInformation || {}
         try {
           if (node !== undefined && node.basicInformation !== undefined) basicInfo = node.basicInformation
         } catch (error) { /* empty */ }
@@ -242,9 +383,21 @@ class classMatter extends EventEmitter {
         try {
           if (node !== undefined) connectionState = this.nodeStateToString(node.connectionState)
         } catch (error) { /* empty */ }
+        // Name: prefer the user-assigned label; otherwise fall back to the model and
+        // append a short unique suffix so identical devices (e.g. several Shelly of the
+        // same model) are distinguishable. Shelly expose their MAC in the serial number,
+        // so its last 4 hex chars are effectively the "last 4 of the MAC" other apps show.
+        const userLabel = basicInfo.nodeLabel || basicInfo.productLabel
+        const baseName = userLabel || basicInfo.productName || detail.advertisedName || `Node ${key}`
+        let displayName = baseName
+        if (!userLabel) {
+          const idSource = basicInfo.serialNumber || basicInfo.uniqueId || detail.advertisedName || key
+          const suffix = shortHexSuffix(idSource)
+          if (suffix && !baseName.toUpperCase().includes(suffix)) displayName = `${baseName} (${suffix})`
+        }
         retArray.push({
           nodeId: key,
-          name: basicInfo.nodeLabel || basicInfo.productLabel || basicInfo.productName || detail.advertisedName || `Node ${key}`,
+          name: displayName,
           vendorName: basicInfo.vendorName || '',
           productName: basicInfo.productName || '',
           serialNumber: basicInfo.serialNumber || '',
@@ -397,6 +550,24 @@ class classMatter extends EventEmitter {
     } catch (error) {
       return undefined
     }
+  }
+
+  renameNode = async (_nodeIdString, _label) => {
+    const label = (_label || '').toString().trim()
+    if (label === '') throw new Error('Empty Matter device name')
+    if (label.length > 64) throw new Error('Matter device name is too long')
+    const node = this.pairedNodes.get(_nodeIdString)
+    if (node === undefined) throw new Error(`Matter node ${_nodeIdString} unknown or not yet connected`)
+    let clusterClient
+    try {
+      if (typeof node.getRootClusterClient === 'function') clusterClient = node.getRootClusterClient(this._api.BasicInformation)
+    } catch (error) { /* empty */ }
+    if (clusterClient === undefined) clusterClient = this._findClusterClient(node, 0, 40) // BasicInformation on the root endpoint
+    if (clusterClient === undefined) throw new Error(`BasicInformation cluster not found on node ${_nodeIdString}`)
+    const attribute = clusterClient.attributes.nodeLabel
+    if (attribute === undefined) throw new Error(`nodeLabel attribute not found on node ${_nodeIdString}`)
+    await attribute.set(label)
+    return label
   }
 
   _enqueueCommand = (command) => {

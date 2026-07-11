@@ -1261,6 +1261,10 @@ module.exports = (RED) => {
             await node.knxConnection.Disconnect()
             node.sysLogger?.debug('removing old handlers. Node ' + node.name)
             node.knxConnection.removeAllListeners()
+            // The orphaned client may still emit a late async 'error' (e.g. the KNX Secure
+            // IA discovery timing out): with no listener, emit('error') would CRASH the
+            // whole process. Keep a swallow-all handler on it.
+            node.knxConnection.on(knx.KNXClientEvents.error, () => { })
           }
         } catch (error) {
           node.sysLogger?.info('BANANA ERRORINO', error)
@@ -1453,6 +1457,7 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifywrite === true)
             .forEach((_input) => {
+              try {
               if (_input.hasOwnProperty('isMultiRouting')) {
                 const msg = {
                   topic: _input.outputtopic || _dest,
@@ -1647,6 +1652,7 @@ module.exports = (RED) => {
                   _input.handleSend(msg)
                 }
               }
+              } catch (errDispatch) { node.sysLogger?.error('KNX dispatch client error: ' + (errDispatch && errDispatch.message)) }
             })
           // console.timeEnd('GroupValue_Write');
           break
@@ -1655,6 +1661,7 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifyresponse === true)
             .forEach((_input) => {
+              try {
               if (_input.hasOwnProperty('isMultiRouting')) {
                 const msg = {
                   topic: _input.outputtopic || _dest,
@@ -1752,6 +1759,7 @@ module.exports = (RED) => {
                   _input.handleSend(msg)
                 }
               }
+              } catch (errDispatch) { node.sysLogger?.error('KNX dispatch client error: ' + (errDispatch && errDispatch.message)) }
             })
           break
 
@@ -1759,6 +1767,7 @@ module.exports = (RED) => {
           node.nodeClients
             .filter((_input) => _input.notifyreadrequest === true)
             .forEach((_input) => {
+              try {
               if (_input.hasOwnProperty('isMultiRouting')) {
                 const msg = {
                   topic: _input.outputtopic || _dest,
@@ -1886,6 +1895,7 @@ module.exports = (RED) => {
                   _input.handleSend(msg)
                 }
               }
+              } catch (errDispatch) { node.sysLogger?.error('KNX dispatch client error: ' + (errDispatch && errDispatch.message)) }
             })
           break
 
@@ -2666,6 +2676,9 @@ module.exports = (RED) => {
         } finally {
           try {
             connection.removeAllListeners()
+            // Never leave a (possibly still async-active) client without an 'error'
+            // listener: a late rejection would crash the whole process.
+            connection.on(knx.KNXClientEvents.error, () => { })
           } catch (error) { /* empty */ }
           if (isSerial && serialDriver && typeof serialDriver.close === 'function') {
             try {

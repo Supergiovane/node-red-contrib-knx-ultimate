@@ -9,3 +9,10 @@ tutorial/
 docs/_site/
 docs/Gemfile.lock
 scripts/
+
+# Live integration test secrets & local state (NEVER commit real IPs/tokens/passwords)
+test/integration/config.local.json
+test/integration/.matter-storage/
+test/integration/.nodered/
+test/integration/.nodered-serve/
+test/integration/*.local.*
