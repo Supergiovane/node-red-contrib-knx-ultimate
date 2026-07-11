@@ -2,276 +2,276 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
-    (function () {
-        // GA fields of each virtual device type.
-        // dir 'command' = Matter -> KNX (GA written on assistant commands), 'status' = KNX -> Matter.
-        const TYPE_FIELDS = {
-            onofflight: [
-                { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' }
-            ],
-            onoffplug: [
-                { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' }
-            ],
-            dimmablelight: [
-                { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'Level', labelKey: 'fn_level_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'LevelStatus', labelKey: 'fn_level_status', dptPrefix: '5.', fallbackDpt: '5.001' }
-            ],
-            rgblight: [
-                { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'Level', labelKey: 'fn_level_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'LevelStatus', labelKey: 'fn_level_status', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'RGB', labelKey: 'fn_rgb_cmd', dptPrefix: '232.', fallbackDpt: '232.600' },
-                { key: 'RGBStatus', labelKey: 'fn_rgb_status', dptPrefix: '232.', fallbackDpt: '232.600' }
-            ],
-            colortemperaturelight: [
-                { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
-                { key: 'Level', labelKey: 'fn_level_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'LevelStatus', labelKey: 'fn_level_status', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'CT', labelKey: 'fn_ct_cmd', dptPrefix: '7.', fallbackDpt: '7.600' },
-                { key: 'CTStatus', labelKey: 'fn_ct_status', dptPrefix: '7.', fallbackDpt: '7.600' }
-            ],
-            temperaturesensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '9.', fallbackDpt: '9.001' }],
-            humiditysensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '9.', fallbackDpt: '9.007' }],
-            lightsensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '9.', fallbackDpt: '9.004' }],
-            occupancysensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '1.', fallbackDpt: '1.011' }],
-            contactsensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '1.', fallbackDpt: '1.002' }],
-            windowcovering: [
-                { key: 'UpDown', labelKey: 'fn_updown', dptPrefix: '1.', fallbackDpt: '1.008' },
-                { key: 'Stop', labelKey: 'fn_stop', dptPrefix: '1.', fallbackDpt: '1.017' },
-                { key: 'Position', labelKey: 'fn_position_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'PositionStatus', labelKey: 'fn_position_status', dptPrefix: '5.', fallbackDpt: '5.001' }
-            ],
-            thermostat: [
-                { key: 'CurrentTemp', labelKey: 'fn_currenttemp', dptPrefix: '9.', fallbackDpt: '9.001' },
-                { key: 'Setpoint', labelKey: 'fn_setpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
-                { key: 'SetpointStatus', labelKey: 'fn_setpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' }
-            ],
-            smokecoalarm: [
-                { key: 'Smoke', labelKey: 'fn_smoke_ga', dptPrefix: '1.', fallbackDpt: '1.005' },
-                { key: 'CO', labelKey: 'fn_co_ga', dptPrefix: '1.', fallbackDpt: '1.005' }
-            ],
-            waterleakdetector: [{ key: 'Status', labelKey: 'fn_leak_ga', dptPrefix: '1.', fallbackDpt: '1.005' }],
-            airqualitysensor: [{ key: 'Status', labelKey: 'fn_co2_ga', dptPrefix: '9.', fallbackDpt: '9.008' }],
-            fan: [
-                { key: 'FanSpeed', labelKey: 'fn_fanspeed_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
-                { key: 'FanSpeedStatus', labelKey: 'fn_fanspeed_status', dptPrefix: '5.', fallbackDpt: '5.001' }
-            ],
-            robotvacuum: [] // Flow-only: no GA fields, controlled via the node PINs
-        };
-        const TYPE_ORDER = ['onofflight', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'onoffplug', 'windowcovering', 'thermostat', 'fan', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'robotvacuum'];
+  (function () {
+    // GA fields of each virtual device type.
+    // dir 'command' = Matter -> KNX (GA written on assistant commands), 'status' = KNX -> Matter.
+    const TYPE_FIELDS = {
+      onofflight: [
+        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' }
+      ],
+      onoffplug: [
+        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' }
+      ],
+      dimmablelight: [
+        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'Level', labelKey: 'fn_level_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'LevelStatus', labelKey: 'fn_level_status', dptPrefix: '5.', fallbackDpt: '5.001' }
+      ],
+      rgblight: [
+        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'Level', labelKey: 'fn_level_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'LevelStatus', labelKey: 'fn_level_status', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'RGB', labelKey: 'fn_rgb_cmd', dptPrefix: '232.', fallbackDpt: '232.600' },
+        { key: 'RGBStatus', labelKey: 'fn_rgb_status', dptPrefix: '232.', fallbackDpt: '232.600' }
+      ],
+      colortemperaturelight: [
+        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'Level', labelKey: 'fn_level_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'LevelStatus', labelKey: 'fn_level_status', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'CT', labelKey: 'fn_ct_cmd', dptPrefix: '7.', fallbackDpt: '7.600' },
+        { key: 'CTStatus', labelKey: 'fn_ct_status', dptPrefix: '7.', fallbackDpt: '7.600' }
+      ],
+      temperaturesensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '9.', fallbackDpt: '9.001' }],
+      humiditysensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '9.', fallbackDpt: '9.007' }],
+      lightsensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '9.', fallbackDpt: '9.004' }],
+      occupancysensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '1.', fallbackDpt: '1.011' }],
+      contactsensor: [{ key: 'Status', labelKey: 'fn_sensor_ga', dptPrefix: '1.', fallbackDpt: '1.002' }],
+      windowcovering: [
+        { key: 'UpDown', labelKey: 'fn_updown', dptPrefix: '1.', fallbackDpt: '1.008' },
+        { key: 'Stop', labelKey: 'fn_stop', dptPrefix: '1.', fallbackDpt: '1.017' },
+        { key: 'Position', labelKey: 'fn_position_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'PositionStatus', labelKey: 'fn_position_status', dptPrefix: '5.', fallbackDpt: '5.001' }
+      ],
+      thermostat: [
+        { key: 'CurrentTemp', labelKey: 'fn_currenttemp', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'Setpoint', labelKey: 'fn_setpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'SetpointStatus', labelKey: 'fn_setpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' }
+      ],
+      smokecoalarm: [
+        { key: 'Smoke', labelKey: 'fn_smoke_ga', dptPrefix: '1.', fallbackDpt: '1.005' },
+        { key: 'CO', labelKey: 'fn_co_ga', dptPrefix: '1.', fallbackDpt: '1.005' }
+      ],
+      waterleakdetector: [{ key: 'Status', labelKey: 'fn_leak_ga', dptPrefix: '1.', fallbackDpt: '1.005' }],
+      airqualitysensor: [{ key: 'Status', labelKey: 'fn_co2_ga', dptPrefix: '9.', fallbackDpt: '9.008' }],
+      fan: [
+        { key: 'FanSpeed', labelKey: 'fn_fanspeed_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'FanSpeedStatus', labelKey: 'fn_fanspeed_status', dptPrefix: '5.', fallbackDpt: '5.001' }
+      ],
+      robotvacuum: [] // Flow-only: no GA fields, controlled via the node PINs
+    };
+    const TYPE_ORDER = ['onofflight', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'onoffplug', 'windowcovering', 'thermostat', 'fan', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'robotvacuum'];
 
-        // Every GA/DPT key across all types, used to declare the node defaults.
-        const ALL_KEYS = [];
-        Object.keys(TYPE_FIELDS).forEach((t) => TYPE_FIELDS[t].forEach((f) => { if (ALL_KEYS.indexOf(f.key) === -1) ALL_KEYS.push(f.key); }));
-        const gaDefaults = {
-            server: { type: 'knxUltimate-config', required: false },
-            serverMatterBridge: { type: 'matterbridge-config', required: true },
-            name: { value: '' },
-            deviceType: { value: 'onofflight' },
-            invertPosition: { value: false },
-            turnOnBehavior: { value: 'ignoreLevelAfterOn' },
-            ignoreLevelAfterOnMs: { value: 800 },
-            coverUpdateMode: { value: 'optimistic' },
-            coverStatusTimeoutMs: { value: 3000 },
-            readStatusAtStartup: { value: 'yes' },
-            enableNodePINS: { value: 'no' },
-            outputs: { value: 0 },
-            inputs: { value: 0 }
+    // Every GA/DPT key across all types, used to declare the node defaults.
+    const ALL_KEYS = [];
+    Object.keys(TYPE_FIELDS).forEach((t) => TYPE_FIELDS[t].forEach((f) => { if (ALL_KEYS.indexOf(f.key) === -1) ALL_KEYS.push(f.key); }));
+    const gaDefaults = {
+      server: { type: 'knxUltimate-config', required: false },
+      serverMatterBridge: { type: 'matterbridge-config', required: true },
+      name: { value: '' },
+      deviceType: { value: 'onofflight' },
+      invertPosition: { value: false },
+      turnOnBehavior: { value: 'ignoreLevelAfterOn' },
+      ignoreLevelAfterOnMs: { value: 800 },
+      coverUpdateMode: { value: 'optimistic' },
+      coverStatusTimeoutMs: { value: 3000 },
+      readStatusAtStartup: { value: 'yes' },
+      enableNodePINS: { value: 'no' },
+      outputs: { value: 0 },
+      inputs: { value: 0 }
+    };
+    ALL_KEYS.forEach((key) => {
+      gaDefaults['ga' + key] = { value: '' };
+      gaDefaults['dpt' + key] = { value: '' };
+    });
+
+    RED.nodes.registerType('knxUltimateMatterBridge', {
+      category: 'KNX Ultimate Matter',
+      color: '#8FE3D4',
+      defaults: gaDefaults,
+      inputs: 0,
+      outputs: 0,
+      icon: 'node-matter-icon.svg',
+      label() {
+        return this.name || 'Expose KNX to Matter (BETA)';
+      },
+      paletteLabel: 'Expose KNX to Matter (BETA)',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        const node = this;
+
+        // Resolves the KNX gateway at query time: the selected one, or - as a
+        // fallback - the first knxUltimate-config available, so the GA list works
+        // even before the user picks the gateway on this device node.
+        const findKnxGateway = () => {
+          let srv = null;
+          try {
+            const val = $('#node-input-server').val();
+            if (val && val !== '_ADD_') srv = RED.nodes.node(val);
+          } catch (error) { /* empty */ }
+          if (!srv) {
+            try {
+              RED.nodes.eachConfig((c) => { if (!srv && c.type === 'knxUltimate-config') srv = c; });
+            } catch (error) { /* empty */ }
+          }
+          return srv;
         };
+
+        // Auto-select the KNX gateway when there is only one, sparing the user a click per device node
+        try {
+          const cur = $('#node-input-server').val();
+          if (!cur || cur === '_ADD_') {
+            const gws = [];
+            RED.nodes.eachConfig((c) => { if (c.type === 'knxUltimate-config') gws.push(c); });
+            if (gws.length === 1) $('#node-input-server').val(gws[0].id).trigger('change');
+          }
+        } catch (error) { /* empty */ }
+
+        // Device type dropdown
+        const $type = $('#node-input-deviceType');
+        TYPE_ORDER.forEach((t) => {
+          $type.append($('<option></option>').attr('value', t).text(node._('knxUltimateMatterBridge.types.' + t)));
+        });
+        $type.val(node.deviceType || 'onofflight');
+
+        // Compact "list" layout: a small gray caption above each input, fields wrapping
+        // on one or more rows (same pattern used across the rest of the KNX-Ultimate nodes).
+        const $fields = $('#mb-ga-fields').css({ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '10px' });
+        const $invertRow = $('#mb-invert-row');
+        const $advancedRows = $('#mb-advanced-details');
+        const $dimmerAdvancedRows = $('.mb-dimmer-advanced-row');
+        const $coverAdvancedRows = $('.mb-cover-advanced-row');
+        const gaInputs = {};
+
+        function createLabeledField(row, element, options = {}) {
+          const wrapper = $('<div/>', {
+            style: 'display:flex; flex-direction:column; margin-bottom:8px;'
+          }).appendTo(row);
+          if (options.width) wrapper.css('width', options.width);
+          const $labelSpan = $('<span/>', {
+            style: 'font-size:11px; color:#666; margin-bottom:2px; white-space:nowrap;'
+          }).appendTo(wrapper);
+          element.css('width', '100%');
+          element.appendTo(wrapper);
+          return { wrapper, $labelSpan };
+        }
+
+        function attachGaAutocomplete($ga, $dpt, fieldDef) {
+          $ga.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              const gw = findKnxGateway();
+              if (!gw) { response([]); return; }
+              $.getJSON(`knxUltimatecsv?nodeID=${gw.id}`, (data) => {
+                response($.map(data, (value) => {
+                  const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+                  if (htmlUtilsfullCSVSearch(search, `${request.term} ${fieldDef.dptPrefix}`)) {
+                    return { label: `${value.ga} # ${value.devicename} # ${value.dpt}`, value: value.ga, dpt: value.dpt };
+                  }
+                  return null;
+                }));
+              });
+            },
+            select(event, ui) { $dpt.val(ui.item.dpt || fieldDef.fallbackDpt); }
+          });
+          $ga.on('focus.knxUltimateMatterBridge click.knxUltimateMatterBridge', function () {
+            try { $(this).autocomplete('search', ''); } catch (error) { /* empty */ }
+          });
+          try {
+            const gw = findKnxGateway();
+            if (gw && gw.id) KNX_enableSecureFormatting($ga, gw.id);
+          } catch (error) { /* empty */ }
+        }
+
+        // Build one field per possible GA key; show only the ones of the selected type.
         ALL_KEYS.forEach((key) => {
-            gaDefaults['ga' + key] = { value: '' };
-            gaDefaults['dpt' + key] = { value: '' };
+          const fieldDef = {};
+          Object.keys(TYPE_FIELDS).forEach((t) => { const f = TYPE_FIELDS[t].find((x) => x.key === key); if (f) Object.assign(fieldDef, f); });
+          const $ga = $('<input/>', { type: 'text', placeholder: '1/1/1' }).val(node['ga' + key] || '');
+          const $dpt = $('<input/>', { type: 'hidden' }).val(node['dpt' + key] || '');
+          const { wrapper, $labelSpan } = createLabeledField($fields, $ga, { width: '150px' });
+          wrapper.append($dpt); // Kept alongside the GA input; never rendered.
+          attachGaAutocomplete($ga, $dpt, fieldDef);
+          // Keyed by field key (not DOM position), so save is robust regardless of layout.
+          gaInputs[key] = { wrapper, $ga, $dpt, $labelSpan };
         });
 
-        RED.nodes.registerType('knxUltimateMatterBridge', {
-            category: 'KNX Ultimate Matter',
-            color: '#8FE3D4',
-            defaults: gaDefaults,
-            inputs: 0,
-            outputs: 0,
-            icon: 'node-matter-icon.svg',
-            label() {
-                return this.name || 'Expose KNX to Matter (BETA)';
-            },
-            paletteLabel: 'Expose KNX to Matter (BETA)',
-            oneditprepare() {
-                try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
-                const node = this;
-
-                // Resolves the KNX gateway at query time: the selected one, or - as a
-                // fallback - the first knxUltimate-config available, so the GA list works
-                // even before the user picks the gateway on this device node.
-                const findKnxGateway = () => {
-                    let srv = null;
-                    try {
-                        const val = $('#node-input-server').val();
-                        if (val && val !== '_ADD_') srv = RED.nodes.node(val);
-                    } catch (error) { /* empty */ }
-                    if (!srv) {
-                        try {
-                            RED.nodes.eachConfig((c) => { if (!srv && c.type === 'knxUltimate-config') srv = c; });
-                        } catch (error) { /* empty */ }
-                    }
-                    return srv;
-                };
-
-                // Auto-select the KNX gateway when there is only one, sparing the user a click per device node
-                try {
-                    const cur = $('#node-input-server').val();
-                    if (!cur || cur === '_ADD_') {
-                        const gws = [];
-                        RED.nodes.eachConfig((c) => { if (c.type === 'knxUltimate-config') gws.push(c); });
-                        if (gws.length === 1) $('#node-input-server').val(gws[0].id).trigger('change');
-                    }
-                } catch (error) { /* empty */ }
-
-                // Device type dropdown
-                const $type = $('#node-input-deviceType');
-                TYPE_ORDER.forEach((t) => {
-                    $type.append($('<option></option>').attr('value', t).text(node._('knxUltimateMatterBridge.types.' + t)));
-                });
-                $type.val(node.deviceType || 'onofflight');
-
-                // Compact "list" layout: a small gray caption above each input, fields wrapping
-                // on one or more rows (same pattern used across the rest of the KNX-Ultimate nodes).
-                const $fields = $('#mb-ga-fields').css({ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '10px' });
-                const $invertRow = $('#mb-invert-row');
-                const $advancedRows = $('#mb-advanced-details');
-                const $dimmerAdvancedRows = $('.mb-dimmer-advanced-row');
-                const $coverAdvancedRows = $('.mb-cover-advanced-row');
-                const gaInputs = {};
-
-                function createLabeledField(row, element, options = {}) {
-                    const wrapper = $('<div/>', {
-                        style: 'display:flex; flex-direction:column; margin-bottom:8px;'
-                    }).appendTo(row);
-                    if (options.width) wrapper.css('width', options.width);
-                    const $labelSpan = $('<span/>', {
-                        style: 'font-size:11px; color:#666; margin-bottom:2px; white-space:nowrap;'
-                    }).appendTo(wrapper);
-                    element.css('width', '100%');
-                    element.appendTo(wrapper);
-                    return { wrapper, $labelSpan };
-                }
-
-                function attachGaAutocomplete($ga, $dpt, fieldDef) {
-                    $ga.autocomplete({
-                        minLength: 0,
-                        source(request, response) {
-                            const gw = findKnxGateway();
-                            if (!gw) { response([]); return; }
-                            $.getJSON(`knxUltimatecsv?nodeID=${gw.id}`, (data) => {
-                                response($.map(data, (value) => {
-                                    const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
-                                    if (htmlUtilsfullCSVSearch(search, `${request.term} ${fieldDef.dptPrefix}`)) {
-                                        return { label: `${value.ga} # ${value.devicename} # ${value.dpt}`, value: value.ga, dpt: value.dpt };
-                                    }
-                                    return null;
-                                }));
-                            });
-                        },
-                        select(event, ui) { $dpt.val(ui.item.dpt || fieldDef.fallbackDpt); }
-                    });
-                    $ga.on('focus.knxUltimateMatterBridge click.knxUltimateMatterBridge', function () {
-                        try { $(this).autocomplete('search', ''); } catch (error) { /* empty */ }
-                    });
-                    try {
-                        const gw = findKnxGateway();
-                        if (gw && gw.id) KNX_enableSecureFormatting($ga, gw.id);
-                    } catch (error) { /* empty */ }
-                }
-
-                // Build one field per possible GA key; show only the ones of the selected type.
-                ALL_KEYS.forEach((key) => {
-                    const fieldDef = {};
-                    Object.keys(TYPE_FIELDS).forEach((t) => { const f = TYPE_FIELDS[t].find((x) => x.key === key); if (f) Object.assign(fieldDef, f); });
-                    const $ga = $('<input/>', { type: 'text', placeholder: '1/1/1' }).val(node['ga' + key] || '');
-                    const $dpt = $('<input/>', { type: 'hidden' }).val(node['dpt' + key] || '');
-                    const { wrapper, $labelSpan } = createLabeledField($fields, $ga, { width: '150px' });
-                    wrapper.append($dpt); // Kept alongside the GA input; never rendered.
-                    attachGaAutocomplete($ga, $dpt, fieldDef);
-                    // Keyed by field key (not DOM position), so save is robust regardless of layout.
-                    gaInputs[key] = { wrapper, $ga, $dpt, $labelSpan };
-                });
-
-                function updateTypePresentation() {
-                    const selected = $type.val();
-                    const active = TYPE_FIELDS[selected] || [];
-                    ALL_KEYS.forEach((key) => {
-                        const entry = gaInputs[key];
-                        const fieldForType = active.find((f) => f.key === key);
-                        if (fieldForType) {
-                            entry.wrapper.show();
-                            entry.$labelSpan.text(node._('knxUltimateMatterBridge.functions.' + fieldForType.labelKey));
-                        } else {
-                            entry.wrapper.hide();
-                        }
-                    });
-                    $invertRow.toggle(selected === 'windowcovering');
-                    const hasLevel = selected === 'dimmablelight' || selected === 'rgblight' || selected === 'colortemperaturelight';
-                    const isCover = selected === 'windowcovering';
-                    $advancedRows.toggle(hasLevel || isCover);
-                    $dimmerAdvancedRows.toggle(hasLevel);
-                    $coverAdvancedRows.toggle(isCover);
-                }
-                $type.on('change', updateTypePresentation);
-                updateTypePresentation();
-
-                // oneditsave reads the GA values straight from these references: no DOM
-                // position matching, so it cannot break if the layout changes again.
-                node._matterGaInputs = gaInputs;
-
-                $('#node-input-invertPosition').prop('checked', node.invertPosition === true);
-                $('#node-input-turnOnBehavior').val(node.turnOnBehavior || 'ignoreLevelAfterOn');
-                $('#node-input-ignoreLevelAfterOnMs').val(node.ignoreLevelAfterOnMs === undefined ? 800 : node.ignoreLevelAfterOnMs);
-                $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
-                $('#node-input-coverStatusTimeoutMs').val(node.coverStatusTimeoutMs === undefined ? 3000 : node.coverStatusTimeoutMs);
-                $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
-                $('#node-input-enableNodePINS').val(node.enableNodePINS || 'no');
-            },
-            oneditsave() {
-                try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
-                const node = this;
-                const selected = $('#node-input-deviceType').val();
-                node.deviceType = selected;
-                node.invertPosition = $('#node-input-invertPosition').is(':checked');
-                const active = TYPE_FIELDS[selected] || [];
-                const gaInputs = node._matterGaInputs || {};
-                // Clear every GA/DPT, then write only the ones of the selected type, reading
-                // straight from the field references built in oneditprepare (not DOM position).
-                ALL_KEYS.forEach((key) => {
-                    node['ga' + key] = '';
-                    node['dpt' + key] = '';
-                    const entry = gaInputs[key];
-                    if (!entry) return;
-                    const isActive = active.some((f) => f.key === key);
-                    const ga = (entry.$ga.val() || '').trim();
-                    if (isActive && ga !== '') {
-                        node['ga' + key] = ga;
-                        node['dpt' + key] = (entry.$dpt.val() || '').trim();
-                    }
-                });
-                delete node._matterGaInputs;
-                this.turnOnBehavior = $('#node-input-turnOnBehavior').val() || 'ignoreLevelAfterOn';
-                this.ignoreLevelAfterOnMs = Number($('#node-input-ignoreLevelAfterOnMs').val()) || 0;
-                this.coverUpdateMode = $('#node-input-coverUpdateMode').val() || 'optimistic';
-                this.coverStatusTimeoutMs = Number($('#node-input-coverStatusTimeoutMs').val()) || 0;
-                this.enableNodePINS = $('#node-input-enableNodePINS').val() || 'no';
-                this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
-                this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
-            },
-            oneditcancel() {
-                try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
-                delete this._matterGaInputs;
+        function updateTypePresentation() {
+          const selected = $type.val();
+          const active = TYPE_FIELDS[selected] || [];
+          ALL_KEYS.forEach((key) => {
+            const entry = gaInputs[key];
+            const fieldForType = active.find((f) => f.key === key);
+            if (fieldForType) {
+              entry.wrapper.show();
+              entry.$labelSpan.text(node._('knxUltimateMatterBridge.functions.' + fieldForType.labelKey));
+            } else {
+              entry.wrapper.hide();
             }
+          });
+          $invertRow.toggle(selected === 'windowcovering');
+          const hasLevel = selected === 'dimmablelight' || selected === 'rgblight' || selected === 'colortemperaturelight';
+          const isCover = selected === 'windowcovering';
+          $advancedRows.toggle(hasLevel || isCover);
+          $dimmerAdvancedRows.toggle(hasLevel);
+          $coverAdvancedRows.toggle(isCover);
+        }
+        $type.on('change', updateTypePresentation);
+        updateTypePresentation();
+
+        // oneditsave reads the GA values straight from these references: no DOM
+        // position matching, so it cannot break if the layout changes again.
+        node._matterGaInputs = gaInputs;
+
+        $('#node-input-invertPosition').prop('checked', node.invertPosition === true);
+        $('#node-input-turnOnBehavior').val(node.turnOnBehavior || 'ignoreLevelAfterOn');
+        $('#node-input-ignoreLevelAfterOnMs').val(node.ignoreLevelAfterOnMs === undefined ? 800 : node.ignoreLevelAfterOnMs);
+        $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
+        $('#node-input-coverStatusTimeoutMs').val(node.coverStatusTimeoutMs === undefined ? 3000 : node.coverStatusTimeoutMs);
+        $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
+        $('#node-input-enableNodePINS').val(node.enableNodePINS || 'no');
+      },
+      oneditsave() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        const node = this;
+        const selected = $('#node-input-deviceType').val();
+        node.deviceType = selected;
+        node.invertPosition = $('#node-input-invertPosition').is(':checked');
+        const active = TYPE_FIELDS[selected] || [];
+        const gaInputs = node._matterGaInputs || {};
+        // Clear every GA/DPT, then write only the ones of the selected type, reading
+        // straight from the field references built in oneditprepare (not DOM position).
+        ALL_KEYS.forEach((key) => {
+          node['ga' + key] = '';
+          node['dpt' + key] = '';
+          const entry = gaInputs[key];
+          if (!entry) return;
+          const isActive = active.some((f) => f.key === key);
+          const ga = (entry.$ga.val() || '').trim();
+          if (isActive && ga !== '') {
+            node['ga' + key] = ga;
+            node['dpt' + key] = (entry.$dpt.val() || '').trim();
+          }
         });
-    }());
+        delete node._matterGaInputs;
+        this.turnOnBehavior = $('#node-input-turnOnBehavior').val() || 'ignoreLevelAfterOn';
+        this.ignoreLevelAfterOnMs = Number($('#node-input-ignoreLevelAfterOnMs').val()) || 0;
+        this.coverUpdateMode = $('#node-input-coverUpdateMode').val() || 'optimistic';
+        this.coverStatusTimeoutMs = Number($('#node-input-coverStatusTimeoutMs').val()) || 0;
+        this.enableNodePINS = $('#node-input-enableNodePINS').val() || 'no';
+        this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
+        this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
+      },
+      oneditcancel() {
+        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
+        delete this._matterGaInputs;
+      }
+    });
+  }());
 </script>
 
 <script type="text/html" data-template-name="knxUltimateMatterBridge">
@@ -385,6 +385,13 @@
       <option value="yes" data-i18n="knxUltimateMatterBridge.node_pins_show"></option>
     </select>
   </div>
+
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">

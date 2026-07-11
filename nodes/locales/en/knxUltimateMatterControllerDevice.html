@@ -1,9 +1,11 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
-# Matter Light/Outlet (BETA)
+# Control Matter from KNX (BETA)
 
 > This node is in **BETA**: behaviour can change while the Matter implementation is refined.
 
-This node controls a Matter light or outlet and maps the supported Matter capabilities to KNX group addresses.
+This node controls a commissioned Matter endpoint from KNX. Select the Matter device and the editor detects its capabilities, then shows only the KNX mappings that make sense for that endpoint.
+
+It replaces the unpublished per-device Matter controller nodes and keeps the full light UI when the selected endpoint is a light.
 
 ## Configuration
 
@@ -11,15 +13,15 @@ This node controls a Matter light or outlet and maps the supported Matter capabi
 |--|--|
 | KNX GW | KNX gateway used to write and answer the configured group addresses. It can be left empty when only Node-RED output is needed. |
 | Matter controller | Matter controller configuration node where the device has been commissioned. |
-| Matter Light/Outlet | Matter light or outlet selected from commissioned devices. The UI hides dimming, color or tunable-white sections when the selected endpoint does not expose those capabilities. |
-| Switch | On/Off command and status group addresses, usually DPT `1.001`. |
-| Dim | Brightness commands and status are available only for endpoints exposing `LevelControl`; percent values use DPT `5.001`. |
-| Tunable White | Color temperature controls are available only for endpoints exposing the required Matter color-temperature capability. |
-| RGB/HSV | RGB/HSV controls are available only for endpoints exposing Matter color capabilities. |
+| Matter device | Matter endpoint selected from commissioned devices. The UI is rebuilt from its real capabilities. |
+| Switch / Plug / Light On-Off | On/Off command and status group addresses, usually DPT `1.001`. |
+| Light controls | For light endpoints, the same light UI is used: relative DIM (DPT `3.007`), brightness %, RGB/HSV, tunable white, switch-on brightness/temperature, day/night lighting, min/max dim level and dim speed. Unsupported sections are hidden. |
+| Sensors | Sensor endpoints expose their measurement/status GA only when supported: temperature, humidity, illuminance, occupancy, contact and battery. |
 | Read at startup | Publishes the cached Matter value at deploy/startup or when the device reconnects. |
+| Update local state from KNX write | Updates the local Matter/KNX cache when a telegram is written on a configured KNX GA. |
 | Node Input/Output PINs | Shows Node-RED input/output pins. Input accepts boolean payloads and Matter-style `msg.payload` or `msg.on.on`; output emits state updates. |
 
 ## Behaviour
 
-The node keeps a local cache from Matter updates and KNX writes, answers KNX read requests from that cache, and can emit/read values at startup.
+The node keeps a local cache from Matter updates and KNX writes, answers KNX read requests from that cache, and can emit/read values at startup. Only the configured group addresses are listened to, so unrelated KNX traffic is ignored.
 </script>

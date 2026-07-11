@@ -1,9 +1,11 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
-# Matter Licht/Steckdose (BETA)
+# Control Matter from KNX (BETA)
 
 > Dieser Knoten ist **BETA**: das Verhalten kann sich ändern, während die Matter-Implementierung weiter verfeinert wird.
 
-Dieser Knoten steuert ein Matter-Licht oder eine Matter-Steckdose und verbindet die unterstützten Matter-Funktionen mit KNX-Gruppenadressen.
+Dieser Knoten steuert einen bereits gekoppelten Matter-Endpunkt über KNX. Wähle das Matter-Gerät aus; der Editor erkennt die Fähigkeiten des Endpunkts und zeigt nur die passenden KNX-Zuordnungen.
+
+Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behält die komplette Licht-UI bei, wenn der gewählte Endpunkt ein Licht ist.
 
 ## Konfiguration
 
@@ -11,15 +13,15 @@ Dieser Knoten steuert ein Matter-Licht oder eine Matter-Steckdose und verbindet 
 |--|--|
 | KNX GW | KNX-Gateway zum Schreiben und Beantworten der konfigurierten Gruppenadressen. Kann leer bleiben, wenn nur der Node-RED-Ausgang benötigt wird. |
 | Matter controller | Matter-Controller-Konfigurationsknoten, in dem das Gerät gekoppelt wurde. |
-| Matter Licht/Steckdose | Matter-Licht oder Steckdose aus den gekoppelten Geräten. Die UI blendet Dimmen, Farbe oder Tunable White aus, wenn der gewählte Endpunkt diese Funktionen nicht bereitstellt. |
-| Switch | On/Off-Befehls- und Status-Gruppenadressen, normalerweise DPT `1.001`. |
-| Dim | Helligkeitsbefehle und -status sind nur für Endpunkte mit `LevelControl` verfügbar; Prozentwerte verwenden DPT `5.001`. |
-| Tunable White | Farbtemperatursteuerung ist nur für Endpunkte mit der passenden Matter-Farbtemperaturfunktion verfügbar. |
-| RGB/HSV | RGB/HSV-Steuerung ist nur für Endpunkte mit Matter-Farbfunktionen verfügbar. |
+| Matter device | Matter-Endpunkt aus den gekoppelten Geräten. Die UI wird aus den echten Fähigkeiten neu aufgebaut. |
+| Switch / Steckdose / Licht On-Off | On/Off-Befehls- und Status-Gruppenadressen, normalerweise DPT `1.001`. |
+| Lichtsteuerung | Für Licht-Endpunkte wird die vollständige Licht-UI verwendet: relatives DIM (DPT `3.007`), Helligkeit %, RGB/HSV, Tunable White, Einschalt-Helligkeit/-Temperatur, Tag/Nacht-Licht, Min/Max-Dimmlevel und Dimmgeschwindigkeit. Nicht unterstützte Bereiche bleiben ausgeblendet. |
+| Sensoren | Sensor-Endpunkte zeigen ihre Mess-/Status-GA nur bei Unterstützung: Temperatur, Feuchte, Helligkeit, Präsenz, Kontakt und Batterie. |
 | Read at startup | Veröffentlicht den gecachten Matter-Wert beim Deploy/Start oder wenn sich das Gerät erneut verbindet. |
+| Update local state from KNX write | Aktualisiert den lokalen Matter/KNX-Cache, wenn ein Telegramm auf eine konfigurierte KNX-GA geschrieben wird. |
 | Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Der Eingang akzeptiert boolesche Payloads sowie Matter-ähnliche `msg.payload` oder `msg.on.on`; der Ausgang sendet Statusupdates. |
 
 ## Verhalten
 
-Der Knoten pflegt einen lokalen Cache aus Matter-Updates und KNX-Schreibtelegrammen, beantwortet KNX-Leseanfragen aus diesem Cache und kann Werte beim Start lesen/ausgeben.
+Der Knoten pflegt einen lokalen Cache aus Matter-Updates und KNX-Schreibtelegrammen, beantwortet KNX-Leseanfragen aus diesem Cache und kann Werte beim Start lesen/ausgeben. Er hört nur auf konfigurierte Gruppenadressen, daher wird fremder KNX-Verkehr ignoriert.
 </script>
