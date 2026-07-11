@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterControllerDevice": {
-    "title": "Luz Matter",
+    "title": "Control Matter from KNX",
     "node-input-name": "Nombre",
     "node-input-nameLightSwitch": "Interruptor (bit)",
     "node-input-GALightSwitch": "Georgia",
@@ -8,9 +8,9 @@
     "node-input-nameLightState": "Estado (bit)",
     "node-input-GALightState": "Georgia",
     "node-input-dptLightState": "DPT",
-    "node-input-hueLight": "Luz de tono",
-    "paletteLabel": "Matter Luz/Enchufe",
-    "no_devices": "No se encontraron luces Matter. Comprueba el controlador Matter y actualiza.",
+    "node-input-hueLight": "Dispositivo Matter",
+    "paletteLabel": "Control Matter from KNX",
+    "no_devices": "No se encontraron dispositivos Matter. Comprueba el controlador Matter y actualiza.",
     "tabs": {
       "switch": "Cambiar",
       "dim": "Oscuro",
@@ -82,7 +82,7 @@
     "effect_native_label": "Efectos nativos de tono",
     "matter_controller": "Controlador Matter",
     "matter_device": "Dispositivo Matter",
-    "matter_section": "Luz Matter"
+    "matter_section": "Dispositivo Matter"
   },
   "common": {
     "ga": "Georgia",

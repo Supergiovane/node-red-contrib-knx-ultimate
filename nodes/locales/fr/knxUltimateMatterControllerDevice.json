@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterControllerDevice": {
-    "title": "Lumière Matter",
+    "title": "Control Matter from KNX",
     "node-input-name": "Nom",
     "node-input-nameLightSwitch": "Commutateur (bit)",
     "node-input-GALightSwitch": "Géorgie",
@@ -8,9 +8,9 @@
     "node-input-nameLightState": "État (bit)",
     "node-input-GALightState": "Géorgie",
     "node-input-dptLightState": "dpt",
-    "node-input-hueLight": "Lueur",
-    "paletteLabel": "Matter Lumière/Prise",
-    "no_devices": "Aucune lumière Matter trouvée. Vérifiez le contrôleur Matter et actualisez.",
+    "node-input-hueLight": "Appareil Matter",
+    "paletteLabel": "Control Matter from KNX",
+    "no_devices": "Aucun appareil Matter trouvé. Vérifiez le contrôleur Matter et actualisez.",
     "tabs": {
       "switch": "Changer",
       "dim": "Faible",
@@ -74,7 +74,7 @@
     "effect_native_label": "Effets natifs de la teinte",
     "matter_controller": "Contrôleur Matter",
     "matter_device": "Appareil Matter",
-    "matter_section": "Lumière Matter"
+    "matter_section": "Appareil Matter"
   },
   "common": {
     "ga": "Géorgie",

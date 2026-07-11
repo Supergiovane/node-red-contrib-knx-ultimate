@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterControllerDevice": {
-    "title": "Matter 灯",
+    "title": "从 KNX 控制 Matter",
     "node-input-name": "Name",
     "node-input-nameLightSwitch": "Switch (bit)",
     "node-input-GALightSwitch": "GA",
@@ -8,9 +8,9 @@
     "node-input-nameLightState": "State (bit)",
     "node-input-GALightState": "GA",
     "node-input-dptLightState": "dpt",
-    "node-input-hueLight": "HUE light",
-    "paletteLabel": "Matter 灯/插座",
-    "no_devices": "未找到 Matter 灯。请检查 Matter 控制器并点击刷新。",
+    "node-input-hueLight": "Matter 设备",
+    "paletteLabel": "从 KNX 控制 Matter",
+    "no_devices": "未找到 Matter 设备。请检查 Matter 控制器并点击刷新。",
     "tabs": {
       "switch": "开关",
       "dim": "调光",
@@ -74,7 +74,7 @@
     "effect_native_label": "Hue 原生效果",
     "matter_controller": "Matter 控制器",
     "matter_device": "Matter 设备",
-    "matter_section": "Matter 灯"
+    "matter_section": "Matter 设备"
   },
   "common": {
     "ga": "组地址",

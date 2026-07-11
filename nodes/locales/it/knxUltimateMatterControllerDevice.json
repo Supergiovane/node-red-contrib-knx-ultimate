@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterControllerDevice": {
-    "title": "Luce Matter",
+    "title": "Control Matter from KNX",
     "node-input-name": "Nome",
     "node-input-nameLightSwitch": "Switch (bit)",
     "node-input-GALightSwitch": "GA",
@@ -8,9 +8,9 @@
     "node-input-nameLightState": "Stato (bit)",
     "node-input-GALightState": "GA",
     "node-input-dptLightState": "dpt",
-    "node-input-hueLight": "Luce HUE",
-    "paletteLabel": "Matter Luce/Prese",
-    "no_devices": "Nessuna luce Matter trovata. Controlla il controller Matter e premi refresh.",
+    "node-input-hueLight": "Dispositivo Matter",
+    "paletteLabel": "Control Matter from KNX",
+    "no_devices": "Nessun dispositivo Matter trovato. Controlla il controller Matter e premi refresh.",
     "tabs": {
       "switch": "On/Off",
       "dim": "Dimmer",
@@ -82,7 +82,7 @@
     "effect_native_label": "Effetti nativi HUE",
     "matter_controller": "Controller Matter",
     "matter_device": "Dispositivo Matter",
-    "matter_section": "Luce Matter"
+    "matter_section": "Dispositivo Matter"
   },
   "common": {
     "ga": "GA",
