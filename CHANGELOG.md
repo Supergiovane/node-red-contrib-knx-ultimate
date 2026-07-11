@@ -6,9 +6,9 @@
 
 # CHANGELOG
 
-**Version 5.3.0** - July 2026<br/>
+**Version 6.0.0** - July 2026<br/>
 
-- Released as `5.3.0` without the npm prerelease `beta` tag; the package release is no longer tagged as beta, while the new Matter nodes below remain explicitly marked as BETA until their editor fields, flow JSON structure and runtime behaviour are considered stable.<br/>
+- **BREAKING CHANGE**: this release intentionally bumps the package to `6.0.0` because the Matter node model changed. The unpublished dedicated Matter controller nodes and the old generic Matter Device node have been replaced by the new single **Control Matter from KNX (BETA)** node, and the KNX-to-Matter bridge/editor behaviour has been reworked. Existing experimental Matter flows created with the previous beta nodes may need to be rebuilt or adjusted.<br/>
 - **Matter nodes are BETA**: all Matter nodes are experimental and may be changed, renamed, removed, or replaced at any time until the Matter integration leaves the BETA phase. Do not treat their editor fields, flow JSON structure, runtime behaviour, storage layout, or exposed APIs as stable yet.<br/>
 - New **Control Matter from KNX (BETA)** node: a single capability-driven Matter controller node. Select a commissioned Matter endpoint and the editor shows only the KNX mappings supported by that endpoint (switch, brightness, color temperature, temperature, humidity, lux, occupancy, contact and battery). Light endpoints keep the familiar light-style tabs and the main KNX light options from the dedicated node, including relative DIM (DPT 3.007), brightness %, tunable-white DIM/Kelvin, switch-on brightness/temperature, dim speed, min/max dim level, tunable-white direction inversion and optional day/night lighting. This replaces the unpublished dedicated Matter controller nodes and the old generic Matter Device node.<br/>
 - **Matter Bridge device (BETA)** is now presented as **Expose KNX to Matter (BETA)** in the editor, with advanced compatibility options for real-world KNX actuators: dimmable devices can ignore brightness commands sent immediately after `On`, and covers/shutters can optimistically update their Matter position while waiting for the real KNX status feedback.<br/>
