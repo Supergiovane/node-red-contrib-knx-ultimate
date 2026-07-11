@@ -1,11 +1,11 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
-# Matter Bridge device (BETA)
+# Expose KNX to Matter (BETA)
 
 > Ce nœud est en **BETA** : il fonctionne, mais des détails peuvent encore changer entre les versions.
 
 ## Vue d'ensemble
 
-Chaque nœud Matter Bridge device expose **un appareil KNX comme appareil Matter** : les contrôleurs appairés (Alexa, Google Home, Apple Home...) le voient, avec le nom que vous avez choisi, prêt pour le contrôle par app et à la voix. Pointez-le vers un nœud de configuration **Bridge Matter** (le bridge lui-même, appairé une seule fois - le QR d'appairage vit là-bas) et ajoutez autant de nœuds d'appareil que vous voulez, n'importe où dans vos flux.
+Chaque nœud Expose KNX to Matter expose **un appareil KNX comme appareil Matter** : les contrôleurs appairés (Alexa, Google Home, Apple Home...) le voient, avec le nom que vous avez choisi, prêt pour le contrôle par app et à la voix. Pointez-le vers un nœud de configuration **Bridge Matter** (le bridge lui-même, appairé une seule fois - le QR d'appairage vit là-bas) et ajoutez autant de nœuds d'appareil que vous voulez, n'importe où dans vos flux.
 
 C'est la direction opposée du nœud *Matter Device* : là-bas KNX contrôle un appareil Matter, ici les contrôleurs Matter contrôlent KNX.
 
@@ -38,6 +38,10 @@ C'est la direction opposée du nœud *Matter Device* : là-bas KNX contrôle un 
 
 - **GA de commande** : écrite sur le bus KNX quand l'assistant envoie une commande.
 - **GA d'état** : lue depuis le bus pour tenir à jour les attributs Matter (et les apps).
+
+## Compatibilité avancée
+
+Ces options ne s'affichent que lorsqu'elles s'appliquent au type sélectionné. Les appareils variables peuvent ignorer la commande de luminosité que certains contrôleurs envoient juste après `On`. Les volets peuvent mettre à jour la position Matter de façon optimiste après une commande, puis la corriger quand la GA d'état KNX rapporte la position réelle.
 
 ## PIN du nœud
 

@@ -4,13 +4,13 @@ title: "Matter-Bridge"
 lang: zh-CN
 permalink: /wiki/zh-CN-Matter-Bridge
 ---
-# Matter Bridge device (BETA)
+# Expose KNX to Matter (BETA)
 
 > 此节点处于 **BETA** 阶段：可以正常工作，但细节可能在版本之间发生变化。
 
 ## 概述
 
-每个 Matter Bridge device 节点将**一个 KNX 设备公开为 Matter 设备**：已配对的控制器（Alexa、Google Home、Apple Home...）会以您输入的名称看到它，随时可通过 App 和语音控制。将它指向一个 **Matter 桥接器**配置节点（真正的桥接器，只需配对一次 - 配对二维码在那里），然后在流程中随意添加任意数量的设备节点。
+每个 Expose KNX to Matter 节点将**一个 KNX 设备公开为 Matter 设备**：已配对的控制器（Alexa、Google Home、Apple Home...）会以您输入的名称看到它，随时可通过 App 和语音控制。将它指向一个 **Matter 桥接器**配置节点（真正的桥接器，只需配对一次 - 配对二维码在那里），然后在流程中随意添加任意数量的设备节点。
 
 这与 *Matter Device* 节点方向相反：那里是 KNX 控制 Matter 设备，这里是 Matter 控制器控制 KNX。
 
@@ -43,6 +43,10 @@ permalink: /wiki/zh-CN-Matter-Bridge
 
 - **命令 GA**：助手发送命令时写入 KNX 总线。
 - **状态 GA**：从总线读取，保持 Matter 属性（和 App）更新。
+
+## 高级兼容性
+
+这些选项只会在适用于所选类型时显示。调光设备可以忽略某些控制器在 `On` 后立即发送的亮度命令。窗帘可以在命令后乐观更新 Matter 位置，并在 KNX 状态 GA 报告真实位置时再修正。
 
 ## 节点引脚
 

@@ -4,13 +4,13 @@ title: "Matter-Bridge"
 lang: es
 permalink: /wiki/es-Matter-Bridge
 ---
-# Matter Bridge device (BETA)
+# Expose KNX to Matter (BETA)
 
 > Este nodo está en **BETA**: funciona, pero algunos detalles pueden cambiar entre versiones.
 
 ## Descripción general
 
-Cada nodo Matter Bridge device expone **un dispositivo KNX como dispositivo Matter**: los controladores emparejados (Alexa, Google Home, Apple Home...) lo ven, con el nombre que hayas elegido, listo para el control por app y por voz. Apúntalo a un nodo de configuración **Bridge Matter** (el bridge en sí, emparejado una sola vez - el QR de emparejamiento vive allí) y añade tantos nodos de dispositivo como quieras, en cualquier flow.
+Cada nodo Expose KNX to Matter expone **un dispositivo KNX como dispositivo Matter**: los controladores emparejados (Alexa, Google Home, Apple Home...) lo ven, con el nombre que hayas elegido, listo para el control por app y por voz. Apúntalo a un nodo de configuración **Bridge Matter** (el bridge en sí, emparejado una sola vez - el QR de emparejamiento vive allí) y añade tantos nodos de dispositivo como quieras, en cualquier flow.
 
 Es la dirección opuesta al nodo *Matter Device*: allí KNX controla un dispositivo Matter, aquí los controladores Matter controlan KNX.
 
@@ -43,6 +43,10 @@ Es la dirección opuesta al nodo *Matter Device*: allí KNX controla un disposit
 
 - **GA de comando**: se escribe en el bus KNX cuando el asistente envía un comando.
 - **GA de estado**: se lee del bus para mantener actualizados los atributos Matter (y las apps).
+
+## Compatibilidad avanzada
+
+Estas opciones solo aparecen cuando tienen sentido para el tipo seleccionado. Los dispositivos regulables pueden ignorar el comando de brillo que algunos controladores envían justo después de `On`. Las persianas pueden actualizar de forma optimista la posición Matter tras un comando y corregirla cuando la GA de estado KNX informa la posición real.
 
 ## PINes del nodo
 

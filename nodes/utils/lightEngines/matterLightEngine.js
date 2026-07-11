@@ -9,7 +9,7 @@ const LEVEL_OPTS = { optionsMask: {}, optionsOverride: {} }
 // Matter speaks DISCRETE, per-cluster commands, so a single canonical patch
 // DECOMPOSES into N writeMatterQueueAdd calls (on + moveToLevel + colour...).
 // This engine wraps matter-config's matterManager (the controller), NOT the
-// generic knxUltimateMatterDevice node.
+// generic Matter controller paths.
 class MatterLightEngine extends LightEngine {
   constructor (opts = {}) {
     super(opts)

@@ -10,6 +10,7 @@
       "pairing_title": "Appairage (Alexa, Google Home, Apple Home...)",
       "not_running": "Le bridge Matter n'est pas encore démarré. Déployez, attendez quelques secondes puis cliquez sur actualiser.",
       "commissioned": "Bridge appairé avec ces contrôleurs :",
+      "commissioned_hint": "Le QR code est masqué car le bridge est déjà appairé. Pour ajouter Alexa comme autre contrôleur Matter, ouvrez le mode d'appairage depuis l'un des contrôleurs listés ci-dessus (par exemple Apple Home ou Google Home), puis ajoutez un appareil Matter dans Alexa. Utilisez Réinitialiser l'appairage uniquement si vous voulez supprimer tous les contrôleurs existants et repartir de zéro.",
       "awaiting": "En attente d'appairage. Scannez le QR code ou saisissez le code manuel dans votre app Matter :",
       "qr_link": "Ouvrir le QR code dans le navigateur",
       "deploy_first": "Déployez d'abord ce nœud de configuration, puis cliquez sur actualiser.",

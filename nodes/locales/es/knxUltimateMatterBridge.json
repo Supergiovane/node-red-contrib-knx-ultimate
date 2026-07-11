@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Matter Bridge (BETA)",
+    "title": "Expose KNX to Matter (BETA)",
     "bridge_name": "Nombre del bridge Matter",
     "port": "Puerto",
     "devices_help": "Añade los dispositivos KNX a exponer en Matter. El \"Nombre\" es el que Alexa/Google/Apple muestran y usan para los comandos de voz. GA de comando = se escribe cuando el asistente envía un comando; GA de estado = se lee del bus para mantener la app actualizada.",
@@ -10,11 +10,24 @@
     "node_pins": "PINes de entrada/salida del nodo",
     "node_pins_hide": "Ocultar",
     "node_pins_show": "Mostrar PINes de entrada/salida",
+    "type_change_warning": "Cambiar el tipo de dispositivo después de emparejar el bridge cambia la estructura del endpoint Matter. Alexa/Google/Apple pueden conservar el endpoint antiguo como no alcanzable; puede ser necesario restablecer/reemparejar el Matter Bridge o crear un nuevo dispositivo expuesto.",
     "fields": {
       "type": "Tipo de dispositivo",
       "name": "Nombre (mostrado por Alexa y cía.)",
       "name_placeholder": "p.ej. Luz cocina",
       "invert": "Invertir posición %"
+    },
+    "advanced": {
+      "title": "Compatibilidad avanzada",
+      "help": " Usa estas opciones solo cuando un controlador Matter o un actuador KNX necesite un tratamiento especial.",
+      "turn_on_behavior": "Comportamiento al encender",
+      "turn_on_ignore_level": "Ignorar brillo enviado justo después de On",
+      "turn_on_forward_all": "Reenviar cada comando de brillo",
+      "ignore_level_ms": "Ignorar brillo tras On (ms)",
+      "cover_update_mode": "Actualización de estado de persiana",
+      "cover_optimistic": "Actualizar la posición Matter de forma optimista",
+      "cover_wait_status": "Esperar solo el estado KNX",
+      "cover_status_timeout": "Timeout estado persiana (ms)"
     },
     "functions": {
       "fn_onoff_cmd": "GA comando On/Off",

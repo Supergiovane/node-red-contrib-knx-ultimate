@@ -7,13 +7,17 @@
 <script type="text/javascript">
   (function () {
 
-    RED.nodes.registerType("knxUltimateHueLight", {
-      category: "KNX Ultimate HUE",
-      color: "#C0C7E9",
+    RED.nodes.registerType("knxUltimateMatterControllerDevice", {
+      category: "KNX Ultimate Matter",
+      color: "#8FE3D4",
       defaults: {
         //buttonState: {value: true},
         server: { type: "knxUltimate-config", required: false },
-        serverHue: { type: "hue-config", required: true },
+        serverMatter: { type: "matter-config", required: true },
+        matterNodeId: { value: "" },
+        matterEndpointId: { value: 1 },
+        matterDeviceName: { value: "" },
+        matterDeviceCapabilities: { value: "" },
         name: { value: "" },
 
         nameLightSwitch: { value: "" },
@@ -92,16 +96,6 @@
         GALightColorCycle: { value: "" },
         dptLightColorCycle: { value: "" },
 
-        nameLightEffect: { value: "" },
-        GALightEffect: { value: "" },
-        dptLightEffect: { value: "" },
-
-        nameLightEffectStatus: { value: "" },
-        GALightEffectStatus: { value: "" },
-        dptLightEffectStatus: { value: "" },
-
-        effectRules: { value: '[]' },
-
         nameDaylightSensor: { value: "" },
         GADaylightSensor: { value: "" },
         dptDaylightSensor: { value: "" },
@@ -126,19 +120,16 @@
         outputs: { value: 0 },
         inputs: { value: 0 },
 
-        hueDevice: { value: "" },
-        hueDeviceObject: { value: {} },
-
         restoreDayMode: { value: "no" }, // Starting from v 4.1.31
         updateLocalStateFromKNXWrite: { value: true } // Starting from v 4.1.31
       },
       inputs: 0,
       outputs: 0,
-      icon: "node-hue-icon.svg",
+      icon: "node-matter-icon.svg",
       label: function () {
-        return this.name || "Hue Light/Outlet";
+        return this.name || this.matterDeviceName || "Control Matter from KNX (BETA)";
       },
-      paletteLabel: "Hue Light/Outlet",
+      paletteLabel: "Control Matter from KNX (BETA)",
       oneditprepare: function () {
         // Go to the help panel
         try {
@@ -156,12 +147,12 @@
             // Ignore UI quirks for legacy Node-RED versions
           }
         };
-        ["#node-input-serverHue"].forEach(ensureConfigSelection);
+        ["#node-input-server", "#node-input-serverMatter"].forEach(ensureConfigSelection);
 
         function ensureVerticalTabsStyle() {
-          if ($('#knxUltimateHueLightVerticalTabs').length) return;
+          if ($('#knxUltimateMatterControllerDeviceVerticalTabs').length) return;
           const style = `
-            <style id="knxUltimateHueLightVerticalTabs">
+            <style id="knxUltimateMatterControllerDeviceVerticalTabs">
               .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
                 display: flex;
                 border: none;
@@ -224,15 +215,35 @@
           ensureVerticalTabsStyle();
           const $knxServerInput = $("#node-input-server");
           const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
-          const $hueServerInput = $("#node-input-serverHue");
-          const $hueDeviceInput = $("#node-input-hueDevice");
-          const $deviceNameInput = $("#node-input-name");
+          // Variable names kept from the Hue-born code; they now point to the Matter widgets.
+          const $hueServerInput = $("#node-input-serverMatter");
+          const $hueDeviceInput = $("#node-input-matterNodeId");
+          const $deviceNameInput = $("#node-input-matterDeviceName");
+          const $matterEndpointInput = $("#node-input-matterEndpointId");
+          const $matterCapabilitiesInput = $("#node-input-matterDeviceCapabilities");
+          const $nodeNameInput = $("#node-input-name");
           const $refreshDevicesButton = $(".hue-refresh-devices");
           const $locateDeviceButton = $(".hue-locate-device");
           const $hueDevicesLoading = $(".hue-devices-loading");
           let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
           node._cachedHueLightDevices = cachedHueDevices;
           const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
+          if (($hueDeviceInput.val() || '').trim() === '' && node.matterNodeId) {
+            $hueDeviceInput.val(node.matterNodeId);
+          }
+          if (($matterEndpointInput.val() || '').trim() === '' && node.matterEndpointId) {
+            $matterEndpointInput.val(node.matterEndpointId);
+          }
+          if (($matterCapabilitiesInput.val() || '').trim() === '' && node.matterDeviceCapabilities) {
+            $matterCapabilitiesInput.val(node.matterDeviceCapabilities);
+          }
+          if (($nodeNameInput.val() || '').trim() === '' && node.name) {
+            $nodeNameInput.val(node.name);
+          }
+          if (($deviceNameInput.val() || '').trim() === '' && node.matterNodeId && node.name) {
+            $deviceNameInput.val(node.name);
+          }
+          let selectedMatterDeviceName = ($deviceNameInput.val() || '').trim();
           let showingNoHueDevicesPlaceholder = false;
           const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
           let locateSessionActive = false;
@@ -272,8 +283,8 @@
               $icon.removeClass('fa-stop fa-play').addClass(locateSessionActive ? 'fa fa-stop' : 'fa fa-play');
             }
             const title = locateSessionActive
-              ? (node._('knxUltimateHueLight.locate_stop_title') || 'Stop Hue locate')
-              : (node._('knxUltimateHueLight.locate_start_title') || 'Locate selected Hue device');
+              ? (node._('knxUltimateMatterControllerDevice.locate_stop_title') || 'Stop Hue locate')
+              : (node._('knxUltimateMatterControllerDevice.locate_start_title') || 'Locate selected Hue device');
             $locateDeviceButton.attr('title', title);
           };
 
@@ -329,8 +340,8 @@
             if (!context) {
               if (!silent) {
                 const message = !resolveHueServerValue({ allowStored: true })
-                  ? (node._('knxUltimateHueLight.locate_no_bridge') || 'Select a Hue bridge first')
-                  : (node._('knxUltimateHueLight.locate_no_device') || 'Select a Hue device first');
+                  ? (node._('knxUltimateMatterControllerDevice.locate_no_bridge') || 'Select a Hue bridge first')
+                  : (node._('knxUltimateMatterControllerDevice.locate_no_device') || 'Select a Hue device first');
                 RED.notify(message, 'warning');
               }
               updateLocateButtonState(false);
@@ -368,12 +379,12 @@
               const statusValue = (response && typeof response.status === 'string') ? response.status.toLowerCase() : 'started';
               let messageKey;
               if (effectiveAction === 'stop' || statusValue === 'stopped') {
-                messageKey = 'knxUltimateHueLight.locate_stopped';
+                messageKey = 'knxUltimateMatterControllerDevice.locate_stopped';
                 node.__locateSessionInfo = null;
                 updateLocateButtonState(false);
                 clearLocateAutoReset();
               } else if (effectiveAction === 'start' || statusValue === 'started') {
-                messageKey = 'knxUltimateHueLight.locate_started';
+                messageKey = 'knxUltimateMatterControllerDevice.locate_started';
                 node.__locateSessionInfo = {
                   serverId: context.serverId,
                   deviceId: context.deviceId,
@@ -382,7 +393,7 @@
                 updateLocateButtonState(true);
                 scheduleLocateAutoReset(response && typeof response.expiresInMs === 'number' ? response.expiresInMs : 600000);
               } else {
-                messageKey = 'knxUltimateHueLight.locate_success';
+                messageKey = 'knxUltimateMatterControllerDevice.locate_success';
                 node.__locateSessionInfo = null;
                 updateLocateButtonState(false);
                 clearLocateAutoReset();
@@ -399,7 +410,7 @@
               updateLocateButtonState(false);
               clearLocateAutoReset();
               if (!silent) {
-                RED.notify(message || (node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), 'error');
+                RED.notify(message || (node._('knxUltimateMatterControllerDevice.locate_error') || 'Unable to locate Hue device'), 'error');
               }
             }).always(() => {
               locatePendingRequest = null;
@@ -435,8 +446,8 @@
                 if (trimmed !== '' && !HUE_EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return trimmed;
               }
             }
-            if (node.serverHue !== undefined && node.serverHue !== null) {
-              const stored = String(node.serverHue).trim();
+            if (node.serverMatter !== undefined && node.serverMatter !== null) {
+              const stored = String(node.serverMatter).trim();
               if (stored !== '' && !HUE_EMPTY_SERVER_VALUES.has(stored.toLowerCase())) return stored;
             }
             if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.serverId) {
@@ -469,7 +480,7 @@
               }
               return;
             }
-            const message = node._('knxUltimateHueLight.no_devices') || defaultHueDevicePlaceholder;
+            const message = node._('knxUltimateMatterControllerDevice.no_devices') || defaultHueDevicePlaceholder;
             showingNoHueDevicesPlaceholder = true;
             $deviceNameInput.attr('placeholder', message);
             if (($deviceNameInput.val() || '').trim() === '') {
@@ -477,74 +488,170 @@
             }
           };
 
+          // Human-readable name of a bridged Matter light: the nodeLabel attribute
+          // (Bridged Device Basic Information), then productLabel, then a pretty type.
+          const matterEndpointLabel = (ep) => {
+            var val = null;
+            (ep.clusters || []).forEach((c) => {
+              (c.attributes || []).forEach((a) => {
+                if (val === null && a.name === 'nodeLabel' && a.value != null && String(a.value).trim() !== '') val = String(a.value).trim();
+              });
+            });
+            if (val === null) {
+              (ep.clusters || []).forEach((c) => {
+                (c.attributes || []).forEach((a) => {
+                  if (val === null && a.name === 'productLabel' && a.value != null && String(a.value).trim() !== '') val = String(a.value).trim();
+                });
+              });
+            }
+            return val;
+          };
+          const matterTypePretty = { 'ma-extendedcolorlight': 'Colour light', 'ma-colortemperaturelight': 'Tunable white', 'ma-dimmablelight': 'Dimmable light', 'ma-onofflight': 'On/off light', 'ma-onoffpluginunit': 'Plug', 'ma-dimmablepluginunit': 'Dimmable plug' };
+          const matterPrettyType = (raw) => {
+            const key = String(raw || '').toLowerCase();
+            if (matterTypePretty[key]) return matterTypePretty[key];
+            return String(raw || '').replace(/^ma-/i, '').replace(/light$/i, ' light') || 'Light';
+          };
+          const normalizeMatterToken = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          const getMatterCluster = (ep, clusterId) => (ep.clusters || []).find((c) => Number(c.id) === Number(clusterId));
+          const hasMatterAttribute = (cluster, names) => {
+            const wanted = new Set(names.map(normalizeMatterToken));
+            return !!cluster && (cluster.attributes || []).some((a) => wanted.has(normalizeMatterToken(a.name)));
+          };
+          const hasMatterCommand = (cluster, names) => {
+            const wanted = new Set(names.map(normalizeMatterToken));
+            return !!cluster && (cluster.commands || []).some((cmd) => wanted.has(normalizeMatterToken(cmd.name)));
+          };
+          const matterCapabilitiesFromEndpoint = (ep) => {
+            const deviceTypes = (ep.deviceTypes || []).map(normalizeMatterToken);
+            const typeText = deviceTypes.join(' ');
+            const onOffCluster = getMatterCluster(ep, 6);
+            const levelCluster = getMatterCluster(ep, 8);
+            const colorCluster = getMatterCluster(ep, 768);
+            const hasColorTemperatureType = /colortemperature|extendedcolor/.test(typeText);
+            const hasColorType = /extendedcolor/.test(typeText);
+            const hasLevelType = /dimmable|colortemperature|extendedcolor/.test(typeText);
+            const hasColorTemperature = !!colorCluster && (
+              hasColorTemperatureType ||
+              hasMatterAttribute(colorCluster, ['colorTemperatureMireds', 'colorTempPhysicalMinMireds', 'colorTempPhysicalMaxMireds']) ||
+              hasMatterCommand(colorCluster, ['moveToColorTemperature'])
+            );
+            const hasColor = !!colorCluster && (
+              hasColorType ||
+              hasMatterCommand(colorCluster, ['moveToColor', 'moveToHue', 'moveToSaturation', 'moveToHueAndSaturation'])
+            );
+            return {
+              known: true,
+              colorDetectionVersion: 2,
+              onOff: !!onOffCluster || /onoff|dimmable|colortemperature|extendedcolor/.test(typeText),
+              level: !!levelCluster || hasLevelType,
+              colorTemperature: hasColorTemperature,
+              color: hasColor
+            };
+          };
+          const parseMatterCapabilities = (raw) => {
+            if (raw && typeof raw === 'object') {
+              if (raw.known === true && raw.color === true && raw.colorDetectionVersion !== 2) raw.color = false;
+              return raw;
+            }
+            if (typeof raw !== 'string' || raw.trim() === '') return null;
+            try {
+              const parsed = JSON.parse(raw);
+              if (parsed && parsed.known === true && parsed.color === true && parsed.colorDetectionVersion !== 2) {
+                parsed.color = false;
+              }
+              return parsed;
+            } catch (error) {
+              return null;
+            }
+          };
+          const serializeMatterCapabilities = (capabilities) => JSON.stringify(capabilities || {});
+          const getJSONPromise = (url) => new Promise((resolve, reject) => { $.getJSON(url, resolve).fail(reject); });
+
+          // Same name/contract as the Hue filter, on Matter items { value, matterNodeId, matterEndpointId }.
           const filterHueDevices = (devices, term) => {
             const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
-            return $.map(devices, (value) => {
-              if (!value || !value.id) return null;
-              const deviceName = value.name || value.id;
-              if (cleaned !== '' && !htmlUtilsfullCSVSearch(deviceName, cleaned)) {
-                return null;
-              }
-              const suffix = resolveDeviceTypeSuffix(value.deviceType);
-              return {
-                hueDevice: `${value.id}${suffix}`,
-                value: deviceName,
-                deviceObject: value.deviceObject || value,
-                deviceType: value.deviceType || 'light'
-              };
+            return $.map(devices, (item) => {
+              if (!item || !item.matterNodeId) return null;
+              if (cleaned !== '' && !htmlUtilsfullCSVSearch(item.value, cleaned)) return null;
+              return item;
             });
           };
 
+          // Matter counterpart of the Hue device fetch: every commissioned node is
+          // expanded into its light endpoints (clusters OnOff 6 / Level 8 / Color 768),
+          // so a bridge (e.g. a Hue Bridge paired via Matter) lists each lamp.
           const fetchHueDevices = (term, respond, { forceRefresh = false } = {}) => {
-            const hueServer = getHueServerConfig();
-            if (!hueServer) {
+            const matterServer = getHueServerConfig();
+            if (!matterServer) {
               applyHueDevicesPlaceholder(true);
               if (typeof respond === 'function') respond([]);
-              node.__locateSessionInfo = null;
-              updateLocateButtonState(false);
               return;
             }
             if (!forceRefresh && Array.isArray(cachedHueDevices) && cachedHueDevices.length > 0) {
-              applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+              applyHueDevicesPlaceholder(true);
               if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
               return;
             }
             if ($hueDevicesLoading.length) {
               $hueDevicesLoading.show();
             }
-            const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
-            $.getJSON(`KNXUltimateGetResourcesHUE?rtype=light&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
-              const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
-              cachedHueDevices = listCandidates.map((value) => {
-                const deviceObject = value.deviceObject || value;
-                const rawId = deviceObject?.id || value.id || value.rid || '';
-                const trimmedId = typeof rawId === 'string' ? rawId.trim() : rawId;
-                if (trimmedId === undefined || trimmedId === null || String(trimmedId).trim() === '') return null;
-                return {
-                  id: String(trimmedId).trim(),
-                  name: value.name || value.metadata?.name || deviceObject?.metadata?.name || '',
-                  deviceType: deviceObject?.type || value.type || '',
-                  deviceObject
-                };
-              }).filter(Boolean);
-              node._cachedHueLightDevices = cachedHueDevices;
-              applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
-              if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
-            }).always(() => {
-              if ($hueDevicesLoading.length) {
-                $hueDevicesLoading.hide();
-              }
-            }).fail(() => {
-              cachedHueDevices = [];
-              node._cachedHueLightDevices = cachedHueDevices;
-              applyHueDevicesPlaceholder(false);
-              if ($hueDevicesLoading.length) {
-                $hueDevicesLoading.hide();
-              }
-              if (typeof respond === 'function') respond([]);
-              node.__locateSessionInfo = null;
-              updateLocateButtonState(false);
-            });
+            getJSONPromise(`KNXUltimateMatterGetNodes?serverId=${encodeURIComponent(matterServer.id)}&_=${Date.now()}`)
+              .then((data) => {
+                const devices = (data && Array.isArray(data.devices)) ? data.devices : [];
+                return Promise.all(devices.map((d) =>
+                  getJSONPromise(`KNXUltimateMatterGetStructure?serverId=${encodeURIComponent(matterServer.id)}&nodeId=${encodeURIComponent(d.nodeId)}&_=${Date.now()}`)
+                    .then((s) => ({ device: d, endpoints: (s && Array.isArray(s.endpoints)) ? s.endpoints : [] }))
+                    .catch(() => ({ device: d, endpoints: [] }))
+                ));
+              })
+              .then((results) => {
+                const items = [];
+                results.forEach((entry) => {
+                  const device = entry.device;
+                  const lightEps = entry.endpoints.filter((ep) => Array.isArray(ep.clusters) && ep.clusters.some((c) => [6, 8, 768].indexOf(Number(c.id)) !== -1));
+                  const eps = lightEps.length ? lightEps : entry.endpoints.filter((ep) => Number(ep.endpointId) !== 0);
+                  const many = eps.length > 1;
+                  eps.forEach((ep) => {
+                    const label = matterEndpointLabel(ep);
+                    const typeRaw = (Array.isArray(ep.deviceTypes) && ep.deviceTypes.length) ? ep.deviceTypes[0] : ep.name;
+                    var text;
+                    if (label) text = device.name + ' › ' + label;
+                    else if (many) text = device.name + ' › ' + matterPrettyType(typeRaw) + ' ' + ep.endpointId;
+                    else text = device.name + ' (' + matterPrettyType(typeRaw) + ')';
+                    items.push({
+                      value: text,
+                      matterNodeId: String(device.nodeId),
+                      matterEndpointId: String(ep.endpointId),
+                      matterCapabilities: matterCapabilitiesFromEndpoint(ep)
+                    });
+                  });
+                });
+                cachedHueDevices = items;
+                node._cachedHueLightDevices = cachedHueDevices;
+                const selectedNodeId = String($hueDeviceInput.val() || node.matterNodeId || '');
+                const selectedEndpointId = String($matterEndpointInput.val() || node.matterEndpointId || '');
+                const selectedItem = items.find((item) => String(item.matterNodeId) === selectedNodeId && String(item.matterEndpointId) === selectedEndpointId);
+                if (selectedItem && selectedItem.matterCapabilities) {
+                  currentMatterCapabilities = selectedItem.matterCapabilities;
+                  $matterCapabilitiesInput.val(serializeMatterCapabilities(currentMatterCapabilities));
+                  node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
+                  applyMatterCapabilities(currentMatterCapabilities);
+                }
+                applyHueDevicesPlaceholder(cachedHueDevices.length > 0);
+                if (typeof respond === 'function') respond(filterHueDevices(items, term));
+              })
+              .catch(() => {
+                cachedHueDevices = [];
+                node._cachedHueLightDevices = cachedHueDevices;
+                applyHueDevicesPlaceholder(false);
+                if (typeof respond === 'function') respond([]);
+              })
+              .then(() => {
+                if ($hueDevicesLoading.length) {
+                  $hueDevicesLoading.hide();
+                }
+              });
           };
 
           // TIMER BLINK ####################################################
@@ -568,261 +675,12 @@
           }
           // ################################################################
 
-          const $effectStorage = $("#node-input-effectRules");
-          let parsedEffectRules = [];
-          if (Array.isArray(node.effectRules)) {
-            parsedEffectRules = JSON.parse(JSON.stringify(node.effectRules));
-          } else {
-            try {
-              parsedEffectRules = JSON.parse(node.effectRules || '[]');
-            } catch (error) {
-              parsedEffectRules = [];
-            }
-          }
-          if (!Array.isArray(parsedEffectRules)) parsedEffectRules = [];
-          node.effectRules = parsedEffectRules;
-          const $effectList = $("#node-input-effect-rule-container");
-          const syncEffectRulesStorage = () => {
-            try {
-              $effectStorage.val(JSON.stringify(node.effectRules || []));
-            } catch (error) {
-              $effectStorage.val('[]');
-            }
-          };
-          const rebuildEffectRulesFromUI = () => {
-            const collected = [];
-            try {
-              const items = $effectList.editableList('items');
-              items.each(function () {
-                const $row = $(this);
-                const knxValue = $row.find('.rowEffectKNXValue').val();
-                const hueEffect = $row.find('.rowEffectHueEffect').val();
-                if (hueEffect && hueEffect !== '') {
-                  collected.push({
-                    knxValue: knxValue !== undefined && knxValue !== null ? knxValue : '',
-                    hueEffect
-                  });
-                }
-              });
-            } catch (error) { }
-            node.effectRules = collected;
-            syncEffectRulesStorage();
-          };
-          const bindEffectRowEvents = ($row) => {
-            $row.find('.rowEffectKNXValue').on('input change', rebuildEffectRulesFromUI);
-            $row.find('.rowEffectHueEffect').on('change', rebuildEffectRulesFromUI);
-          };
-          syncEffectRulesStorage();
-          const $effectContainer = $("#divHueEffectsContainer");
-          const $effectContent = $("#divHueEffectsContent");
-          const $effectNoSupport = $("#divHueEffectsNoSupport");
-          let effectOptions = [];
-
-          const normalizeEffectEntry = (effect, { fallbackLabel } = {}) => {
-            if (effect === undefined || effect === null) return null;
-            if (typeof effect === 'string') {
-              const trimmed = effect.trim();
-              return trimmed === '' ? null : { value: trimmed, label: trimmed };
-            }
-            if (typeof effect === 'object') {
-              const nested = (candidate) => {
-                if (!candidate || typeof candidate !== 'object') return undefined;
-                return candidate.value ?? candidate.effect ?? candidate.id ?? candidate.code ?? candidate.type ?? candidate.name ?? candidate.title;
-              };
-              const statusCandidate = typeof effect.status === 'object' ? nested(effect.status) : undefined;
-              const rawValue = effect.value ?? effect.effect ?? statusCandidate ?? effect.status ?? effect.id ?? effect.type ?? effect.code;
-              const rawLabel = effect.label ?? effect.name ?? effect.title ?? effect.display ?? effect.display_name ?? effect.text ?? effect.description ?? (typeof effect.status === 'object' ? (effect.status.name ?? effect.status.title ?? effect.status.label) : undefined);
-              const value = rawValue !== undefined && rawValue !== null ? String(rawValue).trim() : '';
-              const labelSource = rawLabel !== undefined && rawLabel !== null ? rawLabel : (fallbackLabel !== undefined ? fallbackLabel : rawValue);
-              const label = labelSource !== undefined && labelSource !== null ? String(labelSource).trim() : '';
-              if (value === '') return null;
-              return { value, label: label === '' ? value : label };
-            }
-            const stringified = String(effect).trim();
-            return stringified === '' ? null : { value: stringified, label: stringified };
-          };
-
-          const collectEffectFallbacks = () => {
-            const fallback = [];
-            if (Array.isArray(node.effectRules)) {
-              node.effectRules.forEach((rule) => {
-                const entry = normalizeEffectEntry(rule ? rule.hueEffect : null);
-                if (entry) fallback.push(entry);
-              });
-            }
-            return fallback;
-          };
-
-          const collectHueDeviceObjectEffects = () => {
-            const fallback = [];
-            if (node.hueDeviceObject && node.hueDeviceObject.effects && Array.isArray(node.hueDeviceObject.effects.status_values)) {
-              node.hueDeviceObject.effects.status_values.forEach((raw) => {
-                const entry = normalizeEffectEntry(raw);
-                if (entry) fallback.push(entry);
-              });
-            }
-            return fallback;
-          };
-
-          const getAllEffectOptions = () => {
-            const combined = [];
-            const pushUnique = (entry, { forceFront = false } = {}) => {
-              if (!entry || !entry.value) return;
-              const existingIndex = combined.findIndex((candidate) => candidate.value === entry.value);
-              if (existingIndex !== -1) {
-                if (forceFront && existingIndex > 0) {
-                  const [existing] = combined.splice(existingIndex, 1);
-                  combined.unshift(existing);
-                }
-                return;
-              }
-              if (forceFront) {
-                combined.unshift(entry);
-              } else {
-                combined.push(entry);
-              }
-            };
-
-            pushUnique({ value: 'no_effect', label: 'no_effect' }, { forceFront: true });
-
-            effectOptions.forEach((option) => pushUnique(option));
-            collectHueDeviceObjectEffects().forEach((option) => pushUnique(option));
-            collectEffectFallbacks().forEach((option) => pushUnique(option));
-
-            return combined;
-          };
-
-          function populateEffectSelect($select, selectedValue) {
-            const targetValue = selectedValue !== undefined && selectedValue !== null
-              ? String(selectedValue).trim()
-              : '';
-            const entries = getAllEffectOptions();
-            $select.empty();
-            entries.forEach((entry) => {
-              $select.append($("<option></option>").attr("value", entry.value).text(entry.label));
-            });
-            if (targetValue && entries.some((entry) => entry.value === targetValue)) {
-              $select.val(targetValue);
-            } else if (!targetValue && entries.length > 0) {
-              $select.val(entries[0].value);
-            }
-            return entries.map((entry) => entry.value);
-          }
-
-          function decorateEffectValueInput() { }
-
-          function refreshEffectRows() {
-            if (!$effectList.data('effectListInitialized')) return;
-            const items = $effectList.editableList('items');
-            items.each(function () {
-              const $row = $(this);
-              const $select = $row.find('select.rowEffectHueEffect');
-              const currentValue = $select.val();
-              populateEffectSelect($select, currentValue);
-              decorateEffectValueInput($row.find('.rowEffectKNXValue'));
-            });
-          }
-
-          function setAvailableEffects(effects) {
-            const sanitized = [];
-            if (Array.isArray(effects)) {
-              effects.forEach((raw) => {
-                const entry = normalizeEffectEntry(raw);
-                if (entry) sanitized.push(entry);
-              });
-            }
-            effectOptions = sanitized;
-            const hasMappings = Array.isArray(node.effectRules) && node.effectRules.length > 0;
-            const hasOptions = effectOptions.length > 0;
-
-            if (!hasOptions && !hasMappings) {
-              $effectContainer.show();
-              $effectContent.hide();
-              $effectNoSupport.show();
-            } else {
-              $effectContainer.show();
-              $effectContent.show();
-              $effectNoSupport.toggle(!hasOptions);
-            }
-
-            $("#node-input-effect-autofill").prop('disabled', !hasOptions);
-            refreshEffectRows();
-          }
-
-          function decorateEffectValueInput() { }
-
-          function ensureEffectEditableList() {
-            if ($effectList.data('effectListInitialized')) return;
-            $effectList.editableList({
-              addItem: function (container, i, opt) {
-                const data = opt && opt.rule ? opt.rule : (opt || {});
-                const row = $('<div/>', { class: 'form-row effect-rule-row' }).appendTo(container);
-                const $valueInput = $('<input/>', {
-                  class: 'rowEffectKNXValue',
-                  type: 'text',
-                  placeholder: node._('knxUltimateHueLight.effect_knx_value_placeholder') || 'Value',
-                  style: 'width:40%; margin-left:0; text-align:left;'
-                }).appendTo(row);
-                $valueInput.val(data.knxValue || '');
-                decorateEffectValueInput($valueInput);
-                $('<span/>', { html: '&nbsp;&rarr;&nbsp;', style: 'display:inline-block; margin:0 8px;' }).appendTo(row);
-                const $select = $('<select/>', {
-                  class: 'rowEffectHueEffect',
-                  style: 'width:45%;'
-                }).appendTo(row);
-                const availableOptions = populateEffectSelect($select, data.hueEffect);
-                if ((!data || !data.hueEffect) && availableOptions.length > 0) {
-                  $select.val(availableOptions[0]);
-                }
-                bindEffectRowEvents(row);
-              },
-              removable: true,
-              sortable: false,
-              removeItem: function () {
-                rebuildEffectRulesFromUI();
-              }
-            });
-            $effectList.data('effectListInitialized', true);
-          }
-
-          ensureEffectEditableList();
-          const initialEffects = (node.hueDeviceObject && node.hueDeviceObject.effects && Array.isArray(node.hueDeviceObject.effects.status_values))
-            ? node.hueDeviceObject.effects.status_values
-            : [];
-          setAvailableEffects(initialEffects);
-          if (Array.isArray(node.effectRules) && node.effectRules.length > 0) {
-            const items = $effectList.editableList('items');
-            items.each(function () { $(this).remove(); });
-            node.effectRules.forEach((rule) => {
-              $effectList.editableList('addItem', { rule });
-            });
-            refreshEffectRows();
-            rebuildEffectRulesFromUI();
-          }
-
-          $("#node-input-effect-autofill").off('click').on('click', function () {
-            if (effectOptions.length === 0) return;
-            const items = $effectList.editableList('items');
-            items.each(function () { $(this).remove(); });
-            effectOptions.forEach((effect) => {
-              if (!effect || !effect.value) return;
-              $effectList.editableList('addItem', { rule: { knxValue: effect.value, hueEffect: effect.value } });
-            });
-            refreshEffectRows();
-            rebuildEffectRulesFromUI();
-          });
-
-          $('#node-input-dptLightEffect').on('change', () => {
-            const items = $effectList.editableList('items');
-            items.each(function () {
-              decorateEffectValueInput($(this).find('.rowEffectKNXValue'));
-            });
-          });
 
           const $tabs = $("#tabs");
           const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
           const $pinSelect = $("#node-input-enableNodePINS");
           const $pinInfoRow = $pinSectionRow.next('.form-tips');
+          let currentMatterCapabilities = parseMatterCapabilities($matterCapabilitiesInput.val() || node.matterDeviceCapabilities);
           $tabs.addClass('hue-vertical-tabs');
           $tabs.tabs(); // Tabs gestione KNX
           $tabs.find('ul').addClass('ui-tabs-nav');
@@ -857,9 +715,6 @@
               try {
                 if (format !== undefined) $(_destinationWidget).val(eval(format).toString());
               } catch (error) { }
-              if (_destinationWidget === '#node-input-dptLightEffect') {
-                $(_destinationWidget).trigger('change');
-              }
             });
           }
 
@@ -916,8 +771,6 @@
             } catch (e) { }
           }
 
-          const effectDptPrefixes = ["1.", "2.", "5.", "6.", "7.", "8.", "9.", "16.", "20."];
-
           const refreshKnxBindings = () => {
             getDPT("1.", "#node-input-dptLightSwitch");
             getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", ["1."]);
@@ -954,12 +807,6 @@
 
             getDPT("1.", "#node-input-dptLightColorCycle");
             getGroupAddress("#node-input-GALightColorCycle", "#node-input-nameLightColorCycle", "#node-input-dptLightColorCycle", ["1."]);
-
-            getDPT(effectDptPrefixes, "#node-input-dptLightEffect");
-            getGroupAddress("#node-input-GALightEffect", "#node-input-nameLightEffect", "#node-input-dptLightEffect", effectDptPrefixes);
-
-            getDPT(effectDptPrefixes, "#node-input-dptLightEffectStatus");
-            getGroupAddress("#node-input-GALightEffectStatus", "#node-input-nameLightEffectStatus", "#node-input-dptLightEffectStatus", effectDptPrefixes);
 
             getDPT("1.", "#node-input-dptDaylightSensor");
             getGroupAddress("#node-input-GADaylightSensor", "#node-input-nameDaylightSensor", "#node-input-dptDaylightSensor", ["1."]);
@@ -1004,14 +851,114 @@
                 return domValue;
               }
             }
-            if (node.hueDevice !== undefined && node.hueDevice !== null && node.hueDevice !== '') {
-              return node.hueDevice;
-            }
-            if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.deviceId) {
-              const suffix = node.__locateSessionInfo.deviceType || 'light';
-              return `${node.__locateSessionInfo.deviceId}#${suffix}`;
+            if (node.matterNodeId !== undefined && node.matterNodeId !== null && node.matterNodeId !== '') {
+              return node.matterNodeId;
             }
             return '';
+          };
+
+          const getEffectiveMatterCapabilities = () => {
+            return currentMatterCapabilities || {
+              known: false,
+              onOff: true,
+              level: true,
+              colorTemperature: true,
+              color: true
+            };
+          };
+
+          const setMatterTabVisible = (tabId, visible) => {
+            const $link = $tabs.find(`a[href="#${tabId}"]`);
+            $link.closest('li').toggle(!!visible);
+            $(`#${tabId}`).toggle(!!visible);
+          };
+
+          const ensureVisibleMatterTabSelected = () => {
+            const $active = $tabs.find('ul.ui-tabs-nav li.ui-tabs-active');
+            if ($active.length && $active.is(':visible')) return;
+            const $firstVisible = $tabs.find('ul.ui-tabs-nav li:visible').first();
+            if (!$firstVisible.length) return;
+            const visibleIndex = $tabs.find('ul.ui-tabs-nav li').index($firstVisible);
+            if (visibleIndex >= 0) {
+              try { $tabs.tabs('option', 'active', visibleIndex); } catch (error) { /* empty */ }
+            }
+          };
+
+          const restrictSelectOptions = ($select, allowedValues, fallbackValue) => {
+            $select.find('option').each(function () {
+              const allowed = allowedValues.indexOf($(this).val()) !== -1;
+              $(this).prop('disabled', !allowed).toggle(allowed);
+            });
+            if (allowedValues.indexOf($select.val()) === -1) {
+              $select.val(fallbackValue);
+            }
+          };
+
+          const refreshBehaviourVisibility = () => {
+            const switchOnMode = $("#node-input-specifySwitchOnBrightness").val();
+            if (switchOnMode === "yes") {
+              $("#divColorsAtSwitchOn").show();
+              $("#divTemperatureAtSwitchOn").hide();
+            } else if (switchOnMode === "temperature") {
+              $("#divColorsAtSwitchOn").hide();
+              $("#divTemperatureAtSwitchOn").show();
+            } else {
+              $("#divColorsAtSwitchOn").hide();
+              $("#divTemperatureAtSwitchOn").hide();
+            }
+
+            const dayNightMode = $("#node-input-enableDayNightLighting").val();
+            if (dayNightMode === "yes") {
+              $("#divEnableDayNightLighting").show();
+              $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" });
+              $("#divColorsAtSwitchOnNightTime").show();
+              $("#divTemperatureAtSwitchOnNightTime").hide();
+            } else if (dayNightMode === "temperature") {
+              $("#divEnableDayNightLighting").show();
+              $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" });
+              $("#divColorsAtSwitchOnNightTime").hide();
+              $("#divTemperatureAtSwitchOnNightTime").show();
+            } else {
+              $("#divEnableDayNightLighting").hide();
+              $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
+              $("#divColorsAtSwitchOnNightTime").hide();
+              $("#divTemperatureAtSwitchOnNightTime").hide();
+            }
+          };
+
+          const applyMatterCapabilities = (capabilities) => {
+            currentMatterCapabilities = capabilities || null;
+            const caps = getEffectiveMatterCapabilities();
+            const hasHueDevice = getHueDeviceValue() !== '';
+            const supportsSwitch = hasHueDevice && caps.onOff !== false;
+            const supportsDim = hasHueDevice && caps.level !== false;
+            const supportsTemperature = hasHueDevice && caps.colorTemperature === true;
+            const supportsColor = hasHueDevice && caps.color === true;
+            const hasRichBehaviour = supportsDim && (supportsTemperature || supportsColor);
+
+            setMatterTabVisible('tabs-1', supportsSwitch);
+            setMatterTabVisible('tabs-2', supportsDim);
+            setMatterTabVisible('tabs-3', supportsTemperature);
+            setMatterTabVisible('tabs-4', supportsColor);
+            setMatterTabVisible('tabs-6', hasHueDevice);
+            try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
+            ensureVisibleMatterTabSelected();
+
+            $("#divUpdateKNXBrightnessStatusOnHUEOnOff").toggle(supportsDim);
+            $("#divBehaviourBrightness").toggle(hasRichBehaviour);
+            const switchOnAllowed = ['no'];
+            const nightAllowed = ['no'];
+            if (supportsColor) {
+              switchOnAllowed.push('yes');
+              nightAllowed.push('yes');
+            }
+            if (supportsTemperature) {
+              switchOnAllowed.push('temperature');
+              nightAllowed.push('temperature');
+            }
+            restrictSelectOptions($("#node-input-specifySwitchOnBrightness"), switchOnAllowed, 'no');
+            restrictSelectOptions($("#node-input-enableDayNightLighting"), nightAllowed, 'no');
+            refreshBehaviourVisibility();
           };
 
           const updateTabsVisibility = () => {
@@ -1025,6 +972,7 @@
             } else {
               $tabs.hide();
             }
+            applyMatterCapabilities(currentMatterCapabilities);
 
             if ($pinSelect.length) {
               const desiredPins = knxSelected ? 'no' : 'yes';
@@ -1042,12 +990,12 @@
           };
           updateTabsVisibility();
 
-          $knxServerInput.on('change.knxUltimateHueLight', () => {
+          $knxServerInput.on('change.knxUltimateMatterControllerDevice', () => {
             refreshKnxBindings();
             updateTabsVisibility();
           });
 
-          $hueDeviceInput.on('change.knxUltimateHueLight input.knxUltimateHueLight', updateTabsVisibility);
+          $hueDeviceInput.on('change.knxUltimateMatterControllerDevice input.knxUltimateMatterControllerDevice', updateTabsVisibility);
 
           if (($deviceNameInput.val() || '').trim() !== '') {
             applyHueDevicesPlaceholder(true);
@@ -1065,41 +1013,50 @@
                 fetchHueDevices(request.term, response);
               },
               select(event, ui) {
-                if (!ui.item || !ui.item.hueDevice || ui.item.hueDevice === 'error') {
+                if (!ui.item || !ui.item.matterNodeId) {
                   event.preventDefault();
                   return;
                 }
                 $deviceNameInput.val(ui.item.value || '');
-                node.name = ui.item.value || node.name;
-                $hueDeviceInput.val(ui.item.hueDevice);
-                node.hueDevice = ui.item.hueDevice;
-                node.hueDeviceObject = ui.item.deviceObject || { type: ui.item.deviceType };
-                node.__locateSessionInfo = null;
+                selectedMatterDeviceName = ui.item.value || '';
+                node.matterDeviceName = selectedMatterDeviceName;
+                node.name = selectedMatterDeviceName || node.name;
+                $nodeNameInput.val(node.name);
+                $hueDeviceInput.val(ui.item.matterNodeId);
+                node.matterNodeId = ui.item.matterNodeId;
+                $matterEndpointInput.val(ui.item.matterEndpointId);
+                node.matterEndpointId = ui.item.matterEndpointId;
+                currentMatterCapabilities = ui.item.matterCapabilities || null;
+                $matterCapabilitiesInput.val(currentMatterCapabilities ? serializeMatterCapabilities(currentMatterCapabilities) : '');
+                node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
+                applyMatterCapabilities(currentMatterCapabilities);
                 updateTabsVisibility();
                 setTimeout(() => {
                   try { $deviceNameInput.autocomplete('close'); } catch (error) { /* empty */ }
-                  Go();
                 }, 0);
               },
               focus(event, ui) {
                 event.preventDefault();
-                $deviceNameInput.val(ui.item && ui.item.value ? ui.item.value : '');
               }
             }).focus(function () {
               $(this).autocomplete('search', `${$(this).val()}exactmatch`);
-            }).on('input.knxUltimateHueLight', function () {
-              if ($(this).val().trim() === '') {
+            }).on('input.knxUltimateMatterControllerDevice', function () {
+              const typedValue = $(this).val().trim();
+              if (typedValue === '' || typedValue !== selectedMatterDeviceName) {
                 $hueDeviceInput.val('');
-                node.hueDevice = '';
-                node.__locateSessionInfo = null;
+                $matterEndpointInput.val('');
+                $matterCapabilitiesInput.val('');
+                node.matterNodeId = '';
+                node.matterEndpointId = '';
+                node.matterDeviceCapabilities = '';
+                currentMatterCapabilities = null;
                 updateTabsVisibility();
-                updateLocateButtonState(false);
               }
             });
           }
 
           if ($refreshDevicesButton.length) {
-            $refreshDevicesButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
+            $refreshDevicesButton.off('.knxUltimateMatterControllerDevice').on('click.knxUltimateMatterControllerDevice', () => {
               cachedHueDevices = [];
               node._cachedHueLightDevices = cachedHueDevices;
               fetchHueDevices('', () => {
@@ -1111,7 +1068,7 @@
           }
 
           if ($locateDeviceButton.length) {
-            $locateDeviceButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
+            $locateDeviceButton.off('.knxUltimateMatterControllerDevice').on('click.knxUltimateMatterControllerDevice', () => {
               const desiredAction = locateSessionActive ? 'stop' : 'start';
               performLocateRequest({ silent: false, action: desiredAction });
             });
@@ -1119,7 +1076,7 @@
           }
 
           if ($hueServerInput.length) {
-            $hueServerInput.off('.knxUltimateHueLightDevices').on('change.knxUltimateHueLightDevices', () => {
+            $hueServerInput.off('.knxUltimateMatterControllerDeviceDevices').on('change.knxUltimateMatterControllerDeviceDevices', () => {
               cachedHueDevices = [];
               node._cachedHueLightDevices = cachedHueDevices;
               showingNoHueDevicesPlaceholder = false;
@@ -1159,247 +1116,53 @@
             }
           };
 
-          // Get the HUE capabilities to enable/disable UI parts
-          var getJsonPromise;
+          // Matter lights: expose the full switch-on options statically. The runtime
+          // sends only what the device supports; unsupported commands are ignored.
+          const populateSwitchOnCombos = () => {
+            $("#node-input-specifySwitchOnBrightness").empty()
+              .append($("<option>").val("no").text(node._("knxUltimateMatterControllerDevice.none")))
+              .append($("<option>").val("yes").text(node._("knxUltimateMatterControllerDevice.select_color")))
+              .append($("<option>").val("temperature").text(node._("knxUltimateMatterControllerDevice.select_temperature_brightness")));
+            $("#node-input-enableDayNightLighting").empty()
+              .append($("<option>").val("no").text(node._("knxUltimateMatterControllerDevice.opt_no")))
+              .append($("<option>").val("yes").text(node._("knxUltimateMatterControllerDevice.select_color")))
+              .append($("<option>").val("temperature").text(node._("knxUltimateMatterControllerDevice.select_temperature_brightness")));
+            $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness);
+            $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting);
+            // "Get current" reads the state from the Hue bridge: not available on Matter.
+            $("#getColorAtSwitchOnDayTimeButton").hide();
+            $("#getColorAtSwitchOnNightTimeButton").hide();
+            applyMatterCapabilities(currentMatterCapabilities);
+          };
+          populateSwitchOnCombos();
+
           const initialHueDeviceRaw = getHueDeviceValue();
           if (initialHueDeviceRaw === '') {
             updateTabsVisibility();
             return;
-          } else {
-            $hueDeviceInput.val(initialHueDeviceRaw);
-            updateTabsVisibility();
-            if (getJsonPromise !== undefined) getJsonPromise.abort();
-            getJsonPromise = $.getJSON("knxUltimateGetLightObject?id=" + initialHueDeviceRaw.split("#")[0] + "&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
-              let oLight = data;
-              const effects = (oLight && oLight.effects && Array.isArray(oLight.effects.status_values))
-                ? oLight.effects.status_values
-                : [];
-              setAvailableEffects(effects);
-              // Check if grouped, to hide/show the "Get current" buttons
-              if (oLight.type === "grouped_light") {
-                $("#tabs").tabs("enable", "#tabs-4");
-                $("#tabs").tabs("enable", "#tabs-3");
-                $("#tabs").tabs("enable", "#tabs-2");
-                $("#getColorAtSwitchOnDayTimeButton").show();
-                $("#getColorAtSwitchOnNightTimeButton").show();
-                $("#node-input-specifySwitchOnBrightness").empty().append(
-                  $("<option>")
-                    .val("no")
-                    .text(node._("knxUltimateHueLight.none"))
-                ).append(
-                  $("<option>")
-                    .val("yes")
-                    .text(node._("knxUltimateHueLight.select_color"))
-                ).append(
-                  $("<option>")
-                    .val("temperature")
-                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
-                );
-                $("#node-input-enableDayNightLighting").empty().append(
-                  $("<option>")
-                    .val("no")
-                    .text(node._("knxUltimateHueLight.opt_no"))
-                ).append(
-                  $("<option>")
-                    .val("yes")
-                    .text(node._("knxUltimateHueLight.select_color"))
-                ).append(
-                  $("<option>")
-                    .val("temperature")
-                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
-                );
-                $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
-                $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
-                return;
-              } else {
-
-                $("#getColorAtSwitchOnDayTimeButton").show();
-                $("#getColorAtSwitchOnNightTimeButton").show();
-                $("#node-input-specifySwitchOnBrightness").empty().append(
-                  $("<option>")
-                    .val("no")
-                    .text(node._("knxUltimateHueLight.none"))
-                );
-                $("#node-input-enableDayNightLighting").empty().append(
-                  $("<option>")
-                    .val("no")
-                    .text(node._("knxUltimateHueLight.opt_no"))
-                );
-              }
-
-              $("#tabs").tabs("disable", "#tabs-4");
-              $("#tabs").tabs("disable", "#tabs-3");
-              $("#tabs").tabs("disable", "#tabs-2");
-              $("#divColorsAtSwitchOn").hide();
-              $("#divColorsAtSwitchOnNightTime").hide();
-              $("#divTemperatureAtSwitchOn").hide();
-              $("#divTemperatureAtSwitchOnNightTime").hide();
-              $("#divColorCycle").hide();
-              $("#divUpdateKNXBrightnessStatusOnHUEOnOff").hide();
-              $("#divBehaviourBrightness").hide();
-              $("#comboTemperatureAtSwitchOn").hide();
-              $("#comboTemperatureAtSwitchOnNightTime").hide();
-
-              // Enable options/tabs one by one
-              if (oLight.dimming !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-2");
-                $("#divBehaviourBrightness").show();
-              }
-              if (oLight.color !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-4");
-                $("#divColorsAtSwitchOn").show();
-                $("#divColorsAtSwitchOnNightTime").show();
-                $("#divColorCycle").show();
-                $("#node-input-specifySwitchOnBrightness").append(
-                  $("<option>")
-                    .val("yes")
-                    .text(node._("knxUltimateHueLight.select_color"))
-                );
-                $("#node-input-enableDayNightLighting").append(
-                  $("<option>")
-                    .val("yes")
-                    .text(node._("knxUltimateHueLight.select_color"))
-                );
-              }
-              // Check temperature (if the light supports temperature, it support dimming as well)
-              if (oLight.color_temperature !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-3");
-                //$("#tabs").tabs("enable", "#tabs-2");
-                $("#node-input-specifySwitchOnBrightness").append(
-                  $("<option>")
-                    .val("temperature")
-                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
-                );
-                $("#node-input-enableDayNightLighting").append(
-                  $("<option>")
-                    .val("temperature")
-                    .text(node._("knxUltimateHueLight.select_temperature_brightness"))
-                );
-                $("#divTemperatureAtSwitchOn").show();
-                $("#divTemperatureAtSwitchOnNightTime").show();
-                $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
-                $("#divBehaviourBrightness").show();
-                $("#comboTemperatureAtSwitchOn").show();
-                $("#comboTemperatureAtSwitchOnNightTime").show();
-              } else {
-                //$("#tabs").tabs("enable", "#tabs-2");
-                $("#node-input-specifySwitchOnBrightness").append(
-                  $("<option>")
-                    .val("temperature")
-                    .text(node._("knxUltimateHueLight.select_brightness"))
-                );
-                $("#node-input-enableDayNightLighting").append(
-                  $("<option>")
-                    .val("temperature")
-                    .text(node._("knxUltimateHueLight.select_brightness"))
-                );
-                $("#comboTemperatureAtSwitchOn").val(0);
-                $("#comboTemperatureAtSwitchOnNightTime").val(0);
-                $("#divTemperatureAtSwitchOn").show();
-                $("#divTemperatureAtSwitchOnNightTime").show();
-                $("#divUpdateKNXBrightnessStatusOnHUEOnOff").show();
-                //$("#divBehaviourBrightness").show();
-              }
-              $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
-              $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
-            });
-            setTimeout(function () { if (getJsonPromise !== undefined) getJsonPromise.abort(); }, 10000);
           }
-          // Show/Hide the div of the color at swich on
-          if (node.specifySwitchOnBrightness === "yes") {
-            $("#divColorsAtSwitchOn").show();
-            $("#divTemperatureAtSwitchOn").hide();
-          } else if (node.specifySwitchOnBrightness === "temperature") {
-            $("#divColorsAtSwitchOn").hide();
-            $("#divTemperatureAtSwitchOn").show();
-          } else {
-            $("#divColorsAtSwitchOn").hide();
-            $("#divTemperatureAtSwitchOn").hide();
-          }
-
+          $hueDeviceInput.val(initialHueDeviceRaw);
+          updateTabsVisibility();
+          fetchHueDevices('', () => { }, { forceRefresh: true });
           $("#node-input-specifySwitchOnBrightness").on("change", function () {
-            if ($("#node-input-specifySwitchOnBrightness").val() === "yes") {
-              $("#divColorsAtSwitchOn").show();
-              $("#divTemperatureAtSwitchOn").hide();
-              blinkBackground("#colorPickerDay");
-            } else if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") {
-              $("#divColorsAtSwitchOn").hide();
-              $("#divTemperatureAtSwitchOn").show();
-            } else {
-              $("#divColorsAtSwitchOn").hide();
-              $("#divTemperatureAtSwitchOn").hide();
-            }
+            refreshBehaviourVisibility();
+            if ($("#node-input-specifySwitchOnBrightness").val() === "yes") blinkBackground("#colorPickerDay");
           });
-
-          // Show/Hide and enable/disable day/night Lighting behaviour
-          if (node.enableDayNightLighting === "yes") {
-            $("#divEnableDayNightLighting").show();
-            $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-            $("#divColorsAtSwitchOnNightTime").show();
-            $("#divTemperatureAtSwitchOnNightTime").hide();
-          } else if (node.enableDayNightLighting === "temperature") {
-            $("#divEnableDayNightLighting").show();
-            $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-            $("#divColorsAtSwitchOnNightTime").hide();
-            $("#divTemperatureAtSwitchOnNightTime").show();
-          } else {
-            $("#divEnableDayNightLighting").hide();
-            $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
-          }
 
           $("#node-input-enableDayNightLighting").on("change", function () {
-            if ($("#node-input-enableDayNightLighting").val() === "yes") {
-              $("#divEnableDayNightLighting").show();
-              $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-              $("#divColorsAtSwitchOnNightTime").show();
-              $("#divTemperatureAtSwitchOnNightTime").hide();
-              blinkBackground("#colorPickerNight")
-              $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateHueLight.get_current"));
-            } else if ($("#node-input-enableDayNightLighting").val() === "temperature") {
-              $("#divEnableDayNightLighting").show();
-              $("#divCCSBoxAtNightLighting").css({ border: "1px solid dimgrey", "border-radius": "12px", padding: "5px" }); // Add little box to better understand the property page
-              $("#divColorsAtSwitchOnNightTime").hide();
-              $("#divTemperatureAtSwitchOnNightTime").show();
-            } else {
-              $("#divEnableDayNightLighting").hide();
-              $("#divCCSBoxAtNightLighting").css({ border: "", "border-radius": "", padding: "" });
-            }
+            refreshBehaviourVisibility();
+            if ($("#node-input-enableDayNightLighting").val() === "yes") blinkBackground("#colorPickerNight");
           });
 
-          $("#getColorAtSwitchOnDayTimeButton").on("click", function () {
-            $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateHueLight.wait"));
-            let jRet;
-            let sQuery;
-            if ($("#node-input-specifySwitchOnBrightness").val() === "yes") sQuery = "knxUltimateGetHueColor";
-            if ($("#node-input-specifySwitchOnBrightness").val() === "temperature") sQuery = "knxUltimateGetKelvinColor";
-            $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
-              $("#node-input-colorAtSwitchOnDayTime").val(data);
-              $("#colorPickerDay").val(data);
-              blinkBackground("#colorPickerDay")
-              $("#getColorAtSwitchOnDayTimeButton").text(node._("knxUltimateHueLight.get_again"));
-            });
-          });
-
-          $("#getColorAtSwitchOnNightTimeButton").on("click", function () {
-            $("#getColorAtSwitchOnNightTimeButton").text(node._("knxUltimateHueLight.wait"));
-            let jRet;
-            let sQuery;
-            if ($("#node-input-enableDayNightLighting").val() === "yes") sQuery = "knxUltimateGetHueColor";
-            if ($("#node-input-enableDayNightLighting").val() === "temperature") sQuery = "knxUltimateGetKelvinColor";
-            $.getJSON(sQuery + "?id=" + $("#node-input-hueDevice").val().split("#")[0] + "&" + { _: new Date().getTime() }, (data) => {
-              $("#node-input-colorAtSwitchOnNightTime").val(data);
-              $("#colorPickerNight").val(data);
-              blinkBackground("#colorPickerNight")
-              $("#getColorAtSwitchOnNightTimeButton").text(node._("knxUltimateHueLight.get_again"));
-            });
-          });
+          // "Get current" (reading the live state from the Hue bridge) does not exist on
+          // Matter: the buttons are hidden by populateSwitchOnCombos above.
 
           // Fill options for minDimLevel and maxDimLevel and comboBrightnessAtSwitchOn (for color brightness at switch on, with temperature toghedher)
           for (let index = 100; index >= 0; index -= 5) {
             if (index === 0) {
-              $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateHueLight.switch_off")));
-              $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateHueLight.switch_off")));
-              $("#comboBrightnessAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateHueLight.switch_off")));
+              $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateMatterControllerDevice.switch_off")));
+              $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateMatterControllerDevice.switch_off")));
+              $("#comboBrightnessAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + "% " + node._("knxUltimateMatterControllerDevice.switch_off")));
             } else {
               $("#node-input-minDimLevelLight").append($("<option>").val(index).text(index.toString() + "%"));
               $("#comboBrightnessAtSwitchOn").append($("<option>").val(index).text(index.toString() + "%"));
@@ -1409,29 +1172,29 @@
           // Temperatures, from 2000 to 6535K (circa)
           for (let index = 2000; index <= 6500; index += 100) {
             if (index === 2200) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2200")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2200")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_2200")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_2200")));
             } else if (index === 2700) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2700")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_2700")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_2700")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_2700")));
             } else if (index === 3000) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3000")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3000")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_3000")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_3000")));
             } else if (index === 3500) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3500_day")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_3500_night")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_3500_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_3500_night")));
             } else if (index === 4100) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_4100_day")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_4100_night")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_4100_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_4100_night")));
             } else if (index === 5000) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_5000_day")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_5000_night")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_5000_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_5000_night")));
             } else if (index === 6500) {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_6500_day")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix") + " " + node._("knxUltimateHueLight.temp_desc_6500_night")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_6500_day")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix") + " " + node._("knxUltimateMatterControllerDevice.temp_desc_6500_night")));
             } else {
-              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix")));
-              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateHueLight.k_suffix")));
+              $("#comboTemperatureAtSwitchOn").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix")));
+              $("#comboTemperatureAtSwitchOnNightTime").append($("<option>").val(index).text(index.toString() + node._("knxUltimateMatterControllerDevice.k_suffix")));
             }
           }
 
@@ -1486,6 +1249,7 @@
             $("#colorPickerNight").val(node.colorAtSwitchOnNightTime);
             if (node.enableDayNightLighting !== 'no') $("#node-input-enableDayNightLighting").val('yes'); // Adjust in case of mismatch (from old geen bug)
           }
+          applyMatterCapabilities(currentMatterCapabilities);
 
 
           $("#comboTemperatureAtSwitchOn, #comboBrightnessAtSwitchOn").on("change", function () {
@@ -1529,66 +1293,14 @@
         }
 
 
-        // 19/02/2020 Used to get the server sooner als deploy.
-        $("#node-input-serverHue").change(function () {
+        // The Matter controller needs no readiness poll here: the light list is fetched
+        // on demand by the autocomplete. Start the editor immediately.
+        $("#node-input-serverMatter").change(function () {
           try {
-            if ($("#node-input-serverHue").val() !== "_ADD_") {
-              $("#waitWindow").show();
-              $("#mainWindow").hide();
-              checkConnection();
-            } else {
-              Go();
-            }
+            node._cachedHueLightDevices = [];
           } catch (error) { }
         });
-
-        // Timer connection to backend ####################################################
-        let timerWaitBackEndCounter = 0;
-        function checkConnection() {
-          if (this.timerWaitBackEnd !== undefined) clearTimeout(this.timerWaitBackEnd);
-          if ($("#node-input-serverHue").val() === undefined) {
-            // Someone has FULL deployed node-red, exit.
-            return;
-          }
-          this.timerWaitBackEnd = setTimeout(() => {
-            timerWaitBackEndCounter++;
-            if (timerWaitBackEndCounter > 20) {
-              timerWaitBackEndCounter = 0;
-              const myNotification = RED.notify("Something went wrong. Please make sure the HUE bridge connection is properly configured. For further info, see the node-red log. IF YOU ARE CREATING A NEW HUE CONFIGURATION NODE, PLEASE DEPLOY AND RETRY.",
-                {
-                  modal: false,
-                  fixed: true,
-                  type: 'error',
-                  buttons: [
-                    {
-                      text: "OK",
-                      click: function (e) {
-                        myNotification.close();
-                      }
-                    }]
-                })
-              $("#waitWindow").hide();
-              $("#mainWindow").show();
-              $("#tabs").hide();
-              return;
-            }
-            // Check wether the HUE node has is connected and the devices have already been read.
-            // ##########################################################
-            $.getJSON("knxultimateCheckHueConnected?serverId=" + $("#node-input-serverHue").val() + "&" + { _: new Date().getTime() }, (data) => {
-              if (data.ready === true) {
-                Go();
-              } else {
-                checkConnection();
-              }
-            });
-            // ##########################################################
-          }, 500);
-        }
-        if ($("#node-input-serverHue").val() === "_ADD_") {
-          Go();
-        } else {
-          checkConnection();
-        }
+        Go();
         // ################################################################
 
       },
@@ -1608,29 +1320,52 @@
           this.inputs = 0;
         }
 
-        const nodeRef = this;
-        let collectedEffectRules = [];
-        try {
-          const effectItems = $("#node-input-effect-rule-container").editableList('items');
-          effectItems.each(function () {
-            const $row = $(this);
-            const knxValue = $row.find('.rowEffectKNXValue').val();
-            const hueEffect = $row.find('.rowEffectHueEffect').val();
-            if (hueEffect && hueEffect !== '') {
-              collectedEffectRules.push({
-                knxValue: knxValue !== undefined && knxValue !== null ? knxValue : '',
-                hueEffect
-              });
-            }
-          });
-        } catch (error) {
-          collectedEffectRules = [];
-        }
-        nodeRef.effectRules = collectedEffectRules;
-        const serialized = JSON.stringify(collectedEffectRules);
-        $("#node-input-effectRules").val(serialized);
-        this.effectRules = serialized;
         this.updateLocalStateFromKNXWrite = $("#node-input-updateLocalStateFromKNXWrite").is(":checked"); // Starting from v 4.1.31
+        this.matterDeviceName = ($("#node-input-matterDeviceName").val() || '').trim();
+        this.matterNodeId = ($("#node-input-matterNodeId").val() || '').trim();
+        this.matterEndpointId = Number($("#node-input-matterEndpointId").val() || 1);
+        this.matterDeviceCapabilities = ($("#node-input-matterDeviceCapabilities").val() || '').trim();
+        this.name = this.matterDeviceName || this.name || '';
+        $("#node-input-name").val(this.name);
+        const parseSavedMatterCapabilities = (raw) => {
+          if (typeof raw !== 'string' || raw.trim() === '') return null;
+          try {
+            return JSON.parse(raw);
+          } catch (error) {
+            return null;
+          }
+        };
+        const clearUnsupportedFields = (fields) => {
+          fields.forEach((field) => {
+            this[field] = '';
+            $(`#node-input-${field}`).val('');
+          });
+        };
+        const savedCapabilities = parseSavedMatterCapabilities(this.matterDeviceCapabilities);
+        if (savedCapabilities && savedCapabilities.known === true) {
+          if (savedCapabilities.onOff === false) {
+            clearUnsupportedFields(['nameLightSwitch', 'GALightSwitch', 'dptLightSwitch', 'nameLightState', 'GALightState', 'dptLightState', 'nameLightBlink', 'GALightBlink', 'dptLightBlink']);
+          }
+          if (savedCapabilities.level === false) {
+            clearUnsupportedFields(['nameLightDIM', 'GALightDIM', 'dptLightDIM', 'nameLightBrightness', 'GALightBrightness', 'dptLightBrightness', 'nameLightBrightnessState', 'GALightBrightnessState', 'dptLightBrightnessState']);
+            this.updateKNXBrightnessStatusOnHUEOnOff = 'no';
+            $("#node-input-updateKNXBrightnessStatusOnHUEOnOff").val('no');
+          }
+          if (savedCapabilities.colorTemperature !== true) {
+            clearUnsupportedFields(['nameLightKelvinDIM', 'GALightKelvinDIM', 'dptLightKelvinDIM', 'nameLightKelvinPercentage', 'GALightKelvinPercentage', 'dptLightKelvinPercentage', 'nameLightKelvinPercentageState', 'GALightKelvinPercentageState', 'dptLightKelvinPercentageState', 'nameLightKelvin', 'GALightKelvin', 'dptLightKelvin', 'nameLightKelvinState', 'GALightKelvinState', 'dptLightKelvinState']);
+            this.invertDimTunableWhiteDirection = false;
+            $("#node-input-invertDimTunableWhiteDirection").prop('checked', false);
+          }
+          if (savedCapabilities.color !== true) {
+            clearUnsupportedFields(['nameLightColor', 'GALightColor', 'dptLightColor', 'nameLightColorState', 'GALightColorState', 'dptLightColorState', 'nameLightHSV_H_DIM', 'GALightHSV_H_DIM', 'dptLightHSV_H_DIM', 'nameLightHSV_H_State', 'GALightHSV_H_State', 'dptLightHSV_H_State', 'nameLightHSV_S_DIM', 'GALightHSV_S_DIM', 'dptLightHSV_S_DIM', 'nameLightHSV_S_State', 'GALightHSV_S_State', 'dptLightHSV_S_State', 'nameLightColorCycle', 'GALightColorCycle', 'dptLightColorCycle']);
+          }
+          if (savedCapabilities.level === false || (savedCapabilities.color !== true && savedCapabilities.colorTemperature !== true)) {
+            this.specifySwitchOnBrightness = 'no';
+            this.enableDayNightLighting = 'no';
+            $("#node-input-specifySwitchOnBrightness").val('no');
+            $("#node-input-enableDayNightLighting").val('no');
+          }
+        }
         this._cachedHueLightDevices = [];
         if (typeof this.__stopHueLocateSession === 'function') {
           try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
@@ -1760,7 +1495,7 @@
 
 
 
-<script type="text/html" data-template-name="knxUltimateHueLight">
+<script type="text/html" data-template-name="knxUltimateMatterControllerDevice">
   <div class="form-row" style="margin-bottom:10px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>
@@ -1773,7 +1508,7 @@
   </div>
   <div  id="mainWindow" hidden>
     <div class="form-row">
-      <b><span data-i18n="knxUltimateHueLight.title"></span></b>&nbsp&nbsp<span style="color:red" &nbsp &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a
+      <b><span data-i18n="knxUltimateMatterControllerDevice.title"></span></b>&nbsp&nbsp<span style="color:red" &nbsp &nbsp<i class="fa fa-youtube"></i></span>&nbsp<a
         target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u><span data-i18n="common.youtube_sample"></span></u></a>
       <br />
       <br />
@@ -1790,54 +1525,51 @@
     </div>
 
     <div class="form-row">
-      <label for="node-input-serverHue">
-        <img
-          src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg==" />
-        <span data-i18n="common.hue_bridge"></span>
+      <label for="node-input-serverMatter">
+        <i class="fa fa-circle-nodes"></i>
+        <span data-i18n="knxUltimateMatterControllerDevice.matter_controller"></span>
       </label>
-      <input type="text" id="node-input-serverHue" />
+      <input type="text" id="node-input-serverMatter" />
     </div>
 
     <br />
     <p>
-      <b><span data-i18n="common.philips_hue"></span></b>
+      <b><span data-i18n="knxUltimateMatterControllerDevice.matter_section"></span></b>
     </p>
 
     <div class="form-row">
-      <label for="node-input-name">
-        <i class="fa fa-play-circle"></i> <span data-i18n="common.name"></span>
+      <label for="node-input-matterDeviceName">
+        <i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.matter_device"></span>
       </label>
-      <input type="text" id="node-input-name" placeholder="Enter your hue device name"
+      <input type="text" id="node-input-matterDeviceName" placeholder="Search your Matter light name"
         style="flex:1 1 240px; min-width:240px; max-width:240px;" />
       <button type="button" class="red-ui-button hue-refresh-devices"
-        style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;" title="Refresh Hue devices">
+        style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;" title="Refresh Matter lights">
         <i class="fa fa-sync"></i>
-      </button>
-      <button type="button" class="red-ui-button hue-locate-device"
-        style="margin-left:6px; color:#ff9800; border-color:#ff9800;" title="Locate selected Hue device">
-        <i class="fa fa-play"></i>
       </button>
       <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
         <i class="fa fa-circle-notch fa-spin"></i>
       </span>
-      <input type="hidden" id="node-input-hueDevice" />
+      <input type="hidden" id="node-input-matterNodeId" />
+      <input type="hidden" id="node-input-matterEndpointId" />
+      <input type="hidden" id="node-input-matterDeviceCapabilities" />
+      <input type="hidden" id="node-input-name" />
     </div>
 
     <br />
 
     <div id="tabs" style="display:none; width: 900px;">
       <ul>
-        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> <span data-i18n="knxUltimateHueLight.tabs.switch"></span></a></li>
-        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> <span data-i18n="knxUltimateHueLight.tabs.dim"></span></a></li>
-        <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> <span data-i18n="knxUltimateHueLight.tabs.tunable_white"></span></a></li>
-        <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateHueLight.tabs.rgb_hsv"></span></a></li>
-        <li><a href="#tabs-5"><i class="fa-solid fa-heart-circle-check"></i> <span data-i18n="knxUltimateHueLight.tabs.effects"></span></a></li>
-        <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateHueLight.tabs.behaviour"></span></a></li>
+        <li><a href="#tabs-1"><i class="fa-solid fa-toggle-on"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.switch"></span></a></li>
+        <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.dim"></span></a></li>
+        <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.tunable_white"></span></a></li>
+        <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.rgb_hsv"></span></a></li>
+        <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.behaviour"></span></a></li>
       </ul>
       <div id="tabs-1">
         <p>
         <div class="form-row">
-          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateHueLight.control"></span></label>
+          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateMatterControllerDevice.control"></span></label>
 
           <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="common.ga"></span></label>
           <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
@@ -1850,7 +1582,7 @@
           <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueLight.status"></span></label>
+          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.status"></span></label>
 
           <label for="node-input-GALightState" style="width:20px;"><span data-i18n="common.ga"></span></label>
           <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
@@ -1860,7 +1592,7 @@
           <select id="node-input-dptLightState" style="width:140px;"></select>
 
           <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightState" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         </p>
@@ -1879,7 +1611,7 @@
           <select id="node-input-dptLightDIM" style="width:140px;"></select>
 
           <label for="node-input-nameLightDIM" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
@@ -1894,7 +1626,7 @@
           <select id="node-input-dptLightBrightness" style="width:140px;"></select>
 
           <label for="node-input-nameLightBrightness" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightBrightness" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
 
@@ -1902,7 +1634,7 @@
           <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-question-circle"></i> Status %</label>
 
           <label for="node-input-GALightBrightnessState" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
 
@@ -1911,7 +1643,7 @@
           <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
 
           <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightBrightnessState"
             style="width:190px;margin-left: 5px; text-align: left;">
         </div>   
@@ -1926,7 +1658,7 @@
             <i class="fa fa-clone"></i> Min Dim Brightness
           </label>
           <select id="node-input-minDimLevelLight">
-            <option value="useHueLightLevel" data-i18n="knxUltimateHueLight.use_min_brightness"></option>
+            <option value="useHueLightLevel" data-i18n="knxUltimateMatterControllerDevice.use_min_brightness"></option>
           </select>
         </div>
         <div class="form-row">
@@ -2026,7 +1758,7 @@
           <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control rgb</label>
 
           <label for="node-input-GALightColor" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
 
@@ -2034,14 +1766,14 @@
           <select id="node-input-dptLightColor" style="width:140px;"></select>
 
           <label for="node-input-nameLightColor" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
           <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> Status rgb</label>
 
           <label for="node-input-GALightColorState" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
 
@@ -2049,7 +1781,7 @@
           <select id="node-input-dptLightColorState" style="width:140px;"></select>
 
           <label for="node-input-nameLightColorState" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightColorState" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
 
@@ -2062,7 +1794,7 @@
           <label for="node-input-nameLightHSV_H_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control H dim</label>
 
           <label for="node-input-GALightHSV_H_DIM" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightHSV_H_DIM" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
  
@@ -2070,14 +1802,14 @@
           <select id="node-input-dptLightHSV_H_DIM" style="width:140px;"></select>
 
           <label for="node-input-nameLightHSV_H_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightHSV_H_DIM" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
           <label for="node-input-nameLightHSV_H_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status H %</label>
 
           <label for="node-input-GALightHSV_H_State" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightHSV_H_State" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
 
@@ -2085,7 +1817,7 @@
           <select id="node-input-dptLightHSV_H_State" style="width:140px;"></select>
 
           <label for="node-input-nameLightHSV_H_State" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightHSV_H_State" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
 
@@ -2100,7 +1832,7 @@
           <label for="node-input-nameLightHSV_S_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control S dim</label>
 
           <label for="node-input-GALightHSV_S_DIM" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightHSV_S_DIM" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
  
@@ -2108,14 +1840,14 @@
           <select id="node-input-dptLightHSV_S_DIM" style="width:140px;"></select>
 
           <label for="node-input-nameLightHSV_S_DIM" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightHSV_S_DIM" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
           <label for="node-input-nameLightHSV_S_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status S %</label>
 
           <label for="node-input-GALightHSV_S_State" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-GALightState"></span></label>
           <input type="text" id="node-input-GALightHSV_S_State" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
 
@@ -2123,7 +1855,7 @@
           <select id="node-input-dptLightHSV_S_State" style="width:140px;"></select>
 
           <label for="node-input-nameLightHSV_S_State" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+              data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightHSV_S_State" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
 
@@ -2143,141 +1875,40 @@
         
         </p>
       </div>
-      <div id="tabs-5">
-        <p>
-        <div class="form-tips" style="margin-bottom:6px;">
-          <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
-          <span data-i18n="knxUltimateHueLight.effect_base_label"></span>
-        </div>
-        <div class="form-row">
-          <label for="node-input-nameLightBlink" style="width:110px;"><i class="fa fa-play-circle-o"></i> Blink</label>
-
-          <label for="node-input-GALightBlink" style="width:20px;"><span
-              data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-          <input type="text" id="node-input-GALightBlink" placeholder="Ex: 1/1/1"
-            style="width:70px;margin-left: 5px; text-align: left;">
-
-          <label for="node-input-dptLightBlink" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-          <select id="node-input-dptLightBlink" style="width:140px;"></select>
-
-          <label for="node-input-nameLightBlink" style="width:50px; margin-left: 0px; text-align: right;"><span
-              data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-          <input type="text" id="node-input-nameLightBlink" style="width:190px;margin-left: 5px; text-align: left;">
-        </div>
-
-        <div id="divColorCycle">
-          <div class="form-row">
-            <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color
-              Cycle</label>
-
-            <label for="node-input-GALightColorCycle" style="width:20px;"><span data-i18n="common.ga"></span></label>
-            <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1"
-              style="width:70px;margin-left: 5px; text-align: left;">
-
-            <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-            <select id="node-input-dptLightColorCycle" style="width:140px;"></select>
-
-            <label for="node-input-nameLightColorCycle" style="width:50px; margin-left: 0px; text-align: right;"><span
-                data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-            <input type="text" id="node-input-nameLightColorCycle" style="width:190px;margin-left: 5px; text-align: left;">
-          </div>
-        </div>
-
-        <hr style="margin:12px 0;">
-
-        <div id="divHueEffectsContainer">
-          <div class="form-tips" style="margin-bottom:6px;">
-            <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
-            <span data-i18n="knxUltimateHueLight.effect_native_label"></span>
-          </div>
-          <div id="divHueEffectsNoSupport" class="form-tips" data-i18n="knxUltimateHueLight.effect_not_supported" style="display:none;"></div>
-          <div id="divHueEffectsContent" style="display:none;">
-            <div class="form-row">
-              <label for="node-input-nameLightEffect" style="width:110px;"><i class="fa fa-wand-magic-sparkles"></i> <span data-i18n="knxUltimateHueLight.effect_command"></span></label>
-
-              <label for="node-input-GALightEffect" style="width:20px;"><span data-i18n="common.ga"></span></label>
-              <input type="text" id="node-input-GALightEffect" placeholder="Ex: 1/1/1"
-                style="width:70px;margin-left: 5px; text-align: left;">
-
-              <label for="node-input-dptLightEffect" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-              <select id="node-input-dptLightEffect" style="width:140px;"></select>
-
-              <label for="node-input-nameLightEffect" style="width:50px; margin-left: 0px; text-align: right;"><span
-                  data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-              <input type="text" id="node-input-nameLightEffect" style="width:190px;margin-left: 5px; text-align: left;">
-            </div>
-
-            <div class="form-row">
-              <label for="node-input-nameLightEffectStatus" style="width:110px;"><i class="fa fa-circle-info"></i> <span data-i18n="knxUltimateHueLight.effect_status"></span></label>
-
-              <label for="node-input-GALightEffectStatus" style="width:20px;"><span data-i18n="common.ga"></span></label>
-              <input type="text" id="node-input-GALightEffectStatus" placeholder="Ex: 1/1/1"
-                style="width:70px;margin-left: 5px; text-align: left;">
-
-              <label for="node-input-dptLightEffectStatus" style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
-              <select id="node-input-dptLightEffectStatus" style="width:140px;"></select>
-
-              <label for="node-input-nameLightEffectStatus" style="width:50px; margin-left: 0px; text-align: right;"><span
-                  data-i18n="knxUltimateHueLight.node-input-name"></span></label>
-              <input type="text" id="node-input-nameLightEffectStatus" style="width:190px;margin-left: 5px; text-align: left;">
-            </div>
-
-            <div class="form-row" id="divEffectMappings">
-              <label style="width:110px;"><i class="fa fa-list-check"></i> <span data-i18n="knxUltimateHueLight.effect_mapping"></span></label>
-              <div style="margin-left:5px; width: calc(100% - 120px);">
-                <input type="hidden" id="node-input-effectRules">
-                <ol id="node-input-effect-rule-container" style="margin:0; padding:0;"></ol>
-                <div style="margin-top:5px;">
-                  <button type="button" id="node-input-effect-autofill" class="red-ui-button"><span data-i18n="knxUltimateHueLight.effect_autofill"></span></button>
-                </div>
-                <div class="form-tips">
-                  <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
-                  <span data-i18n="knxUltimateHueLight.effect_tip"></span>
-                </div>
-                <div class="form-tips">
-                  <i class="fa fa-circle-info" style="color:forestgreen; margin-right:4px;"></i>
-                  <span data-i18n="knxUltimateHueLight.effect_tip_status"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        </p>
-      </div>
       <div id="tabs-6">
         <p>
         <div class="form-row">
-          <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueLight.read_status_startup"></span></label>
+          <label style="width:260px;" for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.read_status_startup"></span></label>
           <select id="node-input-readStatusAtStartup">
-            <option value="no" data-i18n="knxUltimateHueLight.opt_no"></option>
-            <option value="yes" data-i18n="knxUltimateHueLight.opt_yes_emit"></option>
+            <option value="no" data-i18n="knxUltimateMatterControllerDevice.opt_no"></option>
+            <option value="yes" data-i18n="knxUltimateMatterControllerDevice.opt_yes_emit"></option>
           </select>
         </div>
         <div class="form-row" id="divUpdateKNXBrightnessStatusOnHUEOnOff">
           <label style="width:260px;" for="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-            <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueLight.knx_brightness_status"></span>
+            <i class="fa fa-tag"></i> <span data-i18n="knxUltimateMatterControllerDevice.knx_brightness_status"></span>
           </label>
           <select id="node-input-updateKNXBrightnessStatusOnHUEOnOff">
-            <option value="onhueoff" data-i18n="knxUltimateHueLight.knx_brightness_onhueoff"></option>
-            <option value="no" data-i18n="knxUltimateHueLight.knx_brightness_no"></option>
+            <option value="onhueoff" data-i18n="knxUltimateMatterControllerDevice.knx_brightness_onhueoff"></option>
+            <option value="no" data-i18n="knxUltimateMatterControllerDevice.knx_brightness_no"></option>
           </select>
         </div>
         <div class="form-row">
           <label style="width:260px;" for="node-input-updateLocalStateFromKNXWrite">
-            <i class="fa fa-database"></i> <span data-i18n="knxUltimateHueLight.update_local_state_from_knx_write"></span>
+            <i class="fa fa-database"></i> <span data-i18n="knxUltimateMatterControllerDevice.update_local_state_from_knx_write"></span>
           </label>
           <input type="checkbox" id="node-input-updateLocalStateFromKNXWrite" style="display:inline-block; width:auto; vertical-align:top;" />
         </div>
-        <div class="form-tips" style="margin-left:260px;" data-i18n="knxUltimateHueLight.update_local_state_from_knx_write_hint"></div><br/>
+        <div class="form-tips" style="margin-left:260px;" data-i18n="knxUltimateMatterControllerDevice.update_local_state_from_knx_write_hint"></div><br/>
         <div id ="divBehaviourBrightness">
           <div class="form-row">
             <label for="node-input-specifySwitchOnBrightness" style="width:260px;">
-              <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueLight.switch_on_behaviour"></span>
+              <i class="fa fa-tag"></i> <span data-i18n="knxUltimateMatterControllerDevice.switch_on_behaviour"></span>
             </label>
             <select id="node-input-specifySwitchOnBrightness">
-              <option value="no" data-i18n="knxUltimateHueLight.none"></option>
-              <option value="temperature" data-i18n="knxUltimateHueLight.select_temperature_brightness"></option>
-              <option value="yes" data-i18n="knxUltimateHueLight.select_color"></option>
+              <option value="no" data-i18n="knxUltimateMatterControllerDevice.none"></option>
+              <option value="temperature" data-i18n="knxUltimateMatterControllerDevice.select_temperature_brightness"></option>
+              <option value="yes" data-i18n="knxUltimateMatterControllerDevice.select_color"></option>
             </select>
           </div>
 
@@ -2286,7 +1917,7 @@
             </label>
             <input type="hidden" id="node-input-colorAtSwitchOnDayTime">
             <input type="color" id="colorPickerDay" style="width:260px">
-            <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateHueLight.get_current"></span></button>
+            <button id="getColorAtSwitchOnDayTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateMatterControllerDevice.get_current"></span></button>
           </div>
           <div class="form-row" id="divTemperatureAtSwitchOn" hidden>
             <label for="node-input-colorAtSwitchOnDayTime" style="width:260px">
@@ -2298,10 +1929,10 @@
           <div id="divCCSBoxAtNightLighting">
             <div class="form-row">
               <label for="node-input-enableDayNightLighting" style="width:260px;">
-                <i class="fa fa-clone"></i> <span data-i18n="knxUltimateHueLight.night_lighting"></span>
+                <i class="fa fa-clone"></i> <span data-i18n="knxUltimateMatterControllerDevice.night_lighting"></span>
               </label>
               <select id="node-input-enableDayNightLighting">
-                <option value="no" data-i18n="knxUltimateHueLight.no_night_lighting"></option>
+                <option value="no" data-i18n="knxUltimateMatterControllerDevice.no_night_lighting"></option>
                 <!-- <option value="temperature">Select temperature and brightness</option>
                 <option value="yes">Select color</option> -->
               </select>
@@ -2313,7 +1944,7 @@
                 <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
                 <input type="hidden" id="node-input-colorAtSwitchOnNightTime">
                 <input type="color" id="colorPickerNight" style="width:260px">
-                <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateHueLight.get_current"></span></button>
+                <button id="getColorAtSwitchOnNightTimeButton" type="button" class="red-ui-button"><span data-i18n="knxUltimateMatterControllerDevice.get_current"></span></button>
               </div>
               <div class="form-row" id="divTemperatureAtSwitchOnNightTime" hidden>
                 <label for="node-input-colorAtSwitchOnNightTime" style="width:260px"></label>
@@ -2323,7 +1954,7 @@
 
               <div class="form-row">
                 <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
-                  <span data-i18n="knxUltimateHueLight.day_night"></span></label>
+                  <span data-i18n="knxUltimateMatterControllerDevice.day_night"></span></label>
                 <label for="node-input-GADaylightSensor" style="width:20px;"><span data-i18n="common.ga"></span></label>
                 <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
                   style="width:70px;margin-left: 5px; text-align: left;">
@@ -2332,24 +1963,24 @@
                 <select id="node-input-dptDaylightSensor" style="width:140px;"></select>
 
                 <label for="node-input-nameDaylightSensor" style="width:50px; margin-left: 0px; text-align: right;"><span
-                    data-i18n="knxUltimateHueLight.node-input-name"></span></label>
+                    data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
                 <input type="text" id="node-input-nameDaylightSensor" style="width:190px;margin-left: 5px; text-align: left;">
               </div>
               <div class="form-row">
                 <label style="width:170px" for="node-input-invertDayNight">
-                  <i class="fa fa-shuffle"></i> <span data-i18n="knxUltimateHueLight.invert_day_night"></span>
+                  <i class="fa fa-shuffle"></i> <span data-i18n="knxUltimateMatterControllerDevice.invert_day_night"></span>
                 </label>
                 <input type="checkbox" id="node-input-invertDayNight"
                   style="display:inline-block; width:auto; vertical-align:top;" />
               </div>
               <div class="form-row">
                 <label for="node-input-restoreDayMode" style="width:260px;">
-                  <i class="fa fa-circle"></i> <span data-i18n="knxUltimateHueLight.override_night_mode"></span>
+                  <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.override_night_mode"></span>
                 </label>
                 <select id="node-input-restoreDayMode">
-                  <option value="no" data-i18n="knxUltimateHueLight.override_no"></option>
-                  <option value="setDayByFastSwitchLightSingle" data-i18n="knxUltimateHueLight.override_set_day_fast_this"></option>
-                  <option value="setDayByFastSwitchLightALL" data-i18n="knxUltimateHueLight.override_set_day_fast_all"></option>
+                  <option value="no" data-i18n="knxUltimateMatterControllerDevice.override_no"></option>
+                  <option value="setDayByFastSwitchLightSingle" data-i18n="knxUltimateMatterControllerDevice.override_set_day_fast_this"></option>
+                  <option value="setDayByFastSwitchLightALL" data-i18n="knxUltimateMatterControllerDevice.override_set_day_fast_all"></option>
                 </select>
               </div>
             </div>
@@ -2358,11 +1989,11 @@
         </div>
         <div class="form-row">
           <label for="node-input-enableNodePINS" style="width:260px;">
-            <i class="fa fa-circle"></i> <span data-i18n="knxUltimateHueLight.node_pins"></span>
+            <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.node_pins"></span>
           </label>
           <select id="node-input-enableNodePINS">
-            <option value="no" data-i18n="knxUltimateHueLight.node_pins_hide"></option>
-            <option value="yes" data-i18n="knxUltimateHueLight.node_pins_show"></option>
+            <option value="no" data-i18n="knxUltimateMatterControllerDevice.node_pins_hide"></option>
+            <option value="yes" data-i18n="knxUltimateMatterControllerDevice.node_pins_show"></option>
           </select>
         </div>
         </p>
@@ -2373,22 +2004,21 @@
 </script>
 
 
-<script type="text/markdown" data-help-name="knxUltimateHueLight">
+<script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
 <p>This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.</p>
 
 **General**
 
+This node was born from the Hue Light node: same KNX group-address model and behaviour,
+with the Philips Hue engine replaced by the **Matter controller** engine. A Matter bridge
+(for example a Hue Bridge paired via Matter) is expanded into its lamps in the picker.
+Hue-only features (native effects, locate) are not available on Matter.
+
 |Property|Description|
 |--|--|
 | KNX GW | Select the KNX gateway to be used |
-| Hue Bridge | Select the Hue Bridge to be used |
-| Name | Hue light or grouped light to use (autocomplete while typing).|
-
-<br/>
-
-**Locate device**
-
-Use the `Locate` button (play icon) to start a Hue identify session for the selected resource. While the session is active the button switches to a stop icon and the bridge makes the light - or every light in the grouped resource - blink once per second. Press the button again to stop immediately; otherwise the session ends automatically after 10 minutes.
+| Matter controller | Select the Matter controller configuration to be used |
+| Matter device | Matter light or plug to use (autocomplete while typing).|
 
 <br/>
 
@@ -2445,7 +2075,7 @@ Start typing in the GA field (name or Group Address); suggestions appear while y
 | Status S %| The light color saturation status group address.|
 | Dim Speed (ms) | The dimming speed, in Milliseconds, from bottom to top scale. |
 
-For controlling the HSV "V" (brightness), use the standard controls under the **Dim** tab.
+For controlling the HSV "V” (brightness), use the standard controls under the **Dim** tab.
 
 <br/>
 
@@ -2457,13 +2087,6 @@ _Non-Hue basic effects_
 |--|--|
 | Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all Hue lights. |
 | Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the Hue light's color at regular interval. Works with all Hue lights having color capabilities. The color effect will start 10 seconds after set. |
-
-_Hue native effects_
-
-Use the **Hue native effects** table to map your KNX values to the effects supported by the selected light (for example `candle`, `fireplace`, `prism`). Each row links a KNX value (boolean, numeric or textual, depending on the datapoint you pick) with a Hue effect. On the KNX side you can:
-
-- send the mapped value to activate that effect;
-- optionally provide a status Group Address: the node emits the mapped value whenever the Hue bridge reports an effect change; if no mapping exists the raw effect name is sent (requires a textual DPT such as 16.xxx).
 
 <br/>
 

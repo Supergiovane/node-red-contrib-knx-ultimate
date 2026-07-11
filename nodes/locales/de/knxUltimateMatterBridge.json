@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Matter Bridge (BETA)",
+    "title": "Expose KNX to Matter (BETA)",
     "bridge_name": "Name der Matter-Bridge",
     "port": "Port",
     "devices_help": "Füge die KNX-Geräte hinzu, die über Matter bereitgestellt werden sollen. Der \"Name\" ist der, den Alexa/Google/Apple anzeigen und für Sprachbefehle verwenden. Befehls-GA = wird geschrieben, wenn der Assistent einen Befehl sendet; Status-GA = wird vom Bus gelesen, um die App aktuell zu halten.",
@@ -10,11 +10,24 @@
     "node_pins": "Node Input/Output PINs",
     "node_pins_hide": "Ausblenden",
     "node_pins_show": "Input/Output-PINs anzeigen",
+    "type_change_warning": "Wenn der Gerätetyp nach der Kopplung der Bridge geändert wird, ändert sich die Matter-Endpunktstruktur. Alexa/Google/Apple können den alten Endpunkt als nicht erreichbar behalten; eventuell muss die Matter-Bridge zurückgesetzt/neu gekoppelt oder ein neues bereitgestelltes Gerät erstellt werden.",
     "fields": {
       "type": "Gerätetyp",
       "name": "Name (von Alexa & Co. angezeigt)",
       "name_placeholder": "z.B. Küchenlicht",
       "invert": "Position % invertieren"
+    },
+    "advanced": {
+      "title": "Erweiterte Kompatibilität",
+      "help": " Verwende diese Optionen nur, wenn ein Matter-Controller oder ein KNX-Aktor eine besondere Behandlung benötigt.",
+      "turn_on_behavior": "Einschaltverhalten",
+      "turn_on_ignore_level": "Helligkeit direkt nach Ein ignorieren",
+      "turn_on_forward_all": "Jeden Helligkeitsbefehl weiterleiten",
+      "ignore_level_ms": "Helligkeit nach Ein ignorieren (ms)",
+      "cover_update_mode": "Jalousie-/Rollladenstatus",
+      "cover_optimistic": "Matter-Position optimistisch aktualisieren",
+      "cover_wait_status": "Nur auf KNX-Status warten",
+      "cover_status_timeout": "Timeout für Positionsstatus (ms)"
     },
     "functions": {
       "fn_onoff_cmd": "Ein/Aus Befehls-GA",

@@ -75,6 +75,10 @@
             name: { value: '' },
             deviceType: { value: 'onofflight' },
             invertPosition: { value: false },
+            turnOnBehavior: { value: 'ignoreLevelAfterOn' },
+            ignoreLevelAfterOnMs: { value: 800 },
+            coverUpdateMode: { value: 'optimistic' },
+            coverStatusTimeoutMs: { value: 3000 },
             readStatusAtStartup: { value: 'yes' },
             enableNodePINS: { value: 'no' },
             outputs: { value: 0 },
@@ -93,9 +97,9 @@
             outputs: 0,
             icon: 'node-matter-icon.svg',
             label() {
-                return this.name || 'Matter Bridge device (BETA)';
+                return this.name || 'Expose KNX to Matter (BETA)';
             },
-            paletteLabel: 'Matter Bridge device (BETA)',
+            paletteLabel: 'Expose KNX to Matter (BETA)',
             oneditprepare() {
                 try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
                 const node = this;
@@ -138,6 +142,9 @@
                 // on one or more rows (same pattern used across the rest of the KNX-Ultimate nodes).
                 const $fields = $('#mb-ga-fields').css({ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '10px' });
                 const $invertRow = $('#mb-invert-row');
+                const $advancedRows = $('#mb-advanced-details');
+                const $dimmerAdvancedRows = $('.mb-dimmer-advanced-row');
+                const $coverAdvancedRows = $('.mb-cover-advanced-row');
                 const gaInputs = {};
 
                 function createLabeledField(row, element, options = {}) {
@@ -207,6 +214,11 @@
                         }
                     });
                     $invertRow.toggle(selected === 'windowcovering');
+                    const hasLevel = selected === 'dimmablelight' || selected === 'rgblight' || selected === 'colortemperaturelight';
+                    const isCover = selected === 'windowcovering';
+                    $advancedRows.toggle(hasLevel || isCover);
+                    $dimmerAdvancedRows.toggle(hasLevel);
+                    $coverAdvancedRows.toggle(isCover);
                 }
                 $type.on('change', updateTypePresentation);
                 updateTypePresentation();
@@ -216,6 +228,10 @@
                 node._matterGaInputs = gaInputs;
 
                 $('#node-input-invertPosition').prop('checked', node.invertPosition === true);
+                $('#node-input-turnOnBehavior').val(node.turnOnBehavior || 'ignoreLevelAfterOn');
+                $('#node-input-ignoreLevelAfterOnMs').val(node.ignoreLevelAfterOnMs === undefined ? 800 : node.ignoreLevelAfterOnMs);
+                $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
+                $('#node-input-coverStatusTimeoutMs').val(node.coverStatusTimeoutMs === undefined ? 3000 : node.coverStatusTimeoutMs);
                 $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
                 $('#node-input-enableNodePINS').val(node.enableNodePINS || 'no');
             },
@@ -242,6 +258,10 @@
                     }
                 });
                 delete node._matterGaInputs;
+                this.turnOnBehavior = $('#node-input-turnOnBehavior').val() || 'ignoreLevelAfterOn';
+                this.ignoreLevelAfterOnMs = Number($('#node-input-ignoreLevelAfterOnMs').val()) || 0;
+                this.coverUpdateMode = $('#node-input-coverUpdateMode').val() || 'optimistic';
+                this.coverStatusTimeoutMs = Number($('#node-input-coverStatusTimeoutMs').val()) || 0;
                 this.enableNodePINS = $('#node-input-enableNodePINS').val() || 'no';
                 this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
                 this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
@@ -288,9 +308,9 @@
     <select id="node-input-deviceType" style="width:260px;"></select>
   </div>
 
-  <div class="form-tips" style="margin-bottom:8px;">
-    <i class="fa fa-circle-info"></i>
-    <span data-i18n="knxUltimateMatterBridge.device_help"></span>
+  <div class="form-tips" style="display:block; width:100%; max-width:none; box-sizing:border-box; margin-bottom:8px; border-left:4px solid #d9822b;">
+    <i class="fa fa-triangle-exclamation"></i>
+    <span data-i18n="knxUltimateMatterBridge.type_change_warning"></span>
   </div>
 
   <div id="mb-ga-fields"></div>
@@ -301,6 +321,48 @@
       <span data-i18n="knxUltimateMatterBridge.fields.invert"></span>
     </label>
   </div>
+
+  <details id="mb-advanced-details" style="margin:10px 0 8px 0; display:none;">
+    <summary style="cursor:pointer;">
+      <i class="fa fa-sliders"></i>
+      <b><span data-i18n="knxUltimateMatterBridge.advanced.title"></span></b>
+      <span data-i18n="knxUltimateMatterBridge.advanced.help"></span>
+    </summary>
+
+    <div class="form-row mb-dimmer-advanced-row" style="display:none; margin-top:8px;">
+      <label for="node-input-turnOnBehavior" style="width:260px;">
+        <i class="fa fa-lightbulb-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.turn_on_behavior"></span>
+      </label>
+      <select id="node-input-turnOnBehavior" style="width:280px;">
+        <option value="ignoreLevelAfterOn" data-i18n="knxUltimateMatterBridge.advanced.turn_on_ignore_level"></option>
+        <option value="forwardAll" data-i18n="knxUltimateMatterBridge.advanced.turn_on_forward_all"></option>
+      </select>
+    </div>
+
+    <div class="form-row mb-dimmer-advanced-row" style="display:none;">
+      <label for="node-input-ignoreLevelAfterOnMs" style="width:260px;">
+        <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.ignore_level_ms"></span>
+      </label>
+      <input type="number" id="node-input-ignoreLevelAfterOnMs" min="0" step="100" style="width:120px;">
+    </div>
+
+    <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
+      <label for="node-input-coverUpdateMode" style="width:260px;">
+        <i class="fa fa-window-maximize"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_update_mode"></span>
+      </label>
+      <select id="node-input-coverUpdateMode" style="width:280px;">
+        <option value="optimistic" data-i18n="knxUltimateMatterBridge.advanced.cover_optimistic"></option>
+        <option value="waitStatus" data-i18n="knxUltimateMatterBridge.advanced.cover_wait_status"></option>
+      </select>
+    </div>
+
+    <div class="form-row mb-cover-advanced-row" style="display:none;">
+      <label for="node-input-coverStatusTimeoutMs" style="width:260px;">
+        <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_status_timeout"></span>
+      </label>
+      <input type="number" id="node-input-coverStatusTimeoutMs" min="0" step="500" style="width:120px;">
+    </div>
+  </details>
 
   <hr/>
 
@@ -332,6 +394,11 @@ Point it to a **Matter Bridge** configuration node (the actual bridge, paired on
 
 - **Matter → KNX**: commands from the voice assistant write to the *command* group addresses.
 - **KNX → Matter**: telegrams on the *status* group addresses update the Matter attribute (and the app UI).
+
+The advanced compatibility options are intentionally type-specific:
+
+- dimmable devices can ignore the brightness command that some controllers send immediately after an On command
+- covers can optimistically update the Matter position after a command, then correct it when the KNX status GA reports the real position
 
 The **KNX gateway is optional**: without it, enable the node PINs and drive the device from the flow.
 

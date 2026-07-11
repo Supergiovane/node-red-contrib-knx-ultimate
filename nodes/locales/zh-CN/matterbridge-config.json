@@ -10,6 +10,7 @@
       "pairing_title": "配对（Alexa、Google Home、Apple Home...）",
       "not_running": "Matter 桥接器尚未运行。请先部署，等待几秒后点击刷新。",
       "commissioned": "桥接器已与以下控制器配对：",
+      "commissioned_hint": "二维码已隐藏，因为桥接器已经配对。若要将 Alexa 添加为另一个 Matter 控制器，请先从上方已配对的控制器之一（例如 Apple Home 或 Google Home）打开配对模式，然后在 Alexa 中添加 Matter 设备。只有在要移除所有现有控制器并重新开始时，才使用重置配对。",
       "awaiting": "等待配对。请在您的 Matter App 中扫描二维码或输入手动配对码：",
       "qr_link": "在浏览器中打开二维码",
       "deploy_first": "请先部署此配置节点，然后点击刷新。",

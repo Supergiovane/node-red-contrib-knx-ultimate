@@ -1,3 +1,6 @@
+/* global window, document, MutationObserver, $, jQuery */
+/* eslint-disable camelcase */
+
 // 31/03/2020 Search Helper
 function htmlUtilsfullCSVSearch (sourceText, searchString) {
   let aSearchWords = []
@@ -23,7 +26,7 @@ function htmlUtilsfullCSVSearch (sourceText, searchString) {
   for (let index = 0; index < aSearchWords.length; index++) {
     if (sourceText.toLowerCase().indexOf(aSearchWords[index]) > -1) i += 1
   }
-  return i == aSearchWords.length
+  return i === aSearchWords.length
 }
 
 // 2025-09 Secure KNX helpers for GA autocompletes
@@ -112,7 +115,6 @@ function KNX_makeSelectSearchable ($select) {
 
     function syncFromSelect ($input) {
       try {
-        const val = $select.val()
         const txt = ($select.find('option:selected').text()) || ''
         if ($input) { $input.val(txt) }
         // refresh source
@@ -196,10 +198,10 @@ function KNX_makeSelectSearchable ($select) {
   } catch (e) {}
 })()
 
-window.KNX_makeSelectSearchable = KNX_makeSelectSearchable;
+window.KNX_makeSelectSearchable = KNX_makeSelectSearchable
 
 // Ensure autocomplete lists open immediately on focus/click
-(function ($) {
+;(function ($) {
   if (!$.ui || !$.ui.autocomplete) return
   const _create = $.ui.autocomplete.prototype._create
   $.ui.autocomplete.prototype._create = function () {

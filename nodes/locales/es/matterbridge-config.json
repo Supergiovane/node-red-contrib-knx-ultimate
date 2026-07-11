@@ -10,6 +10,7 @@
       "pairing_title": "Emparejamiento (Alexa, Google Home, Apple Home...)",
       "not_running": "El bridge Matter aún no está en ejecución. Haz deploy, espera unos segundos y pulsa actualizar.",
       "commissioned": "Bridge emparejado con estos controladores:",
+      "commissioned_hint": "El código QR está oculto porque el bridge ya está emparejado. Para añadir Alexa como otro controlador Matter, abre el modo de emparejamiento desde uno de los controladores listados arriba (por ejemplo Apple Home o Google Home) y luego añade un dispositivo Matter en Alexa. Usa Restablecer emparejamiento solo si quieres eliminar todos los controladores existentes y empezar de cero.",
       "awaiting": "Esperando emparejamiento. Escanea el código QR o introduce el código manual en tu app Matter:",
       "qr_link": "Abrir el código QR en el navegador",
       "deploy_first": "Haz deploy de este nodo de configuración primero y pulsa actualizar.",

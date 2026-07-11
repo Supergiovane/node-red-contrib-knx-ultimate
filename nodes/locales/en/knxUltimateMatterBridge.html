@@ -1,11 +1,11 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
-# Matter Bridge device (BETA)
+# Expose KNX to Matter (BETA)
 
 > This node is in **BETA**: it works, but details may still change between releases.
 
 ## Overview
 
-Each Matter Bridge device node exposes **one KNX device as a Matter device**: the paired controllers (Alexa, Google Home, Apple Home...) see it, with the name you typed, ready for app and voice control. Point it to a **Matter Bridge** configuration node (the actual bridge, paired once - the pairing QR code lives there) and add as many device nodes as you want, anywhere in your flows.
+Each Expose KNX to Matter node exposes **one KNX device as a Matter device**: the paired controllers (Alexa, Google Home, Apple Home...) see it, with the name you typed, ready for app and voice control. Point it to a **Matter Bridge** configuration node (the actual bridge, paired once - the pairing QR code lives there) and add as many device nodes as you want, anywhere in your flows.
 
 This is the opposite direction of the *Matter Device* node: there KNX controls a Matter device, here the Matter controllers control KNX.
 
@@ -38,6 +38,10 @@ This is the opposite direction of the *Matter Device* node: there KNX controls a
 
 - **Command GA**: written to the KNX bus when the assistant sends a command.
 - **Status GA**: read from the bus to keep the Matter attributes (and the apps) updated.
+
+## Advanced compatibility
+
+These options are hidden unless they apply to the selected type. Dimmable devices can ignore the brightness command that some controllers send immediately after `On`. Covers can optimistically update the Matter position after a command, then correct it when the KNX status GA reports the real position.
 
 ## Node PINs
 

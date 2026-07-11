@@ -879,6 +879,19 @@ module.exports = (RED) => {
       }
     }
 
+    function getUniversalNodeAcceptedGAs (_oNode) {
+      const raw = _oNode?.knxUltimateAcceptedGAs
+      if (raw === undefined || raw === null) return null
+      const values = raw instanceof Set ? Array.from(raw) : Array.isArray(raw) ? raw : typeof raw === 'string' ? raw.split(/[,\s;]+/) : []
+      return values.map((ga) => String(ga || '').trim()).filter((ga) => ga !== '')
+    }
+
+    function universalNodeAcceptsGA (_oNode, _dest) {
+      const acceptedGAs = getUniversalNodeAcceptedGAs(_oNode)
+      if (acceptedGAs === null || acceptedGAs.length === 0) return true
+      return acceptedGAs.includes(String(_dest || '').trim())
+    }
+
     // 17/02/2020 Do initial read (called by node.timerDoInitialRead timer)
     function DoInitialReadFromKNXBusOrFile () {
       if (node.linkStatus !== 'connected') return // 29/08/2019 If not connected, exit
@@ -1000,18 +1013,36 @@ module.exports = (RED) => {
             } else if (_oClient.hasOwnProperty('isLoadControlNode') && _oClient.isLoadControlNode) {
               _oClient.initialReadAllDevicesInRules()
             } else if (_oClient.listenallga === true) {
-              for (let index = 0; index < node.csv.length; index++) {
-                const element = node.csv[index]
-                if (!readHistory.includes(element.ga)) {
-                  node.sendKNXTelegramToKNXEngine({
-                    grpaddr: element.ga,
-                    payload: '',
-                    dpt: '',
-                    outputtype: 'read',
-                    nodecallerid: element.id
-                  })
-                  readHistory.push(element.ga)
-                  node.sysLogger?.debug('DoInitialReadFromKNXBusOrFile from Universal Node: sent read request to GA ' + element.ga)
+              const acceptedGAs = getUniversalNodeAcceptedGAs(_oClient)
+              if (acceptedGAs === null) {
+                for (let index = 0; index < node.csv.length; index++) {
+                  const element = node.csv[index]
+                  if (!readHistory.includes(element.ga)) {
+                    node.sendKNXTelegramToKNXEngine({
+                      grpaddr: element.ga,
+                      payload: '',
+                      dpt: '',
+                      outputtype: 'read',
+                      nodecallerid: element.id
+                    })
+                    readHistory.push(element.ga)
+                    node.sysLogger?.debug('DoInitialReadFromKNXBusOrFile from Universal Node: sent read request to GA ' + element.ga)
+                  }
+                }
+              } else {
+                for (let index = 0; index < acceptedGAs.length; index++) {
+                  const ga = acceptedGAs[index]
+                  if (!readHistory.includes(ga)) {
+                    node.sendKNXTelegramToKNXEngine({
+                      grpaddr: ga,
+                      payload: '',
+                      dpt: '',
+                      outputtype: 'read',
+                      nodecallerid: _oClient.id
+                    })
+                    readHistory.push(ga)
+                    node.sysLogger?.debug('DoInitialReadFromKNXBusOrFile from filtered Universal Node: sent read request to GA ' + ga)
+                  }
                 }
               }
             } else {
@@ -1458,200 +1489,200 @@ module.exports = (RED) => {
             .filter((_input) => _input.notifywrite === true)
             .forEach((_input) => {
               try {
-              if (_input.hasOwnProperty('isMultiRouting')) {
-                const msg = {
-                  topic: _input.outputtopic || _dest,
-                  payload: {
-                    knx: {
-                      event: _evt,
-                      source: _src,
-                      destination: _dest,
-                      apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
-                      cemi: { hex: _cemiETS },
-                      echoed: _echoed,
-                      repeated: isRepeated,
-                      repeat: isRepeated
-                    },
-                    knxMultiRouting: {
-                      gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
-                      receivedAt: Date.now()
-                    }
-                  }
-                }
-                _input.setNodeStatus({ fill: 'green', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
-                _input.handleSend(msg)
-              } else
-              // 21/10/2024 check wether is a HUE device
-              if (_input.type.includes('knxUltimateHue')) {
-                const msg = {
-                  knx: {
-                    event: _evt,
-                    destination: _dest,
-                    rawValue: _rawValue,
-                    repeated: isRepeated,
-                    repeat: isRepeated
-                  }
-                }
-                _input.handleSend(msg)
-              } else if (_input.hasOwnProperty('isSceneController')) { // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-                // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
-                if (_dest === _input.topic || _dest === _input.topicSave) {
-                  // Prepare the two messages to be evaluated directly into the Scene Controller node.
-                  new Promise((resolve) => {
-                    if (_dest === _input.topic) {
-                      try {
-                        const msgRecall = buildInputMessage({
-                          _srcGA: _src,
-                          _destGA: _dest,
-                          _event: _evt,
-                          _Rawvalue: _rawValue,
-                          _inputDpt: _input.dpt,
-                          _devicename: _input.name ? _input.name : '',
-                          _outputtopic: _input.outputtopic,
-                          _oNode: null,
-                          _echoed,
-                          _repeated: isRepeated
-                        })
-                        _input.RecallScene(msgRecall.payload, false)
-                      } catch (error) { }
-                    } // 12/08/2020 Do NOT use "else", because both topics must be evaluated in case both recall and save have same group address.
-                    if (_dest === _input.topicSave) {
-                      try {
-                        const msgSave = buildInputMessage({
-                          _srcGA: _src,
-                          _destGA: _dest,
-                          _event: _evt,
-                          _Rawvalue: _rawValue,
-                          _inputDpt: _input.dptSave,
-                          _devicename: _input.name || '',
-                          _outputtopic: _dest,
-                          _oNode: null,
-                          _echoed,
-                          _repeated: isRepeated
-                        })
-                        _input.SaveScene(msgSave.payload, false)
-                      } catch (error) { }
-                    }
-                    resolve(true) // fulfilled
-                    // reject("error"); // rejected
-                  })
-                    .then(function () { })
-                    .catch(function () { })
-                } else {
-                  // 19/03/2020 Check and Update value if the input is part of a scene controller
-                  new Promise((resolve) => {
-                    // Check and update the values of each device in the scene and update the rule array accordingly.
-                    for (let i = 0; i < _input.rules.length; i++) {
-                      // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
-                      const oDevice = _input.rules[i]
-                      if (typeof oDevice !== 'undefined' && oDevice.topic == _dest) {
-                        const msg = buildInputMessage({
-                          _srcGA: _src,
-                          _destGA: _dest,
-                          _event: _evt,
-                          _Rawvalue: _rawValue,
-                          _inputDpt: oDevice.dpt,
-                          _devicename: oDevice.name || '',
-                          _outputtopic: oDevice.outputtopic,
-                          _oNode: null,
-                          _echoed,
-                          _repeated: isRepeated
-                        })
-                        oDevice.currentPayload = msg.payload
-                        _input.setNodeStatus({
-                          fill: 'grey',
-                          shape: 'dot',
-                          text: 'Update dev in scene',
-                          payload: oDevice.currentPayload,
-                          GA: oDevice.topic,
-                          dpt: oDevice.dpt,
-                          devicename: oDevice.devicename || ''
-                        })
-                        break
+                if (_input.hasOwnProperty('isMultiRouting')) {
+                  const msg = {
+                    topic: _input.outputtopic || _dest,
+                    payload: {
+                      knx: {
+                        event: _evt,
+                        source: _src,
+                        destination: _dest,
+                        apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
+                        cemi: { hex: _cemiETS },
+                        echoed: _echoed,
+                        repeated: isRepeated,
+                        repeat: isRepeated
+                      },
+                      knxMultiRouting: {
+                        gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
+                        receivedAt: Date.now()
                       }
                     }
-                    resolve(true) // fulfilled
+                  }
+                  _input.setNodeStatus({ fill: 'green', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
+                  _input.handleSend(msg)
+                } else
+                // 21/10/2024 check wether is a HUE device
+                if (_input.type.includes('knxUltimateHue')) {
+                  const msg = {
+                    knx: {
+                      event: _evt,
+                      destination: _dest,
+                      rawValue: _rawValue,
+                      repeated: isRepeated,
+                      repeat: isRepeated
+                    }
+                  }
+                  _input.handleSend(msg)
+                } else if (_input.hasOwnProperty('isSceneController')) { // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
+                // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
+                  if (_dest === _input.topic || _dest === _input.topicSave) {
+                  // Prepare the two messages to be evaluated directly into the Scene Controller node.
+                    new Promise((resolve) => {
+                      if (_dest === _input.topic) {
+                        try {
+                          const msgRecall = buildInputMessage({
+                            _srcGA: _src,
+                            _destGA: _dest,
+                            _event: _evt,
+                            _Rawvalue: _rawValue,
+                            _inputDpt: _input.dpt,
+                            _devicename: _input.name ? _input.name : '',
+                            _outputtopic: _input.outputtopic,
+                            _oNode: null,
+                            _echoed,
+                            _repeated: isRepeated
+                          })
+                          _input.RecallScene(msgRecall.payload, false)
+                        } catch (error) { }
+                      } // 12/08/2020 Do NOT use "else", because both topics must be evaluated in case both recall and save have same group address.
+                      if (_dest === _input.topicSave) {
+                        try {
+                          const msgSave = buildInputMessage({
+                            _srcGA: _src,
+                            _destGA: _dest,
+                            _event: _evt,
+                            _Rawvalue: _rawValue,
+                            _inputDpt: _input.dptSave,
+                            _devicename: _input.name || '',
+                            _outputtopic: _dest,
+                            _oNode: null,
+                            _echoed,
+                            _repeated: isRepeated
+                          })
+                          _input.SaveScene(msgSave.payload, false)
+                        } catch (error) { }
+                      }
+                      resolve(true) // fulfilled
                     // reject("error"); // rejected
-                  })
-                    .then(function () { })
-                    .catch(function () { })
-                }
-              } else if (_input.hasOwnProperty('isLogger')) {
+                    })
+                      .then(function () { })
+                      .catch(function () { })
+                  } else {
+                  // 19/03/2020 Check and Update value if the input is part of a scene controller
+                    new Promise((resolve) => {
+                    // Check and update the values of each device in the scene and update the rule array accordingly.
+                      for (let i = 0; i < _input.rules.length; i++) {
+                      // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
+                        const oDevice = _input.rules[i]
+                        if (typeof oDevice !== 'undefined' && oDevice.topic == _dest) {
+                          const msg = buildInputMessage({
+                            _srcGA: _src,
+                            _destGA: _dest,
+                            _event: _evt,
+                            _Rawvalue: _rawValue,
+                            _inputDpt: oDevice.dpt,
+                            _devicename: oDevice.name || '',
+                            _outputtopic: oDevice.outputtopic,
+                            _oNode: null,
+                            _echoed,
+                            _repeated: isRepeated
+                          })
+                          oDevice.currentPayload = msg.payload
+                          _input.setNodeStatus({
+                            fill: 'grey',
+                            shape: 'dot',
+                            text: 'Update dev in scene',
+                            payload: oDevice.currentPayload,
+                            GA: oDevice.topic,
+                            dpt: oDevice.dpt,
+                            devicename: oDevice.devicename || ''
+                          })
+                          break
+                        }
+                      }
+                      resolve(true) // fulfilled
+                    // reject("error"); // rejected
+                    })
+                      .then(function () { })
+                      .catch(function () { })
+                  }
+                } else if (_input.hasOwnProperty('isLogger')) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // 24/03/2021 Logger Node, i'll pass cemiETS
-                if (_cemiETS !== undefined) {
+                  if (_cemiETS !== undefined) {
                   // new Promise((resolve, reject) => {
-                  _input.handleSend(_cemiETS)
+                    _input.handleSend(_cemiETS)
                   //    resolve(true); // fulfilled
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
-                }
-              } else if (_input.listenallga === true) {
+                  }
+                } else if (_input.listenallga === true && universalNodeAcceptsGA(_input, _dest)) {
                 // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
-                const msg = buildInputMessage({
-                  _srcGA: _src,
-                  _destGA: _dest,
-                  _event: _evt,
-                  _Rawvalue: _rawValue,
-                  _outputtopic: _dest,
-                  _oNode: _input,
-                  _echoed,
-                  _repeated: isRepeated
-                })
-                _input.setNodeStatus({
-                  fill: 'green',
-                  shape: 'dot',
-                  text: '',
-                  payload: msg.payload,
-                  GA: msg.knx.destination,
-                  dpt: msg.knx.dpt,
-                  devicename: msg.devicename
-                })
-                _input.handleSend(msg)
-              } else if (_input.topic == _dest) {
-                if (_input.hasOwnProperty('isWatchDog')) {
-                  // 04/02/2020 Watchdog implementation
-                  // Is a watchdog node
-                } else {
                   const msg = buildInputMessage({
                     _srcGA: _src,
                     _destGA: _dest,
                     _event: _evt,
                     _Rawvalue: _rawValue,
-                    _inputDpt: _input.dpt,
-                    _devicename: _input.name ? _input.name : '',
-                    _outputtopic: _input.outputtopic,
+                    _outputtopic: _dest,
                     _oNode: _input,
                     _echoed,
                     _repeated: isRepeated
                   })
-                  // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                  if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
-                    _input.setNodeStatus({
-                      fill: 'grey',
-                      shape: 'ring',
-                      text: 'rbe block (' + msg.payload + ') from KNX',
-                      payload: '',
-                      GA: '',
-                      dpt: '',
-                      devicename: ''
-                    })
-                    return
-                  }
-                  msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Added previous payload
-                  _input.currentPayload = msg.payload // Set the current value for the RBE input
                   _input.setNodeStatus({
                     fill: 'green',
                     shape: 'dot',
                     text: '',
                     payload: msg.payload,
-                    GA: _input.topic,
-                    dpt: _input.dpt,
-                    devicename: ''
+                    GA: msg.knx.destination,
+                    dpt: msg.knx.dpt,
+                    devicename: msg.devicename
                   })
                   _input.handleSend(msg)
+                } else if (_input.topic == _dest) {
+                  if (_input.hasOwnProperty('isWatchDog')) {
+                  // 04/02/2020 Watchdog implementation
+                  // Is a watchdog node
+                  } else {
+                    const msg = buildInputMessage({
+                      _srcGA: _src,
+                      _destGA: _dest,
+                      _event: _evt,
+                      _Rawvalue: _rawValue,
+                      _inputDpt: _input.dpt,
+                      _devicename: _input.name ? _input.name : '',
+                      _outputtopic: _input.outputtopic,
+                      _oNode: _input,
+                      _echoed,
+                      _repeated: isRepeated
+                    })
+                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                    if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+                      _input.setNodeStatus({
+                        fill: 'grey',
+                        shape: 'ring',
+                        text: 'rbe block (' + msg.payload + ') from KNX',
+                        payload: '',
+                        GA: '',
+                        dpt: '',
+                        devicename: ''
+                      })
+                      return
+                    }
+                    msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Added previous payload
+                    _input.currentPayload = msg.payload // Set the current value for the RBE input
+                    _input.setNodeStatus({
+                      fill: 'green',
+                      shape: 'dot',
+                      text: '',
+                      payload: msg.payload,
+                      GA: _input.topic,
+                      dpt: _input.dpt,
+                      devicename: ''
+                    })
+                    _input.handleSend(msg)
+                  }
                 }
-              }
               } catch (errDispatch) { node.sysLogger?.error('KNX dispatch client error: ' + (errDispatch && errDispatch.message)) }
             })
           // console.timeEnd('GroupValue_Write');
@@ -1662,103 +1693,103 @@ module.exports = (RED) => {
             .filter((_input) => _input.notifyresponse === true)
             .forEach((_input) => {
               try {
-              if (_input.hasOwnProperty('isMultiRouting')) {
-                const msg = {
-                  topic: _input.outputtopic || _dest,
-                  payload: {
-                    knx: {
-                      event: _evt,
-                      source: _src,
-                      destination: _dest,
-                      apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
-                      cemi: { hex: _cemiETS },
-                      echoed: _echoed,
-                      repeated: isRepeated,
-                      repeat: isRepeated
-                    },
-                    knxMultiRouting: {
-                      gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
-                      receivedAt: Date.now()
+                if (_input.hasOwnProperty('isMultiRouting')) {
+                  const msg = {
+                    topic: _input.outputtopic || _dest,
+                    payload: {
+                      knx: {
+                        event: _evt,
+                        source: _src,
+                        destination: _dest,
+                        apdu: { data: _apduData, bitlength: _apduBitLength, hex: _apduHex },
+                        cemi: { hex: _cemiETS },
+                        echoed: _echoed,
+                        repeated: isRepeated,
+                        repeat: isRepeated
+                      },
+                      knxMultiRouting: {
+                        gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
+                        receivedAt: Date.now()
+                      }
                     }
                   }
-                }
-                _input.setNodeStatus({ fill: 'blue', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
-                _input.handleSend(msg)
-              } else
-              if (_input.hasOwnProperty('isLogger')) {
+                  _input.setNodeStatus({ fill: 'blue', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
+                  _input.handleSend(msg)
+                } else
+                if (_input.hasOwnProperty('isLogger')) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // 24/03/2021 Logger Node, i'll pass cemiETS
-                if (_cemiETS !== undefined) {
+                  if (_cemiETS !== undefined) {
                   // new Promise((resolve, reject) => {
-                  _input.handleSend(_cemiETS)
+                    _input.handleSend(_cemiETS)
                   //    resolve(true); // fulfilled
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
-                }
-              } else if (_input.listenallga === true) {
-                const msg = buildInputMessage({
-                  _srcGA: _src,
-                  _destGA: _dest,
-                  _event: _evt,
-                  _Rawvalue: _rawValue,
-                  _outputtopic: _dest,
-                  _oNode: _input,
-                  _echoed,
-                  _repeated: isRepeated
-                })
-                _input.setNodeStatus({
-                  fill: 'blue',
-                  shape: 'dot',
-                  text: '',
-                  payload: msg.payload,
-                  GA: msg.knx.destination,
-                  dpt: msg.knx.dpt,
-                  devicename: msg.devicename
-                })
-                _input.handleSend(msg)
-              } else if (_input.topic === _dest) {
-                // 04/02/2020 Watchdog implementation
-                if (_input.hasOwnProperty('isWatchDog')) {
-                  // Is a watchdog node
-                  _input.watchDogTimerReset()
-                } else {
+                  }
+                } else if (_input.listenallga === true && universalNodeAcceptsGA(_input, _dest)) {
                   const msg = buildInputMessage({
                     _srcGA: _src,
                     _destGA: _dest,
                     _event: _evt,
                     _Rawvalue: _rawValue,
-                    _inputDpt: _input.dpt,
-                    _devicename: _input.name ? _input.name : '',
-                    _outputtopic: _input.outputtopic,
+                    _outputtopic: _dest,
                     _oNode: _input,
                     _echoed,
                     _repeated: isRepeated
                   })
-                  // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
-                  if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
-                    _input.setNodeStatus({
-                      fill: 'grey',
-                      shape: 'ring',
-                      text: 'rbe INPUT filter applied on ' + msg.payload,
-                      payload: msg.payload,
-                      GA: _dest
-                    })
-                    return
-                  }
-                  msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Added previous payload
-                  _input.currentPayload = msg.payload // Set the current value for the RBE input
                   _input.setNodeStatus({
                     fill: 'blue',
                     shape: 'dot',
                     text: '',
                     payload: msg.payload,
-                    GA: _input.topic,
+                    GA: msg.knx.destination,
                     dpt: msg.knx.dpt,
                     devicename: msg.devicename
                   })
                   _input.handleSend(msg)
+                } else if (_input.topic === _dest) {
+                // 04/02/2020 Watchdog implementation
+                  if (_input.hasOwnProperty('isWatchDog')) {
+                  // Is a watchdog node
+                    _input.watchDogTimerReset()
+                  } else {
+                    const msg = buildInputMessage({
+                      _srcGA: _src,
+                      _destGA: _dest,
+                      _event: _evt,
+                      _Rawvalue: _rawValue,
+                      _inputDpt: _input.dpt,
+                      _devicename: _input.name ? _input.name : '',
+                      _outputtopic: _input.outputtopic,
+                      _oNode: _input,
+                      _echoed,
+                      _repeated: isRepeated
+                    })
+                    // Check RBE INPUT from KNX Bus, to avoid send the payload to the flow, if it's equal to the current payload
+                    if (!checkRBEInputFromKNXBusAllowSend(_input, msg.payload)) {
+                      _input.setNodeStatus({
+                        fill: 'grey',
+                        shape: 'ring',
+                        text: 'rbe INPUT filter applied on ' + msg.payload,
+                        payload: msg.payload,
+                        GA: _dest
+                      })
+                      return
+                    }
+                    msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Added previous payload
+                    _input.currentPayload = msg.payload // Set the current value for the RBE input
+                    _input.setNodeStatus({
+                      fill: 'blue',
+                      shape: 'dot',
+                      text: '',
+                      payload: msg.payload,
+                      GA: _input.topic,
+                      dpt: msg.knx.dpt,
+                      devicename: msg.devicename
+                    })
+                    _input.handleSend(msg)
+                  }
                 }
-              }
               } catch (errDispatch) { node.sysLogger?.error('KNX dispatch client error: ' + (errDispatch && errDispatch.message)) }
             })
           break
@@ -1768,133 +1799,133 @@ module.exports = (RED) => {
             .filter((_input) => _input.notifyreadrequest === true)
             .forEach((_input) => {
               try {
-              if (_input.hasOwnProperty('isMultiRouting')) {
-                const msg = {
-                  topic: _input.outputtopic || _dest,
-                  payload: {
-                    knx: {
-                      event: _evt,
-                      source: _src,
-                      destination: _dest,
-                      apdu: { data: null, bitlength: 0, hex: '' },
-                      cemi: { hex: _cemiETS },
-                      echoed: _echoed,
-                      repeated: isRepeated,
-                      repeat: isRepeated
-                    },
-                    knxMultiRouting: {
-                      gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
-                      receivedAt: Date.now()
+                if (_input.hasOwnProperty('isMultiRouting')) {
+                  const msg = {
+                    topic: _input.outputtopic || _dest,
+                    payload: {
+                      knx: {
+                        event: _evt,
+                        source: _src,
+                        destination: _dest,
+                        apdu: { data: null, bitlength: 0, hex: '' },
+                        cemi: { hex: _cemiETS },
+                        echoed: _echoed,
+                        repeated: isRepeated,
+                        repeat: isRepeated
+                      },
+                      knxMultiRouting: {
+                        gateway: { id: node.id, name: node.name || '', physAddr: node.physAddr || '' },
+                        receivedAt: Date.now()
+                      }
                     }
                   }
-                }
-                _input.setNodeStatus({ fill: 'grey', shape: 'dot', text: 'RAW Read', payload: '', GA: _dest, dpt: '', devicename: _src })
-                _input.handleSend(msg)
-              } else
-              if (_input.hasOwnProperty('isLogger')) {
+                  _input.setNodeStatus({ fill: 'grey', shape: 'dot', text: 'RAW Read', payload: '', GA: _dest, dpt: '', devicename: _src })
+                  _input.handleSend(msg)
+                } else
+                if (_input.hasOwnProperty('isLogger')) {
                 // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
                 // node.sysLogger?.info("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
                 // 24/03/2021 Logger Node, i'll pass cemiETS
-                if (_cemiETS !== undefined) {
+                  if (_cemiETS !== undefined) {
                   // new Promise((resolve, reject) => {
-                  _input.handleSend(_cemiETS)
+                    _input.handleSend(_cemiETS)
                   //    resolve(true); // fulfilled
                   // reject("error"); // rejected
                   // }).then(function () { }).catch(function () { });
-                }
-              } else if (_input.listenallga === true) {
+                  }
+                } else if (_input.listenallga === true && universalNodeAcceptsGA(_input, _dest)) {
                 // Read Request
-                const msg = buildInputMessage({
-                  _srcGA: _src,
-                  _destGA: _dest,
-                  _event: _evt,
-                  _Rawvalue: null,
-                  _outputtopic: _dest,
-                  _oNode: _input,
-                  _echoed,
-                  _repeated: isRepeated
-                })
-                _input.setNodeStatus({
-                  fill: 'grey',
-                  shape: 'dot',
-                  text: 'Read',
-                  payload: '',
-                  GA: msg.knx.destination,
-                  dpt: msg.knx.dpt,
-                  devicename: msg.devicename
-                })
-                _input.handleSend(msg)
-              } else if (_input.topic === _dest) {
-                // 04/02/2020 Watchdog implementation
-                if (_input.hasOwnProperty('isWatchDog')) {
-                  // Is a watchdog node
-                } else {
-                  // Read Request
                   const msg = buildInputMessage({
                     _srcGA: _src,
                     _destGA: _dest,
                     _event: _evt,
                     _Rawvalue: null,
-                    _inputDpt: _input.dpt,
-                    _devicename: _input.name || '',
-                    _outputtopic: _input.outputtopic,
+                    _outputtopic: _dest,
                     _oNode: _input,
                     _echoed,
                     _repeated: isRepeated
                   })
-                  msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Reset previous payload
-                  // 24/09/2019 Autorespond to BUS
-                  if (_input.hasOwnProperty('notifyreadrequestalsorespondtobus') && _input.notifyreadrequestalsorespondtobus === true) {
-                    if (typeof _input.currentPayload === 'undefined' || _input.currentPayload === '' || _input.currentPayload === null) {
+                  _input.setNodeStatus({
+                    fill: 'grey',
+                    shape: 'dot',
+                    text: 'Read',
+                    payload: '',
+                    GA: msg.knx.destination,
+                    dpt: msg.knx.dpt,
+                    devicename: msg.devicename
+                  })
+                  _input.handleSend(msg)
+                } else if (_input.topic === _dest) {
+                // 04/02/2020 Watchdog implementation
+                  if (_input.hasOwnProperty('isWatchDog')) {
+                  // Is a watchdog node
+                  } else {
+                  // Read Request
+                    const msg = buildInputMessage({
+                      _srcGA: _src,
+                      _destGA: _dest,
+                      _event: _evt,
+                      _Rawvalue: null,
+                      _inputDpt: _input.dpt,
+                      _devicename: _input.name || '',
+                      _outputtopic: _input.outputtopic,
+                      _oNode: _input,
+                      _echoed,
+                      _repeated: isRepeated
+                    })
+                    msg.previouspayload = typeof _input.currentPayload !== 'undefined' ? _input.currentPayload : '' // 24/01/2020 Reset previous payload
+                    // 24/09/2019 Autorespond to BUS
+                    if (_input.hasOwnProperty('notifyreadrequestalsorespondtobus') && _input.notifyreadrequestalsorespondtobus === true) {
+                      if (typeof _input.currentPayload === 'undefined' || _input.currentPayload === '' || _input.currentPayload === null) {
                       // 14/08/2021 Added || input.currentPayload === null
-                      node.sendKNXTelegramToKNXEngine({
-                        grpaddr: _dest,
-                        payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
-                        dpt: _input.dpt,
-                        outputtype: 'response',
-                        nodecallerid: _input.id
-                      })
-                      _input.setNodeStatus({
-                        fill: 'blue',
-                        shape: 'ring',
-                        text: 'Read & Autorespond with default',
-                        payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
-                        GA: _input.topic,
-                        dpt: msg.knx.dpt,
-                        devicename: ''
-                      })
+                        node.sendKNXTelegramToKNXEngine({
+                          grpaddr: _dest,
+                          payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                          dpt: _input.dpt,
+                          outputtype: 'response',
+                          nodecallerid: _input.id
+                        })
+                        _input.setNodeStatus({
+                          fill: 'blue',
+                          shape: 'ring',
+                          text: 'Read & Autorespond with default',
+                          payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                          GA: _input.topic,
+                          dpt: msg.knx.dpt,
+                          devicename: ''
+                        })
+                      } else {
+                        node.sendKNXTelegramToKNXEngine({
+                          grpaddr: _dest,
+                          payload: _input.currentPayload,
+                          dpt: _input.dpt,
+                          outputtype: 'response',
+                          nodecallerid: _input.id
+                        })
+                        _input.setNodeStatus({
+                          fill: 'blue',
+                          shape: 'ring',
+                          text: 'Read & Autorespond with default',
+                          payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                          GA: _input.topic,
+                          dpt: msg.knx.dpt,
+                          devicename: ''
+                        })
+                      }
                     } else {
-                      node.sendKNXTelegramToKNXEngine({
-                        grpaddr: _dest,
-                        payload: _input.currentPayload,
-                        dpt: _input.dpt,
-                        outputtype: 'response',
-                        nodecallerid: _input.id
-                      })
                       _input.setNodeStatus({
-                        fill: 'blue',
-                        shape: 'ring',
-                        text: 'Read & Autorespond with default',
-                        payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                        fill: 'grey',
+                        shape: 'dot',
+                        text: 'Read',
+                        payload: msg.payload,
                         GA: _input.topic,
                         dpt: msg.knx.dpt,
                         devicename: ''
                       })
                     }
-                  } else {
-                    _input.setNodeStatus({
-                      fill: 'grey',
-                      shape: 'dot',
-                      text: 'Read',
-                      payload: msg.payload,
-                      GA: _input.topic,
-                      dpt: msg.knx.dpt,
-                      devicename: ''
-                    })
+                    _input.handleSend(msg)
                   }
-                  _input.handleSend(msg)
                 }
-              }
               } catch (errDispatch) { node.sysLogger?.error('KNX dispatch client error: ' + (errDispatch && errDispatch.message)) }
             })
           break

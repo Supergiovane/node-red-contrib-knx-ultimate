@@ -10,6 +10,7 @@
       "pairing_title": "Kopplung (Alexa, Google Home, Apple Home...)",
       "not_running": "Die Matter-Bridge läuft noch nicht. Deployen, ein paar Sekunden warten und dann auf Aktualisieren klicken.",
       "commissioned": "Bridge mit diesen Controllern gekoppelt:",
+      "commissioned_hint": "Der QR-Code ist ausgeblendet, weil die Bridge bereits gekoppelt ist. Um Alexa als weiteren Matter-Controller hinzuzufügen, öffne den Kopplungsmodus über einen der oben aufgeführten Controller (z. B. Apple Home oder Google Home) und füge dann in Alexa ein Matter-Gerät hinzu. Verwende Kopplung zurücksetzen nur, wenn alle bestehenden Controller entfernt und die Kopplung neu begonnen werden soll.",
       "awaiting": "Warte auf Kopplung. Scanne den QR-Code oder gib den manuellen Code in deiner Matter-App ein:",
       "qr_link": "QR-Code im Browser öffnen",
       "deploy_first": "Bitte zuerst diesen Konfigurations-Node deployen und dann auf Aktualisieren klicken.",

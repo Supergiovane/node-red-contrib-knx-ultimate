@@ -304,7 +304,7 @@ module.exports = function (RED) {
   const payloadRounder = require('./utils/payloadManipulation')
   const dptlib = require('knxultimate').dptlib
 
-  function knxUltimate(config) {
+  function knxUltimate (config) {
     RED.nodes.createNode(this, config)
     const node = this
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
@@ -513,7 +513,7 @@ module.exports = function (RED) {
     }
 
     // Used in the KNX Function TAB
-    const getGAValue = async function getGAValue(_ga = undefined, _dpt = undefined, _requestReadIfMissing = undefined) {
+    const getGAValue = async function getGAValue (_ga = undefined, _dpt = undefined, _requestReadIfMissing = undefined) {
       if (_ga === undefined) return null
       // Strip devicename if present (e.g. "1/1/1 Light name" → "1/1/1")
       const blankSpacePosition = _ga.indexOf(' ')
@@ -593,7 +593,7 @@ module.exports = function (RED) {
       return null
     }
     // Used in the KNX Function TAB
-    const setGAValue = function setGAValue(_ga = undefined, _value = undefined, _dpt = undefined) {
+    const setGAValue = function setGAValue (_ga = undefined, _value = undefined, _dpt = undefined) {
       try {
         if (_ga === undefined) return
         // The GA can have the devicename as well, separated by a blank space (1/1/0 light table ovest),
@@ -620,7 +620,7 @@ module.exports = function (RED) {
       }
     }
     // Used in the KNX Function TAB
-    const self = function self(_value) {
+    const self = function self (_value) {
       try {
         node.serverKNX.sendKNXTelegramToKNXEngine({
           grpaddr: node.topic, payload: _value, dpt: node.dpt, outputtype: 'write', nodecallerid: node.id
@@ -632,7 +632,7 @@ module.exports = function (RED) {
       }
     }
     // Used in the KNX Function TAB
-    const toggle = function toggle() {
+    const toggle = function toggle () {
       if (node.currentPayload === true || node.currentPayload === false) {
         try {
           node.serverKNX.sendKNXTelegramToKNXEngine({

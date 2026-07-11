@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 // Value conversions between KNX (decoded DPT payloads) and Matter clusters.
-// Used by knxUltimateMatterDevice to translate group address payloads into Matter
+// Used by the Matter controller nodes to translate group address payloads into Matter
 // commands/attribute-writes and Matter attribute reports into KNX payloads.
 
 // Matter cluster IDs

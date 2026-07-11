@@ -4171,7 +4171,7 @@ module.exports = function (RED) {
         if (provider === 'anthropic') {
           const modelsUrl = deriveAnthropicModelsUrl(baseUrl)
           const json = await getJson({ url: modelsUrl, headers: buildAnthropicHeaders(apiKey) })
-          let ids = (json && Array.isArray(json.data)) ? json.data.map(m => m && m.id).filter(Boolean) : []
+          const ids = (json && Array.isArray(json.data)) ? json.data.map(m => m && m.id).filter(Boolean) : []
           ids.sort()
           res.json({ provider, baseUrl: modelsUrl, models: ids, filtered: false })
           return

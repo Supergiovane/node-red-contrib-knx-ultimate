@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Matter Bridge (BETA)",
+    "title": "Expose KNX to Matter (BETA)",
     "bridge_name": "Nome del bridge Matter",
     "port": "Porta",
     "devices_help": "Aggiungi i dispositivi KNX da esporre su Matter. Il \"Nome\" è quello che Alexa/Google/Apple mostrano e usano per i comandi vocali. GA comando = scritto quando l'assistente invia un comando; GA stato = letto dal bus per tenere aggiornata l'app.",
@@ -10,11 +10,24 @@
     "node_pins": "PIN Input/Output del nodo",
     "node_pins_hide": "Nascondi",
     "node_pins_show": "Mostra i PIN input/output del nodo",
+    "type_change_warning": "Cambiare il tipo dispositivo dopo che il bridge è già stato abbinato modifica la struttura dell'endpoint Matter. Alexa/Google/Apple possono mantenere il vecchio endpoint come irraggiungibile; potrebbe servire resettare/riabbinare il Matter Bridge o creare un nuovo dispositivo esposto.",
     "fields": {
       "type": "Tipo dispositivo",
       "name": "Nome (mostrato da Alexa & Co.)",
       "name_placeholder": "es. Luce cucina",
       "invert": "Inverti posizione %"
+    },
+    "advanced": {
+      "title": "Compatibilità avanzata",
+      "help": " Usa queste opzioni solo quando un controller Matter o un attuatore KNX richiede una gestione speciale.",
+      "turn_on_behavior": "Comportamento all'accensione",
+      "turn_on_ignore_level": "Ignora luminosità inviata subito dopo On",
+      "turn_on_forward_all": "Inoltra ogni comando luminosità",
+      "ignore_level_ms": "Ignora luminosità dopo On (ms)",
+      "cover_update_mode": "Aggiornamento stato tapparella",
+      "cover_optimistic": "Aggiorna ottimisticamente la posizione Matter",
+      "cover_wait_status": "Attendi solo lo stato KNX",
+      "cover_status_timeout": "Timeout stato tapparella (ms)"
     },
     "functions": {
       "fn_onoff_cmd": "GA comando On/Off",

@@ -77,6 +77,12 @@ module.exports = function (RED) {
     // The Matter device id is the (stable) Node-RED node id, so the endpoint survives re-deploys.
     node.matterDeviceId = node.id
     node.invertPosition = config.invertPosition === true || config.invertPosition === 'true'
+    node.turnOnBehavior = config.turnOnBehavior || 'ignoreLevelAfterOn'
+    node.ignoreLevelAfterOnMs = Number(config.ignoreLevelAfterOnMs)
+    if (!Number.isFinite(node.ignoreLevelAfterOnMs) || node.ignoreLevelAfterOnMs < 0) node.ignoreLevelAfterOnMs = 800
+    node.coverUpdateMode = config.coverUpdateMode || 'optimistic'
+    node.coverStatusTimeoutMs = Number(config.coverStatusTimeoutMs)
+    if (!Number.isFinite(node.coverStatusTimeoutMs) || node.coverStatusTimeoutMs < 0) node.coverStatusTimeoutMs = 3000
     node.readStatusAtStartup = config.readStatusAtStartup === undefined || config.readStatusAtStartup === 'yes'
     node.enableNodePINS = config.enableNodePINS === 'yes'
     node.inputs = node.enableNodePINS ? 1 : 0
@@ -101,6 +107,8 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2
 
     let initialReadTimer = null
+    let suppressLevelCommandsUntil = 0
+    let coverStatusTimer = null
 
     const formatTs = (date) => {
       const d = date instanceof Date ? date : new Date(date)
@@ -141,6 +149,13 @@ module.exports = function (RED) {
       }
     }
 
+    const clearCoverStatusTimer = () => {
+      if (coverStatusTimer !== null) {
+        clearTimeout(coverStatusTimer)
+        coverStatusTimer = null
+      }
+    }
+
     // Precompute the routing tables for this single device:
     // statusRoutes: GA -> [{ fn, dpt }] (KNX -> Matter)
     // commandRoutes: fn -> { ga, dpt } (Matter -> KNX)
@@ -158,13 +173,21 @@ module.exports = function (RED) {
         commandRoutes.set(fnDef.fn, { ga, dpt })
       }
     })
+    const hasStatusRouteFor = (fn) => {
+      for (const routes of statusRoutes.values()) {
+        if (routes.some((route) => route.fn === fn)) return true
+      }
+      return false
+    }
+    node.knxUltimateAcceptedGAs = Array.from(statusRoutes.keys())
 
     // The device definition consumed by the bridge engine (via the config node).
     node.getMatterDef = () => ({
       id: node.matterDeviceId,
       type: node.deviceType,
       name: node.name,
-      invertPosition: node.invertPosition === true
+      invertPosition: node.invertPosition === true,
+      coverUpdateMode: node.coverUpdateMode
     })
 
     // Reflects the bridge (config node) status on this device node.
@@ -209,7 +232,29 @@ module.exports = function (RED) {
           node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: `No KNX gateway: enable the node PINs to handle ${command.fn}` })
           return
         }
+        if (command.fn === 'onoff' && command.value === true && node.turnOnBehavior === 'ignoreLevelAfterOn') {
+          suppressLevelCommandsUntil = Date.now() + node.ignoreLevelAfterOnMs
+        }
+        if (command.fn === 'level' && node.turnOnBehavior === 'ignoreLevelAfterOn' && Date.now() < suppressLevelCommandsUntil) {
+          node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Ignored Matter level after On', payload: command.value })
+          return
+        }
         safeSendToKNX({ grpaddr: route.ga, payload: command.value, dpt: route.dpt, outputtype: 'write' }, 'write')
+        if (node.deviceType === 'windowcovering' && node.coverUpdateMode === 'optimistic' && node.serverMatterBridge) {
+          let optimisticPosition
+          if (command.fn === 'position') optimisticPosition = command.value
+          if (command.fn === 'updown') optimisticPosition = command.value === true ? 100 : 0
+          if (optimisticPosition !== undefined) {
+            node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', optimisticPosition)
+            clearCoverStatusTimer()
+            if (node.coverStatusTimeoutMs > 0 && hasStatusRouteFor('position')) {
+              coverStatusTimer = setTimeout(() => {
+                coverStatusTimer = null
+                node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Waiting for KNX cover status', payload: optimisticPosition })
+              }, node.coverStatusTimeoutMs)
+            }
+          }
+        }
         node.setNodeStatus({ fill: 'green', shape: 'dot', text: `Matter->KNX ${command.fn}`, payload: command.value })
       } catch (error) {
         node.setNodeStatus({ fill: 'red', shape: 'dot', text: `Matter->KNX error ${error.message}` })
@@ -228,6 +273,7 @@ module.exports = function (RED) {
             const value = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(route.dpt))
             if (value === undefined || value === null) return
             node.serverMatterBridge.setDeviceState(node.matterDeviceId, route.fn, value)
+            if (node.deviceType === 'windowcovering' && route.fn === 'position') clearCoverStatusTimer()
             node.setNodeStatus({ fill: 'blue', shape: 'dot', text: `KNX->Matter ${route.fn}`, payload: value })
           } catch (error) {
             node.setNodeStatus({ fill: 'red', shape: 'dot', text: `KNX->Matter error ${error.message}` })
@@ -298,6 +344,7 @@ module.exports = function (RED) {
     node.on('close', (done) => {
       try {
         if (initialReadTimer !== null) clearTimeout(initialReadTimer)
+        clearCoverStatusTimer()
       } catch (error) { /* empty */ }
       try {
         if (node.serverKNX) node.serverKNX.removeClient(node)

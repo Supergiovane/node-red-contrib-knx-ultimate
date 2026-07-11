@@ -10,6 +10,7 @@
       "pairing_title": "Pairing (Alexa, Google Home, Apple Home...)",
       "not_running": "The Matter bridge is not running yet. Deploy, wait a few seconds, then click refresh.",
       "commissioned": "Bridge paired with these controllers:",
+      "commissioned_hint": "The QR code is hidden because the bridge is already paired. To add Alexa as another Matter controller, open pairing mode from one of the controllers listed above (for example Apple Home or Google Home), then add a Matter device in Alexa. Use Reset pairing only if you want to remove all existing controllers and start from scratch.",
       "awaiting": "Awaiting pairing. Scan the QR code or enter the manual code in your Matter app:",
       "qr_link": "Open the QR code in the browser",
       "deploy_first": "Deploy this configuration node first, then click refresh.",

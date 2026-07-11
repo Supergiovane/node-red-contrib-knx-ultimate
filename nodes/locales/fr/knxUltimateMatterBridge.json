@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Matter Bridge (BETA)",
+    "title": "Expose KNX to Matter (BETA)",
     "bridge_name": "Nom du bridge Matter",
     "port": "Port",
     "devices_help": "Ajoutez les appareils KNX à exposer sur Matter. Le \"Nom\" est celui qu'Alexa/Google/Apple affichent et utilisent pour les commandes vocales. GA de commande = écrite quand l'assistant envoie une commande ; GA d'état = lue depuis le bus pour tenir l'app à jour.",
@@ -10,11 +10,24 @@
     "node_pins": "PIN entrée/sortie du nœud",
     "node_pins_hide": "Masquer",
     "node_pins_show": "Afficher les PIN entrée/sortie",
+    "type_change_warning": "Changer le type d'appareil après l'appairage du bridge modifie la structure de l'endpoint Matter. Alexa/Google/Apple peuvent conserver l'ancien endpoint comme injoignable ; il peut être nécessaire de réinitialiser/réappairer le Matter Bridge ou de créer un nouvel appareil exposé.",
     "fields": {
       "type": "Type d'appareil",
       "name": "Nom (affiché par Alexa & Co.)",
       "name_placeholder": "ex. Lumière cuisine",
       "invert": "Inverser la position %"
+    },
+    "advanced": {
+      "title": "Compatibilité avancée",
+      "help": " Utilisez ces options seulement lorsqu'un contrôleur Matter ou un actionneur KNX demande un traitement spécial.",
+      "turn_on_behavior": "Comportement à l'allumage",
+      "turn_on_ignore_level": "Ignorer la luminosité envoyée juste après On",
+      "turn_on_forward_all": "Transmettre chaque commande de luminosité",
+      "ignore_level_ms": "Ignorer la luminosité après On (ms)",
+      "cover_update_mode": "Mise à jour état volet",
+      "cover_optimistic": "Mettre à jour la position Matter de façon optimiste",
+      "cover_wait_status": "Attendre seulement l'état KNX",
+      "cover_status_timeout": "Timeout état volet (ms)"
     },
     "functions": {
       "fn_onoff_cmd": "GA commande On/Off",

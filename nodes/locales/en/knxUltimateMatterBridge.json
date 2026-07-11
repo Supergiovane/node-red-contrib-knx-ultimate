@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Matter Bridge (BETA)",
+    "title": "Expose KNX to Matter (BETA)",
     "bridge_name": "Matter bridge name",
     "port": "Port",
     "devices_help": "Add the KNX devices to expose on Matter. The \"Name\" is what Alexa/Google/Apple will show and use for voice commands. Command GA = written when the assistant sends a command; Status GA = read from the bus to keep the app updated.",
@@ -10,11 +10,24 @@
     "node_pins": "Node Input/Output PINs",
     "node_pins_hide": "Hide",
     "node_pins_show": "Show node input/output PINs",
+    "type_change_warning": "Changing the device type after the bridge has been paired changes the Matter endpoint structure. Alexa/Google/Apple may keep the old endpoint as unreachable; you may need to reset/re-pair the Matter Bridge or create a new exposed device instead.",
     "fields": {
       "type": "Device type",
       "name": "Name (shown by Alexa & Co.)",
       "name_placeholder": "e.g. Kitchen light",
       "invert": "Invert position %"
+    },
+    "advanced": {
+      "title": "Advanced compatibility",
+      "help": " Use these options only when a Matter controller or a KNX actuator needs special handling.",
+      "turn_on_behavior": "Turn-on behavior",
+      "turn_on_ignore_level": "Ignore brightness sent immediately after On",
+      "turn_on_forward_all": "Forward every brightness command",
+      "ignore_level_ms": "Ignore brightness after On (ms)",
+      "cover_update_mode": "Cover state update",
+      "cover_optimistic": "Optimistically update Matter position",
+      "cover_wait_status": "Wait for KNX status only",
+      "cover_status_timeout": "Cover status timeout (ms)"
     },
     "functions": {
       "fn_onoff_cmd": "On/Off command GA",

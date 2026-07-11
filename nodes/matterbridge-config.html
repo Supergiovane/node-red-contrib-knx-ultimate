@@ -37,6 +37,7 @@
                         info.fabrics.forEach(function (f) {
                             $pairingBody.append($('<div style="margin-left:10px;"></div>').text('• ' + (f.label || 'Controller') + ' (vendor ' + f.vendorId + ')'));
                         });
+                        $pairingBody.append($('<p style="max-width:760px; margin:14px auto 0; color:#777;"></p>').text(t('commissioned_hint')));
                         $resetButton.show();
                         return;
                     }

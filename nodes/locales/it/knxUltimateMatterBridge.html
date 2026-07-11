@@ -1,11 +1,11 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
-# Matter Bridge device (BETA)
+# Expose KNX to Matter (BETA)
 
 > Questo nodo è in **BETA**: funziona, ma alcuni dettagli potrebbero cambiare tra una release e l'altra.
 
 ## Panoramica
 
-Ogni nodo Matter Bridge device espone **un dispositivo KNX come dispositivo Matter**: i controller abbinati (Alexa, Google Home, Apple Home...) lo vedono, con il nome che hai scelto, pronto per il controllo da app e vocale. Puntalo a un nodo di configurazione **Bridge Matter** (il bridge vero e proprio, abbinato una sola volta - il QR di abbinamento vive lì) e aggiungi quanti nodi device vuoi, ovunque nei tuoi flow.
+Ogni nodo Expose KNX to Matter espone **un dispositivo KNX come dispositivo Matter**: i controller abbinati (Alexa, Google Home, Apple Home...) lo vedono, con il nome che hai scelto, pronto per il controllo da app e vocale. Puntalo a un nodo di configurazione **Bridge Matter** (il bridge vero e proprio, abbinato una sola volta - il QR di abbinamento vive lì) e aggiungi quanti nodi device vuoi, ovunque nei tuoi flow.
 
 È la direzione opposta del nodo *Matter Device*: lì KNX controlla un dispositivo Matter, qui i controller Matter controllano KNX.
 
@@ -38,6 +38,10 @@ Ogni nodo Matter Bridge device espone **un dispositivo KNX come dispositivo Matt
 
 - **GA comando**: scritto sul bus KNX quando l'assistente invia un comando.
 - **GA stato**: letto dal bus per tenere aggiornati gli attributi Matter (e le app).
+
+## Compatibilità avanzata
+
+Queste opzioni sono nascoste finché non servono al tipo selezionato. I dispositivi dimmerabili possono ignorare il comando luminosità che alcuni controller inviano subito dopo `On`. Le tapparelle possono aggiornare ottimisticamente la posizione Matter dopo un comando, poi correggerla quando arriva la posizione reale dalla GA di stato KNX.
 
 ## PIN del nodo
 

@@ -1,0 +1,25 @@
+<script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
+# Luce/Presa Matter (BETA)
+
+> Questo nodo è in **BETA**: il comportamento può cambiare mentre l'implementazione Matter viene rifinita.
+
+Questo nodo controlla una luce o presa Matter e collega le capability Matter supportate agli indirizzi di gruppo KNX.
+
+## Configurazione
+
+|Campo|Descrizione|
+|--|--|
+| KNX GW | Gateway KNX usato per scrivere e rispondere sugli indirizzi di gruppo configurati. Può restare vuoto se serve solo l'output Node-RED. |
+| Matter controller | Nodo di configurazione Matter Controller in cui il dispositivo è stato associato. |
+| Luce/Presa Matter | Luce o presa Matter selezionata tra i dispositivi associati. La UI nasconde dimmerazione, colore o bianco dinamico quando l'endpoint scelto non espone quelle capability. |
+| Switch | Indirizzi di gruppo di comando e stato On/Off, di solito DPT `1.001`. |
+| Dim | Comandi e stati di luminosità sono disponibili solo per endpoint con `LevelControl`; i valori percentuali usano DPT `5.001`. |
+| Tunable White | I controlli temperatura colore sono disponibili solo per endpoint con la capability Matter richiesta. |
+| RGB/HSV | I controlli RGB/HSV sono disponibili solo per endpoint con capability colore Matter. |
+| Read at startup | Pubblica il valore Matter in cache al deploy/avvio o quando il dispositivo si riconnette. |
+| Node Input/Output PINs | Mostra i pin input/output Node-RED. L'input accetta payload booleani e messaggi stile Matter in `msg.payload` o `msg.on.on`; l'output emette gli aggiornamenti di stato. |
+
+## Comportamento
+
+Il nodo mantiene una cache locale da aggiornamenti Matter e scritture KNX, risponde alle letture KNX dalla cache e può emettere/leggere i valori all'avvio.
+</script>

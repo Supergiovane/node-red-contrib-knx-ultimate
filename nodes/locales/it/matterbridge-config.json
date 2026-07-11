@@ -10,6 +10,7 @@
       "pairing_title": "Abbinamento (Alexa, Google Home, Apple Home...)",
       "not_running": "Il bridge Matter non è ancora in esecuzione. Fai il deploy, attendi qualche secondo e clicca aggiorna.",
       "commissioned": "Bridge abbinato a questi controller:",
+      "commissioned_hint": "Il QR code è nascosto perché il bridge è già abbinato. Per aggiungere Alexa come altro controller Matter, apri la modalità di abbinamento da uno dei controller elencati sopra (per esempio Apple Home o Google Home), poi aggiungi un dispositivo Matter in Alexa. Usa Reset abbinamento solo se vuoi rimuovere tutti i controller esistenti e ripartire da zero.",
       "awaiting": "In attesa di abbinamento. Scansiona il QR code o inserisci il codice manuale nella tua app Matter:",
       "qr_link": "Apri il QR code nel browser",
       "deploy_first": "Fai prima il deploy di questo nodo di configurazione, poi clicca aggiorna.",

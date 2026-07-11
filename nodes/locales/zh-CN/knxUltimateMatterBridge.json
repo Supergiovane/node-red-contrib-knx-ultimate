@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Matter Bridge (BETA)",
+    "title": "Expose KNX to Matter (BETA)",
     "bridge_name": "Matter 桥接器名称",
     "port": "端口",
     "devices_help": "添加要在 Matter 上公开的 KNX 设备。\"名称\"是 Alexa/Google/Apple 显示并用于语音命令的名称。命令 GA = 助手发送命令时写入；状态 GA = 从总线读取以保持 App 更新。",
@@ -10,11 +10,24 @@
     "node_pins": "节点输入/输出引脚",
     "node_pins_hide": "隐藏",
     "node_pins_show": "显示节点输入/输出引脚",
+    "type_change_warning": "桥接器配对后更改设备类型会改变 Matter 端点结构。Alexa/Google/Apple 可能会将旧端点保留为不可达；可能需要重置/重新配对 Matter 桥接器，或创建一个新的公开设备。",
     "fields": {
       "type": "设备类型",
       "name": "名称（Alexa 等显示）",
       "name_placeholder": "例如 厨房灯",
       "invert": "反转位置 %"
+    },
+    "advanced": {
+      "title": "高级兼容性",
+      "help": " 仅当 Matter 控制器或 KNX 执行器需要特殊处理时使用这些选项。",
+      "turn_on_behavior": "开灯行为",
+      "turn_on_ignore_level": "忽略 On 后立即发送的亮度",
+      "turn_on_forward_all": "转发每个亮度命令",
+      "ignore_level_ms": "On 后忽略亮度时间 (ms)",
+      "cover_update_mode": "窗帘状态更新",
+      "cover_optimistic": "乐观更新 Matter 位置",
+      "cover_wait_status": "仅等待 KNX 状态",
+      "cover_status_timeout": "窗帘状态超时 (ms)"
     },
     "functions": {
       "fn_onoff_cmd": "开/关 命令 GA",

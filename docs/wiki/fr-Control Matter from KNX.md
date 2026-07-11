@@ -1,0 +1,29 @@
+---
+layout: wiki
+title: "Control Matter from KNX"
+lang: fr
+permalink: /wiki/fr-Control%20Matter%20from%20KNX
+---
+# Lumière/prise Matter (BETA)
+
+> Ce nœud est en **BETA** : le comportement peut changer pendant l amélioration de l'implémentation Matter.
+
+Ce nœud contrôle une lumière ou une prise Matter et associe les capacités Matter disponibles aux adresses de groupe KNX.
+
+## Configuration
+
+|Champ|Description|
+|--|--|
+| KNX GW | Passerelle KNX utilisée pour écrire et répondre sur les adresses de groupe configurées. Elle peut rester vide si seule la sortie Node-RED est utilisée. |
+| Matter controller | Nœud de configuration Matter Controller dans lequel le périphérique a été appairé. |
+| Lumière/prise Matter | Lumière ou prise Matter choisie parmi les périphériques appairés. L interface masque la variation, la couleur ou le blanc réglable si l'endpoint choisi ne les expose pas. |
+| Switch | Adresses de groupe commande et état On/Off, généralement DPT `1.001`. |
+| Dim | Les commandes et états de luminosité sont disponibles seulement avec `LevelControl`; les pourcentages utilisent DPT `5.001`. |
+| Tunable White | Les contrôles de température de couleur sont disponibles seulement si l'endpoint expose la capacité Matter requise. |
+| RGB/HSV | Les contrôles RGB/HSV sont disponibles seulement pour les endpoints avec capacités couleur Matter. |
+| Read at startup | Publie la valeur Matter en cache au déploiement/démarrage ou quand le périphérique se reconnecte. |
+| Node Input/Output PINs | Affiche les pins entrée/sortie Node-RED. L'entrée accepte les payloads booléens et les messages Matter dans `msg.payload` ou `msg.on.on`; la sortie émet les états. |
+
+## Comportement
+
+Le nœud garde un cache local depuis les mises à jour Matter et les écritures KNX, répond aux lectures KNX depuis ce cache et peut émettre/lire les valeurs au démarrage.

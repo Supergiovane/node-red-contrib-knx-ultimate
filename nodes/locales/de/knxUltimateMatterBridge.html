@@ -1,11 +1,11 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
-# Matter Bridge device (BETA)
+# Expose KNX to Matter (BETA)
 
 > Dieser Node ist in **BETA**: Er funktioniert, aber Details können sich zwischen Releases noch ändern.
 
 ## Übersicht
 
-Jeder Matter Bridge device Node stellt **ein KNX-Gerät als Matter-Gerät** bereit: Die gekoppelten Controller (Alexa, Google Home, Apple Home...) sehen es mit dem von dir vergebenen Namen — bereit für App- und Sprachsteuerung. Verweise ihn auf einen **Matter Bridge**-Konfigurations-Node (die eigentliche Bridge, einmal gekoppelt - der Kopplungs-QR-Code lebt dort) und füge beliebig viele Device-Nodes hinzu, überall in deinen Flows.
+Jeder Expose KNX to Matter Node stellt **ein KNX-Gerät als Matter-Gerät** bereit: Die gekoppelten Controller (Alexa, Google Home, Apple Home...) sehen es mit dem von dir vergebenen Namen — bereit für App- und Sprachsteuerung. Verweise ihn auf einen **Matter Bridge**-Konfigurations-Node (die eigentliche Bridge, einmal gekoppelt - der Kopplungs-QR-Code lebt dort) und füge beliebig viele Device-Nodes hinzu, überall in deinen Flows.
 
 Das ist die Gegenrichtung zum *Matter Device*-Node: Dort steuert KNX ein Matter-Gerät, hier steuern Matter-Controller KNX.
 
@@ -38,6 +38,10 @@ Das ist die Gegenrichtung zum *Matter Device*-Node: Dort steuert KNX ein Matter-
 
 - **Befehls-GA**: wird auf den KNX-Bus geschrieben, wenn der Assistent einen Befehl sendet.
 - **Status-GA**: wird vom Bus gelesen, um die Matter-Attribute (und die Apps) aktuell zu halten.
+
+## Erweiterte Kompatibilität
+
+Diese Optionen werden nur angezeigt, wenn sie zum gewählten Typ passen. Dimmbare Geräte können den Helligkeitsbefehl ignorieren, den manche Controller direkt nach `Ein` senden. Rollläden/Jalousien können die Matter-Position nach einem Befehl optimistisch aktualisieren und sie korrigieren, sobald die KNX-Status-GA die echte Position meldet.
 
 ## Node-PINs
 
