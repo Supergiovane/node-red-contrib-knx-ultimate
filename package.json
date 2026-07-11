@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "5.2.5",
+  "version": "5.3.0",
   "description": "Control your KNX and KNX Secure intallation via Node-Red! A bunch of KNX nodes, with integrated Philips HUE control, ETS group address importer, KNX AI for diagnosticsand KNX routing between interfaces. Easy to use and highly configurable.",
   "files": [
     "nodes/",
@@ -56,6 +56,13 @@
       "hueConfig": "/nodes/hue-config.js",
       "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
       "knxUltimateMatterLight": "/nodes/knxUltimateMatterLight.js",
+      "knxUltimateMatterPlug": "/nodes/knxUltimateMatterPlug.js",
+      "knxUltimateMatterMotion": "/nodes/knxUltimateMatterMotion.js",
+      "knxUltimateMatterContactSensor": "/nodes/knxUltimateMatterContactSensor.js",
+      "knxUltimateMatterLightSensor": "/nodes/knxUltimateMatterLightSensor.js",
+      "knxUltimateMatterTemperatureSensor": "/nodes/knxUltimateMatterTemperatureSensor.js",
+      "knxUltimateMatterHumiditySensor": "/nodes/knxUltimateMatterHumiditySensor.js",
+      "knxUltimateMatterBattery": "/nodes/knxUltimateMatterBattery.js",
       "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js",
       "knxUltimateHueMotion": "/nodes/knxUltimateHueMotion.js",
       "knxUltimateHueAreaMotion": "/nodes/knxUltimateHueAreaMotion.js",

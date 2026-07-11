@@ -1,0 +1,23 @@
+<script type="text/markdown" data-help-name="knxUltimateMatterPlug">
+# Matter 插座 (BETA)
+
+> 此节点为 **BETA**：Matter 实现继续完善时，行为可能会变化。
+
+此节点把暴露 `OnOff` 集群的 Matter 插座映射到 KNX 命令和状态组地址。
+
+## 配置
+
+|字段|说明|
+|--|--|
+| KNX GW | 用于写入并响应已配置组地址的 KNX 网关。如果只需要 Node-RED 输出，可以留空。 |
+| Matter controller | 设备已在其中配网的 Matter Controller 配置节点。 |
+| Matter 插座 | 暴露 `OnOff.onOff` 的 Matter 插座端点。 |
+| Control | KNX 命令组地址。布尔写入会打开或关闭 Matter 插座。默认 DPT：`1.001`。 |
+| Status | KNX 状态组地址，由 Matter 状态变化更新，并用于响应 KNX 读取请求。默认 DPT：`1.001`。 |
+| Read at startup | 在部署/启动或设备重新连接时发布缓存的 Matter 值。 |
+| Node I/O | 显示 Node-RED 输入/输出端口。输入接受布尔 payload，以及 `msg.payload` 或 `msg.on.on` 中的 Matter 风格消息；输出发送状态更新。 |
+
+## 行为
+
+Matter `OnOff.onOff` 变化会更新状态组地址。写入命令组地址会发送对应的 Matter 开/关命令。
+</script>

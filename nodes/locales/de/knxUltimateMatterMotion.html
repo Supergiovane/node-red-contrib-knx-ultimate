@@ -1,0 +1,22 @@
+<script type="text/markdown" data-help-name="knxUltimateMatterMotion">
+# Matter Bewegungssensor (BETA)
+
+> Dieser Knoten ist **BETA**: das Verhalten kann sich ändern, während die Matter-Implementierung weiter verfeinert wird.
+
+Dieser Knoten verbindet einen Matter Bewegungs-Endpunkt mit KNX und optional mit einem Node-RED-Ausgang.
+
+## Konfiguration
+
+|Feld|Beschreibung|
+|--|--|
+| KNX GW | KNX-Gateway zum Schreiben und Beantworten der konfigurierten Gruppenadressen. Kann leer bleiben, wenn nur der Node-RED-Ausgang benötigt wird. |
+| Matter controller | Matter-Controller-Konfigurationsknoten, in dem das Gerät gekoppelt wurde. |
+| Matter Bewegungssensor | Matter Bewegungs-Endpunkt, ausgewählt aus den gekoppelten Geräten. Die Liste wird auf Endpunkte mit `OccupancySensing` gefiltert. |
+| Bewegungs-GA | Bewegungs-GA für den konvertierten Wert. Standard-DPT: `1.001`. |
+| Read at startup | Veröffentlicht den gecachten Matter-Wert beim Deploy/Start oder wenn sich das Gerät erneut verbindet. |
+| Node output | Zeigt einen Node-RED-Ausgang und sendet jedes Matter-Update. |
+
+## Verhalten
+
+Der Knoten liest `OccupancySensing.occupancy`, konvertiert den Wert zu boolescher Belegungs-/Bewegungszustand, schreibt ihn auf die konfigurierte KNX-GA und beantwortet KNX-Leseanfragen mit dem letzten bekannten Wert.
+</script>

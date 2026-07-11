@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 5.3.0** - July 2026<br/>
+
+- **Matter nodes are BETA**: all Matter nodes are experimental and may be changed, renamed, removed, or replaced at any time until the Matter integration leaves the BETA phase. Do not treat their editor fields, flow JSON structure, runtime behaviour, storage layout, or exposed APIs as stable yet.<br/>
+- New dedicated **Matter nodes (BETA)** for the most common device classes: Light/Outlet, Plug/Outlet, Motion Sensor, Contact Sensor, Temperature Sensor, Humidity Sensor, Light Sensor and Battery Sensor. These nodes use the Matter Controller configuration node and expose a simpler KNX mapping UI tailored to each capability instead of the generic mapping table.<br/>
+- **Matter Light/Outlet (BETA)** now filters the editor UI by the selected endpoint capabilities, hiding dimming, color and tunable-white controls when the selected Matter device does not support them.<br/>
+- **Matter Device (BETA)** is now marked as **DEPRECATED** in the palette and in flow labels. It remains available for compatibility, but the new dedicated Matter nodes should be preferred for new flows.<br/>
+- Matter Controller pairing and device list improvements: clearer commissioning errors, persistent error dialogs, better logging, device names shown more consistently, and direct rename support from the associated-devices list.<br/>
+- **Documentation**: added localized editor help and online docs for the new Matter nodes in EN/IT/DE/FR/ES/zh-CN, and expanded the Matter section in the documentation navigation.<br/>
+
 **Version 5.2.5** - July 2026<br/>
 
 - Maintenance release.<br/>

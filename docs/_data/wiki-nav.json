@@ -249,6 +249,46 @@
           "external": false
         },
         {
+          "label": "Light/Outlet (BETA)",
+          "url": "/wiki/Matter%20Light",
+          "external": false
+        },
+        {
+          "label": "Plug/Outlet (BETA)",
+          "url": "/wiki/Matter%20Plug",
+          "external": false
+        },
+        {
+          "label": "Motion sensor (BETA)",
+          "url": "/wiki/Matter%20Motion%20sensor",
+          "external": false
+        },
+        {
+          "label": "Contact sensor (BETA)",
+          "url": "/wiki/Matter%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Temperature sensor (BETA)",
+          "url": "/wiki/Matter%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Humidity sensor (BETA)",
+          "url": "/wiki/Matter%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Light sensor (BETA)",
+          "url": "/wiki/Matter%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Battery sensor (BETA)",
+          "url": "/wiki/Matter%20Battery",
+          "external": false
+        },
+        {
           "label": "Matter Bridge (BETA)",
           "url": "/wiki/Matter-Bridge-Configuration",
           "external": false
@@ -683,6 +723,46 @@
         {
           "label": "Matter Device (BETA)",
           "url": "/wiki/it-Matter-Device",
+          "external": false
+        },
+        {
+          "label": "Luce/Presa (BETA)",
+          "url": "/wiki/it-Matter%20Light",
+          "external": false
+        },
+        {
+          "label": "Presa (BETA)",
+          "url": "/wiki/it-Matter%20Plug",
+          "external": false
+        },
+        {
+          "label": "Movimento (BETA)",
+          "url": "/wiki/it-Matter%20Motion%20sensor",
+          "external": false
+        },
+        {
+          "label": "Contatto (BETA)",
+          "url": "/wiki/it-Matter%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Temperatura (BETA)",
+          "url": "/wiki/it-Matter%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Umidità (BETA)",
+          "url": "/wiki/it-Matter%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Sensore luce (BETA)",
+          "url": "/wiki/it-Matter%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Batteria (BETA)",
+          "url": "/wiki/it-Matter%20Battery",
           "external": false
         },
         {
@@ -1123,6 +1203,46 @@
           "external": false
         },
         {
+          "label": "Licht/Steckdose (BETA)",
+          "url": "/wiki/de-Matter%20Light",
+          "external": false
+        },
+        {
+          "label": "Steckdose (BETA)",
+          "url": "/wiki/de-Matter%20Plug",
+          "external": false
+        },
+        {
+          "label": "Bewegung (BETA)",
+          "url": "/wiki/de-Matter%20Motion%20sensor",
+          "external": false
+        },
+        {
+          "label": "Kontakt (BETA)",
+          "url": "/wiki/de-Matter%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Temperatur (BETA)",
+          "url": "/wiki/de-Matter%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Luftfeuchte (BETA)",
+          "url": "/wiki/de-Matter%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Lichtsensor (BETA)",
+          "url": "/wiki/de-Matter%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Batterie (BETA)",
+          "url": "/wiki/de-Matter%20Battery",
+          "external": false
+        },
+        {
           "label": "Matter Bridge (BETA)",
           "url": "/wiki/de-Matter-Bridge-Configuration",
           "external": false
@@ -1557,6 +1677,46 @@
         {
           "label": "Matter Device (BETA)",
           "url": "/wiki/fr-Matter-Device",
+          "external": false
+        },
+        {
+          "label": "Lumière/prise (BETA)",
+          "url": "/wiki/fr-Matter%20Light",
+          "external": false
+        },
+        {
+          "label": "Prise (BETA)",
+          "url": "/wiki/fr-Matter%20Plug",
+          "external": false
+        },
+        {
+          "label": "Mouvement (BETA)",
+          "url": "/wiki/fr-Matter%20Motion%20sensor",
+          "external": false
+        },
+        {
+          "label": "Contact (BETA)",
+          "url": "/wiki/fr-Matter%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Température (BETA)",
+          "url": "/wiki/fr-Matter%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Humidité (BETA)",
+          "url": "/wiki/fr-Matter%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Luminosité (BETA)",
+          "url": "/wiki/fr-Matter%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Batterie (BETA)",
+          "url": "/wiki/fr-Matter%20Battery",
           "external": false
         },
         {
@@ -1997,6 +2157,46 @@
           "external": false
         },
         {
+          "label": "Luz/enchufe (BETA)",
+          "url": "/wiki/es-Matter%20Light",
+          "external": false
+        },
+        {
+          "label": "Enchufe (BETA)",
+          "url": "/wiki/es-Matter%20Plug",
+          "external": false
+        },
+        {
+          "label": "Movimiento (BETA)",
+          "url": "/wiki/es-Matter%20Motion%20sensor",
+          "external": false
+        },
+        {
+          "label": "Contacto (BETA)",
+          "url": "/wiki/es-Matter%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "Temperatura (BETA)",
+          "url": "/wiki/es-Matter%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "Humedad (BETA)",
+          "url": "/wiki/es-Matter%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "Sensor de luz (BETA)",
+          "url": "/wiki/es-Matter%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "Batería (BETA)",
+          "url": "/wiki/es-Matter%20Battery",
+          "external": false
+        },
+        {
           "label": "Bridge Matter (BETA)",
           "url": "/wiki/es-Matter-Bridge-Configuration",
           "external": false
@@ -2431,6 +2631,46 @@
         {
           "label": "Matter 设备 (BETA)",
           "url": "/wiki/zh-CN-Matter-Device",
+          "external": false
+        },
+        {
+          "label": "灯/插座 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Light",
+          "external": false
+        },
+        {
+          "label": "插座 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Plug",
+          "external": false
+        },
+        {
+          "label": "运动 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Motion%20sensor",
+          "external": false
+        },
+        {
+          "label": "门窗 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Contact%20sensor",
+          "external": false
+        },
+        {
+          "label": "温度 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Temperature%20sensor",
+          "external": false
+        },
+        {
+          "label": "湿度 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Humidity%20sensor",
+          "external": false
+        },
+        {
+          "label": "光照 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Light%20sensor",
+          "external": false
+        },
+        {
+          "label": "电池 (BETA)",
+          "url": "/wiki/zh-CN-Matter%20Battery",
           "external": false
         },
         {

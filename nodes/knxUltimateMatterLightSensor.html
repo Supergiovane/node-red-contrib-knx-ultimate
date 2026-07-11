@@ -1,0 +1,28 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/matterSimpleEditor.js"></script>
+
+<script type="text/javascript">
+  KNXUltimateMatterSimpleEditor.registerSensor({
+    type: 'knxUltimateMatterLightSensor',
+    paletteLabel: 'Matter Light Sensor (BETA)',
+    clusterId: 1024,
+    attributeName: 'measuredValue',
+    defaultDpt: '9.004',
+    dptPrefixes: ['9.004']
+  });
+</script>
+
+<script type="text/html" data-template-name="knxUltimateMatterLightSensor">
+  <div class="form-row"><label for="node-input-server"><i class="fa fa-sign-in"></i> KNX GW</label><input type="text" id="node-input-server"></div>
+  <div class="form-row"><label for="node-input-serverMatter"><i class="fa-solid fa-circle-nodes"></i> Matter controller</label><input type="text" id="node-input-serverMatter"></div>
+  <div class="form-row"><label for="node-input-matterDeviceName"><i class="fa-solid fa-sun"></i> Matter light sensor</label><input type="text" id="node-input-matterDeviceName" placeholder="Search Matter light sensor"><button type="button" class="red-ui-button matter-refresh-devices" style="margin-left:6px;"><i class="fa fa-sync"></i></button><input type="hidden" id="node-input-matterNodeId"><input type="hidden" id="node-input-matterEndpointId"><input type="hidden" id="node-input-name"></div>
+  <hr>
+  <div class="form-row"><label for="node-input-ga"><i class="fa fa-map"></i> Lux GA</label><input type="text" id="node-input-ga" style="width:110px;"><select id="node-input-dpt" style="width:140px; margin-left:6px;"></select><input type="text" id="node-input-gaName" placeholder="Name" style="width:180px; margin-left:6px;"></div>
+  <div class="form-row"><label for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> Read at startup</label><select id="node-input-readStatusAtStartup"><option value="yes">Yes, emit</option><option value="no">No</option></select></div>
+  <div class="form-row"><label for="node-input-enableNodePINS"><i class="fa fa-code"></i> Node output</label><select id="node-input-enableNodePINS"><option value="yes">Show output</option><option value="no">Hide output</option></select></div>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateMatterLightSensor">
+Matter light sensor node. It maps Matter IlluminanceMeasurement `measuredValue` to Lux for KNX.
+</script>

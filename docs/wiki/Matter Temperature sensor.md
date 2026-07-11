@@ -1,0 +1,26 @@
+---
+layout: wiki
+title: "Matter Temperature sensor"
+lang: en
+permalink: /wiki/Matter%20Temperature%20sensor
+---
+# Matter Temperature Sensor (BETA)
+
+> This node is in **BETA**: behaviour can change while the Matter implementation is refined.
+
+This node maps a Matter temperature endpoint to KNX and, optionally, to a Node-RED output.
+
+## Configuration
+
+|Field|Description|
+|--|--|
+| KNX GW | KNX gateway used to write and answer the configured group addresses. It can be left empty when only Node-RED output is needed. |
+| Matter controller | Matter controller configuration node where the device has been commissioned. |
+| Matter Temperature Sensor | Matter temperature endpoint selected from the commissioned devices. The picker is filtered to endpoints exposing `TemperatureMeasurement`. |
+| Temperature GA | Temperature GA receiving the converted value. Default DPT: `9.001`. |
+| Read at startup | Publishes the cached Matter value at deploy/startup or when the device reconnects. |
+| Node output | Shows a Node-RED output pin and emits every Matter update. |
+
+## Behaviour
+
+The node reads `TemperatureMeasurement.measuredValue`, converts it to temperature in Celsius, writes it to the configured KNX GA, and answers KNX read requests with the last known value.

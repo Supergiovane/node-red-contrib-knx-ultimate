@@ -1,0 +1,35 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/matterSimpleEditor.js"></script>
+
+<script type="text/javascript">
+  KNXUltimateMatterSimpleEditor.registerPlug({
+    type: 'knxUltimateMatterPlug',
+    paletteLabel: 'Matter Plug/Outlet (BETA)'
+  });
+</script>
+
+<script type="text/html" data-template-name="knxUltimateMatterPlug">
+  <div class="form-row"><label for="node-input-server"><i class="fa fa-sign-in"></i> KNX GW</label><input type="text" id="node-input-server"></div>
+  <div class="form-row"><label for="node-input-serverMatter"><i class="fa-solid fa-circle-nodes"></i> Matter controller</label><input type="text" id="node-input-serverMatter"></div>
+  <div class="form-row"><label for="node-input-matterDeviceName"><i class="fa-solid fa-plug"></i> Matter plug</label><input type="text" id="node-input-matterDeviceName" placeholder="Search Matter plug/outlet"><button type="button" class="red-ui-button matter-refresh-devices" style="margin-left:6px;"><i class="fa fa-sync"></i></button><input type="hidden" id="node-input-matterNodeId"><input type="hidden" id="node-input-matterEndpointId"><input type="hidden" id="node-input-name"></div>
+  <hr>
+  <div class="form-row">
+    <label for="node-input-GAPlugSwitch"><i class="fa fa-play-circle-o"></i> Control</label>
+    <input type="text" id="node-input-GAPlugSwitch" style="width:110px;">
+    <select id="node-input-dptPlugSwitch" style="width:140px; margin-left:6px;"></select>
+    <input type="text" id="node-input-namePlugSwitch" placeholder="Name" style="width:180px; margin-left:6px;">
+  </div>
+  <div class="form-row">
+    <label for="node-input-GAPlugState"><i class="fa fa-question-circle"></i> Status</label>
+    <input type="text" id="node-input-GAPlugState" style="width:110px;">
+    <select id="node-input-dptPlugState" style="width:140px; margin-left:6px;"></select>
+    <input type="text" id="node-input-namePlugState" placeholder="Name" style="width:180px; margin-left:6px;">
+  </div>
+  <div class="form-row"><label for="node-input-readStatusAtStartup"><i class="fa fa-question-circle"></i> Read at startup</label><select id="node-input-readStatusAtStartup"><option value="yes">Yes, emit</option><option value="no">No</option></select></div>
+  <div class="form-row"><label for="node-input-enableNodePINS"><i class="fa fa-code"></i> Node I/O</label><select id="node-input-enableNodePINS"><option value="no">Hide pins</option><option value="yes">Show pins</option></select></div>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateMatterPlug">
+Matter Plug/Outlet node. It maps the Matter OnOff cluster to KNX command and status group addresses. Optional Node-RED pins accept `msg.payload` or `msg.on.on`.
+</script>

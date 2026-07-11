@@ -47,9 +47,9 @@
             outputs: 0,
             icon: 'node-matter-icon.svg',
             label() {
-                return this.name || 'Matter Device (BETA)';
+                return this.name ? `${this.name} (DEPRECATED)` : 'Matter Device (BETA) (DEPRECATED)';
             },
-            paletteLabel: 'Matter Device (BETA)',
+            paletteLabel: 'Matter Device (BETA) (DEPRECATED)',
             oneditprepare() {
                 try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
                 const node = this;

@@ -48,6 +48,14 @@ const HELP_TO_WIKI = new Map([
   ['knxUltimateRouterFilter', 'KNX Router Filter'],
   ['matter-config', 'Matter-Controller-Configuration'],
   ['knxUltimateMatterDevice', 'Matter-Device'],
+  ['knxUltimateMatterLight', 'Matter Light'],
+  ['knxUltimateMatterPlug', 'Matter Plug'],
+  ['knxUltimateMatterMotion', 'Matter Motion sensor'],
+  ['knxUltimateMatterContactSensor', 'Matter Contact sensor'],
+  ['knxUltimateMatterTemperatureSensor', 'Matter Temperature sensor'],
+  ['knxUltimateMatterHumiditySensor', 'Matter Humidity sensor'],
+  ['knxUltimateMatterLightSensor', 'Matter Light sensor'],
+  ['knxUltimateMatterBattery', 'Matter Battery'],
   ['matterbridge-config', 'Matter-Bridge-Configuration'],
   ['knxUltimateMatterBridge', 'Matter-Bridge']
 ])

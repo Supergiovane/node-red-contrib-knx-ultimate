@@ -509,6 +509,102 @@
         {
           "type": "page",
           "labels": {
+            "en": "Light/Outlet (BETA)",
+            "it": "Luce/Presa (BETA)",
+            "de": "Licht/Steckdose (BETA)",
+            "fr": "Lumière/prise (BETA)",
+            "es": "Luz/enchufe (BETA)",
+            "zh": "灯/插座 (BETA)"
+          },
+          "page": "Matter Light"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Plug/Outlet (BETA)",
+            "it": "Presa (BETA)",
+            "de": "Steckdose (BETA)",
+            "fr": "Prise (BETA)",
+            "es": "Enchufe (BETA)",
+            "zh": "插座 (BETA)"
+          },
+          "page": "Matter Plug"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Motion sensor (BETA)",
+            "it": "Movimento (BETA)",
+            "de": "Bewegung (BETA)",
+            "fr": "Mouvement (BETA)",
+            "es": "Movimiento (BETA)",
+            "zh": "运动 (BETA)"
+          },
+          "page": "Matter Motion sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Contact sensor (BETA)",
+            "it": "Contatto (BETA)",
+            "de": "Kontakt (BETA)",
+            "fr": "Contact (BETA)",
+            "es": "Contacto (BETA)",
+            "zh": "门窗 (BETA)"
+          },
+          "page": "Matter Contact sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Temperature sensor (BETA)",
+            "it": "Temperatura (BETA)",
+            "de": "Temperatur (BETA)",
+            "fr": "Température (BETA)",
+            "es": "Temperatura (BETA)",
+            "zh": "温度 (BETA)"
+          },
+          "page": "Matter Temperature sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Humidity sensor (BETA)",
+            "it": "Umidità (BETA)",
+            "de": "Luftfeuchte (BETA)",
+            "fr": "Humidité (BETA)",
+            "es": "Humedad (BETA)",
+            "zh": "湿度 (BETA)"
+          },
+          "page": "Matter Humidity sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Light sensor (BETA)",
+            "it": "Sensore luce (BETA)",
+            "de": "Lichtsensor (BETA)",
+            "fr": "Luminosité (BETA)",
+            "es": "Sensor de luz (BETA)",
+            "zh": "光照 (BETA)"
+          },
+          "page": "Matter Light sensor"
+        },
+        {
+          "type": "page",
+          "labels": {
+            "en": "Battery sensor (BETA)",
+            "it": "Batteria (BETA)",
+            "de": "Batterie (BETA)",
+            "fr": "Batterie (BETA)",
+            "es": "Batería (BETA)",
+            "zh": "电池 (BETA)"
+          },
+          "page": "Matter Battery"
+        },
+        {
+          "type": "page",
+          "labels": {
             "en": "Matter Bridge (BETA)",
             "it": "Bridge Matter (BETA)",
             "de": "Matter Bridge (BETA)",
