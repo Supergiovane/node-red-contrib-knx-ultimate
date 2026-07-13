@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.0.1** - July 2026<br/>
+
+- **Expose KNX to Matter (BETA) — flow-only covers/shutters**: fixed intermediate position commands reaching the Node-RED output but not being optimistically confirmed to Matter when no KNX command group address was configured. Voice assistants such as Alexa no longer report that the device is not responding after a percentage-position command.<br/>
+
 **Version 6.0.0** - July 2026<br/>
 
 - **BREAKING CHANGE**: this release intentionally bumps the package to `6.0.0` because the Matter node model changed. The unpublished dedicated Matter controller nodes and the old generic Matter Device node have been replaced by the new single **Control Matter from KNX (BETA)** node, and the KNX-to-Matter bridge/editor behaviour has been reworked. Existing experimental Matter flows created with the previous beta nodes may need to be rebuilt or adjusted.<br/>

@@ -1,4 +1,5 @@
 const { expect } = require('chai')
+const { EventEmitter } = require('events')
 
 // The factory is an ES module: load it once for the whole suite
 let factory
@@ -111,5 +112,57 @@ describe('matterBridgeDeviceFactory – BRIDGE_TYPES catalog', () => {
     expected.forEach((t) => {
       expect(factory.BRIDGE_TYPES, `missing type ${t}`).to.have.property(t)
     })
+  })
+})
+
+describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
+  it('confirms a flow-only cover position to Matter', () => {
+    let NodeConstructor
+    const matterStateUpdates = []
+    const sentMessages = []
+    const bridge = {
+      registerDevice: () => {},
+      getPairingInfo: () => ({ running: true, commissioned: true, fabrics: [] }),
+      setDeviceState: (deviceId, fn, value) => matterStateUpdates.push({ deviceId, fn, value })
+    }
+    const knx = {
+      addClient: () => {},
+      removeClient: () => {}
+    }
+    const RED = {
+      nodes: {
+        createNode: (node, config) => {
+          Object.setPrototypeOf(node, EventEmitter.prototype)
+          EventEmitter.call(node)
+          node.id = config.id
+          node.send = (msg) => sentMessages.push(msg)
+          node.status = () => {}
+        },
+        getNode: (id) => ({ knx, bridge })[id],
+        registerType: (_type, constructor) => { NodeConstructor = constructor }
+      },
+      log: { error: () => {} }
+    }
+
+    require('../nodes/knxUltimateMatterBridge.js')(RED)
+    const node = new NodeConstructor({
+      id: 'cover-1',
+      server: 'knx',
+      serverMatterBridge: 'bridge',
+      name: 'Flow cover',
+      deviceType: 'windowcovering',
+      coverUpdateMode: 'optimistic',
+      coverStatusTimeoutMs: 0,
+      enableNodePINS: 'yes'
+    })
+
+    node.handleMatterCommand({ fn: 'position', value: 57 })
+
+    expect(sentMessages).to.have.length(1)
+    expect(sentMessages[0].payload).to.equal(57)
+    expect(matterStateUpdates).to.deep.equal([
+      { deviceId: 'cover-1', fn: 'position', value: 57 }
+    ])
+    node.emit('close', () => {})
   })
 })

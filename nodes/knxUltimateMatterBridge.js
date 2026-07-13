@@ -179,6 +179,22 @@ module.exports = function (RED) {
       }
       return false
     }
+
+    const applyOptimisticCoverPosition = (command) => {
+      if (node.deviceType !== 'windowcovering' || node.coverUpdateMode !== 'optimistic' || !node.serverMatterBridge) return
+      let optimisticPosition
+      if (command.fn === 'position') optimisticPosition = command.value
+      if (command.fn === 'updown') optimisticPosition = command.value === true ? 100 : 0
+      if (optimisticPosition === undefined) return
+      node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', optimisticPosition)
+      clearCoverStatusTimer()
+      if (node.coverStatusTimeoutMs > 0 && hasStatusRouteFor('position')) {
+        coverStatusTimer = setTimeout(() => {
+          coverStatusTimer = null
+          node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Waiting for KNX cover status', payload: optimisticPosition })
+        }, node.coverStatusTimeoutMs)
+      }
+    }
     node.knxUltimateAcceptedGAs = Array.from(statusRoutes.keys())
 
     // The device definition consumed by the bridge engine (via the config node).
@@ -221,6 +237,9 @@ module.exports = function (RED) {
             })
           } catch (error) { /* empty */ }
         }
+        // Confirm the requested position to Matter even when this is a flow-only
+        // device and no KNX command GA is configured.
+        applyOptimisticCoverPosition(command)
         const route = commandRoutes.get(command.fn)
         if (route === undefined) {
           if (node.enableNodePINS) return // Flow-only device: the flow already got the command
@@ -240,21 +259,6 @@ module.exports = function (RED) {
           return
         }
         safeSendToKNX({ grpaddr: route.ga, payload: command.value, dpt: route.dpt, outputtype: 'write' }, 'write')
-        if (node.deviceType === 'windowcovering' && node.coverUpdateMode === 'optimistic' && node.serverMatterBridge) {
-          let optimisticPosition
-          if (command.fn === 'position') optimisticPosition = command.value
-          if (command.fn === 'updown') optimisticPosition = command.value === true ? 100 : 0
-          if (optimisticPosition !== undefined) {
-            node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', optimisticPosition)
-            clearCoverStatusTimer()
-            if (node.coverStatusTimeoutMs > 0 && hasStatusRouteFor('position')) {
-              coverStatusTimer = setTimeout(() => {
-                coverStatusTimer = null
-                node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Waiting for KNX cover status', payload: optimisticPosition })
-              }, node.coverStatusTimeoutMs)
-            }
-          }
-        }
         node.setNodeStatus({ fill: 'green', shape: 'dot', text: `Matter->KNX ${command.fn}`, payload: command.value })
       } catch (error) {
         node.setNodeStatus({ fill: 'red', shape: 'dot', text: `Matter->KNX error ${error.message}` })
