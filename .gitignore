@@ -4,6 +4,7 @@ node_modules
 .vscode/
 package-lock.json
 KNXUltimateDebugLog.txt
+AGENTS.md
 
 tutorial/
 docs/_site/
