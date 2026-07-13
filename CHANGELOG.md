@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.0.2** - July 2026<br/>
+
+- **Expose KNX to Matter (BETA) — covers/shutters with Alexa**: initialize position-aware covers with a valid numeric Matter position instead of an unknown (`null`) value. This helps controllers such as Alexa expose percentage positioning and send `GoToLiftPercentage` instead of degrading to Open/Close only. Added targeted command diagnostics to the Node-RED log and output message for interoperability testing.<br/>
+- **Expose KNX to Matter (BETA) — raw flow output**: On/Off and absolute dimming commands are now captured at the Matter command boundary, so the optional output PIN forwards repeated commands even when the Matter state is already unchanged. Matter validation still runs before KNX routing, and KNX-to-Matter status updates remain loop-protected.<br/>
+
 **Version 6.0.1** - July 2026<br/>
 
 - **Expose KNX to Matter (BETA) — flow-only covers/shutters**: fixed intermediate position commands reaching the Node-RED output but not being optimistically confirmed to Matter when no KNX command group address was configured. Voice assistants such as Alexa no longer report that the device is not responding after a percentage-position command.<br/>

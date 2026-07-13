@@ -227,6 +227,13 @@ module.exports = function (RED) {
     // Matter -> KNX: a controller (Alexa...) sent a command to this device.
     node.handleMatterCommand = (command) => {
       try {
+        if (node.deviceType === 'windowcovering' && command.matterDiagnostic && typeof node.log === 'function') {
+          node.log(`Matter WindowCovering command: ${JSON.stringify({
+            fn: command.fn,
+            value: command.value,
+            ...command.matterDiagnostic
+          })}`)
+        }
         if (node.enableNodePINS) {
           try {
             node.send({

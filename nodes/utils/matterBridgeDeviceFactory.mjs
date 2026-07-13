@@ -3,6 +3,8 @@
 // Each KNX "virtual device" definition becomes a Matter endpoint under the aggregator.
 import { Endpoint } from '@matter/main'
 import { BridgedDeviceBasicInformationServer } from '@matter/main/behaviors/bridged-device-basic-information'
+import { OnOffServer } from '@matter/main/behaviors/on-off'
+import { LevelControlServer } from '@matter/main/behaviors/level-control'
 import { OnOffLightDevice } from '@matter/main/devices/on-off-light'
 import { DimmableLightDevice } from '@matter/main/devices/dimmable-light'
 import { OnOffPlugInUnitDevice } from '@matter/main/devices/on-off-plug-in-unit'
@@ -287,8 +289,47 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   // Non nullable attributes need a sane initial value
   if (def.type === 'contactsensor') initialState.booleanState = { stateValue: false }
   if (def.type === 'occupancysensor') initialState.occupancySensing = { occupancy: { occupied: false } }
+  // Although Matter permits an unknown (null) position, some controllers (including
+  // Alexa) then expose only Open/Close instead of percentage positioning. Start with
+  // a valid position; KNX or flow feedback replaces it as soon as it is available.
+  if (def.type === 'windowcovering') {
+    initialState.windowCovering = {
+      currentPositionLiftPercent100ths: 0,
+      targetPositionLiftPercent100ths: 0
+    }
+  }
 
   let endpoint
+
+  // Emit controller commands at the command boundary instead of observing attribute
+  // changes. This makes the node output truly raw: repeated commands (for example
+  // Off while already off) are still forwarded exactly once.
+  const RawOnOffBase = def.type === 'onoffplug' ? OnOffServer : OnOffServer.with('Lighting')
+  class RawOnOffServer extends RawOnOffBase {
+    async on () {
+      await super.on()
+      onCommand({ deviceId: def.id, fn: 'onoff', value: true, matterCommand: { cluster: 'OnOff', command: 'on' } })
+    }
+
+    async off () {
+      await super.off()
+      onCommand({ deviceId: def.id, fn: 'onoff', value: false, matterCommand: { cluster: 'OnOff', command: 'off' } })
+    }
+  }
+
+  class RawLevelControlServer extends LevelControlServer.with('Lighting', 'OnOff') {
+    async moveToLevel (request) {
+      await super.moveToLevel(request)
+      const value = clamp(Math.round(Number(request.level) * 100 / 254), 0, 100)
+      onCommand({ deviceId: def.id, fn: 'level', value, matterCommand: { cluster: 'LevelControl', command: 'moveToLevel', request } })
+    }
+
+    async moveToLevelWithOnOff (request) {
+      await super.moveToLevelWithOnOff(request)
+      const value = clamp(Math.round(Number(request.level) * 100 / 254), 0, 100)
+      onCommand({ deviceId: def.id, fn: 'level', value, matterCommand: { cluster: 'LevelControl', command: 'moveToLevelWithOnOff', request } })
+    }
+  }
 
   if (def.type === 'windowcovering') {
     // The WindowCoveringServer requires the movement logic: we forward it to the KNX bus.
@@ -299,20 +340,35 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       async handleMovement (type, reversed, direction, targetPercent100ths) {
         try {
           if (type !== MovementType.Lift) return
+          const matterDiagnostic = {
+            handler: 'handleMovement',
+            movementType: type,
+            reversed: reversed === true,
+            direction,
+            directionName: direction === MovementDirection.DefinedByPosition
+              ? 'DefinedByPosition'
+              : direction === MovementDirection.Open ? 'Open' : direction === MovementDirection.Close ? 'Close' : 'Unknown',
+            targetPercent100ths: targetPercent100ths ?? null
+          }
           if (direction === MovementDirection.DefinedByPosition && targetPercent100ths !== undefined && targetPercent100ths !== null) {
             let percent = Math.round(Number(targetPercent100ths) / 100)
             if (invert) percent = 100 - percent
-            onCommand({ deviceId: def.id, fn: 'position', value: clamp(percent, 0, 100) })
+            onCommand({ deviceId: def.id, fn: 'position', value: clamp(percent, 0, 100), matterDiagnostic })
           } else if (direction === MovementDirection.Open || direction === MovementDirection.Close) {
             // KNX DPT 1.008: 0 = up/open, 1 = down/close
-            onCommand({ deviceId: def.id, fn: 'updown', value: direction === MovementDirection.Close })
+            onCommand({ deviceId: def.id, fn: 'updown', value: direction === MovementDirection.Close, matterDiagnostic })
           }
         } catch (error) { /* empty */ }
       }
 
       async handleStopMovement () {
         try {
-          onCommand({ deviceId: def.id, fn: 'stop', value: true })
+          onCommand({
+            deviceId: def.id,
+            fn: 'stop',
+            value: true,
+            matterDiagnostic: { handler: 'handleStopMovement' }
+          })
         } catch (error) { /* empty */ }
         return super.handleStopMovement()
       }
@@ -353,7 +409,7 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       currentX: Math.round(0.31 * 65536),
       currentY: Math.round(0.33 * 65536)
     }
-    endpoint = new Endpoint(ExtendedColorLightDevice.with(ColorControlServer.with('HueSaturation', 'Xy'), BridgedDeviceBasicInformationServer), initialState)
+    endpoint = new Endpoint(ExtendedColorLightDevice.with(RawOnOffServer, RawLevelControlServer, ColorControlServer.with('HueSaturation', 'Xy'), BridgedDeviceBasicInformationServer), initialState)
     attachColorTracker(endpoint, def, onCommand)
   } else if (def.type === 'colortemperaturelight') {
     initialState.colorControl = {
@@ -365,7 +421,7 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       startUpColorTemperatureMireds: 250,
       coupleColorTempToLevelMinMireds: 153
     }
-    endpoint = new Endpoint(ColorTemperatureLightDevice.with(ColorControlServer.with('ColorTemperature'), BridgedDeviceBasicInformationServer), initialState)
+    endpoint = new Endpoint(ColorTemperatureLightDevice.with(RawOnOffServer, RawLevelControlServer, ColorControlServer.with('ColorTemperature'), BridgedDeviceBasicInformationServer), initialState)
     endpoint.events.colorControl.colorTemperatureMireds$Changed.on((value, oldValue, context) => {
       try {
         if (context?.offline === true) return
@@ -482,27 +538,10 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       } catch (error) { /* empty */ }
     })
   } else {
-    endpoint = new Endpoint(typeInfo.device.with(BridgedDeviceBasicInformationServer), initialState)
-  }
-
-  // Matter -> KNX: react only to real controller interactions (context.offline is true
-  // for state changes we apply ourselves via endpoint.set(), which must NOT loop back to KNX).
-  if (typeInfo.commandFunctions.includes('onoff')) {
-    endpoint.events.onOff.onOff$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        onCommand({ deviceId: def.id, fn: 'onoff', value: value === true })
-      } catch (error) { /* empty */ }
-    })
-  }
-  if (typeInfo.commandFunctions.includes('level')) {
-    endpoint.events.levelControl.currentLevel$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (value === null || value === undefined) return
-        onCommand({ deviceId: def.id, fn: 'level', value: clamp(Math.round(Number(value) * 100 / 254), 0, 100) })
-      } catch (error) { /* empty */ }
-    })
+    let device = typeInfo.device
+    if (typeInfo.commandFunctions.includes('onoff')) device = device.with(RawOnOffServer)
+    if (typeInfo.commandFunctions.includes('level')) device = device.with(RawLevelControlServer)
+    endpoint = new Endpoint(device.with(BridgedDeviceBasicInformationServer), initialState)
   }
 
   return endpoint

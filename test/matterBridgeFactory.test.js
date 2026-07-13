@@ -1,11 +1,20 @@
 const { expect } = require('chai')
 const { EventEmitter } = require('events')
+const fs = require('fs')
+const os = require('os')
+const path = require('path')
 
 // The factory is an ES module: load it once for the whole suite
 let factory
+let MatterBridgeEngine
+let OnOffServer
+let LevelControlServer
 before(async function () {
   this.timeout(20000)
   factory = await import('../nodes/utils/matterBridgeDeviceFactory.mjs')
+  MatterBridgeEngine = (await import('../nodes/utils/matterBridgeEngine.mjs')).classMatterBridge
+  OnOffServer = (await import('@matter/main/behaviors/on-off')).OnOffServer
+  LevelControlServer = (await import('@matter/main/behaviors/level-control')).LevelControlServer
 })
 
 describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
@@ -120,6 +129,7 @@ describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
     let NodeConstructor
     const matterStateUpdates = []
     const sentMessages = []
+    const logMessages = []
     const bridge = {
       registerDevice: () => {},
       getPairingInfo: () => ({ running: true, commissioned: true, fabrics: [] }),
@@ -137,6 +147,7 @@ describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
           node.id = config.id
           node.send = (msg) => sentMessages.push(msg)
           node.status = () => {}
+          node.log = (message) => logMessages.push(message)
         },
         getNode: (id) => ({ knx, bridge })[id],
         registerType: (_type, constructor) => { NodeConstructor = constructor }
@@ -156,13 +167,65 @@ describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
       enableNodePINS: 'yes'
     })
 
-    node.handleMatterCommand({ fn: 'position', value: 57 })
+    node.handleMatterCommand({
+      fn: 'position',
+      value: 57,
+      matterDiagnostic: {
+        handler: 'handleMovement',
+        movementType: 0,
+        reversed: false,
+        direction: 2,
+        directionName: 'DefinedByPosition',
+        targetPercent100ths: 5700
+      }
+    })
 
     expect(sentMessages).to.have.length(1)
     expect(sentMessages[0].payload).to.equal(57)
     expect(matterStateUpdates).to.deep.equal([
       { deviceId: 'cover-1', fn: 'position', value: 57 }
     ])
+    expect(logMessages).to.have.length(1)
+    expect(logMessages[0]).to.include('"directionName":"DefinedByPosition"')
+    expect(logMessages[0]).to.include('"targetPercent100ths":5700')
+    expect(sentMessages[0].matter.matterDiagnostic).to.deep.equal({
+      handler: 'handleMovement',
+      movementType: 0,
+      reversed: false,
+      direction: 2,
+      directionName: 'DefinedByPosition',
+      targetPercent100ths: 5700
+    })
     node.emit('close', () => {})
+  })
+})
+
+describe('matterBridgeDeviceFactory – raw command output', () => {
+  it('emits repeated On/Off and absolute level commands even when state is unchanged', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-raw-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-raw-${Date.now()}`, logger, { port, deviceName: 'Raw test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'raw-light', type: 'dimmablelight', name: 'Raw light' }])
+      const endpoint = bridge.endpoints.get('raw-light')
+      await endpoint.act((agent) => agent.get(OnOffServer).off())
+      await endpoint.act((agent) => agent.get(OnOffServer).off())
+      await endpoint.act((agent) => agent.get(LevelControlServer).moveToLevelWithOnOff({ level: 127, transitionTime: null }))
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'onoff', value: false },
+        { fn: 'onoff', value: false },
+        { fn: 'level', value: 50 }
+      ])
+      expect(commands[2].matterCommand.command).to.equal('moveToLevelWithOnOff')
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
   })
 })
