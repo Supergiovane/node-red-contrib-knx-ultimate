@@ -28,7 +28,7 @@ C'est la direction opposée du nœud *Matter Device* : là-bas KNX contrôle un 
 | Lumière RGB (couleur) | + GA commande/état couleur RGB (DPT 232.600). La couleur Matter (hue/saturation ou XY, depuis la roue de couleur de l'app) est convertie depuis/vers le triplet RGB KNX |
 | Lumière blanc dynamique | + GA commande/état température de couleur en Kelvin (DPT 7.600) |
 | Volet / Store | Monter/Descendre (DPT 1.008), Stop (DPT 1.017), position % commande/état (DPT 5.001), inversion de position optionnelle |
-| Thermostat (chauffage) | GA température actuelle, GA commande/état consigne (DPT 9.001) |
+| Thermostat (chauffage et/ou rafraîchissement) | GA température actuelle, GA commande/état consigne (DPT 9.001). En ajoutant aussi la GA commande/état consigne rafraîchissement, le mode Cool (double consigne) est également exposé |
 | Ventilateur / VMC | GA commande/état vitesse % (DPT 5.001) |
 | Capteurs (température, humidité, lumière, présence, contact) | Une GA d'état chacun |
 | Détecteur fumée/CO | GA état alarme fumée + GA état alarme CO optionnelle (DPT 1.005) : notifications critiques sur le téléphone |

@@ -52,7 +52,7 @@ const BRIDGE_TYPES = {
   contactsensor: { device: ContactSensorDevice, functions: ['contact'], commandFunctions: [] },
   // Custom construction (dedicated server behaviors), handled in createBridgedEndpoint
   windowcovering: { device: null, functions: ['position'], commandFunctions: [] },
-  thermostat: { device: null, functions: ['currenttemp', 'setpoint'], commandFunctions: [] },
+  thermostat: { device: null, functions: ['currenttemp', 'setpoint', 'coolingsetpoint'], commandFunctions: [] },
   rgblight: { device: null, functions: ['onoff', 'level', 'rgb'], commandFunctions: ['onoff', 'level'] },
   colortemperaturelight: { device: null, functions: ['onoff', 'level', 'colortemp'], commandFunctions: ['onoff', 'level'] },
   smokecoalarm: { device: null, functions: ['smoke', 'co'], commandFunctions: [] },
@@ -84,15 +84,6 @@ function knxValueToMatterPatch (def, fn, value) {
       let percent = Number(value)
       if (Number.isNaN(percent)) return undefined
       if (def.invertPosition === true) percent = 100 - percent
-      if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight === true) {
-        // Alexa compatibility mode: light brightness represents how open the cover is.
-        // Keep the KNX convention at this boundary and invert only the Matter view.
-        const openness = clamp(100 - percent, 0, 100)
-        return {
-          onOff: { onOff: openness > 0 },
-          levelControl: { currentLevel: clamp(Math.round(openness * 254 / 100), 1, 254) }
-        }
-      }
       return { windowCovering: { currentPositionLiftPercent100ths: clamp(Math.round(percent * 100), 0, 10000) } }
     }
     case 'rgb': {
@@ -123,7 +114,12 @@ function knxValueToMatterPatch (def, fn, value) {
     case 'setpoint': {
       const t = Number(value)
       if (Number.isNaN(t)) return undefined
-      return { thermostat: { occupiedHeatingSetpoint: clamp(Math.round(t * 100), 700, 3000) } }
+      return { thermostat: { occupiedHeatingSetpoint: clamp(Math.round(t * 100), 700, 3000) } } // 7-30°C
+    }
+    case 'coolingsetpoint': {
+      const t = Number(value)
+      if (Number.isNaN(t)) return undefined
+      return { thermostat: { occupiedCoolingSetpoint: clamp(Math.round(t * 100), 1600, 3200) } } // 16-32°C
     }
     case 'onoff':
       return { onOff: { onOff: truthy(value) } }
@@ -196,14 +192,25 @@ function knxValueToMatterPatch (def, fn, value) {
   }
 }
 
-// Wires the ColorControl events of an RGB light and coalesces them into a single
-// KNX RGB command. Controllers set the color as hue+saturation OR as X+Y (two separate
-// attribute reports each): a short debounce merges them before computing the RGB value.
-function attachColorTracker (endpoint, def, onCommand) {
+// Builds a ColorControlServer that captures color commands AT THE COMMAND BOUNDARY
+// (like RawOnOffServer/RawLevelControlServer), instead of listening for attribute
+// changes: repeated commands (e.g. "set to red" twice) are still forwarded every time,
+// not just the first. This is possible for color because Matter controllers always
+// change color via cluster COMMANDS (MoveToHue, MoveToSaturation, MoveToHueAndSaturation,
+// MoveToColor) - unlike e.g. Thermostat/FanControl, where absolute values are set via a
+// plain ATTRIBUTE WRITE with no command-level hook to intercept (verified against
+// @matter/node's ThermostatServer/FanControlServer: only relative Move/Step-style
+// commands exist there, not the absolute "set to X" interaction voice assistants use).
+//
+// Controllers set the color as hue+saturation OR as X+Y, sometimes as two separate
+// commands (MoveToHue then MoveToSaturation): a short debounce merges those two into a
+// single KNX RGB command. A combined MoveToHueAndSaturation/MoveToColor command already
+// carries both values, so it flushes immediately with no debounce.
+function createRawColorControlServer (def, onCommand) {
   const tracker = { hue: 0, sat: 0, x: undefined, y: undefined, mode: 0, level: 254, timer: null }
 
   const flush = () => {
-    tracker.timer = null
+    if (tracker.timer !== null) { clearTimeout(tracker.timer); tracker.timer = null }
     try {
       const v01 = clamp((tracker.level === null || tracker.level === undefined ? 254 : Number(tracker.level)) / 254, 0, 1)
       let rgb
@@ -228,48 +235,49 @@ function attachColorTracker (endpoint, def, onCommand) {
     tracker.timer = setTimeout(flush, 250)
   }
 
-  endpoint.events.colorControl.currentHue$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.hue = Number(value)
-      if (context?.offline === true) return
+  class RawColorControlServer extends ColorControlServer.with('HueSaturation', 'Xy') {
+    async moveToHue (request) {
+      await super.moveToHue(request)
+      tracker.hue = Number(request.hue)
       tracker.mode = 0
       schedule()
-    } catch (error) { /* empty */ }
-  })
-  endpoint.events.colorControl.currentSaturation$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.sat = Number(value)
-      if (context?.offline === true) return
+    }
+
+    async moveToSaturation (request) {
+      await super.moveToSaturation(request)
+      tracker.sat = Number(request.saturation)
       tracker.mode = 0
       schedule()
-    } catch (error) { /* empty */ }
-  })
-  endpoint.events.colorControl.currentX$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.x = Number(value)
-      if (context?.offline === true) return
+    }
+
+    async moveToHueAndSaturation (request) {
+      await super.moveToHueAndSaturation(request)
+      tracker.hue = Number(request.hue)
+      tracker.sat = Number(request.saturation)
+      tracker.mode = 0
+      flush() // atomic: both values already known, no need to wait for a second command
+    }
+
+    async moveToColor (request) {
+      await super.moveToColor(request)
+      tracker.x = Number(request.colorX)
+      tracker.y = Number(request.colorY)
       tracker.mode = 1
-      schedule()
-    } catch (error) { /* empty */ }
-  })
-  endpoint.events.colorControl.currentY$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.y = Number(value)
-      if (context?.offline === true) return
-      tracker.mode = 1
-      schedule()
-    } catch (error) { /* empty */ }
-  })
-  // Track the brightness (for the RGB computation only: the level command has its own GA)
-  endpoint.events.levelControl.currentLevel$Changed.on((value) => {
-    try {
-      if (value !== null && value !== undefined) tracker.level = Number(value)
-    } catch (error) { /* empty */ }
-  })
+      flush()
+    }
+  }
+
+  // Track the brightness (for the RGB computation only: the level command has its own GA).
+  // Passive bookkeeping, not a command to forward raw, so an attribute listener is fine here.
+  const attachLevelTracker = (endpoint) => {
+    endpoint.events.levelControl.currentLevel$Changed.on((value) => {
+      try {
+        if (value !== null && value !== undefined) tracker.level = Number(value)
+      } catch (error) { /* empty */ }
+    })
+  }
+
+  return { RawColorControlServer, attachLevelTracker }
 }
 
 /**
@@ -285,13 +293,18 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   if (typeInfo === undefined) throw new Error(`Unsupported Matter bridge device type: ${def.type}`)
   const name = (def.name || def.type).toString().slice(0, 32)
 
+  const stableSerial = `${serialPrefix}-${def.id}`.slice(0, 32)
   const initialState = {
     id: `knx-${def.id}`.slice(0, 32),
     bridgedDeviceBasicInformation: {
       nodeLabel: name, // This is the name Alexa/Google/Apple show and use
       productName: name,
       productLabel: name,
-      serialNumber: `${serialPrefix}-${def.id}`.slice(0, 32),
+      serialNumber: stableSerial,
+      // Optional but recommended: some controllers (notably Apple Home) use UniqueID,
+      // rather than the endpoint number alone, as the stable cross-reset device identity.
+      // It never changes for a given def.id, matching the endpoint's own persisted 'id'.
+      uniqueId: stableSerial,
       reachable: true
     }
   }
@@ -301,7 +314,7 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   // Although Matter permits an unknown (null) position, some controllers (including
   // Alexa) then expose only Open/Close instead of percentage positioning. Start with
   // a valid position; KNX or flow feedback replaces it as soon as it is available.
-  if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight !== true) {
+  if (def.type === 'windowcovering') {
     initialState.windowCovering = {
       currentPositionLiftPercent100ths: 0,
       targetPositionLiftPercent100ths: 0
@@ -340,48 +353,6 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     }
   }
 
-  if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight === true) {
-    const invert = def.invertPosition === true
-    const emitPosition = (matterPosition, command, request) => {
-      let position = clamp(Math.round(matterPosition), 0, 100)
-      if (invert) position = 100 - position
-      onCommand({
-        deviceId: def.id,
-        fn: 'position',
-        value: position,
-        matterCommand: { cluster: command === 'on' || command === 'off' ? 'OnOff' : 'LevelControl', command, request },
-        matterDiagnostic: { handler: 'coverAsDimmableLight', command }
-      })
-    }
-
-    class CoverAsLightOnOffServer extends OnOffServer.with('Lighting') {
-      async on () {
-        await super.on()
-        emitPosition(0, 'on')
-      }
-
-      async off () {
-        await super.off()
-        emitPosition(100, 'off')
-      }
-    }
-
-    class CoverAsLightLevelServer extends LevelControlServer.with('Lighting', 'OnOff') {
-      async moveToLevel (request) {
-        await super.moveToLevel(request)
-        emitPosition(100 - clamp(Number(request.level) * 100 / 254, 0, 100), 'moveToLevel', request)
-      }
-
-      async moveToLevelWithOnOff (request) {
-        await super.moveToLevelWithOnOff(request)
-        emitPosition(100 - clamp(Number(request.level) * 100 / 254, 0, 100), 'moveToLevelWithOnOff', request)
-      }
-    }
-
-    endpoint = new Endpoint(DimmableLightDevice.with(CoverAsLightOnOffServer, CoverAsLightLevelServer, BridgedDeviceBasicInformationServer), initialState)
-    return endpoint
-  }
-
   if (def.type === 'windowcovering') {
     // The WindowCoveringServer requires the movement logic: we forward it to the KNX bus.
     // Position feedback comes back from the KNX status GA, so we do NOT call the default
@@ -401,13 +372,27 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
               : direction === MovementDirection.Open ? 'Open' : direction === MovementDirection.Close ? 'Close' : 'Unknown',
             targetPercent100ths: targetPercent100ths ?? null
           }
-          if (direction === MovementDirection.DefinedByPosition && targetPercent100ths !== undefined && targetPercent100ths !== null) {
-            let percent = Math.round(Number(targetPercent100ths) / 100)
+          if (targetPercent100ths === undefined || targetPercent100ths === null) return
+          // NOTE: 'direction' is NOT a usable signal here. matter.js's WindowCoveringServer
+          // resolves MovementDirection.DefinedByPosition (the direction goToLiftPercentage()
+          // actually passes) into a concrete Open/Close BEFORE calling handleMovement,
+          // by comparing targetPercent100ths against the current position (see
+          // #prepareMovement in @matter/node's WindowCoveringServer.ts). Since this bridge
+          // always starts with a known (non-null) position, handleMovement never receives
+          // DefinedByPosition in practice - every percentage command looked exactly like a
+          // plain Open/Close command. targetPercent100ths, on the other hand, is always
+          // populated when PositionAwareLift is supported (0/10000 for plain Up/Down too),
+          // so classify on that instead. Credit: till69, github.com/Supergiovane/
+          // node-red-contrib-knx-ultimate/discussions/516#discussioncomment-17633430
+          const target = Number(targetPercent100ths)
+          if (target <= 0 || target >= 10000) {
+            // Full travel: KNX DPT 1.008 (0 = up/open, 1 = down/close). Not affected by
+            // invertPosition, which only rescales the percentage GA convention.
+            onCommand({ deviceId: def.id, fn: 'updown', value: target >= 10000, matterDiagnostic })
+          } else {
+            let percent = Math.round(target / 100)
             if (invert) percent = 100 - percent
             onCommand({ deviceId: def.id, fn: 'position', value: clamp(percent, 0, 100), matterDiagnostic })
-          } else if (direction === MovementDirection.Open || direction === MovementDirection.Close) {
-            // KNX DPT 1.008: 0 = up/open, 1 = down/close
-            onCommand({ deviceId: def.id, fn: 'updown', value: direction === MovementDirection.Close, matterDiagnostic })
           }
         } catch (error) { /* empty */ }
       }
@@ -429,21 +414,57 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   }
 
   if (def.type === 'thermostat') {
+    // Heating/Cooling capability is auto-detected from which setpoint GA(s) the KNX node
+    // has configured (see knxUltimateMatterBridge.js#getMatterDef). Leaving both flags
+    // unset keeps the original heating-only behavior, so existing flows are unaffected.
+    const hasCooling = def.hasCoolingSetpoint === true
+    const hasHeating = def.hasHeatingSetpoint !== false
+    const features = []
+    if (hasHeating) features.push('Heating')
+    if (hasCooling) features.push('Cooling')
+    if (features.length === 0) features.push('Heating') // never build a thermostat with neither mode
+
     initialState.thermostat = {
       localTemperature: null,
-      occupiedHeatingSetpoint: 2000, // 20°C
-      controlSequenceOfOperation: 2, // HeatingOnly
-      systemMode: 4 // Heat
+      // CoolingOnly=0, HeatingOnly=2, CoolingAndHeating=4 (Matter ControlSequenceOfOperation enum)
+      controlSequenceOfOperation: hasHeating && hasCooling ? 4 : (hasCooling ? 0 : 2),
+      // Cool=3, Heat=4 (Matter SystemMode enum). Dual-mode starts in Heat; the controller can
+      // switch it, same as any physical dual thermostat without an auto/deadband mode.
+      systemMode: hasCooling && !hasHeating ? 3 : 4
     }
-    endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with('Heating'), BridgedDeviceBasicInformationServer), initialState)
-    // Setpoint changes from a Matter controller (attribute write or setpointRaiseLower command)
-    endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (value === null || value === undefined) return
-        onCommand({ deviceId: def.id, fn: 'setpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
-      } catch (error) { /* empty */ }
-    })
+    if (hasHeating) initialState.thermostat.occupiedHeatingSetpoint = 2000 // 20°C
+    if (hasCooling) initialState.thermostat.occupiedCoolingSetpoint = 2400 // 24°C
+
+    endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with(...features), BridgedDeviceBasicInformationServer), initialState)
+
+    // Setpoint changes from a Matter controller. Unlike OnOff/LevelControl/WindowCovering/
+    // ColorControl, an absolute setpoint has no cluster COMMAND to intercept - Thermostat
+    // only exposes SetpointRaiseLower (a *relative* command) and SetActivePresetRequest;
+    // controllers set an absolute target via a plain attribute write. matter.js only fires
+    // $Changing/$Changed when the value actually differs (verified in @matter/node's
+    // Datasource#preCommit), so a duplicate setpoint (same value sent twice) cannot be
+    // forwarded raw here - there is no lower-level hook to capture it at.
+    if (hasHeating) {
+      endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
+        try {
+          if (context?.offline === true) return
+          if (value === null || value === undefined) return
+          onCommand({ deviceId: def.id, fn: 'setpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
+        } catch (error) { /* empty */ }
+      })
+    }
+    if (hasCooling) {
+      endpoint.events.thermostat.occupiedCoolingSetpoint$Changed.on((value, oldValue, context) => {
+        try {
+          if (context?.offline === true) return
+          if (value === null || value === undefined) return
+          onCommand({ deviceId: def.id, fn: 'coolingsetpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
+        } catch (error) { /* empty */ }
+      })
+    }
+    // NOTE: SystemMode (Heat/Cool/Off/Auto) changes from a controller are accepted by the
+    // cluster but not forwarded to KNX yet: there is no single KNX DPT for HVAC mode that
+    // fits every actuator. Track it via the node's optional input PIN if you need it today.
     return endpoint
   }
 
@@ -460,8 +481,9 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       currentX: Math.round(0.31 * 65536),
       currentY: Math.round(0.33 * 65536)
     }
-    endpoint = new Endpoint(ExtendedColorLightDevice.with(RawOnOffServer, RawLevelControlServer, ColorControlServer.with('HueSaturation', 'Xy'), BridgedDeviceBasicInformationServer), initialState)
-    attachColorTracker(endpoint, def, onCommand)
+    const { RawColorControlServer, attachLevelTracker } = createRawColorControlServer(def, onCommand)
+    endpoint = new Endpoint(ExtendedColorLightDevice.with(RawOnOffServer, RawLevelControlServer, RawColorControlServer, BridgedDeviceBasicInformationServer), initialState)
+    attachLevelTracker(endpoint)
   } else if (def.type === 'colortemperaturelight') {
     initialState.colorControl = {
       colorMode: 2, // ColorTemperatureMireds
@@ -472,14 +494,15 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       startUpColorTemperatureMireds: 250,
       coupleColorTempToLevelMinMireds: 153
     }
-    endpoint = new Endpoint(ColorTemperatureLightDevice.with(RawOnOffServer, RawLevelControlServer, ColorControlServer.with('ColorTemperature'), BridgedDeviceBasicInformationServer), initialState)
-    endpoint.events.colorControl.colorTemperatureMireds$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (value === null || value === undefined || Number(value) <= 0) return
-        onCommand({ deviceId: def.id, fn: 'colortemp', value: Math.round(1000000 / Number(value)) }) // mireds -> Kelvin
-      } catch (error) { /* empty */ }
-    })
+    class RawColorTemperatureServer extends ColorControlServer.with('ColorTemperature') {
+      async moveToColorTemperature (request) {
+        await super.moveToColorTemperature(request)
+        const mireds = Number(request.colorTemperatureMireds)
+        if (Number.isNaN(mireds) || mireds <= 0) return
+        onCommand({ deviceId: def.id, fn: 'colortemp', value: Math.round(1000000 / mireds) }) // mireds -> Kelvin
+      }
+    }
+    endpoint = new Endpoint(ColorTemperatureLightDevice.with(RawOnOffServer, RawLevelControlServer, RawColorTemperatureServer, BridgedDeviceBasicInformationServer), initialState)
   } else if (def.type === 'smokecoalarm') {
     initialState.smokeCoAlarm = {
       expressedState: 0, // Normal
@@ -516,7 +539,10 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       percentCurrent: 0
     }
     endpoint = new Endpoint(FanDevice.with(BridgedDeviceBasicInformationServer), initialState)
-    // Speed changes from the controller (percent write or fan mode change)
+    // Speed changes from the controller (percent write or fan mode change). Like the
+    // Thermostat setpoints above, FanControlServer exposes no command to intercept for
+    // percentSetting (@matter/node's FanControlServer overrides nothing beyond
+    // initialize()) - it is attribute-write only, so this cannot be made "raw" either.
     endpoint.events.fanControl.percentSetting$Changed.on((value, oldValue, context) => {
       try {
         if (context?.offline === true) return

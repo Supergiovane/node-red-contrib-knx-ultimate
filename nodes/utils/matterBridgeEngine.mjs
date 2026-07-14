@@ -71,27 +71,31 @@ class classMatterBridge extends EventEmitter {
     try {
       api.Logger.level = api.LogLevel.ERROR
     } catch (error) { /* empty */ }
-    const environment = api.Environment.default
-    // Same storage root as the Matter controller engine: instances are separated by their id.
-    environment.vars.set('storage.path', this.storagePath)
-
-    this.server = await api.ServerNode.create({
-      id: this.instanceId,
-      network: { port: this.options.port },
-      productDescription: {
-        name: this.options.deviceName,
-        deviceType: api.AggregatorEndpoint.deviceType
-      },
-      basicInformation: {
-        vendorName: 'KNX-Ultimate',
-        vendorId: api.VendorId(0xFFF1), // Test vendor ID
-        nodeLabel: this.options.deviceName,
-        productName: this.options.deviceName,
-        productLabel: this.options.deviceName,
-        productId: 0x8000,
-        serialNumber: `knxu-${this.instanceId}`.slice(0, 32),
-        uniqueId: this.instanceId.slice(-32)
-      }
+    const { withEnvironmentLock } = await import('./matterEnvironmentLock.mjs')
+    // Environment.default (and its 'storage.path' var) is a process-wide singleton shared
+    // with the Matter Controller engine: serialize the set+create critical section so a
+    // concurrent startup can never observe another engine's storage path mid-flight.
+    this.server = await withEnvironmentLock(async () => {
+      const environment = api.Environment.default
+      environment.vars.set('storage.path', this.storagePath)
+      return api.ServerNode.create({
+        id: this.instanceId,
+        network: { port: this.options.port },
+        productDescription: {
+          name: this.options.deviceName,
+          deviceType: api.AggregatorEndpoint.deviceType
+        },
+        basicInformation: {
+          vendorName: 'KNX-Ultimate',
+          vendorId: api.VendorId(0xFFF1), // Test vendor ID
+          nodeLabel: this.options.deviceName,
+          productName: this.options.deviceName,
+          productLabel: this.options.deviceName,
+          productId: 0x8000,
+          serialNumber: `knxu-${this.instanceId}`.slice(0, 32),
+          uniqueId: this.instanceId.slice(-32)
+        }
+      })
     })
 
     this.aggregator = new api.Endpoint(api.AggregatorEndpoint, { id: 'aggregator' })
@@ -171,7 +175,8 @@ class classMatterBridge extends EventEmitter {
       const needsRecreate = newDef !== undefined && oldDef !== undefined &&
         (newDef.type !== oldDef.type ||
           (newDef.invertPosition === true) !== (oldDef.invertPosition === true) ||
-          (newDef.coverExposeAsDimmableLight === true) !== (oldDef.coverExposeAsDimmableLight === true))
+          (newDef.hasHeatingSetpoint !== false) !== (oldDef.hasHeatingSetpoint !== false) ||
+          (newDef.hasCoolingSetpoint === true) !== (oldDef.hasCoolingSetpoint === true))
       if (newDef === undefined || needsRecreate) {
         await this.removeDeviceEndpoint(id)
       }

@@ -51,7 +51,9 @@ module.exports = function (RED) {
     thermostat: [
       { fn: 'currenttemp', direction: 'status', ga: 'gaCurrentTemp', dpt: 'dptCurrentTemp', fallbackDpt: '9.001' },
       { fn: 'setpoint', direction: 'command', ga: 'gaSetpoint', dpt: 'dptSetpoint', fallbackDpt: '9.001' },
-      { fn: 'setpoint', direction: 'status', ga: 'gaSetpointStatus', dpt: 'dptSetpointStatus', fallbackDpt: '9.001' }
+      { fn: 'setpoint', direction: 'status', ga: 'gaSetpointStatus', dpt: 'dptSetpointStatus', fallbackDpt: '9.001' },
+      { fn: 'coolingsetpoint', direction: 'command', ga: 'gaCoolingSetpoint', dpt: 'dptCoolingSetpoint', fallbackDpt: '9.001' },
+      { fn: 'coolingsetpoint', direction: 'status', ga: 'gaCoolingSetpointStatus', dpt: 'dptCoolingSetpointStatus', fallbackDpt: '9.001' }
     ],
     smokecoalarm: [
       { fn: 'smoke', direction: 'status', ga: 'gaSmoke', dpt: 'dptSmoke', fallbackDpt: '1.005' },
@@ -77,7 +79,6 @@ module.exports = function (RED) {
     // The Matter device id is the (stable) Node-RED node id, so the endpoint survives re-deploys.
     node.matterDeviceId = node.id
     node.invertPosition = config.invertPosition === true || config.invertPosition === 'true'
-    node.coverExposeAsDimmableLight = config.coverExposeAsDimmableLight === true || config.coverExposeAsDimmableLight === 'true'
     node.turnOnBehavior = config.turnOnBehavior || 'ignoreLevelAfterOn'
     node.ignoreLevelAfterOnMs = Number(config.ignoreLevelAfterOnMs)
     if (!Number.isFinite(node.ignoreLevelAfterOnMs) || node.ignoreLevelAfterOnMs < 0) node.ignoreLevelAfterOnMs = 800
@@ -204,8 +205,12 @@ module.exports = function (RED) {
       type: node.deviceType,
       name: node.name,
       invertPosition: node.invertPosition === true,
-      coverExposeAsDimmableLight: node.coverExposeAsDimmableLight === true,
-      coverUpdateMode: node.coverUpdateMode
+      coverUpdateMode: node.coverUpdateMode,
+      // Thermostat only: whether a heating/cooling setpoint GA (command or status) was
+      // configured, so the bridge engine can build a Heating-only, Cooling-only or dual
+      // ThermostatServer without a dedicated "mode" dropdown in the editor.
+      hasHeatingSetpoint: devConfigValue('gaSetpoint') !== '' || devConfigValue('gaSetpointStatus') !== '',
+      hasCoolingSetpoint: devConfigValue('gaCoolingSetpoint') !== '' || devConfigValue('gaCoolingSetpointStatus') !== ''
     })
 
     // Reflects the bridge (config node) status on this device node.

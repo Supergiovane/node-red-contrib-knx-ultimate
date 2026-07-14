@@ -50,7 +50,9 @@
       thermostat: [
         { key: 'CurrentTemp', labelKey: 'fn_currenttemp', dptPrefix: '9.', fallbackDpt: '9.001' },
         { key: 'Setpoint', labelKey: 'fn_setpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
-        { key: 'SetpointStatus', labelKey: 'fn_setpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' }
+        { key: 'SetpointStatus', labelKey: 'fn_setpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'CoolingSetpoint', labelKey: 'fn_coolingsetpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'CoolingSetpointStatus', labelKey: 'fn_coolingsetpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' }
       ],
       smokecoalarm: [
         { key: 'Smoke', labelKey: 'fn_smoke_ga', dptPrefix: '1.', fallbackDpt: '1.005' },
@@ -75,7 +77,6 @@
       name: { value: '' },
       deviceType: { value: 'onofflight' },
       invertPosition: { value: false },
-      coverExposeAsDimmableLight: { value: false },
       turnOnBehavior: { value: 'ignoreLevelAfterOn' },
       ignoreLevelAfterOnMs: { value: 800 },
       coverUpdateMode: { value: 'optimistic' },
@@ -232,7 +233,6 @@
         node._matterGaInputs = gaInputs;
 
         $('#node-input-invertPosition').prop('checked', node.invertPosition === true);
-        $('#node-input-coverExposeAsDimmableLight').prop('checked', node.coverExposeAsDimmableLight === true);
         $('#node-input-turnOnBehavior').val(node.turnOnBehavior || 'ignoreLevelAfterOn');
         $('#node-input-ignoreLevelAfterOnMs').val(node.ignoreLevelAfterOnMs === undefined ? 800 : node.ignoreLevelAfterOnMs);
         $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
@@ -246,7 +246,6 @@
         const selected = $('#node-input-deviceType').val();
         node.deviceType = selected;
         node.invertPosition = $('#node-input-invertPosition').is(':checked');
-        node.coverExposeAsDimmableLight = selected === 'windowcovering' && $('#node-input-coverExposeAsDimmableLight').is(':checked');
         const active = TYPE_FIELDS[selected] || [];
         const gaInputs = node._matterGaInputs || {};
         // Clear every GA/DPT, then write only the ones of the selected type, reading
@@ -360,15 +359,6 @@
             <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.ignore_level_ms"></span>
           </label>
           <input type="number" id="node-input-ignoreLevelAfterOnMs" min="0" step="100" style="width:120px;">
-        </div>
-
-        <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
-          <label for="node-input-coverExposeAsDimmableLight" style="width:auto;">
-            <i class="fa fa-lightbulb-o"></i>
-            <span data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light"></span>
-            <input type="checkbox" id="node-input-coverExposeAsDimmableLight" style="width:auto; display:inline-block; vertical-align:middle; margin-left:6px;">
-          </label>
-          <div class="form-tips" style="margin-top:5px;" data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light_help"></div>
         </div>
 
         <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">

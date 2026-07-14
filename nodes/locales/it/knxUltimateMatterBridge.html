@@ -28,7 +28,7 @@ Ogni nodo Expose KNX to Matter espone **un dispositivo KNX come dispositivo Matt
 | Luce RGB (colore) | + GA comando/stato colore RGB (DPT 232.600). Il colore Matter (hue/saturation o XY, dalla ruota colore dell'app) viene convertito da/verso la terna RGB KNX |
 | Luce bianco dinamico | + GA comando/stato temperatura colore in Kelvin (DPT 7.600) |
 | Tapparella / Tenda | Su/Giù (DPT 1.008), Stop (DPT 1.017), posizione % comando/stato (DPT 5.001), inversione posizione opzionale |
-| Termostato (riscaldamento) | GA temperatura attuale, GA comando/stato setpoint (DPT 9.001) |
+| Termostato (riscaldamento e/o raffrescamento) | GA temperatura attuale, GA comando/stato setpoint (DPT 9.001). Aggiungendo anche il GA comando/stato setpoint raffrescamento si espone anche la modalità Cool (doppio setpoint) |
 | Ventola / VMC | GA comando/stato velocità % (DPT 5.001) |
 | Sensori (temperatura, umidità, luminosità, presenza, contatto) | Un GA di stato ciascuno |
 | Rilevatore fumo/CO | GA stato allarme fumo + GA stato allarme CO opzionale (DPT 1.005): notifiche critiche sul telefono |
