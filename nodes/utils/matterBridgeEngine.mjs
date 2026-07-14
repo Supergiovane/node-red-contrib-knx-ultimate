@@ -175,7 +175,6 @@ class classMatterBridge extends EventEmitter {
       const needsRecreate = newDef !== undefined && oldDef !== undefined &&
         (newDef.type !== oldDef.type ||
           (newDef.invertPosition === true) !== (oldDef.invertPosition === true) ||
-          (newDef.coverExposeAsDimmableLight === true) !== (oldDef.coverExposeAsDimmableLight === true) ||
           (newDef.hasHeatingSetpoint !== false) !== (oldDef.hasHeatingSetpoint !== false) ||
           (newDef.hasCoolingSetpoint === true) !== (oldDef.hasCoolingSetpoint === true))
       if (newDef === undefined || needsRecreate) {

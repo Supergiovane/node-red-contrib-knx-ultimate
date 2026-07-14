@@ -24,8 +24,6 @@
       "turn_on_ignore_level": "Ignorer la luminosité envoyée juste après On",
       "turn_on_forward_all": "Transmettre chaque commande de luminosité",
     "ignore_level_ms": "Ignorer la luminosité après On (ms)",
-    "cover_expose_as_light": "Exposer le volet comme lumière variable (contournement Alexa)",
-    "cover_expose_as_light_help": "À utiliser seulement si Alexa ne règle pas le pourcentage du volet. La luminosité représente son ouverture ; les adresses de groupe KNX restent inchangées.",
       "cover_update_mode": "Mise à jour état volet",
       "cover_optimistic": "Mettre à jour la position Matter de façon optimiste",
       "cover_wait_status": "Attendre seulement l'état KNX",

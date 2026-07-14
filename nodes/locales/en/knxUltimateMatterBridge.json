@@ -24,8 +24,6 @@
       "turn_on_ignore_level": "Ignore brightness sent immediately after On",
       "turn_on_forward_all": "Forward every brightness command",
     "ignore_level_ms": "Ignore brightness after On (ms)",
-    "cover_expose_as_light": "Expose cover as a dimmable light (Alexa workaround)",
-    "cover_expose_as_light_help": "Use only if Alexa cannot set the cover percentage. Brightness represents how open the cover is; KNX group addresses remain unchanged.",
       "cover_update_mode": "Cover state update",
       "cover_optimistic": "Optimistically update Matter position",
       "cover_wait_status": "Wait for KNX status only",

@@ -24,8 +24,6 @@
       "turn_on_ignore_level": "Ignorar brillo enviado justo después de On",
       "turn_on_forward_all": "Reenviar cada comando de brillo",
     "ignore_level_ms": "Ignorar brillo tras On (ms)",
-    "cover_expose_as_light": "Exponer persiana como luz regulable (solución para Alexa)",
-    "cover_expose_as_light_help": "Úsalo solo si Alexa no puede ajustar el porcentaje de la persiana. El brillo representa cuánto está abierta; las direcciones de grupo KNX no cambian.",
       "cover_update_mode": "Actualización de estado de persiana",
       "cover_optimistic": "Actualizar la posición Matter de forma optimista",
       "cover_wait_status": "Esperar solo el estado KNX",

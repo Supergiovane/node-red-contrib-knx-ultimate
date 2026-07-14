@@ -24,8 +24,6 @@
       "turn_on_ignore_level": "忽略 On 后立即发送的亮度",
       "turn_on_forward_all": "转发每个亮度命令",
     "ignore_level_ms": "On 后忽略亮度时间 (ms)",
-    "cover_expose_as_light": "将窗帘显示为可调光灯（Alexa 兼容方案）",
-    "cover_expose_as_light_help": "仅当 Alexa 无法设置窗帘百分比时使用。亮度表示窗帘开启程度；KNX 组地址保持不变。",
       "cover_update_mode": "窗帘状态更新",
       "cover_optimistic": "乐观更新 Matter 位置",
       "cover_wait_status": "仅等待 KNX 状态",
