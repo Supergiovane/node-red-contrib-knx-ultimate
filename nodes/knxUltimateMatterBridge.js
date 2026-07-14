@@ -111,6 +111,15 @@ module.exports = function (RED) {
     let initialReadTimer = null
     let suppressLevelCommandsUntil = 0
     let coverStatusTimer = null
+    let coverArrivalTimer = null
+    // Generous safety net, independent from the (short, configurable) coverStatusTimeoutMs
+    // warning below: real KNX cover actuators are not guaranteed to report back EXACTLY the
+    // requested percent100ths (positioning tolerance, drift...), and matter.js's
+    // WindowCoveringServer only clears OperationalStatus (Opening/Closing) back to Stopped
+    // once currentPosition === targetPosition exactly. Without this, a controller could show
+    // the cover as "still moving" forever after a movement that in reality completed close
+    // enough. Not (yet) user-configurable - ask if you want it exposed in the editor.
+    const COVER_ARRIVAL_FALLBACK_MS = Number(config.coverArrivalFallbackMs) > 0 ? Number(config.coverArrivalFallbackMs) : 45000
 
     const formatTs = (date) => {
       const d = date instanceof Date ? date : new Date(date)
@@ -158,6 +167,13 @@ module.exports = function (RED) {
       }
     }
 
+    const clearCoverArrivalTimer = () => {
+      if (coverArrivalTimer !== null) {
+        clearTimeout(coverArrivalTimer)
+        coverArrivalTimer = null
+      }
+    }
+
     // Precompute the routing tables for this single device:
     // statusRoutes: GA -> [{ fn, dpt }] (KNX -> Matter)
     // commandRoutes: fn -> { ga, dpt } (Matter -> KNX)
@@ -182,20 +198,42 @@ module.exports = function (RED) {
       return false
     }
 
-    const applyOptimisticCoverPosition = (command) => {
-      if (node.deviceType !== 'windowcovering' || node.coverUpdateMode !== 'optimistic' || !node.serverMatterBridge) return
-      let optimisticPosition
-      if (command.fn === 'position') optimisticPosition = command.value
-      if (command.fn === 'updown') optimisticPosition = command.value === true ? 100 : 0
-      if (optimisticPosition === undefined) return
-      node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', optimisticPosition)
+    // Matter-side feedback for a movement command just sent to KNX.
+    // - 'optimistic' (unchanged): reflect the requested position to Matter immediately; real
+    //   KNX status, if configured, corrects it afterwards via handleSend below.
+    // - 'waitStatus': wait for the real KNX status GA. If it doesn't arrive within
+    //   coverStatusTimeoutMs, just warn in the node status (as before). If NOTHING arrives
+    //   within the much longer COVER_ARRIVAL_FALLBACK_MS either, fall back to reflecting the
+    //   requested position anyway, so a real actuator that never reports back the exact
+    //   target percent100ths doesn't leave the Matter device stuck "moving" forever.
+    const applyCoverPositionFeedback = (command) => {
+      if (node.deviceType !== 'windowcovering' || !node.serverMatterBridge) return
+      let requestedPosition
+      if (command.fn === 'position') requestedPosition = command.value
+      if (command.fn === 'updown') requestedPosition = command.value === true ? 100 : 0
+      if (requestedPosition === undefined) return
+
       clearCoverStatusTimer()
-      if (node.coverStatusTimeoutMs > 0 && hasStatusRouteFor('position')) {
+      clearCoverArrivalTimer()
+
+      if (node.coverUpdateMode === 'optimistic') {
+        node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', requestedPosition)
+        return
+      }
+
+      if (!hasStatusRouteFor('position')) return // no status GA at all: nothing to wait for or fall back from; the flow (if any) owns feedback
+
+      if (node.coverStatusTimeoutMs > 0) {
         coverStatusTimer = setTimeout(() => {
           coverStatusTimer = null
-          node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Waiting for KNX cover status', payload: optimisticPosition })
+          node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'Waiting for KNX cover status', payload: requestedPosition })
         }, node.coverStatusTimeoutMs)
       }
+      coverArrivalTimer = setTimeout(() => {
+        coverArrivalTimer = null
+        node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', requestedPosition)
+        node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'No exact KNX confirmation in time, assuming arrived at', payload: requestedPosition })
+      }, COVER_ARRIVAL_FALLBACK_MS)
     }
     node.knxUltimateAcceptedGAs = Array.from(statusRoutes.keys())
 
@@ -253,7 +291,7 @@ module.exports = function (RED) {
         }
         // Confirm the requested position to Matter even when this is a flow-only
         // device and no KNX command GA is configured.
-        applyOptimisticCoverPosition(command)
+        applyCoverPositionFeedback(command)
         const route = commandRoutes.get(command.fn)
         if (route === undefined) {
           if (node.enableNodePINS) return // Flow-only device: the flow already got the command
@@ -291,7 +329,7 @@ module.exports = function (RED) {
             const value = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(route.dpt))
             if (value === undefined || value === null) return
             node.serverMatterBridge.setDeviceState(node.matterDeviceId, route.fn, value)
-            if (node.deviceType === 'windowcovering' && route.fn === 'position') clearCoverStatusTimer()
+            if (node.deviceType === 'windowcovering' && route.fn === 'position') { clearCoverStatusTimer(); clearCoverArrivalTimer() }
             node.setNodeStatus({ fill: 'blue', shape: 'dot', text: `KNX->Matter ${route.fn}`, payload: value })
           } catch (error) {
             node.setNodeStatus({ fill: 'red', shape: 'dot', text: `KNX->Matter error ${error.message}` })
@@ -363,6 +401,7 @@ module.exports = function (RED) {
       try {
         if (initialReadTimer !== null) clearTimeout(initialReadTimer)
         clearCoverStatusTimer()
+        clearCoverArrivalTimer()
       } catch (error) { /* empty */ }
       try {
         if (node.serverKNX) node.serverKNX.removeClient(node)
