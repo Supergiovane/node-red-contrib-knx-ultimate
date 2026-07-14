@@ -75,6 +75,7 @@
       name: { value: '' },
       deviceType: { value: 'onofflight' },
       invertPosition: { value: false },
+      coverExposeAsDimmableLight: { value: false },
       turnOnBehavior: { value: 'ignoreLevelAfterOn' },
       ignoreLevelAfterOnMs: { value: 800 },
       coverUpdateMode: { value: 'optimistic' },
@@ -228,6 +229,7 @@
         node._matterGaInputs = gaInputs;
 
         $('#node-input-invertPosition').prop('checked', node.invertPosition === true);
+        $('#node-input-coverExposeAsDimmableLight').prop('checked', node.coverExposeAsDimmableLight === true);
         $('#node-input-turnOnBehavior').val(node.turnOnBehavior || 'ignoreLevelAfterOn');
         $('#node-input-ignoreLevelAfterOnMs').val(node.ignoreLevelAfterOnMs === undefined ? 800 : node.ignoreLevelAfterOnMs);
         $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
@@ -241,6 +243,7 @@
         const selected = $('#node-input-deviceType').val();
         node.deviceType = selected;
         node.invertPosition = $('#node-input-invertPosition').is(':checked');
+        node.coverExposeAsDimmableLight = selected === 'windowcovering' && $('#node-input-coverExposeAsDimmableLight').is(':checked');
         const active = TYPE_FIELDS[selected] || [];
         const gaInputs = node._matterGaInputs || {};
         // Clear every GA/DPT, then write only the ones of the selected type, reading
@@ -347,6 +350,14 @@
     </div>
 
     <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
+      <label for="node-input-coverExposeAsDimmableLight" style="width:auto;">
+        <input type="checkbox" id="node-input-coverExposeAsDimmableLight" style="width:auto; display:inline-block; vertical-align:middle;">
+        <span data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light"></span>
+      </label>
+      <div class="form-tips" style="margin-top:5px;" data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light_help"></div>
+    </div>
+
+    <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
       <label for="node-input-coverUpdateMode" style="width:260px;">
         <i class="fa fa-window-maximize"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_update_mode"></span>
       </label>
@@ -406,6 +417,7 @@ The advanced compatibility options are intentionally type-specific:
 
 - dimmable devices can ignore the brightness command that some controllers send immediately after an On command
 - covers can optimistically update the Matter position after a command, then correct it when the KNX status GA reports the real position
+- if Alexa cannot set a cover percentage, a cover can be exposed as a dimmable light: brightness means openness, while the configured KNX cover GAs and DPTs remain unchanged
 
 The **KNX gateway is optional**: without it, enable the node PINs and drive the device from the flow.
 

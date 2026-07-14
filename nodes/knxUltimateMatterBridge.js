@@ -77,6 +77,7 @@ module.exports = function (RED) {
     // The Matter device id is the (stable) Node-RED node id, so the endpoint survives re-deploys.
     node.matterDeviceId = node.id
     node.invertPosition = config.invertPosition === true || config.invertPosition === 'true'
+    node.coverExposeAsDimmableLight = config.coverExposeAsDimmableLight === true || config.coverExposeAsDimmableLight === 'true'
     node.turnOnBehavior = config.turnOnBehavior || 'ignoreLevelAfterOn'
     node.ignoreLevelAfterOnMs = Number(config.ignoreLevelAfterOnMs)
     if (!Number.isFinite(node.ignoreLevelAfterOnMs) || node.ignoreLevelAfterOnMs < 0) node.ignoreLevelAfterOnMs = 800
@@ -203,6 +204,7 @@ module.exports = function (RED) {
       type: node.deviceType,
       name: node.name,
       invertPosition: node.invertPosition === true,
+      coverExposeAsDimmableLight: node.coverExposeAsDimmableLight === true,
       coverUpdateMode: node.coverUpdateMode
     })
 

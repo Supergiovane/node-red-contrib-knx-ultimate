@@ -84,6 +84,15 @@ function knxValueToMatterPatch (def, fn, value) {
       let percent = Number(value)
       if (Number.isNaN(percent)) return undefined
       if (def.invertPosition === true) percent = 100 - percent
+      if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight === true) {
+        // Alexa compatibility mode: light brightness represents how open the cover is.
+        // Keep the KNX convention at this boundary and invert only the Matter view.
+        const openness = clamp(100 - percent, 0, 100)
+        return {
+          onOff: { onOff: openness > 0 },
+          levelControl: { currentLevel: clamp(Math.round(openness * 254 / 100), 1, 254) }
+        }
+      }
       return { windowCovering: { currentPositionLiftPercent100ths: clamp(Math.round(percent * 100), 0, 10000) } }
     }
     case 'rgb': {
@@ -292,7 +301,7 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   // Although Matter permits an unknown (null) position, some controllers (including
   // Alexa) then expose only Open/Close instead of percentage positioning. Start with
   // a valid position; KNX or flow feedback replaces it as soon as it is available.
-  if (def.type === 'windowcovering') {
+  if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight !== true) {
     initialState.windowCovering = {
       currentPositionLiftPercent100ths: 0,
       targetPositionLiftPercent100ths: 0
@@ -329,6 +338,48 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       const value = clamp(Math.round(Number(request.level) * 100 / 254), 0, 100)
       onCommand({ deviceId: def.id, fn: 'level', value, matterCommand: { cluster: 'LevelControl', command: 'moveToLevelWithOnOff', request } })
     }
+  }
+
+  if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight === true) {
+    const invert = def.invertPosition === true
+    const emitPosition = (matterPosition, command, request) => {
+      let position = clamp(Math.round(matterPosition), 0, 100)
+      if (invert) position = 100 - position
+      onCommand({
+        deviceId: def.id,
+        fn: 'position',
+        value: position,
+        matterCommand: { cluster: command === 'on' || command === 'off' ? 'OnOff' : 'LevelControl', command, request },
+        matterDiagnostic: { handler: 'coverAsDimmableLight', command }
+      })
+    }
+
+    class CoverAsLightOnOffServer extends OnOffServer.with('Lighting') {
+      async on () {
+        await super.on()
+        emitPosition(0, 'on')
+      }
+
+      async off () {
+        await super.off()
+        emitPosition(100, 'off')
+      }
+    }
+
+    class CoverAsLightLevelServer extends LevelControlServer.with('Lighting', 'OnOff') {
+      async moveToLevel (request) {
+        await super.moveToLevel(request)
+        emitPosition(100 - clamp(Number(request.level) * 100 / 254, 0, 100), 'moveToLevel', request)
+      }
+
+      async moveToLevelWithOnOff (request) {
+        await super.moveToLevelWithOnOff(request)
+        emitPosition(100 - clamp(Number(request.level) * 100 / 254, 0, 100), 'moveToLevelWithOnOff', request)
+      }
+    }
+
+    endpoint = new Endpoint(DimmableLightDevice.with(CoverAsLightOnOffServer, CoverAsLightLevelServer, BridgedDeviceBasicInformationServer), initialState)
+    return endpoint
   }
 
   if (def.type === 'windowcovering') {

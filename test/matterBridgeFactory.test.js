@@ -58,6 +58,19 @@ describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
     expect(patch({ type: 'windowcovering', invertPosition: true }, 'position', 30).windowCovering.currentPositionLiftPercent100ths).to.equal(7000)
   })
 
+  it('maps KNX cover position to dimmable-light openness in Alexa compatibility mode', () => {
+    const open70 = patch({ type: 'windowcovering', coverExposeAsDimmableLight: true }, 'position', 30)
+    expect(open70.onOff.onOff).to.equal(true)
+    expect(open70.levelControl.currentLevel).to.equal(178)
+
+    const closed = patch({ type: 'windowcovering', coverExposeAsDimmableLight: true }, 'position', 100)
+    expect(closed.onOff.onOff).to.equal(false)
+    expect(closed.levelControl.currentLevel).to.equal(1)
+
+    const inverted = patch({ type: 'windowcovering', coverExposeAsDimmableLight: true, invertPosition: true }, 'position', 30)
+    expect(inverted.levelControl.currentLevel).to.equal(76)
+  })
+
   it('converts thermostat temperatures and clamps the setpoint', () => {
     expect(patch({ type: 'thermostat' }, 'currenttemp', 19.8).thermostat.localTemperature).to.equal(1980)
     expect(patch({ type: 'thermostat' }, 'setpoint', 21.5).thermostat.occupiedHeatingSetpoint).to.equal(2150)
@@ -223,6 +236,39 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
         { fn: 'level', value: 50 }
       ])
       expect(commands[2].matterCommand.command).to.equal('moveToLevelWithOnOff')
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('maps Alexa-compatible cover light commands back to KNX cover positions', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-light-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-light-${Date.now()}`, logger, { port, deviceName: 'Cover light test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{
+        id: 'cover-light',
+        type: 'windowcovering',
+        name: 'Alexa cover',
+        coverExposeAsDimmableLight: true
+      }])
+      const endpoint = bridge.endpoints.get('cover-light')
+      await endpoint.act((agent) => agent.get(OnOffServer).on())
+      await endpoint.act((agent) => agent.get(OnOffServer).off())
+      await endpoint.act((agent) => agent.get(LevelControlServer).moveToLevelWithOnOff({ level: 127, transitionTime: null }))
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'position', value: 0 },
+        { fn: 'position', value: 100 },
+        { fn: 'position', value: 50 }
+      ])
+      expect(commands[2].matterDiagnostic.handler).to.equal('coverAsDimmableLight')
     } finally {
       await bridge.close()
       fs.rmSync(storagePath, { recursive: true, force: true })

@@ -169,7 +169,9 @@ class classMatterBridge extends EventEmitter {
       const newDef = newById.get(id)
       const oldDef = this.deviceDefs.get(id)
       const needsRecreate = newDef !== undefined && oldDef !== undefined &&
-        (newDef.type !== oldDef.type || (newDef.invertPosition === true) !== (oldDef.invertPosition === true))
+        (newDef.type !== oldDef.type ||
+          (newDef.invertPosition === true) !== (oldDef.invertPosition === true) ||
+          (newDef.coverExposeAsDimmableLight === true) !== (oldDef.coverExposeAsDimmableLight === true))
       if (newDef === undefined || needsRecreate) {
         await this.removeDeviceEndpoint(id)
       }

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.0.3** - July 2026<br/>
+
+- **Expose KNX to Matter (BETA) — Alexa cover percentage workaround**: covers/shutters can optionally be exposed to Matter controllers as dimmable lights when Alexa does not send percentage commands to a native Window Covering endpoint. Brightness represents openness (`100%` open, `0%` closed), while On/Off opens or closes the cover. Commands and status remain mapped through the existing KNX cover position GA/DPT, including position inversion and loop-protected KNX-to-Matter feedback. The standard Matter Window Covering endpoint remains the default.<br/>
+
 **Version 6.0.2** - July 2026<br/>
 
 - **Expose KNX to Matter (BETA) — covers/shutters with Alexa**: initialize position-aware covers with a valid numeric Matter position instead of an unknown (`null`) value. This helps controllers such as Alexa expose percentage positioning and send `GoToLiftPercentage` instead of degrading to Open/Close only. Added targeted command diagnostics to the Node-RED log and output message for interoperability testing.<br/>
