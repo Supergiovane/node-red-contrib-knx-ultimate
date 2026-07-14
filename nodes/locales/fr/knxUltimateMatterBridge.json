@@ -17,7 +17,7 @@
       "name_placeholder": "ex. Lumière cuisine",
       "invert": "Inverser la position %"
     },
-    "advanced": {
+  "advanced": {
       "title": "Compatibilité avancée",
       "help": " Utilisez ces options seulement lorsqu'un contrôleur Matter ou un actionneur KNX demande un traitement spécial.",
       "turn_on_behavior": "Comportement à l'allumage",
@@ -29,8 +29,12 @@
       "cover_update_mode": "Mise à jour état volet",
       "cover_optimistic": "Mettre à jour la position Matter de façon optimiste",
       "cover_wait_status": "Attendre seulement l'état KNX",
-      "cover_status_timeout": "Timeout état volet (ms)"
-    },
+    "cover_status_timeout": "Timeout état volet (ms)"
+  },
+  "tabs": {
+    "mappings": "Mappages KNX",
+    "advanced": "Options avancées"
+  },
     "functions": {
       "fn_onoff_cmd": "GA commande On/Off",
       "fn_onoff_status": "GA état On/Off",

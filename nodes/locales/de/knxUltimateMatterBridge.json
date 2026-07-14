@@ -17,7 +17,7 @@
       "name_placeholder": "z.B. Küchenlicht",
       "invert": "Position % invertieren"
     },
-    "advanced": {
+  "advanced": {
       "title": "Erweiterte Kompatibilität",
       "help": " Verwende diese Optionen nur, wenn ein Matter-Controller oder ein KNX-Aktor eine besondere Behandlung benötigt.",
       "turn_on_behavior": "Einschaltverhalten",
@@ -29,8 +29,12 @@
       "cover_update_mode": "Jalousie-/Rollladenstatus",
       "cover_optimistic": "Matter-Position optimistisch aktualisieren",
       "cover_wait_status": "Nur auf KNX-Status warten",
-      "cover_status_timeout": "Timeout für Positionsstatus (ms)"
-    },
+    "cover_status_timeout": "Timeout für Positionsstatus (ms)"
+  },
+  "tabs": {
+    "mappings": "KNX-Zuordnungen",
+    "advanced": "Erweiterte Optionen"
+  },
     "functions": {
       "fn_onoff_cmd": "Ein/Aus Befehls-GA",
       "fn_onoff_status": "Ein/Aus Status-GA",

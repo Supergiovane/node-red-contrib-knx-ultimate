@@ -17,7 +17,7 @@
       "name_placeholder": "es. Luce cucina",
       "invert": "Inverti posizione %"
     },
-    "advanced": {
+  "advanced": {
       "title": "Compatibilità avanzata",
       "help": " Usa queste opzioni solo quando un controller Matter o un attuatore KNX richiede una gestione speciale.",
       "turn_on_behavior": "Comportamento all'accensione",
@@ -29,8 +29,12 @@
       "cover_update_mode": "Aggiornamento stato tapparella",
       "cover_optimistic": "Aggiorna ottimisticamente la posizione Matter",
       "cover_wait_status": "Attendi solo lo stato KNX",
-      "cover_status_timeout": "Timeout stato tapparella (ms)"
-    },
+    "cover_status_timeout": "Timeout stato tapparella (ms)"
+  },
+  "tabs": {
+    "mappings": "Mappature KNX",
+    "advanced": "Opzioni avanzate"
+  },
     "functions": {
       "fn_onoff_cmd": "GA comando On/Off",
       "fn_onoff_status": "GA stato On/Off",

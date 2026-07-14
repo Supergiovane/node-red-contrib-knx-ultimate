@@ -17,7 +17,7 @@
       "name_placeholder": "例如 厨房灯",
       "invert": "反转位置 %"
     },
-    "advanced": {
+  "advanced": {
       "title": "高级兼容性",
       "help": " 仅当 Matter 控制器或 KNX 执行器需要特殊处理时使用这些选项。",
       "turn_on_behavior": "开灯行为",
@@ -29,8 +29,12 @@
       "cover_update_mode": "窗帘状态更新",
       "cover_optimistic": "乐观更新 Matter 位置",
       "cover_wait_status": "仅等待 KNX 状态",
-      "cover_status_timeout": "窗帘状态超时 (ms)"
-    },
+    "cover_status_timeout": "窗帘状态超时 (ms)"
+  },
+  "tabs": {
+    "mappings": "KNX 映射",
+    "advanced": "高级选项"
+  },
     "functions": {
       "fn_onoff_cmd": "开/关 命令 GA",
       "fn_onoff_status": "开/关 状态 GA",

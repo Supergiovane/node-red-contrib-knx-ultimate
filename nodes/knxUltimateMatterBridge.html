@@ -105,6 +105,9 @@
         try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
         const node = this;
 
+        // Use the same jQuery UI tab structure as the main KNXUltimate node.
+        $('#mb-tabs').tabs();
+
         // Resolves the KNX gateway at query time: the selected one, or - as a
         // fallback - the first knxUltimate-config available, so the GA list works
         // even before the user picks the gateway on this device node.
@@ -143,7 +146,7 @@
         // on one or more rows (same pattern used across the rest of the KNX-Ultimate nodes).
         const $fields = $('#mb-ga-fields').css({ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '10px' });
         const $invertRow = $('#mb-invert-row');
-        const $advancedRows = $('#mb-advanced-details');
+        const $advancedRows = $('#mb-compatibility-options');
         const $dimmerAdvancedRows = $('.mb-dimmer-advanced-row');
         const $coverAdvancedRows = $('.mb-cover-advanced-row');
         const gaInputs = {};
@@ -311,90 +314,101 @@
     <select id="node-input-deviceType" style="width:260px;"></select>
   </div>
 
-  <div class="form-tips" style="display:block; width:100%; max-width:none; box-sizing:border-box; margin-bottom:8px; border-left:4px solid #d9822b;">
-    <i class="fa fa-triangle-exclamation"></i>
-    <span data-i18n="knxUltimateMatterBridge.type_change_warning"></span>
-  </div>
+  <div id="mb-tabs" style="margin-top:12px;">
+    <ul>
+      <li><a href="#mb-tab-mappings"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateMatterBridge.tabs.mappings"></span></a></li>
+      <li><a href="#mb-tab-advanced"><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateMatterBridge.tabs.advanced"></span></a></li>
+    </ul>
 
-  <div id="mb-ga-fields"></div>
+    <div id="mb-tab-mappings" style="padding-top:12px;">
+      <div class="form-tips" style="display:block; width:100%; max-width:none; box-sizing:border-box; margin-bottom:12px; border-left:4px solid #d9822b;">
+        <i class="fa fa-triangle-exclamation"></i>
+        <span data-i18n="knxUltimateMatterBridge.type_change_warning"></span>
+      </div>
 
-  <div class="form-row" id="mb-invert-row" style="display:none;">
-    <label for="node-input-invertPosition" style="width:auto;">
-      <input type="checkbox" id="node-input-invertPosition" style="width:auto; display:inline-block; vertical-align:middle;">
-      <span data-i18n="knxUltimateMatterBridge.fields.invert"></span>
-    </label>
-  </div>
+      <div id="mb-ga-fields"></div>
 
-  <details id="mb-advanced-details" style="margin:10px 0 8px 0; display:none;">
-    <summary style="cursor:pointer;">
-      <i class="fa fa-sliders"></i>
-      <b><span data-i18n="knxUltimateMatterBridge.advanced.title"></span></b>
-      <span data-i18n="knxUltimateMatterBridge.advanced.help"></span>
-    </summary>
-
-    <div class="form-row mb-dimmer-advanced-row" style="display:none; margin-top:8px;">
-      <label for="node-input-turnOnBehavior" style="width:260px;">
-        <i class="fa fa-lightbulb-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.turn_on_behavior"></span>
-      </label>
-      <select id="node-input-turnOnBehavior" style="width:280px;">
-        <option value="ignoreLevelAfterOn" data-i18n="knxUltimateMatterBridge.advanced.turn_on_ignore_level"></option>
-        <option value="forwardAll" data-i18n="knxUltimateMatterBridge.advanced.turn_on_forward_all"></option>
-      </select>
+      <div class="form-row" id="mb-invert-row" style="display:none;">
+        <label for="node-input-invertPosition" style="width:auto;">
+          <i class="fa fa-exchange"></i>
+          <span data-i18n="knxUltimateMatterBridge.fields.invert"></span>
+          <input type="checkbox" id="node-input-invertPosition" style="width:auto; display:inline-block; vertical-align:middle; margin-left:6px;">
+        </label>
+      </div>
     </div>
 
-    <div class="form-row mb-dimmer-advanced-row" style="display:none;">
-      <label for="node-input-ignoreLevelAfterOnMs" style="width:260px;">
-        <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.ignore_level_ms"></span>
-      </label>
-      <input type="number" id="node-input-ignoreLevelAfterOnMs" min="0" step="100" style="width:120px;">
+    <div id="mb-tab-advanced" style="padding-top:12px;">
+      <div id="mb-compatibility-options" style="display:none;">
+        <div class="form-tips" style="display:block; width:100%; max-width:none; box-sizing:border-box; margin-bottom:12px; border-left:4px solid #4b8cc4;">
+          <i class="fa fa-info-circle"></i>
+          <b data-i18n="knxUltimateMatterBridge.advanced.title"></b>
+          <span data-i18n="knxUltimateMatterBridge.advanced.help"></span>
+        </div>
+
+        <div class="form-row mb-dimmer-advanced-row" style="display:none; margin-top:8px;">
+          <label for="node-input-turnOnBehavior" style="width:260px;">
+            <i class="fa fa-lightbulb-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.turn_on_behavior"></span>
+          </label>
+          <select id="node-input-turnOnBehavior" style="width:280px;">
+            <option value="ignoreLevelAfterOn" data-i18n="knxUltimateMatterBridge.advanced.turn_on_ignore_level"></option>
+            <option value="forwardAll" data-i18n="knxUltimateMatterBridge.advanced.turn_on_forward_all"></option>
+          </select>
+        </div>
+
+        <div class="form-row mb-dimmer-advanced-row" style="display:none;">
+          <label for="node-input-ignoreLevelAfterOnMs" style="width:260px;">
+            <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.ignore_level_ms"></span>
+          </label>
+          <input type="number" id="node-input-ignoreLevelAfterOnMs" min="0" step="100" style="width:120px;">
+        </div>
+
+        <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
+          <label for="node-input-coverExposeAsDimmableLight" style="width:auto;">
+            <i class="fa fa-lightbulb-o"></i>
+            <span data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light"></span>
+            <input type="checkbox" id="node-input-coverExposeAsDimmableLight" style="width:auto; display:inline-block; vertical-align:middle; margin-left:6px;">
+          </label>
+          <div class="form-tips" style="margin-top:5px;" data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light_help"></div>
+        </div>
+
+        <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
+          <label for="node-input-coverUpdateMode" style="width:260px;">
+            <i class="fa fa-window-maximize"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_update_mode"></span>
+          </label>
+          <select id="node-input-coverUpdateMode" style="width:280px;">
+            <option value="optimistic" data-i18n="knxUltimateMatterBridge.advanced.cover_optimistic"></option>
+            <option value="waitStatus" data-i18n="knxUltimateMatterBridge.advanced.cover_wait_status"></option>
+          </select>
+        </div>
+
+        <div class="form-row mb-cover-advanced-row" style="display:none;">
+          <label for="node-input-coverStatusTimeoutMs" style="width:260px;">
+            <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_status_timeout"></span>
+          </label>
+          <input type="number" id="node-input-coverStatusTimeoutMs" min="0" step="500" style="width:120px;">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="node-input-readStatusAtStartup" style="width:260px;">
+          <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterBridge.read_status_startup"></span>
+        </label>
+        <select id="node-input-readStatusAtStartup" style="width:120px;">
+          <option value="yes" data-i18n="knxUltimateMatterBridge.opt_yes"></option>
+          <option value="no" data-i18n="knxUltimateMatterBridge.opt_no"></option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="node-input-enableNodePINS" style="width:260px;">
+          <i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterBridge.node_pins"></span>
+        </label>
+        <select id="node-input-enableNodePINS" style="width:220px;">
+          <option value="no" data-i18n="knxUltimateMatterBridge.node_pins_hide"></option>
+          <option value="yes" data-i18n="knxUltimateMatterBridge.node_pins_show"></option>
+        </select>
+      </div>
     </div>
-
-    <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
-      <label for="node-input-coverExposeAsDimmableLight" style="width:auto;">
-        <input type="checkbox" id="node-input-coverExposeAsDimmableLight" style="width:auto; display:inline-block; vertical-align:middle;">
-        <span data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light"></span>
-      </label>
-      <div class="form-tips" style="margin-top:5px;" data-i18n="knxUltimateMatterBridge.advanced.cover_expose_as_light_help"></div>
-    </div>
-
-    <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
-      <label for="node-input-coverUpdateMode" style="width:260px;">
-        <i class="fa fa-window-maximize"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_update_mode"></span>
-      </label>
-      <select id="node-input-coverUpdateMode" style="width:280px;">
-        <option value="optimistic" data-i18n="knxUltimateMatterBridge.advanced.cover_optimistic"></option>
-        <option value="waitStatus" data-i18n="knxUltimateMatterBridge.advanced.cover_wait_status"></option>
-      </select>
-    </div>
-
-    <div class="form-row mb-cover-advanced-row" style="display:none;">
-      <label for="node-input-coverStatusTimeoutMs" style="width:260px;">
-        <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_status_timeout"></span>
-      </label>
-      <input type="number" id="node-input-coverStatusTimeoutMs" min="0" step="500" style="width:120px;">
-    </div>
-  </details>
-
-  <hr/>
-
-  <div class="form-row">
-    <label for="node-input-readStatusAtStartup" style="width:260px;">
-      <i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterBridge.read_status_startup"></span>
-    </label>
-    <select id="node-input-readStatusAtStartup" style="width:120px;">
-      <option value="yes" data-i18n="knxUltimateMatterBridge.opt_yes"></option>
-      <option value="no" data-i18n="knxUltimateMatterBridge.opt_no"></option>
-    </select>
-  </div>
-
-  <div class="form-row">
-    <label for="node-input-enableNodePINS" style="width:260px;">
-      <i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterBridge.node_pins"></span>
-    </label>
-    <select id="node-input-enableNodePINS" style="width:220px;">
-      <option value="no" data-i18n="knxUltimateMatterBridge.node_pins_hide"></option>
-      <option value="yes" data-i18n="knxUltimateMatterBridge.node_pins_show"></option>
-    </select>
   </div>
 
   <br/>

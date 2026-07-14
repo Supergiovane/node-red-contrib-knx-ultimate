@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.0.4** - July 2026<br/>
+
+- **Expose KNX to Matter (BETA) — clearer editor layout**: reorganized the device editor into dedicated **KNX mappings** and **Advanced options** tabs, following the established KNXUltimate node UI. Type-specific compatibility settings are easier to find, and checkbox labels now include icons with the checkbox positioned after the text. All saved fields and runtime behavior remain unchanged.<br/>
+
 **Version 6.0.3** - July 2026<br/>
 
 - **Expose KNX to Matter (BETA) — Alexa cover percentage workaround**: covers/shutters can optionally be exposed to Matter controllers as dimmable lights when Alexa does not send percentage commands to a native Window Covering endpoint. Brightness represents openness (`100%` open, `0%` closed), while On/Off opens or closes the cover. Commands and status remain mapped through the existing KNX cover position GA/DPT, including position inversion and loop-protected KNX-to-Matter feedback. The standard Matter Window Covering endpoint remains the default.<br/>
