@@ -48,6 +48,8 @@
       "fn_currenttemp": "GA temperatura actual",
       "fn_setpoint_cmd": "GA comando consigna",
       "fn_setpoint_status": "GA estado consigna",
+      "fn_coolingsetpoint_cmd": "GA comando consigna refrigeración",
+      "fn_coolingsetpoint_status": "GA estado consigna refrigeración",
       "fn_rgb_cmd": "GA comando color RGB (DPT 232.600)",
       "fn_rgb_status": "GA estado color RGB (DPT 232.600)",
       "fn_ct_cmd": "GA comando temperatura de color (Kelvin)",

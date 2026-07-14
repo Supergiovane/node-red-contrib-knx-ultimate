@@ -48,6 +48,8 @@
       "fn_currenttemp": "Current temperature GA",
       "fn_setpoint_cmd": "Setpoint command GA",
       "fn_setpoint_status": "Setpoint status GA",
+      "fn_coolingsetpoint_cmd": "Cooling setpoint command GA",
+      "fn_coolingsetpoint_status": "Cooling setpoint status GA",
       "fn_rgb_cmd": "RGB color command GA (DPT 232.600)",
       "fn_rgb_status": "RGB color status GA (DPT 232.600)",
       "fn_ct_cmd": "Color temperature command GA (Kelvin)",

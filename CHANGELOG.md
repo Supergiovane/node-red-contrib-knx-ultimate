@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Unreleased**<br/>
+
+- **Expose KNX to Matter (BETA) — heating/cooling thermostats**: the bridged Thermostat can now expose a **Cooling setpoint** in addition to the existing heating one. Add a *Cooling setpoint command/status GA* on the device to automatically upgrade the Matter endpoint to a dual-mode (Heat/Cool) thermostat; leaving it empty keeps the previous heating-only behavior unchanged. Mode (Heat/Cool) switches from the controller are accepted but not yet mirrored back to KNX.<br/>
+- **Expose KNX to Matter (BETA) — stable per-device identity**: bridged devices now also set the optional `UniqueID` of `BridgedDeviceBasicInformation` (matching the existing serial number), improving cross-reset device identity for controllers that rely on it (e.g. Apple Home) alongside the endpoint number.<br/>
+- **Matter Bridge/Controller — safer shared storage initialization**: the `storage.path` write on the process-wide matter.js `Environment.default`, followed by the `ServerNode`/`CommissioningController` creation, is now serialized through a small FIFO lock (`matterEnvironmentLock.mjs`) shared by both engines, removing a theoretical race between a concurrently starting Matter Bridge and Matter Controller.<br/>
+
 **Version 6.0.4** - July 2026<br/>
 
 - **Expose KNX to Matter (BETA) — clearer editor layout**: reorganized the device editor into dedicated **KNX mappings** and **Advanced options** tabs, following the established KNXUltimate node UI. Type-specific compatibility settings are easier to find, and checkbox labels now include icons with the checkbox positioned after the text. All saved fields and runtime behavior remain unchanged.<br/>

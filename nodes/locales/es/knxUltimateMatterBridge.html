@@ -28,7 +28,7 @@ Es la dirección opuesta al nodo *Matter Device*: allí KNX controla un disposit
 | Luz RGB (color) | + GA comando/estado color RGB (DPT 232.600). El color Matter (hue/saturation o XY, de la rueda de color de la app) se convierte desde/hacia la terna RGB KNX |
 | Luz blanco dinámico | + GA comando/estado temperatura de color en Kelvin (DPT 7.600) |
 | Persiana / Cortina | Subir/Bajar (DPT 1.008), Stop (DPT 1.017), posición % comando/estado (DPT 5.001), inversión de posición opcional |
-| Termostato (calefacción) | GA temperatura actual, GA comando/estado consigna (DPT 9.001) |
+| Termostato (calefacción y/o refrigeración) | GA temperatura actual, GA comando/estado consigna (DPT 9.001). Añadiendo también la GA comando/estado consigna de refrigeración se expone también el modo Cool (doble consigna) |
 | Ventilador / VMC | GA comando/estado velocidad % (DPT 5.001) |
 | Sensores (temperatura, humedad, luz, presencia, contacto) | Una GA de estado cada uno |
 | Alarma humo/CO | GA estado alarma de humo + GA estado alarma CO opcional (DPT 1.005): notificaciones críticas en el teléfono |

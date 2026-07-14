@@ -48,6 +48,8 @@
       "fn_currenttemp": "GA aktuelle Temperatur",
       "fn_setpoint_cmd": "Sollwert Befehls-GA",
       "fn_setpoint_status": "Sollwert Status-GA",
+      "fn_coolingsetpoint_cmd": "Kühl-Sollwert Befehls-GA",
+      "fn_coolingsetpoint_status": "Kühl-Sollwert Status-GA",
       "fn_rgb_cmd": "RGB-Farbe Befehls-GA (DPT 232.600)",
       "fn_rgb_status": "RGB-Farbe Status-GA (DPT 232.600)",
       "fn_ct_cmd": "Farbtemperatur Befehls-GA (Kelvin)",

@@ -48,6 +48,8 @@
       "fn_currenttemp": "当前温度 GA",
       "fn_setpoint_cmd": "设定点 命令 GA",
       "fn_setpoint_status": "设定点 状态 GA",
+      "fn_coolingsetpoint_cmd": "制冷设定点 命令 GA",
+      "fn_coolingsetpoint_status": "制冷设定点 状态 GA",
       "fn_rgb_cmd": "RGB 颜色命令 GA (DPT 232.600)",
       "fn_rgb_status": "RGB 颜色状态 GA (DPT 232.600)",
       "fn_ct_cmd": "色温命令 GA（开尔文）",

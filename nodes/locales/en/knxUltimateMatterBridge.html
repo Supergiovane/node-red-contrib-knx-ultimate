@@ -28,7 +28,7 @@ This is the opposite direction of the *Matter Device* node: there KNX controls a
 | RGB color light | + RGB color command/status GA (DPT 232.600). The Matter color (hue/saturation or XY, from the app color wheel) is converted to/from the KNX RGB triplet |
 | Tunable white light | + Color temperature command/status GA in Kelvin (DPT 7.600) |
 | Cover / Shutter | Up/Down (DPT 1.008), Stop (DPT 1.017), Position % command/status (DPT 5.001), optional position inversion |
-| Thermostat (heating) | Current temperature GA, Setpoint command/status GA (DPT 9.001) |
+| Thermostat (heating and/or cooling) | Current temperature GA, Setpoint command/status GA (DPT 9.001). Optionally add a Cooling setpoint command/status GA to also expose a Cool mode (dual-setpoint) |
 | Fan / Ventilation | Fan speed % command/status GA (DPT 5.001) |
 | Sensors (temperature, humidity, light, occupancy, contact) | One status GA each |
 | Smoke/CO alarm | Smoke alarm status GA + optional CO alarm status GA (DPT 1.005): critical notifications on the phone |
