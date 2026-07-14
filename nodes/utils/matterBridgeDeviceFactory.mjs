@@ -52,7 +52,7 @@ const BRIDGE_TYPES = {
   contactsensor: { device: ContactSensorDevice, functions: ['contact'], commandFunctions: [] },
   // Custom construction (dedicated server behaviors), handled in createBridgedEndpoint
   windowcovering: { device: null, functions: ['position'], commandFunctions: [] },
-  thermostat: { device: null, functions: ['currenttemp', 'setpoint'], commandFunctions: [] },
+  thermostat: { device: null, functions: ['currenttemp', 'setpoint', 'coolingsetpoint'], commandFunctions: [] },
   rgblight: { device: null, functions: ['onoff', 'level', 'rgb'], commandFunctions: ['onoff', 'level'] },
   colortemperaturelight: { device: null, functions: ['onoff', 'level', 'colortemp'], commandFunctions: ['onoff', 'level'] },
   smokecoalarm: { device: null, functions: ['smoke', 'co'], commandFunctions: [] },
@@ -123,7 +123,12 @@ function knxValueToMatterPatch (def, fn, value) {
     case 'setpoint': {
       const t = Number(value)
       if (Number.isNaN(t)) return undefined
-      return { thermostat: { occupiedHeatingSetpoint: clamp(Math.round(t * 100), 700, 3000) } }
+      return { thermostat: { occupiedHeatingSetpoint: clamp(Math.round(t * 100), 700, 3000) } } // 7-30°C
+    }
+    case 'coolingsetpoint': {
+      const t = Number(value)
+      if (Number.isNaN(t)) return undefined
+      return { thermostat: { occupiedCoolingSetpoint: clamp(Math.round(t * 100), 1600, 3200) } } // 16-32°C
     }
     case 'onoff':
       return { onOff: { onOff: truthy(value) } }
@@ -285,13 +290,18 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   if (typeInfo === undefined) throw new Error(`Unsupported Matter bridge device type: ${def.type}`)
   const name = (def.name || def.type).toString().slice(0, 32)
 
+  const stableSerial = `${serialPrefix}-${def.id}`.slice(0, 32)
   const initialState = {
     id: `knx-${def.id}`.slice(0, 32),
     bridgedDeviceBasicInformation: {
       nodeLabel: name, // This is the name Alexa/Google/Apple show and use
       productName: name,
       productLabel: name,
-      serialNumber: `${serialPrefix}-${def.id}`.slice(0, 32),
+      serialNumber: stableSerial,
+      // Optional but recommended: some controllers (notably Apple Home) use UniqueID,
+      // rather than the endpoint number alone, as the stable cross-reset device identity.
+      // It never changes for a given def.id, matching the endpoint's own persisted 'id'.
+      uniqueId: stableSerial,
       reachable: true
     }
   }
@@ -429,21 +439,51 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   }
 
   if (def.type === 'thermostat') {
+    // Heating/Cooling capability is auto-detected from which setpoint GA(s) the KNX node
+    // has configured (see knxUltimateMatterBridge.js#getMatterDef). Leaving both flags
+    // unset keeps the original heating-only behavior, so existing flows are unaffected.
+    const hasCooling = def.hasCoolingSetpoint === true
+    const hasHeating = def.hasHeatingSetpoint !== false
+    const features = []
+    if (hasHeating) features.push('Heating')
+    if (hasCooling) features.push('Cooling')
+    if (features.length === 0) features.push('Heating') // never build a thermostat with neither mode
+
     initialState.thermostat = {
       localTemperature: null,
-      occupiedHeatingSetpoint: 2000, // 20°C
-      controlSequenceOfOperation: 2, // HeatingOnly
-      systemMode: 4 // Heat
+      // CoolingOnly=0, HeatingOnly=2, CoolingAndHeating=4 (Matter ControlSequenceOfOperation enum)
+      controlSequenceOfOperation: hasHeating && hasCooling ? 4 : (hasCooling ? 0 : 2),
+      // Cool=3, Heat=4 (Matter SystemMode enum). Dual-mode starts in Heat; the controller can
+      // switch it, same as any physical dual thermostat without an auto/deadband mode.
+      systemMode: hasCooling && !hasHeating ? 3 : 4
     }
-    endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with('Heating'), BridgedDeviceBasicInformationServer), initialState)
+    if (hasHeating) initialState.thermostat.occupiedHeatingSetpoint = 2000 // 20°C
+    if (hasCooling) initialState.thermostat.occupiedCoolingSetpoint = 2400 // 24°C
+
+    endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with(...features), BridgedDeviceBasicInformationServer), initialState)
+
     // Setpoint changes from a Matter controller (attribute write or setpointRaiseLower command)
-    endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (value === null || value === undefined) return
-        onCommand({ deviceId: def.id, fn: 'setpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
-      } catch (error) { /* empty */ }
-    })
+    if (hasHeating) {
+      endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
+        try {
+          if (context?.offline === true) return
+          if (value === null || value === undefined) return
+          onCommand({ deviceId: def.id, fn: 'setpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
+        } catch (error) { /* empty */ }
+      })
+    }
+    if (hasCooling) {
+      endpoint.events.thermostat.occupiedCoolingSetpoint$Changed.on((value, oldValue, context) => {
+        try {
+          if (context?.offline === true) return
+          if (value === null || value === undefined) return
+          onCommand({ deviceId: def.id, fn: 'coolingsetpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
+        } catch (error) { /* empty */ }
+      })
+    }
+    // NOTE: SystemMode (Heat/Cool/Off/Auto) changes from a controller are accepted by the
+    // cluster but not forwarded to KNX yet: there is no single KNX DPT for HVAC mode that
+    // fits every actuator. Track it via the node's optional input PIN if you need it today.
     return endpoint
   }
 
