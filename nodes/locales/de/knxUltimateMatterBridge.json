@@ -17,22 +17,25 @@
       "name_placeholder": "z.B. Küchenlicht",
       "invert": "Position % invertieren"
     },
-  "advanced": {
+    "advanced": {
       "title": "Erweiterte Kompatibilität",
       "help": " Verwende diese Optionen nur, wenn ein Matter-Controller oder ein KNX-Aktor eine besondere Behandlung benötigt.",
+      "alexa_dedup_ms": "Alexa-Duplikat-Fenster (ms, 0 = aus)",
       "turn_on_behavior": "Einschaltverhalten",
       "turn_on_ignore_level": "Helligkeit direkt nach Ein ignorieren",
       "turn_on_forward_all": "Jeden Helligkeitsbefehl weiterleiten",
-    "ignore_level_ms": "Helligkeit nach Ein ignorieren (ms)",
+      "ignore_level_ms": "Helligkeit nach Ein ignorieren (ms)",
+      "cover_swap_open_close": "Abdeckung Öffnen / Schließen tauschen",
+      "cover_slider_debounce": "Abdeckungsregler-Entprellung (ms, 0 = adaptiv)",
       "cover_update_mode": "Jalousie-/Rollladenstatus",
       "cover_optimistic": "Matter-Position optimistisch aktualisieren",
       "cover_wait_status": "Nur auf KNX-Status warten",
-    "cover_status_timeout": "Timeout für Positionsstatus (ms)"
-  },
-  "tabs": {
-    "mappings": "KNX-Zuordnungen",
-    "advanced": "Erweiterte Optionen"
-  },
+      "cover_status_timeout": "Timeout für Positionsstatus (ms)"
+    },
+    "tabs": {
+      "mappings": "KNX-Zuordnungen",
+      "advanced": "Erweiterte Optionen"
+    },
     "functions": {
       "fn_onoff_cmd": "Ein/Aus Befehls-GA",
       "fn_onoff_status": "Ein/Aus Status-GA",

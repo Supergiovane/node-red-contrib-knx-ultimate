@@ -77,6 +77,9 @@
       name: { value: '' },
       deviceType: { value: 'onofflight' },
       invertPosition: { value: false },
+      coverSwapOpenClose: { value: false },
+      coverSliderDebounceMs: { value: 0 },
+      commandDedupMs: { value: 1200 },
       turnOnBehavior: { value: 'ignoreLevelAfterOn' },
       ignoreLevelAfterOnMs: { value: 800 },
       coverUpdateMode: { value: 'optimistic' },
@@ -148,6 +151,7 @@
         const $fields = $('#mb-ga-fields').css({ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: '10px' });
         const $invertRow = $('#mb-invert-row');
         const $advancedRows = $('#mb-compatibility-options');
+        const $commandAdvancedRows = $('.mb-command-advanced-row');
         const $dimmerAdvancedRows = $('.mb-dimmer-advanced-row');
         const $coverAdvancedRows = $('.mb-cover-advanced-row');
         const gaInputs = {};
@@ -221,7 +225,11 @@
           $invertRow.toggle(selected === 'windowcovering');
           const hasLevel = selected === 'dimmablelight' || selected === 'rgblight' || selected === 'colortemperaturelight';
           const isCover = selected === 'windowcovering';
-          $advancedRows.toggle(hasLevel || isCover);
+          // The Alexa duplicate-command dedup applies to any device that emits On/Off or
+          // level commands (plain on/off lights and plugs included), not just dimmers.
+          const hasCommand = selected === 'onofflight' || selected === 'onoffplug' || hasLevel;
+          $advancedRows.toggle(hasCommand || isCover);
+          $commandAdvancedRows.toggle(hasCommand);
           $dimmerAdvancedRows.toggle(hasLevel);
           $coverAdvancedRows.toggle(isCover);
         }
@@ -233,6 +241,9 @@
         node._matterGaInputs = gaInputs;
 
         $('#node-input-invertPosition').prop('checked', node.invertPosition === true);
+        $('#node-input-coverSwapOpenClose').prop('checked', node.coverSwapOpenClose === true);
+        $('#node-input-coverSliderDebounceMs').val(node.coverSliderDebounceMs === undefined ? 0 : node.coverSliderDebounceMs);
+        $('#node-input-commandDedupMs').val(node.commandDedupMs === undefined ? 1200 : node.commandDedupMs);
         $('#node-input-turnOnBehavior').val(node.turnOnBehavior || 'ignoreLevelAfterOn');
         $('#node-input-ignoreLevelAfterOnMs').val(node.ignoreLevelAfterOnMs === undefined ? 800 : node.ignoreLevelAfterOnMs);
         $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
@@ -246,6 +257,7 @@
         const selected = $('#node-input-deviceType').val();
         node.deviceType = selected;
         node.invertPosition = $('#node-input-invertPosition').is(':checked');
+        node.coverSwapOpenClose = $('#node-input-coverSwapOpenClose').is(':checked');
         const active = TYPE_FIELDS[selected] || [];
         const gaInputs = node._matterGaInputs || {};
         // Clear every GA/DPT, then write only the ones of the selected type, reading
@@ -263,6 +275,11 @@
           }
         });
         delete node._matterGaInputs;
+        // Keep an explicit 0 (dedup disabled); treat only an empty/invalid field as the default.
+        const dedupRaw = $('#node-input-commandDedupMs').val();
+        this.commandDedupMs = (dedupRaw === '' || dedupRaw === null || isNaN(Number(dedupRaw))) ? 1200 : Math.max(0, Number(dedupRaw));
+        const coverDebounceRaw = $('#node-input-coverSliderDebounceMs').val();
+        this.coverSliderDebounceMs = (coverDebounceRaw === '' || coverDebounceRaw === null || isNaN(Number(coverDebounceRaw))) ? 0 : Math.min(5000, Math.max(0, Number(coverDebounceRaw)));
         this.turnOnBehavior = $('#node-input-turnOnBehavior').val() || 'ignoreLevelAfterOn';
         this.ignoreLevelAfterOnMs = Number($('#node-input-ignoreLevelAfterOnMs').val()) || 0;
         this.coverUpdateMode = $('#node-input-coverUpdateMode').val() || 'optimistic';
@@ -338,10 +355,11 @@
 
     <div id="mb-tab-advanced" style="padding-top:12px;">
       <div id="mb-compatibility-options" style="display:none;">
-        <div class="form-tips" style="display:block; width:100%; max-width:none; box-sizing:border-box; margin-bottom:12px; border-left:4px solid #4b8cc4;">
-          <i class="fa fa-info-circle"></i>
-          <b data-i18n="knxUltimateMatterBridge.advanced.title"></b>
-          <span data-i18n="knxUltimateMatterBridge.advanced.help"></span>
+        <div class="form-row mb-command-advanced-row" style="display:none; margin-top:8px;">
+          <label for="node-input-commandDedupMs" style="width:260px;">
+            <i class="fa fa-clone"></i> <span data-i18n="knxUltimateMatterBridge.advanced.alexa_dedup_ms"></span>
+          </label>
+          <input type="number" id="node-input-commandDedupMs" min="0" step="100" style="width:120px;">
         </div>
 
         <div class="form-row mb-dimmer-advanced-row" style="display:none; margin-top:8px;">
@@ -359,6 +377,20 @@
             <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.ignore_level_ms"></span>
           </label>
           <input type="number" id="node-input-ignoreLevelAfterOnMs" min="0" step="100" style="width:120px;">
+        </div>
+
+        <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
+          <label for="node-input-coverSwapOpenClose" style="width:260px;">
+            <i class="fa fa-exchange"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_swap_open_close"></span>
+          </label>
+          <input type="checkbox" id="node-input-coverSwapOpenClose" style="width:auto; vertical-align:middle;">
+        </div>
+
+        <div class="form-row mb-cover-advanced-row" style="display:none;">
+          <label for="node-input-coverSliderDebounceMs" style="width:260px;">
+            <i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateMatterBridge.advanced.cover_slider_debounce"></span>
+          </label>
+          <input type="number" id="node-input-coverSliderDebounceMs" min="0" max="5000" step="50" style="width:120px;">
         </div>
 
         <div class="form-row mb-cover-advanced-row" style="display:none; margin-top:8px;">
@@ -420,8 +452,9 @@ Point it to a **Matter Bridge** configuration node (the actual bridge, paired on
 The advanced compatibility options are intentionally type-specific:
 
 - dimmable devices can ignore the brightness command that some controllers send immediately after an On command
+- covers can swap Open/Close (including the percentage direction) for controllers such as Alexa that interpret them in reverse
+- cover slider debounce coalesces rapid intermediate targets before writing to KNX: `0` uses adaptive 400/150 ms windows, while `1`–`5000` forces a fixed window
 - covers can optimistically update the Matter position after a command, then correct it when the KNX status GA reports the real position
-- if Alexa cannot set a cover percentage, a cover can be exposed as a dimmable light: brightness means openness, while the configured KNX cover GAs and DPTs remain unchanged
 
 The **KNX gateway is optional**: without it, enable the node PINs and drive the device from the flow.
 

@@ -17,22 +17,25 @@
       "name_placeholder": "ex. Lumière cuisine",
       "invert": "Inverser la position %"
     },
-  "advanced": {
+    "advanced": {
       "title": "Compatibilité avancée",
       "help": " Utilisez ces options seulement lorsqu'un contrôleur Matter ou un actionneur KNX demande un traitement spécial.",
+      "alexa_dedup_ms": "Fenêtre anti-doublons Alexa (ms, 0 = off)",
       "turn_on_behavior": "Comportement à l'allumage",
       "turn_on_ignore_level": "Ignorer la luminosité envoyée juste après On",
       "turn_on_forward_all": "Transmettre chaque commande de luminosité",
-    "ignore_level_ms": "Ignorer la luminosité après On (ms)",
+      "ignore_level_ms": "Ignorer la luminosité après On (ms)",
+      "cover_swap_open_close": "Permuter Ouvrir / Fermer le volet",
+      "cover_slider_debounce": "Anti-rebond curseur volet (ms, 0 = adaptatif)",
       "cover_update_mode": "Mise à jour état volet",
       "cover_optimistic": "Mettre à jour la position Matter de façon optimiste",
       "cover_wait_status": "Attendre seulement l'état KNX",
-    "cover_status_timeout": "Timeout état volet (ms)"
-  },
-  "tabs": {
-    "mappings": "Mappages KNX",
-    "advanced": "Options avancées"
-  },
+      "cover_status_timeout": "Timeout état volet (ms)"
+    },
+    "tabs": {
+      "mappings": "Mappages KNX",
+      "advanced": "Options avancées"
+    },
     "functions": {
       "fn_onoff_cmd": "GA commande On/Off",
       "fn_onoff_status": "GA état On/Off",

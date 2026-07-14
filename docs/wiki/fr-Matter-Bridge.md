@@ -46,7 +46,7 @@ C'est la direction opposée du nœud *Matter Device* : là-bas KNX contrôle un 
 
 ## Compatibilité avancée
 
-Ces options ne s'affichent que lorsqu'elles s'appliquent au type sélectionné. Les appareils variables peuvent ignorer la commande de luminosité que certains contrôleurs envoient juste après `On`. Les volets peuvent mettre à jour la position Matter de façon optimiste après une commande, puis la corriger quand la GA d'état KNX rapporte la position réelle.
+Ces options ne s'affichent que lorsqu'elles s'appliquent au type sélectionné. Les appareils variables peuvent ignorer la luminosité envoyée juste après `On`. Pour les volets, **Permuter Ouvrir / Fermer** inverse la commande KNX binaire et le sens du pourcentage. **Anti-rebond curseur volet** regroupe les cibles intermédiaires rapides avant l'écriture KNX : `0` utilise des fenêtres adaptatives (400 ms pour la première commande, 150 ms pour les suivantes) ; `1`–`5000` impose une fenêtre fixe. La position Matter peut aussi être mise à jour de façon optimiste puis corrigée par la GA d'état KNX.
 
 ## PIN du nœud
 

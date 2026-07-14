@@ -17,22 +17,25 @@
       "name_placeholder": "例如 厨房灯",
       "invert": "反转位置 %"
     },
-  "advanced": {
+    "advanced": {
       "title": "高级兼容性",
       "help": " 仅当 Matter 控制器或 KNX 执行器需要特殊处理时使用这些选项。",
+      "alexa_dedup_ms": "Alexa 去重窗口 (毫秒, 0 = 关闭)",
       "turn_on_behavior": "开灯行为",
       "turn_on_ignore_level": "忽略 On 后立即发送的亮度",
       "turn_on_forward_all": "转发每个亮度命令",
-    "ignore_level_ms": "On 后忽略亮度时间 (ms)",
+      "ignore_level_ms": "On 后忽略亮度时间 (ms)",
+      "cover_swap_open_close": "交换窗帘打开 / 关闭",
+      "cover_slider_debounce": "窗帘滑块防抖（毫秒，0 = 自适应）",
       "cover_update_mode": "窗帘状态更新",
       "cover_optimistic": "乐观更新 Matter 位置",
       "cover_wait_status": "仅等待 KNX 状态",
-    "cover_status_timeout": "窗帘状态超时 (ms)"
-  },
-  "tabs": {
-    "mappings": "KNX 映射",
-    "advanced": "高级选项"
-  },
+      "cover_status_timeout": "窗帘状态超时 (ms)"
+    },
+    "tabs": {
+      "mappings": "KNX 映射",
+      "advanced": "高级选项"
+    },
     "functions": {
       "fn_onoff_cmd": "开/关 命令 GA",
       "fn_onoff_status": "开/关 状态 GA",

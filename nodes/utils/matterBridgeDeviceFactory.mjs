@@ -83,7 +83,8 @@ function knxValueToMatterPatch (def, fn, value) {
       // Matter lift percent100ths: 0 = open, 10000 = closed.
       let percent = Number(value)
       if (Number.isNaN(percent)) return undefined
-      if (def.invertPosition === true) percent = 100 - percent
+      const invert = (def.invertPosition === true) !== (def.coverSwapOpenClose === true)
+      if (invert) percent = 100 - percent
       return { windowCovering: { currentPositionLiftPercent100ths: clamp(Math.round(percent * 100), 0, 10000) } }
     }
     case 'rgb': {
@@ -324,17 +325,45 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   let endpoint
 
   // Emit controller commands at the command boundary instead of observing attribute
-  // changes. This makes the node output truly raw: repeated commands (for example
-  // Off while already off) are still forwarded exactly once.
+  // changes. This makes the node output raw: a controller re-sending a command (for
+  // example Off while already off) is still forwarded, unlike attribute-change tracking
+  // which would swallow the no-op.
+  //
+  // The one exception is a DUPLICATE burst from a single request. Just like the
+  // WindowCovering RangeController quirk handled below, Alexa maps lights to its generic
+  // Alexa.PowerController / Alexa.BrightnessController and a single "turn on" / "set to
+  // 50%" voice request can arrive here as up to two IDENTICAL cluster commands (two On, or
+  // moveToLevelWithOnOff + moveToLevel with the same level) instead of one - which made the
+  // node emit duplicate raw msgs, discussions/516. A short leading-edge dedup collapses
+  // that: the FIRST command is forwarded immediately (no added latency, unlike the cover's
+  // trailing debounce - lights must react instantly), and a command identical to the one
+  // just emitted for the same function is dropped only if it lands within the window. Any
+  // change of value (a real On->Off, or a different brightness) always passes through at
+  // once, so this suppresses only the spurious duplicate, never a genuine command.
+  // Configurable per device via the editor's Advanced tab (def.commandDedupMs): 0 disables
+  // it entirely (every command forwarded raw), a missing value uses the 1200ms default.
+  const rawDedupMs = Number(def.commandDedupMs)
+  const COMMAND_DEDUP_MS = Number.isFinite(rawDedupMs) && rawDedupMs >= 0 ? rawDedupMs : 1200
+  const lastEmittedCommand = new Map() // fn -> { value, at }
+  const isDuplicateCommand = (fn, value) => {
+    const now = Date.now()
+    const prev = lastEmittedCommand.get(fn)
+    if (prev !== undefined && prev.value === value && (now - prev.at) < COMMAND_DEDUP_MS) return true
+    lastEmittedCommand.set(fn, { value, at: now })
+    return false
+  }
+
   const RawOnOffBase = def.type === 'onoffplug' ? OnOffServer : OnOffServer.with('Lighting')
   class RawOnOffServer extends RawOnOffBase {
     async on () {
       await super.on()
+      if (isDuplicateCommand('onoff', true)) return
       onCommand({ deviceId: def.id, fn: 'onoff', value: true, matterCommand: { cluster: 'OnOff', command: 'on' } })
     }
 
     async off () {
       await super.off()
+      if (isDuplicateCommand('onoff', false)) return
       onCommand({ deviceId: def.id, fn: 'onoff', value: false, matterCommand: { cluster: 'OnOff', command: 'off' } })
     }
   }
@@ -343,12 +372,14 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     async moveToLevel (request) {
       await super.moveToLevel(request)
       const value = clamp(Math.round(Number(request.level) * 100 / 254), 0, 100)
+      if (isDuplicateCommand('level', value)) return
       onCommand({ deviceId: def.id, fn: 'level', value, matterCommand: { cluster: 'LevelControl', command: 'moveToLevel', request } })
     }
 
     async moveToLevelWithOnOff (request) {
       await super.moveToLevelWithOnOff(request)
       const value = clamp(Math.round(Number(request.level) * 100 / 254), 0, 100)
+      if (isDuplicateCommand('level', value)) return
       onCommand({ deviceId: def.id, fn: 'level', value, matterCommand: { cluster: 'LevelControl', command: 'moveToLevelWithOnOff', request } })
     }
   }
@@ -357,7 +388,11 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     // The WindowCoveringServer requires the movement logic: we forward it to the KNX bus.
     // Position feedback comes back from the KNX status GA, so we do NOT call the default
     // implementation (which would fake the movement by jumping to the target).
-    const invert = def.invertPosition === true
+    // KNX DPT 5.001 already follows Matter's cover convention. `invertPosition`
+    // provides the Home Assistant/Alexa-friendly opposite percentage convention;
+    // swapping Open/Close also reverses percentage commands and reports, symmetrically.
+    const swapOpenClose = def.coverSwapOpenClose === true
+    const invert = (def.invertPosition === true) !== swapOpenClose
 
     // Alexa DOES support the Matter WindowCovering device type - per Amazon's own docs
     // (developer.amazon.com/.../supported-matter-device-categories.html, Closure category) -
@@ -374,7 +409,17 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     // for a single legitimate command (covers take many seconds to physically travel), and
     // StopMotion always bypasses it below.
     // https://github.com/Luligu/matterbridge-hass/issues/196
-    const MOVEMENT_DEBOUNCE_MS = Number(def.movementDebounceMs) > 0 ? Number(def.movementDebounceMs) : 2000
+    // Match Home Assistant Matter Hub's cover slider handling: the first command in a
+    // sequence waits 400 ms and subsequent rapid updates wait 150 ms. A per-node value
+    // above zero replaces both windows. `movementDebounceMs` remains as a test/backward
+    // compatibility alias for definitions created outside the Node-RED editor.
+    const configuredDebounce = Number(def.coverSliderDebounceMs) > 0
+      ? Number(def.coverSliderDebounceMs)
+      : Number(def.movementDebounceMs) > 0 ? Number(def.movementDebounceMs) : 0
+    const DEBOUNCE_INITIAL_MS = 400
+    const DEBOUNCE_SUBSEQUENT_MS = 150
+    const COMMAND_SEQUENCE_THRESHOLD_MS = 600
+    let lastMovementCommandAt = 0
     let movementTimer = null
     let pendingMovementCommand = null
     const flushMovement = () => {
@@ -385,9 +430,15 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       onCommand(command)
     }
     const scheduleMovement = (command) => {
+      const now = Date.now()
+      const firstInSequence = now - lastMovementCommandAt > COMMAND_SEQUENCE_THRESHOLD_MS
+      lastMovementCommandAt = now
+      const debounceMs = configuredDebounce > 0
+        ? configuredDebounce
+        : firstInSequence ? DEBOUNCE_INITIAL_MS : DEBOUNCE_SUBSEQUENT_MS
       pendingMovementCommand = command
       if (movementTimer !== null) clearTimeout(movementTimer)
-      movementTimer = setTimeout(flushMovement, MOVEMENT_DEBOUNCE_MS)
+      movementTimer = setTimeout(flushMovement, debounceMs)
     }
 
     class KnxCoverServer extends WindowCoveringServer.with('Lift', 'PositionAwareLift') {
@@ -420,7 +471,8 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
           if (target <= 0 || target >= 10000) {
             // Full travel: KNX DPT 1.008 (0 = up/open, 1 = down/close). Not affected by
             // invertPosition, which only rescales the percentage GA convention.
-            scheduleMovement({ deviceId: def.id, fn: 'updown', value: target >= 10000, matterDiagnostic })
+            const downOrClose = target >= 10000
+            scheduleMovement({ deviceId: def.id, fn: 'updown', value: swapOpenClose ? !downOrClose : downOrClose, matterDiagnostic })
           } else {
             let percent = Math.round(target / 100)
             if (invert) percent = 100 - percent

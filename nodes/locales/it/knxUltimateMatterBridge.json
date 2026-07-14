@@ -17,22 +17,25 @@
       "name_placeholder": "es. Luce cucina",
       "invert": "Inverti posizione %"
     },
-  "advanced": {
+    "advanced": {
       "title": "Compatibilità avanzata",
       "help": " Usa queste opzioni solo quando un controller Matter o un attuatore KNX richiede una gestione speciale.",
+      "alexa_dedup_ms": "Finestra anti-duplicati Alexa (ms, 0 = off)",
       "turn_on_behavior": "Comportamento all'accensione",
       "turn_on_ignore_level": "Ignora luminosità inviata subito dopo On",
       "turn_on_forward_all": "Inoltra ogni comando luminosità",
-    "ignore_level_ms": "Ignora luminosità dopo On (ms)",
+      "ignore_level_ms": "Ignora luminosità dopo On (ms)",
+      "cover_swap_open_close": "Scambia Apri / Chiudi tapparella",
+      "cover_slider_debounce": "Debounce slider tapparella (ms, 0 = adattivo)",
       "cover_update_mode": "Aggiornamento stato tapparella",
       "cover_optimistic": "Aggiorna ottimisticamente la posizione Matter",
       "cover_wait_status": "Attendi solo lo stato KNX",
-    "cover_status_timeout": "Timeout stato tapparella (ms)"
-  },
-  "tabs": {
-    "mappings": "Mappature KNX",
-    "advanced": "Opzioni avanzate"
-  },
+      "cover_status_timeout": "Timeout stato tapparella (ms)"
+    },
+    "tabs": {
+      "mappings": "Mappature KNX",
+      "advanced": "Opzioni avanzate"
+    },
     "functions": {
       "fn_onoff_cmd": "GA comando On/Off",
       "fn_onoff_status": "GA stato On/Off",

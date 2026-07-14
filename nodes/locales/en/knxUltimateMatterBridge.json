@@ -17,22 +17,25 @@
       "name_placeholder": "e.g. Kitchen light",
       "invert": "Invert position %"
     },
-  "advanced": {
+    "advanced": {
       "title": "Advanced compatibility",
       "help": " Use these options only when a Matter controller or a KNX actuator needs special handling.",
+      "alexa_dedup_ms": "Alexa duplicate-command window (ms, 0 = off)",
       "turn_on_behavior": "Turn-on behavior",
       "turn_on_ignore_level": "Ignore brightness sent immediately after On",
       "turn_on_forward_all": "Forward every brightness command",
-    "ignore_level_ms": "Ignore brightness after On (ms)",
+      "ignore_level_ms": "Ignore brightness after On (ms)",
+      "cover_swap_open_close": "Swap cover Open / Close",
+      "cover_slider_debounce": "Cover slider debounce (ms, 0 = adaptive)",
       "cover_update_mode": "Cover state update",
       "cover_optimistic": "Optimistically update Matter position",
       "cover_wait_status": "Wait for KNX status only",
-    "cover_status_timeout": "Cover status timeout (ms)"
-  },
-  "tabs": {
-    "mappings": "KNX mappings",
-    "advanced": "Advanced options"
-  },
+      "cover_status_timeout": "Cover status timeout (ms)"
+    },
+    "tabs": {
+      "mappings": "KNX mappings",
+      "advanced": "Advanced options"
+    },
     "functions": {
       "fn_onoff_cmd": "On/Off command GA",
       "fn_onoff_status": "On/Off status GA",

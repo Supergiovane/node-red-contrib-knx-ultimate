@@ -17,22 +17,25 @@
       "name_placeholder": "p.ej. Luz cocina",
       "invert": "Invertir posición %"
     },
-  "advanced": {
+    "advanced": {
       "title": "Compatibilidad avanzada",
       "help": " Usa estas opciones solo cuando un controlador Matter o un actuador KNX necesite un tratamiento especial.",
+      "alexa_dedup_ms": "Ventana anti-duplicados Alexa (ms, 0 = off)",
       "turn_on_behavior": "Comportamiento al encender",
       "turn_on_ignore_level": "Ignorar brillo enviado justo después de On",
       "turn_on_forward_all": "Reenviar cada comando de brillo",
-    "ignore_level_ms": "Ignorar brillo tras On (ms)",
+      "ignore_level_ms": "Ignorar brillo tras On (ms)",
+      "cover_swap_open_close": "Intercambiar Abrir / Cerrar persiana",
+      "cover_slider_debounce": "Antirrebote del deslizador (ms, 0 = adaptativo)",
       "cover_update_mode": "Actualización de estado de persiana",
       "cover_optimistic": "Actualizar la posición Matter de forma optimista",
       "cover_wait_status": "Esperar solo el estado KNX",
-    "cover_status_timeout": "Timeout estado persiana (ms)"
-  },
-  "tabs": {
-    "mappings": "Asignaciones KNX",
-    "advanced": "Opciones avanzadas"
-  },
+      "cover_status_timeout": "Timeout estado persiana (ms)"
+    },
+    "tabs": {
+      "mappings": "Asignaciones KNX",
+      "advanced": "Opciones avanzadas"
+    },
     "functions": {
       "fn_onoff_cmd": "GA comando On/Off",
       "fn_onoff_status": "GA estado On/Off",

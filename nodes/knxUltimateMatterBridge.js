@@ -79,9 +79,17 @@ module.exports = function (RED) {
     // The Matter device id is the (stable) Node-RED node id, so the endpoint survives re-deploys.
     node.matterDeviceId = node.id
     node.invertPosition = config.invertPosition === true || config.invertPosition === 'true'
+    node.coverSwapOpenClose = config.coverSwapOpenClose === true || config.coverSwapOpenClose === 'true'
+    node.coverSliderDebounceMs = Number(config.coverSliderDebounceMs)
+    if (!Number.isFinite(node.coverSliderDebounceMs) || node.coverSliderDebounceMs < 0) node.coverSliderDebounceMs = 0
+    node.coverSliderDebounceMs = Math.min(5000, node.coverSliderDebounceMs)
     node.turnOnBehavior = config.turnOnBehavior || 'ignoreLevelAfterOn'
     node.ignoreLevelAfterOnMs = Number(config.ignoreLevelAfterOnMs)
     if (!Number.isFinite(node.ignoreLevelAfterOnMs) || node.ignoreLevelAfterOnMs < 0) node.ignoreLevelAfterOnMs = 800
+    // Alexa duplicate-command dedup window (ms). 0 disables it (raw forwarding);
+    // an empty/invalid value falls back to the 1200ms default. See the device factory.
+    node.commandDedupMs = Number(config.commandDedupMs)
+    if (!Number.isFinite(node.commandDedupMs) || node.commandDedupMs < 0) node.commandDedupMs = 1200
     node.coverUpdateMode = config.coverUpdateMode || 'optimistic'
     node.coverStatusTimeoutMs = Number(config.coverStatusTimeoutMs)
     if (!Number.isFinite(node.coverStatusTimeoutMs) || node.coverStatusTimeoutMs < 0) node.coverStatusTimeoutMs = 3000
@@ -243,6 +251,9 @@ module.exports = function (RED) {
       type: node.deviceType,
       name: node.name,
       invertPosition: node.invertPosition === true,
+      coverSwapOpenClose: node.coverSwapOpenClose === true,
+      coverSliderDebounceMs: node.coverSliderDebounceMs,
+      commandDedupMs: node.commandDedupMs,
       coverUpdateMode: node.coverUpdateMode,
       // Thermostat only: whether a heating/cooling setpoint GA (command or status) was
       // configured, so the bridge engine can build a Heating-only, Cooling-only or dual

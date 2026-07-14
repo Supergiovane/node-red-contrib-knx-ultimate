@@ -46,7 +46,7 @@ Das ist die Gegenrichtung zum *Matter Device*-Node: Dort steuert KNX ein Matter-
 
 ## Erweiterte Kompatibilität
 
-Diese Optionen werden nur angezeigt, wenn sie zum gewählten Typ passen. Dimmbare Geräte können den Helligkeitsbefehl ignorieren, den manche Controller direkt nach `Ein` senden. Rollläden/Jalousien können die Matter-Position nach einem Befehl optimistisch aktualisieren und sie korrigieren, sobald die KNX-Status-GA die echte Position meldet.
+Diese Optionen werden nur angezeigt, wenn sie zum gewählten Typ passen. Dimmbare Geräte können den Helligkeitsbefehl ignorieren, den manche Controller direkt nach `Ein` senden. Bei Abdeckungen kehrt **Öffnen / Schließen tauschen** sowohl den binären KNX-Befehl als auch die Prozentrichtung um. **Abdeckungsregler-Entprellung** fasst schnelle Zwischenziele vor dem KNX-Schreiben zusammen: `0` nutzt adaptive Fenster (400 ms für den ersten, 150 ms für weitere Befehle); `1`–`5000` erzwingt ein festes Fenster. Die Matter-Position kann außerdem optimistisch aktualisiert und später durch die KNX-Status-GA korrigiert werden.
 
 ## Node-PINs
 

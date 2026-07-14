@@ -46,7 +46,7 @@ This is the opposite direction of the *Matter Device* node: there KNX controls a
 
 ## Advanced compatibility
 
-These options are hidden unless they apply to the selected type. Dimmable devices can ignore the brightness command that some controllers send immediately after `On`. Covers can optimistically update the Matter position after a command, then correct it when the KNX status GA reports the real position.
+These options are hidden unless they apply to the selected type. Dimmable devices can ignore the brightness command that some controllers send immediately after `On`. For covers, **Swap Open / Close** reverses both the binary KNX command and percentage direction. **Cover slider debounce** coalesces rapid intermediate targets before writing to KNX: `0` uses adaptive windows (400 ms for the first command, 150 ms for subsequent commands); `1`–`5000` forces one fixed window. Covers can also optimistically update the Matter position after a command, then correct it when the KNX status GA reports the real position.
 
 ## Node PINs
 

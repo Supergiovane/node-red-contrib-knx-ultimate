@@ -62,6 +62,11 @@ describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
     expect(patch({ type: 'windowcovering', invertPosition: true }, 'position', 30).windowCovering.currentPositionLiftPercent100ths).to.equal(7000)
   })
 
+  it('swaps cover position reporting symmetrically with Open/Close', () => {
+    expect(patch({ type: 'windowcovering', coverSwapOpenClose: true }, 'position', 30).windowCovering.currentPositionLiftPercent100ths).to.equal(7000)
+    expect(patch({ type: 'windowcovering', invertPosition: true, coverSwapOpenClose: true }, 'position', 30).windowCovering.currentPositionLiftPercent100ths).to.equal(3000)
+  })
+
   it('converts thermostat temperatures and clamps the setpoint', () => {
     expect(patch({ type: 'thermostat' }, 'currenttemp', 19.8).thermostat.localTemperature).to.equal(1980)
     expect(patch({ type: 'thermostat' }, 'setpoint', 21.5).thermostat.occupiedHeatingSetpoint).to.equal(2150)
@@ -393,7 +398,7 @@ describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
 })
 
 describe('matterBridgeDeviceFactory – raw command output', () => {
-  it('emits repeated On/Off and absolute level commands even when state is unchanged', async function () {
+  it('emits repeated On/Off and absolute level commands (raw), only collapsing an identical duplicate burst', async function () {
     this.timeout(10000)
     const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-raw-'))
     const port = 56000 + Math.floor(Math.random() * 8000)
@@ -403,18 +408,81 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     bridge.on('command', (command) => commands.push(command))
 
     try {
-      await bridge.start([{ id: 'raw-light', type: 'dimmablelight', name: 'Raw light' }])
+      // Tiny test-only dedup window so an identical repeat past it still re-emits.
+      await bridge.start([{ id: 'raw-light', type: 'dimmablelight', name: 'Raw light', commandDedupMs: 40 }])
       const endpoint = bridge.endpoints.get('raw-light')
+      // Alexa's single voice request duplicate: two identical Off back-to-back collapse to one.
       await endpoint.act((agent) => agent.get(OnOffServer).off())
+      await endpoint.act((agent) => agent.get(OnOffServer).off())
+      // A different value (On) is never a duplicate: it passes through immediately.
+      await endpoint.act((agent) => agent.get(OnOffServer).on())
+      // Same Off again, but past the window -> a genuine repeat, forwarded raw.
+      await new Promise((resolve) => setTimeout(resolve, 80))
       await endpoint.act((agent) => agent.get(OnOffServer).off())
       await endpoint.act((agent) => agent.get(LevelControlServer).moveToLevelWithOnOff({ level: 127, transitionTime: null }))
 
       expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
         { fn: 'onoff', value: false },
+        { fn: 'onoff', value: true },
         { fn: 'onoff', value: false },
         { fn: 'level', value: 50 }
       ])
-      expect(commands[2].matterCommand.command).to.equal('moveToLevelWithOnOff')
+      expect(commands[3].matterCommand.command).to.equal('moveToLevelWithOnOff')
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('collapses an identical GoToLift/level duplicate burst from a single Alexa light request (regression for #516)', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-dup-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-dup-${Date.now()}`, logger, { port, deviceName: 'Dup test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'dup-light', type: 'dimmablelight', name: 'Dup light', commandDedupMs: 500 }])
+      const endpoint = bridge.endpoints.get('dup-light')
+      // Two On commands and two same-level commands (moveToLevelWithOnOff then moveToLevel),
+      // exactly as Alexa's OnOffLightDevice/DimmableLightDevice re-send for one voice request.
+      await endpoint.act((agent) => agent.get(OnOffServer).on())
+      await endpoint.act((agent) => agent.get(OnOffServer).on())
+      await endpoint.act((agent) => agent.get(LevelControlServer).moveToLevelWithOnOff({ level: 200, transitionTime: null }))
+      await endpoint.act((agent) => agent.get(LevelControlServer).moveToLevel({ level: 200, transitionTime: null, optionsMask: {}, optionsOverride: {} }))
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'onoff', value: true },
+        { fn: 'level', value: 79 }
+      ])
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('commandDedupMs: 0 disables the dedup and forwards every identical command raw', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-nodedup-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-nodedup-${Date.now()}`, logger, { port, deviceName: 'No dedup test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      // Editor advanced option set to 0 -> user opted out, wants truly raw forwarding.
+      await bridge.start([{ id: 'raw2-light', type: 'onofflight', name: 'Raw2 light', commandDedupMs: 0 }])
+      const endpoint = bridge.endpoints.get('raw2-light')
+      await endpoint.act((agent) => agent.get(OnOffServer).on())
+      await endpoint.act((agent) => agent.get(OnOffServer).on())
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'onoff', value: true },
+        { fn: 'onoff', value: true }
+      ])
     } finally {
       await bridge.close()
       fs.rmSync(storagePath, { recursive: true, force: true })
@@ -431,7 +499,9 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     bridge.on('command', (command) => commands.push(command))
 
     try {
-      await bridge.start([{ id: 'cover1', type: 'windowcovering', name: 'Living room cover' }])
+      // Tiny debounce + a wait between each command: these are three distinct movements
+      // (not one Alexa burst), so each must flush past the debounce before the next.
+      await bridge.start([{ id: 'cover1', type: 'windowcovering', name: 'Living room cover', movementDebounceMs: 20 }])
       const endpoint = bridge.endpoints.get('cover1')
 
       // This is exactly what Alexa's "set the cover to 50%" resolves to on the wire.
@@ -439,9 +509,12 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
       // into a concrete Open/Close before our handler ever sees it (since the endpoint starts
       // with a known, non-null position) - so this used to be misclassified as 'updown'.
       await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 5000 }))
+      await new Promise((resolve) => setTimeout(resolve, 40))
       // Full-travel requests still use the KNX up/down GA.
       await endpoint.act((agent) => agent.get(WindowCoveringServer).upOrOpen())
+      await new Promise((resolve) => setTimeout(resolve, 40))
       await endpoint.act((agent) => agent.get(WindowCoveringServer).downOrClose())
+      await new Promise((resolve) => setTimeout(resolve, 40))
 
       expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
         { fn: 'position', value: 50 },
@@ -464,14 +537,43 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     bridge.on('command', (command) => commands.push(command))
 
     try {
-      await bridge.start([{ id: 'cover2', type: 'windowcovering', name: 'Inverted cover', invertPosition: true }])
+      await bridge.start([{ id: 'cover2', type: 'windowcovering', name: 'Inverted cover', invertPosition: true, movementDebounceMs: 20 }])
       const endpoint = bridge.endpoints.get('cover2')
       await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 3000 }))
+      await new Promise((resolve) => setTimeout(resolve, 40))
       await endpoint.act((agent) => agent.get(WindowCoveringServer).downOrClose())
+      await new Promise((resolve) => setTimeout(resolve, 40))
 
       expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
         { fn: 'position', value: 70 }, // 30% inverted -> 70%
         { fn: 'updown', value: true } // boundary command: not affected by invertPosition
+      ])
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('swaps cover Open/Close commands and percentage positions', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-swap-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-swap-${Date.now()}`, logger, { port, deviceName: 'Swapped cover test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'cover-swap', type: 'windowcovering', name: 'Swapped cover', coverSwapOpenClose: true, coverSliderDebounceMs: 20 }])
+      const endpoint = bridge.endpoints.get('cover-swap')
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 3000 }))
+      await new Promise((resolve) => setTimeout(resolve, 40))
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).downOrClose())
+      await new Promise((resolve) => setTimeout(resolve, 40))
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'position', value: 70 },
+        { fn: 'updown', value: false }
       ])
     } finally {
       await bridge.close()
@@ -567,8 +669,8 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     bridge.on('command', (command) => commands.push(command))
 
     try {
-      // Tiny debounce for a fast, deterministic test - production default is 2000ms.
-      await bridge.start([{ id: 'cover3', type: 'windowcovering', name: 'Debounced cover', movementDebounceMs: 30 }])
+      // Per-node override of the adaptive 400/150ms default for a fast deterministic test.
+      await bridge.start([{ id: 'cover3', type: 'windowcovering', name: 'Debounced cover', coverSliderDebounceMs: 30 }])
       const endpoint = bridge.endpoints.get('cover3')
       // Simulates Alexa's staggered burst for a single "close the blind" request.
       await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 7500 }))
@@ -610,5 +712,4 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     }
   })
 })
-
 

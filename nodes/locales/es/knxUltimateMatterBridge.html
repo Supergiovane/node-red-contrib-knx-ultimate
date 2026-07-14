@@ -41,7 +41,7 @@ Es la dirección opuesta al nodo *Matter Device*: allí KNX controla un disposit
 
 ## Compatibilidad avanzada
 
-Estas opciones solo aparecen cuando tienen sentido para el tipo seleccionado. Los dispositivos regulables pueden ignorar el comando de brillo que algunos controladores envían justo después de `On`. Las persianas pueden actualizar de forma optimista la posición Matter tras un comando y corregirla cuando la GA de estado KNX informa la posición real.
+Estas opciones solo aparecen cuando tienen sentido para el tipo seleccionado. Los dispositivos regulables pueden ignorar el brillo enviado justo después de `On`. Para persianas, **Intercambiar Abrir / Cerrar** invierte el comando KNX binario y la dirección porcentual. **Antirrebote del deslizador** agrupa objetivos intermedios rápidos antes de escribir en KNX: `0` usa ventanas adaptativas (400 ms para el primer comando y 150 ms para los siguientes); `1`–`5000` fuerza una ventana fija. La posición Matter también puede actualizarse de forma optimista y corregirse después mediante la GA de estado KNX.
 
 ## PINes del nodo
 

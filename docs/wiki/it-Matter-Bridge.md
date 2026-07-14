@@ -46,7 +46,7 @@ Ogni nodo Expose KNX to Matter espone **un dispositivo KNX come dispositivo Matt
 
 ## Compatibilità avanzata
 
-Queste opzioni sono nascoste finché non servono al tipo selezionato. I dispositivi dimmerabili possono ignorare il comando luminosità che alcuni controller inviano subito dopo `On`. Le tapparelle possono aggiornare ottimisticamente la posizione Matter dopo un comando, poi correggerla quando arriva la posizione reale dalla GA di stato KNX.
+Queste opzioni sono nascoste finché non servono al tipo selezionato. I dispositivi dimmerabili possono ignorare il comando luminosità che alcuni controller inviano subito dopo `On`. Per le tapparelle, **Scambia Apri / Chiudi** inverte sia il comando KNX binario sia la direzione percentuale. **Debounce slider tapparella** accorpa i target intermedi rapidi prima della scrittura KNX: `0` usa finestre adattive (400 ms per il primo comando, 150 ms per i successivi); `1`–`5000` imposta una finestra fissa. Le tapparelle possono inoltre aggiornare ottimisticamente la posizione Matter e correggerla quando arriva la posizione reale dalla GA di stato KNX.
 
 ## PIN del nodo
 
