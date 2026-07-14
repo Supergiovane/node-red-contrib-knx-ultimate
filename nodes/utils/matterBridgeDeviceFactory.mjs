@@ -359,16 +359,19 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     // implementation (which would fake the movement by jumping to the target).
     const invert = def.invertPosition === true
 
-    // Alexa does not natively support the Matter WindowCovering device type: per matter.js's
-    // own ECOSYSTEMS.md, it maps covers to its internal RangeController abstraction. In
-    // practice this means a single "open/close the blind" voice request can arrive here as a
-    // BURST of several GoToLiftPercentage commands stepping toward the final target, instead
-    // of one UpOrOpen/DownOrClose/GoToLiftPercentage(final) call. Forwarding every step to KNX
-    // makes the physical cover move in jerky stop-start motion. A short debounce - the same
-    // coalescing technique already used for RGB colors elsewhere in this file, and the fix
-    // independently validated in production by a very similar bridge - collapses a burst into
-    // one KNX command using only the LAST target. This adds an imperceptible delay for a
-    // single legitimate command (covers take many seconds to physically travel), and
+    // Alexa DOES support the Matter WindowCovering device type - per Amazon's own docs
+    // (developer.amazon.com/.../supported-matter-device-categories.html, Closure category) -
+    // but maps it to its generic Alexa.RangeController interface, not a dedicated cover
+    // controller (unlike lights, which get Alexa.ColorController, or locks, which get
+    // Alexa.LockController). RangeController's generic "set/adjust range value" directive
+    // model plausibly explains why a single "open/close the blind" voice request can arrive
+    // here as a BURST of several GoToLiftPercentage commands stepping toward the final target,
+    // instead of one UpOrOpen/DownOrClose/GoToLiftPercentage(final) call. Forwarding every
+    // step to KNX makes the physical cover move in jerky stop-start motion. A short debounce -
+    // the same coalescing technique already used for RGB colors elsewhere in this file, and
+    // the fix independently validated in production by a very similar bridge - collapses a
+    // burst into one KNX command using only the LAST target. This adds an imperceptible delay
+    // for a single legitimate command (covers take many seconds to physically travel), and
     // StopMotion always bypasses it below.
     // https://github.com/Luligu/matterbridge-hass/issues/196
     const MOVEMENT_DEBOUNCE_MS = Number(def.movementDebounceMs) > 0 ? Number(def.movementDebounceMs) : 2000
