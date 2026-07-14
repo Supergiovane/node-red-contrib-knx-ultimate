@@ -9,12 +9,16 @@ let factory
 let MatterBridgeEngine
 let OnOffServer
 let LevelControlServer
+let WindowCoveringServer
+let ColorControlServer
 before(async function () {
   this.timeout(20000)
   factory = await import('../nodes/utils/matterBridgeDeviceFactory.mjs')
   MatterBridgeEngine = (await import('../nodes/utils/matterBridgeEngine.mjs')).classMatterBridge
   OnOffServer = (await import('@matter/main/behaviors/on-off')).OnOffServer
   LevelControlServer = (await import('@matter/main/behaviors/level-control')).LevelControlServer
+  WindowCoveringServer = (await import('@matter/main/behaviors/window-covering')).WindowCoveringServer
+  ColorControlServer = (await import('@matter/main/behaviors/color-control')).ColorControlServer
 })
 
 describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
@@ -56,19 +60,6 @@ describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
 
   it('inverts the cover position when requested', () => {
     expect(patch({ type: 'windowcovering', invertPosition: true }, 'position', 30).windowCovering.currentPositionLiftPercent100ths).to.equal(7000)
-  })
-
-  it('maps KNX cover position to dimmable-light openness in Alexa compatibility mode', () => {
-    const open70 = patch({ type: 'windowcovering', coverExposeAsDimmableLight: true }, 'position', 30)
-    expect(open70.onOff.onOff).to.equal(true)
-    expect(open70.levelControl.currentLevel).to.equal(178)
-
-    const closed = patch({ type: 'windowcovering', coverExposeAsDimmableLight: true }, 'position', 100)
-    expect(closed.onOff.onOff).to.equal(false)
-    expect(closed.levelControl.currentLevel).to.equal(1)
-
-    const inverted = patch({ type: 'windowcovering', coverExposeAsDimmableLight: true, invertPosition: true }, 'position', 30)
-    expect(inverted.levelControl.currentLevel).to.equal(76)
   })
 
   it('converts thermostat temperatures and clamps the setpoint', () => {
@@ -329,36 +320,141 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     }
   })
 
-  it('maps Alexa-compatible cover light commands back to KNX cover positions', async function () {
+  it('forwards intermediate GoToLiftPercentage commands as position, not updown (regression for #516)', async function () {
     this.timeout(10000)
-    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-light-'))
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-pct-'))
     const port = 56000 + Math.floor(Math.random() * 8000)
     const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
-    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-light-${Date.now()}`, logger, { port, deviceName: 'Cover light test' })
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-pct-${Date.now()}`, logger, { port, deviceName: 'Cover pct test' })
     const commands = []
     bridge.on('command', (command) => commands.push(command))
 
     try {
-      await bridge.start([{
-        id: 'cover-light',
-        type: 'windowcovering',
-        name: 'Alexa cover',
-        coverExposeAsDimmableLight: true
-      }])
-      const endpoint = bridge.endpoints.get('cover-light')
-      await endpoint.act((agent) => agent.get(OnOffServer).on())
-      await endpoint.act((agent) => agent.get(OnOffServer).off())
-      await endpoint.act((agent) => agent.get(LevelControlServer).moveToLevelWithOnOff({ level: 127, transitionTime: null }))
+      await bridge.start([{ id: 'cover1', type: 'windowcovering', name: 'Living room cover' }])
+      const endpoint = bridge.endpoints.get('cover1')
+
+      // This is exactly what Alexa's "set the cover to 50%" resolves to on the wire.
+      // Before the fix, matter.js resolves goToLiftPercentage's DefinedByPosition direction
+      // into a concrete Open/Close before our handler ever sees it (since the endpoint starts
+      // with a known, non-null position) - so this used to be misclassified as 'updown'.
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 5000 }))
+      // Full-travel requests still use the KNX up/down GA.
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).upOrOpen())
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).downOrClose())
 
       expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
-        { fn: 'position', value: 0 },
-        { fn: 'position', value: 100 },
-        { fn: 'position', value: 50 }
+        { fn: 'position', value: 50 },
+        { fn: 'updown', value: false },
+        { fn: 'updown', value: true }
       ])
-      expect(commands[2].matterDiagnostic.handler).to.equal('coverAsDimmableLight')
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('inverts intermediate cover positions but not the up/down boundary commands', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-inv-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-inv-${Date.now()}`, logger, { port, deviceName: 'Cover invert test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'cover2', type: 'windowcovering', name: 'Inverted cover', invertPosition: true }])
+      const endpoint = bridge.endpoints.get('cover2')
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 3000 }))
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).downOrClose())
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'position', value: 70 }, // 30% inverted -> 70%
+        { fn: 'updown', value: true } // boundary command: not affected by invertPosition
+      ])
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('forwards repeated MoveToHueAndSaturation commands raw, even with an unchanged color', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-rgb-raw-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-rgb-raw-${Date.now()}`, logger, { port, deviceName: 'RGB raw test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'rgb1', type: 'rgblight', name: 'Raw RGB' }])
+      const endpoint = bridge.endpoints.get('rgb1')
+      const request = { hue: 0, saturation: 254, transitionTime: 0, optionsMask: {}, optionsOverride: {} }
+      // Same red command sent twice: with $Changed-based tracking this used to emit only once.
+      await endpoint.act((agent) => agent.get(ColorControlServer).moveToHueAndSaturation(request))
+      await endpoint.act((agent) => agent.get(ColorControlServer).moveToHueAndSaturation(request))
+
+      const rgbCommands = commands.filter((c) => c.fn === 'rgb')
+      expect(rgbCommands).to.have.length(2)
+      expect(rgbCommands[0].value).to.deep.equal({ red: 255, green: 0, blue: 0 })
+      expect(rgbCommands[1].value).to.deep.equal({ red: 255, green: 0, blue: 0 })
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('still coalesces separate MoveToHue + MoveToSaturation commands into one KNX RGB command', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-rgb-split-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-rgb-split-${Date.now()}`, logger, { port, deviceName: 'RGB split test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'rgb2', type: 'rgblight', name: 'Split RGB' }])
+      const endpoint = bridge.endpoints.get('rgb2')
+      await endpoint.act((agent) => agent.get(ColorControlServer).moveToHue({ hue: 0, direction: 0, transitionTime: 0, optionsMask: {}, optionsOverride: {} }))
+      await endpoint.act((agent) => agent.get(ColorControlServer).moveToSaturation({ saturation: 254, transitionTime: 0, optionsMask: {}, optionsOverride: {} }))
+      await new Promise((resolve) => setTimeout(resolve, 400)) // past the 250ms debounce
+
+      const rgbCommands = commands.filter((c) => c.fn === 'rgb')
+      expect(rgbCommands).to.have.length(1)
+      expect(rgbCommands[0].value).to.deep.equal({ red: 255, green: 0, blue: 0 })
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('forwards repeated MoveToColorTemperature commands raw', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-ct-raw-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-ct-raw-${Date.now()}`, logger, { port, deviceName: 'CT raw test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'ct1', type: 'colortemperaturelight', name: 'Raw CT' }])
+      const endpoint = bridge.endpoints.get('ct1')
+      const request = { colorTemperatureMireds: 250, transitionTime: 0, optionsMask: {}, optionsOverride: {} }
+      await endpoint.act((agent) => agent.get(ColorControlServer).moveToColorTemperature(request))
+      await endpoint.act((agent) => agent.get(ColorControlServer).moveToColorTemperature(request))
+
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'colortemp', value: 4000 },
+        { fn: 'colortemp', value: 4000 }
+      ])
     } finally {
       await bridge.close()
       fs.rmSync(storagePath, { recursive: true, force: true })
     }
   })
 })
+
+
