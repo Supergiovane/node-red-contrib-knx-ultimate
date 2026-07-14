@@ -77,6 +77,13 @@ describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
     expect(patch({ type: 'thermostat' }, 'setpoint', 99).thermostat.occupiedHeatingSetpoint).to.equal(3000)
   })
 
+  it('converts and clamps the cooling setpoint', () => {
+    expect(patch({ type: 'thermostat' }, 'coolingsetpoint', 24.5).thermostat.occupiedCoolingSetpoint).to.equal(2450)
+    expect(patch({ type: 'thermostat' }, 'coolingsetpoint', 5).thermostat.occupiedCoolingSetpoint).to.equal(1600) // clamped to 16°C
+    expect(patch({ type: 'thermostat' }, 'coolingsetpoint', 99).thermostat.occupiedCoolingSetpoint).to.equal(3200) // clamped to 32°C
+    expect(patch({ type: 'thermostat' }, 'coolingsetpoint', 'abc')).to.equal(undefined)
+  })
+
   it('converts KNX RGB (DPT 232.600) to Matter hue/saturation', () => {
     const red = patch({ type: 'rgblight' }, 'rgb', { red: 255, green: 0, blue: 0 })
     expect(red.colorControl.currentHue).to.equal(0)
@@ -125,6 +132,86 @@ describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
     expect(patch({ type: 'temperaturesensor' }, 'temperature', 'abc')).to.equal(undefined)
     expect(patch({ type: 'onofflight' }, 'nope', 1)).to.equal(undefined)
     expect(patch({ type: 'rgblight' }, 'rgb', 'notanobject')).to.equal(undefined)
+  })
+})
+
+describe('matterBridgeDeviceFactory – thermostat heating/cooling capability', () => {
+  it('stays heating-only when no cooling setpoint GA is configured (default, unchanged behavior)', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-thermo-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-thermo-${Date.now()}`, logger, { port, deviceName: 'Thermo test' })
+    try {
+      await bridge.start([{ id: 'th1', type: 'thermostat', name: 'Living room' }])
+      const state = bridge.endpoints.get('th1').state.thermostat
+      expect(state.occupiedHeatingSetpoint).to.equal(2000)
+      expect(state.occupiedCoolingSetpoint).to.equal(undefined)
+      expect(state.controlSequenceOfOperation).to.equal(2) // HeatingOnly
+      expect(state.systemMode).to.equal(4) // Heat
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('exposes a dual-mode thermostat and live-recreates the endpoint when cooling is added on reconcile', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-thermo-dual-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-thermo-dual-${Date.now()}`, logger, { port, deviceName: 'Thermo dual test' })
+    try {
+      await bridge.start([{ id: 'th2', type: 'thermostat', name: 'Office', hasHeatingSetpoint: true }])
+      expect(bridge.endpoints.get('th2').state.thermostat.occupiedCoolingSetpoint).to.equal(undefined)
+
+      await bridge.reconcileDevices([{ id: 'th2', type: 'thermostat', name: 'Office', hasHeatingSetpoint: true, hasCoolingSetpoint: true }])
+      const state = bridge.endpoints.get('th2').state.thermostat
+      expect(state.occupiedHeatingSetpoint).to.equal(2000)
+      expect(state.occupiedCoolingSetpoint).to.equal(2400)
+      expect(state.controlSequenceOfOperation).to.equal(4) // CoolingAndHeating
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('builds a cooling-only thermostat when only the cooling setpoint GA is configured', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-thermo-cool-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-thermo-cool-${Date.now()}`, logger, { port, deviceName: 'Thermo cool test' })
+    try {
+      await bridge.start([{ id: 'th3', type: 'thermostat', name: 'Server room', hasHeatingSetpoint: false, hasCoolingSetpoint: true }])
+      const state = bridge.endpoints.get('th3').state.thermostat
+      expect(state.occupiedHeatingSetpoint).to.equal(undefined)
+      expect(state.occupiedCoolingSetpoint).to.equal(2400)
+      expect(state.controlSequenceOfOperation).to.equal(0) // CoolingOnly
+      expect(state.systemMode).to.equal(3) // Cool
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+})
+
+describe('matterBridgeDeviceFactory – bridged device identity', () => {
+  it('sets a stable UniqueID matching the serial number on every bridged endpoint', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-uid-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-uid-${Date.now()}`, logger, { port, deviceName: 'UID test' })
+    try {
+      await bridge.start([{ id: 'uid1', type: 'onofflight', name: 'Hall light' }])
+      const info = bridge.endpoints.get('uid1').state.bridgedDeviceBasicInformation
+      expect(info.uniqueId).to.equal(info.serialNumber)
+      expect(info.uniqueId).to.be.a('string').and.not.empty
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
   })
 })
 
