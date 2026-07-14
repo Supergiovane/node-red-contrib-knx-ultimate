@@ -84,15 +84,6 @@ function knxValueToMatterPatch (def, fn, value) {
       let percent = Number(value)
       if (Number.isNaN(percent)) return undefined
       if (def.invertPosition === true) percent = 100 - percent
-      if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight === true) {
-        // Alexa compatibility mode: light brightness represents how open the cover is.
-        // Keep the KNX convention at this boundary and invert only the Matter view.
-        const openness = clamp(100 - percent, 0, 100)
-        return {
-          onOff: { onOff: openness > 0 },
-          levelControl: { currentLevel: clamp(Math.round(openness * 254 / 100), 1, 254) }
-        }
-      }
       return { windowCovering: { currentPositionLiftPercent100ths: clamp(Math.round(percent * 100), 0, 10000) } }
     }
     case 'rgb': {
@@ -311,7 +302,7 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
   // Although Matter permits an unknown (null) position, some controllers (including
   // Alexa) then expose only Open/Close instead of percentage positioning. Start with
   // a valid position; KNX or flow feedback replaces it as soon as it is available.
-  if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight !== true) {
+  if (def.type === 'windowcovering') {
     initialState.windowCovering = {
       currentPositionLiftPercent100ths: 0,
       targetPositionLiftPercent100ths: 0
@@ -350,48 +341,6 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     }
   }
 
-  if (def.type === 'windowcovering' && def.coverExposeAsDimmableLight === true) {
-    const invert = def.invertPosition === true
-    const emitPosition = (matterPosition, command, request) => {
-      let position = clamp(Math.round(matterPosition), 0, 100)
-      if (invert) position = 100 - position
-      onCommand({
-        deviceId: def.id,
-        fn: 'position',
-        value: position,
-        matterCommand: { cluster: command === 'on' || command === 'off' ? 'OnOff' : 'LevelControl', command, request },
-        matterDiagnostic: { handler: 'coverAsDimmableLight', command }
-      })
-    }
-
-    class CoverAsLightOnOffServer extends OnOffServer.with('Lighting') {
-      async on () {
-        await super.on()
-        emitPosition(0, 'on')
-      }
-
-      async off () {
-        await super.off()
-        emitPosition(100, 'off')
-      }
-    }
-
-    class CoverAsLightLevelServer extends LevelControlServer.with('Lighting', 'OnOff') {
-      async moveToLevel (request) {
-        await super.moveToLevel(request)
-        emitPosition(100 - clamp(Number(request.level) * 100 / 254, 0, 100), 'moveToLevel', request)
-      }
-
-      async moveToLevelWithOnOff (request) {
-        await super.moveToLevelWithOnOff(request)
-        emitPosition(100 - clamp(Number(request.level) * 100 / 254, 0, 100), 'moveToLevelWithOnOff', request)
-      }
-    }
-
-    endpoint = new Endpoint(DimmableLightDevice.with(CoverAsLightOnOffServer, CoverAsLightLevelServer, BridgedDeviceBasicInformationServer), initialState)
-    return endpoint
-  }
-
   if (def.type === 'windowcovering') {
     // The WindowCoveringServer requires the movement logic: we forward it to the KNX bus.
     // Position feedback comes back from the KNX status GA, so we do NOT call the default
@@ -411,13 +360,27 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
               : direction === MovementDirection.Open ? 'Open' : direction === MovementDirection.Close ? 'Close' : 'Unknown',
             targetPercent100ths: targetPercent100ths ?? null
           }
-          if (direction === MovementDirection.DefinedByPosition && targetPercent100ths !== undefined && targetPercent100ths !== null) {
-            let percent = Math.round(Number(targetPercent100ths) / 100)
+          if (targetPercent100ths === undefined || targetPercent100ths === null) return
+          // NOTE: 'direction' is NOT a usable signal here. matter.js's WindowCoveringServer
+          // resolves MovementDirection.DefinedByPosition (the direction goToLiftPercentage()
+          // actually passes) into a concrete Open/Close BEFORE calling handleMovement,
+          // by comparing targetPercent100ths against the current position (see
+          // #prepareMovement in @matter/node's WindowCoveringServer.ts). Since this bridge
+          // always starts with a known (non-null) position, handleMovement never receives
+          // DefinedByPosition in practice - every percentage command looked exactly like a
+          // plain Open/Close command. targetPercent100ths, on the other hand, is always
+          // populated when PositionAwareLift is supported (0/10000 for plain Up/Down too),
+          // so classify on that instead. Credit: till69, github.com/Supergiovane/
+          // node-red-contrib-knx-ultimate/discussions/516#discussioncomment-17633430
+          const target = Number(targetPercent100ths)
+          if (target <= 0 || target >= 10000) {
+            // Full travel: KNX DPT 1.008 (0 = up/open, 1 = down/close). Not affected by
+            // invertPosition, which only rescales the percentage GA convention.
+            onCommand({ deviceId: def.id, fn: 'updown', value: target >= 10000, matterDiagnostic })
+          } else {
+            let percent = Math.round(target / 100)
             if (invert) percent = 100 - percent
             onCommand({ deviceId: def.id, fn: 'position', value: clamp(percent, 0, 100), matterDiagnostic })
-          } else if (direction === MovementDirection.Open || direction === MovementDirection.Close) {
-            // KNX DPT 1.008: 0 = up/open, 1 = down/close
-            onCommand({ deviceId: def.id, fn: 'updown', value: direction === MovementDirection.Close, matterDiagnostic })
           }
         } catch (error) { /* empty */ }
       }
