@@ -358,6 +358,35 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     // Position feedback comes back from the KNX status GA, so we do NOT call the default
     // implementation (which would fake the movement by jumping to the target).
     const invert = def.invertPosition === true
+
+    // Alexa does not natively support the Matter WindowCovering device type: per matter.js's
+    // own ECOSYSTEMS.md, it maps covers to its internal RangeController abstraction. In
+    // practice this means a single "open/close the blind" voice request can arrive here as a
+    // BURST of several GoToLiftPercentage commands stepping toward the final target, instead
+    // of one UpOrOpen/DownOrClose/GoToLiftPercentage(final) call. Forwarding every step to KNX
+    // makes the physical cover move in jerky stop-start motion. A short debounce - the same
+    // coalescing technique already used for RGB colors elsewhere in this file, and the fix
+    // independently validated in production by a very similar bridge - collapses a burst into
+    // one KNX command using only the LAST target. This adds an imperceptible delay for a
+    // single legitimate command (covers take many seconds to physically travel), and
+    // StopMotion always bypasses it below.
+    // https://github.com/Luligu/matterbridge-hass/issues/196
+    const MOVEMENT_DEBOUNCE_MS = Number(def.movementDebounceMs) > 0 ? Number(def.movementDebounceMs) : 2000
+    let movementTimer = null
+    let pendingMovementCommand = null
+    const flushMovement = () => {
+      movementTimer = null
+      if (pendingMovementCommand === null) return
+      const command = pendingMovementCommand
+      pendingMovementCommand = null
+      onCommand(command)
+    }
+    const scheduleMovement = (command) => {
+      pendingMovementCommand = command
+      if (movementTimer !== null) clearTimeout(movementTimer)
+      movementTimer = setTimeout(flushMovement, MOVEMENT_DEBOUNCE_MS)
+    }
+
     class KnxCoverServer extends WindowCoveringServer.with('Lift', 'PositionAwareLift') {
       async handleMovement (type, reversed, direction, targetPercent100ths) {
         try {
@@ -388,17 +417,21 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
           if (target <= 0 || target >= 10000) {
             // Full travel: KNX DPT 1.008 (0 = up/open, 1 = down/close). Not affected by
             // invertPosition, which only rescales the percentage GA convention.
-            onCommand({ deviceId: def.id, fn: 'updown', value: target >= 10000, matterDiagnostic })
+            scheduleMovement({ deviceId: def.id, fn: 'updown', value: target >= 10000, matterDiagnostic })
           } else {
             let percent = Math.round(target / 100)
             if (invert) percent = 100 - percent
-            onCommand({ deviceId: def.id, fn: 'position', value: clamp(percent, 0, 100), matterDiagnostic })
+            scheduleMovement({ deviceId: def.id, fn: 'position', value: clamp(percent, 0, 100), matterDiagnostic })
           }
         } catch (error) { /* empty */ }
       }
 
       async handleStopMovement () {
         try {
+          // Stop is always immediate: drop any pending debounced movement so a stale queued
+          // command from before the stop cannot fire afterwards.
+          if (movementTimer !== null) { clearTimeout(movementTimer); movementTimer = null }
+          pendingMovementCommand = null
           onCommand({
             deviceId: def.id,
             fn: 'stop',
