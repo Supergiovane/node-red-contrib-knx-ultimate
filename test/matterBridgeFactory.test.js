@@ -289,6 +289,107 @@ describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
     })
     node.emit('close', () => {})
   })
+
+  it('falls back to the requested position if no exact KNX status arrives (waitStatus mode)', async function () {
+    this.timeout(2000)
+    let NodeConstructor
+    const matterStateUpdates = []
+    const statusUpdates = []
+    const bridge = {
+      registerDevice: () => {},
+      getPairingInfo: () => ({ running: true, commissioned: true, fabrics: [] }),
+      setDeviceState: (deviceId, fn, value) => matterStateUpdates.push({ deviceId, fn, value })
+    }
+    const knx = { addClient: () => {}, removeClient: () => {} }
+    const RED = {
+      nodes: {
+        createNode: (node, config) => {
+          Object.setPrototypeOf(node, EventEmitter.prototype)
+          EventEmitter.call(node)
+          node.id = config.id
+          node.send = () => {}
+          node.status = (s) => statusUpdates.push(s)
+          node.log = () => {}
+        },
+        getNode: (id) => ({ knx, bridge })[id],
+        registerType: (_type, constructor) => { NodeConstructor = constructor }
+      },
+      log: { error: () => {} }
+    }
+
+    require('../nodes/knxUltimateMatterBridge.js')(RED)
+    const node = new NodeConstructor({
+      id: 'cover-2',
+      server: 'knx',
+      serverMatterBridge: 'bridge',
+      name: 'Real cover',
+      deviceType: 'windowcovering',
+      coverUpdateMode: 'waitStatus',
+      coverStatusTimeoutMs: 0,
+      gaPositionStatus: '1/2/3', // a status GA must be configured, or there is nothing to fall back from
+      coverArrivalFallbackMs: 20 // test-only override of the (otherwise 45s) production default
+    })
+
+    node.handleMatterCommand({ fn: 'position', value: 42, matterDiagnostic: {} })
+    // No KNX status arrives: matterStateUpdates must stay empty until the fallback fires.
+    expect(matterStateUpdates).to.deep.equal([])
+
+    await new Promise((resolve) => setTimeout(resolve, 60))
+
+    expect(matterStateUpdates).to.deep.equal([{ deviceId: 'cover-2', fn: 'position', value: 42 }])
+    node.emit('close', () => {})
+  })
+
+  it('does not fall back once the real KNX status arrives in time (waitStatus mode)', async function () {
+    this.timeout(2000)
+    let NodeConstructor
+    const matterStateUpdates = []
+    const bridge = {
+      registerDevice: () => {},
+      getPairingInfo: () => ({ running: true, commissioned: true, fabrics: [] }),
+      setDeviceState: (deviceId, fn, value) => matterStateUpdates.push({ deviceId, fn, value })
+    }
+    const knx = { addClient: () => {}, removeClient: () => {} }
+    const RED = {
+      nodes: {
+        createNode: (node, config) => {
+          Object.setPrototypeOf(node, EventEmitter.prototype)
+          EventEmitter.call(node)
+          node.id = config.id
+          node.send = () => {}
+          node.status = () => {}
+          node.log = () => {}
+        },
+        getNode: (id) => ({ knx, bridge })[id],
+        registerType: (_type, constructor) => { NodeConstructor = constructor }
+      },
+      log: { error: () => {} }
+    }
+
+    require('../nodes/knxUltimateMatterBridge.js')(RED)
+    const node = new NodeConstructor({
+      id: 'cover-3',
+      server: 'knx',
+      serverMatterBridge: 'bridge',
+      name: 'Real cover with feedback',
+      deviceType: 'windowcovering',
+      coverUpdateMode: 'waitStatus',
+      coverStatusTimeoutMs: 0,
+      gaPositionStatus: '1/2/3',
+      dptPositionStatus: '5.001',
+      coverArrivalFallbackMs: 20
+    })
+
+    node.handleMatterCommand({ fn: 'position', value: 42, matterDiagnostic: {} })
+    // Real KNX feedback arrives well before the (tiny, test-only) fallback delay.
+    node.handleSend({ knx: { event: 'GroupValue_Write', destination: '1/2/3', rawValue: Buffer.from([Math.round(42 * 255 / 100)]) } })
+    await new Promise((resolve) => setTimeout(resolve, 60))
+
+    // Exactly the one real update from handleSend - the fallback must NOT have also fired.
+    expect(matterStateUpdates).to.have.length(1)
+    expect(matterStateUpdates[0].fn).to.equal('position')
+    node.emit('close', () => {})
+  })
 })
 
 describe('matterBridgeDeviceFactory – raw command output', () => {
@@ -450,6 +551,59 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
         { fn: 'colortemp', value: 4000 },
         { fn: 'colortemp', value: 4000 }
       ])
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('coalesces a staggered GoToLiftPercentage burst into a single KNX command (Alexa RangeController quirk)', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-debounce-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-debounce-${Date.now()}`, logger, { port, deviceName: 'Cover debounce test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      // Tiny debounce for a fast, deterministic test - production default is 2000ms.
+      await bridge.start([{ id: 'cover3', type: 'windowcovering', name: 'Debounced cover', movementDebounceMs: 30 }])
+      const endpoint = bridge.endpoints.get('cover3')
+      // Simulates Alexa's staggered burst for a single "close the blind" request.
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 7500 }))
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 10000 }))
+      expect(commands).to.have.length(0) // nothing sent to KNX yet: still inside the debounce window
+
+      await new Promise((resolve) => setTimeout(resolve, 80))
+
+      // Only the LAST target in the burst reaches KNX, as a single command.
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([{ fn: 'updown', value: true }])
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+
+  it('StopMotion is immediate and cancels a pending debounced movement', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-cover-stop-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-cover-stop-${Date.now()}`, logger, { port, deviceName: 'Cover stop test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+
+    try {
+      await bridge.start([{ id: 'cover4', type: 'windowcovering', name: 'Stoppable cover', movementDebounceMs: 200 }])
+      const endpoint = bridge.endpoints.get('cover4')
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).goToLiftPercentage({ liftPercent100thsValue: 5000 }))
+      await endpoint.act((agent) => agent.get(WindowCoveringServer).stopMotion())
+
+      await new Promise((resolve) => setTimeout(resolve, 300)) // past the 200ms debounce window
+
+      // The stop fires immediately; the queued 'position' command must never fire afterwards.
+      expect(commands.map(({ fn }) => fn)).to.deep.equal(['stop'])
     } finally {
       await bridge.close()
       fs.rmSync(storagePath, { recursive: true, force: true })
