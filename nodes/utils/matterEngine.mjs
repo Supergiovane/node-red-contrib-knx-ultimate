@@ -175,14 +175,20 @@ class classMatter extends EventEmitter {
       // Quiet down the very verbose default matter.js console logging.
       api.Logger.level = api.LogLevel.ERROR
     } catch (error) { /* empty */ }
-    const environment = api.Environment.default
-    environment.vars.set('storage.path', this.storagePath)
-    this.controller = new api.CommissioningController({
-      environment: { environment, id: this.instanceId },
-      autoConnect: false,
-      adminFabricLabel: this.fabricLabel
+    const { withEnvironmentLock } = await import('./matterEnvironmentLock.mjs')
+    // Serialize with the Matter Bridge engine: both write Environment.default.vars
+    // ('storage.path') before creating their matter.js node, and that Environment is a
+    // process-wide singleton. See matterEnvironmentLock.mjs for why this matters.
+    await withEnvironmentLock(async () => {
+      const environment = api.Environment.default
+      environment.vars.set('storage.path', this.storagePath)
+      this.controller = new api.CommissioningController({
+        environment: { environment, id: this.instanceId },
+        autoConnect: false,
+        adminFabricLabel: this.fabricLabel
+      })
+      await this.controller.start()
     })
-    await this.controller.start()
     this.matterConnectionStatus = 'connected'
     this.emit('connected')
     // Connect all already commissioned nodes and hook their events.
