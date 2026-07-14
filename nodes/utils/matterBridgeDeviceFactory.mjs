@@ -192,14 +192,25 @@ function knxValueToMatterPatch (def, fn, value) {
   }
 }
 
-// Wires the ColorControl events of an RGB light and coalesces them into a single
-// KNX RGB command. Controllers set the color as hue+saturation OR as X+Y (two separate
-// attribute reports each): a short debounce merges them before computing the RGB value.
-function attachColorTracker (endpoint, def, onCommand) {
+// Builds a ColorControlServer that captures color commands AT THE COMMAND BOUNDARY
+// (like RawOnOffServer/RawLevelControlServer), instead of listening for attribute
+// changes: repeated commands (e.g. "set to red" twice) are still forwarded every time,
+// not just the first. This is possible for color because Matter controllers always
+// change color via cluster COMMANDS (MoveToHue, MoveToSaturation, MoveToHueAndSaturation,
+// MoveToColor) - unlike e.g. Thermostat/FanControl, where absolute values are set via a
+// plain ATTRIBUTE WRITE with no command-level hook to intercept (verified against
+// @matter/node's ThermostatServer/FanControlServer: only relative Move/Step-style
+// commands exist there, not the absolute "set to X" interaction voice assistants use).
+//
+// Controllers set the color as hue+saturation OR as X+Y, sometimes as two separate
+// commands (MoveToHue then MoveToSaturation): a short debounce merges those two into a
+// single KNX RGB command. A combined MoveToHueAndSaturation/MoveToColor command already
+// carries both values, so it flushes immediately with no debounce.
+function createRawColorControlServer (def, onCommand) {
   const tracker = { hue: 0, sat: 0, x: undefined, y: undefined, mode: 0, level: 254, timer: null }
 
   const flush = () => {
-    tracker.timer = null
+    if (tracker.timer !== null) { clearTimeout(tracker.timer); tracker.timer = null }
     try {
       const v01 = clamp((tracker.level === null || tracker.level === undefined ? 254 : Number(tracker.level)) / 254, 0, 1)
       let rgb
@@ -224,48 +235,49 @@ function attachColorTracker (endpoint, def, onCommand) {
     tracker.timer = setTimeout(flush, 250)
   }
 
-  endpoint.events.colorControl.currentHue$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.hue = Number(value)
-      if (context?.offline === true) return
+  class RawColorControlServer extends ColorControlServer.with('HueSaturation', 'Xy') {
+    async moveToHue (request) {
+      await super.moveToHue(request)
+      tracker.hue = Number(request.hue)
       tracker.mode = 0
       schedule()
-    } catch (error) { /* empty */ }
-  })
-  endpoint.events.colorControl.currentSaturation$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.sat = Number(value)
-      if (context?.offline === true) return
+    }
+
+    async moveToSaturation (request) {
+      await super.moveToSaturation(request)
+      tracker.sat = Number(request.saturation)
       tracker.mode = 0
       schedule()
-    } catch (error) { /* empty */ }
-  })
-  endpoint.events.colorControl.currentX$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.x = Number(value)
-      if (context?.offline === true) return
+    }
+
+    async moveToHueAndSaturation (request) {
+      await super.moveToHueAndSaturation(request)
+      tracker.hue = Number(request.hue)
+      tracker.sat = Number(request.saturation)
+      tracker.mode = 0
+      flush() // atomic: both values already known, no need to wait for a second command
+    }
+
+    async moveToColor (request) {
+      await super.moveToColor(request)
+      tracker.x = Number(request.colorX)
+      tracker.y = Number(request.colorY)
       tracker.mode = 1
-      schedule()
-    } catch (error) { /* empty */ }
-  })
-  endpoint.events.colorControl.currentY$Changed.on((value, oldValue, context) => {
-    try {
-      if (value === null || value === undefined) return
-      tracker.y = Number(value)
-      if (context?.offline === true) return
-      tracker.mode = 1
-      schedule()
-    } catch (error) { /* empty */ }
-  })
-  // Track the brightness (for the RGB computation only: the level command has its own GA)
-  endpoint.events.levelControl.currentLevel$Changed.on((value) => {
-    try {
-      if (value !== null && value !== undefined) tracker.level = Number(value)
-    } catch (error) { /* empty */ }
-  })
+      flush()
+    }
+  }
+
+  // Track the brightness (for the RGB computation only: the level command has its own GA).
+  // Passive bookkeeping, not a command to forward raw, so an attribute listener is fine here.
+  const attachLevelTracker = (endpoint) => {
+    endpoint.events.levelControl.currentLevel$Changed.on((value) => {
+      try {
+        if (value !== null && value !== undefined) tracker.level = Number(value)
+      } catch (error) { /* empty */ }
+    })
+  }
+
+  return { RawColorControlServer, attachLevelTracker }
 }
 
 /**
@@ -425,7 +437,13 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
 
     endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with(...features), BridgedDeviceBasicInformationServer), initialState)
 
-    // Setpoint changes from a Matter controller (attribute write or setpointRaiseLower command)
+    // Setpoint changes from a Matter controller. Unlike OnOff/LevelControl/WindowCovering/
+    // ColorControl, an absolute setpoint has no cluster COMMAND to intercept - Thermostat
+    // only exposes SetpointRaiseLower (a *relative* command) and SetActivePresetRequest;
+    // controllers set an absolute target via a plain attribute write. matter.js only fires
+    // $Changing/$Changed when the value actually differs (verified in @matter/node's
+    // Datasource#preCommit), so a duplicate setpoint (same value sent twice) cannot be
+    // forwarded raw here - there is no lower-level hook to capture it at.
     if (hasHeating) {
       endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
         try {
@@ -463,8 +481,9 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       currentX: Math.round(0.31 * 65536),
       currentY: Math.round(0.33 * 65536)
     }
-    endpoint = new Endpoint(ExtendedColorLightDevice.with(RawOnOffServer, RawLevelControlServer, ColorControlServer.with('HueSaturation', 'Xy'), BridgedDeviceBasicInformationServer), initialState)
-    attachColorTracker(endpoint, def, onCommand)
+    const { RawColorControlServer, attachLevelTracker } = createRawColorControlServer(def, onCommand)
+    endpoint = new Endpoint(ExtendedColorLightDevice.with(RawOnOffServer, RawLevelControlServer, RawColorControlServer, BridgedDeviceBasicInformationServer), initialState)
+    attachLevelTracker(endpoint)
   } else if (def.type === 'colortemperaturelight') {
     initialState.colorControl = {
       colorMode: 2, // ColorTemperatureMireds
@@ -475,14 +494,15 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       startUpColorTemperatureMireds: 250,
       coupleColorTempToLevelMinMireds: 153
     }
-    endpoint = new Endpoint(ColorTemperatureLightDevice.with(RawOnOffServer, RawLevelControlServer, ColorControlServer.with('ColorTemperature'), BridgedDeviceBasicInformationServer), initialState)
-    endpoint.events.colorControl.colorTemperatureMireds$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (value === null || value === undefined || Number(value) <= 0) return
-        onCommand({ deviceId: def.id, fn: 'colortemp', value: Math.round(1000000 / Number(value)) }) // mireds -> Kelvin
-      } catch (error) { /* empty */ }
-    })
+    class RawColorTemperatureServer extends ColorControlServer.with('ColorTemperature') {
+      async moveToColorTemperature (request) {
+        await super.moveToColorTemperature(request)
+        const mireds = Number(request.colorTemperatureMireds)
+        if (Number.isNaN(mireds) || mireds <= 0) return
+        onCommand({ deviceId: def.id, fn: 'colortemp', value: Math.round(1000000 / mireds) }) // mireds -> Kelvin
+      }
+    }
+    endpoint = new Endpoint(ColorTemperatureLightDevice.with(RawOnOffServer, RawLevelControlServer, RawColorTemperatureServer, BridgedDeviceBasicInformationServer), initialState)
   } else if (def.type === 'smokecoalarm') {
     initialState.smokeCoAlarm = {
       expressedState: 0, // Normal
@@ -519,7 +539,10 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       percentCurrent: 0
     }
     endpoint = new Endpoint(FanDevice.with(BridgedDeviceBasicInformationServer), initialState)
-    // Speed changes from the controller (percent write or fan mode change)
+    // Speed changes from the controller (percent write or fan mode change). Like the
+    // Thermostat setpoints above, FanControlServer exposes no command to intercept for
+    // percentSetting (@matter/node's FanControlServer overrides nothing beyond
+    // initialize()) - it is attribute-write only, so this cannot be made "raw" either.
     endpoint.events.fanControl.percentSetting$Changed.on((value, oldValue, context) => {
       try {
         if (context?.offline === true) return
