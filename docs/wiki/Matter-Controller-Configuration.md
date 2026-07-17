@@ -20,9 +20,13 @@ The controller talks to the devices over the **IP network** (WiFi, Ethernet, or 
 
 If the device is brand new and only supports Bluetooth commissioning, first pair it with its vendor app or another Matter controller (Alexa, Google Home, Apple Home), then use that controller's **"share / pair with another hub"** function to generate a new pairing code for KNX-Ultimate. This way the device joins multiple fabrics at once.
 
+Prefer the QR payload (`MT:...`): it contains the full discriminator. A manual code contains only the short discriminator and may select the wrong device when several identical models are in commissioning mode. Pair one device at a time.
+
 ## Storage
 
 The fabric credentials and the paired devices are stored in the `knxultimatestorage/matter` folder inside your Node-RED user directory. Deleting that folder unpairs everything.
+
+Use **Export** to download a complete backup of this controller instance. It includes the fabric, private credentials, sessions and commissioned-device data. **Protect the file like a password.** Import replaces this instance's current Matter storage and briefly restarts the controller. A controller backup cannot be imported into a bridge.
 
 ## Removing a device
 

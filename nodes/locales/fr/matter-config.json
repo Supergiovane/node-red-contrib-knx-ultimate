@@ -2,7 +2,6 @@
   "matter-config": {
     "properties": {
       "title": "Contrôleur Matter",
-      "intro": "Ce nœud est un contrôleur Matter (avec sa propre fabric). Appairez ici vos appareils Matter, puis utilisez le nœud \"Matter Device\" pour les mapper sur des adresses de groupe KNX. Déployez d'abord le nœud, puis revenez ici pour appairer les appareils.",
       "node-config-input-name": "Nom",
       "fabric_label": "Étiquette de fabric",
       "pairing_title": "Appairer un nouvel appareil",
@@ -24,7 +23,13 @@
       "pairing_ok": "Appareil appairé avec succès !",
       "rename_button": "Renommer",
       "rename_prompt": "Nouveau nom de l'appareil",
-      "rename_ok": "Appareil renommé."
+      "rename_ok": "Appareil renommé.",
+      "storage_title": "Sauvegarde de la fabric et des associations",
+      "storage_export": "Exporter",
+      "storage_import": "Importer",
+      "storage_warning": "La sauvegarde contient les identifiants de fabric, les clés privées et les données des appareils associés. Protégez-la comme un mot de passe. L'import remplace le stockage Matter de ce contrôleur et le redémarre brièvement.",
+      "storage_import_confirm": "Remplacer la fabric Matter et les appareils associés de ce contrôleur par la sauvegarde sélectionnée ?",
+      "storage_import_ok": "Sauvegarde Matter importée. Le contrôleur a redémarré."
     }
   }
 }

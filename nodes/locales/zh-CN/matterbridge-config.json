@@ -16,7 +16,10 @@
       "deploy_first": "请先部署此配置节点，然后点击刷新。",
       "reset_button": "重置配对",
       "reset_confirm": "移除所有已配对的控制器并重新开始配对？设备将从 Alexa/Google/Apple 中消失。",
-      "reset_ok": "配对已重置。桥接器重新进入配对模式。"
+      "reset_ok": "配对已重置。桥接器重新进入配对模式。",
+      "storage_title": "Fabric 和配网备份", "storage_export": "导出", "storage_import": "导入",
+      "storage_warning": "备份包含 Fabric 凭据、私钥和配对数据。请像密码一样妥善保管。导入会替换此网桥的 Matter 存储并短暂重启。",
+      "storage_import_confirm": "要用所选备份替换此网桥的 Matter Fabric 和已配对控制器吗？", "storage_import_ok": "Matter 备份已导入，网桥已重启。"
     }
   }
 }

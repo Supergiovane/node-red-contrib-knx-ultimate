@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40" height="60" viewBox="0 0 40 60" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matter Controller">
+  <text x="20" y="21" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" textLength="38" lengthAdjust="spacingAndGlyphs">mat</text>
+  <path d="M 3 34 H 28 V 29 L 38 38 L 28 47 V 42 H 15"
+    fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

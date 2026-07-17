@@ -125,7 +125,7 @@
       },
       inputs: 0,
       outputs: 0,
-      icon: "node-matter-icon.svg",
+      icon: "node-matter-controller-icon.svg",
       label: function () {
         return this.name || this.matterDeviceName || "Control Matter from KNX (BETA)";
       },
@@ -679,7 +679,6 @@
           const $tabs = $("#tabs");
           const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
           const $pinSelect = $("#node-input-enableNodePINS");
-          const $pinInfoRow = $pinSectionRow.next('.form-tips');
           let currentMatterCapabilities = parseMatterCapabilities($matterCapabilitiesInput.val() || node.matterDeviceCapabilities);
           $tabs.addClass('hue-vertical-tabs');
           $tabs.tabs(); // Tabs gestione KNX
@@ -983,9 +982,6 @@
 
             if ($pinSectionRow.length) {
               $pinSectionRow.show();
-            }
-            if ($pinInfoRow.length) {
-              $pinInfoRow.show();
             }
           };
           updateTabsVisibility();
@@ -1899,7 +1895,6 @@
           </label>
           <input type="checkbox" id="node-input-updateLocalStateFromKNXWrite" style="display:inline-block; width:auto; vertical-align:top;" />
         </div>
-        <div class="form-tips" style="margin-left:260px;" data-i18n="knxUltimateMatterControllerDevice.update_local_state_from_knx_write_hint"></div><br/>
         <div id ="divBehaviourBrightness">
           <div class="form-row">
             <label for="node-input-specifySwitchOnBrightness" style="width:260px;">

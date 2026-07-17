@@ -16,7 +16,10 @@
       "deploy_first": "Fai prima il deploy di questo nodo di configurazione, poi clicca aggiorna.",
       "reset_button": "Reset abbinamento",
       "reset_confirm": "Rimuovere TUTTI i controller abbinati e riavviare l'abbinamento? I dispositivi spariranno da Alexa/Google/Apple.",
-      "reset_ok": "Abbinamento resettato. Il bridge è di nuovo in attesa di abbinamento."
+      "reset_ok": "Abbinamento resettato. Il bridge è di nuovo in attesa di abbinamento.",
+      "storage_title": "Backup fabric e associazioni", "storage_export": "Esporta", "storage_import": "Importa",
+      "storage_warning": "Il backup contiene credenziali fabric, chiavi private e dati di abbinamento. Proteggilo come una password. L'importazione sostituisce lo storage Matter di questo bridge e lo riavvia brevemente.",
+      "storage_import_confirm": "Sostituire le fabric Matter e i controller abbinati di questo bridge con il backup selezionato?", "storage_import_ok": "Backup Matter importato. Il bridge è stato riavviato."
     }
   }
 }

@@ -26,11 +26,15 @@ Ce nœud de configuration est le **bridge Matter lui-même** : il exécute le se
 2. Le panneau d'appairage montre le **QR code** et le **code manuel** : scannez ou saisissez-le dans Alexa / Google Home / Apple Home (« ajouter un appareil Matter »).
 3. Plusieurs contrôleurs peuvent être appairés au même bridge (multi-fabric Matter).
 
+Pour ajouter un contrôleur lorsque le QR code est masqué, ouvrez le mode d'appairage depuis un contrôleur déjà associé, puis ajoutez un appareil Matter dans le nouveau contrôleur. Utilisez **Réinitialiser l'appairage** uniquement pour supprimer tous les contrôleurs et recommencer.
+
 Le bouton **Réinitialiser l'appairage** supprime tous les contrôleurs appairés et relance l'annonce d'appairage.
 
 ## Identité et stockage
 
 L'identité du bridge est liée à ce nœud de configuration et enregistrée dans `knxultimatestorage/matter` du répertoire utilisateur de Node-RED : les re-deploys (même en changeant port ou nom) ne nécessitent **PAS** de nouvel appairage. Seule la suppression de ce nœud de configuration et la création d'un nouveau changent l'identité — dans ce cas supprimez l'ancien bridge de l'app Matter et appairez de nouveau.
+
+Utilisez **Exporter** pour télécharger une sauvegarde complète de cette instance du bridge, avec fabrics, identifiants privés, sessions et données d'association. **Protégez le fichier comme un mot de passe.** L'import remplace le stockage de cette instance et redémarre brièvement le bridge. Une sauvegarde de bridge ne peut pas être importée dans un contrôleur.
 
 ## Notes
 

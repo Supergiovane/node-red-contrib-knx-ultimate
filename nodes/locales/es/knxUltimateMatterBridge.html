@@ -9,6 +9,8 @@ Cada nodo Expose KNX to Matter expone **un dispositivo KNX como dispositivo Matt
 
 Es la dirección opuesta al nodo *Matter Device*: allí KNX controla un dispositivo Matter, aquí los controladores Matter controlan KNX.
 
+Cambiar el tipo de dispositivo después de emparejar el bridge modifica la estructura del endpoint Matter. Los controladores pueden conservar el endpoint antiguo como no alcanzable; en ese caso, restablece/vuelve a emparejar el bridge o crea un nuevo dispositivo expuesto.
+
 ## Configuración
 
 |Campo|Descripción|

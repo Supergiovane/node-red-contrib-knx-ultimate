@@ -15,9 +15,13 @@ Der Controller kommuniziert mit den Geräten über das **IP-Netzwerk** (WLAN, Et
 
 Wenn das Gerät fabrikneu ist und nur Bluetooth-Kommissionierung unterstützt, kopple es zuerst mit der Hersteller-App oder einem anderen Matter-Controller (Alexa, Google Home, Apple Home) und nutze dann dessen Funktion **"mit weiterem Hub teilen"**, um einen neuen Kopplungscode für KNX-Ultimate zu erzeugen. So tritt das Gerät mehreren Fabrics gleichzeitig bei.
 
+Bevorzuge den QR-Payload (`MT:...`): Er enthält den vollständigen Diskriminator. Der manuelle Code enthält nur den kurzen Diskriminator und kann bei mehreren identischen Modellen im Kopplungsmodus das falsche Gerät auswählen. Immer nur ein Gerät gleichzeitig koppeln.
+
 ## Speicherung
 
 Die Fabric-Zugangsdaten und die gekoppelten Geräte werden im Ordner `knxultimatestorage/matter` im Node-RED-Benutzerverzeichnis gespeichert. Das Löschen dieses Ordners entfernt alle Kopplungen.
+
+Mit **Exportieren** wird eine vollständige Sicherung dieser Controller-Instanz heruntergeladen. Sie enthält Fabric, private Zugangsdaten, Sitzungen und Daten gekoppelter Geräte. **Die Datei wie ein Passwort schützen.** Der Import ersetzt den Matter-Speicher dieser Instanz und startet den Controller kurz neu. Eine Controller-Sicherung kann nicht in eine Bridge importiert werden.
 
 ## Ein Gerät entfernen
 

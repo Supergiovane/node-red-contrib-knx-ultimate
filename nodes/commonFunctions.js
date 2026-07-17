@@ -1043,6 +1043,36 @@ module.exports = (RED) => {
       }
     })
 
+    const exportMatterStorage = async (req, res, idKey) => {
+      try {
+        const configNode = RED.nodes.getNode(req.query[idKey])
+        if (!configNode || typeof configNode.exportMatterStorage !== 'function') throw new Error('PLEASE DEPLOY FIRST: then try again.')
+        const backup = await configNode.exportMatterStorage()
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+        res.setHeader('Content-Type', 'application/json; charset=utf-8')
+        res.setHeader('Content-Disposition', `attachment; filename="knx-ultimate-matter-${backup.kind}-${stamp}.json"`)
+        res.send(JSON.stringify(backup, null, 2))
+      } catch (error) {
+        RED.log.error(`Err Matter storage export: ${error.message}`)
+        if (!res.headersSent) res.status(500).json({ error: error.message })
+      }
+    }
+
+    const importMatterStorage = async (req, res, idKey) => {
+      try {
+        const configNode = RED.nodes.getNode(req.query[idKey])
+        if (!configNode || typeof configNode.importMatterStorage !== 'function') throw new Error('PLEASE DEPLOY FIRST: then try again.')
+        await configNode.importMatterStorage(req.body)
+        res.json({ status: 'ok' })
+      } catch (error) {
+        RED.log.error(`Err Matter storage import: ${error.message}`)
+        res.status(400).json({ error: error.message })
+      }
+    }
+
+    RED.httpAdmin.get('/KNXUltimateMatterStorageExport', normalizeAuthFromAccessTokenQuery, RED.auth.needsPermission('matter-config.read'), (req, res) => exportMatterStorage(req, res, 'serverId'))
+    RED.httpAdmin.post('/KNXUltimateMatterStorageImport', RED.auth.needsPermission('matter-config.write'), (req, res) => importMatterStorage(req, res, 'serverId'))
+
     // MATTER BRIDGE: returns the pairing info (QR code, manual code, commissioned fabrics) of a matterbridge-config node
     RED.httpAdmin.get('/KNXUltimateMatterBridgeInfo', RED.auth.needsPermission('matterbridge-config.read'), (req, res) => {
       try {
@@ -1073,6 +1103,9 @@ module.exports = (RED) => {
         res.json({ error: error.message })
       }
     })
+
+    RED.httpAdmin.get('/KNXUltimateMatterBridgeStorageExport', normalizeAuthFromAccessTokenQuery, RED.auth.needsPermission('matterbridge-config.read'), (req, res) => exportMatterStorage(req, res, 'configId'))
+    RED.httpAdmin.post('/KNXUltimateMatterBridgeStorageImport', RED.auth.needsPermission('matterbridge-config.write'), (req, res) => importMatterStorage(req, res, 'configId'))
 
     RED.httpAdmin.get('/knxUltimateDpts', (req, res) => {
       try {

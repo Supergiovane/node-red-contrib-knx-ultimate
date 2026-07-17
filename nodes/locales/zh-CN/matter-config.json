@@ -2,7 +2,6 @@
   "matter-config": {
     "properties": {
       "title": "Matter 控制器",
-      "intro": "此节点是一个 Matter 控制器（拥有自己的 fabric）。在此配对您的 Matter 设备，然后使用 \"Matter Device\" 节点将其映射到 KNX 组地址。请先部署该节点，然后回到这里配对设备。",
       "node-config-input-name": "名称",
       "fabric_label": "Fabric 标签",
       "pairing_title": "配对新设备",
@@ -24,7 +23,13 @@
       "pairing_ok": "设备配对成功！",
       "rename_button": "重命名",
       "rename_prompt": "新的设备名称",
-      "rename_ok": "设备已重命名。"
+      "rename_ok": "设备已重命名。",
+      "storage_title": "Fabric 和配网备份",
+      "storage_export": "导出",
+      "storage_import": "导入",
+      "storage_warning": "备份包含 Fabric 凭据、私钥和已配网设备数据。请像密码一样妥善保管。导入会替换此控制器的 Matter 存储并短暂重启。",
+      "storage_import_confirm": "要用所选备份替换此控制器的 Matter Fabric 和已配网设备吗？",
+      "storage_import_ok": "Matter 备份已导入，控制器已重启。"
     }
   }
 }

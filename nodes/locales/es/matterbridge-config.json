@@ -16,7 +16,10 @@
       "deploy_first": "Haz deploy de este nodo de configuración primero y pulsa actualizar.",
       "reset_button": "Restablecer emparejamiento",
       "reset_confirm": "¿Eliminar TODOS los controladores emparejados y reiniciar el emparejamiento? Los dispositivos desaparecerán de Alexa/Google/Apple.",
-      "reset_ok": "Emparejamiento restablecido. El bridge vuelve a estar en espera de emparejamiento."
+      "reset_ok": "Emparejamiento restablecido. El bridge vuelve a estar en espera de emparejamiento.",
+      "storage_title": "Copia de fabric y vinculaciones", "storage_export": "Exportar", "storage_import": "Importar",
+      "storage_warning": "La copia contiene credenciales de fabric, claves privadas y datos de vinculación. Protégela como una contraseña. La importación reemplaza el almacenamiento Matter de este bridge y lo reinicia brevemente.",
+      "storage_import_confirm": "¿Reemplazar las fabrics Matter y los controladores vinculados de este bridge con la copia seleccionada?", "storage_import_ok": "Copia Matter importada. El bridge se ha reiniciado."
     }
   }
 }

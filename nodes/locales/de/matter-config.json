@@ -2,7 +2,6 @@
   "matter-config": {
     "properties": {
       "title": "Matter Controller",
-      "intro": "Dieser Node ist ein Matter-Controller (mit eigener Fabric). Kopple hier deine Matter-Geräte und verwende dann den \"Matter Device\"-Node, um sie auf KNX-Gruppenadressen abzubilden. Zuerst deployen, dann hierher zurückkehren, um Geräte zu koppeln.",
       "node-config-input-name": "Name",
       "fabric_label": "Fabric-Bezeichnung",
       "pairing_title": "Neues Gerät koppeln",
@@ -24,7 +23,13 @@
       "pairing_ok": "Gerät erfolgreich gekoppelt!",
       "rename_button": "Umbenennen",
       "rename_prompt": "Neuer Gerätename",
-      "rename_ok": "Gerät umbenannt."
+      "rename_ok": "Gerät umbenannt.",
+      "storage_title": "Sicherung von Fabric und Inbetriebnahme",
+      "storage_export": "Exportieren",
+      "storage_import": "Importieren",
+      "storage_warning": "Die Sicherung enthält Fabric-Zugangsdaten, private Schlüssel und Daten gekoppelter Geräte. Wie ein Passwort schützen. Der Import ersetzt den Matter-Speicher dieses Controllers und startet ihn kurz neu.",
+      "storage_import_confirm": "Matter-Fabric und gekoppelte Geräte dieses Controllers durch die gewählte Sicherung ersetzen?",
+      "storage_import_ok": "Matter-Sicherung importiert. Der Controller wurde neu gestartet."
     }
   }
 }

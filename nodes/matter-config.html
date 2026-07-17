@@ -3,6 +3,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('matter-config', {
         category: 'config',
+        icon: 'node-matter-controller-icon.svg',
         defaults: {
             name: { value: "Matter Controller" },
             fabricLabel: { value: "KNX-Ultimate" }
@@ -20,6 +21,23 @@
             var $devicesBody = $("#matter-devices-body");
             var $refreshDevices = $("#matterRefreshDevices");
             var $pairSpinner = $("#matterPairSpinner");
+            var $storageExport = $('#matter-storage-export');
+            var $storageImport = $('#matter-storage-import');
+            var $storageFile = $('#matter-storage-file');
+
+            function storageExportUrl() {
+                var adminRoot = (RED.settings && typeof RED.settings.httpAdminRoot === 'string') ? RED.settings.httpAdminRoot : '/';
+                adminRoot = String(adminRoot || '/').trim();
+                adminRoot = adminRoot === '/' ? '' : '/' + adminRoot.replace(/^\/+|\/+$/g, '');
+                var params = new URLSearchParams();
+                params.set('serverId', node.id);
+                params.set('_', String(Date.now()));
+                try {
+                    var tokens = (RED.settings && typeof RED.settings.get === 'function') ? RED.settings.get('auth-tokens') : null;
+                    if (tokens && typeof tokens.access_token === 'string' && tokens.access_token.trim() !== '') params.set('access_token', tokens.access_token.trim());
+                } catch (error) { }
+                return adminRoot + '/KNXUltimateMatterStorageExport?' + params.toString();
+            }
 
             function notifyPairingError(msg) {
                 var text = RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_failed") + ': ' + (msg || '');
@@ -148,6 +166,32 @@
             });
 
             loadDevices();
+
+            $storageExport.on('click', function () {
+                window.location = storageExportUrl();
+            });
+            $storageImport.on('click', function () { $storageFile.trigger('click'); });
+            $storageFile.on('change', function () {
+                var file = this.files && this.files[0];
+                this.value = '';
+                if (!file || !window.confirm(RED._('node-red-contrib-knx-ultimate/matter-config:matter-config.properties.storage_import_confirm'))) return;
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var backup;
+                    try { backup = JSON.parse(reader.result); } catch (error) { RED.notify(error.message, { type: 'error' }); return; }
+                    $storageImport.prop('disabled', true);
+                    $.ajax({
+                        url: 'KNXUltimateMatterStorageImport?serverId=' + encodeURIComponent(node.id),
+                        method: 'POST', contentType: 'application/json', data: JSON.stringify(backup)
+                    }).done(function () {
+                        RED.notify(RED._('node-red-contrib-knx-ultimate/matter-config:matter-config.properties.storage_import_ok'), { type: 'success' });
+                        loadDevices();
+                    }).fail(function (xhr) {
+                        RED.notify((xhr.responseJSON && xhr.responseJSON.error) || xhr.statusText, { type: 'error', fixed: true });
+                    }).always(function () { $storageImport.prop('disabled', false); });
+                };
+                reader.readAsText(file);
+            });
         },
         oneditsave: function () {
             // Return to the info tab
@@ -167,7 +211,6 @@
   </div>
 
   <div class="form-row">
-    <b><span data-i18n="matter-config.properties.title"></span></b>
     <p align="center" style="margin:8px 0;">
       <svg width="70" height="77" viewBox="0 8 40 44" xmlns="http://www.w3.org/2000/svg" aria-label="Matter" style="vertical-align:middle;">
         <g fill="currentColor" stroke="none">
@@ -187,9 +230,8 @@
         </g>
       </svg>
       <br/>
-      <span style="font-size:18px; font-weight:600; letter-spacing:1px;">matter</span>
+      <span style="font-size:18px; font-weight:600; letter-spacing:1px;" data-i18n="matter-config.properties.title"></span>
     </p>
-    <p><span data-i18n="matter-config.properties.intro"></span></p>
   </div>
 
   <div class="form-row">
@@ -211,8 +253,16 @@
   <hr/>
 
   <div class="form-row">
+    <b><i class="fa fa-database"></i>&nbsp;<span data-i18n="matter-config.properties.storage_title"></span></b>
+    <button type="button" id="matter-storage-export" class="red-ui-button" style="margin-left:8px;"><i class="fa fa-download"></i>&nbsp;<span data-i18n="matter-config.properties.storage_export"></span></button>
+    <button type="button" id="matter-storage-import" class="red-ui-button"><i class="fa fa-upload"></i>&nbsp;<span data-i18n="matter-config.properties.storage_import"></span></button>
+    <input type="file" id="matter-storage-file" accept="application/json,.json" style="display:none;">
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
     <b><i class="fa fa-qrcode"></i>&nbsp;<span data-i18n="matter-config.properties.pairing_title"></span></b>
-    <p><span data-i18n="matter-config.properties.pairing_help"></span></p>
   </div>
 
   <div class="form-row">
@@ -236,15 +286,6 @@
     </label>
     <input type="text" id="matter-pairing-name" placeholder="Kitchen plug" style="width:250px;">
   </div>
-  <div class="form-tips" style="margin: 4px 0 8px; font-size:12px;">
-    <i class="fa fa-circle-info" style="color:#1b7d33; margin-right:4px;"></i>
-    <span data-i18n="matter-config.properties.pairing_hint">Prefer the QR code (MT:…): it carries the full device discriminator. The manual code
-    stores only a short discriminator and cannot reliably tell identical devices apart
-    (e.g. several Shelly of the same model), which can pair the wrong one or report it as
-    already commissioned. Pair one device at a time; if a device is already paired
-    elsewhere, factory-reset it first.</span>
-  </div>
-
   <hr/>
 
   <div class="form-row">
@@ -270,9 +311,9 @@
   </div>
 
   <br/>
-   <br/>
-    <br/>
-    <br/>
-   <br/>
-    <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
+  <br/>
 </script>

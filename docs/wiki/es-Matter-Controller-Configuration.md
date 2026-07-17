@@ -20,9 +20,13 @@ El controlador se comunica con los dispositivos a través de la **red IP** (WiFi
 
 Si el dispositivo es nuevo de fábrica y solo admite emparejamiento por Bluetooth, emparéjalo primero con la app del fabricante o con otro controlador Matter (Alexa, Google Home, Apple Home) y usa después su función **"compartir / emparejar con otro hub"** para generar un nuevo código para KNX-Ultimate. Así el dispositivo se une a varias fabrics a la vez.
 
+Prefiere el payload QR (`MT:...`): contiene el discriminador completo. El código manual solo contiene el discriminador corto y puede seleccionar el dispositivo equivocado si hay varios modelos idénticos en modo de emparejamiento. Empareja un dispositivo cada vez.
+
 ## Almacenamiento
 
 Las credenciales de la fabric y los dispositivos emparejados se guardan en la carpeta `knxultimatestorage/matter` dentro del directorio de usuario de Node-RED. Borrar esa carpeta elimina todos los emparejamientos.
+
+Usa **Exportar** para descargar una copia completa de esta instancia del controlador. Incluye la fabric, credenciales privadas, sesiones y datos de dispositivos vinculados. **Protege el archivo como una contraseña.** La importación reemplaza el almacenamiento Matter de esta instancia y reinicia brevemente el controlador. Una copia de controlador no se puede importar en un bridge.
 
 ## Eliminar un dispositivo
 

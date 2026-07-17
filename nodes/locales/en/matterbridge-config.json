@@ -16,7 +16,10 @@
       "deploy_first": "Deploy this configuration node first, then click refresh.",
       "reset_button": "Reset pairing",
       "reset_confirm": "Remove ALL paired controllers and restart pairing? The devices will disappear from Alexa/Google/Apple.",
-      "reset_ok": "Pairing reset. The bridge is now advertising for pairing again."
+      "reset_ok": "Pairing reset. The bridge is now advertising for pairing again.",
+      "storage_title": "Fabric and commissioning backup", "storage_export": "Export", "storage_import": "Import",
+      "storage_warning": "The backup contains fabric credentials, private keys and pairing data. Keep it secret like a password. Import replaces this bridge's current Matter storage and briefly restarts it.",
+      "storage_import_confirm": "Replace this bridge's Matter fabrics and paired controllers with the selected backup?", "storage_import_ok": "Matter backup imported. The bridge has restarted."
     }
   }
 }

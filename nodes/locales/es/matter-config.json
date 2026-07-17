@@ -2,7 +2,6 @@
   "matter-config": {
     "properties": {
       "title": "Controlador Matter",
-      "intro": "Este nodo es un controlador Matter (con su propia fabric). Empareja aquí tus dispositivos Matter y usa el nodo \"Matter Device\" para mapearlos a direcciones de grupo KNX. Haz deploy primero y vuelve aquí para emparejar dispositivos.",
       "node-config-input-name": "Nombre",
       "fabric_label": "Etiqueta de fabric",
       "pairing_title": "Emparejar un nuevo dispositivo",
@@ -24,7 +23,13 @@
       "pairing_ok": "¡Dispositivo emparejado correctamente!",
       "rename_button": "Renombrar",
       "rename_prompt": "Nuevo nombre del dispositivo",
-      "rename_ok": "Dispositivo renombrado."
+      "rename_ok": "Dispositivo renombrado.",
+      "storage_title": "Copia de fabric y vinculaciones",
+      "storage_export": "Exportar",
+      "storage_import": "Importar",
+      "storage_warning": "La copia contiene credenciales de fabric, claves privadas y datos de dispositivos vinculados. Protégela como una contraseña. La importación reemplaza el almacenamiento Matter de este controlador y lo reinicia brevemente.",
+      "storage_import_confirm": "¿Reemplazar la fabric Matter y los dispositivos vinculados de este controlador con la copia seleccionada?",
+      "storage_import_ok": "Copia Matter importada. El controlador se ha reiniciado."
     }
   }
 }

@@ -21,11 +21,15 @@ Este nodo de configuración es el **bridge Matter en sí**: ejecuta el servidor 
 2. El panel de emparejamiento muestra el **código QR** y el **código manual**: escanéalo o escríbelo en Alexa / Google Home / Apple Home ("añadir dispositivo Matter").
 3. Se pueden emparejar varios controladores con el mismo bridge (multi-fabric Matter).
 
+Para añadir otro controlador cuando el código QR está oculto, abre el modo de emparejamiento desde un controlador ya vinculado y añade un dispositivo Matter en el nuevo controlador. Usa **Restablecer emparejamiento** solo para eliminar todos los controladores existentes y empezar de nuevo.
+
 El botón **Restablecer emparejamiento** elimina todos los controladores emparejados y reinicia el anuncio de emparejamiento.
 
 ## Identidad y almacenamiento
 
 La identidad del bridge está ligada a este nodo de configuración y se guarda en `knxultimatestorage/matter` dentro del directorio de usuario de Node-RED: los re-deploys (incluso cambiando puerto o nombre) **NO** requieren un nuevo emparejamiento. Solo borrar este nodo de configuración y crear uno nuevo cambia la identidad — en ese caso elimina el bridge antiguo de la app Matter y vuelve a emparejar.
+
+Usa **Exportar** para descargar una copia completa de esta instancia del bridge, con fabrics, credenciales privadas, sesiones y datos de vinculación. **Protege el archivo como una contraseña.** La importación reemplaza el almacenamiento de esta instancia y reinicia brevemente el bridge. Una copia de bridge no se puede importar en un controlador.
 
 ## Notas
 

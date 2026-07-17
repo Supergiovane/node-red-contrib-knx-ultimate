@@ -14,6 +14,8 @@ Jeder Expose KNX to Matter Node stellt **ein KNX-Gerät als Matter-Gerät** bere
 
 Das ist die Gegenrichtung zum *Matter Device*-Node: Dort steuert KNX ein Matter-Gerät, hier steuern Matter-Controller KNX.
 
+Das Ändern des Gerätetyps nach der Kopplung der Bridge verändert die Matter-Endpunktstruktur. Controller können den alten Endpunkt als nicht erreichbar behalten; dann die Bridge zurücksetzen/neu koppeln oder ein neues bereitgestelltes Gerät erstellen.
+
 ## Konfiguration
 
 |Feld|Beschreibung|

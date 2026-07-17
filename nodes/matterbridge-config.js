@@ -1,5 +1,8 @@
 /* eslint-disable max-len */
 const path = require('path')
+const { exportMatterStorage, importMatterStorage } = require('./utils/matterStorageBackup')
+const matterPackageVersion = require('@matter/main').version
+const { Specification } = require('@matter/model')
 
 // 10/09/2024 Setup the color logger
 const loggerSetup = (options) => {
@@ -39,6 +42,7 @@ module.exports = (RED) => {
     let startupTimer = null
     let reconcileTimer = null
     let closing = false
+    let storageOperation = null
 
     Object.defineProperty(node, 'linkStatus', {
       get: function () {
@@ -193,6 +197,40 @@ module.exports = (RED) => {
       await node.matterBridge.factoryReset()
       notifyClientsStatus()
     }
+
+    const withStoppedBridge = async (operation) => {
+      if (storageOperation !== null) throw new Error('Another Matter storage operation is already running')
+      storageOperation = (async () => {
+        const engine = node.matterBridge
+        if (engine !== null) {
+          engine.removeAllListeners()
+          await engine.close()
+          runningBridges.delete(node.id)
+          node.matterBridge = null
+        }
+        try {
+          return await operation()
+        } finally {
+          await ensureEngineStarted()
+        }
+      })()
+      try { return await storageOperation } finally { storageOperation = null }
+    }
+
+    node.exportMatterStorage = () => withStoppedBridge(() => exportMatterStorage({
+      storagePath: node.matterStoragePath,
+      instanceId: node.matterInstanceId,
+      kind: 'bridge',
+      protocolVersion: Specification.REVISION,
+      packageVersion: matterPackageVersion
+    }))
+
+    node.importMatterStorage = (backup) => withStoppedBridge(() => importMatterStorage({
+      storagePath: node.matterStoragePath,
+      instanceId: node.matterInstanceId,
+      kind: 'bridge',
+      backup
+    }))
     // END functions called from the device nodes -------------------------------------
 
     node.on('close', (removed, done) => {

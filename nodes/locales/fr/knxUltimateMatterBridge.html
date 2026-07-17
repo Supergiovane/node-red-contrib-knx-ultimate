@@ -9,6 +9,8 @@ Chaque nœud Expose KNX to Matter expose **un appareil KNX comme appareil Matter
 
 C'est la direction opposée du nœud *Matter Device* : là-bas KNX contrôle un appareil Matter, ici les contrôleurs Matter contrôlent KNX.
 
+Changer le type d'appareil après l'appairage du bridge modifie la structure de l'endpoint Matter. Les contrôleurs peuvent conserver l'ancien endpoint comme injoignable ; dans ce cas, réinitialisez/réappairez le bridge ou créez un nouvel appareil exposé.
+
 ## Configuration
 
 |Champ|Description|

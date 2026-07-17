@@ -26,11 +26,15 @@ This configuration node is the **Matter bridge itself**: it runs the Matter serv
 2. The pairing panel shows the **QR code** and the **manual pairing code**: scan or type it in Alexa / Google Home / Apple Home ("add Matter device").
 3. Multiple controllers can be paired with the same bridge (Matter multi-fabric).
 
+To add another controller after the QR code is hidden, open pairing mode from an already paired controller, then add a Matter device in the new controller. Use **Reset pairing** only to remove every existing controller and start over.
+
 The **Reset pairing** button removes all paired controllers and restarts the pairing advertising.
 
 ## Identity and storage
 
 The bridge identity is tied to this configuration node and stored in `knxultimatestorage/matter` inside the Node-RED user directory: re-deploys (even changing port or name) do **NOT** require a new pairing. Only deleting this configuration node and creating a new one changes the identity — in that case remove the old bridge from the Matter app and pair again.
+
+Use **Export** to download a complete backup of this bridge instance, including fabrics, private credentials, sessions and pairing data. **Protect the file like a password.** Import replaces this instance's storage and briefly restarts the bridge. A bridge backup cannot be imported into a controller.
 
 ## Notes
 

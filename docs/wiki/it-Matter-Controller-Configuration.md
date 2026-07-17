@@ -20,9 +20,13 @@ Il controller comunica con i dispositivi tramite la **rete IP** (WiFi, Ethernet,
 
 Se il dispositivo è nuovo di fabbrica e supporta solo il commissioning Bluetooth, associalo prima con l'app del produttore o con un altro controller Matter (Alexa, Google Home, Apple Home), poi usa la funzione **"condividi / abbina con altro hub"** di quel controller per generare un nuovo codice di abbinamento per KNX-Ultimate. In questo modo il dispositivo entra in più fabric contemporaneamente.
 
+Preferisci il payload QR (`MT:...`): contiene il discriminatore completo. Il codice manuale contiene solo quello corto e può selezionare il dispositivo sbagliato quando più modelli identici sono in modalità abbinamento. Associa un dispositivo alla volta.
+
 ## Archiviazione
 
 Le credenziali della fabric e i dispositivi associati sono salvati nella cartella `knxultimatestorage/matter` dentro la directory utente di Node-RED. Cancellando quella cartella si perdono tutte le associazioni.
+
+Usa **Esporta** per scaricare un backup completo di questa istanza controller. Include fabric, credenziali private, sessioni e dati dei dispositivi associati. **Proteggi il file come una password.** L'importazione sostituisce lo storage Matter di questa istanza e riavvia brevemente il controller. Un backup controller non può essere importato in un bridge.
 
 ## Rimuovere un dispositivo
 

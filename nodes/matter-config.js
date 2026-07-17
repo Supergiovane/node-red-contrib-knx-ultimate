@@ -1,5 +1,8 @@
 /* eslint-disable max-len */
 const path = require('path')
+const { exportMatterStorage, importMatterStorage } = require('./utils/matterStorageBackup')
+const matterPackageVersion = require('@matter/main').version
+const { Specification } = require('@matter/model')
 
 // 10/09/2024 Setup the color logger
 const loggerSetup = (options) => {
@@ -18,6 +21,7 @@ module.exports = (RED) => {
     node.sysLogger = null
     node.matterManager = null
     node.timerMatterConfigCheckState = null
+    node.storageOperation = null
     try {
       node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: 'matter-config.js' })
     } catch (error) { console.log(error.stack) }
@@ -190,6 +194,35 @@ module.exports = (RED) => {
       if (node.matterManager === null) throw new Error('Matter controller not started')
       return node.matterManager.renameNode(_nodeId, _label)
     }
+
+    const withStoppedController = async (operation) => {
+      if (node.storageOperation !== null) throw new Error('Another Matter storage operation is already running')
+      node.storageOperation = (async () => {
+        if (node.matterManager !== null) await node.matterManager.close()
+        node.matterManager = null
+        try {
+          return await operation()
+        } finally {
+          await node.initMatterConnection()
+        }
+      })()
+      try { return await node.storageOperation } finally { node.storageOperation = null }
+    }
+
+    node.exportMatterStorage = () => withStoppedController(() => exportMatterStorage({
+      storagePath: node.matterStoragePath,
+      instanceId: node.matterInstanceId,
+      kind: 'controller',
+      protocolVersion: Specification.REVISION,
+      packageVersion: matterPackageVersion
+    }))
+
+    node.importMatterStorage = (backup) => withStoppedController(() => importMatterStorage({
+      storagePath: node.matterStoragePath,
+      instanceId: node.matterInstanceId,
+      kind: 'controller',
+      backup
+    }))
     // END functions called from the nodes -------------------------------------------------------------
 
     node.addClient = (_Node) => {

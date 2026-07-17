@@ -15,9 +15,13 @@ Le contrôleur communique avec les appareils via le **réseau IP** (WiFi, Ethern
 
 Si l'appareil est neuf et ne prend en charge que l'appairage Bluetooth, appairez-le d'abord avec l'app du fabricant ou un autre contrôleur Matter (Alexa, Google Home, Apple Home), puis utilisez sa fonction **« partager / appairer avec un autre hub »** pour générer un nouveau code pour KNX-Ultimate. L'appareil rejoint ainsi plusieurs fabrics à la fois.
 
+Préférez le payload QR (`MT:...`) : il contient le discriminateur complet. Le code manuel ne contient que le discriminateur court et peut sélectionner le mauvais appareil si plusieurs modèles identiques sont en mode appairage. Appairez un appareil à la fois.
+
 ## Stockage
 
 Les identifiants de la fabric et les appareils appairés sont enregistrés dans le dossier `knxultimatestorage/matter` du répertoire utilisateur de Node-RED. Supprimer ce dossier efface tous les appairages.
+
+Utilisez **Exporter** pour télécharger une sauvegarde complète de cette instance de contrôleur. Elle contient la fabric, les identifiants privés, les sessions et les données des appareils associés. **Protégez le fichier comme un mot de passe.** L'import remplace le stockage Matter de cette instance et redémarre brièvement le contrôleur. Une sauvegarde de contrôleur ne peut pas être importée dans un bridge.
 
 ## Supprimer un appareil
 

@@ -20,9 +20,13 @@ permalink: /wiki/zh-CN-Matter-Controller-Configuration
 
 如果设备是全新的且仅支持蓝牙配对，请先用厂商 App 或其他 Matter 控制器（Alexa、Google Home、Apple Home）配对，然后使用其**"与其他中枢共享/配对"**功能为 KNX-Ultimate 生成新的配对码。这样设备可以同时加入多个 fabric。
 
+优先使用二维码 payload（`MT:...`），因为它包含完整的鉴别码。手动配对码只包含短鉴别码；当多个相同型号同时处于配对模式时，可能会选错设备。请一次只配对一个设备。
+
 ## 存储
 
 Fabric 凭据和已配对设备保存在 Node-RED 用户目录下的 `knxultimatestorage/matter` 文件夹中。删除该文件夹将移除所有配对。
+
+使用 **导出** 下载此控制器实例的完整备份，其中包含 Fabric、私有凭据、会话和已配网设备数据。**请像密码一样保护此文件。** 导入会替换此实例当前的 Matter 存储并短暂重启控制器。控制器备份不能导入网桥。
 
 ## 移除设备
 

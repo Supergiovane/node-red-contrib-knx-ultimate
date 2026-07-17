@@ -16,7 +16,10 @@
       "deploy_first": "Déployez d'abord ce nœud de configuration, puis cliquez sur actualiser.",
       "reset_button": "Réinitialiser l'appairage",
       "reset_confirm": "Supprimer TOUS les contrôleurs appairés et relancer l'appairage ? Les appareils disparaîtront d'Alexa/Google/Apple.",
-      "reset_ok": "Appairage réinitialisé. Le bridge attend de nouveau un appairage."
+      "reset_ok": "Appairage réinitialisé. Le bridge attend de nouveau un appairage.",
+      "storage_title": "Sauvegarde de la fabric et des associations", "storage_export": "Exporter", "storage_import": "Importer",
+      "storage_warning": "La sauvegarde contient les identifiants de fabric, les clés privées et les données d'association. Protégez-la comme un mot de passe. L'import remplace le stockage Matter de ce bridge et le redémarre brièvement.",
+      "storage_import_confirm": "Remplacer les fabrics Matter et les contrôleurs associés de ce bridge par la sauvegarde sélectionnée ?", "storage_import_ok": "Sauvegarde Matter importée. Le bridge a redémarré."
     }
   }
 }

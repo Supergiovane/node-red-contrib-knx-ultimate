@@ -2,7 +2,6 @@
   "matter-config": {
     "properties": {
       "title": "Controller Matter",
-      "intro": "Questo nodo è un controller Matter (con una propria fabric). Associa qui i tuoi dispositivi Matter, poi usa il nodo \"Matter Device\" per mapparli sugli indirizzi di gruppo KNX. Fai prima il deploy del nodo, poi torna qui per associare i dispositivi.",
       "node-config-input-name": "Nome",
       "fabric_label": "Etichetta fabric",
       "pairing_title": "Associa un nuovo dispositivo",
@@ -25,7 +24,13 @@
       "pairing_hint": "Preferisci il QR code (MT:…): contiene il discriminatore completo del dispositivo. Il codice manuale contiene solo un discriminatore corto e non distingue in modo affidabile dispositivi identici (es. più Shelly dello stesso modello), rischiando di associare quello sbagliato o segnalarlo come già registrato. Registra un dispositivo alla volta; se è già associato altrove, fai prima un factory reset.",
       "rename_button": "Rinomina",
       "rename_prompt": "Nuovo nome dispositivo",
-      "rename_ok": "Dispositivo rinominato."
+      "rename_ok": "Dispositivo rinominato.",
+      "storage_title": "Backup fabric e associazioni",
+      "storage_export": "Esporta",
+      "storage_import": "Importa",
+      "storage_warning": "Il backup contiene credenziali fabric, chiavi private e dati dei dispositivi associati. Proteggilo come una password. L'importazione sostituisce lo storage Matter di questo controller e lo riavvia brevemente.",
+      "storage_import_confirm": "Sostituire la fabric Matter e i dispositivi associati di questo controller con il backup selezionato?",
+      "storage_import_ok": "Backup Matter importato. Il controller è stato riavviato."
     }
   }
 }

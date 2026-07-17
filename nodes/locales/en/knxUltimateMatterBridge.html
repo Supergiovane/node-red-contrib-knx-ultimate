@@ -9,6 +9,8 @@ Each Expose KNX to Matter node exposes **one KNX device as a Matter device**: th
 
 This is the opposite direction of the *Matter Device* node: there KNX controls a Matter device, here the Matter controllers control KNX.
 
+Changing the device type after the bridge has been paired changes the Matter endpoint structure. Controllers may keep the old endpoint as unreachable; in that case reset/re-pair the bridge or create a new exposed device.
+
 ## Configuration
 
 |Field|Description|

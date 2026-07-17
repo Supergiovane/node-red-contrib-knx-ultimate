@@ -2,7 +2,6 @@
   "matter-config": {
     "properties": {
       "title": "Matter Controller",
-      "intro": "This node is a Matter controller (its own fabric). Pair your Matter devices here, then use the \"Matter Device\" node to map them to KNX group addresses. Deploy the node first, then come back here to pair devices.",
       "node-config-input-name": "Name",
       "fabric_label": "Fabric label",
       "pairing_title": "Pair a new device",
@@ -25,7 +24,13 @@
       "pairing_hint": "Prefer the QR code (MT:…): it carries the full device discriminator. The manual code stores only a short discriminator and can't reliably tell identical devices apart (e.g. several Shelly of the same model), which may pair the wrong one or report it as already commissioned. Pair one device at a time; if it's already paired elsewhere, factory-reset it first.",
       "rename_button": "Rename",
       "rename_prompt": "New device name",
-      "rename_ok": "Device renamed."
+      "rename_ok": "Device renamed.",
+      "storage_title": "Fabric and commissioning backup",
+      "storage_export": "Export",
+      "storage_import": "Import",
+      "storage_warning": "The backup contains fabric credentials, private keys and commissioned-device data. Keep it secret like a password. Import replaces this controller's current Matter storage and briefly restarts it.",
+      "storage_import_confirm": "Replace this controller's Matter fabric and commissioned devices with the selected backup?",
+      "storage_import_ok": "Matter backup imported. The controller has restarted."
     }
   }
 }

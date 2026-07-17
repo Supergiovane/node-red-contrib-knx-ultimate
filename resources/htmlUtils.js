@@ -1,6 +1,17 @@
 /* global window, document, MutationObserver, $, jQuery */
 /* eslint-disable camelcase */
 
+// Keep informational tips aligned with the full width of our Node-RED editor forms.
+// Node-RED applies a max-width to .form-tips by default, which otherwise leaves
+// inconsistent empty space in wider edit dialogs.
+;(function ensureKnxUltimateEditorStyles () {
+  if (document.getElementById('knx-ultimate-editor-styles')) return
+  const style = document.createElement('style')
+  style.id = 'knx-ultimate-editor-styles'
+  style.textContent = '.form-tips { width: 100% !important; max-width: none !important; box-sizing: border-box !important; background-color: #e8f5e9 !important; }'
+  document.head.appendChild(style)
+})()
+
 // 31/03/2020 Search Helper
 function htmlUtilsfullCSVSearch (sourceText, searchString) {
   let aSearchWords = []

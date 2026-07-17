@@ -26,11 +26,15 @@ Questo nodo di configurazione è il **bridge Matter vero e proprio**: esegue il 
 2. Il pannello di abbinamento mostra il **QR code** e il **codice manuale**: scansiona o digita in Alexa / Google Home / Apple Home ("aggiungi dispositivo Matter").
 3. Più controller possono essere abbinati allo stesso bridge (multi-fabric Matter).
 
+Per aggiungere un altro controller quando il QR code è nascosto, apri la modalità di abbinamento da un controller già associato, poi aggiungi un dispositivo Matter nel nuovo controller. Usa **Reset abbinamento** solo per rimuovere tutti i controller esistenti e ripartire.
+
 Il pulsante **Reset abbinamento** rimuove tutti i controller abbinati e riavvia l'advertising di abbinamento.
 
 ## Identità e archiviazione
 
 L'identità del bridge è legata a questo nodo di configurazione ed è salvata in `knxultimatestorage/matter` nella directory utente di Node-RED: i re-deploy (anche cambiando porta o nome) **NON** richiedono un nuovo abbinamento. Solo eliminando questo nodo di configurazione e creandone uno nuovo cambia l'identità — in quel caso rimuovi il vecchio bridge dall'app Matter e riabbina.
+
+Usa **Esporta** per scaricare un backup completo di questa istanza bridge, incluse fabric, credenziali private, sessioni e dati di abbinamento. **Proteggi il file come una password.** L'importazione sostituisce lo storage dell'istanza e riavvia brevemente il bridge. Un backup bridge non può essere importato in un controller.
 
 ## Note
 

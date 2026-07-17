@@ -16,7 +16,10 @@
       "deploy_first": "Bitte zuerst diesen Konfigurations-Node deployen und dann auf Aktualisieren klicken.",
       "reset_button": "Kopplung zurücksetzen",
       "reset_confirm": "ALLE gekoppelten Controller entfernen und die Kopplung neu starten? Die Geräte verschwinden aus Alexa/Google/Apple.",
-      "reset_ok": "Kopplung zurückgesetzt. Die Bridge wartet wieder auf Kopplung."
+      "reset_ok": "Kopplung zurückgesetzt. Die Bridge wartet wieder auf Kopplung.",
+      "storage_title": "Sicherung von Fabric und Kopplung", "storage_export": "Exportieren", "storage_import": "Importieren",
+      "storage_warning": "Die Sicherung enthält Fabric-Zugangsdaten, private Schlüssel und Kopplungsdaten. Wie ein Passwort schützen. Der Import ersetzt den Matter-Speicher dieser Bridge und startet sie kurz neu.",
+      "storage_import_confirm": "Matter-Fabrics und gekoppelte Controller dieser Bridge durch die gewählte Sicherung ersetzen?", "storage_import_ok": "Matter-Sicherung importiert. Die Bridge wurde neu gestartet."
     }
   }
 }
