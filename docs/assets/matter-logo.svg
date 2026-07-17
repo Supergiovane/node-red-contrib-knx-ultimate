@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="150" height="44" viewBox="0 0 150 44" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matter">
+<svg width="170" height="44" viewBox="0 0 170 44" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matter Controller, Matter Bridge">
   <g fill="#1B4C9E" stroke="none" transform="translate(2,-8)">
     <circle cx="20" cy="30" r="4.5"/>
     <g>
@@ -15,5 +15,8 @@
       <path d="M 14.5 18.5 L 25.5 18.5 L 20 25.5 Z"/>
     </g>
   </g>
-  <text x="50" y="31" fill="#1B4C9E" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="26" font-weight="600" letter-spacing="0.5">matter</text>
+  <text x="50" fill="#1B4C9E" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="16" font-weight="600" letter-spacing="-0.5">
+    <tspan x="50" y="18">matter controller</tspan>
+    <tspan x="50" y="37">matter bridge</tspan>
+  </text>
 </svg>

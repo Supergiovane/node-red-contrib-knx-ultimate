@@ -6,7 +6,7 @@
 
 ## The most popular KNX node for Node-RED
 
-KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter, MQTT, diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.
+KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT, diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.
 
 <br/>
 <br/>
