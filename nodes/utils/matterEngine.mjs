@@ -37,7 +37,11 @@ class classMatter extends EventEmitter {
     this.exitAllQueues = false
     this._api = null // Lazy loaded matter.js exports
     this._logThrottle = new Map()
-    if (startQueue) this.handleQueue()
+    if (startQueue) {
+      // The queue is intentionally fire-and-forget, but its Promise must always be
+      // observed so an unexpected loop failure cannot become an unhandled rejection.
+      this.handleQueue().catch((error) => this._log('error', `classMatter: queue loop: ${error.message}`))
+    }
   }
 
   _log = (level, message) => {

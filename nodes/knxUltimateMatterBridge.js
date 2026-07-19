@@ -170,6 +170,24 @@ module.exports = function (RED) {
       }
     }
 
+    const reportMatterError = (context, error) => {
+      const message = error?.message || String(error)
+      node.setNodeStatus({ fill: 'red', shape: 'dot', text: `${context} ${message}`, payload: '' })
+      try { RED.log.error(`knxUltimateMatterBridge: ${context}: ${message}`) } catch (logError) { /* empty */ }
+    }
+
+    const safeSetDeviceState = async (fn, value, context) => {
+      try {
+        if (!node.serverMatterBridge || typeof node.serverMatterBridge.setDeviceState !== 'function') {
+          throw new Error('Matter bridge unavailable')
+        }
+        return await node.serverMatterBridge.setDeviceState(node.matterDeviceId, fn, value)
+      } catch (error) {
+        reportMatterError(context, error)
+        return false
+      }
+    }
+
     const clearCoverStatusTimer = () => {
       if (coverStatusTimer !== null) {
         clearTimeout(coverStatusTimer)
@@ -227,7 +245,7 @@ module.exports = function (RED) {
       clearCoverArrivalTimer()
 
       if (node.coverUpdateMode === 'optimistic') {
-        node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', requestedPosition)
+        safeSetDeviceState('position', requestedPosition, 'Matter position update error')
         return
       }
 
@@ -241,7 +259,7 @@ module.exports = function (RED) {
       }
       coverArrivalTimer = setTimeout(() => {
         coverArrivalTimer = null
-        node.serverMatterBridge.setDeviceState(node.matterDeviceId, 'position', requestedPosition)
+        safeSetDeviceState('position', requestedPosition, 'Matter position fallback error')
         node.setNodeStatus({ fill: 'yellow', shape: 'ring', text: 'No exact KNX confirmation in time, assuming arrived at', payload: requestedPosition })
       }, COVER_ARRIVAL_FALLBACK_MS)
     }
@@ -341,7 +359,7 @@ module.exports = function (RED) {
           try {
             const value = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(route.dpt))
             if (value === undefined || value === null) return
-            node.serverMatterBridge.setDeviceState(node.matterDeviceId, route.fn, value)
+            safeSetDeviceState(route.fn, value, 'KNX->Matter error')
             if (node.deviceType === 'windowcovering' && route.fn === 'position') { clearCoverStatusTimer(); clearCoverArrivalTimer() }
             node.setNodeStatus({ fill: 'blue', shape: 'dot', text: `KNX->Matter ${route.fn}`, payload: value })
           } catch (error) {
@@ -391,7 +409,7 @@ module.exports = function (RED) {
 
     // Flow input pin: updates the Matter state of this device without going through the KNX bus.
     // msg.payload = { function: 'onoff'|'level'|'position'|'temperature'|..., value: ... }
-    node.on('input', (msg, send, done) => {
+    node.on('input', async (msg, send, done) => {
       if (!node.enableNodePINS) {
         if (done) done()
         return
@@ -401,7 +419,8 @@ module.exports = function (RED) {
         const fn = (payload.function || payload.fn || '').toString().trim()
         if (fn === '' || payload.value === undefined) throw new Error('msg.payload must be { function, value }')
         if (node.serverMatterBridge === undefined) throw new Error('No Matter bridge selected')
-        node.serverMatterBridge.setDeviceState(node.matterDeviceId, fn, payload.value)
+        const updated = await safeSetDeviceState(fn, payload.value, 'Flow->Matter error')
+        if (!updated) throw new Error('Matter state update failed')
         node.setNodeStatus({ fill: 'green', shape: 'dot', text: `Flow->Matter ${fn}`, payload: payload.value })
         if (done) done()
       } catch (error) {

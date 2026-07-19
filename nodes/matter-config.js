@@ -44,7 +44,10 @@ module.exports = (RED) => {
       // Matter clients registered on this shared controller connection.
       try {
         if (!client || typeof fn !== 'function') return
-        fn()
+        const result = fn()
+        if (result && typeof result.catch === 'function') {
+          result.catch((error) => node.sysLogger?.warn(`Matter client ${label} async error: ${error.message}`))
+        }
       } catch (error) {
         node.sysLogger?.warn(`Matter client ${label} error: ${error.message}`)
       }
@@ -132,6 +135,11 @@ module.exports = (RED) => {
         })
       })
 
+      // EventEmitter treats an unhandled "error" event as a process exception.
+      node.matterManager.on('error', (error) => {
+        node.sysLogger?.error(`Matter controller engine error: ${error?.message || error}`)
+      })
+
       try {
         await node.matterManager.Connect()
       } catch (error) {
@@ -150,8 +158,12 @@ module.exports = (RED) => {
               node.sysLogger?.error(`Errore matter-config: node.startWatchdogTimer: ${error.message}`)
             }
           }
-          await node.startWatchdogTimer()
-        })()
+          try {
+            await node.startWatchdogTimer()
+          } catch (error) {
+            node.sysLogger?.error(`matter-config: watchdog reschedule error: ${error.message}`)
+          }
+        })().catch((error) => node.sysLogger?.error(`matter-config: watchdog callback error: ${error.message}`))
       }, 60000)
     }
 
@@ -165,11 +177,11 @@ module.exports = (RED) => {
           node.sysLogger?.error(`matter-config: startup error: ${error.message}`)
         }
         try {
-          node.startWatchdogTimer()
+          await node.startWatchdogTimer()
         } catch (error) {
           node.sysLogger?.error(`matter-config: watchdog start error: ${error.message}`)
         }
-      })()
+      })().catch((error) => node.sysLogger?.error(`matter-config: startup callback error: ${error.message}`))
     }, 5000)
 
     // Functions called from the nodes and the admin endpoints ----------------------------------------

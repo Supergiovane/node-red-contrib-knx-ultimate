@@ -53,7 +53,10 @@ module.exports = (RED) => {
     const safeClientCall = (client, fn, label) => {
       try {
         if (!client || typeof fn !== 'function') return
-        fn()
+        const result = fn()
+        if (result && typeof result.catch === 'function') {
+          result.catch((error) => node.sysLogger?.warn(`Matter bridge client ${label} async error: ${error.message}`))
+        }
       } catch (error) {
         node.sysLogger?.warn(`Matter bridge client ${label} error: ${error.message}`)
       }
@@ -80,6 +83,10 @@ module.exports = (RED) => {
 
     const bindEngineEvents = (engine) => {
       engine.removeAllListeners()
+      // An EventEmitter "error" without a listener terminates Node-RED.
+      engine.on('error', (error) => {
+        node.sysLogger?.error(`Matter bridge engine error: ${error?.message || error}`)
+      })
       // Matter -> KNX: a controller (Alexa...) sent a command to a bridged device.
       // Route it to the device node that owns that Matter device.
       engine.on('command', (command) => {
@@ -109,7 +116,7 @@ module.exports = (RED) => {
           } catch (error) {
             node.sysLogger?.warn(`matterbridge-config: reconcile error: ${error.message}`)
           }
-        })()
+        })().catch((error) => node.sysLogger?.warn(`matterbridge-config: reconcile callback error: ${error.message}`))
       }, 1500)
     }
 
@@ -160,7 +167,7 @@ module.exports = (RED) => {
       (async () => {
         if (closing) return
         await ensureEngineStarted()
-      })()
+      })().catch((error) => node.sysLogger?.error(`matterbridge-config: startup callback error: ${error.message}`))
     }, 5000)
 
     // Functions called from the device nodes -----------------------------------------

@@ -221,6 +221,48 @@ describe('matterBridgeDeviceFactory – BRIDGE_TYPES catalog', () => {
 })
 
 describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
+  it('contains rejected asynchronous Flow-to-Matter updates and reports them via done', async () => {
+    let NodeConstructor
+    const loggedErrors = []
+    const statuses = []
+    const bridge = {
+      registerDevice: () => {},
+      getPairingInfo: () => ({ running: true, commissioned: true, fabrics: [] }),
+      setDeviceState: async () => { throw new Error('simulated Matter write failure') }
+    }
+    const RED = {
+      nodes: {
+        createNode: (node, config) => {
+          Object.setPrototypeOf(node, EventEmitter.prototype)
+          EventEmitter.call(node)
+          node.id = config.id
+          node.status = (status) => statuses.push(status)
+        },
+        getNode: (id) => ({ bridge })[id],
+        registerType: (_type, constructor) => { NodeConstructor = constructor }
+      },
+      log: { error: (message) => loggedErrors.push(message) }
+    }
+
+    require('../nodes/knxUltimateMatterBridge.js')(RED)
+    const node = new NodeConstructor({
+      id: 'rejecting-device',
+      serverMatterBridge: 'bridge',
+      deviceType: 'robotvacuum',
+      enableNodePINS: 'yes'
+    })
+
+    const error = await new Promise((resolve) => {
+      node.emit('input', { payload: { function: 'state', value: 'cleaning' } }, () => {}, resolve)
+    })
+
+    expect(error).to.be.instanceOf(Error)
+    expect(error.message).to.equal('Matter state update failed')
+    expect(loggedErrors.some((message) => message.includes('simulated Matter write failure'))).to.equal(true)
+    expect(statuses.some((status) => status.text.includes('Flow->Matter error'))).to.equal(true)
+    node.emit('close', () => {})
+  })
+
   it('confirms a flow-only cover position to Matter', () => {
     let NodeConstructor
     const matterStateUpdates = []
@@ -712,4 +754,3 @@ describe('matterBridgeDeviceFactory – raw command output', () => {
     }
   })
 })
-
