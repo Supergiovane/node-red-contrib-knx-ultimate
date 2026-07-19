@@ -99,7 +99,11 @@
     "smarthome",
     "routing"
   ],
-  "author": "Massimo Saccani (Supergiovane)",
+  "author": {
+    "name": "Massimo Saccani",
+    "email": "maxsupergiovane@icloud.com",
+    "url": "https://youtube.com/@maxsupervibe"
+  },
   "license": "MIT",
   "scripts": {
     "build": "npm run knx-ai:build && npm run knx-viewer:build",
