@@ -26,7 +26,7 @@ Sostituisce i nodi Matter separati non pubblicati e mantiene tutta la UI luce qu
 | Sensori | Gli endpoint sensore mostrano il relativo GA di misura/stato solo quando supportato: temperatura, umidità, illuminamento, presenza, contatto e batteria. |
 | Read at startup | Pubblica il valore Matter in cache al deploy/avvio o quando il dispositivo si riconnette. |
 | Update local state from KNX write | Aggiorna la cache locale Matter/KNX quando arriva una scrittura su un GA KNX configurato. |
-| Node Input/Output PINs | Mostra i pin input/output Node-RED. L'input accetta payload booleani e messaggi stile Matter in `msg.payload` o `msg.on.on`; l'output emette gli aggiornamenti di stato. |
+| Node Input/Output PINs | Mostra i pin input/output Node-RED. L'input accetta payload booleani e messaggi stile Matter in `msg.payload` o `msg.on.on`; l'output emette gli aggiornamenti di stato. La selezione viene mantenuta alla riapertura dell'editor. |
 
 ## Comportamento
 

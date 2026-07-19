@@ -26,7 +26,7 @@ Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behäl
 | Sensoren | Sensor-Endpunkte zeigen ihre Mess-/Status-GA nur bei Unterstützung: Temperatur, Feuchte, Helligkeit, Präsenz, Kontakt und Batterie. |
 | Read at startup | Veröffentlicht den gecachten Matter-Wert beim Deploy/Start oder wenn sich das Gerät erneut verbindet. |
 | Update local state from KNX write | Aktualisiert den lokalen Matter/KNX-Cache, wenn ein Telegramm auf eine konfigurierte KNX-GA geschrieben wird. |
-| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Der Eingang akzeptiert boolesche Payloads sowie Matter-ähnliche `msg.payload` oder `msg.on.on`; der Ausgang sendet Statusupdates. |
+| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Der Eingang akzeptiert boolesche Payloads sowie Matter-ähnliche `msg.payload` oder `msg.on.on`; der Ausgang sendet Statusupdates. Die Auswahl bleibt beim erneuten Öffnen des Editors erhalten. |
 
 ## Verhalten
 

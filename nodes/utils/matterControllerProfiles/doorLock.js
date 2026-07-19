@@ -53,6 +53,10 @@ const setupDoorLockProfile = (RED, node, config) => {
     .filter((ga) => ga !== '')
 
   const setStatus = (fill, shape, text) => node.status({ fill, shape, text })
+  // knxUltimate-config invokes this synchronously from addClient(). Profiles return
+  // early from the main light constructor, so they must expose the callback before
+  // registering with the shared KNX configuration node.
+  node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text = '' } = {}) => setStatus(fill, shape, text)
 
   const commandArgs = () => {
     const pin = String(node.credentials?.doorLockPin || '')

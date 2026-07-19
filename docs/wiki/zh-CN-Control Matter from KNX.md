@@ -26,7 +26,7 @@ permalink: /wiki/zh-CN-Control%20Matter%20from%20KNX
 | 传感器 | 传感器 endpoint 只在支持时显示对应测量/状态 GA：温度、湿度、照度、占用、接触和电池。 |
 | Read at startup | 在部署/启动或设备重新连接时发布缓存的 Matter 值。 |
 | Update local state from KNX write | 当配置的 KNX GA 收到写入 telegram 时，更新本地 Matter/KNX 缓存。 |
-| Node Input/Output PINs | 显示 Node-RED 输入/输出端口。输入接受布尔 payload，以及 `msg.payload` 或 `msg.on.on` 中的 Matter 风格消息；输出发送状态更新。 |
+| Node Input/Output PINs | 显示 Node-RED 输入/输出端口。输入接受布尔 payload，以及 `msg.payload` 或 `msg.on.on` 中的 Matter 风格消息；输出发送状态更新。重新打开编辑器时会保留此选择。 |
 
 ## 行为
 

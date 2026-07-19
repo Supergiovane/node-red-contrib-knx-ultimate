@@ -115,8 +115,8 @@ module.exports = function (RED) {
       config.GADaylightSensor
     ].map((ga) => String(ga || '').trim()).filter((ga) => ga !== '')
     const isConfiguredKNXGA = (ga) => node.knxUltimateAcceptedGAs.includes(String(ga || '').trim())
-    // Synthetic "current device" in Hue shape, kept in sync from the Matter attribute
-    // reports. It lets the whole Hue-born logic below run untouched on a Matter light.
+    // Synthetic current-device compatibility state, kept in sync from Matter attribute
+    // reports. It lets the established light logic run untouched on a Matter light.
     node.currentHUEDevice = {
       id: node.matterNodeId,
       type: 'light',
@@ -221,14 +221,14 @@ module.exports = function (RED) {
         node.status({ fill, shape, text: (node.sHUENodeStatusText || '') + ' ' + (node.sKNXNodeStatusText || '') })
       } catch (error) { }
     }
-    // Used to call the status update from the HUE config node.
+    // Compatibility callback used to update the Matter node status.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       try {
         if (node.currentHUEDevice?.on?.on === true) { fill = 'blue'; shape = 'dot' } else { fill = 'blue'; shape = 'ring' };
         if (payload === undefined) payload = ''
         const dDate = new Date()
         payload = typeof payload === 'object' ? JSON.stringify(payload) : payload.toString()
-        node.sHUENodeStatusText = `|HUE: ${text} ${payload} (${formatTs(dDate)})`
+        node.sHUENodeStatusText = `|Matter: ${text} ${payload} (${formatTs(dDate)})`
         node.status({ fill, shape, text: node.sHUENodeStatusText + ' ' + (node.sKNXNodeStatusText || '') })
       } catch (error) { }
     }
@@ -323,7 +323,7 @@ module.exports = function (RED) {
       return Math.floor(Math.random() * (max - min + 1) + min) // The maximum is inclusive and the minimum is inclusive
     }
 
-    // This function is called by the hue-config.js
+    // Compatibility callback invoked by the Matter controller adapter.
     node.handleSend = (msg) => {
       if (!msg || !msg.knx || !isConfiguredKNXGA(msg.knx.destination)) return
       if (node.currentHUEDevice === undefined && node.serverHue.linkStatus === 'connected') {
@@ -1166,7 +1166,7 @@ module.exports = function (RED) {
           node.setNodeStatusHue({
             fill: 'red',
             shape: 'ring',
-            text: "Rejected HUE light settings. I'm still not ready...",
+            text: "Rejected Matter light settings. I'm still not ready...",
             payload: ''
           })
           return

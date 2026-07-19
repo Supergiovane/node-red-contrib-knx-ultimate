@@ -1,5 +1,7 @@
 const { expect } = require('chai')
 const { EventEmitter } = require('events')
+const fs = require('fs')
+const path = require('path')
 const { knxToMatter, matterToKnx, CLUSTER } = require('../nodes/utils/matterKnxConverter')
 const { LOCK_STATE, lockStateToBoolean, setupDoorLockProfile } = require('../nodes/utils/matterControllerProfiles/doorLock')
 const { setupMatterControllerProfile } = require('../nodes/utils/matterControllerProfiles')
@@ -151,7 +153,7 @@ describe('Matter controller Door Lock profile', () => {
       send: (msg) => outputs.push(msg),
       error: (error) => errors.push(error),
       serverKNX: {
-        addClient: () => {},
+        addClient: (client) => client.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'Node initialized.' }),
         removeClient: () => {},
         sendKNXTelegramToKNXEngine: (item) => knxWrites.push(item)
       },
@@ -235,7 +237,7 @@ describe('Matter controller multi-purpose profile routing', () => {
       status: () => {},
       send: () => {},
       serverKNX: {
-        addClient: () => {}, removeClient: () => {},
+        addClient: (client) => client.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'Node initialized.' }), removeClient: () => {},
         sendKNXTelegramToKNXEngine: (item) => knxWrites.push(item)
       },
       serverMatter: {
@@ -255,5 +257,36 @@ describe('Matter controller multi-purpose profile routing', () => {
     node.handleSendMatter({ nodeId: '55', endpointId: 2, clusterId: CLUSTER.TEMPERATURE, attributeName: 'measuredValue', value: 2150 })
     expect(matterWrites[0]).to.include({ clusterId: CLUSTER.ON_OFF, name: 'on' })
     expect(knxWrites[0]).to.include({ grpaddr: '1/2/2', payload: 21.5, dpt: '9.001' })
+  })
+})
+
+describe('Matter controller editor persistence and terminology', () => {
+  const editorPath = path.join(__dirname, '..', 'nodes', 'knxUltimateMatterControllerDevice.html')
+  const editor = fs.readFileSync(editorPath, 'utf8')
+
+  it('does not overwrite the saved flow PIN selection when the editor opens', () => {
+    expect(editor).not.to.match(/const desiredPins\s*=\s*knxSelected/)
+    expect(editor).to.match(/if \(\$\("#node-input-enableNodePINS"\)\.val\(\) === "yes"\)/)
+    expect(editor).to.match(/this\.outputs = 1;\s*this\.inputs = 1;/)
+    expect(editor).to.match(/this\.outputs = 0;\s*this\.inputs = 0;/)
+  })
+
+  it('uses Matter terminology in the rendered English help', () => {
+    const help = editor.split('<script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">')[1] || ''
+    // Lowercase "hue" remains a valid Matter Color Control concept (HSV hue).
+    expect(help).not.to.match(/Philips Hue|\bHUE\b/)
+  })
+
+  it('uses Matter terminology in every localized editor string', () => {
+    for (const locale of ['en', 'it', 'de', 'fr', 'es', 'zh-CN']) {
+      const localePath = path.join(__dirname, '..', 'nodes', 'locales', locale, 'knxUltimateMatterControllerDevice.json')
+      const values = []
+      const collectStrings = (value) => {
+        if (typeof value === 'string') values.push(value)
+        else if (value && typeof value === 'object') Object.values(value).forEach(collectStrings)
+      }
+      collectStrings(JSON.parse(fs.readFileSync(localePath, 'utf8')))
+      expect(values.join('\n'), `${locale} still contains a Hue label`).not.to.match(/hue/i)
+    }
   })
 })

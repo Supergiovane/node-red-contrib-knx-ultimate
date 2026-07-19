@@ -42,6 +42,8 @@ const setupMappedEndpointProfile = (RED, node, config) => {
   let lastInitialReadTs = 0
 
   const status = (fill, shape, text) => node.status({ fill, shape, text })
+  // knxUltimate-config calls setNodeStatus synchronously while adding the client.
+  node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text = '' } = {}) => status(fill, shape, text)
   const manager = () => node.serverMatter?.matterManager
   const sendKnx = (mapping, payload, outputtype = 'write') => {
     if (payload === undefined || !node.serverKNX) return false
