@@ -13,7 +13,10 @@ const PROFILE_SETUPS = Object.freeze({
 
 const setupMatterControllerProfile = (profile, RED, node, config) => {
   const setup = PROFILE_SETUPS[profile]
+  // Returning false is significant: the caller must continue through the unchanged
+  // Matter-light implementation when no specialized profile claims the endpoint.
   if (typeof setup !== 'function') return false
+  // A profile that returns successfully owns input, close, KNX and Matter handlers.
   setup(RED, node, config)
   return true
 }

@@ -290,3 +290,26 @@ describe('Matter controller editor persistence and terminology', () => {
     }
   })
 })
+
+describe('Matter controller rename after commissioning', () => {
+  it('waits for the root BasicInformation cluster to become available', async () => {
+    const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
+    const manager = new classMatter('', 'rename-test', 'test', null, { startQueue: false })
+    const labels = []
+    const basicInformation = { id: 40 }
+    const clusterClient = { attributes: { nodeLabel: { set: async (value) => labels.push(value) } } }
+    let attempts = 0
+    manager._api = { BasicInformation: basicInformation }
+    manager.pairedNodes.set('123', {
+      getRootClusterClient: () => (++attempts >= 2 ? clusterClient : undefined),
+      getRootEndpoint: () => undefined,
+      getDevices: () => []
+    })
+
+    const result = await manager.renameNode('123', 'Shelly Plug')
+
+    expect(result).to.equal('Shelly Plug')
+    expect(labels).to.deep.equal(['Shelly Plug'])
+    expect(attempts).to.be.at.least(2)
+  })
+})

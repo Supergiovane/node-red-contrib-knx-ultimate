@@ -23,6 +23,10 @@ module.exports = function (RED) {
 
     let matterCapabilities = {}
     try { matterCapabilities = JSON.parse(config.matterDeviceCapabilities || '{}') } catch (error) { /* empty */ }
+    // Non-light endpoints are handled by isolated profiles. A successful profile setup
+    // owns the complete node lifecycle and deliberately bypasses the legacy light path.
+    // Keeping this boundary here prevents new device types from changing established
+    // light behaviour or its saved configuration contract.
     if (setupMatterControllerProfile(matterCapabilities.profile, RED, node, config)) return
 
     // Matter engine (adapter). The manager is resolved lazily at each write, because

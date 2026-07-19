@@ -443,6 +443,15 @@ class classMatter extends EventEmitter {
   }
 
   _findEndpoint = (node, _endpointId) => {
+    // getDevices() can expose only functional/bridged endpoints while the root endpoint
+    // lives behind getRootEndpoint(). Resolve endpoint 0 explicitly for node clusters
+    // such as BasicInformation and GeneralCommissioning.
+    if (Number(_endpointId) === 0 && typeof node?.getRootEndpoint === 'function') {
+      try {
+        const root = node.getRootEndpoint()
+        if (root !== undefined) return root
+      } catch (error) { /* The legacy endpoint structure may still be initializing. */ }
+    }
     return this._getAllEndpoints(node).find((ep) => Number(ep.number) === Number(_endpointId))
   }
 
@@ -564,12 +573,21 @@ class classMatter extends EventEmitter {
     if (label.length > 64) throw new Error('Matter device name is too long')
     const node = this.pairedNodes.get(_nodeIdString)
     if (node === undefined) throw new Error(`Matter node ${_nodeIdString} unknown or not yet connected`)
+    // commission() attaches the PairedNode before its first wildcard read/subscription
+    // has necessarily built the legacy endpoint structure. A user-supplied name is
+    // applied immediately after commissioning, so wait briefly for BasicInformation
+    // instead of reporting a misleading permanent-cluster warning.
+    const deadline = Date.now() + 10000
     let clusterClient
-    try {
-      if (typeof node.getRootClusterClient === 'function') clusterClient = node.getRootClusterClient(this._api.BasicInformation)
-    } catch (error) { /* empty */ }
-    if (clusterClient === undefined) clusterClient = this._findClusterClient(node, 0, 40) // BasicInformation on the root endpoint
-    if (clusterClient === undefined) throw new Error(`BasicInformation cluster not found on node ${_nodeIdString}`)
+    do {
+      try {
+        if (typeof node.getRootClusterClient === 'function') clusterClient = node.getRootClusterClient(this._api.BasicInformation)
+      } catch (error) { /* Endpoint structure is still initializing. */ }
+      if (clusterClient === undefined) clusterClient = this._findClusterClient(node, 0, 40) // BasicInformation on the root endpoint
+      if (clusterClient !== undefined) break
+      await pleaseWait(100)
+    } while (Date.now() < deadline)
+    if (clusterClient === undefined) throw new Error(`BasicInformation cluster was not available on node ${_nodeIdString} after initialization`)
     const attribute = clusterClient.attributes.nodeLabel
     if (attribute === undefined) throw new Error(`nodeLabel attribute not found on node ${_nodeIdString}`)
     await attribute.set(label)

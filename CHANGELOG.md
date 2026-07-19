@@ -6,8 +6,9 @@
 
 # CHANGELOG
 
-**Version 6.0.8** - July 2026<br/>
+**Version 6.0.9** - July 2026<br/>
 
+- **Matter Controller — post-commission naming**: assigning a name immediately after pairing now waits for matter.js to finish exposing the root `BasicInformation` cluster. Root endpoint 0 is resolved explicitly, preventing the misleading `BasicInformation cluster not found` warning seen when re-adding devices such as Shelly Plug.<br/>
 - **Control Matter from KNX — profile deploy crash**: Door Lock and multi-purpose profiles now expose the KNX status callback before registering with `knxUltimate-config`, preventing `_Node.setNodeStatus is not a function` during deploy.<br/>
 - **Control Matter from KNX — flow PIN persistence**: the **Node Input/Output PINs** selection is no longer overwritten from the KNX gateway presence when reopening the editor. The saved choice remains authoritative and `inputs`/`outputs` are updated coherently on save.<br/>
 - **Matter terminology cleanup**: removed leftover Philips Hue wording from Matter controller labels, notifications, runtime status, localized strings and help. Backward-compatible saved configuration keys remain unchanged.<br/>

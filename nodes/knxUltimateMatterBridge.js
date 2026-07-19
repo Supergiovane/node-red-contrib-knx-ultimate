@@ -157,6 +157,8 @@ module.exports = function (RED) {
     }
 
     const safeSendToKNX = (telegram, context = 'write') => {
+      // Matter command handlers are asynchronous and shared by many endpoints. Guard
+      // each KNX dispatch so one unavailable gateway cannot break other device routes.
       try {
         if (!node.serverKNX || typeof node.serverKNX.sendKNXTelegramToKNXEngine !== 'function') {
           node.setNodeStatus({ fill: 'red', shape: 'dot', text: `KNX server missing (${context})` })

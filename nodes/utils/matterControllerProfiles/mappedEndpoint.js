@@ -13,6 +13,8 @@ const isValidGroupAddress = (value) => {
 const parseMappings = (value) => {
   try {
     const parsed = Array.isArray(value) ? value : JSON.parse(value || '[]')
+    // Ignore incomplete or stale editor rows. Only mappings with a valid KNX address,
+    // resolvable DPT and explicit Matter target are allowed into runtime routing.
     return parsed.filter((mapping) => {
       if (!mapping || !isValidGroupAddress(mapping.ga) || !mapping.target || !mapping.dpt) return false
       try { dptlib.resolve(mapping.dpt); return true } catch (error) { return false }
@@ -59,12 +61,16 @@ const setupMappedEndpointProfile = (RED, node, config) => {
   const sendCached = (mapping, outputtype) => {
     const currentManager = manager()
     if (!currentManager) return false
+    // Cached reports are authoritative for KNX read responses and startup publication;
+    // reading them must not generate a new Matter write or command.
     const value = currentManager.getCachedAttribute(node.matterNodeId, mapping.endpointId, mapping.clusterId, mapping.target)
     return sendKnx(mapping, matterToKnx(mapping.clusterId, mapping.target, value), outputtype)
   }
   const enqueue = (mapping, value) => {
     const currentManager = manager()
     if (!currentManager) throw new Error('Matter controller not ready')
+    // Conversion happens before queueing so the Matter manager receives a canonical,
+    // cluster-specific command or attribute write rather than a raw KNX payload.
     const action = knxToMatter(mapping, value)
     if (!action) return
     const queued = currentManager.writeMatterQueueAdd({
@@ -98,6 +104,8 @@ const setupMappedEndpointProfile = (RED, node, config) => {
   }
   node.handleSendMatter = (event) => {
     try {
+      // Attribute reports travel only toward KNX/flow. Keeping feedback separate from
+      // enqueue() prevents programmatic state synchronization from echoing to Matter.
       if (String(event?.nodeId) !== String(node.matterNodeId) || Number(event?.endpointId) !== Number(node.matterEndpointId)) return
       node.mappings.filter((mapping) => mapping.direction === 'status' && Number(mapping.clusterId) === Number(event.clusterId) && mapping.target === event.attributeName).forEach((mapping) => {
         sendKnx(mapping, matterToKnx(event.clusterId, event.attributeName, event.value))
@@ -110,11 +118,15 @@ const setupMappedEndpointProfile = (RED, node, config) => {
     }
   }
   node.handleMatterClusterEvent = (event) => {
+    // Cluster events have no implicit KNX mapping. They are exposed as raw flow output
+    // only when the user explicitly enables the node pins.
     if (enablePins && String(event?.nodeId) === String(node.matterNodeId) && Number(event?.endpointId) === Number(node.matterEndpointId)) {
       node.send({ topic: `${event.clusterId}.${event.eventName}`, payload: event.events, matter: event })
     }
   }
   node.handleMatterNodeInitialized = () => {
+    // nodeInitialized can be emitted more than once while sessions recover. Bound the
+    // startup publication to avoid duplicate KNX telegram bursts during reconnects.
     if (config.readStatusAtStartup === 'no' || Date.now() - lastInitialReadTs < 5000) return
     let sent = 0
     node.mappings.filter((mapping) => mapping.direction === 'status').forEach((mapping) => { if (sendCached(mapping, 'write')) sent += 1 })

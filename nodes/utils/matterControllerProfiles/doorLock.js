@@ -28,12 +28,16 @@ const lockStateName = (value) => {
 }
 
 const lockStateToBoolean = (value) => {
+  // KNX DPT 1 can represent only two states. Do not collapse transitional or
+  // ambiguous Matter lock states into a potentially unsafe locked/unlocked value.
   if (Number(value) === LOCK_STATE.LOCKED) return true
   if (Number(value) === LOCK_STATE.UNLOCKED) return false
   return undefined
 }
 
 const setupDoorLockProfile = (RED, node, config) => {
+  // Profiles initialize the same flags consumed by knxUltimate-config as ordinary
+  // KNX nodes. In particular, listenallga must remain enabled for handleSend calls.
   node.name = config.name || node.matterDeviceName || 'Control Matter door lock from KNX'
   node.topic = node.name
   node.notifyreadrequest = true
@@ -59,6 +63,8 @@ const setupDoorLockProfile = (RED, node, config) => {
   node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text = '' } = {}) => setStatus(fill, shape, text)
 
   const commandArgs = () => {
+    // Matter represents the remote credential as bytes. Keep the PIN in Node-RED's
+    // credential store and materialize the Buffer only for the outgoing command.
     const pin = String(node.credentials?.doorLockPin || '')
     return pin === '' ? {} : { pinCode: Buffer.from(pin, 'utf8') }
   }
@@ -95,6 +101,8 @@ const setupDoorLockProfile = (RED, node, config) => {
     node.currentLockState = Number(rawState)
     const state = lockStateToBoolean(rawState)
     const name = lockStateName(rawState)
+    // Attribute reports update KNX state only; they never enqueue a Matter command.
+    // This one-way path is the primary feedback-loop guard for Door Lock endpoints.
     if (state !== undefined) writeKnxState(state)
     sendFlow(source, state, rawState)
     setStatus(state === undefined ? 'yellow' : 'blue', state === undefined ? 'ring' : 'dot', `Matter: ${name}`)
@@ -106,6 +114,8 @@ const setupDoorLockProfile = (RED, node, config) => {
     const capabilities = (() => {
       try { return JSON.parse(config.matterDeviceCapabilities || '{}') } catch (error) { return {} }
     })()
+    // Never invent optional operations: the editor persists the commands actually
+    // advertised by this endpoint and runtime validation enforces that snapshot.
     if (locked && capabilities.lockDoor === false) throw new Error('The Matter endpoint does not expose lockDoor')
     if (!locked && capabilities.unlockDoor === false) throw new Error('The Matter endpoint does not expose unlockDoor')
     const queued = manager.writeMatterQueueAdd({
@@ -157,6 +167,8 @@ const setupDoorLockProfile = (RED, node, config) => {
   node.handleMatterClusterEvent = () => {}
   node.handleMatterNodeInitialized = () => {
     try {
+      // The controller engine already caches the initial attribute read. Reusing that
+      // value avoids an extra request and publishes startup state through the same path.
       const value = node.serverMatter?.matterManager?.getCachedAttribute(
         node.matterNodeId,
         node.matterEndpointId,

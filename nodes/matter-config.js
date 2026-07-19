@@ -31,7 +31,8 @@ module.exports = (RED) => {
     node.matterInstanceId = `knxultimate-matter-${node.id.replace(/[^a-zA-Z0-9]/g, '')}`
     node.matterStoragePath = path.join(RED.settings.userDir || '.', 'knxultimatestorage', 'matter')
 
-    // Helper like the hue-config one
+    // Expose controller connectivity without copying engine state into the config node.
+    // Consumers read the latest value lazily, including during asynchronous startup.
     Object.defineProperty(node, 'linkStatus', {
       get: function () {
         return node.matterManager?.matterConnectionStatus ?? 'disconnected'
@@ -39,6 +40,8 @@ module.exports = (RED) => {
     })
 
     const safeClientCall = (client, fn, label) => {
+      // One faulty device node must never interrupt event delivery to the remaining
+      // Matter clients registered on this shared controller connection.
       try {
         if (!client || typeof fn !== 'function') return
         fn()
