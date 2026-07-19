@@ -17,10 +17,19 @@
       "tunable_white": "Blanco sintonizable",
       "rgb_hsv": "RGB/HSV",
       "effects": "Efectos",
+      "mappings": "Mapeos",
       "behaviour": "Comportamiento"
     },
     "control": "Control",
     "status": "Estado",
+    "door_lock_command": "Bloquear / desbloquear",
+    "door_lock_status": "Estado de la cerradura",
+    "door_lock_pin": "PIN de operación remota",
+    "door_lock_pin_required": "La cerradura indica que se requiere un PIN para operaciones remotas.",
+    "door_lock_commands_missing": "Este endpoint no anuncia ambos comandos de bloqueo y desbloqueo. Los comandos ausentes serán rechazados.",
+    "mapped": {
+      "onoff_command": "Comando Encendido / Apagado", "onoff_state": "Estado Encendido / Apagado", "cover_updown": "Persiana subir / bajar", "cover_stop": "Parar persiana", "cover_position_command": "Comando posición persiana", "cover_position_state": "Estado posición persiana", "heating_command": "Comando consigna calefacción", "heating_state": "Estado consigna calefacción", "cooling_command": "Comando consigna refrigeración", "cooling_state": "Estado consigna refrigeración", "local_temperature": "Temperatura local", "fan_command": "Comando velocidad ventilador", "fan_state": "Estado velocidad ventilador", "temperature": "Temperatura", "humidity": "Humedad", "illuminance": "Iluminancia", "occupancy": "Ocupación", "contact": "Estado booleano / contacto", "battery": "Batería", "active_power": "Potencia activa", "imported_energy": "Energía importada"
+    },
     "night_lighting": "Iluminación nocturna",
     "no_night_lighting": "Sin iluminación nocturna",
     "get_current": "Obtener",
@@ -82,6 +91,7 @@
     "effect_native_label": "Efectos nativos de tono",
     "matter_controller": "Controlador Matter",
     "matter_device": "Dispositivo Matter",
+    "device_type": "Tipo de dispositivo",
     "matter_section": "Dispositivo Matter"
   },
   "common": {

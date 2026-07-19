@@ -9,6 +9,7 @@ const dptlib = require('knxultimate').dptlib
 const hueColorConverter = require('./utils/colorManipulators/hueColorConverter')
 const { createLightEngine } = require('./utils/lightEngines')
 const { hueStateToCanonical, matterEventToHuePatch } = require('./utils/lightEngines/matterHueShim')
+const { setupMatterControllerProfile } = require('./utils/matterControllerProfiles')
 
 module.exports = function (RED) {
   function knxUltimateMatterControllerDevice (config) {
@@ -19,6 +20,10 @@ module.exports = function (RED) {
     node.matterNodeId = config.matterNodeId !== undefined ? String(config.matterNodeId) : ''
     node.matterEndpointId = config.matterEndpointId !== undefined ? Number(config.matterEndpointId) : 1
     node.matterDeviceName = config.matterDeviceName !== undefined ? String(config.matterDeviceName) : ''
+
+    let matterCapabilities = {}
+    try { matterCapabilities = JSON.parse(config.matterDeviceCapabilities || '{}') } catch (error) { /* empty */ }
+    if (setupMatterControllerProfile(matterCapabilities.profile, RED, node, config)) return
 
     // Matter engine (adapter). The manager is resolved lazily at each write, because
     // matter-config creates its matterManager asynchronously after the deploy.

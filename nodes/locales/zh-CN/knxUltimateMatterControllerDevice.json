@@ -17,10 +17,19 @@
       "tunable_white": "可调白光",
       "rgb_hsv": "RGB/HSV",
       "effects": "效果",
+      "mappings": "映射",
       "behaviour": "行为"
     },
     "control": "控制",
     "status": "状态",
+    "door_lock_command": "上锁 / 解锁",
+    "door_lock_status": "门锁状态",
+    "door_lock_pin": "远程操作 PIN",
+    "door_lock_pin_required": "此门锁报告远程操作需要 PIN。",
+    "door_lock_commands_missing": "此端点未声明完整的上锁和解锁命令；缺失的命令将被拒绝。",
+    "mapped": {
+      "onoff_command": "开/关命令", "onoff_state": "开/关状态", "cover_updown": "窗帘上/下", "cover_stop": "窗帘停止", "cover_position_command": "窗帘位置命令", "cover_position_state": "窗帘位置状态", "heating_command": "制热设定值命令", "heating_state": "制热设定值状态", "cooling_command": "制冷设定值命令", "cooling_state": "制冷设定值状态", "local_temperature": "本地温度", "fan_command": "风扇速度命令", "fan_state": "风扇速度状态", "temperature": "温度", "humidity": "湿度", "illuminance": "照度", "occupancy": "占用", "contact": "布尔/接点状态", "battery": "电池", "active_power": "有功功率", "imported_energy": "输入电能"
+    },
     "night_lighting": "夜间照明",
     "no_night_lighting": "无夜间照明",
     "get_current": "获取当前",
@@ -74,6 +83,7 @@
     "effect_native_label": "Hue 原生效果",
     "matter_controller": "Matter 控制器",
     "matter_device": "Matter 设备",
+    "device_type": "设备类型",
     "matter_section": "Matter 设备"
   },
   "common": {

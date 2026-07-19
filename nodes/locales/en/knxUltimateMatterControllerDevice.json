@@ -17,10 +17,19 @@
       "tunable_white": "Tunable white",
       "rgb_hsv": "RGB/HSV",
       "effects": "Effects",
+      "mappings": "Mappings",
       "behaviour": "Behaviour"
     },
     "control": "Control",
     "status": "Status",
+    "door_lock_command": "Lock / unlock",
+    "door_lock_status": "Lock state",
+    "door_lock_pin": "Remote-operation PIN",
+    "door_lock_pin_required": "This lock reports that a PIN is required for remote operation.",
+    "door_lock_commands_missing": "This endpoint does not advertise both lock and unlock commands. Missing commands will be rejected.",
+    "mapped": {
+      "onoff_command": "On / Off command", "onoff_state": "On / Off state", "cover_updown": "Cover up / down", "cover_stop": "Cover stop", "cover_position_command": "Cover position command", "cover_position_state": "Cover position state", "heating_command": "Heating setpoint command", "heating_state": "Heating setpoint state", "cooling_command": "Cooling setpoint command", "cooling_state": "Cooling setpoint state", "local_temperature": "Local temperature", "fan_command": "Fan speed command", "fan_state": "Fan speed state", "temperature": "Temperature", "humidity": "Humidity", "illuminance": "Illuminance", "occupancy": "Occupancy", "contact": "Boolean / contact state", "battery": "Battery", "active_power": "Active power", "imported_energy": "Imported energy"
+    },
     "night_lighting": "Night Lighting",
     "no_night_lighting": "No night lighting",
     "get_current": "Get current",
@@ -82,6 +91,7 @@
     "effect_native_label": "Hue native effects",
     "matter_controller": "Matter controller",
     "matter_device": "Matter device",
+    "device_type": "Device type",
     "matter_section": "Matter device"
   },
   "common": {

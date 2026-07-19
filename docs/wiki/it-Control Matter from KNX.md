@@ -20,6 +20,8 @@ Sostituisce i nodi Matter separati non pubblicati e mantiene tutta la UI luce qu
 | Matter controller | Nodo di configurazione Matter Controller in cui il dispositivo è stato associato. |
 | Dispositivo Matter | Endpoint Matter selezionato tra i dispositivi abbinati. La UI viene ricostruita in base alle capability reali. |
 | Switch / Presa / Luce On-Off | Indirizzi di gruppo di comando e stato On/Off, di solito DPT `1.001`. |
+| Serratura | Un GA comando DPT `1.xxx` invoca `lockDoor` con `true` e `unlockDoor` con `false`; un GA di stato separato riceve soltanto gli stati non ambigui Bloccata/Sbloccata. Se richiesto dall'endpoint, salva il PIN per operazioni remote nel campo credential. I comandi non annunciati dall'endpoint vengono rifiutati. |
+| Altri endpoint | Prese, attuatori On/Off, tapparelle, termostati, ventilatori, sensori ambientali/contatto/presenza, batteria, potenza ed energia usano il profilo multi-purpose. La TAB **Mappature** contiene soltanto le funzioni supportate dai cluster, attributi e comandi annunciati dall'endpoint; lascia vuoto un GA per disabilitarlo. |
 | Controlli luce | Per gli endpoint luce viene usata la stessa UI luce completa: DIM relativo (DPT `3.007`), luminosità %, RGB/HSV, bianco dinamico, luminosità/temperatura all'accensione, modalità giorno/notte, livello min/max e velocità dimmer. Le sezioni non supportate restano nascoste. |
 | Sensori | Gli endpoint sensore mostrano il relativo GA di misura/stato solo quando supportato: temperatura, umidità, illuminamento, presenza, contatto e batteria. |
 | Read at startup | Pubblica il valore Matter in cache al deploy/avvio o quando il dispositivo si riconnette. |

@@ -1,5 +1,9 @@
 const { expect } = require('chai')
+const { EventEmitter } = require('events')
 const { knxToMatter, matterToKnx, CLUSTER } = require('../nodes/utils/matterKnxConverter')
+const { LOCK_STATE, lockStateToBoolean, setupDoorLockProfile } = require('../nodes/utils/matterControllerProfiles/doorLock')
+const { setupMatterControllerProfile } = require('../nodes/utils/matterControllerProfiles')
+const { isValidGroupAddress, parseMappings, setupMappedEndpointProfile } = require('../nodes/utils/matterControllerProfiles/mappedEndpoint')
 
 describe('matterKnxConverter – knxToMatter', () => {
   describe('OnOff cluster', () => {
@@ -127,5 +131,129 @@ describe('matterKnxConverter – matterToKnx', () => {
   it('converts lockState enum to boolean locked', () => {
     expect(matterToKnx(CLUSTER.DOOR_LOCK, 'lockState', 1)).to.equal(true)
     expect(matterToKnx(CLUSTER.DOOR_LOCK, 'lockState', 2)).to.equal(false)
+  })
+})
+
+describe('Matter controller Door Lock profile', () => {
+  const createFixture = ({ pin = '', capabilities = {} } = {}) => {
+    const knxWrites = []
+    const matterWrites = []
+    const outputs = []
+    const errors = []
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: 'door-lock-node',
+      credentials: { doorLockPin: pin },
+      matterNodeId: '123',
+      matterEndpointId: 4,
+      matterDeviceName: 'Front door',
+      status: () => {},
+      send: (msg) => outputs.push(msg),
+      error: (error) => errors.push(error),
+      serverKNX: {
+        addClient: () => {},
+        removeClient: () => {},
+        sendKNXTelegramToKNXEngine: (item) => knxWrites.push(item)
+      },
+      serverMatter: {
+        addClient: () => {},
+        removeClient: () => {},
+        matterManager: {
+          writeMatterQueueAdd: (item) => matterWrites.push(item),
+          getCachedAttribute: () => undefined
+        }
+      }
+    })
+    const RED = { log: { error: (message) => errors.push(message) } }
+    setupDoorLockProfile(RED, node, {
+      name: 'Front door',
+      matterDeviceCapabilities: JSON.stringify({ profile: 'doorLock', lockDoor: true, unlockDoor: true, ...capabilities }),
+      GALightSwitch: '1/1/1',
+      dptLightSwitch: '1.001',
+      GALightState: '1/1/2',
+      dptLightState: '1.001',
+      enableNodePINS: 'yes'
+    })
+    return { node, knxWrites, matterWrites, outputs, errors }
+  }
+
+  it('keeps not-fully-locked and unlatched distinct from binary KNX states', () => {
+    expect(lockStateToBoolean(LOCK_STATE.LOCKED)).to.equal(true)
+    expect(lockStateToBoolean(LOCK_STATE.UNLOCKED)).to.equal(false)
+    expect(lockStateToBoolean(LOCK_STATE.NOT_FULLY_LOCKED)).to.equal(undefined)
+    expect(lockStateToBoolean(LOCK_STATE.UNLATCHED)).to.equal(undefined)
+  })
+
+  it('routes KNX writes to Door Lock commands and includes a configured credential PIN', () => {
+    const { node, matterWrites, knxWrites } = createFixture({ pin: '2468' })
+    node.handleSend({ knx: { destination: '1/1/1', event: 'GroupValue_Write', rawValue: Buffer.from([1]) } })
+    node.handleSend({ knx: { destination: '1/1/1', event: 'GroupValue_Write', rawValue: Buffer.from([0]) } })
+    expect(matterWrites.map((item) => item.name)).to.deep.equal(['lockDoor', 'unlockDoor'])
+    expect(Buffer.from(matterWrites[0].args.pinCode).toString('utf8')).to.equal('2468')
+    expect(knxWrites).to.have.length(0)
+  })
+
+  it('publishes only unambiguous Matter lockState feedback to KNX without command reflection', () => {
+    const { node, matterWrites, knxWrites, outputs } = createFixture()
+    node.handleSendMatter({ nodeId: '123', endpointId: 4, clusterId: CLUSTER.DOOR_LOCK, attributeName: 'lockState', value: LOCK_STATE.LOCKED })
+    node.handleSendMatter({ nodeId: '123', endpointId: 4, clusterId: CLUSTER.DOOR_LOCK, attributeName: 'lockState', value: LOCK_STATE.UNLATCHED })
+    expect(knxWrites).to.have.length(1)
+    expect(knxWrites[0]).to.include({ grpaddr: '1/1/2', payload: true, outputtype: 'write' })
+    expect(matterWrites).to.have.length(0)
+    expect(outputs[1].matter.lockStateName).to.equal('unlatched')
+  })
+
+  it('rejects a command not advertised by the endpoint', () => {
+    const { node, matterWrites, errors } = createFixture({ capabilities: { unlockDoor: false } })
+    node.handleSend({ knx: { destination: '1/1/1', event: 'GroupValue_Write', rawValue: Buffer.from([0]) } })
+    expect(matterWrites).to.have.length(0)
+    expect(errors.join(' ')).to.match(/does not expose unlockDoor/)
+  })
+})
+
+describe('Matter controller multi-purpose profile routing', () => {
+  it('leaves the existing light path untouched when no non-light profile is selected', () => {
+    expect(setupMatterControllerProfile(undefined, {}, {}, {})).to.equal(false)
+    expect(setupMatterControllerProfile('lightLegacy', {}, {}, {})).to.equal(false)
+  })
+
+  it('retains only complete persisted mappings', () => {
+    const valid = { ga: '1/1/1', dpt: '1.001', target: 'on' }
+    expect(parseMappings(JSON.stringify([valid, { ga: '', dpt: '1.001', target: 'on' }, { ga: '1/1/2', dpt: '' }]))).to.deep.equal([valid])
+    expect(isValidGroupAddress('32/0/1')).to.equal(false)
+  })
+
+  it('routes a mapped sensor report to KNX and a mapped actuator telegram to Matter', () => {
+    const knxWrites = []
+    const matterWrites = []
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: 'mapped-node',
+      matterNodeId: '55',
+      matterEndpointId: 2,
+      matterDeviceName: 'Mapped endpoint',
+      status: () => {},
+      send: () => {},
+      serverKNX: {
+        addClient: () => {}, removeClient: () => {},
+        sendKNXTelegramToKNXEngine: (item) => knxWrites.push(item)
+      },
+      serverMatter: {
+        addClient: () => {}, removeClient: () => {},
+        matterManager: {
+          writeMatterQueueAdd: (item) => matterWrites.push(item),
+          getCachedAttribute: () => undefined
+        }
+      }
+    })
+    const mappings = [
+      { direction: 'command', ga: '1/2/1', dpt: '1.001', endpointId: 2, clusterId: CLUSTER.ON_OFF, targetKind: 'command', target: 'on' },
+      { direction: 'status', ga: '1/2/2', dpt: '9.001', endpointId: 2, clusterId: CLUSTER.TEMPERATURE, targetKind: 'attribute', target: 'measuredValue' }
+    ]
+    setupMappedEndpointProfile({ log: { error: () => {} } }, node, { name: '', matterMappings: JSON.stringify(mappings), enableNodePINS: 'no' })
+    node.handleSend({ knx: { destination: '1/2/1', event: 'GroupValue_Write', rawValue: Buffer.from([1]) } })
+    node.handleSendMatter({ nodeId: '55', endpointId: 2, clusterId: CLUSTER.TEMPERATURE, attributeName: 'measuredValue', value: 2150 })
+    expect(matterWrites[0]).to.include({ clusterId: CLUSTER.ON_OFF, name: 'on' })
+    expect(knxWrites[0]).to.include({ grpaddr: '1/2/2', payload: 21.5, dpt: '9.001' })
   })
 })

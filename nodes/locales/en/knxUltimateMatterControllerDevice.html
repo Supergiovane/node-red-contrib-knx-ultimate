@@ -15,6 +15,8 @@ It replaces the unpublished per-device Matter controller nodes and keeps the ful
 | Matter controller | Matter controller configuration node where the device has been commissioned. |
 | Matter device | Matter endpoint selected from commissioned devices. The UI is rebuilt from its real capabilities. |
 | Switch / Plug / Light On-Off | On/Off command and status group addresses, usually DPT `1.001`. |
+| Door Lock | A DPT `1.xxx` command GA invokes `lockDoor` for `true` and `unlockDoor` for `false`; a separate status GA receives only unambiguous Locked/Unlocked states. If the endpoint requires it, store the remote-operation PIN in the credential field. Commands not advertised by the endpoint are rejected. |
+| Other endpoints | Plugs, On/Off actuators, covers, thermostats, fans, environmental/contact/occupancy sensors, battery, power and energy endpoints use the multi-purpose mapped profile. The dedicated **Mappings** tab contains only mappings backed by clusters, attributes and commands advertised by that endpoint; leave a GA empty to disable it. |
 | Light controls | For light endpoints, the same light UI is used: relative DIM (DPT `3.007`), brightness %, RGB/HSV, tunable white, switch-on brightness/temperature, day/night lighting, min/max dim level and dim speed. Unsupported sections are hidden. |
 | Sensors | Sensor endpoints expose their measurement/status GA only when supported: temperature, humidity, illuminance, occupancy, contact and battery. |
 | Read at startup | Publishes the cached Matter value at deploy/startup or when the device reconnects. |

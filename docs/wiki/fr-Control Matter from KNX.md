@@ -20,6 +20,8 @@ Il remplace les nœuds Matter séparés non publiés et conserve toute l'UI lumi
 | Matter controller | Nœud de configuration Matter Controller dans lequel le périphérique a été appairé. |
 | Appareil Matter | Endpoint Matter choisi parmi les appareils appairés. L'UI est reconstruite à partir de ses capacités réelles. |
 | Switch / Prise / Lumière On-Off | Adresses de groupe commande et état On/Off, généralement DPT `1.001`. |
+| Serrure | Une AG de commande DPT `1.xxx` appelle `lockDoor` avec `true` et `unlockDoor` avec `false` ; une AG d'état séparée reçoit uniquement les états Verrouillé/Déverrouillé non ambigus. Si nécessaire, le PIN distant est conservé dans le champ d'identification. Les commandes non annoncées sont refusées. |
+| Autres points de terminaison | Prises, actionneurs On/Off, volets, thermostats, ventilateurs, capteurs d'environnement/contact/occupation, batterie, puissance et énergie utilisent le profil polyvalent. L'onglet **Mappages** contient uniquement les fonctions prises en charge par les clusters, attributs et commandes annoncés. |
 | Contrôles lumière | Pour les endpoints lumière, l'UI lumière complète est utilisée : DIM relatif (DPT `3.007`), luminosité %, RGB/HSV, blanc réglable, luminosité/température à l'allumage, mode jour/nuit, niveau min/max et vitesse de variation. Les sections non supportées restent masquées. |
 | Capteurs | Les endpoints capteur affichent leur GA de mesure/état uniquement si elle est supportée : température, humidité, éclairement, occupation, contact et batterie. |
 | Read at startup | Publie la valeur Matter en cache au déploiement/démarrage ou quand le périphérique se reconnecte. |

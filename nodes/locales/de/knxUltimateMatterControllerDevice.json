@@ -17,10 +17,19 @@
       "tunable_white": "Einstellbares Weiß",
       "rgb_hsv": "RGB/HSV",
       "effects": "Effekte",
+      "mappings": "Zuordnungen",
       "behaviour": "Verhalten"
     },
     "control": "Steuerung",
     "status": "Status",
+    "door_lock_command": "Verriegeln / entriegeln",
+    "door_lock_status": "Schlossstatus",
+    "door_lock_pin": "PIN für Fernbedienung",
+    "door_lock_pin_required": "Dieses Schloss meldet, dass für die Fernbedienung eine PIN erforderlich ist.",
+    "door_lock_commands_missing": "Dieser Endpunkt bietet nicht beide Befehle zum Verriegeln und Entriegeln an. Fehlende Befehle werden abgewiesen.",
+    "mapped": {
+      "onoff_command": "Ein/Aus-Befehl", "onoff_state": "Ein/Aus-Status", "cover_updown": "Jalousie auf/ab", "cover_stop": "Jalousie Stopp", "cover_position_command": "Positionsbefehl", "cover_position_state": "Positionsstatus", "heating_command": "Heizsollwert-Befehl", "heating_state": "Heizsollwert-Status", "cooling_command": "Kühlsollwert-Befehl", "cooling_state": "Kühlsollwert-Status", "local_temperature": "Lokale Temperatur", "fan_command": "Lüfterdrehzahl-Befehl", "fan_state": "Lüfterdrehzahl-Status", "temperature": "Temperatur", "humidity": "Luftfeuchte", "illuminance": "Beleuchtungsstärke", "occupancy": "Belegung", "contact": "Binär-/Kontaktstatus", "battery": "Batterie", "active_power": "Wirkleistung", "imported_energy": "Bezogene Energie"
+    },
     "night_lighting": "Nachtbeleuchtung",
     "no_night_lighting": "Keine Nachtbeleuchtung",
     "get_current": "Aktuellen Wert holen",
@@ -82,6 +91,7 @@
     "effect_native_label": "Hue-native Effekte",
     "matter_controller": "Matter-Controller",
     "matter_device": "Matter-Gerät",
+    "device_type": "Gerätetyp",
     "matter_section": "Matter-Gerät"
   },
   "common": {

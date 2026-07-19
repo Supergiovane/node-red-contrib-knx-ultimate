@@ -20,6 +20,8 @@ Sustituye a los nodos Matter separados no publicados y conserva toda la UI de lu
 | Matter controller | Nodo de configuración Matter Controller donde el dispositivo fue emparejado. |
 | Dispositivo Matter | Endpoint Matter seleccionado entre los dispositivos emparejados. La UI se reconstruye a partir de sus capacidades reales. |
 | Switch / Enchufe / Luz On-Off | Direcciones de grupo de comando y estado On/Off, normalmente DPT `1.001`. |
+| Cerradura | Una GA de comando DPT `1.xxx` invoca `lockDoor` con `true` y `unlockDoor` con `false`; una GA de estado separada recibe solo estados Bloqueada/Desbloqueada inequívocos. Si el endpoint lo exige, el PIN remoto se guarda en el campo de credencial. Los comandos no anunciados se rechazan. |
+| Otros endpoints | Enchufes, actuadores On/Off, persianas, termostatos, ventiladores, sensores ambientales/de contacto/de ocupación, batería, potencia y energía usan el perfil multipropósito. La pestaña **Mapeos** contiene únicamente las funciones respaldadas por los clústeres, atributos y comandos anunciados. |
 | Controles de luz | Para endpoints de luz se usa la UI de luz completa: DIM relativo (DPT `3.007`), brillo %, RGB/HSV, blanco ajustable, brillo/temperatura al encender, modo día/noche, nivel min/max y velocidad de regulación. Las secciones no soportadas quedan ocultas. |
 | Sensores | Los endpoints de sensor muestran su GA de medida/estado solo cuando está soportado: temperatura, humedad, iluminancia, ocupación, contacto y batería. |
 | Read at startup | Publica el valor Matter en caché al desplegar/iniciar o cuando el dispositivo se reconecta. |

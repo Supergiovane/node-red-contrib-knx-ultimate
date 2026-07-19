@@ -17,10 +17,19 @@
       "tunable_white": "White à réglage réglable",
       "rgb_hsv": "RVB / HSV",
       "effects": "Effets",
+      "mappings": "Mappages",
       "behaviour": "Comportement"
     },
     "control": "Contrôle",
     "status": "Statut",
+    "door_lock_command": "Verrouiller / déverrouiller",
+    "door_lock_status": "État de la serrure",
+    "door_lock_pin": "PIN d'opération à distance",
+    "door_lock_pin_required": "Cette serrure indique qu'un PIN est requis pour les opérations à distance.",
+    "door_lock_commands_missing": "Ce point de terminaison n'annonce pas les deux commandes de verrouillage et déverrouillage. Les commandes absentes seront refusées.",
+    "mapped": {
+      "onoff_command": "Commande Marche / Arrêt", "onoff_state": "État Marche / Arrêt", "cover_updown": "Volet montée / descente", "cover_stop": "Arrêt volet", "cover_position_command": "Commande position volet", "cover_position_state": "État position volet", "heating_command": "Commande consigne chauffage", "heating_state": "État consigne chauffage", "cooling_command": "Commande consigne refroidissement", "cooling_state": "État consigne refroidissement", "local_temperature": "Température locale", "fan_command": "Commande vitesse ventilateur", "fan_state": "État vitesse ventilateur", "temperature": "Température", "humidity": "Humidité", "illuminance": "Éclairement", "occupancy": "Occupation", "contact": "État booléen / contact", "battery": "Batterie", "active_power": "Puissance active", "imported_energy": "Énergie importée"
+    },
     "night_lighting": "Éclairage nocturne",
     "no_night_lighting": "Pas d'éclairage de nuit",
     "get_current": "Prendre le courant",
@@ -74,6 +83,7 @@
     "effect_native_label": "Effets natifs de la teinte",
     "matter_controller": "Contrôleur Matter",
     "matter_device": "Appareil Matter",
+    "device_type": "Type d'appareil",
     "matter_section": "Appareil Matter"
   },
   "common": {

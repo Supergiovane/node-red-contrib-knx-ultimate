@@ -17,10 +17,19 @@
       "tunable_white": "Bianco regolabile",
       "rgb_hsv": "RGB/HSV",
       "effects": "Effetti",
+      "mappings": "Mappature",
       "behaviour": "Comportamento"
     },
     "control": "Comando",
     "status": "Stato",
+    "door_lock_command": "Blocca / sblocca",
+    "door_lock_status": "Stato serratura",
+    "door_lock_pin": "PIN operazione remota",
+    "door_lock_pin_required": "La serratura indica che per le operazioni remote è richiesto un PIN.",
+    "door_lock_commands_missing": "L'endpoint non annuncia entrambi i comandi di blocco e sblocco. I comandi mancanti saranno rifiutati.",
+    "mapped": {
+      "onoff_command": "Comando On / Off", "onoff_state": "Stato On / Off", "cover_updown": "Tapparella su / giù", "cover_stop": "Stop tapparella", "cover_position_command": "Comando posizione tapparella", "cover_position_state": "Stato posizione tapparella", "heating_command": "Comando setpoint riscaldamento", "heating_state": "Stato setpoint riscaldamento", "cooling_command": "Comando setpoint raffrescamento", "cooling_state": "Stato setpoint raffrescamento", "local_temperature": "Temperatura locale", "fan_command": "Comando velocità ventilatore", "fan_state": "Stato velocità ventilatore", "temperature": "Temperatura", "humidity": "Umidità", "illuminance": "Illuminamento", "occupancy": "Presenza", "contact": "Stato booleano / contatto", "battery": "Batteria", "active_power": "Potenza attiva", "imported_energy": "Energia importata"
+    },
     "night_lighting": "Illuminazione notturna",
     "no_night_lighting": "Nessuna illuminazione notturna",
     "get_current": "Ottieni corrente",
@@ -82,6 +91,7 @@
     "effect_native_label": "Effetti nativi HUE",
     "matter_controller": "Controller Matter",
     "matter_device": "Dispositivo Matter",
+    "device_type": "Tipo dispositivo",
     "matter_section": "Dispositivo Matter"
   },
   "common": {

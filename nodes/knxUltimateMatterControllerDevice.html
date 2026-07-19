@@ -18,6 +18,7 @@
         matterEndpointId: { value: 1 },
         matterDeviceName: { value: "" },
         matterDeviceCapabilities: { value: "" },
+        matterMappings: { value: "[]" },
         name: { value: "" },
 
         nameLightSwitch: { value: "" },
@@ -122,6 +123,9 @@
 
         restoreDayMode: { value: "no" }, // Starting from v 4.1.31
         updateLocalStateFromKNXWrite: { value: true } // Starting from v 4.1.31
+      },
+      credentials: {
+        doorLockPin: { type: "password" }
       },
       inputs: 0,
       outputs: 0,
@@ -506,11 +510,11 @@
             }
             return val;
           };
-          const matterTypePretty = { 'ma-extendedcolorlight': 'Colour light', 'ma-colortemperaturelight': 'Tunable white', 'ma-dimmablelight': 'Dimmable light', 'ma-onofflight': 'On/off light', 'ma-onoffpluginunit': 'Plug', 'ma-dimmablepluginunit': 'Dimmable plug' };
+          const matterTypePretty = { 'ma-extendedcolorlight': 'Colour light', 'ma-colortemperaturelight': 'Tunable white', 'ma-dimmablelight': 'Dimmable light', 'ma-onofflight': 'On/off light', 'ma-onoffpluginunit': 'Plug', 'ma-dimmablepluginunit': 'Dimmable plug', 'ma-doorlock': 'Door lock', 'ma-windowcovering': 'Cover', 'ma-thermostat': 'Thermostat', 'ma-fan': 'Fan', 'ma-temperaturesensor': 'Temperature sensor', 'ma-humiditysensor': 'Humidity sensor', 'ma-lightsensor': 'Light sensor', 'ma-occupancysensor': 'Occupancy sensor', 'ma-contactsensor': 'Contact sensor' };
           const matterPrettyType = (raw) => {
             const key = String(raw || '').toLowerCase();
             if (matterTypePretty[key]) return matterTypePretty[key];
-            return String(raw || '').replace(/^ma-/i, '').replace(/light$/i, ' light') || 'Light';
+            return String(raw || '').replace(/^ma-/i, '').replace(/light$/i, ' light') || 'Matter endpoint';
           };
           const normalizeMatterToken = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
           const getMatterCluster = (ep, clusterId) => (ep.clusters || []).find((c) => Number(c.id) === Number(clusterId));
@@ -524,10 +528,64 @@
           };
           const matterCapabilitiesFromEndpoint = (ep) => {
             const deviceTypes = (ep.deviceTypes || []).map(normalizeMatterToken);
+            const primaryDeviceType = (ep.deviceTypes || []).find((value) => !/bridgednode|aggregator|controlbridge/i.test(String(value))) || ep.name;
+            const deviceTypeDisplay = matterPrettyType(primaryDeviceType);
             const typeText = deviceTypes.join(' ');
             const onOffCluster = getMatterCluster(ep, 6);
             const levelCluster = getMatterCluster(ep, 8);
             const colorCluster = getMatterCluster(ep, 768);
+            const doorLockCluster = getMatterCluster(ep, 257);
+            if (doorLockCluster) {
+              return {
+                known: true,
+                profile: 'doorLock',
+                deviceTypeDisplay,
+                onOff: true,
+                level: false,
+                colorTemperature: false,
+                color: false,
+                lockDoor: hasMatterCommand(doorLockCluster, ['lockDoor']),
+                unlockDoor: hasMatterCommand(doorLockCluster, ['unlockDoor']),
+                requirePinForRemoteOperation: (() => {
+                  const attribute = (doorLockCluster.attributes || []).find((item) => normalizeMatterToken(item.name) === 'requirepinforremoteoperation');
+                  return attribute ? attribute.value === true : false;
+                })()
+              };
+            }
+            const isMatterLight = deviceTypes.some((type) => /(?:onoff|dimmable|colortemperature|extendedcolor)light/.test(type));
+            if (!isMatterLight) {
+              const mappedTargets = [];
+              const addCommand = (clusterId, target, label, dpt) => {
+                const cluster = getMatterCluster(ep, clusterId);
+                if (hasMatterCommand(cluster, [target])) mappedTargets.push({ direction: 'command', endpointId: Number(ep.endpointId), clusterId, targetKind: 'command', target, label, dpt });
+              };
+              const addAttribute = (clusterId, target, label, dpt, writable) => {
+                const cluster = getMatterCluster(ep, clusterId);
+                if (hasMatterAttribute(cluster, [target])) mappedTargets.push({ direction: writable ? 'command' : 'status', endpointId: Number(ep.endpointId), clusterId, targetKind: 'attribute', target, label, dpt });
+              };
+              addCommand(6, 'on', 'onoff_command', '1.001');
+              addAttribute(6, 'onOff', 'onoff_state', '1.001', false);
+              addCommand(258, 'upOrOpen', 'cover_updown', '1.008');
+              addCommand(258, 'stopMotion', 'cover_stop', '1.017');
+              addCommand(258, 'goToLiftPercentage', 'cover_position_command', '5.001');
+              addAttribute(258, 'currentPositionLiftPercent100ths', 'cover_position_state', '5.001', false);
+              addAttribute(513, 'occupiedHeatingSetpoint', 'heating_command', '9.001', true);
+              addAttribute(513, 'occupiedHeatingSetpoint', 'heating_state', '9.001', false);
+              addAttribute(513, 'occupiedCoolingSetpoint', 'cooling_command', '9.001', true);
+              addAttribute(513, 'occupiedCoolingSetpoint', 'cooling_state', '9.001', false);
+              addAttribute(513, 'localTemperature', 'local_temperature', '9.001', false);
+              addAttribute(514, 'percentSetting', 'fan_command', '5.001', true);
+              addAttribute(514, 'percentCurrent', 'fan_state', '5.001', false);
+              addAttribute(1026, 'measuredValue', 'temperature', '9.001', false);
+              addAttribute(1029, 'measuredValue', 'humidity', '9.007', false);
+              addAttribute(1024, 'measuredValue', 'illuminance', '9.004', false);
+              addAttribute(1030, 'occupancy', 'occupancy', '1.011', false);
+              addAttribute(69, 'stateValue', 'contact', '1.002', false);
+              addAttribute(47, 'batPercentRemaining', 'battery', '5.001', false);
+              addAttribute(144, 'activePower', 'active_power', '14.056', false);
+              addAttribute(145, 'cumulativeEnergyImported', 'imported_energy', '13.013', false);
+              return { known: true, profile: 'mapped', deviceTypeDisplay, onOff: false, level: false, colorTemperature: false, color: false, mappedTargets };
+            }
             const hasColorTemperatureType = /colortemperature|extendedcolor/.test(typeText);
             const hasColorType = /extendedcolor/.test(typeText);
             const hasLevelType = /dimmable|colortemperature|extendedcolor/.test(typeText);
@@ -542,6 +600,7 @@
             );
             return {
               known: true,
+              deviceTypeDisplay,
               colorDetectionVersion: 2,
               onOff: !!onOffCluster || /onoff|dimmable|colortemperature|extendedcolor/.test(typeText),
               level: !!levelCluster || hasLevelType,
@@ -578,9 +637,8 @@
             });
           };
 
-          // Matter counterpart of the Hue device fetch: every commissioned node is
-          // expanded into its light endpoints (clusters OnOff 6 / Level 8 / Color 768),
-          // so a bridge (e.g. a Hue Bridge paired via Matter) lists each lamp.
+          // Expand every commissioned node into its functional endpoints. Lights keep
+          // the legacy light UI; other endpoints select a capability-driven profile.
           const fetchHueDevices = (term, respond, { forceRefresh = false } = {}) => {
             const matterServer = getHueServerConfig();
             if (!matterServer) {
@@ -609,8 +667,10 @@
                 const items = [];
                 results.forEach((entry) => {
                   const device = entry.device;
-                  const lightEps = entry.endpoints.filter((ep) => Array.isArray(ep.clusters) && ep.clusters.some((c) => [6, 8, 768].indexOf(Number(c.id)) !== -1));
-                  const eps = lightEps.length ? lightEps : entry.endpoints.filter((ep) => Number(ep.endpointId) !== 0);
+                  // Multi-purpose controller: list every functional endpoint. Capability
+                  // detection below decides whether it uses the unchanged light path or
+                  // a dedicated/mapped non-light profile.
+                  const eps = entry.endpoints.filter((ep) => Number(ep.endpointId) !== 0);
                   const many = eps.length > 1;
                   eps.forEach((ep) => {
                     const label = matterEndpointLabel(ep);
@@ -934,12 +994,29 @@
             const supportsTemperature = hasHueDevice && caps.colorTemperature === true;
             const supportsColor = hasHueDevice && caps.color === true;
             const hasRichBehaviour = supportsDim && (supportsTemperature || supportsColor);
+            const isDoorLock = caps.profile === 'doorLock';
+            const isMapped = caps.profile === 'mapped';
+            const deviceTypeDisplay = String(caps.deviceTypeDisplay || '').trim();
 
             setMatterTabVisible('tabs-1', supportsSwitch);
             setMatterTabVisible('tabs-2', supportsDim);
             setMatterTabVisible('tabs-3', supportsTemperature);
             setMatterTabVisible('tabs-4', supportsColor);
+            setMatterTabVisible('tabs-mapped', isMapped);
             setMatterTabVisible('tabs-6', hasHueDevice);
+            $('#matter-door-lock-options').toggle(isDoorLock);
+            $('#matter-switch-command-label').text(isDoorLock
+              ? (node._('knxUltimateMatterControllerDevice.door_lock_command') || 'Lock / unlock')
+              : (node._('knxUltimateMatterControllerDevice.control') || 'Control'));
+            $('#matter-switch-status-label').text(isDoorLock
+              ? (node._('knxUltimateMatterControllerDevice.door_lock_status') || 'Lock state')
+              : (node._('knxUltimateMatterControllerDevice.status') || 'Status'));
+            $('#matter-door-lock-command-warning').toggle(isDoorLock && (caps.lockDoor === false || caps.unlockDoor === false));
+            $('#matter-door-lock-pin-required').toggle(isDoorLock && caps.requirePinForRemoteOperation === true);
+            $('#matter-mapped-profile').toggle(isMapped);
+            if (isMapped) renderMappedProfile(caps.mappedTargets || []);
+            $('#matter-selected-device-type-value').text(deviceTypeDisplay);
+            $('#matter-selected-device-type').toggle(hasHueDevice && deviceTypeDisplay !== '');
             try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
             ensureVisibleMatterTabSelected();
 
@@ -958,6 +1035,40 @@
             restrictSelectOptions($("#node-input-specifySwitchOnBrightness"), switchOnAllowed, 'no');
             restrictSelectOptions($("#node-input-enableDayNightLighting"), nightAllowed, 'no');
             refreshBehaviourVisibility();
+          };
+
+          const parseMatterMappings = () => {
+            try { return JSON.parse($('#node-input-matterMappings').val() || node.matterMappings || '[]'); } catch (error) { return []; }
+          };
+          const renderMappedProfile = (targets) => {
+            const saved = parseMatterMappings();
+            const $body = $('#matter-mapped-profile-body').empty();
+            targets.forEach((target) => {
+              const key = `${target.direction}:${target.endpointId}:${target.clusterId}:${target.targetKind}:${target.target}`;
+              const previous = saved.find((item) => `${item.direction}:${item.endpointId}:${item.clusterId}:${item.targetKind}:${item.target}` === key) || {};
+              const $row = $('<div class="form-row matter-mapped-row" style="display:flex;align-items:center;"></div>').data('mapping', target);
+              const translated = node._(`knxUltimateMatterControllerDevice.mapped.${target.label}`);
+              $('<label style="width:220px; margin-right:10px;"></label>').text(translated || target.target).appendTo($row);
+              $('<label style="width:25px; margin:0 5px 0 0;">GA</label>').appendTo($row);
+              const $ga = $('<input class="matter-mapped-ga" type="text" placeholder="Ex: 1/1/1" style="width:100px; margin-right:18px;">').val(previous.ga || '').appendTo($row);
+              $('<label style="width:35px; margin:0 5px 0 0;">DPT</label>').appendTo($row);
+              const $dpt = $('<input class="matter-mapped-dpt" type="text" placeholder="DPT" style="width:140px;">').val(previous.dpt || target.dpt || '').appendTo($row);
+              $ga.autocomplete({
+                minLength: 0,
+                source(request, response) {
+                  if (!hasKnxServerSelected()) { response([]); return; }
+                  $.getJSON(`knxUltimatecsv?nodeID=${resolveKnxServerValue()}&_=${Date.now()}`, (data) => {
+                    response($.map(data, (value) => {
+                      const searchable = `${value.ga} ${value.devicename} ${value.dpt}`;
+                      if (!htmlUtilsfullCSVSearch(searchable, request.term || '')) return null;
+                      return { label: `${value.ga} # ${value.devicename} # ${value.dpt}`, value: value.ga, dpt: value.dpt };
+                    }));
+                  }).fail(() => response([]));
+                },
+                select(event, ui) { if (ui.item.dpt) $dpt.val(ui.item.dpt); }
+              }).focus(function () { $(this).autocomplete('search', $(this).val()); });
+              $body.append($row);
+            });
           };
 
           const updateTabsVisibility = () => {
@@ -1321,6 +1432,20 @@
         this.matterNodeId = ($("#node-input-matterNodeId").val() || '').trim();
         this.matterEndpointId = Number($("#node-input-matterEndpointId").val() || 1);
         this.matterDeviceCapabilities = ($("#node-input-matterDeviceCapabilities").val() || '').trim();
+        const mappedMappings = [];
+        const $mappedRows = $('#matter-mapped-profile-body .matter-mapped-row');
+        $mappedRows.each(function () {
+          const base = $(this).data('mapping') || {};
+          const ga = ($(this).find('.matter-mapped-ga').val() || '').trim();
+          const dpt = ($(this).find('.matter-mapped-dpt').val() || '').trim();
+          if (ga && dpt) mappedMappings.push(Object.assign({}, base, { ga, dpt }));
+        });
+        // Preserve saved mappings when the endpoint is offline and its asynchronous
+        // structure could not be rebuilt during an untouched editor round trip.
+        this.matterMappings = $mappedRows.length > 0
+          ? JSON.stringify(mappedMappings)
+          : ($('#node-input-matterMappings').val() || this.matterMappings || '[]');
+        $('#node-input-matterMappings').val(this.matterMappings);
         this.name = this.matterDeviceName || this.name || '';
         $("#node-input-name").val(this.name);
         const parseSavedMatterCapabilities = (raw) => {
@@ -1546,9 +1671,15 @@
       <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
         <i class="fa fa-circle-notch fa-spin"></i>
       </span>
+      <span id="matter-selected-device-type" style="display:none; margin-left:10px; color:#666; white-space:nowrap;">
+        <i class="fa fa-microchip"></i>
+        <span data-i18n="knxUltimateMatterControllerDevice.device_type"></span>:
+        <span id="matter-selected-device-type-value" style="font-weight:600;"></span>
+      </span>
       <input type="hidden" id="node-input-matterNodeId" />
       <input type="hidden" id="node-input-matterEndpointId" />
       <input type="hidden" id="node-input-matterDeviceCapabilities" />
+      <input type="hidden" id="node-input-matterMappings" />
       <input type="hidden" id="node-input-name" />
     </div>
 
@@ -1560,12 +1691,18 @@
         <li><a href="#tabs-2"><i class="fa-solid fa-arrow-up-wide-short"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.dim"></span></a></li>
         <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.tunable_white"></span></a></li>
         <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.rgb_hsv"></span></a></li>
+        <li><a href="#tabs-mapped"><i class="fa-solid fa-list-check"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.mappings"></span></a></li>
         <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.behaviour"></span></a></li>
       </ul>
+      <div id="tabs-mapped">
+        <div id="matter-mapped-profile" style="display:none;">
+          <div id="matter-mapped-profile-body"></div>
+        </div>
+      </div>
       <div id="tabs-1">
         <p>
         <div class="form-row">
-          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span data-i18n="knxUltimateMatterControllerDevice.control"></span></label>
+          <label for="node-input-nameLightSwitch" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span id="matter-switch-command-label" data-i18n="knxUltimateMatterControllerDevice.control"></span></label>
 
           <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="common.ga"></span></label>
           <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
@@ -1578,7 +1715,7 @@
           <input type="text" id="node-input-nameLightSwitch" style="width:190px;margin-left: 5px; text-align: left;">
         </div>
         <div class="form-row">
-          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.status"></span></label>
+          <label for="node-input-nameLightState" style="width:110px;"><i class="fa fa-question-circle"></i> <span id="matter-switch-status-label" data-i18n="knxUltimateMatterControllerDevice.status"></span></label>
 
           <label for="node-input-GALightState" style="width:20px;"><span data-i18n="common.ga"></span></label>
           <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
@@ -1590,6 +1727,14 @@
           <label for="node-input-nameLightState" style="width:50px; margin-left: 0px; text-align: right;"><span
               data-i18n="knxUltimateMatterControllerDevice.node-input-name"></span></label>
           <input type="text" id="node-input-nameLightState" style="width:190px;margin-left: 5px; text-align: left;">
+        </div>
+        <div id="matter-door-lock-options" style="display:none;">
+          <div class="form-row">
+            <label for="node-input-doorLockPin" style="width:260px;"><i class="fa fa-key"></i> <span data-i18n="knxUltimateMatterControllerDevice.door_lock_pin"></span></label>
+            <input type="password" id="node-input-doorLockPin" style="width:210px;" autocomplete="new-password">
+          </div>
+          <div id="matter-door-lock-pin-required" class="form-tips" style="display:none;" data-i18n="knxUltimateMatterControllerDevice.door_lock_pin_required"></div>
+          <div id="matter-door-lock-command-warning" class="form-tips" style="display:none; color:#a94442;" data-i18n="knxUltimateMatterControllerDevice.door_lock_commands_missing"></div>
         </div>
         </p>
       </div>
