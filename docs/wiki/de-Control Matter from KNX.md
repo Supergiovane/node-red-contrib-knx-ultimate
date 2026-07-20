@@ -21,12 +21,12 @@ Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behäl
 | Matter device | Matter-Endpunkt aus den gekoppelten Geräten. Die UI wird aus den echten Fähigkeiten neu aufgebaut. |
 | Switch / Steckdose / Licht On-Off | On/Off-Befehls- und Status-Gruppenadressen, normalerweise DPT `1.001`. |
 | Türschloss | Eine DPT-`1.xxx`-Befehls-GA ruft bei `true` `lockDoor` und bei `false` `unlockDoor` auf; eine separate Status-GA erhält nur eindeutige Verriegelt/Entriegelt-Zustände. Falls erforderlich, wird die Fernbedienungs-PIN im Credential-Feld gespeichert. Nicht angebotene Befehle werden abgewiesen. |
-| Andere Endpunkte | Steckdosen, Ein/Aus-Aktoren, Jalousien, Thermostate, Lüfter, Umwelt-/Kontakt-/Belegungssensoren sowie Batterie-, Leistungs- und Energieendpunkte verwenden das Mehrzweckprofil. Der Tab **Zuordnungen** enthält nur tatsächlich angebotene Cluster, Attribute und Befehle. |
+| Andere Endpunkte | Window-Covering-, Thermostat-, Fan- und Switch-Endpunkte verwenden dedizierte, anhand ihrer Fähigkeiten ausgewählte Profile; Switch-Ereignisse wie Initial-, Lang- und Mehrfachdruck werden am optionalen Flow-Ausgang ausgegeben. Steckdosen, Ein/Aus-Aktoren, Sensoren, Batterie, Leistung und Energie verwenden den generischen Mapping-Fallback. Der Tab **Zuordnungen** enthält nur tatsächlich angebotene Funktionen. |
 | Lichtsteuerung | Für Licht-Endpunkte wird die vollständige Licht-UI verwendet: relatives DIM (DPT `3.007`), Helligkeit %, RGB/HSV, Tunable White, Einschalt-Helligkeit/-Temperatur, Tag/Nacht-Licht, Min/Max-Dimmlevel und Dimmgeschwindigkeit. Nicht unterstützte Bereiche bleiben ausgeblendet. |
 | Sensoren | Sensor-Endpunkte zeigen ihre Mess-/Status-GA nur bei Unterstützung: Temperatur, Feuchte, Helligkeit, Präsenz, Kontakt und Batterie. |
 | Read at startup | Veröffentlicht den gecachten Matter-Wert beim Deploy/Start oder wenn sich das Gerät erneut verbindet. |
 | Update local state from KNX write | Aktualisiert den lokalen Matter/KNX-Cache, wenn ein Telegramm auf eine konfigurierte KNX-GA geschrieben wird. |
-| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Der Eingang akzeptiert boolesche Payloads sowie Matter-ähnliche `msg.payload` oder `msg.on.on`; der Ausgang sendet Statusupdates. Die Auswahl bleibt beim erneuten Öffnen des Editors erhalten. |
+| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Bei zugeordneten Endpunkten stehen die Matter-Selektoren direkt in `msg`: `msg.clusterId` mit `msg.attribute` liest ein Attribut und gibt den Wert als `msg.payload` aus; `msg.requestFromRemote = true` erzwingt das Lesen vom Gerät. Mit `msg.value` wird ein Attribut geschrieben, `msg.clusterId`, `msg.command` und `msg.args` rufen einen Befehl auf. Die numerische Attribut-ID `0` ist gültig. Door Lock akzeptiert einen booleschen `msg.payload` (`true` sperrt, `false` entsperrt). Die Auswahl bleibt beim erneuten Öffnen des Editors erhalten. |
 
 ## Verhalten
 

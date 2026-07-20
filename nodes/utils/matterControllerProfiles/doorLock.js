@@ -52,6 +52,7 @@ const setupDoorLockProfile = (RED, node, config) => {
   node.inputRBE = 'false'
   node.passthrough = 'no'
   node.currentLockState = undefined
+  node.matterConnectionStatus = ''
   node.knxUltimateAcceptedGAs = [config.GALightSwitch, config.GALightState]
     .map((ga) => String(ga || '').trim())
     .filter((ga) => ga !== '')
@@ -60,7 +61,15 @@ const setupDoorLockProfile = (RED, node, config) => {
   // knxUltimate-config invokes this synchronously from addClient(). Profiles return
   // early from the main light constructor, so they must expose the callback before
   // registering with the shared KNX configuration node.
-  node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text = '' } = {}) => setStatus(fill, shape, text)
+  node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text = '' } = {}) => {
+    if (node.currentLockState !== undefined) {
+      const state = lockStateToBoolean(node.currentLockState)
+      const knxText = text ? ` | KNX: ${text}` : ''
+      setStatus(state === undefined ? 'yellow' : 'blue', state === undefined ? 'ring' : 'dot', `Matter: ${lockStateName(node.currentLockState)}${knxText}`)
+      return
+    }
+    setStatus(fill, shape, text)
+  }
 
   const commandArgs = () => {
     // Matter represents the remote credential as bytes. Keep the PIN in Node-RED's
@@ -181,7 +190,15 @@ const setupDoorLockProfile = (RED, node, config) => {
     }
   }
   node.setNodeStatusMatter = (status) => {
-    if (status && status.text) setStatus(status.fill || 'grey', status.shape || 'ring', status.text)
+    if (!status || !status.text) return
+    node.matterConnectionStatus = status.text
+    const isAvailable = /^(connected|ready|controller ready)$/i.test(status.text)
+    if (isAvailable && node.currentLockState !== undefined) {
+      const state = lockStateToBoolean(node.currentLockState)
+      setStatus(state === undefined ? 'yellow' : 'blue', state === undefined ? 'ring' : 'dot', `Matter: ${lockStateName(node.currentLockState)}`)
+      return
+    }
+    setStatus(status.fill || 'grey', status.shape || 'ring', status.text)
   }
 
   if (node.serverKNX) {

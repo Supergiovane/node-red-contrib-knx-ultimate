@@ -12,6 +12,8 @@ permalink: /wiki/zh-CN-Matter-Bridge-Configuration
 
 此配置节点就是 **Matter 桥接器本身**：它运行 Matter 服务器，Alexa、Google Home、Apple Home（或任何 Matter 控制器）只需配对**一次**。流程中的每个 **Matter Bridge device** 节点都指向这里，并在 App 中显示为桥接器的一个设备。
 
+Matter Bridge 设备编辑器将**映射**和**高级选项**作为左侧垂直选项卡排列，与 Matter Controller 保持一致。
+
 ## 配置
 
 |字段|说明|

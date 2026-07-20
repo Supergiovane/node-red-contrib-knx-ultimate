@@ -470,6 +470,14 @@ class classMatter extends EventEmitter {
     }
   }
 
+  _findAttribute = (clusterClient, attributeNameOrId) => {
+    if (clusterClient === undefined || attributeNameOrId === undefined || attributeNameOrId === null) return undefined
+    if (typeof attributeNameOrId === 'string' && clusterClient.attributes[attributeNameOrId] !== undefined) {
+      return clusterClient.attributes[attributeNameOrId]
+    }
+    return Object.values(clusterClient.attributes).find((attribute) => Number(attribute?.id) === Number(attributeNameOrId))
+  }
+
   // Returns the full structure of a commissioned node: endpoints, clusters, attributes (with cached values) and commands.
   // Used by the editor UI to let the user pick the mapping targets.
   getNodeStructure = (_nodeIdString) => {
@@ -551,7 +559,7 @@ class classMatter extends EventEmitter {
     if (node === undefined) throw new Error(`Matter node ${_nodeIdString} unknown or not yet connected`)
     const clusterClient = this._findClusterClient(node, _endpointId, _clusterId)
     if (clusterClient === undefined) throw new Error(`Cluster ${_clusterId} not found on endpoint ${_endpointId}`)
-    const attribute = clusterClient.attributes[_attributeName]
+    const attribute = this._findAttribute(clusterClient, _attributeName)
     if (attribute === undefined) throw new Error(`Attribute ${_attributeName} not found in cluster ${clusterClient.name}`)
     return attribute.get(_requestFromRemote)
   }
@@ -563,7 +571,7 @@ class classMatter extends EventEmitter {
       if (node === undefined) return undefined
       const clusterClient = this._findClusterClient(node, _endpointId, _clusterId)
       if (clusterClient === undefined) return undefined
-      const attribute = clusterClient.attributes[_attributeName]
+      const attribute = this._findAttribute(clusterClient, _attributeName)
       if (attribute === undefined) return undefined
       return attribute.getLocal()
     } catch (error) {

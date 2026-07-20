@@ -2,12 +2,20 @@
 
 const { setupDoorLockProfile } = require('./doorLock')
 const { setupMappedEndpointProfile } = require('./mappedEndpoint')
+const { setupWindowCoveringProfile } = require('./windowCovering')
+const { setupThermostatProfile } = require('./thermostat')
+const { setupFanProfile } = require('./fan')
+const { setupSwitchProfile } = require('./switch')
 
 // Controller-side Matter device profiles live behind this registry.  Keep profile
 // selection capability-driven: the editor records the profile only after inspecting
 // the endpoint's actual device types, clusters, attributes and supported commands.
 const PROFILE_SETUPS = Object.freeze({
   doorLock: setupDoorLockProfile,
+  windowCovering: setupWindowCoveringProfile,
+  thermostat: setupThermostatProfile,
+  fan: setupFanProfile,
+  switch: setupSwitchProfile,
   mapped: setupMappedEndpointProfile
 })
 

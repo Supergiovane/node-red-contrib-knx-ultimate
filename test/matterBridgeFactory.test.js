@@ -220,6 +220,16 @@ describe('matterBridgeDeviceFactory – BRIDGE_TYPES catalog', () => {
   })
 })
 
+describe('knxUltimateMatterBridge editor layout', () => {
+  it('uses the same left-hand vertical tabs as Matter Controller', () => {
+    const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateMatterBridge.html'), 'utf8')
+    expect(editor).to.include("$tabs.addClass('hue-vertical-tabs')")
+    expect(editor).to.include("removeClass('ui-corner-top').addClass('ui-corner-left')")
+    expect(editor).to.match(/\.hue-vertical-tabs\.ui-tabs[\s\S]*display:\s*flex/)
+    expect(editor).to.match(/\.hue-vertical-tabs > ul\.ui-tabs-nav[\s\S]*flex:\s*0 0 180px/)
+  })
+})
+
 describe('knxUltimateMatterBridge – optimistic cover feedback', () => {
   it('contains rejected asynchronous Flow-to-Matter updates and reports them via done', async () => {
     let NodeConstructor

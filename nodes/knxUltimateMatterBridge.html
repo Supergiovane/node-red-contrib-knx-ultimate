@@ -109,8 +109,71 @@
         try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
         const node = this;
 
-        // Use the same jQuery UI tab structure as the main KNXUltimate node.
-        $('#mb-tabs').tabs();
+        // Keep the same left-hand vertical tab orientation as Matter Controller.
+        if ($('#knxUltimateMatterControllerDeviceVerticalTabs').length === 0) {
+          $('head').append(`
+            <style id="knxUltimateMatterControllerDeviceVerticalTabs">
+              .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
+                display: flex;
+                border: none;
+                padding: 0;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav {
+                flex: 0 0 180px;
+                border-right: 1px solid #ccc;
+                border-left: none;
+                border-top: none;
+                border-bottom: none;
+                padding: 0.5em 0.3em;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li {
+                float: none;
+                width: 100%;
+                margin: 0 0 2px 0;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li a {
+                display: block;
+                width: 100%;
+                white-space: normal;
+                position: relative;
+                border-bottom: none !important;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
+                border-bottom: none !important;
+              }
+              .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
+                content: "";
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 50%;
+                height: 3px;
+                background: currentColor;
+              }
+              .hue-vertical-tabs .ui-tabs-panel {
+                flex: 1;
+                padding: 0.8em 1em;
+                box-sizing: border-box;
+                border: none;
+                background: transparent;
+              }
+              .hue-vertical-tabs .form-row > dt {
+                flex: 1 1 auto;
+                margin: 0;
+              }
+              .hue-vertical-tabs hr {
+                width: 100%;
+                border: 0;
+                border-top: 1px solid #ccc;
+                margin: 8px 0;
+              }
+            </style>`);
+        }
+        const $tabs = $('#mb-tabs');
+        $tabs.addClass('hue-vertical-tabs');
+        $tabs.tabs();
+        $tabs.find('ul').addClass('ui-tabs-nav');
+        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
 
         // Resolves the KNX gateway at query time: the selected one, or - as a
         // fallback - the first knxUltimate-config available, so the GA list works
@@ -440,6 +503,8 @@
 Exposes **one KNX device as a Matter device**. This node is in **BETA**.
 
 Point it to a **Matter Bridge** configuration node (the actual bridge, paired once by Alexa/Google Home/Apple Home), pick the device type, give it the name the assistant will use, and fill the group addresses.
+
+The **Mappings** and **Advanced** tabs are arranged vertically on the left, matching the Matter Controller editor.
 
 - **Matter → KNX**: commands from the voice assistant write to the *command* group addresses.
 - **KNX → Matter**: telegrams on the *status* group addresses update the Matter attribute (and the app UI).

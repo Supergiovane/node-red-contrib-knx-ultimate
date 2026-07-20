@@ -12,6 +12,8 @@ permalink: /wiki/fr-Matter-Bridge-Configuration
 
 Ce nœud de configuration est le **bridge Matter lui-même** : il exécute le serveur Matter qu'Alexa, Google Home, Apple Home (ou tout contrôleur Matter) appairent **une seule fois**. Chaque nœud **Matter Bridge device** de vos flux pointe ici et apparaît dans les apps comme un appareil du bridge.
 
+Les éditeurs des périphériques Matter Bridge présentent **Mappages** et **Options avancées** sous forme d'onglets verticaux à gauche, comme Matter Controller.
+
 ## Configuration
 
 |Champ|Description|

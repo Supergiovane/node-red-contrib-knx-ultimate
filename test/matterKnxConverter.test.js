@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const { knxToMatter, matterToKnx, CLUSTER } = require('../nodes/utils/matterKnxConverter')
 const { LOCK_STATE, lockStateToBoolean, setupDoorLockProfile } = require('../nodes/utils/matterControllerProfiles/doorLock')
-const { setupMatterControllerProfile } = require('../nodes/utils/matterControllerProfiles')
+const { PROFILE_SETUPS, setupMatterControllerProfile } = require('../nodes/utils/matterControllerProfiles')
 const { isValidGroupAddress, parseMappings, setupMappedEndpointProfile } = require('../nodes/utils/matterControllerProfiles/mappedEndpoint')
 
 describe('matterKnxConverter – knxToMatter', () => {
@@ -211,6 +211,17 @@ describe('Matter controller Door Lock profile', () => {
     expect(matterWrites).to.have.length(0)
     expect(errors.join(' ')).to.match(/does not expose unlockDoor/)
   })
+
+  it('keeps the last lock state visible when the controller reports ready', () => {
+    const statuses = []
+    const { node } = createFixture()
+    node.status = (status) => statuses.push(status)
+    node.handleSendMatter({ nodeId: '123', endpointId: 4, clusterId: CLUSTER.DOOR_LOCK, attributeName: 'lockState', value: LOCK_STATE.UNLOCKED })
+    node.setNodeStatusMatter({ fill: 'green', shape: 'ring', text: 'Ready' })
+    expect(statuses.at(-1)).to.deep.equal({ fill: 'blue', shape: 'dot', text: 'Matter: unlocked' })
+    node.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'READ' })
+    expect(statuses.at(-1)).to.deep.equal({ fill: 'blue', shape: 'dot', text: 'Matter: unlocked | KNX: READ' })
+  })
 })
 
 describe('Matter controller multi-purpose profile routing', () => {
@@ -258,6 +269,55 @@ describe('Matter controller multi-purpose profile routing', () => {
     expect(matterWrites[0]).to.include({ clusterId: CLUSTER.ON_OFF, name: 'on' })
     expect(knxWrites[0]).to.include({ grpaddr: '1/2/2', payload: 21.5, dpt: '9.001' })
   })
+
+  it('reads an attribute with numeric ID zero from top-level flow fields', async () => {
+    const outputs = []
+    const reads = []
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: 'mapped-read-node', matterNodeId: '55', matterEndpointId: 2, status: () => {},
+      send: (msg) => outputs.push(msg),
+      serverMatter: {
+        addClient: () => {}, removeClient: () => {},
+        matterManager: {
+          readAttribute: async (...args) => { reads.push(args); return true },
+          writeMatterQueueAdd: () => {}
+        }
+      }
+    })
+    setupMappedEndpointProfile({ log: { error: () => {} } }, node, { matterMappings: '[]', enableNodePINS: 'yes' })
+    await new Promise((resolve, reject) => node.emit('input', { clusterId: 6, attribute: 0 }, undefined, (error) => error ? reject(error) : resolve()))
+    expect(reads[0]).to.deep.equal(['55', 2, 6, 0, false])
+    expect(outputs[0]).to.include({ payload: true })
+    expect(outputs[0].matter).to.include({ source: 'inputRead', clusterId: 6, attribute: 0 })
+  })
+
+  it('keeps attribute writes distinct from attribute reads', async () => {
+    const writes = []
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: 'mapped-write-node', matterNodeId: '55', matterEndpointId: 2, status: () => {}, send: () => {},
+      serverMatter: {
+        addClient: () => {}, removeClient: () => {},
+        matterManager: { readAttribute: async () => { throw new Error('unexpected read') }, writeMatterQueueAdd: (item) => writes.push(item) }
+      }
+    })
+    setupMappedEndpointProfile({ log: { error: () => {} } }, node, { matterMappings: '[]', enableNodePINS: 'yes' })
+    await new Promise((resolve, reject) => node.emit('input', { clusterId: CLUSTER.THERMOSTAT, attribute: 'occupiedHeatingSetpoint', value: 21 }, undefined, (error) => error ? reject(error) : resolve()))
+    expect(writes).to.have.length(1)
+    expect(writes[0]).to.include({ kind: 'attributeWrite', name: 'occupiedHeatingSetpoint' })
+  })
+
+  it('rejects Matter selectors nested in msg.payload', async () => {
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: 'mapped-contract-node', matterNodeId: '55', matterEndpointId: 2, status: () => {}, send: () => {},
+      serverMatter: { addClient: () => {}, removeClient: () => {}, matterManager: { readAttribute: async () => true, writeMatterQueueAdd: () => {} } }
+    })
+    setupMappedEndpointProfile({ log: { error: () => {} } }, node, { matterMappings: '[]', enableNodePINS: 'yes' })
+    const error = await new Promise((resolve) => node.emit('input', { payload: { clusterId: 6, attribute: 0 } }, undefined, resolve))
+    expect(error.message).to.equal('Matter input requires clusterId and command or attribute')
+  })
 })
 
 describe('Matter controller editor persistence and terminology', () => {
@@ -269,6 +329,14 @@ describe('Matter controller editor persistence and terminology', () => {
     expect(editor).to.match(/if \(\$\("#node-input-enableNodePINS"\)\.val\(\) === "yes"\)/)
     expect(editor).to.match(/this\.outputs = 1;\s*this\.inputs = 1;/)
     expect(editor).to.match(/this\.outputs = 0;\s*this\.inputs = 0;/)
+  })
+
+  it('selects dedicated profiles for cover, thermostat, fan and switch clusters', () => {
+    expect(editor).to.include("getMatterCluster(ep, 258) ? 'windowCovering'")
+    expect(editor).to.include("getMatterCluster(ep, 513) ? 'thermostat'")
+    expect(editor).to.include("getMatterCluster(ep, 514) ? 'fan'")
+    expect(editor).to.include("getMatterCluster(ep, 59) ? 'switch'")
+    expect(PROFILE_SETUPS).to.include.all.keys('windowCovering', 'thermostat', 'fan', 'switch')
   })
 
   it('uses Matter terminology in the rendered English help', () => {
@@ -288,6 +356,49 @@ describe('Matter controller editor persistence and terminology', () => {
       collectStrings(JSON.parse(fs.readFileSync(localePath, 'utf8')))
       expect(values.join('\n'), `${locale} still contains a Hue label`).not.to.match(/hue/i)
     }
+  })
+})
+
+describe('Matter controller dedicated mapped profiles', () => {
+  const createProfileFixture = (profile, mappings = []) => {
+    const outputs = []
+    const statuses = []
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: `${profile}-node`, matterNodeId: '77', matterEndpointId: 3,
+      status: (value) => statuses.push(value), send: (msg) => outputs.push(msg),
+      serverMatter: { addClient: () => {}, removeClient: () => {}, matterManager: { getCachedAttribute: () => undefined, writeMatterQueueAdd: () => {} } }
+    })
+    setupMatterControllerProfile(profile, { log: { error: () => {} } }, node, {
+      matterMappings: JSON.stringify(mappings), enableNodePINS: 'yes'
+    })
+    return { node, outputs, statuses }
+  }
+
+  it('formats Window Covering position while preserving mapped routing', () => {
+    const { node, outputs, statuses } = createProfileFixture('windowCovering')
+    node.handleSendMatter({ nodeId: '77', endpointId: 3, clusterId: CLUSTER.WINDOW_COVERING, attributeName: 'currentPositionLiftPercent100ths', value: 4250 })
+    expect(node.matterProfile).to.equal('windowCovering')
+    expect(outputs[0].payload).to.equal(4250)
+    expect(statuses.at(-1).text).to.equal('Matter cover: 43%')
+  })
+
+  it('formats thermostat and fan state using their native units', () => {
+    const thermostat = createProfileFixture('thermostat')
+    thermostat.node.handleSendMatter({ nodeId: '77', endpointId: 3, clusterId: CLUSTER.THERMOSTAT, attributeName: 'localTemperature', value: 2150 })
+    expect(thermostat.statuses.at(-1).text).to.equal('Matter thermostat: 21.5 °C')
+    const fan = createProfileFixture('fan')
+    fan.node.handleSendMatter({ nodeId: '77', endpointId: 3, clusterId: CLUSTER.FAN_CONTROL, attributeName: 'percentCurrent', value: 37 })
+    expect(fan.statuses.at(-1).text).to.equal('Matter fan: 37%')
+  })
+
+  it('exposes only Switch-cluster events through the switch profile', () => {
+    const { node, outputs, statuses } = createProfileFixture('switch')
+    node.handleMatterClusterEvent({ nodeId: '77', endpointId: 3, clusterId: 6, eventName: 'foreign', events: {} })
+    node.handleMatterClusterEvent({ nodeId: '77', endpointId: 3, clusterId: 59, eventName: 'initialPress', events: { newPosition: 1 } })
+    expect(outputs).to.have.length(1)
+    expect(outputs[0]).to.include({ topic: '59.initialPress' })
+    expect(statuses.at(-1).text).to.equal('Matter switch: initialPress')
   })
 })
 
@@ -311,5 +422,18 @@ describe('Matter controller rename after commissioning', () => {
     expect(result).to.equal('Shelly Plug')
     expect(labels).to.deep.equal(['Shelly Plug'])
     expect(attempts).to.be.at.least(2)
+  })
+})
+
+describe('Matter controller attribute lookup', () => {
+  it('resolves attribute identifier zero as well as its name', async () => {
+    const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
+    const manager = new classMatter('', 'attribute-read-test', 'test', null, { startQueue: false })
+    const onOff = { id: 0, get: async (remote) => remote ? 'remote' : 'cached', getLocal: () => true }
+    manager.pairedNodes.set('55', {})
+    manager._findClusterClient = () => ({ name: 'OnOff', attributes: { onOff } })
+    expect(await manager.readAttribute('55', 2, 6, 0, true)).to.equal('remote')
+    expect(manager.getCachedAttribute('55', 2, 6, 0)).to.equal(true)
+    expect(await manager.readAttribute('55', 2, 6, 'onOff')).to.equal('cached')
   })
 })

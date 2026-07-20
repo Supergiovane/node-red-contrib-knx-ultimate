@@ -554,6 +554,11 @@
             }
             const isMatterLight = deviceTypes.some((type) => /(?:onoff|dimmable|colortemperature|extendedcolor)light/.test(type));
             if (!isMatterLight) {
+              const specializedProfile = getMatterCluster(ep, 258) ? 'windowCovering'
+                : getMatterCluster(ep, 513) ? 'thermostat'
+                  : getMatterCluster(ep, 514) ? 'fan'
+                    : getMatterCluster(ep, 59) ? 'switch'
+                      : 'mapped';
               const mappedTargets = [];
               const addCommand = (clusterId, target, label, dpt) => {
                 const cluster = getMatterCluster(ep, clusterId);
@@ -584,7 +589,7 @@
               addAttribute(47, 'batPercentRemaining', 'battery', '5.001', false);
               addAttribute(144, 'activePower', 'active_power', '14.056', false);
               addAttribute(145, 'cumulativeEnergyImported', 'imported_energy', '13.013', false);
-              return { known: true, profile: 'mapped', deviceTypeDisplay, onOff: false, level: false, colorTemperature: false, color: false, mappedTargets };
+              return { known: true, profile: specializedProfile, deviceTypeDisplay, onOff: false, level: false, colorTemperature: false, color: false, mappedTargets };
             }
             const hasColorTemperatureType = /colortemperature|extendedcolor/.test(typeText);
             const hasColorType = /extendedcolor/.test(typeText);
@@ -995,7 +1000,7 @@
             const supportsColor = hasHueDevice && caps.color === true;
             const hasRichBehaviour = supportsDim && (supportsTemperature || supportsColor);
             const isDoorLock = caps.profile === 'doorLock';
-            const isMapped = caps.profile === 'mapped';
+            const isMapped = ['mapped', 'windowCovering', 'thermostat', 'fan', 'switch'].includes(caps.profile);
             const deviceTypeDisplay = String(caps.deviceTypeDisplay || '').trim();
 
             setMatterTabVisible('tabs-1', supportsSwitch);
@@ -2150,7 +2155,9 @@
 
 The editor detects the selected endpoint capabilities and exposes only the corresponding
 Matter functions. Bridged Matter devices are expanded into their individual endpoints in
-the device picker.
+the device picker. Door Lock, Window Covering, Thermostat, Fan and Switch endpoints use
+dedicated profiles. Switch press, long-press and multi-press events are emitted on the
+optional flow output; simpler endpoints continue through the generic mapped fallback.
 
 |Property|Description|
 |--|--|
@@ -2235,6 +2242,7 @@ _Basic Matter effects_
 | Read status at startup | Read the Matter endpoint status at Node-RED startup or full deploy and send it to the KNX bus. |
 | KNX Brightness Status | Updates the KNX brightness status whenever the Matter light switches ON/OFF. It can send 0% while OFF and restore the previous value when ON, or leave the brightness status unchanged. |
 | Update local cached Matter state from KNX bus writes | When enabled, KNX writes immediately update the local Matter-state cache without waiting for the endpoint report. Disable it if the cache should follow only real Matter reports. |
+| Node Input/Output PINs | For mapped endpoints, all Matter selectors belong directly to `msg`. Read an attribute with `msg.clusterId` and `msg.attribute`; add `msg.requestFromRemote = true` to force a device read instead of using the subscribed value. The result is emitted as `msg.payload`. Add `msg.value` to write an attribute, or use `msg.clusterId`, `msg.command` and `msg.args` to invoke a command. Attribute IDs such as `0` are accepted. Door Lock input accepts `msg.payload = true` to lock and `false` to unlock. |
 | Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/> **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).<br/>**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for bathroom's night light.|
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime. |

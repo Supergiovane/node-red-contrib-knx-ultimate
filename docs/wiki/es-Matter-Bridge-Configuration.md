@@ -12,6 +12,8 @@ permalink: /wiki/es-Matter-Bridge-Configuration
 
 Este nodo de configuración es el **bridge Matter en sí**: ejecuta el servidor Matter que Alexa, Google Home, Apple Home (o cualquier controlador Matter) emparejan **una sola vez**. Cada nodo **Matter Bridge device** de tus flows apunta aquí y aparece en las apps como un dispositivo del bridge.
 
+Los editores de dispositivos Matter Bridge muestran **Mapeos** y **Opciones avanzadas** como pestañas verticales a la izquierda, igual que Matter Controller.
+
 ## Configuración
 
 |Campo|Descripción|

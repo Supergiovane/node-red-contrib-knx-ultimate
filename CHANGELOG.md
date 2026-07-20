@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 6.0.11** - July 2026<br/>
+
+- **Matter Bridge — editor tab orientation**: the device editor now uses the same left-hand vertical tab layout as Matter Controller, keeping Mappings and Advanced options visually consistent without changing saved configuration.<br/>
+- **Control Matter from KNX — dedicated controller profiles**: Window Covering (`0x0102`), Thermostat (`0x0201`), Fan Control (`0x0202`) and Switch (`0x003B`) endpoints are now selected into explicit capability-driven profiles instead of the anonymous mapped fallback. They share the guarded mapping lifecycle while enforcing their native input/event cluster boundary and presenting semantic canvas status; Switch initial/long/multi-press events are filtered to the selected endpoint and exposed on the optional flow output. Simple actuators and sensors remain on the generic mapped profile.<br/>
+- **Control Matter from KNX — flow attribute reads and persistent Door Lock status**: mapped endpoints now use an unambiguous top-level flow contract: `msg.clusterId` plus `msg.attribute` reads an attribute, `msg.value` makes it an attribute write, and `msg.command` plus `msg.args` invokes a command. Reads return the value in `msg.payload`, may force a remote request with `msg.requestFromRemote = true`, and accept numeric attribute ID `0`. Door Lock nodes now retain their last `locked`/`unlocked` canvas status when generic Matter or KNX notifications arrive.<br/>
+
 **Version 6.0.10** - July 2026<br/>
 
 - **Matter nodes — crash containment**: asynchronous bridge state updates, controller client callbacks, engine errors, startup/watchdog timers and the controller command queue are now guarded so rejected promises and EventEmitter errors are reported instead of becoming uncaught exceptions or unhandled rejections capable of stopping Node-RED.<br/>

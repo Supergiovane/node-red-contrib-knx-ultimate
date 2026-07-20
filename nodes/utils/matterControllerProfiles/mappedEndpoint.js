@@ -24,7 +24,7 @@ const parseMappings = (value) => {
   }
 }
 
-const setupMappedEndpointProfile = (RED, node, config) => {
+const setupMappedEndpointProfile = (RED, node, config, options = {}) => {
   node.name = config.name || node.matterDeviceName || 'Control Matter from KNX'
   node.topic = node.name
   node.mappings = parseMappings(config.matterMappings)
@@ -40,6 +40,7 @@ const setupMappedEndpointProfile = (RED, node, config) => {
   node.outputRBE = 'false'
   node.inputRBE = 'false'
   node.passthrough = 'no'
+  node.matterProfile = options.profileName || 'mapped'
   const enablePins = config.enableNodePINS === 'yes'
   let lastInitialReadTs = 0
 
@@ -111,7 +112,8 @@ const setupMappedEndpointProfile = (RED, node, config) => {
         sendKnx(mapping, matterToKnx(event.clusterId, event.attributeName, event.value))
       })
       if (enablePins) node.send({ topic: `${event.clusterId}.${event.attributeName}`, payload: event.value, matter: event })
-      status('blue', 'dot', `Matter→KNX: ${event.attributeName}`)
+      const profileStatus = typeof options.formatAttributeStatus === 'function' ? options.formatAttributeStatus(event) : ''
+      status('blue', 'dot', profileStatus || `Matter→KNX: ${event.attributeName}`)
     } catch (error) {
       RED.log.error(`knxUltimateMatterControllerDevice mapped Matter: ${error.message}`)
       status('red', 'ring', error.message)
@@ -120,8 +122,11 @@ const setupMappedEndpointProfile = (RED, node, config) => {
   node.handleMatterClusterEvent = (event) => {
     // Cluster events have no implicit KNX mapping. They are exposed as raw flow output
     // only when the user explicitly enables the node pins.
-    if (enablePins && String(event?.nodeId) === String(node.matterNodeId) && Number(event?.endpointId) === Number(node.matterEndpointId)) {
+    const clusterAccepted = options.eventClusterId === undefined || Number(event?.clusterId) === Number(options.eventClusterId)
+    if (enablePins && clusterAccepted && String(event?.nodeId) === String(node.matterNodeId) && Number(event?.endpointId) === Number(node.matterEndpointId)) {
       node.send({ topic: `${event.clusterId}.${event.eventName}`, payload: event.events, matter: event })
+      const profileStatus = typeof options.formatEventStatus === 'function' ? options.formatEventStatus(event) : ''
+      if (profileStatus) status('blue', 'dot', profileStatus)
     }
   }
   node.handleMatterNodeInitialized = () => {
@@ -137,20 +142,53 @@ const setupMappedEndpointProfile = (RED, node, config) => {
   if (node.serverKNX) { node.serverKNX.removeClient(node); node.serverKNX.addClient(node) } else status('yellow', 'ring', 'No KNX gateway selected')
   if (node.serverMatter) { node.serverMatter.removeClient(node); node.serverMatter.addClient(node) }
   node.on('input', (msg, send, done) => {
-    try {
-      const payload = msg.payload || {}
+    const complete = typeof done === 'function' ? done : () => {}
+    const output = typeof send === 'function' ? send : node.send.bind(node)
+    Promise.resolve().then(async () => {
       const mapping = {
-        endpointId: payload.endpointId ?? node.matterEndpointId,
-        clusterId: payload.clusterId,
-        targetKind: payload.command !== undefined ? 'command' : 'attribute',
-        target: payload.command ?? payload.attribute
+        endpointId: msg.endpointId ?? node.matterEndpointId,
+        clusterId: msg.clusterId,
+        targetKind: msg.command !== undefined ? 'command' : 'attribute',
+        target: msg.command ?? msg.attribute
       }
-      if (!mapping.target || mapping.clusterId === undefined) throw new Error('Matter input requires clusterId and command or attribute')
-      enqueue(mapping, payload.args ?? payload.value)
-      if (done) done()
-    } catch (error) {
-      if (done) done(error); else node.error(error, msg)
-    }
+      if (mapping.target === undefined || mapping.target === null || mapping.target === '' || mapping.clusterId === undefined || mapping.clusterId === null) {
+        throw new Error('Matter input requires clusterId and command or attribute')
+      }
+      if (options.inputClusterId !== undefined && Number(mapping.clusterId) !== Number(options.inputClusterId)) {
+        throw new Error(`${node.matterProfile} input requires clusterId ${options.inputClusterId}`)
+      }
+      const isAttributeRead = mapping.targetKind === 'attribute' && msg.value === undefined
+      if (isAttributeRead) {
+        const currentManager = manager()
+        if (!currentManager) throw new Error('Matter controller not ready')
+        const value = await currentManager.readAttribute(
+          node.matterNodeId,
+          mapping.endpointId,
+          mapping.clusterId,
+          mapping.target,
+          msg.requestFromRemote === true
+        )
+        output({
+          ...msg,
+          payload: value,
+          matter: {
+            source: 'inputRead',
+            nodeId: node.matterNodeId,
+            endpointId: mapping.endpointId,
+            clusterId: mapping.clusterId,
+            attribute: mapping.target
+          }
+        })
+        status('blue', 'dot', `Matter read: ${mapping.target}`)
+        complete()
+        return
+      }
+      enqueue(mapping, mapping.targetKind === 'command' ? msg.args : msg.value)
+      complete()
+    }).catch((error) => {
+      status('red', 'ring', error.message)
+      if (typeof done === 'function') done(error); else node.error(error, msg)
+    })
   })
   node.on('close', (done) => {
     try { if (node.serverKNX) node.serverKNX.removeClient(node) } catch (error) { /* empty */ }

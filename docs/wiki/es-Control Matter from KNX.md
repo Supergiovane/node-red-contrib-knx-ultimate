@@ -21,12 +21,12 @@ Sustituye a los nodos Matter separados no publicados y conserva toda la UI de lu
 | Dispositivo Matter | Endpoint Matter seleccionado entre los dispositivos emparejados. La UI se reconstruye a partir de sus capacidades reales. |
 | Switch / Enchufe / Luz On-Off | Direcciones de grupo de comando y estado On/Off, normalmente DPT `1.001`. |
 | Cerradura | Una GA de comando DPT `1.xxx` invoca `lockDoor` con `true` y `unlockDoor` con `false`; una GA de estado separada recibe solo estados Bloqueada/Desbloqueada inequívocos. Si el endpoint lo exige, el PIN remoto se guarda en el campo de credencial. Los comandos no anunciados se rechazan. |
-| Otros endpoints | Enchufes, actuadores On/Off, persianas, termostatos, ventiladores, sensores ambientales/de contacto/de ocupación, batería, potencia y energía usan el perfil multipropósito. La pestaña **Mapeos** contiene únicamente las funciones respaldadas por los clústeres, atributos y comandos anunciados. |
+| Otros endpoints | Window Covering, Thermostat, Fan y Switch usan perfiles dedicados seleccionados por sus capacidades; los eventos Switch, como pulsación inicial, larga y múltiple, se emiten por la salida flow opcional. Enchufes, actuadores On/Off, sensores, batería, potencia y energía usan el fallback mapeado genérico. La pestaña **Mapeos** contiene únicamente las funciones anunciadas. |
 | Controles de luz | Para endpoints de luz se usa la UI de luz completa: DIM relativo (DPT `3.007`), brillo %, RGB/HSV, blanco ajustable, brillo/temperatura al encender, modo día/noche, nivel min/max y velocidad de regulación. Las secciones no soportadas quedan ocultas. |
 | Sensores | Los endpoints de sensor muestran su GA de medida/estado solo cuando está soportado: temperatura, humedad, iluminancia, ocupación, contacto y batería. |
 | Read at startup | Publica el valor Matter en caché al desplegar/iniciar o cuando el dispositivo se reconecta. |
 | Update local state from KNX write | Actualiza la caché local Matter/KNX cuando se escribe un telegrama en una GA KNX configurada. |
-| Node Input/Output PINs | Muestra pines de entrada/salida Node-RED. La entrada acepta payloads booleanos y mensajes Matter en `msg.payload` o `msg.on.on`; la salida emite estados. La selección se conserva al volver a abrir el editor. |
+| Node Input/Output PINs | Muestra pines de entrada/salida Node-RED. Para endpoints mapeados, los selectores Matter van directamente en `msg`: `msg.clusterId` con `msg.attribute` lee un atributo y emite su valor en `msg.payload`; `msg.requestFromRemote = true` fuerza la lectura del dispositivo. Añade `msg.value` para escribir un atributo o usa `msg.clusterId`, `msg.command` y `msg.args` para un comando. El ID numérico de atributo `0` es válido. Door Lock acepta un `msg.payload` booleano (`true` bloquea, `false` desbloquea). La selección se conserva al volver a abrir el editor. |
 
 ## Comportamiento
 
