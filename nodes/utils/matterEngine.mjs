@@ -505,7 +505,8 @@ class classMatter extends EventEmitter {
               if (typeof cc.isAttributeSupportedByName === 'function' && !cc.isAttributeSupportedByName(attrName)) return
               // Skip the global meta attributes (FeatureMap, AttributeList, ClusterRevision...):
               // they are useless for KNX mappings and only confuse the user.
-              if (Number(cc.attributes[attrName].id) >= 65528) return
+              const exposeFeatureMap = [47, 768].includes(Number(cc.id)) && attrName === 'featureMap'
+              if (Number(cc.attributes[attrName].id) >= 65528 && !exposeFeatureMap) return
               let value
               try {
                 value = cc.attributes[attrName].getLocal()

@@ -339,12 +339,37 @@ describe('Matter controller editor persistence and terminology', () => {
     expect(PROFILE_SETUPS).to.include.all.keys('windowCovering', 'thermostat', 'fan', 'switch')
   })
 
+  it('uses the Color Control feature map to hide unsupported light tabs', () => {
+    expect(editor).to.include('(colorFeatureMap & 0x10) !== 0')
+    expect(editor).to.include('(colorFeatureMap & 0x09) !== 0')
+    expect(editor).to.include("setMatterTabVisible('tabs-3', !isUniversal && supportsTemperature)")
+    expect(editor).to.include("setMatterTabVisible('tabs-4', !isUniversal && supportsColor)")
+    expect(editor).to.include("matterLightType: isTunableWhiteOnly ? 'colorTemperature'")
+    expect(editor).to.include("normalized.matterLightType === 'colorTemperature'")
+    expect(editor).to.include("displayType === 'tunablewhite'")
+    expect(editor).to.match(/normalized\.colorTemperature = true;\s*normalized\.color = false;/)
+    expect(editor).to.include('$matterCapabilitiesInput.val(serializeMatterCapabilities(currentMatterCapabilities))')
+  })
+
   it('offers Universal Mode as a reserved controller-wide profile with mandatory pins', () => {
     expect(editor).to.include("const UNIVERSAL_NODE_ID = '__UNIVERSAL__'")
     expect(editor).to.include("profile: 'universal'")
-    expect(editor).to.match(/const items = \[universalMatterItem\(\)\]/)
+    expect(editor).to.include('id="node-input-matterControllerMode"')
+    expect(editor).to.include('<option value="single"')
+    expect(editor).to.include('<option value="universal"')
+    expect(editor).to.match(/\$matterControllerModeInput\.val\(node\.matterControllerMode \|\| 'single'\)/)
+    expect(editor).to.match(/\$\('#matter-device-section-title, #matter-device-row'\)\.toggle\(!universal\)/)
     expect(editor).to.match(/this\.matterEndpointId = universalMode \? ''/)
     expect(editor).to.match(/this\.enableNodePINS = 'yes'/)
+    expect(editor).to.include('id="matter-universal-tabs"')
+    expect(editor).to.include('$universalTabs.addClass(\'hue-vertical-tabs\')')
+    expect(editor).to.include('$universalTabs.tabs()')
+    expect(editor).to.include('getFixedDptGroupAddress("#node-input-universalLowBatteryGA", "#node-input-universalLowBatteryGAName", "1.")')
+    expect(editor).to.include('getFixedDptGroupAddress("#node-input-universalLowBatteryTextGA", "#node-input-universalLowBatteryTextGAName", "16.")')
+    expect(editor).to.include('id="node-input-universalLowBatteryGAName"')
+    expect(editor).to.include('id="node-input-universalLowBatteryTextGAName"')
+    expect(editor).to.match(/id="node-input-universalLowBatteryDPT" value="1\.005" readonly/)
+    expect(editor).to.match(/id="node-input-universalLowBatteryTextDPT" value="16\.001" readonly/)
   })
 
   it('uses Matter terminology in the rendered English help', () => {
@@ -363,6 +388,16 @@ describe('Matter controller editor persistence and terminology', () => {
       }
       collectStrings(JSON.parse(fs.readFileSync(localePath, 'utf8')))
       expect(values.join('\n'), `${locale} still contains a Hue label`).not.to.match(/hue/i)
+    }
+  })
+
+  it('does not duplicate Node-RED help titles in localized Matter help', () => {
+    for (const locale of ['en', 'it', 'de', 'fr', 'es', 'zh-CN']) {
+      for (const nodeName of ['knxUltimateMatterControllerDevice', 'knxUltimateMatterBridge']) {
+        const helpPath = path.join(__dirname, '..', 'nodes', 'locales', locale, `${nodeName}.html`)
+        const help = fs.readFileSync(helpPath, 'utf8')
+        expect(help, `${locale}/${nodeName} contains a duplicate H1`).not.to.match(/^#\s/m)
+      }
     }
   })
 })

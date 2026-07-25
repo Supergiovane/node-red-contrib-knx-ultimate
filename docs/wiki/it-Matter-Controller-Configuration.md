@@ -24,9 +24,9 @@ Preferisci il payload QR (`MT:...`): contiene il discriminatore completo. Il cod
 
 ## Modalità Universale
 
-Nel nodo **Control Matter from KNX**, scegli **Modalità Universale**, prima voce dell'elenco, per osservare e controllare tutti i dispositivi abbinati con un unico nodo flow. Ha sempre un input e un output, non richiede un gateway KNX e non usa le mappature KNX del singolo endpoint.
+Nel nodo **Control Matter from KNX**, scegli **Modalità Universale** per osservare tutti i dispositivi con un unico nodo flow. Ha sempre un input e un output e non usa le mappature del singolo endpoint. Il gateway KNX è opzionale e serve solo alle GA allarme/testo del Monitor batterie.
 
-L'output contiene il valore raw in `msg.payload`; `msg.matter` identifica `source`, `nodeId`, `endpointId`, `clusterId` e l'attributo/evento. La batteria usa cluster `47`, attributo `batPercentRemaining`, nell'unità Matter a mezzi punti percentuali; conversione: `msg.payload = Number(msg.payload) / 2`.
+Il **Monitor batterie universale** scansiona tutti i nodi e gli endpoint commissionati cercando Power Source, emette uno snapshot iniziale e conserva lo stato normalizzato completo. Può emettere solo batterie sotto soglia oppure ogni aggiornamento. L'output include percentuale, valore raw, livello di carica, sostituzione, sostituibilità, tensione e identità del device; i metadati Matter raw sono in `msg.matter`. Invia `{payload:{action:"getAllBatteries"}}` per ottenere l'inventario in cache.
 
 Gli input dinamici richiedono `nodeId`, `endpointId`, `clusterId` e `command` oppure `attribute` (a livello principale o sotto `msg.matter`):
 
@@ -43,3 +43,5 @@ Usa **Esporta** per scaricare un backup completo di questa istanza controller. I
 ## Rimuovere un dispositivo
 
 Usa il pulsante cestino nella lista dei dispositivi associati. Il controller prova a decommissionare correttamente il dispositivo; se non è raggiungibile, viene comunque rimosso dalla fabric (potrebbe poi servire un reset di fabbrica del dispositivo).
+
+Nel Monitor batterie universale, le uscite KNX opzionali pubblicano l'allarme complessivo come DPT 1.005 e ciclano ogni 2 secondi i nomi dei device scarichi come testo DPT 16.001 da 14 byte.

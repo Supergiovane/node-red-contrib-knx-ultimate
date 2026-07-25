@@ -24,9 +24,9 @@ Prefiere el payload QR (`MT:...`): contiene el discriminador completo. El códig
 
 ## Modo universal
 
-En **Control Matter from KNX**, elige **Modo universal**, la primera entrada, para observar y controlar todos los dispositivos emparejados con un nodo flow. Siempre tiene una entrada y una salida, no requiere gateway KNX y no usa mapeos KNX de endpoint.
+En **Control Matter from KNX**, elige **Modo universal** para supervisar todos los dispositivos. El gateway KNX es opcional y solo se utiliza para las GA de alarma/texto del monitor.
 
-La salida pone el valor raw en `msg.payload`; `msg.matter` incluye `source`, `nodeId`, `endpointId`, `clusterId` y el atributo/evento. Batería: clúster `47`, atributo `batPercentRemaining`, unidades Matter de medio porcentaje; conversión: `msg.payload = Number(msg.payload) / 2`.
+El **Monitor universal de baterías** analiza todos los nodos y endpoints emparejados buscando Power Source, emite una instantánea inicial y conserva el estado normalizado completo. Puede emitir solo baterías bajo el umbral o cada actualización. `{payload:{action:"getAllBatteries"}}` devuelve el inventario en caché; los metadatos Matter raw están en `msg.matter`.
 
 Las entradas requieren `nodeId`, `endpointId`, `clusterId` y `command` o `attribute` (directamente o bajo `msg.matter`):
 
@@ -43,3 +43,5 @@ Usa **Exportar** para descargar una copia completa de esta instancia del control
 ## Eliminar un dispositivo
 
 Usa el botón de la papelera en la lista de dispositivos emparejados. El controlador intenta retirar el dispositivo correctamente; si no está accesible, se elimina igualmente de la fabric (puede ser necesario un reset de fábrica del dispositivo).
+
+En el monitor universal, las salidas KNX opcionales publican la alarma global como DPT 1.005 y alternan cada 2 segundos los dispositivos como texto DPT 16.001 de 14 bytes.

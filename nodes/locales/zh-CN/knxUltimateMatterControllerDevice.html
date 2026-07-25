@@ -1,6 +1,4 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
-# 从 KNX 控制 Matter (BETA)
-
 > 此节点为 **BETA**：Matter 实现继续完善时，行为可能会变化。
 
 此节点用于从 KNX 控制已经配对的 Matter endpoint。选择 Matter 设备后，编辑器会检测它的能力，并只显示与该 endpoint 匹配的 KNX 映射。
@@ -25,7 +23,9 @@
 
 ## 通用模式
 
-选择设备列表第一项 **通用模式**，即可接收此 Matter 控制器中所有设备的属性报告、集群事件和初始化通知。该节点始终有一个输入和一个输出，不需要 KNX 网关，也不使用单个 endpoint 的 KNX 映射。
+选择 **通用模式** 可监视所有设备。该节点始终有一个输入和一个输出，不使用单个 endpoint 映射。KNX 网关为可选，仅用于电池监视器的报警/文本组地址。
+
+**通用电池监视器** 会缓存完整电池状态。可选 KNX 组地址以 DPT 1.005 输出总报警，并以 DPT 16.001 每 2 秒轮播低电量设备名称。发送 `{payload:{action:"getAllBatteries"}}` 可获取缓存清单。
 
 输出将原始值放在 `msg.payload`，并在 `msg.matter` 中提供路由信息（`source`、`nodeId`、`endpointId`、`clusterId`、属性/事件名称）。输入使用 `msg.nodeId`、`msg.endpointId`、`msg.clusterId`，以及带 `msg.args` 的 `msg.command` 或 `msg.attribute`；添加 `msg.value` 表示写入，省略则读取。这些字段也可放在 `msg.matter` 下。
 

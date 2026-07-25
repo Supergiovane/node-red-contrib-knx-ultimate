@@ -24,9 +24,9 @@ Prefer the QR payload (`MT:...`): it contains the full discriminator. A manual c
 
 ## Universal Mode
 
-In **Control Matter from KNX**, choose **Universal Mode**, the first device entry, to observe and control every commissioned device through one flow node. It always exposes one input and one output, needs no KNX gateway, and does not use endpoint KNX mappings.
+In **Control Matter from KNX**, choose **Universal Mode** to observe every commissioned device through one flow node. It always exposes one input and one output and does not use endpoint mappings. A KNX gateway is optional and is used only by the Battery Monitor alarm/text GAs.
 
-Outputs place the raw value in `msg.payload`; `msg.matter` identifies `source`, `nodeId`, `endpointId`, `clusterId`, and the attribute/event. Battery reports use cluster `47`, attribute `batPercentRemaining`, in raw Matter half-percent units; convert with `msg.payload = Number(msg.payload) / 2`.
+The **Universal Battery Monitor** scans all commissioned nodes and endpoints for Power Source clusters, emits an initial snapshot and caches complete normalized battery state. It can emit only batteries below a percentage threshold or every update. Output includes percent, raw percent, charge level, replacement state, replaceability, voltage and device identity; raw Matter metadata is in `msg.matter`. Send `{payload:{action:"getAllBatteries"}}` to retrieve the cached inventory.
 
 Dynamic inputs require `nodeId`, `endpointId`, `clusterId`, plus `command` or `attribute` (top-level or under `msg.matter`):
 
@@ -43,3 +43,5 @@ Use **Export** to download a complete backup of this controller instance. It inc
 ## Removing a device
 
 Use the trash button in the commissioned devices list. The controller tries to decommission the device properly; if it is unreachable, it is removed from the fabric anyway (a factory reset of the device may then be needed).
+
+In Universal Battery Monitor mode, optional KNX outputs publish the aggregate alarm as DPT 1.005 and cycle low-battery device names every 2 seconds as 14-byte DPT 16.001 text.

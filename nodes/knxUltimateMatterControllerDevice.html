@@ -14,6 +14,16 @@
         //buttonState: {value: true},
         server: { type: "knxUltimate-config", required: false },
         serverMatter: { type: "matter-config", required: true },
+        matterControllerMode: { value: "single" },
+        universalService: { value: "batteryMonitor" },
+        universalBatteryThreshold: { value: 20, validate: RED.validators.number() },
+        universalLowBatteryGA: { value: "" },
+        universalLowBatteryGAName: { value: "" },
+        universalLowBatteryTextGA: { value: "" },
+        universalLowBatteryTextGAName: { value: "" },
+        universalBatteryOnlyLow: { value: true },
+        universalEmitInitialState: { value: true },
+        universalIncludeRawEvent: { value: true },
         matterNodeId: { value: "" },
         matterEndpointId: { value: 1 },
         matterDeviceName: { value: "" },
@@ -221,6 +231,8 @@
           const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
           // Historical variable names are retained for saved-flow compatibility; they point to Matter widgets.
           const $hueServerInput = $("#node-input-serverMatter");
+          const $matterControllerModeInput = $("#node-input-matterControllerMode");
+          const $universalServiceInput = $("#node-input-universalService");
           const $hueDeviceInput = $("#node-input-matterNodeId");
           const $deviceNameInput = $("#node-input-matterDeviceName");
           const $matterEndpointInput = $("#node-input-matterEndpointId");
@@ -230,7 +242,8 @@
           const $locateDeviceButton = $(".hue-locate-device");
           const $hueDevicesLoading = $(".hue-devices-loading");
           const UNIVERSAL_NODE_ID = '__UNIVERSAL__';
-          const isUniversalMode = () => String($hueDeviceInput.val() || '') === UNIVERSAL_NODE_ID;
+          const isUniversalMode = () => $matterControllerModeInput.val() === 'universal';
+          $matterControllerModeInput.val(node.matterControllerMode || 'single');
           let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
           node._cachedHueLightDevices = cachedHueDevices;
           const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
@@ -602,53 +615,74 @@
             }
             const hasColorTemperatureType = /colortemperature|extendedcolor/.test(typeText);
             const hasColorType = /extendedcolor/.test(typeText);
+            const isTunableWhiteOnly = hasColorTemperatureType && !hasColorType;
             const hasLevelType = /dimmable|colortemperature|extendedcolor/.test(typeText);
+            const colorFeatureMapAttribute = (colorCluster?.attributes || []).find((attribute) => normalizeMatterToken(attribute.name) === 'featuremap');
+            const colorFeatureMap = Number(colorFeatureMapAttribute?.value);
+            const hasColorFeatureMap = Number.isFinite(colorFeatureMap);
             const hasColorTemperature = !!colorCluster && (
-              hasColorTemperatureType ||
-              hasMatterAttribute(colorCluster, ['colorTemperatureMireds', 'colorTempPhysicalMinMireds', 'colorTempPhysicalMaxMireds']) ||
-              hasMatterCommand(colorCluster, ['moveToColorTemperature'])
+              hasColorFeatureMap
+                ? (colorFeatureMap & 0x10) !== 0
+                : (
+                    hasColorTemperatureType ||
+                    hasMatterAttribute(colorCluster, ['colorTemperatureMireds', 'colorTempPhysicalMinMireds', 'colorTempPhysicalMaxMireds']) ||
+                    hasMatterCommand(colorCluster, ['moveToColorTemperature'])
+                  )
             );
             const hasColor = !!colorCluster && (
-              hasColorType ||
-              hasMatterCommand(colorCluster, ['moveToColor', 'moveToHue', 'moveToSaturation', 'moveToHueAndSaturation'])
+              !isTunableWhiteOnly && (
+                hasColorFeatureMap
+                  ? (colorFeatureMap & 0x09) !== 0
+                  : (
+                      hasColorType ||
+                      hasMatterCommand(colorCluster, ['moveToColor', 'moveToHue', 'moveToSaturation', 'moveToHueAndSaturation'])
+                    )
+              )
             );
             return {
               known: true,
               deviceTypeDisplay,
-              colorDetectionVersion: 2,
+              matterLightType: isTunableWhiteOnly ? 'colorTemperature' : (hasColorType ? 'extendedColor' : 'other'),
+              colorDetectionVersion: 3,
               onOff: !!onOffCluster || /onoff|dimmable|colortemperature|extendedcolor/.test(typeText),
               level: !!levelCluster || hasLevelType,
               colorTemperature: hasColorTemperature,
               color: hasColor
             };
           };
+          const normalizeMatterCapabilities = (capabilities) => {
+            if (!capabilities || typeof capabilities !== 'object') return capabilities;
+            const normalized = Object.assign({}, capabilities);
+            const displayType = normalizeMatterToken(normalized.deviceTypeDisplay);
+            const tunableWhiteOnly = normalized.matterLightType === 'colorTemperature' ||
+              displayType === 'tunablewhite' ||
+              displayType === 'colortemperaturelight';
+            if (tunableWhiteOnly) {
+              normalized.colorTemperature = true;
+              normalized.color = false;
+              normalized.colorDetectionVersion = 3;
+            } else if (normalized.known === true && normalized.color === true &&
+              normalized.colorDetectionVersion !== 2 && normalized.colorDetectionVersion !== 3) {
+              normalized.color = false;
+            }
+            return normalized;
+          };
           const parseMatterCapabilities = (raw) => {
             if (raw && typeof raw === 'object') {
-              if (raw.known === true && raw.color === true && raw.colorDetectionVersion !== 2) raw.color = false;
-              return raw;
+              return normalizeMatterCapabilities(raw);
             }
             if (typeof raw !== 'string' || raw.trim() === '') return null;
             try {
-              const parsed = JSON.parse(raw);
-              if (parsed && parsed.known === true && parsed.color === true && parsed.colorDetectionVersion !== 2) {
-                parsed.color = false;
-              }
-              return parsed;
+              return normalizeMatterCapabilities(JSON.parse(raw));
             } catch (error) {
               return null;
             }
           };
           const serializeMatterCapabilities = (capabilities) => JSON.stringify(capabilities || {});
-          const universalMatterItem = () => ({
-            value: node._('knxUltimateMatterControllerDevice.universal_mode') || 'Universal Mode',
-            matterNodeId: UNIVERSAL_NODE_ID,
-            matterEndpointId: '',
-            matterCapabilities: {
-              known: true,
-              profile: 'universal',
-              deviceTypeDisplay: node._('knxUltimateMatterControllerDevice.universal_mode') || 'Universal Mode'
-            },
-            universal: true
+          const universalMatterCapabilities = () => ({
+            known: true,
+            profile: 'universal',
+            deviceTypeDisplay: node._('knxUltimateMatterControllerDevice.universal_mode') || 'Universal Mode'
           });
           const getJSONPromise = (url) => new Promise((resolve, reject) => { $.getJSON(url, resolve).fail(reject); });
 
@@ -689,7 +723,7 @@
                 ));
               })
               .then((results) => {
-                const items = [universalMatterItem()];
+                const items = [];
                 results.forEach((entry) => {
                   const device = entry.device;
                   // Multi-purpose controller: list every functional endpoint. Capability
@@ -727,10 +761,10 @@
                 if (typeof respond === 'function') respond(filterHueDevices(items, term));
               })
               .catch(() => {
-                cachedHueDevices = [universalMatterItem()];
+                cachedHueDevices = [];
                 node._cachedHueLightDevices = cachedHueDevices;
-                applyHueDevicesPlaceholder(true);
-                if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
+                applyHueDevicesPlaceholder(false);
+                if (typeof respond === 'function') respond([]);
               })
               .then(() => {
                 if ($hueDevicesLoading.length) {
@@ -762,13 +796,22 @@
 
 
           const $tabs = $("#tabs");
+          const $universalTabs = $("#matter-universal-tabs");
           const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
           const $pinSelect = $("#node-input-enableNodePINS");
           let currentMatterCapabilities = parseMatterCapabilities($matterCapabilitiesInput.val() || node.matterDeviceCapabilities);
+          if (currentMatterCapabilities) {
+            $matterCapabilitiesInput.val(serializeMatterCapabilities(currentMatterCapabilities));
+            node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
+          }
           $tabs.addClass('hue-vertical-tabs');
           $tabs.tabs(); // Tabs gestione KNX
           $tabs.find('ul').addClass('ui-tabs-nav');
           $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+          $universalTabs.addClass('hue-vertical-tabs');
+          $universalTabs.tabs();
+          $universalTabs.find('ul').addClass('ui-tabs-nav');
+          $universalTabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
 
           function getDPT(_dpt, _destinationWidget) {
             // DPT Switch command
@@ -855,7 +898,49 @@
             } catch (e) { }
           }
 
+          function getFixedDptGroupAddress(_sourceWidgetAutocomplete, _destinationWidgetName, _dptPrefix) {
+            const $source = $(_sourceWidgetAutocomplete);
+            if ($source.data('ui-autocomplete')) {
+              try { $source.autocomplete('destroy'); } catch (error) { /* empty */ }
+            }
+            $source.autocomplete({
+              minLength: 0,
+              source: function (request, response) {
+                if (!hasKnxServerSelected()) {
+                  response([]);
+                  return;
+                }
+                const serverId = resolveKnxServerValue();
+                $.getJSON(`knxUltimatecsv?nodeID=${serverId}&_=${Date.now()}`, (data) => {
+                  response($.map(data, function (value) {
+                    const searchable = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
+                    if (!htmlUtilsfullCSVSearch(searchable, `${request.term || ''} ${_dptPrefix}`)) return null;
+                    return {
+                      label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                      value: value.ga,
+                      deviceName: value.devicename
+                    };
+                  }));
+                });
+              },
+              select: function (event, ui) {
+                $(_destinationWidgetName).val(ui.item.deviceName || '');
+              }
+            }).focus(function () {
+              $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+            });
+            try {
+              if (hasKnxServerSelected()) {
+                const srv = RED.nodes.node(resolveKnxServerValue());
+                if (srv && srv.id) KNX_enableSecureFormatting($source, srv.id);
+              }
+            } catch (error) { /* empty */ }
+          }
+
           const refreshKnxBindings = () => {
+            getFixedDptGroupAddress("#node-input-universalLowBatteryGA", "#node-input-universalLowBatteryGAName", "1.");
+            getFixedDptGroupAddress("#node-input-universalLowBatteryTextGA", "#node-input-universalLowBatteryTextGAName", "16.");
+
             getDPT("1.", "#node-input-dptLightSwitch");
             getGroupAddress("#node-input-GALightSwitch", "#node-input-nameLightSwitch", "#node-input-dptLightSwitch", ["1."]);
 
@@ -1011,7 +1096,7 @@
           };
 
           const applyMatterCapabilities = (capabilities) => {
-            currentMatterCapabilities = capabilities || null;
+            currentMatterCapabilities = normalizeMatterCapabilities(capabilities) || null;
             const caps = getEffectiveMatterCapabilities();
             const hasHueDevice = getHueDeviceValue() !== '';
             const supportsSwitch = hasHueDevice && caps.onOff !== false;
@@ -1117,7 +1202,47 @@
               $pinSectionRow.show();
             }
           };
+
+          const refreshUniversalServiceVisibility = () => {
+            const universal = $matterControllerModeInput.val() === 'universal';
+            $('#matter-universal-options').toggle(universal);
+            $universalTabs.toggle(universal && $universalServiceInput.val() === 'batteryMonitor');
+            if ($universalTabs.is(':visible')) {
+              try { $universalTabs.tabs('refresh'); } catch (error) { /* empty */ }
+            }
+          };
+
+          const applyControllerMode = () => {
+            const universal = $matterControllerModeInput.val() === 'universal';
+            $('#matter-device-section-title, #matter-device-row').toggle(!universal);
+            if (universal) {
+              const universalName = node._('knxUltimateMatterControllerDevice.universal_mode') || 'Universal Mode';
+              currentMatterCapabilities = universalMatterCapabilities();
+              selectedMatterDeviceName = universalName;
+              $deviceNameInput.val(universalName);
+              $hueDeviceInput.val(UNIVERSAL_NODE_ID);
+              $matterEndpointInput.val('');
+              $matterCapabilitiesInput.val(serializeMatterCapabilities(currentMatterCapabilities));
+              $nodeNameInput.val(node._('knxUltimateMatterControllerDevice.universal_controller_name') || 'Matter Universal Controller');
+              $pinSelect.val('yes');
+            } else if (String($hueDeviceInput.val() || '') === UNIVERSAL_NODE_ID) {
+              currentMatterCapabilities = null;
+              selectedMatterDeviceName = '';
+              $deviceNameInput.val('');
+              $hueDeviceInput.val('');
+              $matterEndpointInput.val('');
+              $matterCapabilitiesInput.val('');
+            }
+            refreshUniversalServiceVisibility();
+            applyMatterCapabilities(currentMatterCapabilities);
+            updateTabsVisibility();
+          };
+
           updateTabsVisibility();
+          applyControllerMode();
+
+          $matterControllerModeInput.on('change.knxUltimateMatterControllerDevice', applyControllerMode);
+          $universalServiceInput.on('change.knxUltimateMatterControllerDevice', refreshUniversalServiceVisibility);
 
           $knxServerInput.on('change.knxUltimateMatterControllerDevice', () => {
             refreshKnxBindings();
@@ -1158,11 +1283,6 @@
                 currentMatterCapabilities = ui.item.matterCapabilities || null;
                 $matterCapabilitiesInput.val(currentMatterCapabilities ? serializeMatterCapabilities(currentMatterCapabilities) : '');
                 node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
-                if (ui.item.universal === true) {
-                  $nodeNameInput.val(node._('knxUltimateMatterControllerDevice.universal_controller_name') || 'Matter Universal Controller');
-                  node.name = $nodeNameInput.val();
-                  $pinSelect.val('yes');
-                }
                 applyMatterCapabilities(currentMatterCapabilities);
                 updateTabsVisibility();
                 setTimeout(() => {
@@ -1446,7 +1566,8 @@
         } catch (error) { }
 
         //RED.sidebar.removeTab("tabNRColor");
-        const universalMode = ($("#node-input-matterNodeId").val() || '').trim() === '__UNIVERSAL__';
+        const universalMode = $("#node-input-matterControllerMode").val() === 'universal';
+        this.matterControllerMode = universalMode ? 'universal' : 'single';
         if (universalMode || $("#node-input-enableNodePINS").val() === "yes") {
           this.outputs = 1;
           this.inputs = 1;
@@ -1664,10 +1785,6 @@
         target="_blank" href="https://youtu.be/jjEUI1J8bkA"><u><span data-i18n="common.youtube_sample"></span></u></a>
       <br />
       <br />
-      <p align="center">
-        <i class="fa-regular fa-lightbulb fa-bounce fa-2x"></i>
-      </p>
-      <br />
       <label for="node-input-server">
         <img
           src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC"></img>
@@ -1684,25 +1801,116 @@
       <input type="text" id="node-input-serverMatter" />
     </div>
 
-    <div id="matter-universal-description" class="form-tips" style="display:none; margin:8px 0;"
-      data-i18n="knxUltimateMatterControllerDevice.universal_mode_description"></div>
-
     <div class="form-row">
-      <label for="node-input-enableNodePINS" style="width:260px;">
-        <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.node_pins"></span>
+      <label for="node-input-matterControllerMode">
+        <i class="fa fa-list"></i>
+        <span data-i18n="knxUltimateMatterControllerDevice.controller_mode"></span>
       </label>
-      <select id="node-input-enableNodePINS">
-        <option value="no" data-i18n="knxUltimateMatterControllerDevice.node_pins_hide"></option>
-        <option value="yes" data-i18n="knxUltimateMatterControllerDevice.node_pins_show"></option>
+      <select id="node-input-matterControllerMode">
+        <option value="single" data-i18n="knxUltimateMatterControllerDevice.single_mode"></option>
+        <option value="universal" data-i18n="knxUltimateMatterControllerDevice.universal_mode"></option>
       </select>
     </div>
 
+    <div id="matter-universal-description" class="form-tips" style="display:none; margin:8px 0;"
+      data-i18n="knxUltimateMatterControllerDevice.universal_mode_description"></div>
+
+    <div id="matter-universal-options" style="display:none;">
+      <div class="form-row">
+        <label for="node-input-universalService">
+          <i class="fa fa-bell"></i>
+          <span data-i18n="knxUltimateMatterControllerDevice.universal_service"></span>
+        </label>
+        <select id="node-input-universalService">
+          <option value="batteryMonitor" data-i18n="knxUltimateMatterControllerDevice.universal_service_battery_monitor"></option>
+          <option value="allEvents" data-i18n="knxUltimateMatterControllerDevice.universal_service_all_events"></option>
+        </select>
+      </div>
+      <div id="matter-universal-tabs" style="display:none; width:900px;">
+        <ul>
+          <li>
+            <a href="#matter-universal-battery-options">
+              <i class="fa fa-battery-quarter"></i>
+              <span data-i18n="knxUltimateMatterControllerDevice.universal_service_battery_monitor"></span>
+            </a>
+          </li>
+        </ul>
+        <div id="matter-universal-battery-options">
+        <div class="form-row">
+          <label for="node-input-universalBatteryThreshold">
+            <i class="fa fa-battery-quarter"></i>
+            <span data-i18n="knxUltimateMatterControllerDevice.universal_battery_threshold"></span>
+          </label>
+          <input type="number" id="node-input-universalBatteryThreshold" min="0" max="100" step="1" style="width:100px;" />
+          <span style="margin-left:5px;">%</span>
+        </div>
+        <div class="form-row" style="display:flex; align-items:center; flex-wrap:nowrap; gap:5px;">
+          <label for="node-input-universalLowBatteryGA" style="width:155px; flex:0 0 155px; margin:0;">
+            <i class="fa fa-bell"></i>
+            <span data-i18n="knxUltimateMatterControllerDevice.universal_low_battery_ga"></span>
+          </label>
+
+          <label for="node-input-universalLowBatteryGA" style="width:25px; flex:0 0 25px; margin:0;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-universalLowBatteryGA" placeholder="Ex: 1/1/1"
+            style="width:70px; flex:0 0 70px; margin:0; text-align:left;" />
+
+          <label for="node-input-universalLowBatteryDPT" style="width:38px; flex:0 0 38px; margin:0; text-align:right;"><span data-i18n="common.dpt"></span></label>
+          <input type="text" id="node-input-universalLowBatteryDPT" value="1.005" readonly
+            style="width:75px; flex:0 0 75px; margin:0;" />
+
+          <label for="node-input-universalLowBatteryGAName" style="width:45px; flex:0 0 45px; margin:0; text-align:right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-universalLowBatteryGAName"
+            style="width:auto; min-width:90px; flex:1 1 auto; margin:0; text-align:left;" />
+        </div>
+        <div class="form-row" style="display:flex; align-items:center; flex-wrap:nowrap; gap:5px;">
+          <label for="node-input-universalLowBatteryTextGA" style="width:155px; flex:0 0 155px; margin:0;">
+            <i class="fa fa-font"></i>
+            <span data-i18n="knxUltimateMatterControllerDevice.universal_low_battery_text_ga"></span>
+          </label>
+
+          <label for="node-input-universalLowBatteryTextGA" style="width:25px; flex:0 0 25px; margin:0;"><span data-i18n="common.ga"></span></label>
+          <input type="text" id="node-input-universalLowBatteryTextGA" placeholder="Ex: 1/1/1"
+            style="width:70px; flex:0 0 70px; margin:0; text-align:left;" />
+
+          <label for="node-input-universalLowBatteryTextDPT" style="width:38px; flex:0 0 38px; margin:0; text-align:right;"><span data-i18n="common.dpt"></span></label>
+          <input type="text" id="node-input-universalLowBatteryTextDPT" value="16.001" readonly
+            style="width:75px; flex:0 0 75px; margin:0;" />
+
+          <label for="node-input-universalLowBatteryTextGAName" style="width:45px; flex:0 0 45px; margin:0; text-align:right;"><span data-i18n="common.name"></span></label>
+          <input type="text" id="node-input-universalLowBatteryTextGAName"
+            style="width:auto; min-width:90px; flex:1 1 auto; margin:0; text-align:left;" />
+        </div>
+        <div class="form-row">
+          <label for="node-input-universalBatteryOnlyLow" style="width:260px;">
+            <i class="fa fa-filter"></i>
+            <span data-i18n="knxUltimateMatterControllerDevice.universal_battery_only_low"></span>
+          </label>
+          <input type="checkbox" id="node-input-universalBatteryOnlyLow" style="display:inline-block; width:auto;" />
+        </div>
+        <div class="form-row">
+          <label for="node-input-universalEmitInitialState" style="width:260px;">
+            <i class="fa fa-camera"></i>
+            <span data-i18n="knxUltimateMatterControllerDevice.universal_emit_initial"></span>
+          </label>
+          <input type="checkbox" id="node-input-universalEmitInitialState" style="display:inline-block; width:auto;" />
+        </div>
+        <div class="form-row">
+          <label for="node-input-universalIncludeRawEvent" style="width:260px;">
+            <i class="fa fa-code"></i>
+            <span data-i18n="knxUltimateMatterControllerDevice.universal_include_raw"></span>
+          </label>
+          <input type="checkbox" id="node-input-universalIncludeRawEvent" style="display:inline-block; width:auto;" />
+        </div>
+        </div>
+      </div>
+    </div>
+
     <br />
-    <p>
+    <p id="matter-device-section-title">
       <b><span data-i18n="knxUltimateMatterControllerDevice.matter_section"></span></b>
     </p>
 
-    <div class="form-row">
+    <div class="form-row" id="matter-device-row">
       <label for="node-input-matterDeviceName">
         <i class="fa fa-play-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.matter_device"></span>
       </label>
@@ -2174,6 +2382,16 @@
         </p>
       </div>
     </div>
+
+    <div class="form-row" style="margin-top:12px;">
+      <label for="node-input-enableNodePINS" style="width:260px;">
+        <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.node_pins"></span>
+      </label>
+      <select id="node-input-enableNodePINS">
+        <option value="no" data-i18n="knxUltimateMatterControllerDevice.node_pins_hide"></option>
+        <option value="yes" data-i18n="knxUltimateMatterControllerDevice.node_pins_show"></option>
+      </select>
+    </div>
   </div>
 
   <br/>
@@ -2198,11 +2416,17 @@ optional flow output; simpler endpoints continue through the generic mapped fall
 
 **Universal Mode**
 
-Select **Universal Mode** as the first Matter device to listen to every attribute report,
+Select **Universal Mode** in the **Mode** selector to listen to every attribute report,
 cluster event and device initialization from this controller. It always exposes one input
 and one output, does not require a KNX gateway, and does not use endpoint KNX mappings.
 Output values are in `msg.payload`; routing metadata is in `msg.matter`, including
 `source`, `nodeId`, `endpointId`, `clusterId` and the attribute/event name.
+The **Universal Battery Monitor** scans every node and endpoint for Power Source,
+emits an initial snapshot, and maintains complete battery state. It can emit only
+batteries below the configured threshold or every battery update. `msg.payload`
+contains normalized percent, charge level, replacement state, replaceability and
+voltage; raw Matter metadata remains in `msg.matter`. Send
+`{payload:{action:"getAllBatteries"}}` to retrieve the cached inventory.
 
 Use `msg.nodeId`, `msg.endpointId`, `msg.clusterId` and either `msg.command` plus
 `msg.args`, or `msg.attribute`. Add `msg.value` for an attribute write; omit it for a

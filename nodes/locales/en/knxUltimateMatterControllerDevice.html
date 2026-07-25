@@ -1,6 +1,4 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
-# Control Matter from KNX (BETA)
-
 > This node is in **BETA**: behaviour can change while the Matter implementation is refined.
 
 This node controls a commissioned Matter endpoint from KNX. Select the Matter device and the editor detects its capabilities, then shows only the KNX mappings that make sense for that endpoint.
@@ -25,7 +23,9 @@ It replaces the unpublished per-device Matter controller nodes and keeps the ful
 
 ## Universal Mode
 
-Select **Universal Mode** as the first device entry to receive every attribute report, cluster event and device initialization from this Matter controller. It always has one input and one output, needs no KNX gateway, and does not use endpoint KNX mappings.
+Select **Universal Mode** in the **Mode** selector to receive every attribute report, cluster event and device initialization from this Matter controller. It always has one input and one output and does not use endpoint mappings. A KNX gateway is optional and is used only by the Battery Monitor alarm/text GAs.
+
+The **Universal Battery Monitor** scans all endpoints for Power Source, emits an initial snapshot, and caches complete normalized battery state. The optional KNX GAs publish an aggregate alarm as DPT 1.005 and cycle low-battery device names every 2 seconds as DPT 16.001. Send `{payload:{action:"getAllBatteries"}}` to retrieve the cached inventory.
 
 Outputs carry the raw value in `msg.payload` and routing details in `msg.matter` (`source`, `nodeId`, `endpointId`, `clusterId`, attribute/event name). Inputs use `msg.nodeId`, `msg.endpointId`, `msg.clusterId` and either `msg.command` with `msg.args`, or `msg.attribute`; add `msg.value` to write, omit it to read. The selectors may also be nested under `msg.matter`.
 

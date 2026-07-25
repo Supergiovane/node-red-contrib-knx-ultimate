@@ -24,9 +24,9 @@ Bevorzuge den QR-Payload (`MT:...`): Er enthält den vollständigen Diskriminato
 
 ## Universeller Modus
 
-Wähle in **Control Matter from KNX** den ersten Eintrag **Universeller Modus**, um alle gekoppelten Geräte mit einem Flow-Node zu überwachen und zu steuern. Er hat immer einen Eingang und einen Ausgang, benötigt kein KNX-Gateway und verwendet keine Endpunkt-KNX-Zuordnungen.
+Wähle in **Control Matter from KNX** den **Universellen Modus**, um alle Geräte zu überwachen. Ein KNX-Gateway ist optional und wird nur für die Alarm-/Text-GAs des Batteriemonitors benötigt.
 
-Ausgaben liefern den Rohwert in `msg.payload`; `msg.matter` enthält `source`, `nodeId`, `endpointId`, `clusterId` und Attribut/Ereignis. Batterie: Cluster `47`, Attribut `batPercentRemaining`, Matter-Halbprozenteinheiten; Umrechnung: `msg.payload = Number(msg.payload) / 2`.
+Der **Universelle Batteriemonitor** durchsucht alle gekoppelten Nodes und Endpunkte nach Power Source, sendet einen anfänglichen Snapshot und speichert den vollständigen normalisierten Batteriestatus. Er kann nur Batterien unter dem Schwellwert oder jede Aktualisierung ausgeben. `{payload:{action:"getAllBatteries"}}` liefert das Cache-Inventar; rohe Matter-Metadaten stehen in `msg.matter`.
 
 Eingaben benötigen `nodeId`, `endpointId`, `clusterId` sowie `command` oder `attribute` (direkt oder unter `msg.matter`):
 
@@ -43,3 +43,5 @@ Mit **Exportieren** wird eine vollständige Sicherung dieser Controller-Instanz 
 ## Ein Gerät entfernen
 
 Nutze den Papierkorb-Button in der Liste der gekoppelten Geräte. Der Controller versucht, das Gerät sauber zu dekommissionieren; ist es nicht erreichbar, wird es trotzdem aus der Fabric entfernt (danach kann ein Werksreset des Geräts nötig sein).
+
+Im universellen Batteriemonitor senden optionale KNX-Ausgänge den Sammelalarm als DPT 1.005 und wechseln alle 2 Sekunden die Gerätenamen als 14-Byte-Text DPT 16.001.

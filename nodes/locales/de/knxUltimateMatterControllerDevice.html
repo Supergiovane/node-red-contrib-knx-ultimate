@@ -1,6 +1,4 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
-# Control Matter from KNX (BETA)
-
 > Dieser Knoten ist **BETA**: das Verhalten kann sich ändern, während die Matter-Implementierung weiter verfeinert wird.
 
 Dieser Knoten steuert einen bereits gekoppelten Matter-Endpunkt über KNX. Wähle das Matter-Gerät aus; der Editor erkennt die Fähigkeiten des Endpunkts und zeigt nur die passenden KNX-Zuordnungen.
@@ -25,7 +23,9 @@ Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behäl
 
 ## Universeller Modus
 
-Wähle **Universeller Modus**, den ersten Geräteeintrag, um alle Attributberichte, Cluster-Ereignisse und Geräteinitialisierungen dieses Matter-Controllers zu empfangen. Der Node hat immer einen Eingang und einen Ausgang, benötigt kein KNX-Gateway und verwendet keine endpunktspezifischen KNX-Zuordnungen.
+Wähle **Universeller Modus**, um alle Geräte zu überwachen. Der Node hat immer einen Eingang und einen Ausgang und verwendet keine Endpunkt-Zuordnungen. Ein KNX-Gateway ist optional und wird nur für die Alarm-/Text-GAs des Batteriemonitors benötigt.
+
+Der **Universelle Batteriemonitor** speichert den vollständigen Batteriestatus. Optionale KNX-GAs senden den Sammelalarm als DPT 1.005 und wechseln alle 2 Sekunden die Gerätenamen als DPT 16.001. `{payload:{action:"getAllBatteries"}}` liefert das Cache-Inventar.
 
 Ausgaben enthalten den Rohwert in `msg.payload` und Routingdaten in `msg.matter` (`source`, `nodeId`, `endpointId`, `clusterId`, Attribut-/Ereignisname). Eingaben verwenden `msg.nodeId`, `msg.endpointId`, `msg.clusterId` und entweder `msg.command` mit `msg.args` oder `msg.attribute`; `msg.value` schreibt, ohne `msg.value` wird gelesen. Die Felder können auch unter `msg.matter` stehen.
 

@@ -24,9 +24,9 @@ Préférez le payload QR (`MT:...`) : il contient le discriminateur complet. Le 
 
 ## Mode universel
 
-Dans **Control Matter from KNX**, choisissez **Mode universel**, première entrée, pour observer et contrôler tous les appareils appairés avec un seul nœud flow. Il possède toujours une entrée et une sortie, ne nécessite pas de passerelle KNX et n'utilise pas les mappages KNX d'un endpoint.
+Dans **Control Matter from KNX**, choisissez **Mode universel** pour surveiller tous les appareils. La passerelle KNX est optionnelle et sert uniquement aux GA alarme/texte du moniteur.
 
-La sortie place la valeur brute dans `msg.payload`; `msg.matter` fournit `source`, `nodeId`, `endpointId`, `clusterId` et l'attribut/événement. Batterie : cluster `47`, attribut `batPercentRemaining`, unité Matter par demi-pourcent ; conversion : `msg.payload = Number(msg.payload) / 2`.
+Le **Moniteur universel de batteries** analyse tous les nœuds et endpoints appairés pour Power Source, émet un instantané initial et conserve l'état normalisé complet. Il peut n'émettre que les batteries sous le seuil ou chaque mise à jour. `{payload:{action:"getAllBatteries"}}` renvoie l'inventaire en cache ; les métadonnées Matter brutes sont dans `msg.matter`.
 
 Les entrées exigent `nodeId`, `endpointId`, `clusterId` et `command` ou `attribute` (directement ou sous `msg.matter`) :
 
@@ -43,3 +43,5 @@ Utilisez **Exporter** pour télécharger une sauvegarde complète de cette insta
 ## Supprimer un appareil
 
 Utilisez le bouton corbeille dans la liste des appareils appairés. Le contrôleur essaie de retirer l'appareil proprement ; s'il est injoignable, il est quand même supprimé de la fabric (une réinitialisation d'usine de l'appareil peut alors être nécessaire).
+
+Dans le moniteur universel, les sorties KNX optionnelles publient l'alarme globale en DPT 1.005 et font défiler les appareils toutes les 2 secondes en texte DPT 16.001 de 14 octets.

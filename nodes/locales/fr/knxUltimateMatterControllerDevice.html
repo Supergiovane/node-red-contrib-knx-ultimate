@@ -1,6 +1,4 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
-# Control Matter from KNX (BETA)
-
 > Ce nœud est en **BETA** : le comportement peut changer pendant l amélioration de l'implémentation Matter.
 
 Ce nœud contrôle depuis KNX un endpoint Matter déjà appairé. Sélectionnez l'appareil Matter et l'éditeur détecte ses capacités, puis affiche uniquement les mappings KNX adaptés à cet endpoint.
@@ -25,7 +23,9 @@ Il remplace les nœuds Matter séparés non publiés et conserve toute l'UI lumi
 
 ## Mode universel
 
-Sélectionnez **Mode universel**, première entrée de la liste, pour recevoir tous les rapports d'attribut, événements de cluster et initialisations des appareils de ce contrôleur Matter. Le nœud possède toujours une entrée et une sortie, ne nécessite pas de passerelle KNX et n'utilise pas les mappages KNX d'un endpoint.
+Sélectionnez **Mode universel** pour surveiller tous les appareils. Le nœud possède toujours une entrée et une sortie et n'utilise pas les mappings d'un endpoint. La passerelle KNX est optionnelle et sert uniquement aux GA alarme/texte du moniteur.
+
+Le **Moniteur universel de batteries** conserve l'état complet. Les GA KNX optionnelles publient l'alarme globale en DPT 1.005 et font défiler les appareils toutes les 2 secondes en DPT 16.001. `{payload:{action:"getAllBatteries"}}` renvoie l'inventaire.
 
 La sortie place la valeur brute dans `msg.payload` et le routage dans `msg.matter` (`source`, `nodeId`, `endpointId`, `clusterId`, nom d'attribut/événement). L'entrée utilise `msg.nodeId`, `msg.endpointId`, `msg.clusterId` et soit `msg.command` avec `msg.args`, soit `msg.attribute`; ajoutez `msg.value` pour écrire, omettez-le pour lire. Ces champs peuvent aussi être placés sous `msg.matter`.
 

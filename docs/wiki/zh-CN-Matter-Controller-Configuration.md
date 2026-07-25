@@ -24,9 +24,9 @@ permalink: /wiki/zh-CN-Matter-Controller-Configuration
 
 ## 通用模式
 
-在 **Control Matter from KNX** 中选择第一项 **通用模式**，可用一个 flow 节点监听和控制所有已配对设备。它始终具有一个输入和一个输出，不需要 KNX 网关，也不使用 endpoint KNX 映射。
+在 **Control Matter from KNX** 中选择 **通用模式** 可监视所有设备。KNX 网关为可选，仅用于电池监视器的报警/文本组地址。
 
-输出将原始值放在 `msg.payload`；`msg.matter` 包含 `source`、`nodeId`、`endpointId`、`clusterId` 和属性/事件。电池使用集群 `47`、属性 `batPercentRemaining`，单位为 Matter 半百分比；转换：`msg.payload = Number(msg.payload) / 2`。
+**通用电池监视器** 会扫描所有已配对 node 和 endpoint 的 Power Source，输出初始快照并缓存完整的标准化电池状态。它可仅输出低于阈值的电池或每次更新。发送 `{payload:{action:"getAllBatteries"}}` 可获取缓存清单；原始 Matter 元数据位于 `msg.matter`。
 
 输入需要 `nodeId`、`endpointId`、`clusterId`，以及 `command` 或 `attribute`（顶层或 `msg.matter` 下）：
 
@@ -43,3 +43,5 @@ Fabric 凭据和已配对设备保存在 Node-RED 用户目录下的 `knxultimat
 ## 移除设备
 
 使用已配对设备列表中的垃圾桶按钮。控制器会尝试正确地解除设备调试；如果设备无法访问，仍会从 fabric 中移除（之后可能需要对设备进行恢复出厂设置）。
+
+在通用电池监视器中，可选 KNX 输出以 DPT 1.005 发布总报警，并以 14 字节 DPT 16.001 文本每 2 秒轮播低电量设备名称。
