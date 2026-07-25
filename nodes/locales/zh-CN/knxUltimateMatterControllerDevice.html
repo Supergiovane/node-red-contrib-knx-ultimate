@@ -23,6 +23,14 @@
 | Update local state from KNX write | 当配置的 KNX GA 收到写入 telegram 时，更新本地 Matter/KNX 缓存。 |
 | Node Input/Output PINs | 显示 Node-RED 输入/输出端口。输入接受布尔 payload，以及 `msg.payload` 或 `msg.on.on` 中的 Matter 风格消息；输出发送状态更新。重新打开编辑器时会保留此选择。 |
 
+## 通用模式
+
+选择设备列表第一项 **通用模式**，即可接收此 Matter 控制器中所有设备的属性报告、集群事件和初始化通知。该节点始终有一个输入和一个输出，不需要 KNX 网关，也不使用单个 endpoint 的 KNX 映射。
+
+输出将原始值放在 `msg.payload`，并在 `msg.matter` 中提供路由信息（`source`、`nodeId`、`endpointId`、`clusterId`、属性/事件名称）。输入使用 `msg.nodeId`、`msg.endpointId`、`msg.clusterId`，以及带 `msg.args` 的 `msg.command` 或 `msg.attribute`；添加 `msg.value` 表示写入，省略则读取。这些字段也可放在 `msg.matter` 下。
+
+示例：`{nodeId:"100",endpointId:1,clusterId:6,command:"on",args:{}}` 执行开启；`{nodeId:"100",endpointId:1,clusterId:47,attribute:"batPercentRemaining"}` 读取电池。电池值保留 Matter 原始的半百分比单位，需要百分比时可在 Function 节点中除以二。
+
 ## 行为
 
 节点根据 Matter 更新和 KNX 写入维护本地缓存，用该缓存响应 KNX 读取请求，并可在启动时读取/发送值。节点只监听已配置的组地址，因此会忽略无关的 KNX 流量。

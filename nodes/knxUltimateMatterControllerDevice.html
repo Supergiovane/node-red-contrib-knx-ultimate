@@ -229,6 +229,8 @@
           const $refreshDevicesButton = $(".hue-refresh-devices");
           const $locateDeviceButton = $(".hue-locate-device");
           const $hueDevicesLoading = $(".hue-devices-loading");
+          const UNIVERSAL_NODE_ID = '__UNIVERSAL__';
+          const isUniversalMode = () => String($hueDeviceInput.val() || '') === UNIVERSAL_NODE_ID;
           let cachedHueDevices = Array.isArray(node._cachedHueLightDevices) ? node._cachedHueLightDevices : [];
           node._cachedHueLightDevices = cachedHueDevices;
           const defaultHueDevicePlaceholder = $deviceNameInput.attr('placeholder') || '';
@@ -289,7 +291,10 @@
             const title = locateSessionActive
               ? (node._('knxUltimateMatterControllerDevice.locate_stop_title') || 'Stop Matter locate')
               : (node._('knxUltimateMatterControllerDevice.locate_start_title') || 'Locate selected Matter device');
-            $locateDeviceButton.attr('title', title);
+            $locateDeviceButton.attr('title', isUniversalMode()
+              ? (node._('knxUltimateMatterControllerDevice.universal_mode_locate_disabled') || 'Locate is unavailable in Universal Mode.')
+              : title);
+            $locateDeviceButton.prop('disabled', isUniversalMode());
           };
 
           const removeNodeRemovalListener = () => {
@@ -340,6 +345,10 @@
           };
 
           const performLocateRequest = ({ silent = false, allowStoredContext = false, action } = {}) => {
+            if (isUniversalMode()) {
+              if (!silent) RED.notify(node._('knxUltimateMatterControllerDevice.universal_mode_locate_disabled') || 'Locate is unavailable in Universal Mode.', 'warning');
+              return null;
+            }
             const context = buildLocateContext({ allowStored: allowStoredContext });
             if (!context) {
               if (!silent) {
@@ -419,7 +428,7 @@
             }).always(() => {
               locatePendingRequest = null;
               if ($locateDeviceButton.length) {
-                $locateDeviceButton.prop('disabled', false);
+                $locateDeviceButton.prop('disabled', isUniversalMode());
               }
             });
             return request;
@@ -630,6 +639,17 @@
             }
           };
           const serializeMatterCapabilities = (capabilities) => JSON.stringify(capabilities || {});
+          const universalMatterItem = () => ({
+            value: node._('knxUltimateMatterControllerDevice.universal_mode') || 'Universal Mode',
+            matterNodeId: UNIVERSAL_NODE_ID,
+            matterEndpointId: '',
+            matterCapabilities: {
+              known: true,
+              profile: 'universal',
+              deviceTypeDisplay: node._('knxUltimateMatterControllerDevice.universal_mode') || 'Universal Mode'
+            },
+            universal: true
+          });
           const getJSONPromise = (url) => new Promise((resolve, reject) => { $.getJSON(url, resolve).fail(reject); });
 
           // Filters Matter items shaped as { value, matterNodeId, matterEndpointId }.
@@ -669,7 +689,7 @@
                 ));
               })
               .then((results) => {
-                const items = [];
+                const items = [universalMatterItem()];
                 results.forEach((entry) => {
                   const device = entry.device;
                   // Multi-purpose controller: list every functional endpoint. Capability
@@ -707,10 +727,10 @@
                 if (typeof respond === 'function') respond(filterHueDevices(items, term));
               })
               .catch(() => {
-                cachedHueDevices = [];
+                cachedHueDevices = [universalMatterItem()];
                 node._cachedHueLightDevices = cachedHueDevices;
-                applyHueDevicesPlaceholder(false);
-                if (typeof respond === 'function') respond([]);
+                applyHueDevicesPlaceholder(true);
+                if (typeof respond === 'function') respond(filterHueDevices(cachedHueDevices, term));
               })
               .then(() => {
                 if ($hueDevicesLoading.length) {
@@ -1001,14 +1021,18 @@
             const hasRichBehaviour = supportsDim && (supportsTemperature || supportsColor);
             const isDoorLock = caps.profile === 'doorLock';
             const isMapped = ['mapped', 'windowCovering', 'thermostat', 'fan', 'switch'].includes(caps.profile);
+            const isUniversal = caps.profile === 'universal' || isUniversalMode();
             const deviceTypeDisplay = String(caps.deviceTypeDisplay || '').trim();
 
-            setMatterTabVisible('tabs-1', supportsSwitch);
-            setMatterTabVisible('tabs-2', supportsDim);
-            setMatterTabVisible('tabs-3', supportsTemperature);
-            setMatterTabVisible('tabs-4', supportsColor);
-            setMatterTabVisible('tabs-mapped', isMapped);
-            setMatterTabVisible('tabs-6', hasHueDevice);
+            setMatterTabVisible('tabs-1', !isUniversal && supportsSwitch);
+            setMatterTabVisible('tabs-2', !isUniversal && supportsDim);
+            setMatterTabVisible('tabs-3', !isUniversal && supportsTemperature);
+            setMatterTabVisible('tabs-4', !isUniversal && supportsColor);
+            setMatterTabVisible('tabs-mapped', !isUniversal && isMapped);
+            setMatterTabVisible('tabs-6', !isUniversal && hasHueDevice);
+            $('#matter-universal-description').toggle(isUniversal);
+            $pinSelect.val(isUniversal ? 'yes' : $pinSelect.val()).prop('disabled', isUniversal);
+            updateLocateButtonState(false);
             $('#matter-door-lock-options').toggle(isDoorLock);
             $('#matter-switch-command-label').text(isDoorLock
               ? (node._('knxUltimateMatterControllerDevice.door_lock_command') || 'Lock / unlock')
@@ -1079,7 +1103,7 @@
           const updateTabsVisibility = () => {
             const knxSelected = hasKnxServerSelected();
             const hueDeviceSelected = getHueDeviceValue() !== '';
-            const shouldShowTabs = knxSelected && hueDeviceSelected;
+            const shouldShowTabs = !isUniversalMode() && knxSelected && hueDeviceSelected;
 
             if (shouldShowTabs) {
               $tabs.show();
@@ -1134,6 +1158,11 @@
                 currentMatterCapabilities = ui.item.matterCapabilities || null;
                 $matterCapabilitiesInput.val(currentMatterCapabilities ? serializeMatterCapabilities(currentMatterCapabilities) : '');
                 node.matterDeviceCapabilities = $matterCapabilitiesInput.val();
+                if (ui.item.universal === true) {
+                  $nodeNameInput.val(node._('knxUltimateMatterControllerDevice.universal_controller_name') || 'Matter Universal Controller');
+                  node.name = $nodeNameInput.val();
+                  $pinSelect.val('yes');
+                }
                 applyMatterCapabilities(currentMatterCapabilities);
                 updateTabsVisibility();
                 setTimeout(() => {
@@ -1417,9 +1446,11 @@
         } catch (error) { }
 
         //RED.sidebar.removeTab("tabNRColor");
-        if ($("#node-input-enableNodePINS").val() === "yes") {
+        const universalMode = ($("#node-input-matterNodeId").val() || '').trim() === '__UNIVERSAL__';
+        if (universalMode || $("#node-input-enableNodePINS").val() === "yes") {
           this.outputs = 1;
           this.inputs = 1;
+          this.enableNodePINS = 'yes';
         } else {
           this.outputs = 0;
           this.inputs = 0;
@@ -1428,7 +1459,7 @@
         this.updateLocalStateFromKNXWrite = $("#node-input-updateLocalStateFromKNXWrite").is(":checked"); // Starting from v 4.1.31
         this.matterDeviceName = ($("#node-input-matterDeviceName").val() || '').trim();
         this.matterNodeId = ($("#node-input-matterNodeId").val() || '').trim();
-        this.matterEndpointId = Number($("#node-input-matterEndpointId").val() || 1);
+        this.matterEndpointId = universalMode ? '' : Number($("#node-input-matterEndpointId").val() || 1);
         this.matterDeviceCapabilities = ($("#node-input-matterDeviceCapabilities").val() || '').trim();
         const mappedMappings = [];
         const $mappedRows = $('#matter-mapped-profile-body .matter-mapped-row');
@@ -1444,7 +1475,9 @@
           ? JSON.stringify(mappedMappings)
           : ($('#node-input-matterMappings').val() || this.matterMappings || '[]');
         $('#node-input-matterMappings').val(this.matterMappings);
-        this.name = this.matterDeviceName || this.name || '';
+        this.name = universalMode
+          ? ($("#node-input-name").val() || this._('knxUltimateMatterControllerDevice.universal_controller_name') || 'Matter Universal Controller')
+          : (this.matterDeviceName || this.name || '');
         $("#node-input-name").val(this.name);
         const parseSavedMatterCapabilities = (raw) => {
           if (typeof raw !== 'string' || raw.trim() === '') return null;
@@ -1649,6 +1682,19 @@
         <span data-i18n="knxUltimateMatterControllerDevice.matter_controller"></span>
       </label>
       <input type="text" id="node-input-serverMatter" />
+    </div>
+
+    <div id="matter-universal-description" class="form-tips" style="display:none; margin:8px 0;"
+      data-i18n="knxUltimateMatterControllerDevice.universal_mode_description"></div>
+
+    <div class="form-row">
+      <label for="node-input-enableNodePINS" style="width:260px;">
+        <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.node_pins"></span>
+      </label>
+      <select id="node-input-enableNodePINS">
+        <option value="no" data-i18n="knxUltimateMatterControllerDevice.node_pins_hide"></option>
+        <option value="yes" data-i18n="knxUltimateMatterControllerDevice.node_pins_show"></option>
+      </select>
     </div>
 
     <br />
@@ -2125,15 +2171,6 @@
           </div>
           <br/>
         </div>
-        <div class="form-row">
-          <label for="node-input-enableNodePINS" style="width:260px;">
-            <i class="fa fa-circle"></i> <span data-i18n="knxUltimateMatterControllerDevice.node_pins"></span>
-          </label>
-          <select id="node-input-enableNodePINS">
-            <option value="no" data-i18n="knxUltimateMatterControllerDevice.node_pins_hide"></option>
-            <option value="yes" data-i18n="knxUltimateMatterControllerDevice.node_pins_show"></option>
-          </select>
-        </div>
         </p>
       </div>
     </div>
@@ -2158,6 +2195,22 @@ Matter functions. Bridged Matter devices are expanded into their individual endp
 the device picker. Door Lock, Window Covering, Thermostat, Fan and Switch endpoints use
 dedicated profiles. Switch press, long-press and multi-press events are emitted on the
 optional flow output; simpler endpoints continue through the generic mapped fallback.
+
+**Universal Mode**
+
+Select **Universal Mode** as the first Matter device to listen to every attribute report,
+cluster event and device initialization from this controller. It always exposes one input
+and one output, does not require a KNX gateway, and does not use endpoint KNX mappings.
+Output values are in `msg.payload`; routing metadata is in `msg.matter`, including
+`source`, `nodeId`, `endpointId`, `clusterId` and the attribute/event name.
+
+Use `msg.nodeId`, `msg.endpointId`, `msg.clusterId` and either `msg.command` plus
+`msg.args`, or `msg.attribute`. Add `msg.value` for an attribute write; omit it for a
+read. The same selectors may be placed under `msg.matter`. For example, read battery
+with `{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}` or
+switch on with `{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`.
+Battery is emitted in Matter's raw half-percent units and can be divided by two in a
+Function node.
 
 |Property|Description|
 |--|--|

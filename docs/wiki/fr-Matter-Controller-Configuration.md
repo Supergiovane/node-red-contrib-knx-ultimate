@@ -22,6 +22,18 @@ Si l'appareil est neuf et ne prend en charge que l'appairage Bluetooth, appairez
 
 Préférez le payload QR (`MT:...`) : il contient le discriminateur complet. Le code manuel ne contient que le discriminateur court et peut sélectionner le mauvais appareil si plusieurs modèles identiques sont en mode appairage. Appairez un appareil à la fois.
 
+## Mode universel
+
+Dans **Control Matter from KNX**, choisissez **Mode universel**, première entrée, pour observer et contrôler tous les appareils appairés avec un seul nœud flow. Il possède toujours une entrée et une sortie, ne nécessite pas de passerelle KNX et n'utilise pas les mappages KNX d'un endpoint.
+
+La sortie place la valeur brute dans `msg.payload`; `msg.matter` fournit `source`, `nodeId`, `endpointId`, `clusterId` et l'attribut/événement. Batterie : cluster `47`, attribut `batPercentRemaining`, unité Matter par demi-pourcent ; conversion : `msg.payload = Number(msg.payload) / 2`.
+
+Les entrées exigent `nodeId`, `endpointId`, `clusterId` et `command` ou `attribute` (directement ou sous `msg.matter`) :
+
+- Allumer : `{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`
+- Lire : `{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}`
+- Écrire : `{nodeId:"100", endpointId:1, clusterId:513, attribute:"occupiedHeatingSetpoint", value:2100}`
+
 ## Stockage
 
 Les identifiants de la fabric et les appareils appairés sont enregistrés dans le dossier `knxultimatestorage/matter` du répertoire utilisateur de Node-RED. Supprimer ce dossier efface tous les appairages.

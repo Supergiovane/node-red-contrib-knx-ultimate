@@ -92,7 +92,12 @@
     "matter_controller": "Matter-Controller",
     "matter_device": "Matter-Gerät",
     "device_type": "Gerätetyp",
-    "matter_section": "Matter-Gerät"
+    "matter_section": "Matter-Gerät",
+    "universal_mode": "Universeller Modus",
+    "universal_mode_description": "Alle mit diesem Controller verbundenen Matter-Geräte überwachen und steuern. Der universelle Modus funktioniert ohne KNX-Zuordnungen.",
+    "universal_mode_status": "Universeller Matter-Modus",
+    "universal_mode_locate_disabled": "„Suchen“ ist im universellen Modus nicht verfügbar.",
+    "universal_controller_name": "Universeller Matter-Controller"
   },
   "common": {
     "ga": "GA",

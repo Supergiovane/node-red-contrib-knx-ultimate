@@ -326,7 +326,7 @@ describe('Matter controller editor persistence and terminology', () => {
 
   it('does not overwrite the saved flow PIN selection when the editor opens', () => {
     expect(editor).not.to.match(/const desiredPins\s*=\s*knxSelected/)
-    expect(editor).to.match(/if \(\$\("#node-input-enableNodePINS"\)\.val\(\) === "yes"\)/)
+    expect(editor).to.match(/if \(universalMode \|\| \$\("#node-input-enableNodePINS"\)\.val\(\) === "yes"\)/)
     expect(editor).to.match(/this\.outputs = 1;\s*this\.inputs = 1;/)
     expect(editor).to.match(/this\.outputs = 0;\s*this\.inputs = 0;/)
   })
@@ -337,6 +337,14 @@ describe('Matter controller editor persistence and terminology', () => {
     expect(editor).to.include("getMatterCluster(ep, 514) ? 'fan'")
     expect(editor).to.include("getMatterCluster(ep, 59) ? 'switch'")
     expect(PROFILE_SETUPS).to.include.all.keys('windowCovering', 'thermostat', 'fan', 'switch')
+  })
+
+  it('offers Universal Mode as a reserved controller-wide profile with mandatory pins', () => {
+    expect(editor).to.include("const UNIVERSAL_NODE_ID = '__UNIVERSAL__'")
+    expect(editor).to.include("profile: 'universal'")
+    expect(editor).to.match(/const items = \[universalMatterItem\(\)\]/)
+    expect(editor).to.match(/this\.matterEndpointId = universalMode \? ''/)
+    expect(editor).to.match(/this\.enableNodePINS = 'yes'/)
   })
 
   it('uses Matter terminology in the rendered English help', () => {

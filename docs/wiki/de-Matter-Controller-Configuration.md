@@ -22,6 +22,18 @@ Wenn das Gerät fabrikneu ist und nur Bluetooth-Kommissionierung unterstützt, k
 
 Bevorzuge den QR-Payload (`MT:...`): Er enthält den vollständigen Diskriminator. Der manuelle Code enthält nur den kurzen Diskriminator und kann bei mehreren identischen Modellen im Kopplungsmodus das falsche Gerät auswählen. Immer nur ein Gerät gleichzeitig koppeln.
 
+## Universeller Modus
+
+Wähle in **Control Matter from KNX** den ersten Eintrag **Universeller Modus**, um alle gekoppelten Geräte mit einem Flow-Node zu überwachen und zu steuern. Er hat immer einen Eingang und einen Ausgang, benötigt kein KNX-Gateway und verwendet keine Endpunkt-KNX-Zuordnungen.
+
+Ausgaben liefern den Rohwert in `msg.payload`; `msg.matter` enthält `source`, `nodeId`, `endpointId`, `clusterId` und Attribut/Ereignis. Batterie: Cluster `47`, Attribut `batPercentRemaining`, Matter-Halbprozenteinheiten; Umrechnung: `msg.payload = Number(msg.payload) / 2`.
+
+Eingaben benötigen `nodeId`, `endpointId`, `clusterId` sowie `command` oder `attribute` (direkt oder unter `msg.matter`):
+
+- Ein: `{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`
+- Lesen: `{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}`
+- Schreiben: `{nodeId:"100", endpointId:1, clusterId:513, attribute:"occupiedHeatingSetpoint", value:2100}`
+
 ## Speicherung
 
 Die Fabric-Zugangsdaten und die gekoppelten Geräte werden im Ordner `knxultimatestorage/matter` im Node-RED-Benutzerverzeichnis gespeichert. Das Löschen dieses Ordners entfernt alle Kopplungen.

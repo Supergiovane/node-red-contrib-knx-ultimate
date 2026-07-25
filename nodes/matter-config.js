@@ -52,6 +52,7 @@ module.exports = (RED) => {
         node.sysLogger?.warn(`Matter client ${label} error: ${error.message}`)
       }
     }
+    const clientMatchesNode = (client, nodeId) => client?.matterNodeId === '__UNIVERSAL__' || String(client?.matterNodeId) === String(nodeId)
 
     node.initMatterConnection = async () => {
       try {
@@ -90,8 +91,8 @@ module.exports = (RED) => {
       // A paired node completed the initial sync: let the clients do their initial read
       node.matterManager.on('nodeInitialized', (_nodeId) => {
         node.nodeClients.forEach((_oClient) => {
-          if (_oClient.matterNodeId === _nodeId) {
-            safeClientCall(_oClient, () => _oClient.handleMatterNodeInitialized(), 'handleMatterNodeInitialized')
+          if (clientMatchesNode(_oClient, _nodeId)) {
+            safeClientCall(_oClient, () => _oClient.handleMatterNodeInitialized(_nodeId), 'handleMatterNodeInitialized')
           }
         })
       })
@@ -99,7 +100,7 @@ module.exports = (RED) => {
       // Connection state of a single paired device changed
       node.matterManager.on('nodeState', (_nodeId, _state) => {
         node.nodeClients.forEach((_oClient) => {
-          if (_oClient.matterNodeId === _nodeId) {
+          if (clientMatchesNode(_oClient, _nodeId)) {
             safeClientCall(_oClient, () => _oClient.setNodeStatusMatter({
               fill: _state === 'connected' ? 'green' : 'yellow',
               shape: _state === 'connected' ? 'dot' : 'ring',
@@ -107,7 +108,7 @@ module.exports = (RED) => {
               payload: ''
             }), 'setNodeStatusMatter')
             if (_state === 'connected') {
-              safeClientCall(_oClient, () => _oClient.handleMatterNodeInitialized(), 'handleMatterNodeInitialized')
+              safeClientCall(_oClient, () => _oClient.handleMatterNodeInitialized(_nodeId), 'handleMatterNodeInitialized')
             }
           }
         })

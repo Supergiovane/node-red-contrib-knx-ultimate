@@ -23,6 +23,14 @@ Sostituisce i nodi Matter separati non pubblicati e mantiene tutta la UI luce qu
 | Update local state from KNX write | Aggiorna la cache locale Matter/KNX quando arriva una scrittura su un GA KNX configurato. |
 | Node Input/Output PINs | Mostra i pin input/output Node-RED. L'input accetta payload booleani e messaggi stile Matter in `msg.payload` o `msg.on.on`; l'output emette gli aggiornamenti di stato. La selezione viene mantenuta alla riapertura dell'editor. |
 
+## Modalità Universale
+
+Seleziona **Modalità Universale**, prima voce nell'elenco dispositivi, per ricevere tutti i report attributo, gli eventi cluster e le inizializzazioni dei dispositivi di questo controller Matter. Ha sempre un input e un output, non richiede un gateway KNX e non usa le mappature KNX del singolo endpoint.
+
+L'output contiene il valore raw in `msg.payload` e i dati di instradamento in `msg.matter` (`source`, `nodeId`, `endpointId`, `clusterId`, nome attributo/evento). L'input usa `msg.nodeId`, `msg.endpointId`, `msg.clusterId` e `msg.command` con `msg.args`, oppure `msg.attribute`; aggiungi `msg.value` per scrivere, omettilo per leggere. Gli stessi campi possono stare in `msg.matter`.
+
+Esempi: `{nodeId:"100",endpointId:1,clusterId:6,command:"on",args:{}}` accende; `{nodeId:"100",endpointId:1,clusterId:47,attribute:"batPercentRemaining"}` legge la batteria. Il valore batteria resta nell'unità raw Matter a mezzi punti percentuali; dividilo per due in un nodo Function.
+
 ## Comportamento
 
 Il nodo mantiene una cache locale da aggiornamenti Matter e scritture KNX, risponde alle letture KNX dalla cache e può emettere/leggere i valori all'avvio. Ascolta solo gli indirizzi di gruppo configurati, quindi ignora il traffico KNX non pertinente.

@@ -6,6 +6,7 @@ const { setupWindowCoveringProfile } = require('./windowCovering')
 const { setupThermostatProfile } = require('./thermostat')
 const { setupFanProfile } = require('./fan')
 const { setupSwitchProfile } = require('./switch')
+const { setupUniversalProfile } = require('./universal')
 
 // Controller-side Matter device profiles live behind this registry.  Keep profile
 // selection capability-driven: the editor records the profile only after inspecting
@@ -16,7 +17,8 @@ const PROFILE_SETUPS = Object.freeze({
   thermostat: setupThermostatProfile,
   fan: setupFanProfile,
   switch: setupSwitchProfile,
-  mapped: setupMappedEndpointProfile
+  mapped: setupMappedEndpointProfile,
+  universal: setupUniversalProfile
 })
 
 const setupMatterControllerProfile = (profile, RED, node, config) => {
