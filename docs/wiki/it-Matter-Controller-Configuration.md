@@ -22,6 +22,18 @@ Se il dispositivo è nuovo di fabbrica e supporta solo il commissioning Bluetoot
 
 Preferisci il payload QR (`MT:...`): contiene il discriminatore completo. Il codice manuale contiene solo quello corto e può selezionare il dispositivo sbagliato quando più modelli identici sono in modalità abbinamento. Associa un dispositivo alla volta.
 
+## Modalità Universale
+
+Nel nodo **Control Matter from KNX**, scegli **Modalità Universale**, prima voce dell'elenco, per osservare e controllare tutti i dispositivi abbinati con un unico nodo flow. Ha sempre un input e un output, non richiede un gateway KNX e non usa le mappature KNX del singolo endpoint.
+
+L'output contiene il valore raw in `msg.payload`; `msg.matter` identifica `source`, `nodeId`, `endpointId`, `clusterId` e l'attributo/evento. La batteria usa cluster `47`, attributo `batPercentRemaining`, nell'unità Matter a mezzi punti percentuali; conversione: `msg.payload = Number(msg.payload) / 2`.
+
+Gli input dinamici richiedono `nodeId`, `endpointId`, `clusterId` e `command` oppure `attribute` (a livello principale o sotto `msg.matter`):
+
+- Accensione: `{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`
+- Lettura: `{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}`
+- Scrittura: `{nodeId:"100", endpointId:1, clusterId:513, attribute:"occupiedHeatingSetpoint", value:2100}`
+
 ## Archiviazione
 
 Le credenziali della fabric e i dispositivi associati sono salvati nella cartella `knxultimatestorage/matter` dentro la directory utente di Node-RED. Cancellando quella cartella si perdono tutte le associazioni.

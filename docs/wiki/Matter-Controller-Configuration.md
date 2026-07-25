@@ -22,6 +22,18 @@ If the device is brand new and only supports Bluetooth commissioning, first pair
 
 Prefer the QR payload (`MT:...`): it contains the full discriminator. A manual code contains only the short discriminator and may select the wrong device when several identical models are in commissioning mode. Pair one device at a time.
 
+## Universal Mode
+
+In **Control Matter from KNX**, choose **Universal Mode**, the first device entry, to observe and control every commissioned device through one flow node. It always exposes one input and one output, needs no KNX gateway, and does not use endpoint KNX mappings.
+
+Outputs place the raw value in `msg.payload`; `msg.matter` identifies `source`, `nodeId`, `endpointId`, `clusterId`, and the attribute/event. Battery reports use cluster `47`, attribute `batPercentRemaining`, in raw Matter half-percent units; convert with `msg.payload = Number(msg.payload) / 2`.
+
+Dynamic inputs require `nodeId`, `endpointId`, `clusterId`, plus `command` or `attribute` (top-level or under `msg.matter`):
+
+- On: `{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`
+- Read: `{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}`
+- Write: `{nodeId:"100", endpointId:1, clusterId:513, attribute:"occupiedHeatingSetpoint", value:2100}`
+
 ## Storage
 
 The fabric credentials and the paired devices are stored in the `knxultimatestorage/matter` folder inside your Node-RED user directory. Deleting that folder unpairs everything.

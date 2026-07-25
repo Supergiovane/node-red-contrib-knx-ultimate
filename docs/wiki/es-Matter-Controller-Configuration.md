@@ -22,6 +22,18 @@ Si el dispositivo es nuevo de fábrica y solo admite emparejamiento por Bluetoot
 
 Prefiere el payload QR (`MT:...`): contiene el discriminador completo. El código manual solo contiene el discriminador corto y puede seleccionar el dispositivo equivocado si hay varios modelos idénticos en modo de emparejamiento. Empareja un dispositivo cada vez.
 
+## Modo universal
+
+En **Control Matter from KNX**, elige **Modo universal**, la primera entrada, para observar y controlar todos los dispositivos emparejados con un nodo flow. Siempre tiene una entrada y una salida, no requiere gateway KNX y no usa mapeos KNX de endpoint.
+
+La salida pone el valor raw en `msg.payload`; `msg.matter` incluye `source`, `nodeId`, `endpointId`, `clusterId` y el atributo/evento. Batería: clúster `47`, atributo `batPercentRemaining`, unidades Matter de medio porcentaje; conversión: `msg.payload = Number(msg.payload) / 2`.
+
+Las entradas requieren `nodeId`, `endpointId`, `clusterId` y `command` o `attribute` (directamente o bajo `msg.matter`):
+
+- Encender: `{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`
+- Leer: `{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}`
+- Escribir: `{nodeId:"100", endpointId:1, clusterId:513, attribute:"occupiedHeatingSetpoint", value:2100}`
+
 ## Almacenamiento
 
 Las credenciales de la fabric y los dispositivos emparejados se guardan en la carpeta `knxultimatestorage/matter` dentro del directorio de usuario de Node-RED. Borrar esa carpeta elimina todos los emparejamientos.

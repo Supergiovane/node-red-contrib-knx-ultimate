@@ -84,7 +84,12 @@
     "matter_controller": "Contrôleur Matter",
     "matter_device": "Appareil Matter",
     "device_type": "Type d'appareil",
-    "matter_section": "Appareil Matter"
+    "matter_section": "Appareil Matter",
+    "universal_mode": "Mode universel",
+    "universal_mode_description": "Écoute et contrôle tous les appareils Matter connectés à ce contrôleur. Le mode universel fonctionne sans mappages KNX.",
+    "universal_mode_status": "Mode Matter universel",
+    "universal_mode_locate_disabled": "La fonction Localiser n’est pas disponible en mode universel.",
+    "universal_controller_name": "Contrôleur Matter universel"
   },
   "common": {
     "ga": "Géorgie",

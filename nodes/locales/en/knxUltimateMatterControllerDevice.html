@@ -23,6 +23,14 @@ It replaces the unpublished per-device Matter controller nodes and keeps the ful
 | Update local state from KNX write | Updates the local Matter/KNX cache when a telegram is written on a configured KNX GA. |
 | Node Input/Output PINs | Shows Node-RED input/output pins. Input accepts boolean payloads and Matter-style `msg.payload` or `msg.on.on`; output emits state updates. The selection is preserved when the editor is reopened. |
 
+## Universal Mode
+
+Select **Universal Mode** as the first device entry to receive every attribute report, cluster event and device initialization from this Matter controller. It always has one input and one output, needs no KNX gateway, and does not use endpoint KNX mappings.
+
+Outputs carry the raw value in `msg.payload` and routing details in `msg.matter` (`source`, `nodeId`, `endpointId`, `clusterId`, attribute/event name). Inputs use `msg.nodeId`, `msg.endpointId`, `msg.clusterId` and either `msg.command` with `msg.args`, or `msg.attribute`; add `msg.value` to write, omit it to read. The selectors may also be nested under `msg.matter`.
+
+Examples: `{nodeId:"100",endpointId:1,clusterId:6,command:"on",args:{}}` turns On; `{nodeId:"100",endpointId:1,clusterId:47,attribute:"batPercentRemaining"}` reads battery. Battery reports remain in raw Matter half-percent units; divide by two in a Function node when a percentage is needed.
+
 ## Behaviour
 
 The node keeps a local cache from Matter updates and KNX writes, answers KNX read requests from that cache, and can emit/read values at startup. Only the configured group addresses are listened to, so unrelated KNX traffic is ignored.

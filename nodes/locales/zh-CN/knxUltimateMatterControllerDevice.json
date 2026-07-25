@@ -84,7 +84,12 @@
     "matter_controller": "Matter 控制器",
     "matter_device": "Matter 设备",
     "device_type": "设备类型",
-    "matter_section": "Matter 设备"
+    "matter_section": "Matter 设备",
+    "universal_mode": "通用模式",
+    "universal_mode_description": "监听并控制连接到此控制器的所有 Matter 设备。通用模式无需 KNX 映射即可工作。",
+    "universal_mode_status": "Matter 通用模式",
+    "universal_mode_locate_disabled": "通用模式下无法使用定位功能。",
+    "universal_controller_name": "Matter 通用控制器"
   },
   "common": {
     "ga": "组地址",

@@ -22,6 +22,18 @@ permalink: /wiki/zh-CN-Matter-Controller-Configuration
 
 优先使用二维码 payload（`MT:...`），因为它包含完整的鉴别码。手动配对码只包含短鉴别码；当多个相同型号同时处于配对模式时，可能会选错设备。请一次只配对一个设备。
 
+## 通用模式
+
+在 **Control Matter from KNX** 中选择第一项 **通用模式**，可用一个 flow 节点监听和控制所有已配对设备。它始终具有一个输入和一个输出，不需要 KNX 网关，也不使用 endpoint KNX 映射。
+
+输出将原始值放在 `msg.payload`；`msg.matter` 包含 `source`、`nodeId`、`endpointId`、`clusterId` 和属性/事件。电池使用集群 `47`、属性 `batPercentRemaining`，单位为 Matter 半百分比；转换：`msg.payload = Number(msg.payload) / 2`。
+
+输入需要 `nodeId`、`endpointId`、`clusterId`，以及 `command` 或 `attribute`（顶层或 `msg.matter` 下）：
+
+- 开启：`{nodeId:"100", endpointId:1, clusterId:6, command:"on", args:{}}`
+- 读取：`{nodeId:"100", endpointId:1, clusterId:47, attribute:"batPercentRemaining"}`
+- 写入：`{nodeId:"100", endpointId:1, clusterId:513, attribute:"occupiedHeatingSetpoint", value:2100}`
+
 ## 存储
 
 Fabric 凭据和已配对设备保存在 Node-RED 用户目录下的 `knxultimatestorage/matter` 文件夹中。删除该文件夹将移除所有配对。

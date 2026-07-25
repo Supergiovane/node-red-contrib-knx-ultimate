@@ -92,7 +92,12 @@
     "matter_controller": "Controller Matter",
     "matter_device": "Dispositivo Matter",
     "device_type": "Tipo dispositivo",
-    "matter_section": "Dispositivo Matter"
+    "matter_section": "Dispositivo Matter",
+    "universal_mode": "Modalità Universale",
+    "universal_mode_description": "Ascolta e controlla tutti i dispositivi Matter collegati a questo controller. La Modalità Universale funziona senza mappature KNX.",
+    "universal_mode_status": "Modalità Matter universale",
+    "universal_mode_locate_disabled": "La funzione Trova non è disponibile in Modalità Universale.",
+    "universal_controller_name": "Controller Matter Universale"
   },
   "common": {
     "ga": "GA",

@@ -23,6 +23,14 @@ Il remplace les nœuds Matter séparés non publiés et conserve toute l'UI lumi
 | Update local state from KNX write | Met à jour le cache local Matter/KNX lorsqu'un télégramme est écrit sur une GA KNX configurée. |
 | Node Input/Output PINs | Affiche les pins entrée/sortie Node-RED. L'entrée accepte les payloads booléens et les messages Matter dans `msg.payload` ou `msg.on.on`; la sortie émet les états. La sélection est conservée à la réouverture de l'éditeur. |
 
+## Mode universel
+
+Sélectionnez **Mode universel**, première entrée de la liste, pour recevoir tous les rapports d'attribut, événements de cluster et initialisations des appareils de ce contrôleur Matter. Le nœud possède toujours une entrée et une sortie, ne nécessite pas de passerelle KNX et n'utilise pas les mappages KNX d'un endpoint.
+
+La sortie place la valeur brute dans `msg.payload` et le routage dans `msg.matter` (`source`, `nodeId`, `endpointId`, `clusterId`, nom d'attribut/événement). L'entrée utilise `msg.nodeId`, `msg.endpointId`, `msg.clusterId` et soit `msg.command` avec `msg.args`, soit `msg.attribute`; ajoutez `msg.value` pour écrire, omettez-le pour lire. Ces champs peuvent aussi être placés sous `msg.matter`.
+
+Exemples : `{nodeId:"100",endpointId:1,clusterId:6,command:"on",args:{}}` allume ; `{nodeId:"100",endpointId:1,clusterId:47,attribute:"batPercentRemaining"}` lit la batterie. La batterie reste dans l'unité Matter brute par demi-pourcent ; divisez par deux dans un nœud Function.
+
 ## Comportement
 
 Le nœud garde un cache local depuis les mises à jour Matter et les écritures KNX, répond aux lectures KNX depuis ce cache et peut émettre/lire les valeurs au démarrage. Il n'écoute que les adresses de groupe configurées, donc le trafic KNX non lié est ignoré.

@@ -92,7 +92,12 @@
     "matter_controller": "Matter controller",
     "matter_device": "Matter device",
     "device_type": "Device type",
-    "matter_section": "Matter device"
+    "matter_section": "Matter device",
+    "universal_mode": "Universal Mode",
+    "universal_mode_description": "Listen to and control all Matter devices connected to this controller. Universal Mode works without KNX mappings.",
+    "universal_mode_status": "Universal Matter mode",
+    "universal_mode_locate_disabled": "Locate is unavailable in Universal Mode.",
+    "universal_controller_name": "Matter Universal Controller"
   },
   "common": {
     "ga": "GA",
