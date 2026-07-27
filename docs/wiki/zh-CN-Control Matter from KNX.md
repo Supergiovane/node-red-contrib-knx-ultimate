@@ -26,8 +26,20 @@ permalink: /wiki/zh-CN-Control%20Matter%20from%20KNX
 | 传感器 | 传感器 endpoint 只在支持时显示对应测量/状态 GA：温度、湿度、照度、占用、接触和电池。 |
 | Read at startup | 在部署/启动或设备重新连接时发布缓存的 Matter 值。 |
 | Update local state from KNX write | 当配置的 KNX GA 收到写入 telegram 时，更新本地 Matter/KNX 缓存。 |
-| Node Input/Output PINs | 显示 Node-RED 输入/输出端口。对于映射端点，Matter 选择器直接放在 `msg` 中：`msg.clusterId` 与 `msg.attribute` 读取属性，并在 `msg.payload` 中输出值；`msg.requestFromRemote = true` 强制从设备读取。添加 `msg.value` 可写入属性，或使用 `msg.clusterId`、`msg.command` 和 `msg.args` 调用命令。数值属性 ID `0` 有效。Door Lock 接受布尔 `msg.payload`（`true` 上锁，`false` 解锁）。重新打开编辑器时会保留此选择。 |
+| Node Input/Output PINs | 显示 Node-RED 输入/输出端口。非灯光端点接受简单的 `{function,value}` 格式以及现有高级 Matter 选择器。 |
+
+## 流程输入消息
+
+选择非灯光端点后，打开 **流程输入** 选项卡。该选项卡根据端点公布的结构生成，并显示可复制示例、Endpoint ID、全部可读/可写属性和接受的命令。节点仅用于 flow 且未选择 KNX 网关时，该选项卡仍然可用。
+
+使用 `msg.payload = {function:"position",value:35}` 以易懂单位写入。省略 `value` 可读取支持的状态，例如 `{function:"temperature"}`；结果输出到 `msg.payload`，原始 Matter 详情保存在 `msg.matter`。可用功能取决于端点，包括 `onoff`、`level`、`position`、`open`、`close`、`stop`、设定点、风扇和传感器。门锁接受 `{function:"lock",value:true|false}`。
+
+现有 flow 保持兼容。高级消息继续使用 `msg.clusterId` 配合 `msg.command`/`msg.args`，或使用 `msg.attribute` 和可选的 `msg.value`。Node ID 和 Endpoint ID 已由节点选择。
 
 ## 行为
 
 节点根据 Matter 更新和 KNX 写入维护本地缓存，用该缓存响应 KNX 读取请求，并可在启动时读取/发送值。节点只监听已配置的组地址，因此会忽略无关的 KNX 流量。
+
+每个已配对设备使用独立且有序的命令队列。因此，离线、超时或已移除的设备不会延迟使用同一 KNX 组地址的其他 Matter 设备。仍引用已移除设备的节点会立即拒绝命令，并以红色显示 **Device no longer commissioned**；请选择有效的 Matter 设备，或删除遗留的 Controller 节点。
+
+设备不可用错误会保持锁定：后续 KNX 和 flow 命令将被忽略，且无法覆盖红色状态。一旦该 Matter 设备报告 `connected`，节点会自动恢复；打开节点编辑器也会解除锁定，以便手动重试。

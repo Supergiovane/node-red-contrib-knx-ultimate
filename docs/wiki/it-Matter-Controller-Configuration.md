@@ -16,7 +16,11 @@ Il controller comunica con i dispositivi tramite la **rete IP** (WiFi, Ethernet,
 
 1. Fai prima il **deploy** di questo nodo di configurazione (il controller deve essere in esecuzione).
 2. Riapri il nodo e inserisci il **codice di abbinamento**: il codice manuale a 11 cifre (es. `3497-011-2332`) oppure il contenuto del QR code (`MT:....`).
-3. Clicca **ASSOCIA**. Il commissioning può richiedere fino a un minuto.
+3. Per un codice inserito manualmente, clicca **ASSOCIA**. Una lettura con **Webcam** o **Immagine** avvia automaticamente l'associazione. Il commissioning può richiedere fino a un minuto.
+
+In alternativa alla digitazione del payload QR, clicca **Webcam** per leggerlo in tempo reale oppure **Immagine** per ricavarlo da una foto locale. Sono supportati sia i QR standard scuri su fondo chiaro sia quelli invertiti bianchi su fondo scuro. La decodifica avviene interamente nel browser; dopo la lettura di un QR Matter valido, l'editor compila il campo del codice e avvia immediatamente l'associazione. Se desideri assegnare un nome, inseriscilo prima della scansione. Un codice digitato manualmente parte ancora soltanto quando clicchi **ASSOCIA**. L'accesso live alla webcam richiede che l'editor sia aperto tramite HTTPS o da `localhost`; quando non è possibile, l'editor spiega il limite e il caricamento dell'immagine rimane disponibile.
+
+Durante il commissioning, un pannello di attesa bloccante copre l'editor e impedisce ulteriori clic finché l'operazione non termina con successo o con un errore.
 
 Se il dispositivo è nuovo di fabbrica e supporta solo il commissioning Bluetooth, associalo prima con l'app del produttore o con un altro controller Matter (Alexa, Google Home, Apple Home), poi usa la funzione **"condividi / abbina con altro hub"** di quel controller per generare un nuovo codice di abbinamento per KNX-Ultimate. In questo modo il dispositivo entra in più fabric contemporaneamente.
 
@@ -43,5 +47,11 @@ Usa **Esporta** per scaricare un backup completo di questa istanza controller. I
 ## Rimuovere un dispositivo
 
 Usa il pulsante cestino nella lista dei dispositivi associati. Il controller prova a decommissionare correttamente il dispositivo; se non è raggiungibile, viene comunque rimosso dalla fabric (potrebbe poi servire un reset di fabbrica del dispositivo).
+
+La lista contiene una riga per ogni nodo attualmente memorizzato nella fabric Matter di questo controller. I Node ID sono univoci all'interno della fabric; gli endpoint esposti da un unico bridge commissionato non sono elencati come dispositivi separati. La colonna dello stato indica se ogni nodo è connesso, disconnesso, in riconnessione o in attesa di rilevamento.
+
+Il controller mantiene separato per ogni dispositivo associato l'ordine dei comandi. Un dispositivo lento, offline o rimosso non può bloccare i comandi destinati agli altri dispositivi. I nodi Controller che puntano ancora a un Node ID rimosso rifiutano subito i nuovi comandi e mostrano **Device no longer commissioned**.
+
+Quando un dispositivo diventa non disponibile, i suoi nodi Controller rimangono bloccati e ignorano gli altri comandi finché quel dispositivo non segnala nuovamente `connected`. Il ripristino è automatico; anche l'apertura dell'editor del nodo dispositivo azzera il blocco per un tentativo manuale.
 
 Nel Monitor batterie universale, le uscite KNX opzionali pubblicano l'allarme complessivo come DPT 1.005 e ciclano ogni 2 secondi i nomi dei device scarichi come testo DPT 16.001 da 14 byte.

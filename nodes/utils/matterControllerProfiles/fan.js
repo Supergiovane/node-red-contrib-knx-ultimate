@@ -6,7 +6,6 @@ const FAN_CONTROL_CLUSTER_ID = 0x0202
 
 const setupFanProfile = (RED, node, config) => setupMappedEndpointProfile(RED, node, config, {
   profileName: 'fan',
-  inputClusterId: FAN_CONTROL_CLUSTER_ID,
   eventClusterId: FAN_CONTROL_CLUSTER_ID,
   formatAttributeStatus: (event) => {
     if (['percentCurrent', 'percentSetting'].includes(event.attributeName) && event.value !== null && event.value !== undefined) {

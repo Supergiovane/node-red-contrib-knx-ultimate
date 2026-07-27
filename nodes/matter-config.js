@@ -53,14 +53,15 @@ module.exports = (RED) => {
       }
     }
     const clientMatchesNode = (client, nodeId) => client?.matterNodeId === '__UNIVERSAL__' || String(client?.matterNodeId) === String(nodeId)
+    const clientOwnsNode = (client, nodeId) => client?.matterNodeId !== '__UNIVERSAL__' && String(client?.matterNodeId) === String(nodeId)
 
     node.initMatterConnection = async () => {
       try {
         if (node.matterManager !== null) await node.matterManager.close()
       } catch (error) { /* empty */ }
       try {
-        const { classMatter } = await import('./utils/matterEngine.mjs')
-        node.matterManager = new classMatter(node.matterStoragePath, node.matterInstanceId, node.fabricLabel, node.sysLogger)
+        const { classMatter: MatterControllerEngine } = await import('./utils/matterEngine.mjs')
+        node.matterManager = new MatterControllerEngine(node.matterStoragePath, node.matterInstanceId, node.fabricLabel, node.sysLogger)
       } catch (error) {
         node.sysLogger?.error(`Errore matter-config: node.initMatterConnection: ${error.message}`)
         throw (error)
@@ -70,6 +71,7 @@ module.exports = (RED) => {
       node.matterManager.on('event', (_event) => {
         node.nodeClients.forEach((_oClient) => {
           try {
+            if (clientOwnsNode(_oClient, _event?.nodeId)) _oClient.clearMatterCommandBlock?.('connected')
             if (_oClient.handleSendMatter !== undefined) _oClient.handleSendMatter(_event)
           } catch (error) {
             node.sysLogger?.error(`Errore node.matterManager.on(event): ${error.message}`)
@@ -81,6 +83,7 @@ module.exports = (RED) => {
       node.matterManager.on('matterEvent', (_event) => {
         node.nodeClients.forEach((_oClient) => {
           try {
+            if (clientOwnsNode(_oClient, _event?.nodeId)) _oClient.clearMatterCommandBlock?.('connected')
             if (_oClient.handleMatterClusterEvent !== undefined) _oClient.handleMatterClusterEvent(_event)
           } catch (error) {
             node.sysLogger?.error(`Errore node.matterManager.on(matterEvent): ${error.message}`)
@@ -92,6 +95,9 @@ module.exports = (RED) => {
       node.matterManager.on('nodeInitialized', (_nodeId) => {
         node.nodeClients.forEach((_oClient) => {
           if (clientMatchesNode(_oClient, _nodeId)) {
+            if (clientOwnsNode(_oClient, _nodeId)) {
+              safeClientCall(_oClient, () => _oClient.clearMatterCommandBlock?.('connected'), 'clearMatterCommandBlock')
+            }
             safeClientCall(_oClient, () => _oClient.handleMatterNodeInitialized(_nodeId), 'handleMatterNodeInitialized')
           }
         })
@@ -101,6 +107,13 @@ module.exports = (RED) => {
       node.matterManager.on('nodeState', (_nodeId, _state) => {
         node.nodeClients.forEach((_oClient) => {
           if (clientMatchesNode(_oClient, _nodeId)) {
+            if (clientOwnsNode(_oClient, _nodeId)) {
+              if (_state === 'connected') {
+                safeClientCall(_oClient, () => _oClient.clearMatterCommandBlock?.('connected'), 'clearMatterCommandBlock')
+              } else {
+                safeClientCall(_oClient, () => _oClient.blockMatterCommands?.('Matter device unavailable'), 'blockMatterCommands')
+              }
+            }
             safeClientCall(_oClient, () => _oClient.setNodeStatusMatter({
               fill: _state === 'connected' ? 'green' : 'yellow',
               shape: _state === 'connected' ? 'dot' : 'ring',
@@ -111,6 +124,39 @@ module.exports = (RED) => {
               safeClientCall(_oClient, () => _oClient.handleMatterNodeInitialized(_nodeId), 'handleMatterNodeInitialized')
             }
           }
+        })
+      })
+
+      node.matterManager.on('commandError', ({ item, error, code } = {}) => {
+        if (!item?.nodeId) return
+        const text = code === 'MATTER_NODE_NOT_COMMISSIONED'
+          ? 'Device no longer commissioned'
+          : code === 'MATTER_NODE_UNAVAILABLE' || code === 'MATTER_COMMAND_TIMEOUT'
+            ? 'Matter device unavailable'
+            : `Matter command error: ${error || 'unknown error'}`
+        const mustBlock = ['MATTER_NODE_NOT_COMMISSIONED', 'MATTER_NODE_UNAVAILABLE', 'MATTER_COMMAND_TIMEOUT'].includes(code)
+        if (mustBlock) {
+          const queued = node.matterManager.deleteMatterQueue(item.nodeId)
+          if (queued && typeof queued.catch === 'function') queued.catch((queueError) => node.sysLogger?.warn(`Matter queue purge error: ${queueError.message}`))
+        }
+        node.nodeClients.forEach((_oClient) => {
+          if (String(_oClient?.matterNodeId) !== String(item.nodeId)) return
+          safeClientCall(_oClient, () => {
+            if (mustBlock && typeof _oClient.blockMatterCommands === 'function') {
+              _oClient.blockMatterCommands(text)
+              return
+            }
+            const status = {
+              fill: 'red',
+              shape: 'ring',
+              text,
+              payload: ''
+            }
+            if (typeof _oClient.setNodeStatusMatter === 'function') return _oClient.setNodeStatusMatter(status)
+            // The legacy light profile's setNodeStatusHue deliberately recolours normal
+            // state updates blue, so use the Node-RED status API directly for errors.
+            if (typeof _oClient.status === 'function') return _oClient.status(status)
+          }, 'Matter command error status')
         })
       })
 

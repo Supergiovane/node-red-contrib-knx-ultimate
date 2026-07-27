@@ -11,7 +11,11 @@ Le contrôleur communique avec les appareils via le **réseau IP** (WiFi, Ethern
 
 1. **Déployez** d'abord ce nœud de configuration (le contrôleur doit être en fonction).
 2. Rouvrez le nœud et saisissez le **code d'appairage** : le code manuel à 11 chiffres (ex. `3497-011-2332`) ou le contenu du QR code (`MT:....`).
-3. Cliquez sur **APPAIRER**. Le commissionnement peut prendre jusqu'à une minute.
+3. Pour un code saisi manuellement, cliquez sur **APPAIRER**. Un QR lu avec **Webcam** ou **Image** démarre automatiquement l'appairage. Le commissionnement peut prendre jusqu'à une minute.
+
+Au lieu de saisir le payload QR, cliquez sur **Webcam** pour le scanner en direct ou sur **Image** pour le lire depuis une photo locale. Les QR codes standards sombres sur fond clair et les codes inversés blancs sur fond sombre sont pris en charge. Le décodage s'effectue entièrement dans le navigateur ; après la lecture d'un QR Matter valide, l'éditeur remplit le champ du code et démarre immédiatement l'appairage. Saisissez auparavant le nom facultatif de l'appareil si nécessaire. Un code saisi manuellement ne démarre toujours qu'après un clic sur **APPAIRER**. L'accès direct à la webcam exige que l'éditeur soit ouvert via HTTPS ou depuis `localhost` ; sinon l'éditeur explique cette limitation et le chargement d'une image reste disponible.
+
+Pendant le commissionnement, un panneau d'attente bloquant recouvre l'éditeur et empêche tout autre clic jusqu'à la réussite ou l'échec de l'opération.
 
 Si l'appareil est neuf et ne prend en charge que l'appairage Bluetooth, appairez-le d'abord avec l'app du fabricant ou un autre contrôleur Matter (Alexa, Google Home, Apple Home), puis utilisez sa fonction **« partager / appairer avec un autre hub »** pour générer un nouveau code pour KNX-Ultimate. L'appareil rejoint ainsi plusieurs fabrics à la fois.
 
@@ -26,4 +30,10 @@ Utilisez **Exporter** pour télécharger une sauvegarde complète de cette insta
 ## Supprimer un appareil
 
 Utilisez le bouton corbeille dans la liste des appareils appairés. Le contrôleur essaie de retirer l'appareil proprement ; s'il est injoignable, il est quand même supprimé de la fabric (une réinitialisation d'usine de l'appareil peut alors être nécessaire).
+
+La liste contient une ligne pour chaque nœud actuellement enregistré dans la fabric Matter de ce contrôleur. Les Node ID sont uniques au sein de cette fabric ; les endpoints exposés par un même bridge commissionné ne sont pas affichés comme des appareils distincts. La colonne d'état indique si chaque nœud est connecté, déconnecté, en cours de reconnexion ou en attente de découverte.
+
+Le contrôleur conserve séparément l'ordre des commandes de chaque appareil appairé. Un appareil lent, hors ligne ou supprimé ne peut pas bloquer les commandes destinées aux autres appareils. Les nœuds Controller qui référencent encore un Node ID supprimé refusent immédiatement les nouvelles commandes et affichent **Device no longer commissioned**.
+
+Lorsqu'un appareil devient indisponible, ses nœuds Controller restent bloqués et ignorent les commandes suivantes jusqu'à ce que cet appareil signale de nouveau `connected`. La reprise est automatique ; l'ouverture de l'éditeur du nœud appareil libère aussi le blocage pour un nouvel essai manuel.
 </script>

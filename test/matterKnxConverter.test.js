@@ -3,6 +3,7 @@ const { EventEmitter } = require('events')
 const fs = require('fs')
 const path = require('path')
 const { knxToMatter, matterToKnx, CLUSTER } = require('../nodes/utils/matterKnxConverter')
+const { resolveSemanticInput, supportedSemanticFunctions } = require('../nodes/utils/matterControllerSemanticInput')
 const { LOCK_STATE, lockStateToBoolean, setupDoorLockProfile } = require('../nodes/utils/matterControllerProfiles/doorLock')
 const { PROFILE_SETUPS, setupMatterControllerProfile } = require('../nodes/utils/matterControllerProfiles')
 const { isValidGroupAddress, parseMappings, setupMappedEndpointProfile } = require('../nodes/utils/matterControllerProfiles/mappedEndpoint')
@@ -136,6 +137,68 @@ describe('matterKnxConverter – matterToKnx', () => {
   })
 })
 
+describe('Matter controller semantic input', () => {
+  const capabilities = {
+    inputStructure: {
+      endpointId: 2,
+      clusters: [
+        {
+          id: CLUSTER.WINDOW_COVERING,
+          attributes: [{ name: 'currentPositionLiftPercent100ths', writable: false }],
+          commands: [{ name: 'goToLiftPercentage' }, { name: 'upOrOpen' }, { name: 'downOrClose' }, { name: 'stopMotion' }]
+        },
+        {
+          id: CLUSTER.TEMPERATURE,
+          attributes: [{ name: 'measuredValue', writable: false }],
+          commands: []
+        }
+      ]
+    }
+  }
+
+  it('resolves friendly functions to supported Matter targets', () => {
+    const position = resolveSemanticInput({ payload: { function: 'position', value: 35 } }, capabilities)
+    expect(position).to.deep.include({ functionName: 'position', operation: 'write', value: 35 })
+    expect(position.mapping).to.deep.include({
+      clusterId: CLUSTER.WINDOW_COVERING,
+      targetKind: 'command',
+      target: 'goToLiftPercentage'
+    })
+
+    const temperature = resolveSemanticInput({ payload: { fn: 'temperature', remote: true } }, capabilities)
+    expect(temperature).to.deep.include({ functionName: 'temperature', operation: 'read', requestFromRemote: true })
+    expect(temperature.mapping.target).to.equal('measuredValue')
+  })
+
+  it('lists and validates only semantic functions exposed by the endpoint', () => {
+    expect(supportedSemanticFunctions(capabilities)).to.include.members(['position', 'open', 'close', 'stop', 'temperature'])
+    expect(() => resolveSemanticInput({ payload: { function: 'fanspeed', value: 50 } }, capabilities))
+      .to.throw('does not support function "fanspeed"')
+  })
+
+  it('validates human-unit values before queueing Matter work', () => {
+    expect(() => resolveSemanticInput({ payload: { function: 'position', value: 101 } }, capabilities))
+      .to.throw('requires a value <= 100')
+  })
+
+  it('offers semantic writes only for attributes marked writable by matter.js', () => {
+    const thermostatCapabilities = {
+      inputStructure: {
+        endpointId: 3,
+        clusters: [{
+          id: CLUSTER.THERMOSTAT,
+          attributes: [{ name: 'occupiedHeatingSetpoint', writable: false }],
+          commands: []
+        }]
+      }
+    }
+    expect(() => resolveSemanticInput({ payload: { function: 'setpoint', value: 21 } }, thermostatCapabilities))
+      .to.throw('does not support function "setpoint"')
+    thermostatCapabilities.inputStructure.clusters[0].attributes[0].writable = true
+    expect(resolveSemanticInput({ payload: { function: 'setpoint', value: 21 } }, thermostatCapabilities).operation).to.equal('write')
+  })
+})
+
 describe('Matter controller Door Lock profile', () => {
   const createFixture = ({ pin = '', capabilities = {} } = {}) => {
     const knxWrites = []
@@ -221,6 +284,13 @@ describe('Matter controller Door Lock profile', () => {
     expect(statuses.at(-1)).to.deep.equal({ fill: 'blue', shape: 'dot', text: 'Matter: unlocked' })
     node.setNodeStatus({ fill: 'grey', shape: 'ring', text: 'READ' })
     expect(statuses.at(-1)).to.deep.equal({ fill: 'blue', shape: 'dot', text: 'Matter: unlocked | KNX: READ' })
+  })
+
+  it('accepts the shared friendly function/value contract from the flow input', async () => {
+    const { node, matterWrites } = createFixture()
+    await new Promise((resolve, reject) => node.emit('input', { payload: { function: 'lock', value: true } }, undefined, (error) => error ? reject(error) : resolve()))
+    await new Promise((resolve, reject) => node.emit('input', { payload: { function: 'lock', value: false } }, undefined, (error) => error ? reject(error) : resolve()))
+    expect(matterWrites.map((item) => item.name)).to.deep.equal(['lockDoor', 'unlockDoor'])
   })
 })
 
@@ -308,6 +378,49 @@ describe('Matter controller multi-purpose profile routing', () => {
     expect(writes[0]).to.include({ kind: 'attributeWrite', name: 'occupiedHeatingSetpoint' })
   })
 
+  it('translates friendly function/value input and returns reads in human units', async () => {
+    const writes = []
+    const outputs = []
+    const reads = []
+    const node = new EventEmitter()
+    Object.assign(node, {
+      id: 'mapped-semantic-node', matterNodeId: '55', matterEndpointId: 2, status: () => {}, send: (msg) => outputs.push(msg),
+      serverMatter: {
+        addClient: () => {}, removeClient: () => {},
+        matterManager: {
+          readAttribute: async (...args) => { reads.push(args); return 2250 },
+          writeMatterQueueAdd: (item) => writes.push(item)
+        }
+      }
+    })
+    const capabilities = {
+      inputStructure: {
+        endpointId: 2,
+        clusters: [
+          { id: CLUSTER.WINDOW_COVERING, attributes: [], commands: [{ name: 'goToLiftPercentage' }] },
+          { id: CLUSTER.TEMPERATURE, attributes: [{ name: 'measuredValue', writable: false }], commands: [] }
+        ]
+      }
+    }
+    setupMappedEndpointProfile({ log: { error: () => {} } }, node, {
+      matterMappings: '[]',
+      matterDeviceCapabilities: JSON.stringify(capabilities),
+      enableNodePINS: 'yes'
+    })
+    await new Promise((resolve, reject) => node.emit('input', { payload: { function: 'position', value: 35 } }, undefined, (error) => error ? reject(error) : resolve()))
+    await new Promise((resolve, reject) => node.emit('input', { requestId: 'temp', payload: { function: 'temperature', remote: true } }, undefined, (error) => error ? reject(error) : resolve()))
+    expect(writes[0]).to.deep.include({
+      endpointId: 2,
+      clusterId: CLUSTER.WINDOW_COVERING,
+      kind: 'command',
+      name: 'goToLiftPercentage'
+    })
+    expect(writes[0].args).to.deep.equal({ liftPercent100thsValue: 3500 })
+    expect(reads[0]).to.deep.equal(['55', 2, CLUSTER.TEMPERATURE, 'measuredValue', true])
+    expect(outputs[0]).to.include({ requestId: 'temp', payload: 22.5 })
+    expect(outputs[0].matter).to.include({ function: 'temperature', rawValue: 2250 })
+  })
+
   it('rejects Matter selectors nested in msg.payload', async () => {
     const node = new EventEmitter()
     Object.assign(node, {
@@ -342,8 +455,8 @@ describe('Matter controller editor persistence and terminology', () => {
   it('uses the Color Control feature map to hide unsupported light tabs', () => {
     expect(editor).to.include('(colorFeatureMap & 0x10) !== 0')
     expect(editor).to.include('(colorFeatureMap & 0x09) !== 0')
-    expect(editor).to.include("setMatterTabVisible('tabs-3', !isUniversal && supportsTemperature)")
-    expect(editor).to.include("setMatterTabVisible('tabs-4', !isUniversal && supportsColor)")
+    expect(editor).to.include("setMatterTabVisible('tabs-3', !isUniversal && knxSelected && supportsTemperature)")
+    expect(editor).to.include("setMatterTabVisible('tabs-4', !isUniversal && knxSelected && supportsColor)")
     expect(editor).to.include("matterLightType: isTunableWhiteOnly ? 'colorTemperature'")
     expect(editor).to.include("normalized.matterLightType === 'colorTemperature'")
     expect(editor).to.include("displayType === 'tunablewhite'")
@@ -370,6 +483,17 @@ describe('Matter controller editor persistence and terminology', () => {
     expect(editor).to.include('id="node-input-universalLowBatteryTextGAName"')
     expect(editor).to.match(/id="node-input-universalLowBatteryDPT" value="1\.005" readonly/)
     expect(editor).to.match(/id="node-input-universalLowBatteryTextDPT" value="16\.001" readonly/)
+  })
+
+  it('offers a capability-driven flow-input tab with copyable simple and advanced examples', () => {
+    expect(editor).to.include('href="#tabs-input"')
+    expect(editor).to.include('id="tabs-input"')
+    expect(editor).not.to.include('id="matter-input-help-button"')
+    expect(editor).not.to.include('id="matter-input-help-dialog"')
+    expect(editor).to.include('semanticInputDefinitions')
+    expect(editor).to.include('inputStructure')
+    expect(editor).to.include('attribute.writable === true')
+    expect(editor).to.include('matter-input-help-copy')
   })
 
   it('uses Matter terminology in the rendered English help', () => {
@@ -468,7 +592,88 @@ describe('Matter controller rename after commissioning', () => {
   })
 })
 
+describe('Matter controller commissioned-device list', () => {
+  it('loads connection-state constants from the installed matter.js device API', async () => {
+    const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
+    const manager = new classMatter('', 'state-test', 'test', null, { startQueue: false })
+
+    const api = await manager._loadApi()
+
+    expect(manager.nodeStateToString(api.NodeStates.Connected)).to.equal('connected')
+    expect(manager.nodeStateToString(api.NodeStates.Disconnected)).to.equal('disconnected')
+    expect(manager.nodeStateToString(api.NodeStates.Reconnecting)).to.equal('reconnecting')
+    expect(manager.nodeStateToString(api.NodeStates.WaitingForDeviceDiscovery)).to.equal('waitingfordiscovery')
+  })
+
+  it('returns every commissioned detail even when device IDs would be identical', async () => {
+    const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
+    const manager = new classMatter('', 'device-list-test', 'test', null, { startQueue: false })
+    manager._api = {
+      NodeStates: {
+        Connected: 0,
+        Disconnected: 1,
+        Reconnecting: 2,
+        WaitingForDeviceDiscovery: 3
+      }
+    }
+    manager.controller = {
+      getCommissionedNodesDetails: () => [{
+        nodeId: 2n,
+        deviceData: { basicInformation: { nodeLabel: 'First device', productName: 'First model' } }
+      }, {
+        nodeId: 2n,
+        deviceData: { basicInformation: { nodeLabel: 'Second device', productName: 'Second model' } }
+      }]
+    }
+
+    const devices = manager.getCommissionedNodesDetails()
+
+    expect(devices.map((device) => device.name)).to.deep.equal(['First device', 'Second device'])
+    expect(devices.map((device) => device.nodeId)).to.deep.equal(['2', '2'])
+  })
+})
+
 describe('Matter controller attribute lookup', () => {
+  it('reports writable attributes in the editor endpoint structure', async () => {
+    const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
+    const manager = new classMatter('', 'attribute-structure-test', 'test', null, { startQueue: false })
+    const endpoint = {
+      number: 2,
+      name: 'Thermostat',
+      getDeviceTypes: () => [{ name: 'Thermostat' }],
+      getAllClusterClients: () => [{
+        id: CLUSTER.THERMOSTAT,
+        name: 'Thermostat',
+        attributes: {
+          occupiedHeatingSetpoint: {
+            id: 18,
+            attribute: { schema: { writable: true } },
+            getLocal: () => 2100
+          },
+          localTemperature: {
+            id: 0,
+            attribute: { schema: { writable: false } },
+            getLocal: () => 2050
+          }
+        },
+        commands: {},
+        isAttributeSupportedByName: () => true
+      }]
+    }
+    manager.pairedNodes.set('55', {})
+    manager._getAllEndpoints = () => [endpoint]
+
+    const structure = manager.getNodeStructure('55')
+
+    expect(structure.endpoints[0].clusters[0].attributes).to.deep.include({
+      name: 'occupiedHeatingSetpoint',
+      id: 18,
+      value: 2100,
+      writable: true
+    })
+    expect(structure.endpoints[0].clusters[0].attributes.find((item) => item.name === 'localTemperature').writable).to.equal(false)
+  })
+
   it('resolves attribute identifier zero as well as its name', async () => {
     const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
     const manager = new classMatter('', 'attribute-read-test', 'test', null, { startQueue: false })

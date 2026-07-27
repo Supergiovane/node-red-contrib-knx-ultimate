@@ -6,7 +6,6 @@ const THERMOSTAT_CLUSTER_ID = 0x0201
 
 const setupThermostatProfile = (RED, node, config) => setupMappedEndpointProfile(RED, node, config, {
   profileName: 'thermostat',
-  inputClusterId: THERMOSTAT_CLUSTER_ID,
   eventClusterId: THERMOSTAT_CLUSTER_ID,
   formatAttributeStatus: (event) => {
     if (['localTemperature', 'occupiedHeatingSetpoint', 'occupiedCoolingSetpoint'].includes(event.attributeName) && event.value !== null && event.value !== undefined) {

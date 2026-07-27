@@ -2,6 +2,7 @@
 
 const dptlib = require('knxultimate').dptlib
 const { knxToMatter, matterToKnx } = require('../matterKnxConverter')
+const { resolveSemanticInput } = require('../matterControllerSemanticInput')
 
 const isValidGroupAddress = (value) => {
   const parts = String(value || '').trim().split('/')
@@ -41,10 +42,15 @@ const setupMappedEndpointProfile = (RED, node, config, options = {}) => {
   node.inputRBE = 'false'
   node.passthrough = 'no'
   node.matterProfile = options.profileName || 'mapped'
+  let matterCapabilities = {}
+  try { matterCapabilities = JSON.parse(config.matterDeviceCapabilities || '{}') } catch (error) { /* empty */ }
   const enablePins = config.enableNodePINS === 'yes'
   let lastInitialReadTs = 0
 
-  const status = (fill, shape, text) => node.status({ fill, shape, text })
+  const status = (fill, shape, text) => {
+    if (node.matterCommandBlocked === true) return
+    node.status({ fill, shape, text })
+  }
   // knxUltimate-config calls setNodeStatus synchronously while adding the client.
   node.setNodeStatus = ({ fill = 'grey', shape = 'ring', text = '' } = {}) => status(fill, shape, text)
   const manager = () => node.serverMatter?.matterManager
@@ -68,6 +74,7 @@ const setupMappedEndpointProfile = (RED, node, config, options = {}) => {
     return sendKnx(mapping, matterToKnx(mapping.clusterId, mapping.target, value), outputtype)
   }
   const enqueue = (mapping, value) => {
+    if (node.matterCommandBlocked === true) return false
     const currentManager = manager()
     if (!currentManager) throw new Error('Matter controller not ready')
     // Conversion happens before queueing so the Matter manager receives a canonical,
@@ -83,11 +90,13 @@ const setupMappedEndpointProfile = (RED, node, config, options = {}) => {
       args: action.args
     })
     if (queued && typeof queued.catch === 'function') queued.catch((error) => status('red', 'ring', error.message))
+    return true
   }
 
   node.handleSend = (msg) => {
     try {
       if (!msg?.knx || !node.knxUltimateAcceptedGAs.includes(String(msg.knx.destination || '').trim())) return
+      if (node.matterCommandBlocked === true) return
       const matches = node.mappings.filter((mapping) => mapping.ga === msg.knx.destination)
       if (msg.knx.event === 'GroupValue_Read') {
         matches.filter((mapping) => mapping.direction === 'status').forEach((mapping) => sendCached(mapping, 'response'))
@@ -145,29 +154,35 @@ const setupMappedEndpointProfile = (RED, node, config, options = {}) => {
     const complete = typeof done === 'function' ? done : () => {}
     const output = typeof send === 'function' ? send : node.send.bind(node)
     Promise.resolve().then(async () => {
-      const mapping = {
-        endpointId: msg.endpointId ?? node.matterEndpointId,
-        clusterId: msg.clusterId,
-        targetKind: msg.command !== undefined ? 'command' : 'attribute',
-        target: msg.command ?? msg.attribute
-      }
+      if (node.matterCommandBlocked === true) throw new Error(node.matterCommandBlockReason || 'Matter device unavailable')
+      const semantic = resolveSemanticInput(msg, matterCapabilities)
+      const mapping = semantic
+        ? {
+            ...semantic.mapping,
+            endpointId: semantic.mapping.endpointId ?? node.matterEndpointId
+          }
+        : {
+            endpointId: msg.endpointId ?? node.matterEndpointId,
+            clusterId: msg.clusterId,
+            targetKind: msg.command !== undefined ? 'command' : 'attribute',
+            target: msg.command ?? msg.attribute
+          }
       if (mapping.target === undefined || mapping.target === null || mapping.target === '' || mapping.clusterId === undefined || mapping.clusterId === null) {
         throw new Error('Matter input requires clusterId and command or attribute')
       }
-      if (options.inputClusterId !== undefined && Number(mapping.clusterId) !== Number(options.inputClusterId)) {
-        throw new Error(`${node.matterProfile} input requires clusterId ${options.inputClusterId}`)
-      }
-      const isAttributeRead = mapping.targetKind === 'attribute' && msg.value === undefined
+      const inputValue = semantic ? semantic.value : (mapping.targetKind === 'command' ? msg.args : msg.value)
+      const isAttributeRead = mapping.targetKind === 'attribute' && (semantic ? semantic.operation === 'read' : msg.value === undefined)
       if (isAttributeRead) {
         const currentManager = manager()
         if (!currentManager) throw new Error('Matter controller not ready')
-        const value = await currentManager.readAttribute(
+        const rawValue = await currentManager.readAttribute(
           node.matterNodeId,
           mapping.endpointId,
           mapping.clusterId,
           mapping.target,
-          msg.requestFromRemote === true
+          semantic ? semantic.requestFromRemote : msg.requestFromRemote === true
         )
+        const value = semantic ? matterToKnx(mapping.clusterId, mapping.target, rawValue) : rawValue
         output({
           ...msg,
           payload: value,
@@ -176,14 +191,16 @@ const setupMappedEndpointProfile = (RED, node, config, options = {}) => {
             nodeId: node.matterNodeId,
             endpointId: mapping.endpointId,
             clusterId: mapping.clusterId,
-            attribute: mapping.target
+            attribute: mapping.target,
+            function: semantic?.functionName,
+            rawValue: semantic ? rawValue : undefined
           }
         })
         status('blue', 'dot', `Matter read: ${mapping.target}`)
         complete()
         return
       }
-      enqueue(mapping, mapping.targetKind === 'command' ? msg.args : msg.value)
+      enqueue(mapping, inputValue)
       complete()
     }).catch((error) => {
       status('red', 'ring', error.message)

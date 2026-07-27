@@ -19,7 +19,15 @@ It replaces the unpublished per-device Matter controller nodes and keeps the ful
 | Sensors | Sensor endpoints expose their measurement/status GA only when supported: temperature, humidity, illuminance, occupancy, contact and battery. |
 | Read at startup | Publishes the cached Matter value at deploy/startup or when the device reconnects. |
 | Update local state from KNX write | Updates the local Matter/KNX cache when a telegram is written on a configured KNX GA. |
-| Node Input/Output PINs | Shows Node-RED input/output pins. Input accepts boolean payloads and Matter-style `msg.payload` or `msg.on.on`; output emits state updates. The selection is preserved when the editor is reopened. |
+| Node Input/Output PINs | Shows Node-RED input/output pins. Non-light endpoints accept the simple `{function,value}` contract below as well as the advanced Matter fields; output emits state updates. The selection is preserved when the editor is reopened. |
+
+## Flow input
+
+For a selected non-light endpoint, open the **Flow input** tab in the editor. The tab is built from the endpoint's advertised structure and provides copyable examples, the selected Endpoint ID, every readable/writable attribute and every accepted command. It remains available when the node is used only by a flow without a KNX gateway.
+
+Simple writes use `msg.payload = {function:"position",value:35}`. Omit `value` to read a supported state, for example `{function:"temperature"}`; the output uses human units and includes raw routing details in `msg.matter`. Supported functions include `onoff`, `level`, `position`, `tiltposition`, `open`, `close`, `stop`, `setpoint`, `coolingsetpoint`, `currenttemp`, `fanspeed`, sensor readings and `identify`, but only when advertised by that endpoint. Door Lock accepts `{function:"lock",value:true|false}`.
+
+Existing advanced inputs remain valid: use top-level `msg.clusterId` plus `msg.command`/`msg.args`, or `msg.attribute` with optional `msg.value`. Node ID and Endpoint ID are already selected by the node; `msg.endpointId` is only an optional override.
 
 ## Universal Mode
 
@@ -34,4 +42,8 @@ Examples: `{nodeId:"100",endpointId:1,clusterId:6,command:"on",args:{}}` turns O
 ## Behaviour
 
 The node keeps a local cache from Matter updates and KNX writes, answers KNX read requests from that cache, and can emit/read values at startup. Only the configured group addresses are listened to, so unrelated KNX traffic is ignored.
+
+Commands are scheduled in a separate ordered lane for each commissioned device. An offline, timing-out or removed device therefore cannot delay other Matter devices that use the same KNX group address. A node that still references a removed device rejects the command immediately and shows **Device no longer commissioned** in red; select a valid Matter device or remove the stale Controller node.
+
+An unavailable-device error is latched: further KNX and flow commands are ignored and cannot overwrite the red status. The node resumes automatically as soon as that Matter device reports `connected`; opening the node editor also clears the latch to allow a manual retry.
 </script>

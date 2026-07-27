@@ -16,7 +16,11 @@ The controller talks to the devices over the **IP network** (WiFi, Ethernet, or 
 
 1. **Deploy** this configuration node first (the controller must be running).
 2. Open the node again and enter the **pairing code**: either the 11-digit manual code (e.g. `3497-011-2332`) or the QR code content (`MT:....`).
-3. Click **PAIR**. Commissioning can take up to a minute.
+3. For a manually entered code, click **PAIR**. A QR read with **Webcam** or **Image** starts pairing automatically. Commissioning can take up to a minute.
+
+Instead of typing the QR payload, click **Webcam** to scan it live or **Image** to read it from a local picture. Both standard dark-on-light and inverted white-on-dark QR codes are supported. Decoding takes place entirely in the browser; after a valid Matter QR is read, the editor fills the pairing-code field and immediately starts pairing. Enter the optional device name before scanning if desired. A manually typed code still starts only when you click **PAIR**. Live webcam access requires the editor to be opened over HTTPS or from `localhost`; when that is not possible, the editor explains the limitation and image loading remains available.
+
+While commissioning is in progress, a blocking wait panel covers the editor and prevents further clicks until the operation succeeds or fails.
 
 If the device is brand new and only supports Bluetooth commissioning, first pair it with its vendor app or another Matter controller (Alexa, Google Home, Apple Home), then use that controller's **"share / pair with another hub"** function to generate a new pairing code for KNX-Ultimate. This way the device joins multiple fabrics at once.
 
@@ -43,5 +47,11 @@ Use **Export** to download a complete backup of this controller instance. It inc
 ## Removing a device
 
 Use the trash button in the commissioned devices list. The controller tries to decommission the device properly; if it is unreachable, it is removed from the fabric anyway (a factory reset of the device may then be needed).
+
+The list contains one row for every node currently stored in this controller's Matter fabric. Node IDs are unique within that fabric; endpoints exposed by one commissioned bridge are not listed as separate devices. The state column reports whether each node is connected, disconnected, reconnecting or waiting for discovery.
+
+The controller keeps command order separately for each commissioned device. A slow, offline or removed device cannot block commands for other devices. Controller device nodes that still reference a removed Node ID reject new commands immediately and display **Device no longer commissioned**.
+
+When a device becomes unavailable, its Controller nodes stay blocked and ignore further commands until that device reports `connected` again. Recovery is automatic; opening the device-node editor also clears the block for a manual retry.
 
 In Universal Battery Monitor mode, optional KNX outputs publish the aggregate alarm as DPT 1.005 and cycle low-battery device names every 2 seconds as 14-byte DPT 16.001 text.

@@ -23,7 +23,12 @@ const normalizeHostForCompare = (value) => {
 // emitting 'connected', 'disconnected', 'event' (attribute changes), 'matterEvent' (cluster events),
 // 'nodeState' and 'structureChanged'.
 class classMatter extends EventEmitter {
-  constructor (_storagePath, _instanceId, _fabricLabel, _sysLogger, { startQueue = true } = {}) {
+  constructor (_storagePath, _instanceId, _fabricLabel, _sysLogger, {
+    startQueue = true,
+    commandTimeoutMs = 15000,
+    queuePollMs = 150,
+    queueMaxConcurrent = 32
+  } = {}) {
     super()
     this.matterConnectionStatus = 'disconnected'
     this.storagePath = _storagePath
@@ -33,7 +38,14 @@ class classMatter extends EventEmitter {
     this.controller = null
     this.pairedNodes = new Map() // nodeId (string) -> PairedNode
     this.commandQueue = []
+    // Commands remain strictly ordered per Matter node, but different nodes use
+    // independent lanes. An unreachable device must never head-of-line block every
+    // other endpoint sharing this controller/fabric.
+    this.commandQueueInFlight = new Map()
     this.queueMaxLength = 2000
+    this.queueMaxConcurrent = Math.max(1, Number(queueMaxConcurrent) || 32)
+    this.commandTimeoutMs = Math.max(10, Number(commandTimeoutMs) || 15000)
+    this.queuePollMs = Math.max(10, Number(queuePollMs) || 150)
     this.exitAllQueues = false
     this._api = null // Lazy loaded matter.js exports
     this._logThrottle = new Map()
@@ -75,7 +87,8 @@ class classMatter extends EventEmitter {
     if (this._api !== null) return this._api
     const { Environment, StorageService, Logger, LogLevel } = await import('@matter/main')
     const { Seconds } = await import('@matter/general')
-    const { CommissioningController, NodeStates } = await import('@project-chip/matter.js')
+    const { CommissioningController } = await import('@project-chip/matter.js')
+    const { NodeStates } = await import('@project-chip/matter.js/device')
     const { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = await import('@matter/main/types')
     const { BasicInformation, GeneralCommissioning } = await import('@matter/main/clusters')
     this._api = {
@@ -511,7 +524,12 @@ class classMatter extends EventEmitter {
               try {
                 value = cc.attributes[attrName].getLocal()
               } catch (error) { value = undefined }
-              attributes.push({ name: attrName, id: Number(cc.attributes[attrName].id), value: this._jsonSafe(value) })
+              attributes.push({
+                name: attrName,
+                id: Number(cc.attributes[attrName].id),
+                value: this._jsonSafe(value),
+                writable: cc.attributes[attrName]?.attribute?.schema?.writable === true
+              })
             } catch (error) { /* empty */ }
           })
           const commands = []
@@ -618,56 +636,140 @@ class classMatter extends EventEmitter {
     return true
   }
 
+  _isNodeCommissioned = (nodeId) => {
+    const key = String(nodeId)
+    try {
+      if (this.controller && typeof this.controller.getCommissionedNodes === 'function') {
+        return this.controller.getCommissionedNodes().some((commissionedNodeId) => commissionedNodeId.toString() === key)
+      }
+    } catch (error) { /* Fall back to the attached-node map while the controller changes state. */ }
+    return this.pairedNodes.has(key)
+  }
+
   // Add a command or attribute write to the queue.
   // _item: { nodeId, endpointId, clusterId, kind: 'command'|'attributeWrite', name, args }
   writeMatterQueueAdd = async (_item) => {
-    return this._enqueueCommand(_item)
+    const nodeId = _item?.nodeId === undefined || _item?.nodeId === null ? '' : String(_item.nodeId)
+    const item = { ..._item, nodeId }
+    if (nodeId === '' || !this._isNodeCommissioned(nodeId)) {
+      const error = new Error(`Matter node ${nodeId || '(empty)'} is no longer commissioned`)
+      error.code = 'MATTER_NODE_NOT_COMMISSIONED'
+      // Defer the notification so a legacy fire-and-forget caller cannot overwrite
+      // the red orphan-device status with its immediate optimistic "command sent" state.
+      queueMicrotask(() => this.emit('commandError', { item, error: error.message, code: error.code }))
+      throw error
+    }
+    return this._enqueueCommand(item)
   }
 
   deleteMatterQueue = async (_nodeIdString) => {
-    this.commandQueue = this.commandQueue.filter((el) => el.nodeId !== _nodeIdString)
+    const nodeId = String(_nodeIdString)
+    this.commandQueue = this.commandQueue.filter((el) => String(el.nodeId) !== nodeId)
   }
 
-  processQueueItem = async () => {
-    let item = null
+  _withCommandTimeout = async (operation) => {
+    let timer
+    try {
+      return await Promise.race([
+        Promise.resolve().then(operation),
+        new Promise((resolve, reject) => {
+          timer = setTimeout(() => {
+            const error = new Error(`Matter command timed out after ${this.commandTimeoutMs} ms`)
+            error.code = 'MATTER_COMMAND_TIMEOUT'
+            reject(error)
+          }, this.commandTimeoutMs)
+          timer.unref?.()
+        })
+      ])
+    } finally {
+      if (timer !== undefined) clearTimeout(timer)
+    }
+  }
+
+  processQueueItem = async (_item = undefined) => {
+    let item = _item ?? null
     try {
       if (this.matterConnectionStatus !== 'connected') return
-      item = this.commandQueue.pop()
+      if (item === null) item = this.commandQueue.pop()
       if (!item) return
       const node = this.pairedNodes.get(item.nodeId)
-      if (node === undefined) throw new Error(`Matter node ${item.nodeId} unknown or not yet connected`)
+      if (node === undefined || !this._isNodeCommissioned(item.nodeId)) {
+        const error = new Error(`Matter node ${item.nodeId} is no longer commissioned`)
+        error.code = 'MATTER_NODE_NOT_COMMISSIONED'
+        throw error
+      }
       const clusterClient = this._findClusterClient(node, item.endpointId, item.clusterId)
       if (clusterClient === undefined) throw new Error(`Cluster ${item.clusterId} not found on endpoint ${item.endpointId} of node ${item.nodeId}`)
       if (item.kind === 'attributeWrite') {
         const attribute = clusterClient.attributes[item.name]
         if (attribute === undefined) throw new Error(`Attribute ${item.name} not found in cluster ${clusterClient.name}`)
-        await attribute.set(item.args)
+        await this._withCommandTimeout(() => attribute.set(item.args))
       } else {
         const command = clusterClient.commands[item.name]
         if (typeof command !== 'function') throw new Error(`Command ${item.name} not found in cluster ${clusterClient.name}`)
-        await command(item.args)
+        await this._withCommandTimeout(() => command(item.args))
       }
     } catch (error) {
       const target = item ? `${item.nodeId}/${item.endpointId}/${item.clusterId}/${item.name}` : 'unknown'
+      if (!error.code && item) {
+        let connectionState = 'unknown'
+        try {
+          const targetNode = this.pairedNodes.get(item.nodeId)
+          if (targetNode?.connectionState !== undefined) connectionState = this.nodeStateToString(targetNode.connectionState)
+        } catch (stateError) { /* empty */ }
+        if (connectionState !== 'unknown' && connectionState !== 'connected') {
+          error.code = 'MATTER_NODE_UNAVAILABLE'
+        } else if (/disconnected|reconnecting|unreachable|no session|peer communication|network.*(?:failed|error)|timed? ?out/i.test(error.message || '')) {
+          error.code = 'MATTER_NODE_UNAVAILABLE'
+        }
+      }
       this._logThrottled('error', `matter:queue:error:${target}`, `classMatter: processQueueItem (${target}): ${error.message}`, 30000)
-      this.emit('commandError', { item, error: error.message })
+      this.emit('commandError', { item, error: error.message, code: error.code })
+    }
+  }
+
+  _takeNextQueueItem = () => {
+    if (!Array.isArray(this.commandQueue) || this.commandQueue.length === 0) return undefined
+    // New items are unshifted, therefore the oldest FIFO item is at the end.
+    // Walk backwards until a device lane that is not already busy is found.
+    for (let index = this.commandQueue.length - 1; index >= 0; index--) {
+      const item = this.commandQueue[index]
+      const nodeId = String(item?.nodeId ?? '')
+      if (this.commandQueueInFlight.has(nodeId)) continue
+      return this.commandQueue.splice(index, 1)[0]
+    }
+    return undefined
+  }
+
+  _dispatchQueueItems = () => {
+    if (this.matterConnectionStatus !== 'connected') return
+    while (this.commandQueueInFlight.size < this.queueMaxConcurrent) {
+      const item = this._takeNextQueueItem()
+      if (!item) return
+      const nodeId = String(item.nodeId)
+      const laneToken = {}
+      this.commandQueueInFlight.set(nodeId, laneToken)
+      Promise.resolve(this.processQueueItem(item))
+        .catch((error) => this._logThrottled('error', `matter:queue:lane:${nodeId}`, `classMatter: queue lane ${nodeId}: ${error.message}`, 30000))
+        .finally(() => {
+          if (this.commandQueueInFlight.get(nodeId) === laneToken) this.commandQueueInFlight.delete(nodeId)
+        })
     }
   }
 
   handleQueue = async () => {
     do {
       if (this.matterConnectionStatus === 'connected' && this.commandQueue && this.commandQueue.length > 0) {
-        try {
-          await this.processQueueItem()
-        } catch (error) { /* empty */ }
+        this._dispatchQueueItems()
       }
-      await pleaseWait(150)
+      await pleaseWait(this.queuePollMs)
     } while (!this.exitAllQueues)
   }
 
   close = async () => {
     this.exitAllQueues = true
     this.commandQueue = []
+    this.commandQueueInFlight.clear()
     this._logThrottle.clear()
     this.matterConnectionStatus = 'disconnected'
     try {

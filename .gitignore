@@ -7,10 +7,18 @@ KNXUltimateDebugLog.txt
 AGENTS.md
 
 tutorial/
+!tutorial/
+tutorial/*
+!tutorial/28 Giugno 2026/
+tutorial/28 Giugno 2026/*
+!tutorial/28 Giugno 2026/Messaggi-input-Matter-Controller-e-Matter-Bridge.md
 docs/_site/
 docs/Gemfile.lock
 scripts/
 
 # Live integration test secrets & local state (NEVER commit real IPs/tokens/passwords)
 test/
-
+!test/
+test/*
+!test/matterControllerEditor.test.js
+!test/matterQrScanner.test.js

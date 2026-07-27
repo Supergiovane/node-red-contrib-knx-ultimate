@@ -1,4 +1,5 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/matterQrScanner.js"></script>
 
 <script type="text/javascript">
     RED.nodes.registerType('matter-config', {
@@ -24,6 +25,165 @@
             var $storageExport = $('#matter-storage-export');
             var $storageImport = $('#matter-storage-import');
             var $storageFile = $('#matter-storage-file');
+            var $qrCameraButton = $('#matter-qr-camera');
+            var $qrImageButton = $('#matter-qr-image');
+            var $qrImageFile = $('#matter-qr-image-file');
+            var $qrCameraPanel = $('#matter-qr-camera-panel');
+            var $qrCameraVideo = $('#matter-qr-camera-video');
+            var $qrCameraStop = $('#matter-qr-camera-stop');
+            var $qrCameraWarning = $('#matter-qr-camera-warning');
+            var qrScannerControls = null;
+            var qrScannerStarting = false;
+            var qrUtils = window.KNXUltimateMatterQrScanner;
+
+            function qrText(key) {
+                return RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties." + key);
+            }
+
+            function setQrButtonsDisabled(disabled) {
+                $qrCameraButton.prop('disabled', disabled);
+                $qrImageButton.prop('disabled', disabled);
+            }
+
+            function stopQrCamera() {
+                qrScannerStarting = false;
+                if (qrScannerControls && typeof qrScannerControls.stop === 'function') {
+                    try { qrScannerControls.stop(); } catch (error) { }
+                }
+                qrScannerControls = null;
+                if (qrUtils) qrUtils.stopVideo($qrCameraVideo[0]);
+                $qrCameraPanel.hide();
+                setQrButtonsDisabled(false);
+            }
+
+            function notifyQrError(key, error) {
+                var message = qrText(key);
+                if (error && error.message) message += ': ' + error.message;
+                RED.notify(message, { type: 'error', fixed: true });
+            }
+
+            function applyQrResult(result, scannerControls) {
+                if (scannerControls && typeof scannerControls.stop === 'function') {
+                    try { scannerControls.stop(); } catch (error) { }
+                }
+                stopQrCamera();
+                var value = qrUtils ? qrUtils.normalizeMatterQrPayload(qrUtils.getResultText(result)) : null;
+                if (!value) {
+                    RED.notify(qrText('qr_invalid_matter'), { type: 'warning', fixed: true });
+                    return false;
+                }
+                $pairingCode.val(value).trigger('change').focus();
+                RED.notify(qrText('qr_found'), { type: 'success' });
+                $pairButton.trigger('click');
+                return true;
+            }
+
+            function loadQrDecoder() {
+                if (window.ZXingBrowser && window.ZXingBrowser.BrowserQRCodeReader) return Promise.resolve(window.ZXingBrowser);
+                if (window.knxUltimateMatterQrDecoderPromise) return window.knxUltimateMatterQrDecoderPromise;
+                window.knxUltimateMatterQrDecoderPromise = new Promise(function (resolve, reject) {
+                    var script = document.createElement('script');
+                    script.async = true;
+                    script.src = 'resources/node-red-contrib-knx-ultimate/zxing-browser-0.2.0.min.js';
+                    script.onload = function () {
+                        if (window.ZXingBrowser && window.ZXingBrowser.BrowserQRCodeReader) {
+                            resolve(window.ZXingBrowser);
+                        } else {
+                            reject(new Error(qrText('qr_decoder_unavailable')));
+                        }
+                    };
+                    script.onerror = function () {
+                        reject(new Error(qrText('qr_decoder_unavailable')));
+                    };
+                    document.head.appendChild(script);
+                }).catch(function (error) {
+                    window.knxUltimateMatterQrDecoderPromise = null;
+                    throw error;
+                });
+                return window.knxUltimateMatterQrDecoderPromise;
+            }
+
+            function createQrReader(ZXingBrowser) {
+                return qrUtils.enableInvertedQrFallback(new ZXingBrowser.BrowserQRCodeReader());
+            }
+
+            function scanQrImage(file) {
+                if (!file) return;
+                stopQrCamera();
+                setQrButtonsDisabled(true);
+                loadQrDecoder().then(function (ZXingBrowser) {
+                    var imageUrl = URL.createObjectURL(file);
+                    var reader = createQrReader(ZXingBrowser);
+                    return reader.decodeFromImageUrl(imageUrl).then(function (result) {
+                        applyQrResult(result);
+                    }).finally(function () {
+                        URL.revokeObjectURL(imageUrl);
+                    });
+                }).catch(function (error) {
+                    notifyQrError('qr_image_failed', error);
+                }).finally(function () {
+                    setQrButtonsDisabled(false);
+                });
+            }
+
+            function startQrCamera() {
+                var cameraStatus = qrUtils ? qrUtils.getCameraStatus(window, navigator) : { available: false, reason: 'unsupported' };
+                if (!cameraStatus.available) {
+                    var warningKey = cameraStatus.reason === 'insecure' ? 'qr_camera_insecure' : 'qr_camera_unsupported';
+                    RED.notify(qrText(warningKey), { type: 'warning', fixed: true });
+                    return;
+                }
+                stopQrCamera();
+                qrScannerStarting = true;
+                setQrButtonsDisabled(true);
+                $qrCameraPanel.show();
+                loadQrDecoder().then(function (ZXingBrowser) {
+                    if (!qrScannerStarting) return null;
+                    var reader = createQrReader(ZXingBrowser);
+                    return reader.decodeFromConstraints({
+                        audio: false,
+                        video: { facingMode: { ideal: 'environment' } }
+                    }, $qrCameraVideo[0], function (result, error, controls) {
+                        if (error) { /* ZXing keeps trying while the QR is outside the frame. */ }
+                        if (result) applyQrResult(result, controls);
+                    });
+                }).then(function (controls) {
+                    if (!controls) return;
+                    if (!qrScannerStarting) {
+                        try { controls.stop(); } catch (error) { }
+                        return;
+                    }
+                    qrScannerControls = controls;
+                    qrScannerStarting = false;
+                    $qrCameraButton.prop('disabled', true);
+                    $qrImageButton.prop('disabled', false);
+                }).catch(function (error) {
+                    stopQrCamera();
+                    if (qrUtils && qrUtils.isCameraPermissionError(error)) {
+                        notifyQrError('qr_camera_permission_denied');
+                    } else {
+                        notifyQrError('qr_camera_failed', error);
+                    }
+                });
+            }
+
+            var initialCameraStatus = qrUtils ? qrUtils.getCameraStatus(window, navigator) : { available: false, reason: 'unsupported' };
+            if (!initialCameraStatus.available) {
+                $qrCameraWarning.text(qrText(initialCameraStatus.reason === 'insecure' ? 'qr_camera_insecure' : 'qr_camera_unsupported')).show();
+            }
+
+            $qrCameraButton.on('click', startQrCamera);
+            $qrCameraStop.on('click', stopQrCamera);
+            $qrImageButton.on('click', function () {
+                stopQrCamera();
+                $qrImageFile.trigger('click');
+            });
+            $qrImageFile.on('change', function () {
+                var file = this.files && this.files[0];
+                this.value = '';
+                scanQrImage(file);
+            });
+            node._matterQrCleanup = stopQrCamera;
 
             function storageExportUrl() {
                 var adminRoot = (RED.settings && typeof RED.settings.httpAdminRoot === 'string') ? RED.settings.httpAdminRoot : '/';
@@ -134,11 +294,6 @@
                 }
                 $pairButton.prop('disabled', true);
                 $pairSpinner.show();
-                var myNotification = RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_wait"), {
-                    modal: false,
-                    fixed: true,
-                    type: 'info'
-                });
                 $.ajax({
                     url: 'KNXUltimateMatterPair?serverId=' + node.id + '&code=' + encodeURIComponent(code) + (desiredName !== '' ? '&name=' + encodeURIComponent(desiredName) : ''),
                     dataType: 'json',
@@ -159,7 +314,6 @@
                     try { msg = jqXHR.responseJSON.error; } catch (e) { msg = errorThrown || textStatus; }
                     notifyPairingError(msg);
                 }).always(function () {
-                    if (myNotification) myNotification.close();
                     $pairButton.prop('disabled', false);
                     $pairSpinner.hide();
                 });
@@ -194,10 +348,20 @@
             });
         },
         oneditsave: function () {
+            if (typeof this._matterQrCleanup === 'function') this._matterQrCleanup();
+            delete this._matterQrCleanup;
             // Return to the info tab
             try {
                 RED.sidebar.show("info");
             } catch (error) { }
+        },
+        oneditcancel: function () {
+            if (typeof this._matterQrCleanup === 'function') this._matterQrCleanup();
+            delete this._matterQrCleanup;
+        },
+        oneditdelete: function () {
+            if (typeof this._matterQrCleanup === 'function') this._matterQrCleanup();
+            delete this._matterQrCleanup;
         },
         label: function () {
             return this.name || "Matter Controller";
@@ -253,16 +417,38 @@
   <hr/>
 
   <div class="form-row">
-    <b><i class="fa fa-database"></i>&nbsp;<span data-i18n="matter-config.properties.storage_title"></span></b>
-    <button type="button" id="matter-storage-export" class="red-ui-button" style="margin-left:8px;"><i class="fa fa-download"></i>&nbsp;<span data-i18n="matter-config.properties.storage_export"></span></button>
-    <button type="button" id="matter-storage-import" class="red-ui-button"><i class="fa fa-upload"></i>&nbsp;<span data-i18n="matter-config.properties.storage_import"></span></button>
-    <input type="file" id="matter-storage-file" accept="application/json,.json" style="display:none;">
+    <b><i class="fa fa-qrcode"></i>&nbsp;<span data-i18n="matter-config.properties.pairing_title"></span></b>
   </div>
 
-  <hr/>
+  <div class="form-row">
+    <label for="matter-pairing-name">
+      <i class="fa fa-tag"></i>
+      <span data-i18n="matter-config.properties.pairing_name"></span>
+    </label>
+    <input type="text" id="matter-pairing-name" placeholder="Kitchen plug" style="width:250px;">
+  </div>
 
   <div class="form-row">
-    <b><i class="fa fa-qrcode"></i>&nbsp;<span data-i18n="matter-config.properties.pairing_title"></span></b>
+    <label>
+      <i class="fa fa-qrcode"></i>
+      <span data-i18n="matter-config.properties.qr_acquire"></span>
+    </label>
+    <button type="button" id="matter-qr-camera" class="red-ui-button">
+      <i class="fa fa-camera"></i>&nbsp;<span data-i18n="matter-config.properties.qr_scan_camera"></span>
+    </button>
+    <button type="button" id="matter-qr-image" class="red-ui-button">
+      <i class="fa fa-image"></i>&nbsp;<span data-i18n="matter-config.properties.qr_scan_image"></span>
+    </button>
+    <input type="file" id="matter-qr-image-file" accept="image/*" style="display:none;">
+  </div>
+
+  <div class="form-row" id="matter-qr-camera-warning" role="status" style="display:none; margin-left:105px; width:calc(100% - 105px); color:#b36b00;"></div>
+
+  <div class="form-row" id="matter-qr-camera-panel" style="display:none; margin-left:105px; width:calc(100% - 105px);">
+    <video id="matter-qr-camera-video" autoplay muted playsinline style="display:block; width:100%; max-width:430px; max-height:300px; background:#111; border-radius:4px; object-fit:cover;"></video>
+    <button type="button" id="matter-qr-camera-stop" class="red-ui-button" style="margin-top:6px;">
+      <i class="fa fa-stop"></i>&nbsp;<span data-i18n="matter-config.properties.qr_stop_camera"></span>
+    </button>
   </div>
 
   <div class="form-row">
@@ -274,17 +460,6 @@
     <button type="button" id="matterPairButton" class="red-ui-button" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
       <i class="fa fa-link"></i>&nbsp;<span data-i18n="matter-config.properties.pair_button"></span>
     </button>
-    <span id="matterPairSpinner" style="margin-left:6px; display:none; color:#1b7d33;">
-      <i class="fa fa-circle-notch fa-spin"></i>
-    </span>
-  </div>
-
-  <div class="form-row">
-    <label for="matter-pairing-name">
-      <i class="fa fa-tag"></i>
-      <span data-i18n="matter-config.properties.pairing_name"></span>
-    </label>
-    <input type="text" id="matter-pairing-name" placeholder="Kitchen plug" style="width:250px;">
   </div>
   <hr/>
 
@@ -308,6 +483,23 @@
       </thead>
       <tbody id="matter-devices-body"></tbody>
     </table>
+  </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <b><i class="fa fa-database"></i>&nbsp;<span data-i18n="matter-config.properties.storage_title"></span></b>
+    <button type="button" id="matter-storage-export" class="red-ui-button" style="margin-left:8px;"><i class="fa fa-download"></i>&nbsp;<span data-i18n="matter-config.properties.storage_export"></span></button>
+    <button type="button" id="matter-storage-import" class="red-ui-button"><i class="fa fa-upload"></i>&nbsp;<span data-i18n="matter-config.properties.storage_import"></span></button>
+    <input type="file" id="matter-storage-file" accept="application/json,.json" style="display:none;">
+  </div>
+
+  <div id="matterPairSpinner" role="alertdialog" aria-modal="true" aria-labelledby="matter-pairing-overlay-message"
+       style="display:none; position:fixed; inset:0; z-index:100000; background:rgba(20, 24, 28, 0.72); cursor:wait;">
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); min-width:280px; max-width:80vw; padding:28px 34px; border-radius:8px; background:#fff; color:#333; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.4);">
+      <i class="fa fa-circle-notch fa-spin" aria-hidden="true" style="display:block; margin-bottom:16px; color:#1b7d33; font-size:54px;"></i>
+      <strong id="matter-pairing-overlay-message" data-i18n="matter-config.properties.pairing_wait" style="font-size:16px;"></strong>
+    </div>
   </div>
 
   <br/>

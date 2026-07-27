@@ -26,8 +26,20 @@ Il remplace les nœuds Matter séparés non publiés et conserve toute l'UI lumi
 | Capteurs | Les endpoints capteur affichent leur GA de mesure/état uniquement si elle est supportée : température, humidité, éclairement, occupation, contact et batterie. |
 | Read at startup | Publie la valeur Matter en cache au déploiement/démarrage ou quand le périphérique se reconnecte. |
 | Update local state from KNX write | Met à jour le cache local Matter/KNX lorsqu'un télégramme est écrit sur une GA KNX configurée. |
-| Node Input/Output PINs | Affiche les pins entrée/sortie Node-RED. Pour les endpoints mappés, les sélecteurs Matter se placent directement dans `msg` : `msg.clusterId` avec `msg.attribute` lit un attribut et émet sa valeur dans `msg.payload` ; `msg.requestFromRemote = true` force la lecture du dispositif. Ajoutez `msg.value` pour écrire un attribut, ou utilisez `msg.clusterId`, `msg.command` et `msg.args` pour une commande. L'identifiant numérique d'attribut `0` est valide. Door Lock accepte un `msg.payload` booléen (`true` verrouille, `false` déverrouille). La sélection est conservée à la réouverture de l'éditeur. |
+| Node Input/Output PINs | Affiche les pins entrée/sortie Node-RED. Les endpoints autres que lumière acceptent le format simple `{function,value}` et les sélecteurs Matter avancés existants. |
+
+## Messages d'entrée du flow
+
+Après avoir sélectionné un endpoint autre que lumière, ouvrez l'onglet **Entrée du flow**. L'onglet est généré depuis la structure annoncée et affiche des exemples copiables, l'Endpoint ID, tous les attributs lisibles/inscriptibles et toutes les commandes acceptées. Il reste disponible lorsque le nœud est utilisé uniquement par le flow, sans passerelle KNX.
+
+Utilisez `msg.payload = {function:"position",value:35}` pour écrire avec des unités lisibles. Omettez `value` pour lire un état, par exemple `{function:"temperature"}` ; le résultat est placé dans `msg.payload` et les détails bruts dans `msg.matter`. Selon l'endpoint, les fonctions comprennent `onoff`, `level`, `position`, `open`, `close`, `stop`, les consignes, le ventilateur et les capteurs. Une serrure accepte `{function:"lock",value:true|false}`.
+
+Les flows existants restent compatibles. Les messages avancés utilisent toujours `msg.clusterId` avec `msg.command`/`msg.args`, ou `msg.attribute` et éventuellement `msg.value`. Le Node ID et l'Endpoint ID sont déjà sélectionnés.
 
 ## Comportement
 
 Le nœud garde un cache local depuis les mises à jour Matter et les écritures KNX, répond aux lectures KNX depuis ce cache et peut émettre/lire les valeurs au démarrage. Il n'écoute que les adresses de groupe configurées, donc le trafic KNX non lié est ignoré.
+
+Les commandes utilisent une file ordonnée séparée pour chaque appareil appairé. Un appareil hors ligne, en délai dépassé ou supprimé ne peut donc pas retarder les autres appareils Matter qui utilisent la même adresse de groupe KNX. Un nœud qui référence encore un appareil supprimé refuse immédiatement la commande et affiche **Device no longer commissioned** en rouge ; sélectionnez un appareil Matter valide ou supprimez le nœud Controller orphelin.
+
+Une erreur d'appareil indisponible reste verrouillée : les commandes KNX et flow suivantes sont ignorées et ne peuvent pas remplacer l'état rouge. Le nœud reprend automatiquement dès que cet appareil Matter signale `connected` ; l'ouverture de l'éditeur du nœud libère également le verrou pour permettre un nouvel essai manuel.

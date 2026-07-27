@@ -16,7 +16,11 @@ Der Controller kommuniziert mit den Geräten über das **IP-Netzwerk** (WLAN, Et
 
 1. Zuerst diesen Konfigurations-Node **deployen** (der Controller muss laufen).
 2. Den Node erneut öffnen und den **Kopplungscode** eingeben: entweder den 11-stelligen manuellen Code (z.B. `3497-011-2332`) oder den QR-Code-Inhalt (`MT:....`).
-3. Auf **KOPPELN** klicken. Die Kommissionierung kann bis zu einer Minute dauern.
+3. Bei einem manuell eingegebenen Code auf **KOPPELN** klicken. Ein mit **Webcam** oder **Bild** gelesener QR-Code startet die Kopplung automatisch. Die Kommissionierung kann bis zu einer Minute dauern.
+
+Statt den QR-Payload einzutippen, klicke auf **Webcam**, um ihn live zu scannen, oder auf **Bild**, um ihn aus einem lokalen Foto zu lesen. Sowohl normale dunkle QR-Codes auf hellem Grund als auch invertierte weiße Codes auf dunklem Grund werden unterstützt. Die Dekodierung erfolgt vollständig im Browser; nach dem Lesen eines gültigen Matter-QR-Codes füllt der Editor das Kopplungscode-Feld und startet die Kopplung sofort. Gib den optionalen Gerätenamen vor dem Scannen ein. Ein manuell eingegebener Code startet weiterhin erst mit **KOPPELN**. Der Live-Zugriff auf die Webcam setzt voraus, dass der Editor über HTTPS oder von `localhost` geöffnet wurde; andernfalls erklärt der Editor die Einschränkung und das Laden eines Bildes bleibt verfügbar.
+
+Während der Kommissionierung überdeckt ein blockierender Wartebildschirm den Editor und verhindert weitere Klicks, bis der Vorgang erfolgreich abgeschlossen wird oder fehlschlägt.
 
 Wenn das Gerät fabrikneu ist und nur Bluetooth-Kommissionierung unterstützt, kopple es zuerst mit der Hersteller-App oder einem anderen Matter-Controller (Alexa, Google Home, Apple Home) und nutze dann dessen Funktion **"mit weiterem Hub teilen"**, um einen neuen Kopplungscode für KNX-Ultimate zu erzeugen. So tritt das Gerät mehreren Fabrics gleichzeitig bei.
 
@@ -43,5 +47,11 @@ Mit **Exportieren** wird eine vollständige Sicherung dieser Controller-Instanz 
 ## Ein Gerät entfernen
 
 Nutze den Papierkorb-Button in der Liste der gekoppelten Geräte. Der Controller versucht, das Gerät sauber zu dekommissionieren; ist es nicht erreichbar, wird es trotzdem aus der Fabric entfernt (danach kann ein Werksreset des Geräts nötig sein).
+
+Die Liste enthält eine Zeile für jeden Node, der derzeit in der Matter-Fabric dieses Controllers gespeichert ist. Node-IDs sind innerhalb dieser Fabric eindeutig; Endpunkte eines einzelnen kommissionierten Bridges werden nicht als separate Geräte aufgeführt. Die Statusspalte zeigt an, ob ein Node verbunden, getrennt, in Wiederverbindung oder auf Geräteerkennung wartend ist.
+
+Der Controller hält die Befehlsreihenfolge für jedes gekoppelte Gerät getrennt. Ein langsames, offline befindliches oder entferntes Gerät kann Befehle für andere Geräte nicht blockieren. Controller-Gerätenodes, die weiterhin auf eine entfernte Node ID verweisen, weisen neue Befehle sofort ab und zeigen **Device no longer commissioned** an.
+
+Wird ein Gerät nicht verfügbar, bleiben seine Controller-Nodes gesperrt und ignorieren weitere Befehle, bis dieses Gerät erneut `connected` meldet. Die Wiederherstellung erfolgt automatisch; auch das Öffnen des Geräte-Node-Editors löst die Sperre für einen manuellen Neuversuch.
 
 Im universellen Batteriemonitor senden optionale KNX-Ausgänge den Sammelalarm als DPT 1.005 und wechseln alle 2 Sekunden die Gerätenamen als 14-Byte-Text DPT 16.001.

@@ -1,6 +1,7 @@
 'use strict'
 
 const dptlib = require('knxultimate').dptlib
+const { semanticPayload } = require('../matterControllerSemanticInput')
 
 const DOOR_LOCK_CLUSTER_ID = 0x0101
 const LOCK_STATE = {
@@ -57,7 +58,10 @@ const setupDoorLockProfile = (RED, node, config) => {
     .map((ga) => String(ga || '').trim())
     .filter((ga) => ga !== '')
 
-  const setStatus = (fill, shape, text) => node.status({ fill, shape, text })
+  const setStatus = (fill, shape, text) => {
+    if (node.matterCommandBlocked === true) return
+    node.status({ fill, shape, text })
+  }
   // knxUltimate-config invokes this synchronously from addClient(). Profiles return
   // early from the main light constructor, so they must expose the callback before
   // registering with the shared KNX configuration node.
@@ -118,6 +122,7 @@ const setupDoorLockProfile = (RED, node, config) => {
   }
 
   const queueCommand = (locked, source = 'knx') => {
+    if (node.matterCommandBlocked === true) return false
     const manager = node.serverMatter?.matterManager
     if (!manager) throw new Error('Matter controller not ready')
     const capabilities = (() => {
@@ -143,11 +148,13 @@ const setupDoorLockProfile = (RED, node, config) => {
     }
     sendFlow(source, locked)
     setStatus('green', 'dot', `KNX→Matter: ${locked ? 'lock' : 'unlock'}`)
+    return true
   }
 
   node.handleSend = (msg) => {
     try {
       if (!msg?.knx || !node.knxUltimateAcceptedGAs.includes(String(msg.knx.destination || '').trim())) return
+      if (node.matterCommandBlocked === true) return
       if (msg.knx.event === 'GroupValue_Read') {
         if (String(msg.knx.destination) === String(config.GALightState)) {
           const state = lockStateToBoolean(node.currentLockState)
@@ -214,9 +221,17 @@ const setupDoorLockProfile = (RED, node, config) => {
 
   node.on('input', (msg, send, done) => {
     try {
-      const value = typeof msg.payload === 'object' && msg.payload !== null && msg.payload.locked !== undefined
-        ? msg.payload.locked
-        : msg.payload
+      if (node.matterCommandBlocked === true) throw new Error(node.matterCommandBlockReason || 'Matter device unavailable')
+      const semantic = semanticPayload(msg)
+      let value
+      if (semantic) {
+        if (!['lock', 'locked'].includes(semantic.functionName)) throw new Error(`Unsupported Matter function "${semantic.functionName}". Supported: lock`)
+        value = semantic.value
+      } else {
+        value = typeof msg.payload === 'object' && msg.payload !== null && msg.payload.locked !== undefined
+          ? msg.payload.locked
+          : msg.payload
+      }
       if (typeof value !== 'boolean') throw new Error('Door Lock input requires msg.payload boolean or { locked: boolean }')
       queueCommand(value, 'flow')
       if (done) done()

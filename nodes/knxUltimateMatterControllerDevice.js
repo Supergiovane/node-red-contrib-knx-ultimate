@@ -10,8 +10,34 @@ const hueColorConverter = require('./utils/colorManipulators/hueColorConverter')
 const { createLightEngine } = require('./utils/lightEngines')
 const { hueStateToCanonical, matterEventToHuePatch } = require('./utils/lightEngines/matterHueShim')
 const { setupMatterControllerProfile } = require('./utils/matterControllerProfiles')
+const { setupMatterControllerCommandGate } = require('./utils/matterControllerCommandGate')
+
+let matterCommandGateEndpointRegistered = false
 
 module.exports = function (RED) {
+  if (!matterCommandGateEndpointRegistered) {
+    RED.httpAdmin.post('/KNXUltimateMatterControllerEnable', RED.auth.needsPermission('matter-config.write'), (req, res) => {
+      try {
+        const nodeId = String(req.body?.nodeId || '').trim()
+        if (nodeId === '') {
+          res.status(400).json({ error: 'Missing Matter Controller node id' })
+          return
+        }
+        const targetNode = RED.nodes.getNode(nodeId)
+        if (!targetNode || typeof targetNode.clearMatterCommandBlock !== 'function') {
+          // New or not-yet-deployed editor nodes have no runtime counterpart.
+          res.json({ status: 'not-deployed', cleared: false })
+          return
+        }
+        const cleared = targetNode.clearMatterCommandBlock('editor')
+        res.json({ status: 'ok', cleared })
+      } catch (error) {
+        res.status(500).json({ error: error.message || 'Unable to enable Matter commands' })
+      }
+    })
+    matterCommandGateEndpointRegistered = true
+  }
+
   function knxUltimateMatterControllerDevice (config) {
     RED.nodes.createNode(this, config)
     const node = this
@@ -20,6 +46,7 @@ module.exports = function (RED) {
     node.matterNodeId = config.matterNodeId !== undefined ? String(config.matterNodeId) : ''
     node.matterEndpointId = config.matterEndpointId !== undefined ? Number(config.matterEndpointId) : 1
     node.matterDeviceName = config.matterDeviceName !== undefined ? String(config.matterDeviceName) : ''
+    setupMatterControllerCommandGate(node)
 
     let matterCapabilities = {}
     try { matterCapabilities = JSON.parse(config.matterDeviceCapabilities || '{}') } catch (error) { /* empty */ }
@@ -45,6 +72,7 @@ module.exports = function (RED) {
       hueManager: {
         writeHueQueueAdd: (_lightID, _state, _operation) => {
           try {
+            if (node.matterCommandBlocked === true) return
             if (!node.lightEngine) return
             const patch = hueStateToCanonical(_state)
             if (!patch) return
@@ -217,6 +245,7 @@ module.exports = function (RED) {
       fill, shape, text, payload
     }) => {
       try {
+        if (node.matterCommandBlocked === true) return
         if (node.currentHUEDevice?.on?.on === true) { fill = 'blue'; shape = 'dot' } else { fill = 'blue'; shape = 'ring' };
         if (payload === undefined) payload = ''
         const dDate = new Date()
@@ -228,6 +257,7 @@ module.exports = function (RED) {
     // Compatibility callback used to update the Matter node status.
     node.setNodeStatusHue = ({ fill, shape, text, payload }) => {
       try {
+        if (node.matterCommandBlocked === true) return
         if (node.currentHUEDevice?.on?.on === true) { fill = 'blue'; shape = 'dot' } else { fill = 'blue'; shape = 'ring' };
         if (payload === undefined) payload = ''
         const dDate = new Date()
@@ -238,6 +268,7 @@ module.exports = function (RED) {
     }
 
     node.writeHueState = function writeHueState (_state) {
+      if (node.matterCommandBlocked === true) return
       const defaultOperation = node.isGrouped_light === false ? 'setLight' : 'setGroupedLight'
       const isGroupedLightOff = node.isGrouped_light === true && node.currentHUEDevice?.on?.on === false
       const stateKeys = _state && typeof _state === 'object' ? Object.keys(_state) : []
@@ -330,6 +361,7 @@ module.exports = function (RED) {
     // Compatibility callback invoked by the Matter controller adapter.
     node.handleSend = (msg) => {
       if (!msg || !msg.knx || !isConfiguredKNXGA(msg.knx.destination)) return
+      if (node.matterCommandBlocked === true) return
       if (node.currentHUEDevice === undefined && node.serverHue.linkStatus === 'connected') {
         node.setNodeStatusHue({
           fill: 'yellow',
@@ -1671,6 +1703,11 @@ module.exports = function (RED) {
     }
 
     node.on('input', (msg, send, done) => {
+      if (node.matterCommandBlocked === true) {
+        const error = new Error(node.matterCommandBlockReason || 'Matter device unavailable')
+        if (done) done(error); else node.error(error, msg)
+        return
+      }
       try {
         const state = RED.util.cloneMessage(msg)
         node.writeHueState(state)

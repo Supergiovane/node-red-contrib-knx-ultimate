@@ -19,7 +19,15 @@ Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behäl
 | Sensoren | Sensor-Endpunkte zeigen ihre Mess-/Status-GA nur bei Unterstützung: Temperatur, Feuchte, Helligkeit, Präsenz, Kontakt und Batterie. |
 | Read at startup | Veröffentlicht den gecachten Matter-Wert beim Deploy/Start oder wenn sich das Gerät erneut verbindet. |
 | Update local state from KNX write | Aktualisiert den lokalen Matter/KNX-Cache, wenn ein Telegramm auf eine konfigurierte KNX-GA geschrieben wird. |
-| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Der Eingang akzeptiert boolesche Payloads sowie Matter-ähnliche `msg.payload` oder `msg.on.on`; der Ausgang sendet Statusupdates. Die Auswahl bleibt beim erneuten Öffnen des Editors erhalten. |
+| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Nicht-Licht-Endpunkte akzeptieren das einfache `{function,value}`-Format und die erweiterten Matter-Felder; der Ausgang sendet Statusupdates. |
+
+## Flow-Eingang
+
+Öffne bei einem ausgewählten Nicht-Licht-Endpunkt den Tab **Flow-Eingang**. Der Tab wird aus der angekündigten Endpunktstruktur aufgebaut und zeigt kopierbare Beispiele, die Endpoint ID sowie alle lesbaren/schreibbaren Attribute und akzeptierten Befehle. Er bleibt auch verfügbar, wenn der Knoten ohne KNX-Gateway nur im Flow verwendet wird.
+
+Einfache Schreibvorgänge verwenden `msg.payload = {function:"position",value:35}`. Ohne `value` wird ein unterstützter Zustand gelesen, zum Beispiel `{function:"temperature"}`; die Ausgabe verwendet verständliche Einheiten und enthält Rohdetails in `msg.matter`. Funktionen wie `onoff`, `level`, `position`, `open`, `close`, `stop`, Sollwerte, Lüfter und Sensoren erscheinen nur bei Unterstützung. Türschlösser akzeptieren `{function:"lock",value:true|false}`.
+
+Die bisherigen erweiterten Eingaben bleiben gültig: `msg.clusterId` mit `msg.command`/`msg.args` oder `msg.attribute` und optional `msg.value`. Node ID und Endpoint ID sind bereits im Knoten ausgewählt.
 
 ## Universeller Modus
 
@@ -34,4 +42,8 @@ Beispiele: `{nodeId:"100",endpointId:1,clusterId:6,command:"on",args:{}}` schalt
 ## Verhalten
 
 Der Knoten pflegt einen lokalen Cache aus Matter-Updates und KNX-Schreibtelegrammen, beantwortet KNX-Leseanfragen aus diesem Cache und kann Werte beim Start lesen/ausgeben. Er hört nur auf konfigurierte Gruppenadressen, daher wird fremder KNX-Verkehr ignoriert.
+
+Befehle laufen pro gekoppeltem Gerät in einer eigenen geordneten Warteschlange. Ein offline befindliches, zeitüberschreitendes oder entferntes Gerät kann daher andere Matter-Geräte mit derselben KNX-Gruppenadresse nicht verzögern. Verweist ein Node weiterhin auf ein entferntes Gerät, wird der Befehl sofort abgewiesen und **Device no longer commissioned** rot angezeigt; wähle ein gültiges Matter-Gerät oder entferne den verwaisten Controller-Node.
+
+Ein Fehler wegen eines nicht verfügbaren Geräts bleibt verriegelt: weitere KNX- und Flow-Befehle werden ignoriert und können den roten Status nicht überschreiben. Der Node wird automatisch wieder aktiv, sobald dieses Matter-Gerät `connected` meldet; auch das Öffnen des Node-Editors löst die Verriegelung für einen manuellen Neuversuch.
 </script>

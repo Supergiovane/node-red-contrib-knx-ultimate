@@ -11,7 +11,11 @@ El controlador se comunica con los dispositivos a través de la **red IP** (WiFi
 
 1. Haz primero el **deploy** de este nodo de configuración (el controlador debe estar en ejecución).
 2. Vuelve a abrir el nodo e introduce el **código de emparejamiento**: el código manual de 11 dígitos (p.ej. `3497-011-2332`) o el contenido del código QR (`MT:....`).
-3. Pulsa **EMPAREJAR**. El comisionado puede tardar hasta un minuto.
+3. Para un código escrito manualmente, pulsa **EMPAREJAR**. Un QR leído con **Webcam** o **Imagen** inicia automáticamente el emparejamiento. El comisionado puede tardar hasta un minuto.
+
+En lugar de escribir el payload QR, pulsa **Webcam** para escanearlo en directo o **Imagen** para leerlo desde una foto local. Se admiten tanto los códigos QR estándar oscuros sobre fondo claro como los invertidos blancos sobre fondo oscuro. La decodificación se realiza íntegramente en el navegador; tras leer un QR Matter válido, el editor rellena el campo del código e inicia inmediatamente el emparejamiento. Introduce antes el nombre opcional del dispositivo si lo deseas. Un código escrito manualmente sigue iniciándose solo al pulsar **EMPAREJAR**. El acceso en directo a la webcam requiere que el editor se abra mediante HTTPS o desde `localhost`; si no es posible, el editor explica la limitación y la carga de imágenes sigue disponible.
+
+Durante el comisionado, un panel de espera bloqueante cubre el editor e impide más clics hasta que la operación finaliza correctamente o con un error.
 
 Si el dispositivo es nuevo de fábrica y solo admite emparejamiento por Bluetooth, emparéjalo primero con la app del fabricante o con otro controlador Matter (Alexa, Google Home, Apple Home) y usa después su función **"compartir / emparejar con otro hub"** para generar un nuevo código para KNX-Ultimate. Así el dispositivo se une a varias fabrics a la vez.
 
@@ -26,4 +30,10 @@ Usa **Exportar** para descargar una copia completa de esta instancia del control
 ## Eliminar un dispositivo
 
 Usa el botón de la papelera en la lista de dispositivos emparejados. El controlador intenta retirar el dispositivo correctamente; si no está accesible, se elimina igualmente de la fabric (puede ser necesario un reset de fábrica del dispositivo).
+
+La lista contiene una fila por cada nodo almacenado actualmente en la fabric Matter de este controlador. Los Node ID son únicos dentro de esa fabric; los endpoints expuestos por un único bridge comisionado no se muestran como dispositivos separados. La columna de estado indica si cada nodo está conectado, desconectado, reconectando o esperando ser descubierto.
+
+El controlador conserva por separado el orden de comandos de cada dispositivo emparejado. Un dispositivo lento, sin conexión o eliminado no puede bloquear los comandos destinados a otros dispositivos. Los nodos Controller que aún referencian un Node ID eliminado rechazan inmediatamente los nuevos comandos y muestran **Device no longer commissioned**.
+
+Cuando un dispositivo deja de estar disponible, sus nodos Controller permanecen bloqueados e ignoran los comandos posteriores hasta que ese dispositivo vuelve a informar `connected`. La recuperación es automática; abrir el editor del nodo de dispositivo también libera el bloqueo para un reintento manual.
 </script>
