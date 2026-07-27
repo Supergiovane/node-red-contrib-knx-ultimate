@@ -45,4 +45,24 @@ describe('Matter Controller editor flow-input tab', () => {
       expect(wiki, `${locale}:old wiki button`).not.to.include(oldButtonLabels[locale])
     })
   })
+
+  it('ships a safe semantic-input example without creating a new Matter fabric', () => {
+    const examplePath = path.join(projectRoot, 'examples', 'Matter Controller - Semantic Flow Input.json')
+    const flow = JSON.parse(fs.readFileSync(examplePath, 'utf8'))
+    const controller = flow.find((node) => node.type === 'knxUltimateMatterControllerDevice')
+    const injects = flow.filter((node) => node.type === 'inject')
+    const functions = injects.map((node) => JSON.parse(node.props[0].v).function)
+
+    expect(flow.some((node) => node.type === 'matter-config')).to.equal(false)
+    expect(controller).to.include({
+      serverMatter: '',
+      matterNodeId: '',
+      enableNodePINS: 'yes',
+      inputs: 1,
+      outputs: 1
+    })
+    expect(injects).to.have.length(7)
+    expect(injects.every((node) => node.once === false)).to.equal(true)
+    expect(functions).to.include.members(['onoff', 'level', 'position', 'setpoint', 'temperature', 'identify'])
+  })
 })

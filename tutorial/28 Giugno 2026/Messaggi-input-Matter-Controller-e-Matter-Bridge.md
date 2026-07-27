@@ -960,6 +960,8 @@ La frase utile per il pubblico:
 
 ## 14. Flow minimo consigliato per la live
 
+Il repository contiene il flow pronto da importare `examples/Matter Controller - Semantic Flow Input.json`. L'esempio non crea un nuovo fabric e non invia comandi automatici: dopo l'importazione occorre selezionare il proprio Matter Controller e un endpoint già associato.
+
 ### Demo Controller
 
 ```text

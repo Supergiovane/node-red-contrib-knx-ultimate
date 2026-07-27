@@ -1,0 +1,248 @@
+[
+  {
+    "id": "matter_semantic_tab",
+    "type": "tab",
+    "label": "Matter Controller - Flow input",
+    "disabled": false,
+    "info": "Example of the semantic msg.payload = { function, value } contract for Control Matter from KNX (BETA).\n\nAfter importing:\n1. Open the example Matter Controller node.\n2. Select your existing Matter Controller configuration and a commissioned non-light endpoint.\n3. Ensure Node Input/Output PINs is enabled.\n4. Open the Flow input tab and use only the Inject nodes matching functions advertised by the device.\n\nThis example creates no matter-config and sends no command automatically."
+  },
+  {
+    "id": "matter_semantic_instructions",
+    "type": "comment",
+    "z": "matter_semantic_tab",
+    "name": "1. Open the Controller, select matter-config + endpoint, then check the Flow input tab",
+    "info": "The Inject nodes are alternative examples: one endpoint normally does not support every function shown. Use only functions listed in the Controller node's Flow input tab.",
+    "x": 520,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "matter_semantic_supported",
+    "type": "comment",
+    "z": "matter_semantic_tab",
+    "name": "2. Trigger only Inject nodes supported by the selected endpoint",
+    "info": "No Inject is configured to run automatically. Reads omit value; writes include value.",
+    "x": 340,
+    "y": 110,
+    "wires": []
+  },
+  {
+    "id": "matter_semantic_on",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "On: {onoff, true}",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"onoff\",\"value\":true}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 180,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_off",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "Off: {onoff, false}",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"onoff\",\"value\":false}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 230,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_level",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "Level 50%",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"level\",\"value\":50}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 180,
+    "y": 280,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_position",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "Cover position 35%",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"position\",\"value\":35}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 330,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_setpoint",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "Setpoint 21,5 °C",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"setpoint\",\"value\":21.5}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 380,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_temperature",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "Read temperature",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"temperature\"}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 190,
+    "y": 430,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_identify",
+    "type": "inject",
+    "z": "matter_semantic_tab",
+    "name": "Identify",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"function\":\"identify\"}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "x": 170,
+    "y": 480,
+    "wires": [
+      [
+        "matter_semantic_controller"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_controller",
+    "type": "knxUltimateMatterControllerDevice",
+    "z": "matter_semantic_tab",
+    "server": "",
+    "serverMatter": "",
+    "matterControllerMode": "single",
+    "universalService": "batteryMonitor",
+    "matterNodeId": "",
+    "matterEndpointId": 1,
+    "matterDeviceName": "",
+    "matterDeviceCapabilities": "",
+    "matterMappings": "[]",
+    "name": "SELECT A MATTER ENDPOINT",
+    "readStatusAtStartup": "no",
+    "enableNodePINS": "yes",
+    "updateLocalStateFromKNXWrite": true,
+    "inputs": 1,
+    "outputs": 1,
+    "x": 570,
+    "y": 330,
+    "wires": [
+      [
+        "matter_semantic_debug"
+      ]
+    ]
+  },
+  {
+    "id": "matter_semantic_debug",
+    "type": "debug",
+    "z": "matter_semantic_tab",
+    "name": "Complete Matter response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": true,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "payload",
+    "statusType": "auto",
+    "x": 850,
+    "y": 330,
+    "wires": []
+  }
+]
