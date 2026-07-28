@@ -6,12 +6,7 @@ package-lock.json
 KNXUltimateDebugLog.txt
 AGENTS.md
 
-tutorial/
-!tutorial/
-tutorial/*
-!tutorial/28 Giugno 2026/
-tutorial/28 Giugno 2026/*
-!tutorial/28 Giugno 2026/Messaggi-input-Matter-Controller-e-Matter-Bridge.md
+tutorial
 docs/_site/
 docs/Gemfile.lock
 scripts/
