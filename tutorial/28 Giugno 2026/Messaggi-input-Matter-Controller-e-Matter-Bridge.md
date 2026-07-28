@@ -1,6 +1,6 @@
-# Live YouTube — Messaggi di input per Matter Controller e Matter Bridge
+# Lezione YouTube — Messaggi di input per Matter Controller e Matter Bridge
 
-Data della live: **28 giugno 2026**
+Data della lezione: **28 giugno 2026**
 
 ## Obiettivo
 
@@ -10,7 +10,7 @@ Mostrare in modo pratico come un flow Node-RED può:
 2. aggiornare lo stato di un dispositivo KNX/virtuale esposto a Matter tramite **Expose KNX to Matter (BETA)**;
 3. distinguere chiaramente i formati dei messaggi, che non sono uguali nei due casi.
 
-La regola da ricordare durante tutta la live è:
+La regola da ricordare durante tutta la lezione è:
 
 > **Controller:** il flow comanda o legge un dispositivo Matter reale.
 > **Bridge:** il flow aggiorna lo stato Matter di un dispositivo che KNX-Ultimate espone ad Alexa, Google Home, Apple Home o altri controller.
@@ -28,7 +28,7 @@ I messaggi vanno inviati ai nodi operativi:
 
 Nel nodo operativo occorre abilitare i **PIN input/output** e fare il deploy.
 
-Per la live è utile mantenere sempre collegato un nodo **Debug completo**:
+Per la lezione è utile mantenere sempre collegato un nodo **Debug completo**:
 
 - all'output del nodo Matter;
 - all'uscita di eventuali Function usate per costruire i messaggi;
@@ -60,31 +60,31 @@ Per una luce, il messaggio usa direttamente proprietà in stile stato luce. Non 
 In un nodo Function:
 
 ```javascript
-msg.on = { on: true }
-return msg
+msg.on = { on: true };
+return msg;
 ```
 
 ### Spegnimento
 
 ```javascript
-msg.on = { on: false }
-return msg
+msg.on = { on: false };
+return msg;
 ```
 
 ### Luminosità al 65%
 
 ```javascript
-msg.dimming = { brightness: 65 }
-return msg
+msg.dimming = { brightness: 65 };
+return msg;
 ```
 
 ### Accensione, luminosità e bianco caldo insieme
 
 ```javascript
-msg.on = { on: true }
-msg.dimming = { brightness: 60 }
-msg.color_temperature = { mirek: 370 }
-return msg
+msg.on = { on: true };
+msg.dimming = { brightness: 60 };
+msg.color_temperature = { mirek: 370 };
+return msg;
 ```
 
 `mirek` è l'inverso della temperatura Kelvin:
@@ -96,24 +96,24 @@ mirek = 1.000.000 / Kelvin
 Esempi indicativi:
 
 | Kelvin | Mirek |
-|---:|---:|
-| 2700 K | 370 |
-| 3000 K | 333 |
-| 4000 K | 250 |
-| 6500 K | 154 |
+| -----: | ----: |
+| 2700 K |   370 |
+| 3000 K |   333 |
+| 4000 K |   250 |
+| 6500 K |   154 |
 
 ### Colore XY
 
 ```javascript
-msg.on = { on: true }
-msg.dimming = { brightness: 80 }
+msg.on = { on: true };
+msg.dimming = { brightness: 80 };
 msg.color = {
   xy: {
     x: 0.675,
-    y: 0.322
-  }
-}
-return msg
+    y: 0.322,
+  },
+};
+return msg;
 ```
 
 Il nodo converte lo stato luce nel comando Matter adatto alle capability dell'endpoint.
@@ -123,8 +123,8 @@ Il nodo converte lo stato luce nel comando Matter adatto alle capability dell'en
 Questo messaggio non è il formato previsto dal profilo luce:
 
 ```javascript
-msg.payload = { on: true } // Non usare questo formato per una luce
-return msg
+msg.payload = { on: true }; // Non usare questo formato per una luce
+return msg;
 ```
 
 ---
@@ -136,9 +136,9 @@ Per prese, attuatori, sensori, tapparelle, termostati, ventilatori e altri endpo
 ```javascript
 msg.payload = {
   function: "position",
-  value: 35
-}
-return msg
+  value: 35,
+};
+return msg;
 ```
 
 Il nodo conosce già Node ID ed Endpoint ID e traduce internamente la funzione nel cluster, comando o attributo corretto.
@@ -161,25 +161,25 @@ Ricorda di abilitare i **PIN di Input/Output del nodo**.
 Esempi di scrittura:
 
 ```javascript
-msg.payload = { function: "onoff", value: true }
-return msg
+msg.payload = { function: "onoff", value: true };
+return msg;
 ```
 
 ```javascript
-msg.payload = { function: "fanspeed", value: 60 }
-return msg
+msg.payload = { function: "fanspeed", value: 60 };
+return msg;
 ```
 
 ```javascript
-msg.payload = { function: "setpoint", value: 21.5 }
-return msg
+msg.payload = { function: "setpoint", value: 21.5 };
+return msg;
 ```
 
 Per leggere, ometti `value`:
 
 ```javascript
-msg.payload = { function: "temperature" }
-return msg
+msg.payload = { function: "temperature" };
+return msg;
 ```
 
 La risposta arriva in `msg.payload` usando unità comprensibili; `msg.matter` conserva endpoint, cluster, attributo e valore Matter raw.
@@ -203,9 +203,9 @@ Se `msg.endpointId` non è presente, viene usato l'endpoint scelto nell'editor d
 Esempio: attributo `onOff` del cluster On/Off:
 
 ```javascript
-msg.clusterId = 6
-msg.attribute = "onOff"
-return msg
+msg.clusterId = 6;
+msg.attribute = "onOff";
+return msg;
 ```
 
 Il valore letto viene emesso dall'output in:
@@ -222,8 +222,8 @@ msg.matter = {
   nodeId: "...",
   endpointId: 1,
   clusterId: 6,
-  attribute: "onOff"
-}
+  attribute: "onOff",
+};
 ```
 
 #### Forzare una lettura dal dispositivo
@@ -231,10 +231,10 @@ msg.matter = {
 Per non usare il valore in cache:
 
 ```javascript
-msg.clusterId = 6
-msg.attribute = "onOff"
-msg.requestFromRemote = true
-return msg
+msg.clusterId = 6;
+msg.attribute = "onOff";
+msg.requestFromRemote = true;
+return msg;
 ```
 
 La lettura remota può essere più lenta e può fallire se il dispositivo è offline.
@@ -246,10 +246,10 @@ Per la scrittura occorre aggiungere `msg.value`.
 Esempio: setpoint riscaldamento a 21,5 °C:
 
 ```javascript
-msg.clusterId = 513
-msg.attribute = "occupiedHeatingSetpoint"
-msg.value = 21.5
-return msg
+msg.clusterId = 513;
+msg.attribute = "occupiedHeatingSetpoint";
+msg.value = 21.5;
+return msg;
 ```
 
 Nel profilo mappato si usano unità amichevoli: il nodo converte `21.5` °C nei centesimi di grado richiesti da Matter.
@@ -257,10 +257,10 @@ Nel profilo mappato si usano unità amichevoli: il nodo converte `21.5` °C nei 
 Esempio: ventilatore al 60%:
 
 ```javascript
-msg.clusterId = 514
-msg.attribute = "percentSetting"
-msg.value = 60
-return msg
+msg.clusterId = 514;
+msg.attribute = "percentSetting";
+msg.value = 60;
+return msg;
 ```
 
 #### Invocare un comando
@@ -278,45 +278,45 @@ Nel profilo mappato, per i cluster conosciuti `msg.args` contiene il valore in u
 #### Accendere
 
 ```javascript
-msg.clusterId = 6
-msg.command = "on"
-msg.args = true
-return msg
+msg.clusterId = 6;
+msg.command = "on";
+msg.args = true;
+return msg;
 ```
 
 #### Spegnere
 
 ```javascript
-msg.clusterId = 6
-msg.command = "off"
-msg.args = false
-return msg
+msg.clusterId = 6;
+msg.command = "off";
+msg.args = false;
+return msg;
 ```
 
 #### Luminosità al 50%
 
 ```javascript
-msg.clusterId = 8
-msg.command = "moveToLevelWithOnOff"
-msg.args = 50
-return msg
+msg.clusterId = 8;
+msg.command = "moveToLevelWithOnOff";
+msg.args = 50;
+return msg;
 ```
 
 #### Portare una tapparella al 35%
 
 ```javascript
-msg.clusterId = 258
-msg.command = "goToLiftPercentage"
-msg.args = 35
-return msg
+msg.clusterId = 258;
+msg.command = "goToLiftPercentage";
+msg.args = 35;
+return msg;
 ```
 
 #### Fermare una tapparella
 
 ```javascript
-msg.clusterId = 258
-msg.command = "stopMotion"
-return msg
+msg.clusterId = 258;
+msg.command = "stopMotion";
+return msg;
 ```
 
 #### Identify per 15 secondi
@@ -324,33 +324,33 @@ return msg
 Il profilo converte il comando `identify` nella richiesta prevista dal nodo, con una durata di 15 secondi:
 
 ```javascript
-msg.clusterId = 3
-msg.command = "identify"
-return msg
+msg.clusterId = 3;
+msg.command = "identify";
+return msg;
 ```
 
 Per altri cluster non gestiti dalle conversioni note, un oggetto in `msg.args` viene inoltrato come argomento del comando. La forma dell'oggetto deve rispettare il comando Matter effettivamente pubblicizzato dal dispositivo: il nodo non inventa capability mancanti.
 
-### Cluster ID utili durante la live
+### Cluster ID utili durante la lezione
 
-| Cluster | ID decimale |
-|---|---:|
-| Identify | 3 |
-| On/Off | 6 |
-| Level Control | 8 |
-| Power Source / batteria | 47 |
-| Boolean State | 69 |
-| Electrical Power Measurement | 144 |
-| Electrical Energy Measurement | 145 |
-| Door Lock | 257 |
-| Window Covering | 258 |
-| Thermostat | 513 |
-| Fan Control | 514 |
-| Color Control | 768 |
-| Illuminance Measurement | 1024 |
-| Temperature Measurement | 1026 |
-| Relative Humidity Measurement | 1029 |
-| Occupancy Sensing | 1030 |
+| Cluster                       | ID decimale |
+| ----------------------------- | ----------: |
+| Identify                      |           3 |
+| On/Off                        |           6 |
+| Level Control                 |           8 |
+| Power Source / batteria       |          47 |
+| Boolean State                 |          69 |
+| Electrical Power Measurement  |         144 |
+| Electrical Energy Measurement |         145 |
+| Door Lock                     |         257 |
+| Window Covering               |         258 |
+| Thermostat                    |         513 |
+| Fan Control                   |         514 |
+| Color Control                 |         768 |
+| Illuminance Measurement       |        1024 |
+| Temperature Measurement       |        1026 |
+| Relative Humidity Measurement |        1029 |
+| Occupancy Sensing             |        1030 |
 
 ---
 
@@ -361,43 +361,43 @@ Il profilo Door Lock ha un input semplificato.
 ### Bloccare
 
 ```javascript
-msg.payload = { function: "lock", value: true }
-return msg
+msg.payload = { function: "lock", value: true };
+return msg;
 ```
 
 Resta compatibile anche il formato precedente:
 
 ```javascript
-msg.payload = true
-return msg
+msg.payload = true;
+return msg;
 ```
 
 oppure:
 
 ```javascript
-msg.payload = { locked: true }
-return msg
+msg.payload = { locked: true };
+return msg;
 ```
 
 ### Sbloccare
 
 ```javascript
-msg.payload = { function: "lock", value: false }
-return msg
+msg.payload = { function: "lock", value: false };
+return msg;
 ```
 
 Resta compatibile anche:
 
 ```javascript
-msg.payload = false
-return msg
+msg.payload = false;
+return msg;
 ```
 
 oppure:
 
 ```javascript
-msg.payload = { locked: false }
-return msg
+msg.payload = { locked: false };
+return msg;
 ```
 
 Se l'endpoint richiede una credenziale per operazioni remote, il PIN deve essere configurato nel nodo. I comandi non annunciati dall'endpoint vengono rifiutati.
@@ -418,28 +418,28 @@ Non vanno normalmente messi in `msg.payload`, fatta eccezione per l'azione `getA
 ### 6.1 Comando On
 
 ```javascript
-msg.nodeId = "2"
-msg.endpointId = 13
-msg.clusterId = 6
-msg.command = "on"
-msg.args = {}
-return msg
+msg.nodeId = "2";
+msg.endpointId = 13;
+msg.clusterId = 6;
+msg.command = "on";
+msg.args = {};
+return msg;
 ```
 
 ### 6.2 Comando Level Control in formato Matter nativo
 
 ```javascript
-msg.nodeId = "2"
-msg.endpointId = 13
-msg.clusterId = 8
-msg.command = "moveToLevelWithOnOff"
+msg.nodeId = "2";
+msg.endpointId = 13;
+msg.clusterId = 8;
+msg.command = "moveToLevelWithOnOff";
 msg.args = {
   level: 127,
   transitionTime: 0,
   optionsMask: {},
-  optionsOverride: {}
-}
-return msg
+  optionsOverride: {},
+};
+return msg;
 ```
 
 In Modalità Universale gli argomenti sono Matter nativi: `127` è circa il 50% della scala Matter `0–254`.
@@ -447,29 +447,29 @@ In Modalità Universale gli argomenti sono Matter nativi: `127` è circa il 50% 
 ### 6.3 Leggere un attributo
 
 ```javascript
-msg.nodeId = "2"
-msg.endpointId = 13
-msg.clusterId = 6
-msg.attribute = "onOff"
-return msg
+msg.nodeId = "2";
+msg.endpointId = 13;
+msg.clusterId = 6;
+msg.attribute = "onOff";
+return msg;
 ```
 
 Per forzare la lettura remota:
 
 ```javascript
-msg.requestFromRemote = true
-return msg
+msg.requestFromRemote = true;
+return msg;
 ```
 
 ### 6.4 Scrivere un attributo in unità Matter native
 
 ```javascript
-msg.nodeId = "2"
-msg.endpointId = 1
-msg.clusterId = 513
-msg.attribute = "occupiedHeatingSetpoint"
-msg.value = 2150
-return msg
+msg.nodeId = "2";
+msg.endpointId = 1;
+msg.clusterId = 513;
+msg.attribute = "occupiedHeatingSetpoint";
+msg.value = 2150;
+return msg;
 ```
 
 In Modalità Universale `2150` significa 21,50 °C perché il valore è espresso nei centesimi di grado Matter.
@@ -482,9 +482,9 @@ msg.matter = {
   endpointId: 13,
   clusterId: 6,
   command: "off",
-  args: {}
-}
-return msg
+  args: {},
+};
+return msg;
 ```
 
 ### 6.6 Richiedere l'inventario delle batterie
@@ -493,9 +493,9 @@ Nel servizio Monitor batterie:
 
 ```javascript
 msg.payload = {
-  action: "getAllBatteries"
-}
-return msg
+  action: "getAllBatteries",
+};
+return msg;
 ```
 
 L'output restituisce in `msg.payload` un array con dispositivi, endpoint, percentuale, livello di carica, sostituibilità, tensione e indicazione di batteria scarica.
@@ -558,21 +558,21 @@ Il nodo **Expose KNX to Matter** usa sempre questo formato:
 ```javascript
 msg.payload = {
   function: "nomeFunzione",
-  value: valore
-}
-return msg
+  value: valore,
+};
+return msg;
 ```
 
-È accettato anche l'alias `fn`, ma per chiarezza nella live conviene usare sempre `function`.
+È accettato anche l'alias `fn`, ma per chiarezza nella lezione conviene usare sempre `function`.
 
 Esempio equivalente:
 
 ```javascript
 msg.payload = {
   fn: "onoff",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 L'input aggiorna lo stato esposto a Matter **senza scrivere sul bus KNX**. Serve per:
@@ -580,7 +580,7 @@ L'input aggiorna lo stato esposto a Matter **senza scrivere sul bus KNX**. Serve
 - riportare a Matter uno stato calcolato nel flow;
 - costruire un dispositivo solo-flow;
 - aggiornare Alexa, Google Home o Apple Home dopo una risposta proveniente da un'API;
-- simulare sensori durante la live.
+- simulare sensori durante la lezione.
 
 La funzione deve essere compatibile con il tipo di dispositivo scelto nel nodo.
 
@@ -593,9 +593,9 @@ La funzione deve essere compatibile con il tipo di dispositivo scelto nel nodo.
 ```javascript
 msg.payload = {
   function: "onoff",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 Per spegnere:
@@ -603,9 +603,9 @@ Per spegnere:
 ```javascript
 msg.payload = {
   function: "onoff",
-  value: false
-}
-return msg
+  value: false,
+};
+return msg;
 ```
 
 ### Luce dimmerabile
@@ -613,9 +613,9 @@ return msg
 ```javascript
 msg.payload = {
   function: "level",
-  value: 72
-}
-return msg
+  value: 72,
+};
+return msg;
 ```
 
 Il valore è una percentuale `0–100`.
@@ -628,10 +628,10 @@ msg.payload = {
   value: {
     red: 255,
     green: 80,
-    blue: 20
-  }
-}
-return msg
+    blue: 20,
+  },
+};
+return msg;
 ```
 
 Ogni componente RGB è compresa tra `0` e `255`.
@@ -641,9 +641,9 @@ Ogni componente RGB è compresa tra `0` e `255`.
 ```javascript
 msg.payload = {
   function: "colortemp",
-  value: 3000
-}
-return msg
+  value: 3000,
+};
+return msg;
 ```
 
 Il valore può essere espresso in Kelvin. Per compatibilità sono accettati anche i mired quando il valore è inferiore a `1000`.
@@ -653,9 +653,9 @@ Il valore può essere espresso in Kelvin. Per compatibilità sono accettati anch
 ```javascript
 msg.payload = {
   function: "temperature",
-  value: 22.6
-}
-return msg
+  value: 22.6,
+};
+return msg;
 ```
 
 ### Sensore umidità
@@ -663,9 +663,9 @@ return msg
 ```javascript
 msg.payload = {
   function: "humidity",
-  value: 48.5
-}
-return msg
+  value: 48.5,
+};
+return msg;
 ```
 
 ### Sensore luminosità
@@ -673,9 +673,9 @@ return msg
 ```javascript
 msg.payload = {
   function: "illuminance",
-  value: 350
-}
-return msg
+  value: 350,
+};
+return msg;
 ```
 
 Il valore è espresso in lux.
@@ -685,9 +685,9 @@ Il valore è espresso in lux.
 ```javascript
 msg.payload = {
   function: "occupancy",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 ### Contatto porta/finestra
@@ -695,9 +695,9 @@ return msg
 ```javascript
 msg.payload = {
   function: "contact",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 ### Tapparella
@@ -705,9 +705,9 @@ return msg
 ```javascript
 msg.payload = {
   function: "position",
-  value: 35
-}
-return msg
+  value: 35,
+};
+return msg;
 ```
 
 Il valore è `0–100`. Normalmente:
@@ -726,9 +726,9 @@ Temperatura ambiente:
 ```javascript
 msg.payload = {
   function: "currenttemp",
-  value: 20.8
-}
-return msg
+  value: 20.8,
+};
+return msg;
 ```
 
 Setpoint riscaldamento:
@@ -736,9 +736,9 @@ Setpoint riscaldamento:
 ```javascript
 msg.payload = {
   function: "setpoint",
-  value: 21.5
-}
-return msg
+  value: 21.5,
+};
+return msg;
 ```
 
 Setpoint raffrescamento:
@@ -746,9 +746,9 @@ Setpoint raffrescamento:
 ```javascript
 msg.payload = {
   function: "coolingsetpoint",
-  value: 24
-}
-return msg
+  value: 24,
+};
+return msg;
 ```
 
 I valori sono in gradi Celsius.
@@ -758,9 +758,9 @@ I valori sono in gradi Celsius.
 ```javascript
 msg.payload = {
   function: "fanspeed",
-  value: 55
-}
-return msg
+  value: 55,
+};
+return msg;
 ```
 
 Il valore è una percentuale `0–100`; `0` corrisponde a Off.
@@ -770,25 +770,25 @@ Il valore è una percentuale `0–100`; `0` corrisponde a Off.
 ```javascript
 msg.payload = {
   function: "smoke",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 ```javascript
 msg.payload = {
   function: "co",
-  value: false
-}
-return msg
+  value: false,
+};
+return msg;
 ```
 
 ```javascript
 msg.payload = {
   function: "leak",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 ### CO₂ e qualità aria
@@ -796,9 +796,9 @@ return msg
 ```javascript
 msg.payload = {
   function: "co2",
-  value: 1250
-}
-return msg
+  value: 1250,
+};
+return msg;
 ```
 
 Il valore è espresso in ppm. Il bridge ricava automaticamente anche la classe Matter Air Quality.
@@ -807,24 +807,24 @@ Il valore è espresso in ppm. Il bridge ricava automaticamente anche la classe M
 
 ## 10. Tabella rapida delle funzioni Bridge
 
-| Tipo dispositivo | Funzioni di stato accettate in input |
-|---|---|
-| Luce/Presa On-Off | `onoff` |
-| Luce dimmerabile | `onoff`, `level` |
-| Luce RGB | `onoff`, `level`, `rgb` |
-| Luce bianco dinamico | `onoff`, `level`, `colortemp` |
-| Sensore temperatura | `temperature` |
-| Sensore umidità | `humidity` |
-| Sensore luminosità | `illuminance` |
-| Sensore presenza | `occupancy` |
-| Sensore contatto | `contact` |
-| Tapparella | `position` |
-| Termostato | `currenttemp`, `setpoint`, `coolingsetpoint` |
-| Ventilatore | `fanspeed` |
-| Fumo/CO | `smoke`, `co` |
-| Allagamento | `leak` |
-| Qualità aria | `co2` |
-| Robot aspirapolvere | `rvcstate`, `rvcmode` |
+| Tipo dispositivo     | Funzioni di stato accettate in input         |
+| -------------------- | -------------------------------------------- |
+| Luce/Presa On-Off    | `onoff`                                      |
+| Luce dimmerabile     | `onoff`, `level`                             |
+| Luce RGB             | `onoff`, `level`, `rgb`                      |
+| Luce bianco dinamico | `onoff`, `level`, `colortemp`                |
+| Sensore temperatura  | `temperature`                                |
+| Sensore umidità      | `humidity`                                   |
+| Sensore luminosità   | `illuminance`                                |
+| Sensore presenza     | `occupancy`                                  |
+| Sensore contatto     | `contact`                                    |
+| Tapparella           | `position`                                   |
+| Termostato           | `currenttemp`, `setpoint`, `coolingsetpoint` |
+| Ventilatore          | `fanspeed`                                   |
+| Fumo/CO              | `smoke`, `co`                                |
+| Allagamento          | `leak`                                       |
+| Qualità aria         | `co2`                                        |
+| Robot aspirapolvere  | `rvcstate`, `rvcmode`                        |
 
 ---
 
@@ -837,9 +837,9 @@ Il robot aspirapolvere è l'esempio migliore per spiegare un dispositivo Matter 
 ```javascript
 msg.payload = {
   function: "rvcstate",
-  value: "running"
-}
-return msg
+  value: "running",
+};
+return msg;
 ```
 
 Valori supportati:
@@ -859,9 +859,9 @@ docked
 ```javascript
 msg.payload = {
   function: "rvcmode",
-  value: "cleaning"
-}
-return msg
+  value: "cleaning",
+};
+return msg;
 ```
 
 Valori supportati:
@@ -876,22 +876,22 @@ cleaning
 Quando Alexa o un altro controller comanda il robot, l'output può contenere:
 
 ```javascript
-msg.matter.fn = "rvccommand"
-msg.payload = "gohome"
+msg.matter.fn = "rvccommand";
+msg.payload = "gohome";
 ```
 
 oppure:
 
 ```javascript
-msg.matter.fn = "rvccommand"
-msg.payload = "pause"
+msg.matter.fn = "rvccommand";
+msg.payload = "pause";
 ```
 
 oppure:
 
 ```javascript
-msg.matter.fn = "rvcmode"
-msg.payload = "cleaning"
+msg.matter.fn = "rvcmode";
+msg.payload = "cleaning";
 ```
 
 Il flow esegue il comando tramite l'API del robot e, quando riceve conferma, aggiorna l'input del nodo con `rvcstate` e `rvcmode`.
@@ -921,18 +921,18 @@ Quando un controller Matter invia un comando, il nodo **Expose KNX to Matter** e
 Per un dispositivo solo-flow, dopo aver eseguito realmente il comando si può costruire il feedback:
 
 ```javascript
-const funzione = msg.matter.fn
+const funzione = msg.matter.fn;
 
 if (funzione === "onoff" || funzione === "level") {
   return {
     payload: {
       function: funzione,
-      value: msg.payload
-    }
-  }
+      value: msg.payload,
+    },
+  };
 }
 
-return null
+return null;
 ```
 
 Questo messaggio torna all'input dello stesso nodo e aggiorna lo stato Matter.
@@ -943,13 +943,13 @@ Con un impianto KNX reale è preferibile aspettare il telegramma del GA di stato
 
 ## 13. Differenze da mostrare chiaramente in video
 
-| Caso | Dove sono i dati? | Unità |
-|---|---|---|
-| Controller, luce | proprietà dirette `msg.on`, `msg.dimming`, ecc. | formato luce |
+| Caso                         | Dove sono i dati?                                            | Unità                                     |
+| ---------------------------- | ------------------------------------------------------------ | ----------------------------------------- |
+| Controller, luce             | proprietà dirette `msg.on`, `msg.dimming`, ecc.              | formato luce                              |
 | Controller, endpoint mappato | proprietà dirette `msg.clusterId`, `msg.attribute`/`command` | unità amichevoli per i cluster supportati |
-| Controller, Door Lock | `msg.payload` booleano o `{locked}` | booleano |
-| Controller, Universale | proprietà dirette o `msg.matter` | unità Matter native |
-| Bridge | `msg.payload = {function, value}` | unità KNX/umane |
+| Controller, Door Lock        | `msg.payload` booleano o `{locked}`                          | booleano                                  |
+| Controller, Universale       | proprietà dirette o `msg.matter`                             | unità Matter native                       |
+| Bridge                       | `msg.payload = {function, value}`                            | unità KNX/umane                           |
 
 La frase utile per il pubblico:
 
@@ -958,7 +958,7 @@ La frase utile per il pubblico:
 
 ---
 
-## 14. Flow minimo consigliato per la live
+## 14. Flow minimo consigliato per la lezione
 
 Il repository contiene il flow pronto da importare `examples/Matter Controller - Semantic Flow Input.json`. L'esempio non crea un nuovo fabric e non invia comandi automatici: dopo l'importazione occorre selezionare il proprio Matter Controller e un endpoint già associato.
 
@@ -1009,9 +1009,9 @@ Abilitare **Node Input/Output PINs** e fare il deploy.
 ```javascript
 msg.payload = {
   function: "onoff",
-  value: true
-}
-return msg
+  value: true,
+};
+return msg;
 ```
 
 ### Il Controller segnala che mancano cluster e target
@@ -1019,10 +1019,10 @@ return msg
 Negli endpoint mappati usare proprietà top-level:
 
 ```javascript
-msg.clusterId = 6
-msg.command = "on"
-msg.args = true
-return msg
+msg.clusterId = 6;
+msg.command = "on";
+msg.args = true;
+return msg;
 ```
 
 Non inserire questi selettori sotto `msg.payload`.
@@ -1032,7 +1032,7 @@ Non inserire questi selettori sotto `msg.payload`.
 Aggiungere:
 
 ```javascript
-msg.requestFromRemote = true
+msg.requestFromRemote = true;
 ```
 
 ### Il valore `false` oppure `0` sembra non funzionare
@@ -1070,10 +1070,10 @@ Se compare **Device no longer commissioned**, il dispositivo non è più associa
 
 ---
 
-## 16. Testo breve per l'apertura della live
+## 16. Testo breve per l'apertura della lezione
 
 > Oggi vediamo le due direzioni Matter di KNX-Ultimate. Nella prima, Node-RED è il controller e comanda un dispositivo Matter reale. Nella seconda, Node-RED espone un dispositivo KNX o virtuale ad Alexa, Google Home e Apple Home. La parte più importante è capire la forma del `msg`: nel Controller dipende dal profilo dell'endpoint, mentre nel Bridge usiamo sempre `msg.payload` con `function` e `value`.
 
 ## 17. Chiusura e teaser
 
-> Ora sappiamo comandare dispositivi Matter reali e aggiornare dispositivi esposti dal Matter Bridge direttamente dal flow. Nella prossima live possiamo costruire un dispositivo Matter completamente solo-flow, collegarlo a una vera API esterna e gestire insieme comando, conferma dello stato, timeout e disponibilità.
+> Ora sappiamo comandare dispositivi Matter reali e aggiornare dispositivi esposti dal Matter Bridge direttamente dal flow. Nella prossima lezione possiamo costruire un dispositivo Matter completamente solo-flow, collegarlo a una vera API esterna e gestire insieme comando, conferma dello stato, timeout e disponibilità.
