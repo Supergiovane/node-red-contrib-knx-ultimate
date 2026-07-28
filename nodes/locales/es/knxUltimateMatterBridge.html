@@ -45,7 +45,7 @@ Estas opciones solo aparecen cuando tienen sentido para el tipo seleccionado. Lo
 
 ## PINes del nodo
 
-Si habilitas los PINes de entrada/salida del nodo:
+El selector de PINes está fuera de las pestañas del editor. Al activarlo aparece justo debajo una sección contextual **Entrada/salida del flow**, con ejemplos copiables filtrados según el tipo de dispositivo:
 
 - **Entrada**: actualiza el estado Matter desde el flow, sin pasar por el bus KNX: `msg.payload = { function: "onoff", value: true }` (`function` es una de `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Útil para exponer a Alexa y cía. valores calculados en el flow (p.ej. un sensor virtual).
 - **Salida**: cada comando recibido de un controlador Matter se reenvía al flow: `msg.topic` = nombre del dispositivo, `msg.payload` = valor, `msg.matter` = el comando en bruto. Un dispositivo sin GA de comando se convierte en un **dispositivo solo-flow**.

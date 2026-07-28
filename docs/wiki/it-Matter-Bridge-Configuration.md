@@ -14,6 +14,8 @@ Questo nodo di configurazione è il **bridge Matter vero e proprio**: esegue il 
 
 Gli editor dei dispositivi Matter Bridge dispongono **Mappature** e **Opzioni avanzate** come tab verticali a sinistra, coerentemente con Matter Controller.
 
+Il selettore **PIN Input/Output del nodo** si trova fuori dalle TAB. Abilitandolo compare subito sotto una sezione contestuale **Input/output del flow**, con esempi copiabili Flow → Matter e Matter → Flow filtrati per il tipo di dispositivo selezionato.
+
 ## Configurazione
 
 |Campo|Descrizione|

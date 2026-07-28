@@ -17,6 +17,7 @@
     "input_help_endpoint_hint": "节点已知 Node ID 和 Endpoint ID，因此简单消息无需提供它们。",
     "input_help_simple_title": "简单消息",
     "input_help_simple_hint": "这些功能使用易懂的单位，并自动转换为所选端点公开的 Matter 集群、命令或属性。",
+    "input_help_light_hint": "灯光端点直接在 msg 上接收灯光状态属性（而不是放在 msg.payload 中）。这里只显示所选灯具支持的控制项。",
     "input_help_advanced_title": "高级 Matter 详情",
     "input_help_advanced_hint": "仅列出设备公布的属性和命令。写入示例中的 0 是占位值；命令参数可能需要按 Matter 数据类型调整。",
     "input_help_operation": "操作",
@@ -31,7 +32,7 @@
     "input_help_no_simple": "此端点没有已知的简单输入功能。",
     "input_help_no_structure": "Matter 结构不可用。请在端点在线时刷新设备列表。",
     "input_functions": {
-      "onoff": "开 / 关", "level": "亮度", "position": "窗帘位置", "tiltposition": "百叶角度", "open": "打开", "close": "关闭", "stop": "停止", "setpoint": "制热设定点", "coolingsetpoint": "制冷设定点", "currenttemp": "当前温度", "fanspeed": "风扇速度", "temperature": "温度", "humidity": "湿度", "illuminance": "照度", "occupancy": "占用", "contact": "触点", "battery": "电池", "activepower": "有功功率", "importedenergy": "输入电能", "identify": "识别", "lock": "上锁", "unlock": "解锁"
+      "onoff": "开 / 关", "on": "打开", "off": "关闭", "level": "亮度", "brightness": "亮度", "color_temperature": "色温", "xy_color": "XY 颜色", "position": "窗帘位置", "tiltposition": "百叶角度", "open": "打开", "close": "关闭", "stop": "停止", "setpoint": "制热设定点", "coolingsetpoint": "制冷设定点", "currenttemp": "当前温度", "fanspeed": "风扇速度", "temperature": "温度", "humidity": "湿度", "illuminance": "照度", "occupancy": "占用", "contact": "触点", "battery": "电池", "activepower": "有功功率", "importedenergy": "输入电能", "identify": "识别", "lock": "上锁", "unlock": "解锁"
     },
     "tabs": {
       "switch": "开关",

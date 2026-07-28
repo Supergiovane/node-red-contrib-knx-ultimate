@@ -14,6 +14,8 @@ Ce nœud de configuration est le **bridge Matter lui-même** : il exécute le se
 
 Les éditeurs des périphériques Matter Bridge présentent **Mappages** et **Options avancées** sous forme d'onglets verticaux à gauche, comme Matter Controller.
 
+Le sélecteur **Broches d'entrée / sortie du nœud** se trouve hors de ces onglets. Son activation affiche juste dessous une section contextuelle **Entrée/sortie du flow**, avec des exemples copiables Flow → Matter et Matter → Flow filtrés selon le type d'appareil.
+
 ## Configuration
 
 |Champ|Description|

@@ -26,11 +26,11 @@ permalink: /wiki/zh-CN-Control%20Matter%20from%20KNX
 | 传感器 | 传感器 endpoint 只在支持时显示对应测量/状态 GA：温度、湿度、照度、占用、接触和电池。 |
 | Read at startup | 在部署/启动或设备重新连接时发布缓存的 Matter 值。 |
 | Update local state from KNX write | 当配置的 KNX GA 收到写入 telegram 时，更新本地 Matter/KNX 缓存。 |
-| Node Input/Output PINs | 显示 Node-RED 输入/输出端口。非灯光端点接受简单的 `{function,value}` 格式以及现有高级 Matter 选择器。 |
+| Node Input/Output PINs | 显示 Node-RED 输入/输出端口，并在该字段下方显示 **流程输入** 区域。灯光会显示其支持的顶层灯光状态消息；其他端点会显示简单的 `{function,value}` 格式和高级 Matter 选择器。 |
 
 ## 流程输入消息
 
-选择非灯光端点后，打开 **流程输入** 选项卡。该选项卡根据端点公布的结构生成，并显示可复制示例、Endpoint ID、全部可读/可写属性和接受的命令。节点仅用于 flow 且未选择 KNX 网关时，该选项卡仍然可用。
+启用 **Node Input/Output PINs** 后，**流程输入** 区域会直接显示在选择器下方。对于灯光，它提供所支持顶层属性的可复制示例，例如 `msg.on`、`msg.dimming`、`msg.color_temperature` 和 `msg.color`。对于其他端点，该区域根据公布的结构生成，并显示 Endpoint ID、全部可读/可写属性和接受的命令。未选择 KNX 网关时仍然可用。
 
 使用 `msg.payload = {function:"position",value:35}` 以易懂单位写入。省略 `value` 可读取支持的状态，例如 `{function:"temperature"}`；结果输出到 `msg.payload`，原始 Matter 详情保存在 `msg.matter`。可用功能取决于端点，包括 `onoff`、`level`、`position`、`open`、`close`、`stop`、设定点、风扇和传感器。门锁接受 `{function:"lock",value:true|false}`。
 

@@ -67,6 +67,28 @@
       robotvacuum: [] // Flow-only: no GA fields, controlled via the node PINs
     };
     const TYPE_ORDER = ['onofflight', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'onoffplug', 'windowcovering', 'thermostat', 'fan', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'robotvacuum'];
+    const FLOW_HELP = {
+      onofflight: { input: [['onoff', true]], output: [['onoff', true]] },
+      onoffplug: { input: [['onoff', true]], output: [['onoff', true]] },
+      dimmablelight: { input: [['onoff', true], ['level', 50]], output: [['onoff', true], ['level', 50]] },
+      rgblight: { input: [['onoff', true], ['level', 50], ['rgb', { red: 255, green: 80, blue: 20 }]], output: [['onoff', true], ['level', 50], ['rgb', { red: 255, green: 80, blue: 20 }]] },
+      colortemperaturelight: { input: [['onoff', true], ['level', 50], ['colortemp', 3000]], output: [['onoff', true], ['level', 50], ['colortemp', 3000]] },
+      temperaturesensor: { input: [['temperature', 21.5]], output: [] },
+      humiditysensor: { input: [['humidity', 45]], output: [] },
+      lightsensor: { input: [['illuminance', 500]], output: [] },
+      occupancysensor: { input: [['occupancy', true]], output: [] },
+      contactsensor: { input: [['contact', true]], output: [] },
+      windowcovering: { input: [['position', 35]], output: [['updown', false], ['position', 35], ['stop', true]] },
+      thermostat: { input: [['currenttemp', 21.5], ['setpoint', 21], ['coolingsetpoint', 24]], output: [['setpoint', 21], ['coolingsetpoint', 24]] },
+      smokecoalarm: { input: [['smoke', true], ['co', true]], output: [] },
+      waterleakdetector: { input: [['leak', true]], output: [] },
+      airqualitysensor: { input: [['co2', 850]], output: [] },
+      fan: { input: [['fanspeed', 60]], output: [['fanspeed', 60]] },
+      robotvacuum: {
+        input: [['rvcstate', 'charging'], ['rvcmode', 'idle']],
+        output: [['rvccommand', 'gohome'], ['rvccommand', 'pause'], ['rvccommand', 'resume'], ['rvcmode', 'cleaning']]
+      }
+    };
 
     // Every GA/DPT key across all types, used to declare the node defaults.
     const ALL_KEYS = [];
@@ -167,6 +189,25 @@
                 border-top: 1px solid #ccc;
                 margin: 8px 0;
               }
+              .matter-bridge-flow-help-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 12px;
+              }
+              .matter-bridge-flow-help-table th,
+              .matter-bridge-flow-help-table td {
+                border-bottom: 1px solid #ddd;
+                padding: 7px 6px;
+                text-align: left;
+                vertical-align: top;
+              }
+              .matter-bridge-flow-help-table code {
+                white-space: pre-wrap;
+                word-break: break-word;
+              }
+              .matter-bridge-flow-help-copy {
+                white-space: nowrap;
+              }
             </style>`);
         }
         const $tabs = $('#mb-tabs');
@@ -217,6 +258,9 @@
         const $commandAdvancedRows = $('.mb-command-advanced-row');
         const $dimmerAdvancedRows = $('.mb-dimmer-advanced-row');
         const $coverAdvancedRows = $('.mb-cover-advanced-row');
+        const $pinSelect = $('#node-input-enableNodePINS');
+        const $flowHelp = $('#matter-bridge-flow-help');
+        const $nameInput = $('#node-input-name');
         const gaInputs = {};
 
         function createLabeledField(row, element, options = {}) {
@@ -272,6 +316,51 @@
           gaInputs[key] = { wrapper, $ga, $dpt, $labelSpan };
         });
 
+        const inputMessageCode = (fn, value) => `msg.payload = ${JSON.stringify({ function: fn, value }, null, 2)};\nreturn msg;`;
+        const outputMessageCode = (fn, value) => JSON.stringify({
+          topic: ($nameInput.val() || node.name || 'Matter device').toString(),
+          payload: value,
+          matter: { fn, value }
+        }, null, 2);
+        const appendFlowHelpRow = ($body, fn, code) => {
+          const $row = $('<tr></tr>');
+          $('<td><code></code></td>').find('code').text(fn).end().appendTo($row);
+          $('<td><code></code></td>').find('code').text(code).end().appendTo($row);
+          $('<td></td>').append(
+            $('<button type="button" class="red-ui-button matter-bridge-flow-help-copy"><i class="fa fa-copy"></i></button>')
+              .attr('title', node._('knxUltimateMatterBridge.flow_help.copy') || 'Copy')
+              .data('copy-text', code)
+          ).appendTo($row);
+          $body.append($row);
+        };
+        const copyFlowHelpText = (value) => {
+          const copied = () => RED.notify(node._('knxUltimateMatterBridge.flow_help.copied') || 'Message copied', 'success');
+          if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            navigator.clipboard.writeText(value).then(copied).catch(() => {
+              const $temporary = $('<textarea></textarea>').val(value).appendTo('body').select();
+              try { document.execCommand('copy'); copied(); } finally { $temporary.remove(); }
+            });
+            return;
+          }
+          const $temporary = $('<textarea></textarea>').val(value).appendTo('body').select();
+          try { document.execCommand('copy'); copied(); } finally { $temporary.remove(); }
+        };
+        const renderFlowHelp = () => {
+          const examples = FLOW_HELP[$type.val()] || { input: [], output: [] };
+          const $inputBody = $('#matter-bridge-flow-help-input-body').empty();
+          const $outputBody = $('#matter-bridge-flow-help-output-body').empty();
+          examples.input.forEach(([fn, value]) => appendFlowHelpRow($inputBody, fn, inputMessageCode(fn, value)));
+          examples.output.forEach(([fn, value]) => appendFlowHelpRow($outputBody, fn, outputMessageCode(fn, value)));
+          $('#matter-bridge-flow-help-input-empty').toggle(examples.input.length === 0);
+          $('#matter-bridge-flow-help-output-empty').toggle(examples.output.length === 0);
+          $('#matter-bridge-flow-help-output-table').toggle(examples.output.length > 0);
+        };
+        const updateFlowHelpVisibility = () => {
+          const visible = $pinSelect.val() === 'yes';
+          $flowHelp.toggle(visible);
+          if (visible) renderFlowHelp();
+        };
+
         function updateTypePresentation() {
           const selected = $type.val();
           const active = TYPE_FIELDS[selected] || [];
@@ -295,6 +384,7 @@
           $commandAdvancedRows.toggle(hasCommand);
           $dimmerAdvancedRows.toggle(hasLevel);
           $coverAdvancedRows.toggle(isCover);
+          updateFlowHelpVisibility();
         }
         $type.on('change', updateTypePresentation);
         updateTypePresentation();
@@ -312,7 +402,15 @@
         $('#node-input-coverUpdateMode').val(node.coverUpdateMode || 'optimistic');
         $('#node-input-coverStatusTimeoutMs').val(node.coverStatusTimeoutMs === undefined ? 3000 : node.coverStatusTimeoutMs);
         $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
-        $('#node-input-enableNodePINS').val(node.enableNodePINS || 'no');
+        $pinSelect.val(node.enableNodePINS || 'no');
+        $pinSelect.on('change.knxUltimateMatterBridge', updateFlowHelpVisibility);
+        $nameInput.on('change.knxUltimateMatterBridge input.knxUltimateMatterBridge', () => {
+          if ($flowHelp.is(':visible')) renderFlowHelp();
+        });
+        $flowHelp.off('click.knxUltimateMatterBridge').on('click.knxUltimateMatterBridge', '.matter-bridge-flow-help-copy', function () {
+          copyFlowHelpText($(this).data('copy-text') || '');
+        });
+        updateFlowHelpVisibility();
       },
       oneditsave() {
         try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
@@ -479,16 +577,50 @@
         </select>
       </div>
 
-      <div class="form-row">
-        <label for="node-input-enableNodePINS" style="width:260px;">
-          <i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterBridge.node_pins"></span>
-        </label>
-        <select id="node-input-enableNodePINS" style="width:220px;">
-          <option value="no" data-i18n="knxUltimateMatterBridge.node_pins_hide"></option>
-          <option value="yes" data-i18n="knxUltimateMatterBridge.node_pins_show"></option>
-        </select>
-      </div>
     </div>
+  </div>
+
+  <div class="form-row" style="margin-top:12px;">
+    <label for="node-input-enableNodePINS" style="width:260px;">
+      <i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterBridge.node_pins"></span>
+    </label>
+    <select id="node-input-enableNodePINS" style="width:220px;">
+      <option value="no" data-i18n="knxUltimateMatterBridge.node_pins_hide"></option>
+      <option value="yes" data-i18n="knxUltimateMatterBridge.node_pins_show"></option>
+    </select>
+  </div>
+
+  <div id="matter-bridge-flow-help" style="display:none; width:900px; margin-top:12px;">
+    <h4><i class="fa fa-code"></i> <span data-i18n="knxUltimateMatterBridge.flow_help.title"></span></h4>
+    <p data-i18n="knxUltimateMatterBridge.flow_help.intro"></p>
+
+    <h4 data-i18n="knxUltimateMatterBridge.flow_help.input_title"></h4>
+    <p data-i18n="knxUltimateMatterBridge.flow_help.input_hint"></p>
+    <table class="matter-bridge-flow-help-table">
+      <thead>
+        <tr>
+          <th data-i18n="knxUltimateMatterBridge.flow_help.function"></th>
+          <th data-i18n="knxUltimateMatterBridge.flow_help.message"></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="matter-bridge-flow-help-input-body"></tbody>
+    </table>
+    <p id="matter-bridge-flow-help-input-empty" style="display:none;" data-i18n="knxUltimateMatterBridge.flow_help.no_input"></p>
+
+    <h4 data-i18n="knxUltimateMatterBridge.flow_help.output_title"></h4>
+    <p data-i18n="knxUltimateMatterBridge.flow_help.output_hint"></p>
+    <table id="matter-bridge-flow-help-output-table" class="matter-bridge-flow-help-table">
+      <thead>
+        <tr>
+          <th data-i18n="knxUltimateMatterBridge.flow_help.function"></th>
+          <th data-i18n="knxUltimateMatterBridge.flow_help.message"></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="matter-bridge-flow-help-output-body"></tbody>
+    </table>
+    <p id="matter-bridge-flow-help-output-empty" style="display:none;" data-i18n="knxUltimateMatterBridge.flow_help.no_output"></p>
   </div>
 
   <br/>
@@ -518,7 +650,8 @@ The advanced compatibility options are intentionally type-specific:
 
 The **KNX gateway is optional**: without it, enable the node PINs and drive the device from the flow.
 
-If you enable the **node PINs**:
+The PIN selector sits outside the tabs. Enabling it reveals a contextual **Flow input/output**
+section directly below, with copyable examples filtered to the selected device type:
 
 - input: `msg.payload = { function: "onoff", value: true }` updates the Matter state without the KNX bus
 - output: every command from a Matter controller is forwarded as `msg` (topic = device name, payload = value, `msg.matter` = raw command)

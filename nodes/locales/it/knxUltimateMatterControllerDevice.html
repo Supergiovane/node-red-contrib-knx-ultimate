@@ -19,11 +19,11 @@ Sostituisce i nodi Matter separati non pubblicati e mantiene tutta la UI luce qu
 | Sensori | Gli endpoint sensore mostrano il relativo GA di misura/stato solo quando supportato: temperatura, umidità, illuminamento, presenza, contatto e batteria. |
 | Read at startup | Pubblica il valore Matter in cache al deploy/avvio o quando il dispositivo si riconnette. |
 | Update local state from KNX write | Aggiorna la cache locale Matter/KNX quando arriva una scrittura su un GA KNX configurato. |
-| Node Input/Output PINs | Mostra i pin input/output Node-RED. Gli endpoint non luce accettano il formato semplice `{function,value}` descritto sotto e i campi Matter avanzati; l'output emette gli aggiornamenti di stato. La selezione viene mantenuta alla riapertura dell'editor. |
+| Node Input/Output PINs | Mostra i pin input/output Node-RED e la sezione **Input dal flow** subito sotto questo campo. Per le luci sono mostrati i messaggi di stato luce supportati al primo livello; per gli endpoint non luce sono mostrati il formato semplice `{function,value}` e i campi Matter avanzati. La selezione viene mantenuta alla riapertura dell'editor. |
 
 ## Input dal flow
 
-Per un endpoint non luce selezionato, apri la TAB **Input dal flow** nell'editor. La scheda viene costruita dalla struttura annunciata dall'endpoint e mostra esempi copiabili, l'Endpoint ID selezionato, tutti gli attributi leggibili/scrivibili e tutti i comandi accettati. Rimane disponibile anche quando il nodo viene usato soltanto dal flow senza gateway KNX.
+Abilita **PIN di Input/Output del nodo** per mostrare la sezione **Input dal flow** subito sotto il selettore. Per le luci contiene esempi copiabili delle proprietà supportate al primo livello, come `msg.on`, `msg.dimming`, `msg.color_temperature` e `msg.color`. Per gli endpoint non luce viene costruita dalla struttura annunciata e mostra l'Endpoint ID selezionato, tutti gli attributi leggibili/scrivibili e tutti i comandi accettati. Rimane disponibile anche quando il nodo viene usato soltanto dal flow senza gateway KNX.
 
 Le scritture semplici usano `msg.payload = {function:"position",value:35}`. Ometti `value` per leggere uno stato supportato, ad esempio `{function:"temperature"}`; l'output usa unità comprensibili e include i dettagli raw in `msg.matter`. Le funzioni comprendono `onoff`, `level`, `position`, `tiltposition`, `open`, `close`, `stop`, `setpoint`, `coolingsetpoint`, `currenttemp`, `fanspeed`, letture sensore e `identify`, ma soltanto se annunciate dall'endpoint. La serratura accetta `{function:"lock",value:true|false}`.
 

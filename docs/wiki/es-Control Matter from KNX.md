@@ -26,11 +26,11 @@ Sustituye a los nodos Matter separados no publicados y conserva toda la UI de lu
 | Sensores | Los endpoints de sensor muestran su GA de medida/estado solo cuando está soportado: temperatura, humedad, iluminancia, ocupación, contacto y batería. |
 | Read at startup | Publica el valor Matter en caché al desplegar/iniciar o cuando el dispositivo se reconecta. |
 | Update local state from KNX write | Actualiza la caché local Matter/KNX cuando se escribe un telegrama en una GA KNX configurada. |
-| Node Input/Output PINs | Muestra pines de entrada/salida Node-RED. Los endpoints que no son luces aceptan el formato simple `{function,value}` y los selectores Matter avanzados existentes. |
+| Node Input/Output PINs | Muestra pines de entrada/salida Node-RED y la sección **Entrada del flow** justo debajo de este campo. Las luces muestran sus mensajes de estado compatibles en el nivel superior; los demás endpoints muestran el formato simple `{function,value}` y los selectores Matter avanzados. |
 
 ## Mensajes de entrada del flow
 
-Después de seleccionar un endpoint que no sea una luz, abre la pestaña **Entrada del flow**. La pestaña se genera desde la estructura anunciada y muestra ejemplos copiables, el Endpoint ID, todos los atributos legibles/escribibles y todos los comandos aceptados. Sigue disponible cuando el nodo se usa solo desde el flow, sin gateway KNX.
+Activa **Node Input/Output PINs** para mostrar la sección **Entrada del flow** justo debajo del selector. Para una luz, muestra ejemplos copiables de las propiedades compatibles en el nivel superior, como `msg.on`, `msg.dimming`, `msg.color_temperature` y `msg.color`. Para los demás endpoints, se genera desde la estructura anunciada y muestra el Endpoint ID, todos los atributos legibles/escribibles y todos los comandos aceptados. Sigue disponible sin gateway KNX.
 
 Usa `msg.payload = {function:"position",value:35}` para escribir con unidades comprensibles. Omite `value` para leer un estado, por ejemplo `{function:"temperature"}`; el resultado se emite en `msg.payload` y los detalles raw en `msg.matter`. Según el endpoint, las funciones incluyen `onoff`, `level`, `position`, `open`, `close`, `stop`, consignas, ventilador y sensores. Una cerradura acepta `{function:"lock",value:true|false}`.
 

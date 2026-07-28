@@ -36,6 +36,20 @@
       "mappings": "KNX-Zuordnungen",
       "advanced": "Erweiterte Optionen"
     },
+    "flow_help": {
+      "title": "Flow-Eingang/-Ausgang",
+      "intro": "Diese Beispiele entsprechen dem ausgewählten Gerätetyp und sind verfügbar, solange die Ein-/Ausgangs-PINs aktiviert sind.",
+      "input_title": "Flow → Matter (Node-Eingang)",
+      "input_hint": "Sende eine dieser Nachrichten, um den bereitgestellten Matter-Zustand ohne KNX-Schreibvorgang zu aktualisieren.",
+      "output_title": "Matter → Flow (Node-Ausgang)",
+      "output_hint": "Befehle eines Matter-Controllers werden mit dem Wert in msg.payload und den Rohdetails in msg.matter ausgegeben.",
+      "function": "Funktion",
+      "message": "Beispielnachricht",
+      "copy": "Kopieren",
+      "copied": "Nachricht kopiert",
+      "no_input": "Für diesen Gerätetyp gibt es keine Beispiele für Flow-Zustandsupdates.",
+      "no_output": "Dieser Gerätetyp gibt keine Controller-Befehle aus; sein Ausgang bleibt inaktiv."
+    },
     "functions": {
       "fn_onoff_cmd": "Ein/Aus Befehls-GA",
       "fn_onoff_status": "Ein/Aus Status-GA",

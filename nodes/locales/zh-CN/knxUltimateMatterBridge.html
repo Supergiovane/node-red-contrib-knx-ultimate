@@ -45,7 +45,7 @@
 
 ## 节点引脚
 
-如果启用节点的输入/输出引脚：
+引脚选择器位于编辑器选项卡之外。启用后，其下方会显示与所选设备类型匹配的 **Flow 输入/输出** 区域，并提供可复制示例：
 
 - **输入**：从 Flow 更新 Matter 状态，无需经过 KNX 总线：`msg.payload = { function: "onoff", value: true }`（`function` 为 `onoff`、`level`、`rgb`、`colortemp`、`position`、`temperature`、`humidity`、`illuminance`、`occupancy`、`contact`、`currenttemp`、`setpoint`、`fanspeed`、`smoke`、`co`、`leak`、`co2`、`rvcstate`、`rvcmode` 之一）。适合把 Flow 中计算的值（如虚拟传感器）公开给 Alexa 等。
 - **输出**：从 Matter 控制器收到的每个命令都转发到 Flow：`msg.topic` = 设备名称，`msg.payload` = 值，`msg.matter` = 原始命令。没有命令 GA 的设备成为**纯 Flow 设备**。

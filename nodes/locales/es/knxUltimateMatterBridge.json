@@ -36,6 +36,20 @@
       "mappings": "Asignaciones KNX",
       "advanced": "Opciones avanzadas"
     },
+    "flow_help": {
+      "title": "Entrada/salida del flow",
+      "intro": "Estos ejemplos corresponden al tipo de dispositivo seleccionado y están disponibles mientras los pines de entrada/salida del nodo están activados.",
+      "input_title": "Flow → Matter (entrada del nodo)",
+      "input_hint": "Envía uno de estos mensajes para actualizar el estado Matter expuesto sin escribir en KNX.",
+      "output_title": "Matter → Flow (salida del nodo)",
+      "output_hint": "Los comandos recibidos de un controlador Matter se emiten con el valor en msg.payload y los detalles raw en msg.matter.",
+      "function": "Función",
+      "message": "Mensaje de ejemplo",
+      "copy": "Copiar",
+      "copied": "Mensaje copiado",
+      "no_input": "Este tipo de dispositivo no tiene ejemplos de actualización de estado desde el flow.",
+      "no_output": "Este tipo de dispositivo no emite comandos del controlador; su salida permanece inactiva."
+    },
     "functions": {
       "fn_onoff_cmd": "GA comando On/Off",
       "fn_onoff_status": "GA estado On/Off",

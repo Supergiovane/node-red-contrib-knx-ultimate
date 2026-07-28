@@ -4,14 +4,14 @@
     "type": "tab",
     "label": "Matter Controller - Flow input",
     "disabled": false,
-    "info": "Example of the semantic msg.payload = { function, value } contract for Control Matter from KNX (BETA).\n\nAfter importing:\n1. Open the example Matter Controller node.\n2. Select your existing Matter Controller configuration and a commissioned non-light endpoint.\n3. Ensure Node Input/Output PINs is enabled.\n4. Open the Flow input tab and use only the Inject nodes matching functions advertised by the device.\n\nThis example creates no matter-config and sends no command automatically."
+    "info": "Example of the semantic msg.payload = { function, value } contract for Control Matter from KNX (BETA).\n\nAfter importing:\n1. Open the example Matter Controller node.\n2. Select your existing Matter Controller configuration and a commissioned non-light endpoint.\n3. Enable Node Input/Output PINs.\n4. In the Flow input section shown below the PIN selector, use only the Inject nodes matching functions advertised by the device.\n\nThis example creates no matter-config and sends no command automatically."
   },
   {
     "id": "matter_semantic_instructions",
     "type": "comment",
     "z": "matter_semantic_tab",
-    "name": "1. Open the Controller, select matter-config + endpoint, then check the Flow input tab",
-    "info": "The Inject nodes are alternative examples: one endpoint normally does not support every function shown. Use only functions listed in the Controller node's Flow input tab.",
+    "name": "1. Open the Controller, select matter-config + endpoint, then enable the flow PINs",
+    "info": "The Inject nodes are alternative examples: one endpoint normally does not support every function shown. Use only functions listed in the Controller node's Flow input section.",
     "x": 520,
     "y": 60,
     "wires": []

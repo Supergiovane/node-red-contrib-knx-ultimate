@@ -26,11 +26,11 @@ Sostituisce i nodi Matter separati non pubblicati e mantiene tutta la UI luce qu
 | Sensori | Gli endpoint sensore mostrano il relativo GA di misura/stato solo quando supportato: temperatura, umidità, illuminamento, presenza, contatto e batteria. |
 | Read at startup | Pubblica il valore Matter in cache al deploy/avvio o quando il dispositivo si riconnette. |
 | Update local state from KNX write | Aggiorna la cache locale Matter/KNX quando arriva una scrittura su un GA KNX configurato. |
-| Node Input/Output PINs | Mostra i pin input/output Node-RED. Gli endpoint non luce accettano il formato semplice `{function,value}` e i selettori Matter avanzati esistenti. La selezione viene mantenuta alla riapertura dell'editor. |
+| Node Input/Output PINs | Mostra i pin input/output Node-RED e la sezione **Input dal flow** subito sotto questo campo. Per le luci sono mostrati i messaggi di stato luce supportati al primo livello; per gli endpoint non luce sono mostrati il formato semplice `{function,value}` e i selettori Matter avanzati. La selezione viene mantenuta alla riapertura dell'editor. |
 
 ## Messaggi di input dal flow
 
-Dopo aver selezionato un endpoint non luce, apri la TAB **Input dal flow**. La scheda viene generata dalla struttura annunciata dall'endpoint e mostra esempi semplici copiabili, l'Endpoint ID selezionato, tutti gli attributi leggibili/scrivibili e tutti i comandi accettati. Rimane disponibile anche quando il nodo viene usato soltanto dal flow senza gateway KNX.
+Abilita **PIN di Input/Output del nodo** per mostrare la sezione **Input dal flow** subito sotto il selettore. Per le luci contiene esempi copiabili delle proprietà supportate al primo livello, come `msg.on`, `msg.dimming`, `msg.color_temperature` e `msg.color`. Per gli endpoint non luce viene generata dalla struttura annunciata e mostra l'Endpoint ID selezionato, tutti gli attributi leggibili/scrivibili e tutti i comandi accettati. Rimane disponibile anche quando il nodo viene usato soltanto dal flow senza gateway KNX.
 
 Usa `msg.payload = {function:"position",value:35}` per scrivere in unità comprensibili. Ometti `value` per leggere uno stato supportato, per esempio `{function:"temperature"}`; il risultato viene emesso in `msg.payload`, con i dettagli Matter raw in `msg.matter`. In base all'endpoint, le funzioni possono includere `onoff`, `level`, `position`, `tiltposition`, `open`, `close`, `stop`, `setpoint`, `coolingsetpoint`, `currenttemp`, `fanspeed`, letture sensore e `identify`. Door Lock accetta `{function:"lock",value:true|false}`.
 

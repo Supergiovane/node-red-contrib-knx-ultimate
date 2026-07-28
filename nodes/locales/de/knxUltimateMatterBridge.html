@@ -45,7 +45,7 @@ Diese Optionen werden nur angezeigt, wenn sie zum gewählten Typ passen. Dimmbar
 
 ## Node-PINs
 
-Wenn du die Input/Output-PINs des Nodes aktivierst:
+Der PIN-Selektor befindet sich außerhalb der Editor-Tabs. Nach dem Aktivieren erscheint direkt darunter ein kontextbezogener Bereich **Flow-Eingang/-Ausgang** mit kopierbaren Beispielen für den ausgewählten Gerätetyp:
 
 - **Input**: aktualisiere den Matter-Zustand aus dem Flow, ohne den KNX-Bus: `msg.payload = { function: "onoff", value: true }` (`function` ist eine von `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Nützlich, um im Flow berechnete Werte (z.B. einen virtuellen Sensor) für Alexa & Co. bereitzustellen.
 - **Output**: Jeder von einem Matter-Controller empfangene Befehl wird an den Flow weitergeleitet: `msg.topic` = Gerätename, `msg.payload` = Wert, `msg.matter` = der rohe Befehl. Ein Gerät ohne Befehls-GAs wird zum **Nur-Flow-Gerät**.

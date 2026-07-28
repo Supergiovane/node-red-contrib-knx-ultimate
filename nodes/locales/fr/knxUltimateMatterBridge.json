@@ -36,6 +36,20 @@
       "mappings": "Mappages KNX",
       "advanced": "Options avancées"
     },
+    "flow_help": {
+      "title": "Entrée/sortie du flow",
+      "intro": "Ces exemples correspondent au type d'appareil sélectionné et sont disponibles lorsque les broches d'entrée/sortie du nœud sont activées.",
+      "input_title": "Flow → Matter (entrée du nœud)",
+      "input_hint": "Envoyez l'un de ces messages pour mettre à jour l'état Matter exposé sans écrire sur KNX.",
+      "output_title": "Matter → Flow (sortie du nœud)",
+      "output_hint": "Les commandes reçues d'un contrôleur Matter sont émises avec la valeur dans msg.payload et les détails bruts dans msg.matter.",
+      "function": "Fonction",
+      "message": "Message d'exemple",
+      "copy": "Copier",
+      "copied": "Message copié",
+      "no_input": "Ce type d'appareil ne possède aucun exemple de mise à jour d'état depuis le flow.",
+      "no_output": "Ce type d'appareil n'émet aucune commande de contrôleur ; sa sortie reste inactive."
+    },
     "functions": {
       "fn_onoff_cmd": "GA commande On/Off",
       "fn_onoff_status": "GA état On/Off",

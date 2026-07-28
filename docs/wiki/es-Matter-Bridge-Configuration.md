@@ -14,6 +14,8 @@ Este nodo de configuración es el **bridge Matter en sí**: ejecuta el servidor 
 
 Los editores de dispositivos Matter Bridge muestran **Mapeos** y **Opciones avanzadas** como pestañas verticales a la izquierda, igual que Matter Controller.
 
+El selector **Pines de entrada/salida del nodo** está fuera de esas pestañas. Al activarlo aparece justo debajo una sección contextual **Entrada/salida del flow**, con ejemplos copiables Flow → Matter y Matter → Flow filtrados según el tipo de dispositivo.
+
 ## Configuración
 
 |Campo|Descripción|

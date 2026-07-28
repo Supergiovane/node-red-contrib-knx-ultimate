@@ -17,6 +17,7 @@
     "input_help_endpoint_hint": "El nodo ya conoce el Node ID y el Endpoint ID; los mensajes simples no los necesitan.",
     "input_help_simple_title": "Mensajes simples",
     "input_help_simple_hint": "Estas funciones usan unidades comprensibles y se traducen al clúster, comando o atributo Matter del endpoint seleccionado.",
+    "input_help_light_hint": "Los endpoints de luz aceptan propiedades de estado directamente en msg (no dentro de msg.payload). Solo se muestran los controles compatibles con la luz seleccionada.",
     "input_help_advanced_title": "Detalles Matter avanzados",
     "input_help_advanced_hint": "Solo se muestran atributos y comandos anunciados. Los ejemplos de escritura usan 0 como marcador; los argumentos de los comandos pueden requerir adaptación al tipo Matter.",
     "input_help_operation": "Operación",
@@ -31,7 +32,7 @@
     "input_help_no_simple": "Este endpoint no tiene funciones de entrada simples conocidas.",
     "input_help_no_structure": "La estructura Matter no está disponible. Actualiza la lista de dispositivos mientras el endpoint esté en línea.",
     "input_functions": {
-      "onoff": "Encender / Apagar", "level": "Nivel", "position": "Posición de persiana", "tiltposition": "Inclinación de persiana", "open": "Abrir", "close": "Cerrar", "stop": "Detener", "setpoint": "Consigna de calefacción", "coolingsetpoint": "Consigna de refrigeración", "currenttemp": "Temperatura actual", "fanspeed": "Velocidad del ventilador", "temperature": "Temperatura", "humidity": "Humedad", "illuminance": "Iluminancia", "occupancy": "Ocupación", "contact": "Contacto", "battery": "Batería", "activepower": "Potencia activa", "importedenergy": "Energía importada", "identify": "Identificar", "lock": "Bloquear", "unlock": "Desbloquear"
+      "onoff": "Encender / Apagar", "on": "Encender", "off": "Apagar", "level": "Nivel", "brightness": "Brillo", "color_temperature": "Temperatura de color", "xy_color": "Color XY", "position": "Posición de persiana", "tiltposition": "Inclinación de persiana", "open": "Abrir", "close": "Cerrar", "stop": "Detener", "setpoint": "Consigna de calefacción", "coolingsetpoint": "Consigna de refrigeración", "currenttemp": "Temperatura actual", "fanspeed": "Velocidad del ventilador", "temperature": "Temperatura", "humidity": "Humedad", "illuminance": "Iluminancia", "occupancy": "Ocupación", "contact": "Contacto", "battery": "Batería", "activepower": "Potencia activa", "importedenergy": "Energía importada", "identify": "Identificar", "lock": "Bloquear", "unlock": "Desbloquear"
     },
     "tabs": {
       "switch": "Cambiar",

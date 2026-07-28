@@ -26,11 +26,11 @@ It replaces the unpublished per-device Matter controller nodes and keeps the ful
 | Sensors | Sensor endpoints expose their measurement/status GA only when supported: temperature, humidity, illuminance, occupancy, contact and battery. |
 | Read at startup | Publishes the cached Matter value at deploy/startup or when the device reconnects. |
 | Update local state from KNX write | Updates the local Matter/KNX cache when a telegram is written on a configured KNX GA. |
-| Node Input/Output PINs | Shows Node-RED input/output pins. Non-light endpoints accept the simple `{function,value}` contract and the existing advanced Matter selectors. The selection is preserved when the editor is reopened. |
+| Node Input/Output PINs | Shows Node-RED input/output pins and reveals the **Flow input** section directly below this field. Lights show their supported top-level light-state messages; non-light endpoints show the simple `{function,value}` contract and advanced Matter selectors. The selection is preserved when the editor is reopened. |
 
 ## Flow input messages
 
-Open the **Flow input** tab after selecting a non-light endpoint. The tab is generated from the endpoint's advertised structure and shows copyable simple examples, the selected Endpoint ID, every readable/writable attribute and every accepted command. It remains available when the node is used only by a flow without a KNX gateway.
+Enable **Node Input/Output PINs** to reveal the **Flow input** section directly below the selector. For lights it shows copyable examples for the supported top-level properties, such as `msg.on`, `msg.dimming`, `msg.color_temperature` and `msg.color`. For non-light endpoints it is generated from the advertised structure and shows the selected Endpoint ID, every readable/writable attribute and every accepted command. It remains available when the node is used only by a flow without a KNX gateway.
 
 Use `msg.payload = {function:"position",value:35}` to write in human units. Omit `value` to read a supported state, for example `{function:"temperature"}`; the result is emitted in `msg.payload`, with raw Matter details in `msg.matter`. Depending on the endpoint, functions can include `onoff`, `level`, `position`, `tiltposition`, `open`, `close`, `stop`, `setpoint`, `coolingsetpoint`, `currenttemp`, `fanspeed`, sensor readings and `identify`. Door Lock accepts `{function:"lock",value:true|false}`.
 

@@ -274,7 +274,7 @@
           const $refreshDevicesButton = $(".hue-refresh-devices");
           const $locateDeviceButton = $(".hue-locate-device");
           const $hueDevicesLoading = $(".hue-devices-loading");
-          const $inputHelpPanel = $("#tabs-input");
+          const $inputHelpPanel = $("#matter-flow-input-help");
           const UNIVERSAL_NODE_ID = '__UNIVERSAL__';
           const isUniversalMode = () => $matterControllerModeInput.val() === 'universal';
           $matterControllerModeInput.val(node.matterControllerMode || 'single');
@@ -921,9 +921,25 @@
             const caps = getEffectiveMatterCapabilities();
             const structure = inputStructureFor(caps);
             const endpointId = structure ? structure.endpointId : Number($matterEndpointInput.val() || node.matterEndpointId || 1);
+            const isMatterLight = !caps.profile;
             $('#matter-input-help-endpoint').text(String(endpointId));
             const $simpleBody = $('#matter-input-help-simple-body').empty();
-            if (caps.profile === 'doorLock') {
+            if (isMatterLight) {
+              const writeLabel = node._('knxUltimateMatterControllerDevice.input_help_write') || 'Write';
+              if (caps.onOff !== false) {
+                appendInputHelpRow($simpleBody, writeLabel, node._('knxUltimateMatterControllerDevice.input_functions.on') || 'On', 'msg.on = { on: true };\nreturn msg;');
+                appendInputHelpRow($simpleBody, writeLabel, node._('knxUltimateMatterControllerDevice.input_functions.off') || 'Off', 'msg.on = { on: false };\nreturn msg;');
+              }
+              if (caps.level !== false) {
+                appendInputHelpRow($simpleBody, writeLabel, node._('knxUltimateMatterControllerDevice.input_functions.brightness') || 'Brightness', 'msg.dimming = { brightness: 50 };\nreturn msg;');
+              }
+              if (caps.colorTemperature === true) {
+                appendInputHelpRow($simpleBody, writeLabel, node._('knxUltimateMatterControllerDevice.input_functions.color_temperature') || 'Colour temperature', 'msg.color_temperature = { mirek: 370 };\nreturn msg;');
+              }
+              if (caps.color === true) {
+                appendInputHelpRow($simpleBody, writeLabel, node._('knxUltimateMatterControllerDevice.input_functions.xy_color') || 'XY colour', 'msg.color = { xy: { x: 0.675, y: 0.322 } };\nreturn msg;');
+              }
+            } else if (caps.profile === 'doorLock') {
               if (caps.lockDoor !== false) appendInputHelpRow($simpleBody, node._('knxUltimateMatterControllerDevice.input_help_write') || 'Write', node._('knxUltimateMatterControllerDevice.input_functions.lock') || 'Lock', functionCode({ function: 'lock', value: true }));
               if (caps.unlockDoor !== false) appendInputHelpRow($simpleBody, node._('knxUltimateMatterControllerDevice.input_help_write') || 'Write', node._('knxUltimateMatterControllerDevice.input_functions.unlock') || 'Unlock', functionCode({ function: 'lock', value: false }));
             } else {
@@ -949,9 +965,19 @@
               });
             }
             $('#matter-input-help-simple-empty').toggle($simpleBody.children().length === 0);
+            $('#matter-input-help-simple-hint').attr(
+              'data-i18n',
+              isMatterLight
+                ? 'knxUltimateMatterControllerDevice.input_help_light_hint'
+                : 'knxUltimateMatterControllerDevice.input_help_simple_hint'
+            ).text(node._(
+              isMatterLight
+                ? 'knxUltimateMatterControllerDevice.input_help_light_hint'
+                : 'knxUltimateMatterControllerDevice.input_help_simple_hint'
+            ) || '');
 
             const $advancedBody = $('#matter-input-help-advanced-body').empty();
-            if (structure) {
+            if (structure && !isMatterLight) {
               structure.clusters.forEach((cluster) => {
                 (cluster.attributes || []).forEach((attribute) => {
                   const prefix = `${cluster.name || 'Cluster'} (${cluster.id}) · ${attribute.name} (${attribute.id})`;
@@ -967,6 +993,7 @@
               });
             }
             $('#matter-input-help-advanced-empty').toggle($advancedBody.children().length === 0);
+            $('#matter-input-help-advanced-details').toggle(!isMatterLight);
           };
           const copyInputHelpText = (text) => {
             const copied = () => RED.notify(node._('knxUltimateMatterControllerDevice.input_help_copied') || 'Message copied', 'success');
@@ -985,11 +1012,6 @@
           });
           $tabs.addClass('hue-vertical-tabs');
           $tabs.tabs(); // Tabs gestione KNX
-          $tabs.off('tabsactivate.matterInputHelp').on('tabsactivate.matterInputHelp', (event, ui) => {
-            if (ui && ui.newPanel && ui.newPanel.attr('id') === 'tabs-input') {
-              renderInputHelp();
-            }
-          });
           $tabs.find('ul').addClass('ui-tabs-nav');
           $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
           $universalTabs.addClass('hue-vertical-tabs');
@@ -1300,7 +1322,6 @@
             setMatterTabVisible('tabs-3', !isUniversal && knxSelected && supportsTemperature);
             setMatterTabVisible('tabs-4', !isUniversal && knxSelected && supportsColor);
             setMatterTabVisible('tabs-mapped', !isUniversal && knxSelected && isMapped);
-            setMatterTabVisible('tabs-input', !isUniversal && hasHueDevice && (isMapped || isDoorLock));
             setMatterTabVisible('tabs-6', !isUniversal && knxSelected && hasHueDevice);
             $('#matter-universal-description').toggle(isUniversal);
             $pinSelect.val(isUniversal ? 'yes' : $pinSelect.val()).prop('disabled', isUniversal);
@@ -1316,7 +1337,9 @@
             $('#matter-door-lock-pin-required').toggle(isDoorLock && caps.requirePinForRemoteOperation === true);
             $('#matter-mapped-profile').toggle(isMapped);
             if (isMapped) renderMappedProfile(caps.mappedTargets || []);
-            if (hasHueDevice && !isUniversal && (isMapped || isDoorLock)) renderInputHelp();
+            const showInputHelp = !isUniversal && hasHueDevice && $pinSelect.val() === 'yes';
+            $inputHelpPanel.toggle(showInputHelp);
+            if (showInputHelp) renderInputHelp();
             $('#matter-selected-device-type-value').text(deviceTypeDisplay);
             $('#matter-selected-device-type').toggle(hasHueDevice && deviceTypeDisplay !== '');
             try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
@@ -1440,6 +1463,7 @@
           });
 
           $hueDeviceInput.on('change.knxUltimateMatterControllerDevice input.knxUltimateMatterControllerDevice', updateTabsVisibility);
+          $pinSelect.on('change.knxUltimateMatterControllerDevice', updateTabsVisibility);
 
           if (($deviceNameInput.val() || '').trim() !== '') {
             applyHueDevicesPlaceholder(true);
@@ -2134,53 +2158,12 @@
         <li><a href="#tabs-3"><i class="fa-solid fa-temperature-quarter"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.tunable_white"></span></a></li>
         <li><a href="#tabs-4"><i class="fa-solid fa-palette"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.rgb_hsv"></span></a></li>
         <li><a href="#tabs-mapped"><i class="fa-solid fa-list-check"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.mappings"></span></a></li>
-        <li><a href="#tabs-input"><i class="fa-solid fa-code"></i> <span data-i18n="knxUltimateMatterControllerDevice.input_help_label"></span></a></li>
         <li><a href="#tabs-6"><i class="fa-solid fa-code-merge"></i> <span data-i18n="knxUltimateMatterControllerDevice.tabs.behaviour"></span></a></li>
       </ul>
       <div id="tabs-mapped">
         <div id="matter-mapped-profile" style="display:none;">
           <div id="matter-mapped-profile-body"></div>
         </div>
-      </div>
-      <div id="tabs-input">
-        <p class="form-tips" data-i18n="knxUltimateMatterControllerDevice.input_help_pin_hint"></p>
-        <p>
-          <strong data-i18n="knxUltimateMatterControllerDevice.input_help_endpoint"></strong>:
-          <code id="matter-input-help-endpoint"></code>.
-          <span data-i18n="knxUltimateMatterControllerDevice.input_help_endpoint_hint"></span>
-        </p>
-        <h4 data-i18n="knxUltimateMatterControllerDevice.input_help_simple_title"></h4>
-        <p data-i18n="knxUltimateMatterControllerDevice.input_help_simple_hint"></p>
-        <table class="matter-input-help-table">
-          <thead>
-            <tr>
-              <th data-i18n="knxUltimateMatterControllerDevice.input_help_operation"></th>
-              <th data-i18n="knxUltimateMatterControllerDevice.input_help_function"></th>
-              <th data-i18n="knxUltimateMatterControllerDevice.input_help_message"></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="matter-input-help-simple-body"></tbody>
-        </table>
-        <p id="matter-input-help-simple-empty" style="display:none;" data-i18n="knxUltimateMatterControllerDevice.input_help_no_simple"></p>
-        <details>
-          <summary><strong data-i18n="knxUltimateMatterControllerDevice.input_help_advanced_title"></strong></summary>
-          <p data-i18n="knxUltimateMatterControllerDevice.input_help_advanced_hint"></p>
-          <div class="matter-input-help-advanced">
-            <table class="matter-input-help-table">
-              <thead>
-                <tr>
-                  <th data-i18n="knxUltimateMatterControllerDevice.input_help_operation"></th>
-                  <th data-i18n="knxUltimateMatterControllerDevice.input_help_target"></th>
-                  <th data-i18n="knxUltimateMatterControllerDevice.input_help_message"></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="matter-input-help-advanced-body"></tbody>
-            </table>
-            <p id="matter-input-help-advanced-empty" style="display:none;" data-i18n="knxUltimateMatterControllerDevice.input_help_no_structure"></p>
-          </div>
-        </details>
       </div>
       <div id="tabs-1">
         <p>
@@ -2623,6 +2606,46 @@
         <option value="yes" data-i18n="knxUltimateMatterControllerDevice.node_pins_show"></option>
       </select>
     </div>
+    <div id="matter-flow-input-help" style="display:none; width:900px; margin-top:12px;">
+      <h4><i class="fa-solid fa-code"></i> <span data-i18n="knxUltimateMatterControllerDevice.input_help_label"></span></h4>
+      <p>
+        <strong data-i18n="knxUltimateMatterControllerDevice.input_help_endpoint"></strong>:
+        <code id="matter-input-help-endpoint"></code>.
+        <span data-i18n="knxUltimateMatterControllerDevice.input_help_endpoint_hint"></span>
+      </p>
+      <h4 data-i18n="knxUltimateMatterControllerDevice.input_help_simple_title"></h4>
+      <p id="matter-input-help-simple-hint" data-i18n="knxUltimateMatterControllerDevice.input_help_simple_hint"></p>
+      <table class="matter-input-help-table">
+        <thead>
+          <tr>
+            <th data-i18n="knxUltimateMatterControllerDevice.input_help_operation"></th>
+            <th data-i18n="knxUltimateMatterControllerDevice.input_help_function"></th>
+            <th data-i18n="knxUltimateMatterControllerDevice.input_help_message"></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="matter-input-help-simple-body"></tbody>
+      </table>
+      <p id="matter-input-help-simple-empty" style="display:none;" data-i18n="knxUltimateMatterControllerDevice.input_help_no_simple"></p>
+      <details id="matter-input-help-advanced-details">
+        <summary><strong data-i18n="knxUltimateMatterControllerDevice.input_help_advanced_title"></strong></summary>
+        <p data-i18n="knxUltimateMatterControllerDevice.input_help_advanced_hint"></p>
+        <div class="matter-input-help-advanced">
+          <table class="matter-input-help-table">
+            <thead>
+              <tr>
+                <th data-i18n="knxUltimateMatterControllerDevice.input_help_operation"></th>
+                <th data-i18n="knxUltimateMatterControllerDevice.input_help_target"></th>
+                <th data-i18n="knxUltimateMatterControllerDevice.input_help_message"></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="matter-input-help-advanced-body"></tbody>
+          </table>
+          <p id="matter-input-help-advanced-empty" style="display:none;" data-i18n="knxUltimateMatterControllerDevice.input_help_no_structure"></p>
+        </div>
+      </details>
+    </div>
   </div>
 
   <br/>
@@ -2647,9 +2670,11 @@ optional flow output; simpler endpoints continue through the generic mapped fall
 
 **Flow input**
 
-For a selected non-light endpoint, open the **Flow input** tab in the editor.
-The capability-driven tab shows copyable simple examples plus the selected endpoint,
-all advertised readable/writable attributes and all accepted commands.
+Enable **Node Input/Output PINs** to reveal the **Flow input** section directly below
+the selector. Lights show copyable examples for supported top-level properties such as
+`msg.on`, `msg.dimming`, `msg.color_temperature` and `msg.color`. For non-light
+endpoints the section shows the selected endpoint, all advertised readable/writable
+attributes and all accepted commands.
 
 Use `msg.payload = {function:"position", value:35}` for a simple write. Omit `value`
 to read a supported state, for example `{function:"temperature"}`. Values use human
@@ -2779,7 +2804,7 @@ _Basic Matter effects_
 | Read status at startup | Read the Matter endpoint status at Node-RED startup or full deploy and send it to the KNX bus. |
 | KNX Brightness Status | Updates the KNX brightness status whenever the Matter light switches ON/OFF. It can send 0% while OFF and restore the previous value when ON, or leave the brightness status unchanged. |
 | Update local cached Matter state from KNX bus writes | When enabled, KNX writes immediately update the local Matter-state cache without waiting for the endpoint report. Disable it if the cache should follow only real Matter reports. |
-| Node Input/Output PINs | For mapped endpoints, use the simple `msg.payload = {function,value}` contract shown in the **Flow input** tab, or the advanced top-level Matter selectors. Read an attribute with `msg.clusterId` and `msg.attribute`; add `msg.requestFromRemote = true` to force a device read. Add `msg.value` to write, or use `msg.command` and `msg.args`. Door Lock accepts both `msg.payload = true/false` and `{function:"lock",value:true/false}`. |
+| Node Input/Output PINs | Reveals the **Flow input** section below the selector. Lights use the supported top-level state properties shown there (`msg.on`, `msg.dimming`, `msg.color_temperature`, `msg.color`). Mapped endpoints use `msg.payload = {function,value}` or the advanced Matter selectors. Door Lock accepts both `msg.payload = true/false` and `{function:"lock",value:true/false}`. |
 | Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/> **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).<br/>**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
 | Night Lighting | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for bathroom's night light.|
 | Day/Night | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime. |

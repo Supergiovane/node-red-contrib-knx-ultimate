@@ -26,11 +26,11 @@ Il remplace les nœuds Matter séparés non publiés et conserve toute l'UI lumi
 | Capteurs | Les endpoints capteur affichent leur GA de mesure/état uniquement si elle est supportée : température, humidité, éclairement, occupation, contact et batterie. |
 | Read at startup | Publie la valeur Matter en cache au déploiement/démarrage ou quand le périphérique se reconnecte. |
 | Update local state from KNX write | Met à jour le cache local Matter/KNX lorsqu'un télégramme est écrit sur une GA KNX configurée. |
-| Node Input/Output PINs | Affiche les pins entrée/sortie Node-RED. Les endpoints autres que lumière acceptent le format simple `{function,value}` et les sélecteurs Matter avancés existants. |
+| Node Input/Output PINs | Affiche les pins entrée/sortie Node-RED et la section **Entrée du flow** juste sous ce champ. Les lumières affichent leurs messages d'état pris en charge au premier niveau ; les autres endpoints affichent le format simple `{function,value}` et les sélecteurs Matter avancés. |
 
 ## Messages d'entrée du flow
 
-Après avoir sélectionné un endpoint autre que lumière, ouvrez l'onglet **Entrée du flow**. L'onglet est généré depuis la structure annoncée et affiche des exemples copiables, l'Endpoint ID, tous les attributs lisibles/inscriptibles et toutes les commandes acceptées. Il reste disponible lorsque le nœud est utilisé uniquement par le flow, sans passerelle KNX.
+Activez **Node Input/Output PINs** pour afficher la section **Entrée du flow** juste sous le sélecteur. Pour une lumière, elle propose des exemples copiables des propriétés prises en charge au premier niveau, comme `msg.on`, `msg.dimming`, `msg.color_temperature` et `msg.color`. Pour les autres endpoints, elle est générée depuis la structure annoncée et affiche l'Endpoint ID, tous les attributs lisibles/inscriptibles et toutes les commandes acceptées. Elle reste disponible sans passerelle KNX.
 
 Utilisez `msg.payload = {function:"position",value:35}` pour écrire avec des unités lisibles. Omettez `value` pour lire un état, par exemple `{function:"temperature"}` ; le résultat est placé dans `msg.payload` et les détails bruts dans `msg.matter`. Selon l'endpoint, les fonctions comprennent `onoff`, `level`, `position`, `open`, `close`, `stop`, les consignes, le ventilateur et les capteurs. Une serrure accepte `{function:"lock",value:true|false}`.
 

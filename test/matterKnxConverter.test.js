@@ -485,9 +485,10 @@ describe('Matter controller editor persistence and terminology', () => {
     expect(editor).to.match(/id="node-input-universalLowBatteryTextDPT" value="16\.001" readonly/)
   })
 
-  it('offers a capability-driven flow-input tab with copyable simple and advanced examples', () => {
-    expect(editor).to.include('href="#tabs-input"')
-    expect(editor).to.include('id="tabs-input"')
+  it('offers capability-driven flow-input help below the enabled PIN selector', () => {
+    expect(editor).not.to.include('href="#tabs-input"')
+    expect(editor).not.to.include('id="tabs-input"')
+    expect(editor).to.include('id="matter-flow-input-help"')
     expect(editor).not.to.include('id="matter-input-help-button"')
     expect(editor).not.to.include('id="matter-input-help-dialog"')
     expect(editor).to.include('semanticInputDefinitions')

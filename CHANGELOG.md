@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.1.1** - July 2026<br/>
+
+- **Control Matter from KNX — contextual flow PIN help**: **Node Input/Output PINs** now reveals the capability-driven **Flow input** section directly below the selector instead of adding a separate editor tab. The section remains hidden while the pins are disabled. Light endpoints now receive contextual, copyable examples for their supported top-level `msg.on`, `msg.dimming`, `msg.color_temperature` and `msg.color` contracts, while non-light endpoints retain their advertised simple and advanced Matter examples.<br/>
+- **Matter Bridge — contextual flow PIN help**: **Node Input/Output PINs** now sits outside the editor tabs and, when enabled, reveals a contextual **Flow input/output** section directly below it. Copyable Flow → Matter and Matter → Flow examples are filtered to the selected device type, covering lights, covers, thermostats, fans, sensors, alarms and the flow-only robot vacuum while documenting only the message contracts already accepted or emitted by the runtime.<br/>
+
 **Version 6.1.0** - July 2026<br/>
 
 - **Matter Controller — QR pairing-code reader**: the pairing editor can now fill the existing `MT:…` field by scanning a QR code with the local webcam or reading it from a selected image, including inverted white-on-dark QR codes used by some device web interfaces. Decoding remains entirely in the browser and never uploads the image or video; after a valid QR is read, pairing starts automatically, while manually typed codes still require **PAIR**. The optional device name is positioned before the scanner, the decoded code remains visible underneath it and fabric backup controls have moved to the bottom of the editor. A prominent blocking progress overlay prevents further editor interactions until commissioning succeeds or fails. When live camera access is unavailable because the editor is not open over HTTPS/`localhost`, permission was denied or the browser lacks camera support, the editor explains the reason and keeps image loading available.<br/>

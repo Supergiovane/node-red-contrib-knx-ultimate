@@ -45,7 +45,7 @@ These options are hidden unless they apply to the selected type. Dimmable device
 
 ## Node PINs
 
-If you enable the node input/output PINs:
+The PIN selector is outside the editor tabs. Enabling it reveals a contextual **Flow input/output** section directly below, with copyable examples filtered to the selected device type:
 
 - **Input**: update the Matter state from the flow, without the KNX bus: `msg.payload = { function: "onoff", value: true }` (`function` is one of `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Useful to expose flow-computed values (e.g. a virtual sensor) to Alexa & Co.
 - **Output**: every command received from a Matter controller is forwarded to the flow: `msg.topic` = device name, `msg.payload` = value, `msg.matter` = the raw command. A device without command GAs becomes a **flow-only device**.

@@ -17,6 +17,7 @@
     "input_help_endpoint_hint": "Le nœud connaît déjà le Node ID et l'Endpoint ID ; les messages simples n'en ont pas besoin.",
     "input_help_simple_title": "Messages simples",
     "input_help_simple_hint": "Ces fonctions utilisent des unités lisibles et sont traduites vers le cluster, la commande ou l'attribut Matter de l'endpoint sélectionné.",
+    "input_help_light_hint": "Les endpoints de type lumière acceptent les propriétés d'état directement dans msg (pas dans msg.payload). Seules les commandes prises en charge par la lumière sélectionnée sont affichées.",
     "input_help_advanced_title": "Détails Matter avancés",
     "input_help_advanced_hint": "Seuls les attributs et commandes annoncés sont affichés. Les exemples d'écriture utilisent 0 comme valeur provisoire ; les arguments des commandes peuvent devoir être adaptés au type Matter.",
     "input_help_operation": "Opération",
@@ -31,7 +32,7 @@
     "input_help_no_simple": "Cet endpoint ne possède aucune fonction d'entrée simple connue.",
     "input_help_no_structure": "La structure Matter est indisponible. Actualisez la liste des appareils lorsque l'endpoint est en ligne.",
     "input_functions": {
-      "onoff": "Marche / Arrêt", "level": "Niveau", "position": "Position du volet", "tiltposition": "Inclinaison du volet", "open": "Ouvrir", "close": "Fermer", "stop": "Arrêter", "setpoint": "Consigne chauffage", "coolingsetpoint": "Consigne refroidissement", "currenttemp": "Température actuelle", "fanspeed": "Vitesse du ventilateur", "temperature": "Température", "humidity": "Humidité", "illuminance": "Éclairement", "occupancy": "Occupation", "contact": "Contact", "battery": "Batterie", "activepower": "Puissance active", "importedenergy": "Énergie importée", "identify": "Identifier", "lock": "Verrouiller", "unlock": "Déverrouiller"
+      "onoff": "Marche / Arrêt", "on": "Allumer", "off": "Éteindre", "level": "Niveau", "brightness": "Luminosité", "color_temperature": "Température de couleur", "xy_color": "Couleur XY", "position": "Position du volet", "tiltposition": "Inclinaison du volet", "open": "Ouvrir", "close": "Fermer", "stop": "Arrêter", "setpoint": "Consigne chauffage", "coolingsetpoint": "Consigne refroidissement", "currenttemp": "Température actuelle", "fanspeed": "Vitesse du ventilateur", "temperature": "Température", "humidity": "Humidité", "illuminance": "Éclairement", "occupancy": "Occupation", "contact": "Contact", "battery": "Batterie", "activepower": "Puissance active", "importedenergy": "Énergie importée", "identify": "Identifier", "lock": "Verrouiller", "unlock": "Déverrouiller"
     },
     "tabs": {
       "switch": "Changer",

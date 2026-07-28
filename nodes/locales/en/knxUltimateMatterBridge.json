@@ -36,6 +36,20 @@
       "mappings": "KNX mappings",
       "advanced": "Advanced options"
     },
+    "flow_help": {
+      "title": "Flow input/output",
+      "intro": "These examples match the selected device type and are available while the node input/output PINs are enabled.",
+      "input_title": "Flow → Matter (node input)",
+      "input_hint": "Send one of these messages to update the exposed Matter state without writing to KNX.",
+      "output_title": "Matter → Flow (node output)",
+      "output_hint": "Commands received from a Matter controller are emitted with the value in msg.payload and raw routing details in msg.matter.",
+      "function": "Function",
+      "message": "Example message",
+      "copy": "Copy",
+      "copied": "Message copied",
+      "no_input": "This device type has no flow state-update examples.",
+      "no_output": "This device type does not emit controller commands; its output remains silent."
+    },
     "functions": {
       "fn_onoff_cmd": "On/Off command GA",
       "fn_onoff_status": "On/Off status GA",

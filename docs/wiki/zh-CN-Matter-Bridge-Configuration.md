@@ -14,6 +14,8 @@ permalink: /wiki/zh-CN-Matter-Bridge-Configuration
 
 Matter Bridge 设备编辑器将**映射**和**高级选项**作为左侧垂直选项卡排列，与 Matter Controller 保持一致。
 
+**节点输入/输出引脚**选择器位于这些选项卡之外。启用后，其下方会显示与所选设备类型匹配的 **Flow 输入/输出** 区域，并提供可复制的 Flow → Matter 和 Matter → Flow 示例。
+
 ## 配置
 
 |字段|说明|

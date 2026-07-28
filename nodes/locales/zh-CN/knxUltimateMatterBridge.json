@@ -36,6 +36,20 @@
       "mappings": "KNX 映射",
       "advanced": "高级选项"
     },
+    "flow_help": {
+      "title": "Flow 输入/输出",
+      "intro": "这些示例与所选设备类型匹配，并在启用节点输入/输出引脚时显示。",
+      "input_title": "Flow → Matter（节点输入）",
+      "input_hint": "发送以下消息之一，无需写入 KNX 即可更新所公开的 Matter 状态。",
+      "output_title": "Matter → Flow（节点输出）",
+      "output_hint": "Matter 控制器收到的命令会输出，值位于 msg.payload，原始路由详情位于 msg.matter。",
+      "function": "功能",
+      "message": "示例消息",
+      "copy": "复制",
+      "copied": "消息已复制",
+      "no_input": "此设备类型没有 Flow 状态更新示例。",
+      "no_output": "此设备类型不会输出控制器命令；其输出保持静默。"
+    },
     "functions": {
       "fn_onoff_cmd": "开/关 命令 GA",
       "fn_onoff_status": "开/关 状态 GA",

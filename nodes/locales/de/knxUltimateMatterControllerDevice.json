@@ -17,6 +17,7 @@
     "input_help_endpoint_hint": "Der Knoten kennt Node ID und Endpoint ID bereits; einfache Nachrichten benötigen sie nicht.",
     "input_help_simple_title": "Einfache Nachrichten",
     "input_help_simple_hint": "Diese Funktionen verwenden verständliche Einheiten und werden in den Matter-Cluster, Befehl oder das Attribut des ausgewählten Endpunkts übersetzt.",
+    "input_help_light_hint": "Licht-Endpunkte akzeptieren Lichtzustands-Eigenschaften direkt in msg (nicht in msg.payload). Es werden nur die von der ausgewählten Leuchte unterstützten Steuerungen angezeigt.",
     "input_help_advanced_title": "Erweiterte Matter-Details",
     "input_help_advanced_hint": "Es werden nur angekündigte Attribute und Befehle aufgelistet. Schreibbeispiele verwenden 0 als Platzhalter; Befehlsargumente müssen eventuell an den Matter-Datentyp angepasst werden.",
     "input_help_operation": "Operation",
@@ -31,7 +32,7 @@
     "input_help_no_simple": "Dieser Endpunkt besitzt keine bekannte einfache Eingangsfunktion.",
     "input_help_no_structure": "Die Matter-Struktur ist nicht verfügbar. Aktualisiere die Geräteliste, während der Endpunkt online ist.",
     "input_functions": {
-      "onoff": "Ein / Aus", "level": "Stufe", "position": "Rollladenposition", "tiltposition": "Lamellenposition", "open": "Öffnen", "close": "Schließen", "stop": "Stopp", "setpoint": "Heizsollwert", "coolingsetpoint": "Kühlsollwert", "currenttemp": "Aktuelle Temperatur", "fanspeed": "Lüftergeschwindigkeit", "temperature": "Temperatur", "humidity": "Luftfeuchtigkeit", "illuminance": "Beleuchtungsstärke", "occupancy": "Belegung", "contact": "Kontakt", "battery": "Batterie", "activepower": "Wirkleistung", "importedenergy": "Bezogene Energie", "identify": "Identifizieren", "lock": "Verriegeln", "unlock": "Entriegeln"
+      "onoff": "Ein / Aus", "on": "Ein", "off": "Aus", "level": "Stufe", "brightness": "Helligkeit", "color_temperature": "Farbtemperatur", "xy_color": "XY-Farbe", "position": "Rollladenposition", "tiltposition": "Lamellenposition", "open": "Öffnen", "close": "Schließen", "stop": "Stopp", "setpoint": "Heizsollwert", "coolingsetpoint": "Kühlsollwert", "currenttemp": "Aktuelle Temperatur", "fanspeed": "Lüftergeschwindigkeit", "temperature": "Temperatur", "humidity": "Luftfeuchtigkeit", "illuminance": "Beleuchtungsstärke", "occupancy": "Belegung", "contact": "Kontakt", "battery": "Batterie", "activepower": "Wirkleistung", "importedenergy": "Bezogene Energie", "identify": "Identifizieren", "lock": "Verriegeln", "unlock": "Entriegeln"
     },
     "tabs": {
       "switch": "Schalten",

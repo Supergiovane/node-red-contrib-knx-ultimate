@@ -26,11 +26,11 @@ Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behäl
 | Sensoren | Sensor-Endpunkte zeigen ihre Mess-/Status-GA nur bei Unterstützung: Temperatur, Feuchte, Helligkeit, Präsenz, Kontakt und Batterie. |
 | Read at startup | Veröffentlicht den gecachten Matter-Wert beim Deploy/Start oder wenn sich das Gerät erneut verbindet. |
 | Update local state from KNX write | Aktualisiert den lokalen Matter/KNX-Cache, wenn ein Telegramm auf eine konfigurierte KNX-GA geschrieben wird. |
-| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins. Nicht-Licht-Endpunkte akzeptieren das einfache `{function,value}`-Format sowie die bisherigen erweiterten Matter-Selektoren. |
+| Node Input/Output PINs | Zeigt Node-RED-Eingangs-/Ausgangspins und direkt darunter den Bereich **Flow-Eingang**. Für Leuchten werden die unterstützten Lichtzustands-Nachrichten auf oberster Ebene angezeigt; andere Endpunkte zeigen das einfache `{function,value}`-Format und die erweiterten Matter-Selektoren. |
 
 ## Flow-Eingangsnachrichten
 
-Öffne nach Auswahl eines Nicht-Licht-Endpunkts den Tab **Flow-Eingang**. Der Tab wird aus der angekündigten Struktur erzeugt und zeigt kopierbare Beispiele, die Endpoint ID, alle lesbaren/schreibbaren Attribute und alle akzeptierten Befehle. Er bleibt auch verfügbar, wenn der Knoten ohne KNX-Gateway nur im Flow verwendet wird.
+Aktiviere **Node Input/Output PINs**, um den Bereich **Flow-Eingang** direkt unter dem Auswahlfeld einzublenden. Für Leuchten zeigt er kopierbare Beispiele der unterstützten Eigenschaften auf oberster Ebene, etwa `msg.on`, `msg.dimming`, `msg.color_temperature` und `msg.color`. Für andere Endpunkte wird er aus der angekündigten Struktur erzeugt und zeigt Endpoint ID, alle lesbaren/schreibbaren Attribute und alle akzeptierten Befehle. Er bleibt auch ohne KNX-Gateway verfügbar.
 
 Mit `msg.payload = {function:"position",value:35}` wird in verständlichen Einheiten geschrieben. Ohne `value` wird ein unterstützter Zustand gelesen, etwa `{function:"temperature"}`; das Ergebnis steht in `msg.payload`, Rohdetails in `msg.matter`. Je nach Endpunkt stehen unter anderem `onoff`, `level`, `position`, `open`, `close`, `stop`, Sollwerte, Lüfter- und Sensorfunktionen zur Verfügung. Türschlösser akzeptieren `{function:"lock",value:true|false}`.
 

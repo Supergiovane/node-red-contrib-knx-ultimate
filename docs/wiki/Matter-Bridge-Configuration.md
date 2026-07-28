@@ -14,6 +14,8 @@ This configuration node is the **Matter bridge itself**: it runs the Matter serv
 
 Matter Bridge device editors arrange **Mappings** and **Advanced** as vertical tabs on the left, consistently with Matter Controller.
 
+The **Node Input/Output PINs** selector sits outside those tabs. Enabling it reveals a contextual **Flow input/output** section directly below, with copyable Flow → Matter and Matter → Flow examples filtered to the selected device type.
+
 ## Configuration
 
 |Field|Description|

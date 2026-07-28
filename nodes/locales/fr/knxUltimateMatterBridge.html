@@ -45,7 +45,7 @@ Ces options ne s'affichent que lorsqu'elles s'appliquent au type sélectionné. 
 
 ## PIN du nœud
 
-Si vous activez les PIN entrée/sortie du nœud :
+Le sélecteur de PIN se trouve hors des onglets de l'éditeur. Son activation affiche juste dessous une section contextuelle **Entrée/sortie du flow**, avec des exemples copiables filtrés selon le type d'appareil :
 
 - **Entrée** : mettez à jour l'état Matter depuis le flux, sans passer par le bus KNX : `msg.payload = { function: "onoff", value: true }` (`function` est l'une de `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile pour exposer à Alexa & Co. des valeurs calculées dans le flux (ex. un capteur virtuel).
 - **Sortie** : chaque commande reçue d'un contrôleur Matter est transmise au flux : `msg.topic` = nom de l'appareil, `msg.payload` = valeur, `msg.matter` = la commande brute. Un appareil sans GA de commande devient un **appareil flow uniquement**.

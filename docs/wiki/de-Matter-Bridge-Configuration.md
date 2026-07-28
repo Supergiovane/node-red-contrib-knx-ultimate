@@ -14,6 +14,8 @@ Dieser Konfigurations-Node ist die **Matter-Bridge selbst**: Er betreibt den Mat
 
 Die Editoren der Matter-Bridge-Geräte ordnen **Zuordnungen** und **Erweiterte Optionen** als vertikale Tabs links an, entsprechend dem Matter Controller.
 
+Der Selektor **Node Ein-/Ausgangs-PINs** befindet sich außerhalb dieser Tabs. Nach dem Aktivieren erscheint direkt darunter ein kontextbezogener Bereich **Flow-Eingang/-Ausgang** mit kopierbaren Beispielen für Flow → Matter und Matter → Flow, gefiltert nach dem ausgewählten Gerätetyp.
+
 ## Konfiguration
 
 |Feld|Beschreibung|

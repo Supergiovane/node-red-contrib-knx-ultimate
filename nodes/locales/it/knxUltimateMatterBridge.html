@@ -45,7 +45,7 @@ Queste opzioni sono nascoste finché non servono al tipo selezionato. I disposit
 
 ## PIN del nodo
 
-Se abiliti i PIN input/output del nodo:
+Il selettore dei PIN si trova fuori dalle TAB dell'editor. Abilitandolo compare subito sotto una sezione contestuale **Input/output del flow**, con esempi copiabili filtrati per il tipo di dispositivo selezionato:
 
 - **Input**: aggiorna lo stato Matter dal flow, senza passare dal bus KNX: `msg.payload = { function: "onoff", value: true }` (`function` è una tra `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile per esporre ad Alexa & Co. valori calcolati nel flow (es. un sensore virtuale).
 - **Output**: ogni comando ricevuto da un controller Matter viene inoltrato al flow: `msg.topic` = nome del dispositivo, `msg.payload` = valore, `msg.matter` = il comando grezzo. Un dispositivo senza GA di comando diventa un **dispositivo solo-flow**.

@@ -221,12 +221,51 @@ describe('matterBridgeDeviceFactory – BRIDGE_TYPES catalog', () => {
 })
 
 describe('knxUltimateMatterBridge editor layout', () => {
+  const projectRoot = path.join(__dirname, '..')
+  const editor = fs.readFileSync(path.join(projectRoot, 'nodes', 'knxUltimateMatterBridge.html'), 'utf8')
+
   it('uses the same left-hand vertical tabs as Matter Controller', () => {
-    const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateMatterBridge.html'), 'utf8')
     expect(editor).to.include("$tabs.addClass('hue-vertical-tabs')")
     expect(editor).to.include("removeClass('ui-corner-top').addClass('ui-corner-left')")
     expect(editor).to.match(/\.hue-vertical-tabs\.ui-tabs[\s\S]*display:\s*flex/)
     expect(editor).to.match(/\.hue-vertical-tabs > ul\.ui-tabs-nav[\s\S]*flex:\s*0 0 180px/)
+  })
+
+  it('places the PIN selector outside the tabs and reveals contextual help only when enabled', () => {
+    expect(editor).to.match(/id="mb-tab-advanced"[\s\S]*<\/div>\s*<\/div>\s*<div class="form-row"[^>]*>\s*<label for="node-input-enableNodePINS"/)
+    expect(editor).to.match(/id="node-input-enableNodePINS"[\s\S]*id="matter-bridge-flow-help"/)
+    expect(editor).to.include("const visible = $pinSelect.val() === 'yes'")
+    expect(editor).to.include('$flowHelp.toggle(visible)')
+    expect(editor).to.include("$pinSelect.on('change.knxUltimateMatterBridge', updateFlowHelpVisibility)")
+  })
+
+  it('provides copyable input/output examples filtered by every bridge device type', () => {
+    const expectedTypes = ['onofflight', 'onoffplug', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'windowcovering', 'thermostat', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'fan', 'robotvacuum']
+    expectedTypes.forEach((type) => expect(editor).to.match(new RegExp(`\\b${type}:\\s*\\{`)))
+    expect(editor).to.include('matter-bridge-flow-help-copy')
+    expect(editor).to.include("['position', 35]")
+    expect(editor).to.include("['rvccommand', 'gohome']")
+    expect(editor).to.include("['rgb', { red: 255, green: 80, blue: 20 }]")
+    expect(editor).to.include('msg.payload')
+    expect(editor).to.include('matter: { fn, value }')
+  })
+
+  it('keeps flow-help strings and documentation aligned in every supported locale', () => {
+    for (const locale of ['en', 'it', 'de', 'fr', 'es', 'zh-CN']) {
+      const messages = require(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateMatterBridge.json')).knxUltimateMatterBridge
+      expect(messages.flow_help.title, `${locale}:title`).to.be.a('string').and.not.empty
+      expect(messages.flow_help.input_title, `${locale}:input title`).to.be.a('string').and.not.empty
+      expect(messages.flow_help.output_title, `${locale}:output title`).to.be.a('string').and.not.empty
+      expect(messages.flow_help.copy, `${locale}:copy`).to.be.a('string').and.not.empty
+
+      const help = fs.readFileSync(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateMatterBridge.html'), 'utf8')
+      const wikiName = locale === 'en' ? 'Matter-Bridge-Configuration.md' : `${locale}-Matter-Bridge-Configuration.md`
+      const wiki = fs.readFileSync(path.join(projectRoot, 'docs', 'wiki', wikiName), 'utf8')
+      expect(help, `${locale}:help input`).to.include('msg.payload')
+      expect(help, `${locale}:help output`).to.include('msg.matter')
+      expect(wiki, `${locale}:wiki flow direction`).to.include('Flow → Matter')
+      expect(wiki, `${locale}:wiki reverse direction`).to.include('Matter → Flow')
+    }
   })
 })
 

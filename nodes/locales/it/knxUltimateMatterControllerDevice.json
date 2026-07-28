@@ -17,6 +17,7 @@
     "input_help_endpoint_hint": "Il nodo conosce già Node ID ed Endpoint ID, quindi non servono nei messaggi semplici.",
     "input_help_simple_title": "Messaggi semplici",
     "input_help_simple_hint": "Queste funzioni usano unità comprensibili e vengono tradotte nel cluster, comando o attributo Matter esposto dall'endpoint selezionato.",
+    "input_help_light_hint": "Gli endpoint luce accettano le proprietà dello stato luce direttamente in msg (non dentro msg.payload). Sono mostrati solo i controlli supportati dalla luce selezionata.",
     "input_help_advanced_title": "Dettagli Matter avanzati",
     "input_help_advanced_hint": "Sono elencati soltanto attributi e comandi annunciati. Gli esempi di scrittura usano 0 come segnaposto; gli argomenti dei comandi possono richiedere un adattamento al tipo Matter.",
     "input_help_operation": "Operazione",
@@ -31,7 +32,7 @@
     "input_help_no_simple": "Questo endpoint non espone funzioni semplici conosciute.",
     "input_help_no_structure": "La struttura Matter non è disponibile. Aggiorna la lista dei dispositivi mentre l'endpoint è online.",
     "input_functions": {
-      "onoff": "On / Off", "level": "Livello", "position": "Posizione tapparella", "tiltposition": "Inclinazione tapparella", "open": "Apri", "close": "Chiudi", "stop": "Stop", "setpoint": "Setpoint riscaldamento", "coolingsetpoint": "Setpoint raffrescamento", "currenttemp": "Temperatura corrente", "fanspeed": "Velocità ventilatore", "temperature": "Temperatura", "humidity": "Umidità", "illuminance": "Illuminamento", "occupancy": "Presenza", "contact": "Contatto", "battery": "Batteria", "activepower": "Potenza attiva", "importedenergy": "Energia importata", "identify": "Identifica", "lock": "Blocca", "unlock": "Sblocca"
+      "onoff": "On / Off", "on": "Accendi", "off": "Spegni", "level": "Livello", "brightness": "Luminosità", "color_temperature": "Temperatura colore", "xy_color": "Colore XY", "position": "Posizione tapparella", "tiltposition": "Inclinazione tapparella", "open": "Apri", "close": "Chiudi", "stop": "Stop", "setpoint": "Setpoint riscaldamento", "coolingsetpoint": "Setpoint raffrescamento", "currenttemp": "Temperatura corrente", "fanspeed": "Velocità ventilatore", "temperature": "Temperatura", "humidity": "Umidità", "illuminance": "Illuminamento", "occupancy": "Presenza", "contact": "Contatto", "battery": "Batteria", "activepower": "Potenza attiva", "importedenergy": "Energia importata", "identify": "Identifica", "lock": "Blocca", "unlock": "Sblocca"
     },
     "tabs": {
       "switch": "On/Off",
