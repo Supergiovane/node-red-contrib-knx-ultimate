@@ -55,30 +55,6 @@
         {
           "type": "page",
           "labels": {
-            "en": "KNX Monitor",
-            "it": "KNX Monitor",
-            "de": "KNX Monitor",
-            "fr": "KNX Monitor",
-            "es": "KNX Monitor",
-            "zh": "KNX Monitor"
-          },
-          "page": "KNX-Monitor-Sidebar"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX Debug",
-            "it": "KNX Debug",
-            "de": "KNX Debug",
-            "fr": "KNX Debug",
-            "es": "KNX Debug",
-            "zh": "KNX Debug"
-          },
-          "page": "KNX-Debug-Sidebar"
-        },
-        {
-          "type": "page",
-          "labels": {
             "en": "KNX AI Dashboard",
             "it": "KNX AI Dashboard",
             "de": "KNX AI Dashboard",

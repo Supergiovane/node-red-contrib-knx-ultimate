@@ -6,18 +6,48 @@ permalink: /wiki/de-KNX%20AI
 ---
 Dieser Node überwacht **alle KNX-Telegramme** des ausgewählten KNX-Ultimate-Gateways, erstellt Verkehrsstatistiken, erkennt Anomalien und kann optional ein LLM befragen.
 
+Die Editor-Bereiche verwenden dieselben vertikalen Tabs auf der linken Seite wie die Matter-Nodes. **Schnelleinrichtung** enthält nur die üblichen KI-Einstellungen (Aktivierung, Anbieter, Zugangsdaten, Modell, KNX-Zustandsabfrage/Aktorsteuerung und Bestätigung); technische Parameter sind thematisch in den übrigen Tabs gruppiert.
+
 ## Ausgänge
 1. **Zusammenfassung/Statistik** (`msg.payload` JSON)
 2. **Anomalien** (`msg.payload` JSON)
 3. **KI-Assistent** (`msg.payload` Text, mit `msg.summary`)
+4. **KNX-Operationen** (eine Universal-Mode-Nachricht je validierter Lese- oder Schreiboperation)
+
+Jede an den Ausgängen 3 und 4 ausgegebene Nachricht enthält außerdem eine Kopie der ursprünglichen Eingangsnachricht in `msg.inputMessage`. Dadurch bleiben der ursprüngliche Payload, das Topic, die Chat-Metadaten und alle weiteren Eingangseigenschaften für nachfolgende Nodes verfügbar. Fehler beim Klonen oder Ausgeben werden abgefangen und gemeldet, statt in die Node-RED-Laufzeit zu gelangen.
 
 ## Befehle (Eingang)
 Sende `msg.topic`:
 - `summary` (oder leer): Summary sofort senden
 - `reset`: internen Verlauf/Zähler zurücksetzen
 - `ask`: Frage an das konfigurierte LLM senden
+- `confirm` / `cancel`: ausstehende KNX-Befehle ohne erneuten LLM-Aufruf bestätigen oder abbrechen
+- `clear_chat`: Gesprächsspeicher der aktuellen Sitzung löschen
 
-Für `ask` die Frage in `msg.prompt` (empfohlen) oder `msg.payload` (String) übergeben.
+Für `ask` die Frage in `msg.prompt` (empfohlen), `msg.payload` (String) oder den üblichen Telegram-Feldern `msg.payload.content` / `msg.payload.text` übergeben.
+
+Bei aktiviertem KNX-Steuern werden die letzten Gesprächsschritte im RAM nach `msg.knxAi.sessionId`, `msg.sessionId` oder erkannter Telegram-Chat-ID getrennt. Ausgang 3 mit dem Chat-Sender und Ausgang 4 mit einem KNX-Ultimate-Node im **Universalmodus** verbinden. Bei aktiver Bestätigung zeigt die erste Antwort GA, DPT und Payload, ohne Schreiboperationen auszugeben; dieselbe Sitzung muss innerhalb von 5 Minuten `BESTÄTIGEN` oder `ABBRECHEN` antworten. Eine neue Anfrage ersetzt einen älteren Plan. Jeder bestätigte Befehl enthält `msg.destination`, `msg.dpt`, `msg.payload` und `msg.event = "GroupValue_Write"`.
+Bei DPT-1.xxx-Schreibvorgängen werden die sicheren KI-Entsprechungen `true`/`false`, `1`/`0` und `on`/`off` vor der lokalen Validierung und Ausgabe in echte Boolesche Werte normalisiert.
+
+### Aktuelle KNX-Lesewerte
+Wenn der Benutzer ausdrücklich einen aktuellen oder aktualisierten Zustand anfordert, kann die KI exakte Objekte aus dem importierten ETS-Katalog abfragen, einschließlich Status- und anderer schreibgeschützter Objekte. Ausgang 4 gibt `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"` und `msg.readstatus = true` aus. Der Node wartet bis zu 6 Sekunden auf jede `GroupValue_Response` oder ein aktuelles Write-Telegramm, gibt anschließend die dekodierten Werte an Ausgang 3 zurück und stellt Details in `msg.knxAi.readResults` bereit. Leseoperationen erfordern keine Bestätigung und werden niemals in Schreiboperationen umgewandelt.
+
+### Bestätigungsanfrage für Chat-Schaltflächen
+Solange ein Plan aussteht, enthält Ausgang 3 `msg.knxAi.confirmationRequest`. Das Objekt enthält `required`, `status`, `sessionId`, `expiresAt`, `commandCount` und zwei Einträge in `actions`. Verwenden Sie `action.label` als Text der Telegram-Schaltfläche, `action.callbackData` als Callback und senden Sie `action.message` an KNX AI zurück, um ohne Texteingabe zu bestätigen oder abzubrechen.
+
+### Chat-Adapter-Vorlagen
+Der Tab **Chat-Adapter** lädt seine auswählbaren Zuordnungen aus `resources/KNXAIChatAdapterMappings.js`. Die Auswahl einer Vorlage fügt zwei bearbeitbare synchrone JavaScript-Zuordnungen in Textfeldern über die volle Breite ein: eine vor der Verarbeitung des Eingangs durch KNX AI und eine vor der Ausgabe an Ausgang 3. Geben Sie `msg` zurück, um fortzufahren, oder keinen Wert, um die Nachricht zu verwerfen. Syntax- und Laufzeitfehler werden abgefangen und gemeldet, ohne Node-RED anzuhalten.
+
+Die enthaltene Vorlage **windkh/node-red-contrib-telegrambot** folgt dem Receiver-/Sender-Vertrag des Pakets. Verbinden Sie einen `telegram receiver` direkt mit KNX AI und Ausgang 3 direkt mit einem `telegram sender`. Für Inline-Bestätigungsschaltflächen verbinden Sie zusätzlich einen als `callback_query` konfigurierten `telegram event` mit demselben KNX-AI-Eingang. Die Eingangszuordnung liest `msg.payload.content`, `msg.payload.chatId` und die Telegram-Sprache. Die Ausgangszuordnung erstellt `msg.payload.chatId`, `type` und `content` und ergänzt bei ausstehender Schreibbestätigung `options.reply_markup` aus `msg.knxAi.confirmationRequest`. Das Telegram-Paket bleibt eine separate optionale Abhängigkeit.
+
+## Kurzer Ablauf: KNX-Steuerung
+1. Importieren Sie die ETS-CSV in das Gateway und konfigurieren Sie LLM-Anbieter, Modell und Zugangsdaten.
+2. Aktivieren Sie **LLM-Assistent** und **KNX-Zustände lesen und Aktoren steuern**; lassen Sie die Bestätigung aktiviert.
+3. Verbinden Sie den Chat-Eingang mit KNX AI und behalten Sie eine stabile Sitzungs-/Chat-ID bei.
+4. Verbinden Sie Ausgang 3 mit der Chat-Antwort und Ausgang 4 mit KNX Ultimate im **Universalmodus**.
+5. Der Benutzer sendet eine Anfrage; aktuelle Zustandsabfragen werden sofort gelesen, während Schreiboperationen zuerst GA, DPT und Wert ohne Bus-Schreibzugriff anzeigen.
+6. Innerhalb von 5 Minuten antwortet derselbe Chat exakt mit `BESTÄTIGEN` oder `ABBRECHEN`.
+7. Nur `BESTÄTIGEN` validiert erneut und gibt Befehle an Ausgang 4 aus; prüfen Sie die Ausführung über eine KNX-Status-GA.
 
 ## Konfigurationsfelder
 Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
@@ -58,7 +88,13 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 - **Endpoint URL**: URL des Chat/Completions-Endpunkts.
 - **API key**: API-Schlüssel (für lokales Ollama nicht erforderlich).
 - **Model**: Modell-ID/Name.
+- **Chatmodell-Kompatibilität**: Das ausgewählte Modell muss den konfigurierten Chat-Completions-Endpunkt unterstützen. Ältere reine Completions-Modelle wie `gpt-3.5-turbo-instruct` werden beim Aktualisieren der Modellliste ausgeschlossen. Lehnt der Anbieter einen benutzerdefinierten Temperaturwert oder den Token-Limit-Parameter ab, wiederholt KNX AI die Anfrage und entfernt oder ersetzt nur das inkompatible Feld.
 - **System prompt**: Globale Instruktion für KNX-Analyse (Advanced).
+- **KI darf KNX-Zustände lesen und Aktoren steuern**: Aktiviert Ausgang 4 und ist standardmäßig aus. Exakte ETS-Katalogobjekte dürfen gelesen werden; Schreiboperationen werden ausschließlich für Objekte mit Rolle `command` akzeptiert. Unbekannte, DPT-falsche, ungültige oder überzählige Operationen sowie Schreiboperationen auf Status-/Neutralobjekte werden lokal abgewiesen.
+- **Vor dem Senden von KNX-Befehlen bestätigen lassen**: Standardmäßig aktiv. Zeigt zuerst die validierten Änderungen und sendet nichts, bis dieselbe Chat-Sitzung bestätigt. Wenn Befehle auf Bestätigung warten, fügt die Antwort immer die genauen Anweisungen zum Bestätigen oder Abbrechen in der Sprache der aktuellen Anfrage hinzu. Vor der Ausgabe werden die Befehle erneut validiert.
+- **Adapter-Vorlage**: Lädt ein Paar aus Ein- und Ausgangszuordnung aus der mitgelieferten Chat-Adapter-Datei. Die Auswahl ersetzt bewusst beide Textfelder; der Code bleibt danach bearbeitbar.
+- **Eingangszuordnung (Chat → KNX AI)**: Synchrones JavaScript vor der Verarbeitung des Eingangsbefehls.
+- **Ausgangszuordnung (KNX AI → Chat)**: Synchrones JavaScript ausschließlich für Nachrichten an Ausgang 3.
 - Wenn das Festplattenarchiv aktiv ist, nutzt **Ask** standardmäßig dieses Archiv: explizite Datumsangaben/Zeitbereiche werden beachtet, sonst durchsucht der Assistent die letzten 24 Stunden plus aktuelle RAM-Events.
 - **Include raw payload hex**: Rohe Hex-Payload im Prompt einfügen.
 - **Node-RED-Projektinventar einbeziehen**: Nimmt das gesamte Node-RED-Projektinventar in den Prompt auf, einschließlich KNX-Nodes und anderer hilfreicher Nodes wie function/change/inject/template, wenn sie KNX-Logik oder Gruppenadressen enthalten.
@@ -89,4 +125,4 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 - Wenn Node-RED in Docker läuft, im Endpoint `host.docker.internal` statt `localhost` verwenden.
 
 ## Sicherheitshinweis
-Bei aktiviertem LLM kann KNX-Traffic-Kontext an den konfigurierten Endpoint gesendet werden. Für striktes On-Premise lokale Provider verwenden.
+Bei aktiviertem LLM kann KNX-Traffic-Kontext an den konfigurierten Endpoint gesendet werden. Für striktes On-Premise lokale Provider verwenden. Ein Befehl an Ausgang 4 hat die lokale Validierung bestanden und wurde an den Flow weitergegeben; dies bestätigt nicht die Ausführung durch den Aktor. Dafür eine KNX-Status-GA verwenden.

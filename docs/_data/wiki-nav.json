@@ -34,16 +34,6 @@
       "title": "Web pages and sidebar",
       "items": [
         {
-          "label": "KNX Monitor",
-          "url": "/wiki/KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
           "label": "KNX AI Dashboard",
           "url": "/wiki/KNX-AI-Sidebar",
           "external": false
@@ -470,16 +460,6 @@
     {
       "title": "Web pages and sidebar",
       "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/it-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/it-KNX-Debug-Sidebar",
-          "external": false
-        },
         {
           "label": "KNX AI Dashboard",
           "url": "/wiki/it-KNX-AI-Sidebar",
@@ -908,16 +888,6 @@
       "title": "Web pages and sidebar",
       "items": [
         {
-          "label": "KNX Monitor",
-          "url": "/wiki/de-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/de-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
           "label": "KNX AI Dashboard",
           "url": "/wiki/de-KNX-AI-Sidebar",
           "external": false
@@ -1344,16 +1314,6 @@
     {
       "title": "Web pages and sidebar",
       "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/fr-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/fr-KNX-Debug-Sidebar",
-          "external": false
-        },
         {
           "label": "Dashboard KNX AI",
           "url": "/wiki/fr-KNX-AI-Sidebar",
@@ -1782,16 +1742,6 @@
       "title": "Web pages and sidebar",
       "items": [
         {
-          "label": "KNX Monitor",
-          "url": "/wiki/es-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/es-KNX-Debug-Sidebar",
-          "external": false
-        },
-        {
           "label": "Dashboard KNX AI",
           "url": "/wiki/es-KNX-AI-Sidebar",
           "external": false
@@ -2218,16 +2168,6 @@
     {
       "title": "Web pages and sidebar",
       "items": [
-        {
-          "label": "KNX Monitor",
-          "url": "/wiki/zh-CN-KNX-Monitor-Sidebar",
-          "external": false
-        },
-        {
-          "label": "KNX Debug",
-          "url": "/wiki/zh-CN-KNX-Debug-Sidebar",
-          "external": false
-        },
         {
           "label": "KNX AI 仪表板",
           "url": "/wiki/zh-CN-KNX-AI-Sidebar",

@@ -1,0 +1,221 @@
+[
+  {
+    "id": "tab_knx_ai_telegram",
+    "type": "tab",
+    "label": "KNX AI - Telegrambot direct chat",
+    "disabled": false,
+    "info": "Direct chat wiring for windkh/node-red-contrib-telegrambot using the KNX AI chat-adapter preset."
+  },
+  {
+    "id": "comment_knx_ai_telegram_setup",
+    "type": "comment",
+    "z": "tab_knx_ai_telegram",
+    "name": "1. Open KNX AI → Chat adapters → select windkh/node-red-contrib-telegrambot",
+    "info": "Selecting the preset inserts the editable input and output mappings. Then configure the KNX gateway, import the ETS CSV, set the LLM credentials and configure the Telegram bot token.",
+    "x": 500,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "comment_knx_ai_telegram_warning",
+    "type": "comment",
+    "z": "tab_knx_ai_telegram",
+    "name": "Reads are immediate; actuator writes require the Telegram confirmation button",
+    "info": "Use safe KNX group addresses while testing. Confirmation is enabled by default and pending write plans expire after five minutes.",
+    "x": 500,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "telegram_receiver_knx_ai",
+    "type": "telegram receiver",
+    "z": "tab_knx_ai_telegram",
+    "name": "Telegram text",
+    "bot": "telegram_bot_knx_ai",
+    "saveDataDir": "",
+    "filterCommands": false,
+    "x": 170,
+    "y": 180,
+    "wires": [
+      [
+        "node_knx_ai_telegram"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "telegram_callback_knx_ai",
+    "type": "telegram event",
+    "z": "tab_knx_ai_telegram",
+    "name": "Confirm / Cancel buttons",
+    "bot": "telegram_bot_knx_ai",
+    "event": "callback_query",
+    "autoanswer": true,
+    "x": 190,
+    "y": 240,
+    "wires": [
+      [
+        "node_knx_ai_telegram"
+      ]
+    ]
+  },
+  {
+    "id": "node_knx_ai_telegram",
+    "type": "knxUltimateAI",
+    "z": "tab_knx_ai_telegram",
+    "server": "cfg_knx_ai_telegram",
+    "name": "KNX AI + Telegram adapter",
+    "topic": "knx-ai",
+    "notifyreadrequest": true,
+    "notifyresponse": true,
+    "notifywrite": true,
+    "analysisWindowSec": "120",
+    "historyWindowSec": "600",
+    "historyStoreToDisk": false,
+    "historyStoreRetentionDays": "10",
+    "emitIntervalSec": "0",
+    "topN": "10",
+    "maxEvents": "50000",
+    "rateWindowSec": "10",
+    "maxTelegramPerSecOverall": "0",
+    "maxTelegramPerSecPerGA": "0",
+    "flapWindowSec": "30",
+    "flapMaxChanges": "0",
+    "enablePattern": true,
+    "patternMaxLagMs": "1500",
+    "patternMinCount": "8",
+    "llmEnabled": true,
+    "llmProvider": "openai_compat",
+    "llmBaseUrl": "https://api.openai.com/v1/chat/completions",
+    "llmModel": "gpt-5.4",
+    "llmSystemPrompt": "Sei un assistente per un impianto KNX. Rispondi nella lingua dell'utente.",
+    "llmIncludeRaw": false,
+    "llmIncludeFlowContext": true,
+    "llmIncludeDocsSnippets": true,
+    "llmDocsLanguage": "it",
+    "llmAllowKnxCommands": true,
+    "llmRequireCommandConfirmation": true,
+    "chatAdapterPreset": "none",
+    "chatInputCode": "",
+    "chatOutputCode": "",
+    "x": 500,
+    "y": 210,
+    "wires": [
+      [],
+      [],
+      [
+        "telegram_sender_knx_ai",
+        "debug_knx_ai_telegram_reply"
+      ],
+      [
+        "node_knx_ai_telegram_universal"
+      ]
+    ]
+  },
+  {
+    "id": "telegram_sender_knx_ai",
+    "type": "telegram sender",
+    "z": "tab_knx_ai_telegram",
+    "name": "Telegram reply",
+    "bot": "telegram_bot_knx_ai",
+    "haserroroutput": false,
+    "outputs": 1,
+    "x": 790,
+    "y": 180,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "debug_knx_ai_telegram_reply",
+    "type": "debug",
+    "z": "tab_knx_ai_telegram",
+    "name": "Adapted Telegram msg",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 810,
+    "y": 230,
+    "wires": []
+  },
+  {
+    "id": "node_knx_ai_telegram_universal",
+    "type": "knxUltimate",
+    "z": "tab_knx_ai_telegram",
+    "server": "cfg_knx_ai_telegram",
+    "topic": "0/0/0",
+    "dpt": "1.001",
+    "initialread": false,
+    "notifyreadrequest": false,
+    "notifyresponse": true,
+    "notifywrite": true,
+    "notifyreadrequestalsorespondtobus": false,
+    "notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized": "",
+    "listenallga": true,
+    "setTopicType": "listenAllGA",
+    "name": "KNX Ultimate - Universal Mode",
+    "outputtype": "write",
+    "outputRBE": false,
+    "inputRBE": false,
+    "x": 800,
+    "y": 300,
+    "wires": [
+      [
+        "debug_knx_ai_telegram_bus"
+      ]
+    ]
+  },
+  {
+    "id": "debug_knx_ai_telegram_bus",
+    "type": "debug",
+    "z": "tab_knx_ai_telegram",
+    "name": "KNX telegrams",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "x": 1050,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "telegram_bot_knx_ai",
+    "type": "telegram bot",
+    "botname": "Configure your BotFather bot",
+    "usernames": "",
+    "chatids": "",
+    "baseapiurl": "",
+    "updatemode": "polling",
+    "pollinterval": "300",
+    "usesocks": false,
+    "sockshost": "",
+    "socksport": "",
+    "socksusername": "anonymous",
+    "sockspassword": "",
+    "bothost": "",
+    "localbotport": "8443",
+    "publicbotport": "8443",
+    "privatekey": "",
+    "certificate": "",
+    "useselfsignedcertificate": false,
+    "sslterminated": false,
+    "verboselogging": false
+  },
+  {
+    "id": "cfg_knx_ai_telegram",
+    "type": "knxUltimate-config",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.202",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "yes"
+  }
+]

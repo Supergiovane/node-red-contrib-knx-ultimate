@@ -1,18 +1,48 @@
 <script type="text/markdown" data-help-name="knxUltimateAI">
 This node listens to **all KNX telegrams** from the selected KNX Ultimate gateway, builds traffic statistics, detects anomalies, and can optionally query an LLM.
 
+The editor sections use the same left-hand vertical tabs as the Matter nodes. **Quick setup** contains only the common AI choices (enable, provider, credentials, model, KNX state reads/actuator control and confirmation); technical settings are grouped by topic in the other tabs.
+
 ## Outputs
 1. **Summary/Stats** (`msg.payload` JSON)
 2. **Anomalies** (`msg.payload` JSON)
 3. **AI Assistant** (`msg.payload` text, with `msg.summary`)
+4. **KNX operations** (one Universal Mode message per validated read or write)
+
+Every message emitted by outputs 3 and 4 also contains a clone of the original input message in `msg.inputMessage`. This preserves the original payload, topic, chat metadata, and any other input properties for downstream nodes. Cloning and output errors are contained and reported instead of escaping into the Node-RED runtime.
 
 ## Commands (input)
 Send `msg.topic`:
 - `summary` (or empty): emit summary immediately
 - `reset`: clear internal history/counters
 - `ask`: send a question to the configured LLM
+- `confirm` / `cancel`: confirm or cancel pending KNX commands without calling the LLM
+- `clear_chat`: clear the conversation memory for the current session
 
-For `ask`, provide the question in `msg.prompt` (preferred) or `msg.payload` (string).
+For `ask`, provide the question in `msg.prompt` (preferred), `msg.payload` (string), or the common Telegram fields `msg.payload.content` / `msg.payload.text`.
+
+When KNX control is enabled, recent turns are remembered in RAM per `msg.knxAi.sessionId`, `msg.sessionId`, or a detected Telegram chat ID. Wire output 3 back to the chat sender and output 4 to a KNX Ultimate node configured in **Universal mode**. With confirmation enabled, the first reply previews every write GA, DPT, and payload without emitting writes; the same session must then reply `CONFIRM`/`CANCEL` (localized equivalents are accepted) within 5 minutes. A new request replaces any older pending plan. Each confirmed command has `msg.destination`, `msg.dpt`, `msg.payload`, and `msg.event = "GroupValue_Write"`.
+For DPT 1.xxx writes, safe AI equivalents `true`/`false`, `1`/`0`, and `on`/`off` are normalized to a real boolean before local validation and output.
+
+### Fresh KNX reads
+When the user explicitly asks for a fresh/current state, the AI may query exact objects from the imported ETS catalog, including status and other read-only objects. Output 4 emits `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"`, and `msg.readstatus = true`. The node waits up to 6 seconds for each `GroupValue_Response` or fresh write, then returns the decoded values on output 3 and exposes details in `msg.knxAi.readResults`. Reads never require confirmation and never become writes.
+
+### Confirmation request for chat buttons
+While a plan is pending, output 3 contains `msg.knxAi.confirmationRequest`. The object includes `required`, `status`, `sessionId`, `expiresAt`, `commandCount`, and two entries in `actions`. Use `action.label` as the Telegram button text, `action.callbackData` as its callback, and send `action.message` back to KNX AI to confirm or cancel without typed text.
+
+### Chat adapter presets
+The **Chat adapters** tab loads its selectable mappings from `resources/KNXAIChatAdapterMappings.js`. Selecting a preset inserts two editable synchronous JavaScript mappings in full-width text boxes: one before KNX AI processes an input and one before output 3 is emitted. Return `msg` to continue or no value to discard the message. Syntax and execution failures are caught and reported without stopping Node-RED.
+
+The included **windkh/node-red-contrib-telegrambot** preset follows the package's receiver/sender contract. Connect a `telegram receiver` directly to KNX AI, output 3 directly to a `telegram sender`, and—when inline confirmation buttons are required—connect a `telegram event` configured for `callback_query` to the same KNX AI input. The input mapping extracts `msg.payload.content`, `msg.payload.chatId`, and the Telegram language. The output mapping creates the required `msg.payload.chatId`, `type`, and `content`, adding `options.reply_markup` from `msg.knxAi.confirmationRequest` when writes await confirmation. The Telegram package remains a separate optional dependency.
+
+## Quick workflow: KNX control
+1. Import the ETS CSV into the gateway and configure the LLM provider, model, and credentials.
+2. Enable **LLM assistant** and **KNX state reads and actuator control**; leave confirmation enabled.
+3. Connect the chat input to KNX AI while preserving a stable session/chat ID.
+4. Connect output 3 to the chat reply and output 4 to KNX Ultimate in **Universal mode**.
+5. The user sends a request; fresh state requests are read immediately, while writes first show the proposed GA, DPT, and value without writing to the bus.
+6. Within 5 minutes, the same chat replies exactly `CONFIRM` or `CANCEL`.
+7. Only `CONFIRM` revalidates and emits commands on output 4; verify execution through a KNX status GA.
 
 ## Configuration fields
 All fields exposed in the KNX AI editor are listed below.
@@ -53,7 +83,13 @@ All fields exposed in the KNX AI editor are listed below.
 - **Endpoint URL**: Chat/completions endpoint URL.
 - **API key**: API key (not required for local Ollama).
 - **Model**: Model ID/name.
+- **Chat model compatibility**: The selected model must support the configured Chat Completions endpoint. Legacy completion-only models such as `gpt-3.5-turbo-instruct` are excluded when the model list is refreshed. If the provider rejects a custom temperature or token-limit parameter, KNX AI retries after removing or replacing only that incompatible field.
 - **System prompt**: Global instruction for KNX analysis behavior (Advanced).
+- **Allow AI to read KNX states and control actuators**: Enables output 4 and is off by default. Exact ETS catalog objects may be read; writes are accepted only for objects classified as `command`. Unknown, DPT-mismatched, invalid, or excessive operations and writes to status/neutral objects are rejected locally.
+- **Ask for confirmation before sending KNX commands**: Enabled by default. Shows the validated changes first and emits no KNX command until the same chat session confirms them. Whenever commands are awaiting confirmation, the response always appends the exact confirmation/cancellation instructions in the language of the current request. Commands are validated again immediately before output.
+- **Adapter preset**: Loads an input/output mapping pair from the packaged chat-adapter file. Selecting a preset intentionally replaces both mapping text boxes; they remain editable afterwards.
+- **Input mapping (chat → KNX AI)**: Synchronous JavaScript applied before input command processing.
+- **Output mapping (KNX AI → chat)**: Synchronous JavaScript applied only to messages on output 3.
 - If disk archive is enabled, **Ask** uses the archive by default: explicit dates/ranges are honored, otherwise the assistant searches the last 24 hours plus current RAM events.
 - **Include raw payload hex**: Include raw telegram hex in prompt.
 - **Include Node-RED project inventory**: Include the whole Node-RED project inventory in the prompt, including KNX nodes and other useful nodes such as function/change/inject/template when they contain KNX-related logic or group addresses.
@@ -84,5 +120,5 @@ All fields exposed in the KNX AI editor are listed below.
 - If Node-RED runs in Docker, use `host.docker.internal` instead of `localhost` in the endpoint URL.
 
 ## Security note
-If LLM is enabled, KNX traffic context can be sent to the configured endpoint. Use local providers if you need strict on-prem data handling.
+If LLM is enabled, KNX traffic context can be sent to the configured endpoint. Use local providers if you need strict on-prem data handling. A command emitted on output 4 passed local validation and was forwarded to the flow; it is not proof that the actuator executed it. Use a KNX status GA when confirmation is required.
 </script>

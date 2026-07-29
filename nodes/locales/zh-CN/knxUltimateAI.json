@@ -2,12 +2,14 @@
   "knxUltimateAI": {
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
+      "quickSetup": "快速配置",
       "capture": "Capture",
       "storage": "历史与摘要",
       "detection": "检测与告警",
       "llmConnection": "AI 助手连接",
       "llmContext": "AI 助手上下文",
-      "advanced": "高级调优"
+      "chatAdapter": "聊天适配器",
+      "advanced": "AI 高级设置"
     },
     "properties": {
       "server": "Gateway",
@@ -39,19 +41,28 @@
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmIncludeFlowContext": "包含 Node-RED 项目清单",
+      "llmAllowKnxCommands": "允许 AI 读取 KNX 状态并控制执行器",
+      "llmRequireCommandConfirmation": "发送 KNX 命令前请求确认",
+      "chatAdapterPreset": "适配器预设",
+      "chatInputCode": "输入映射（聊天 → KNX AI）",
+      "chatOutputCode": "输出映射（KNX AI → 聊天）",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
     },
     "outputs": {
       "summary": "摘要/统计",
       "anomalies": "异常",
-      "assistant": "AI 助手"
+      "assistant": "AI 助手",
+      "knxCommands": "KNX 操作"
     },
     "selectlists": {
       "llmProvider": {
         "openai_compat": "OpenAI-compatible (chat/completions)",
         "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama (local, beta)"
+      },
+      "chatAdapter": {
+        "none": "无适配器"
       }
     },
     "messages": {
@@ -61,7 +72,9 @@
       "installedOllamaModel": "Ollama model installed",
       "installOllamaModelFailed": "Failed to install Ollama model",
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
-      "ollamaStartedAuto": "Ollama server started automatically."
+      "ollamaStartedAuto": "Ollama server started automatically.",
+      "chatAdapterIntro": "选择预设即可插入输入和输出映射代码。列表从随包提供的聊天适配器文件加载；生成的代码仍可编辑。",
+      "chatAdapterCodeHelp": "映射同步运行。返回 msg 以继续，或不返回值以丢弃消息。错误会被捕获并报告，不会停止 Node-RED。"
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",

@@ -17,3 +17,5 @@ test/
 test/*
 !test/matterControllerEditor.test.js
 !test/matterQrScanner.test.js
+!test/knxAiConversation.test.js
+!test/disabledSidebarPlugins.test.js

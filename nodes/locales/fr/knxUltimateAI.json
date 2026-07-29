@@ -2,12 +2,14 @@
   "knxUltimateAI": {
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
+      "quickSetup": "Configuration rapide",
       "capture": "Capture",
       "storage": "Historique et Resume",
       "detection": "Detection et Alertes",
       "llmConnection": "Connexion Assistant IA",
       "llmContext": "Contexte Assistant IA",
-      "advanced": "Reglages Avances"
+      "chatAdapter": "Adaptateurs de chat",
+      "advanced": "IA avancee"
     },
     "properties": {
       "server": "Gateway",
@@ -39,19 +41,28 @@
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmIncludeFlowContext": "Inclure l'inventaire du projet Node-RED",
+      "llmAllowKnxCommands": "Autoriser l’IA à lire les états KNX et commander les actionneurs",
+      "llmRequireCommandConfirmation": "Demander confirmation avant d’envoyer les commandes KNX",
+      "chatAdapterPreset": "Préréglage d’adaptateur",
+      "chatInputCode": "Mappage d’entrée (chat → KNX AI)",
+      "chatOutputCode": "Mappage de sortie (KNX AI → chat)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
     },
     "outputs": {
       "summary": "Résumé/Stats",
       "anomalies": "Anomalies",
-      "assistant": "Assistant IA"
+      "assistant": "Assistant IA",
+      "knxCommands": "Opérations KNX"
     },
     "selectlists": {
       "llmProvider": {
         "openai_compat": "OpenAI-compatible (chat/completions)",
         "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama (local, beta)"
+      },
+      "chatAdapter": {
+        "none": "Aucun adaptateur"
       }
     },
     "messages": {
@@ -61,7 +72,9 @@
       "installedOllamaModel": "Ollama model installed",
       "installOllamaModelFailed": "Failed to install Ollama model",
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
-      "ollamaStartedAuto": "Ollama server started automatically."
+      "ollamaStartedAuto": "Ollama server started automatically.",
+      "chatAdapterIntro": "Choisissez un préréglage pour insérer son code de mappage d’entrée et de sortie. La liste est chargée depuis le fichier d’adaptateurs de chat fourni ; le code généré reste modifiable.",
+      "chatAdapterCodeHelp": "Les mappages s’exécutent de façon synchrone. Renvoyez msg pour continuer ou aucune valeur pour l’écarter. Les erreurs sont interceptées et signalées sans arrêter Node-RED."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",

@@ -738,6 +738,626 @@ const extractJsonFragmentFromText = (value) => {
   throw new Error(`The LLM response did not contain valid JSON${preview ? ` (preview: ${preview})` : ''}`)
 }
 
+const parseKnxAiConversationResponse = (value) => {
+  const parsed = extractJsonFragmentFromText(value)
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('The LLM conversation response must be a JSON object')
+  }
+  const reply = String(parsed.reply !== undefined
+    ? parsed.reply
+    : parsed.answer !== undefined
+      ? parsed.answer
+      : parsed.text !== undefined
+        ? parsed.text
+        : '').trim()
+  const commands = Array.isArray(parsed.commands)
+    ? parsed.commands
+    : Array.isArray(parsed.actions)
+      ? parsed.actions
+      : []
+  const language = String(parsed.language !== undefined
+    ? parsed.language
+    : parsed.locale !== undefined
+      ? parsed.locale
+      : '').trim()
+  return { reply, commands, language }
+}
+
+const extractKnxAiQuestion = (msg) => {
+  const source = msg && typeof msg === 'object' ? msg : {}
+  if (source.prompt !== undefined && source.prompt !== null) return String(source.prompt).trim()
+  if (typeof source.payload === 'string') return source.payload.trim()
+  if (source.payload && typeof source.payload === 'object') {
+    if (typeof source.payload.content === 'string') return source.payload.content.trim()
+    if (typeof source.payload.text === 'string') return source.payload.text.trim()
+    if (source.payload.message && typeof source.payload.message.text === 'string') return source.payload.message.text.trim()
+  }
+  if (source.originalMessage && typeof source.originalMessage === 'object') {
+    if (typeof source.originalMessage.text === 'string') return source.originalMessage.text.trim()
+    if (source.originalMessage.message && typeof source.originalMessage.message.text === 'string') return source.originalMessage.message.text.trim()
+  }
+  return source.payload === undefined ? '' : safeStringify(source.payload)
+}
+
+const resolveKnxAiSessionId = (msg) => {
+  const source = msg && typeof msg === 'object' ? msg : {}
+  const candidates = [
+    source.knxAi && source.knxAi.sessionId,
+    source.sessionId,
+    source.chatId,
+    source.payload && typeof source.payload === 'object' ? source.payload.chatId : '',
+    source.payload && source.payload.chat && typeof source.payload.chat === 'object' ? source.payload.chat.id : '',
+    source.originalMessage && source.originalMessage.chat ? source.originalMessage.chat.id : '',
+    source.originalMessage && source.originalMessage.message && source.originalMessage.message.chat
+      ? source.originalMessage.message.chat.id
+      : ''
+  ]
+  const hit = candidates.find(candidate => candidate !== undefined && candidate !== null && String(candidate).trim() !== '')
+  return String(hit === undefined ? 'default' : hit).trim().slice(0, 160) || 'default'
+}
+
+const classifyKnxAiConfirmation = ({ msg, question, topic } = {}) => {
+  const source = msg && typeof msg === 'object' ? msg : {}
+  if (source.knxAi && source.knxAi.confirm === true) return 'confirm'
+  if (source.knxAi && source.knxAi.confirm === false) return 'cancel'
+  const topicValue = String(topic || '').trim().toLowerCase()
+  if (topicValue === 'confirm') return 'confirm'
+  if (topicValue === 'cancel') return 'cancel'
+  const normalized = String(question || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[.!?。！？]+$/g, '')
+    .replace(/\s+/g, ' ')
+  const confirmations = new Set([
+    'confirm', 'confirmed', 'yes', 'y', 'ok', 'proceed',
+    'conferma', 'confermo', 'si', 'procedi',
+    'confirmer', 'confirme', 'oui',
+    'bestatigen', 'bestatige', 'ja',
+    'confirmar', 'confirmo', 'adelante',
+    '确认', '是'
+  ])
+  const cancellations = new Set([
+    'cancel', 'cancelled', 'no', 'n', 'stop',
+    'annulla', 'annullo', 'no grazie',
+    'annuler', 'annule', 'non',
+    'abbrechen', 'abbruch', 'nein',
+    'cancelar', 'cancelo',
+    '取消', '否'
+  ])
+  if (confirmations.has(normalized)) return 'confirm'
+  if (cancellations.has(normalized)) return 'cancel'
+  return 'none'
+}
+
+const detectKnxAiLanguageFromText = (value) => {
+  const raw = String(value || '').trim()
+  if (!raw) return ''
+  if (/[\u3400-\u9fff]/u.test(raw)) return 'zh'
+  const normalized = raw
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+  const tokens = new Set(normalized.match(/[a-z]+/g) || [])
+  const dictionaries = {
+    it: ['accendi', 'spegni', 'luce', 'luci', 'soggiorno', 'cucina', 'apri', 'chiudi', 'alza', 'abbassa', 'tapparella', 'tapparelle'],
+    en: ['turn', 'switch', 'light', 'lights', 'living', 'room', 'kitchen', 'open', 'close', 'raise', 'lower', 'blind', 'blinds'],
+    de: ['schalte', 'licht', 'lichter', 'wohnzimmer', 'kuche', 'offne', 'schliesse', 'hoch', 'runter', 'rollladen'],
+    fr: ['allume', 'eteins', 'lumiere', 'lumieres', 'salon', 'cuisine', 'ouvre', 'ferme', 'monte', 'baisse', 'volet'],
+    es: ['enciende', 'apaga', 'luz', 'luces', 'salon', 'cocina', 'abre', 'cierra', 'sube', 'baja', 'persiana']
+  }
+  const scores = Object.entries(dictionaries).map(([language, words]) => ({
+    language,
+    score: words.reduce((total, word) => total + (tokens.has(word) ? 1 : 0), 0)
+  })).sort((a, b) => b.score - a.score)
+  if (!scores[0] || scores[0].score === 0) return ''
+  if (scores[1] && scores[0].score === scores[1].score) return ''
+  return scores[0].language
+}
+
+const resolveKnxAiLanguage = (msg, fallback = 'en', question = '', responseLanguage = '') => {
+  const source = msg && typeof msg === 'object' ? msg : {}
+  const explicitCandidates = [
+    source.knxAi && source.knxAi.language,
+    source.language,
+    source.payload && typeof source.payload === 'object' ? source.payload.language : ''
+  ]
+  const inferredCandidates = [
+    responseLanguage,
+    detectKnxAiLanguageFromText(question),
+    source.originalMessage && source.originalMessage.from ? source.originalMessage.from.language_code : '',
+    source.originalMessage && source.originalMessage.message && source.originalMessage.message.from
+      ? source.originalMessage.message.from.language_code
+      : ''
+  ]
+  const supported = new Set(['en', 'it', 'de', 'fr', 'es', 'zh'])
+  for (const candidate of explicitCandidates.concat(inferredCandidates)) {
+    if (candidate === undefined || candidate === null || String(candidate).trim() === '') continue
+    const language = normalizeLanguageCode(candidate, '')
+    if (supported.has(language)) return language
+  }
+  const fallbackLanguage = normalizeLanguageCode(fallback, 'en')
+  return supported.has(fallbackLanguage) ? fallbackLanguage : 'en'
+}
+
+const getKnxAiConfirmationCopy = (language) => {
+  const copies = {
+    en: {
+      preview: 'KNX changes awaiting confirmation',
+      instruction: 'Reply exactly CONFIRM to proceed or CANCEL to discard them. The request expires in 5 minutes.',
+      confirmLabel: 'Confirm',
+      cancelLabel: 'Cancel',
+      confirmed: count => `Confirmed: ${count} KNX command(s) forwarded to the flow. Execution still requires KNX status feedback.`,
+      cancelled: 'Cancelled: no KNX command was sent.',
+      expired: 'The pending KNX command request has expired. Please repeat the original request.',
+      missing: 'There is no KNX command request awaiting confirmation.',
+      invalid: details => `The pending KNX commands are no longer valid and were not sent: ${details}.`
+    },
+    it: {
+      preview: 'Modifiche KNX in attesa di conferma',
+      instruction: 'Rispondi esattamente CONFERMA per procedere oppure ANNULLA per eliminarle. La richiesta scade tra 5 minuti.',
+      confirmLabel: 'Conferma',
+      cancelLabel: 'Annulla',
+      confirmed: count => `Confermato: ${count} comando/i KNX inoltrato/i al flow. L'esecuzione deve comunque essere verificata tramite lo stato KNX.`,
+      cancelled: 'Annullato: non è stato inviato alcun comando KNX.',
+      expired: 'La richiesta di comandi KNX è scaduta. Ripeti la richiesta originale.',
+      missing: 'Non ci sono comandi KNX in attesa di conferma.',
+      invalid: details => `I comandi KNX in attesa non sono più validi e non sono stati inviati: ${details}.`
+    },
+    de: {
+      preview: 'KNX-Änderungen warten auf Bestätigung',
+      instruction: 'Antworte genau mit BESTÄTIGEN oder ABBRECHEN. Die Anfrage läuft nach 5 Minuten ab.',
+      confirmLabel: 'Bestätigen',
+      cancelLabel: 'Abbrechen',
+      confirmed: count => `Bestätigt: ${count} KNX-Befehl(e) an den Flow weitergegeben. Die Ausführung muss über KNX-Statusfeedback geprüft werden.`,
+      cancelled: 'Abgebrochen: Es wurde kein KNX-Befehl gesendet.',
+      expired: 'Die ausstehende KNX-Anfrage ist abgelaufen. Bitte die ursprüngliche Anfrage wiederholen.',
+      missing: 'Es wartet keine KNX-Anfrage auf Bestätigung.',
+      invalid: details => `Die ausstehenden KNX-Befehle sind nicht mehr gültig und wurden nicht gesendet: ${details}.`
+    },
+    fr: {
+      preview: 'Modifications KNX en attente de confirmation',
+      instruction: 'Répondez exactement CONFIRMER pour continuer ou ANNULER pour abandonner. La demande expire dans 5 minutes.',
+      confirmLabel: 'Confirmer',
+      cancelLabel: 'Annuler',
+      confirmed: count => `Confirmé : ${count} commande(s) KNX transmise(s) au flow. L'exécution doit encore être vérifiée par un retour d'état KNX.`,
+      cancelled: 'Annulé : aucune commande KNX n’a été envoyée.',
+      expired: 'La demande de commandes KNX a expiré. Répétez la demande initiale.',
+      missing: 'Aucune commande KNX n’est en attente de confirmation.',
+      invalid: details => `Les commandes KNX en attente ne sont plus valides et n’ont pas été envoyées : ${details}.`
+    },
+    es: {
+      preview: 'Cambios KNX pendientes de confirmación',
+      instruction: 'Responde exactamente CONFIRMAR para continuar o CANCELAR para descartarlos. La solicitud caduca en 5 minutos.',
+      confirmLabel: 'Confirmar',
+      cancelLabel: 'Cancelar',
+      confirmed: count => `Confirmado: ${count} comando(s) KNX enviado(s) al flow. La ejecución aún debe verificarse mediante el estado KNX.`,
+      cancelled: 'Cancelado: no se envió ningún comando KNX.',
+      expired: 'La solicitud de comandos KNX ha caducado. Repite la solicitud original.',
+      missing: 'No hay comandos KNX pendientes de confirmación.',
+      invalid: details => `Los comandos KNX pendientes ya no son válidos y no se enviaron: ${details}.`
+    },
+    zh: {
+      preview: '等待确认的 KNX 更改',
+      instruction: '请准确回复“确认”以继续，或回复“取消”以放弃。请求将在 5 分钟后过期。',
+      confirmLabel: '确认',
+      cancelLabel: '取消',
+      confirmed: count => `已确认：${count} 条 KNX 命令已转发到 flow。仍需通过 KNX 状态反馈确认执行结果。`,
+      cancelled: '已取消：未发送任何 KNX 命令。',
+      expired: '待处理的 KNX 命令请求已过期，请重新发送原始请求。',
+      missing: '当前没有等待确认的 KNX 命令。',
+      invalid: details => `待处理的 KNX 命令已失效，未发送：${details}。`
+    }
+  }
+  return copies[language] || copies.en
+}
+
+const getKnxAiReadCopy = (language) => {
+  const copies = {
+    en: {
+      heading: 'Updated KNX readings',
+      noResponse: 'The KNX read request was sent, but no device replied within the timeout.',
+      partial: 'No response received for'
+    },
+    it: {
+      heading: 'Letture KNX aggiornate',
+      noResponse: 'La richiesta di lettura KNX è stata inviata, ma nessun dispositivo ha risposto entro il timeout.',
+      partial: 'Nessuna risposta ricevuta per'
+    },
+    de: {
+      heading: 'Aktualisierte KNX-Messwerte',
+      noResponse: 'Die KNX-Leseanfrage wurde gesendet, aber innerhalb des Timeouts hat kein Gerät geantwortet.',
+      partial: 'Keine Antwort erhalten für'
+    },
+    fr: {
+      heading: 'Lectures KNX actualisées',
+      noResponse: 'La demande de lecture KNX a été envoyée, mais aucun appareil n’a répondu avant l’expiration du délai.',
+      partial: 'Aucune réponse reçue pour'
+    },
+    es: {
+      heading: 'Lecturas KNX actualizadas',
+      noResponse: 'La solicitud de lectura KNX se envió, pero ningún dispositivo respondió antes de agotarse el tiempo.',
+      partial: 'No se recibió respuesta para'
+    },
+    zh: {
+      heading: '已更新的 KNX 读数',
+      noResponse: 'KNX 读取请求已发送，但在超时前没有设备响应。',
+      partial: '未收到响应'
+    }
+  }
+  return copies[language] || copies.en
+}
+
+const formatKnxAiReadResults = ({ operations, results, language }) => {
+  const reads = Array.isArray(operations) ? operations : []
+  const settled = Array.isArray(results) ? results : []
+  const copy = getKnxAiReadCopy(language)
+  const values = []
+  const missing = []
+  reads.forEach((operation, index) => {
+    const result = settled[index]
+    const label = String(operation && (operation.label || operation.destination) ? (operation.label || operation.destination) : '').trim()
+    if (!result || result.status !== 'fulfilled' || !result.value) {
+      missing.push(label || String(operation && operation.destination ? operation.destination : '').trim())
+      return
+    }
+    const telegram = result.value
+    const rawValue = telegram.payload
+    const value = rawValue && typeof rawValue === 'object' ? safeStringify(rawValue) : String(rawValue)
+    const unit = String(telegram.payloadmeasureunit || '').trim()
+    values.push(`- ${label || operation.destination}: ${value}${unit ? ` ${unit}` : ''}`)
+  })
+  if (values.length === 0) return copy.noResponse
+  const lines = [`${copy.heading}:`, ...values]
+  if (missing.length > 0) lines.push('', `${copy.partial}: ${missing.filter(Boolean).join(', ')}.`)
+  return lines.join('\n')
+}
+
+const buildKnxAiConfirmationRequest = ({
+  sessionId,
+  expiresAt,
+  commandCount,
+  copy
+}) => {
+  const resolvedSessionId = String(sessionId || 'default')
+  const resolvedExpiresAt = Number(expiresAt || 0)
+  const buildAction = ({ id, label, confirm }) => ({
+    id,
+    label,
+    callbackData: id,
+    message: {
+      topic: id,
+      knxAi: {
+        confirm,
+        sessionId: resolvedSessionId
+      }
+    }
+  })
+  return {
+    required: true,
+    status: 'pending',
+    sessionId: resolvedSessionId,
+    expiresAt: resolvedExpiresAt,
+    expiresAtIso: resolvedExpiresAt > 0 ? new Date(resolvedExpiresAt).toISOString() : '',
+    commandCount: Math.max(0, Number(commandCount) || 0),
+    actions: [
+      buildAction({ id: 'confirm', label: copy.confirmLabel, confirm: true }),
+      buildAction({ id: 'cancel', label: copy.cancelLabel, confirm: false })
+    ]
+  }
+}
+
+const cloneKnxAiInputMessage = (inputMessage, cloneMessage, onError) => {
+  const source = inputMessage && typeof inputMessage === 'object' ? inputMessage : {}
+  if (typeof cloneMessage === 'function') {
+    try {
+      const cloned = cloneMessage(source)
+      if (cloned && typeof cloned === 'object') return cloned
+    } catch (error) {
+      try {
+        if (typeof onError === 'function') onError(error)
+      } catch (reportError) {
+        // Reporting a clone error must never propagate to the Node-RED runtime.
+      }
+      // Fall back to a shallow copy if a custom message property cannot be cloned.
+    }
+  }
+  try {
+    return Object.assign({}, source)
+  } catch (error) {
+    try {
+      if (typeof onError === 'function') onError(error)
+    } catch (reportError) {
+      // Reporting a clone error must never propagate to the Node-RED runtime.
+    }
+    return {}
+  }
+}
+
+const safeKnxAiSend = ({ outputs, send, onError }) => {
+  try {
+    if (typeof send !== 'function') throw new Error('KNX AI output sender is unavailable')
+    send(outputs)
+    return true
+  } catch (error) {
+    try {
+      if (typeof onError === 'function') onError(error)
+    } catch (reportError) {
+      // Reporting an output error must never propagate to the Node-RED runtime.
+    }
+    return false
+  }
+}
+
+const compileKnxAiChatAdapter = ({ code, direction = 'chat' } = {}) => {
+  const source = String(code || '').trim()
+  if (!source) return null
+  const adapterDirection = String(direction || 'chat').trim() || 'chat'
+  try {
+    return {
+      direction: adapterDirection,
+      run: new Function('msg', 'inputMessage', 'node', 'RED', `"use strict";\n${source}`) // eslint-disable-line no-new-func
+    }
+  } catch (error) {
+    throw new Error(`Invalid KNX AI ${adapterDirection} adapter: ${error.message || error}`)
+  }
+}
+
+const executeKnxAiChatAdapter = ({
+  adapter,
+  msg,
+  inputMessage,
+  node,
+  RED
+} = {}) => {
+  if (!adapter || typeof adapter.run !== 'function') return msg
+  const result = adapter.run(msg, inputMessage, node, RED)
+  if (result && typeof result.then === 'function') {
+    throw new Error(`KNX AI ${adapter.direction || 'chat'} adapter must be synchronous`)
+  }
+  if (result === undefined || result === null) return null
+  if (!result || typeof result !== 'object' || Array.isArray(result)) {
+    throw new Error(`KNX AI ${adapter.direction || 'chat'} adapter must return msg or no value`)
+  }
+  return result
+}
+
+const buildKnxAiUniversalMessage = ({
+  command,
+  question,
+  sessionId,
+  confirmed,
+  index,
+  inputMessage
+}) => {
+  const operation = command && typeof command === 'object' ? command : {}
+  const event = operation.event === 'GroupValue_Read' ? 'GroupValue_Read' : 'GroupValue_Write'
+  const outputMessage = {
+    topic: operation.destination,
+    destination: operation.destination,
+    dpt: operation.dpt,
+    payload: event === 'GroupValue_Read' ? '' : operation.payload,
+    event,
+    inputMessage,
+    knxAi: {
+      type: event === 'GroupValue_Read' ? 'knx_read' : 'knx_command',
+      source: 'llm',
+      question,
+      sessionId,
+      confirmed: event === 'GroupValue_Write' && confirmed === true,
+      index,
+      label: operation.label || '',
+      reason: operation.reason || ''
+    }
+  }
+  if (event === 'GroupValue_Read') outputMessage.readstatus = true
+  return outputMessage
+}
+
+const formatKnxAiCommandPreview = ({ commands, copy }) => {
+  const lines = (Array.isArray(commands) ? commands : []).map((command, index) => {
+    const payload = typeof command.payload === 'string' ? command.payload : safeStringify(command.payload)
+    return `${index + 1}. ${command.label || command.destination} — ${command.destination} / DPT ${command.dpt} → ${payload}`
+  })
+  return [
+    copy.preview + ':',
+    ...lines,
+    '',
+    copy.instruction
+  ].join('\n')
+}
+
+const validateKnxAiPayloadForDpt = ({ dpt, payload }) => {
+  const resolved = dptlib.resolve(dpt)
+  const base = resolved && resolved.basetype ? resolved.basetype : {}
+  const subtype = resolved && resolved.subtype ? resolved.subtype : {}
+  const main = String(dpt || '').split('.')[0]
+
+  if (base.valuetype === 'composite' && (!payload || typeof payload !== 'object' || Array.isArray(payload))) {
+    throw new Error(`DPT ${dpt} requires an object payload`)
+  }
+  if (main === '1' && typeof payload !== 'boolean') {
+    throw new Error(`DPT ${dpt} requires a boolean payload`)
+  }
+  if (main === '3') {
+    const direction = Number(payload && payload.decr_incr)
+    const data = Number(payload && payload.data)
+    if (![0, 1].includes(direction) || !Number.isInteger(data) || data < 0 || data > 7) {
+      throw new Error(`DPT ${dpt} requires {decr_incr:0|1,data:0..7}`)
+    }
+  }
+  if (main === '232') {
+    const channels = ['red', 'green', 'blue'].map(key => Number(payload && payload[key]))
+    if (channels.some(value => !Number.isInteger(value) || value < 0 || value > 255)) {
+      throw new Error(`DPT ${dpt} requires {red,green,blue} values from 0 to 255`)
+    }
+  }
+
+  if (typeof payload === 'number') {
+    const candidateRange = Array.isArray(subtype.scalar_range) && subtype.scalar_range.length === 2
+      ? subtype.scalar_range
+      : Array.isArray(subtype.range) && subtype.range.length === 2
+        ? subtype.range
+        : Array.isArray(base.range) && base.range.length === 2
+          ? base.range
+          : null
+    if (candidateRange && Number.isFinite(Number(candidateRange[0])) && Number.isFinite(Number(candidateRange[1]))) {
+      const min = Number(candidateRange[0])
+      const max = Number(candidateRange[1])
+      if (payload < min || payload > max) throw new Error(`DPT ${dpt} payload must be between ${min} and ${max}`)
+    }
+  }
+
+  if (subtype.enc && typeof subtype.enc === 'object' && !Array.isArray(subtype.enc) && main !== '1') {
+    const allowed = new Set(Object.keys(subtype.enc).map(key => String(key)))
+    if (!allowed.has(String(payload))) throw new Error(`DPT ${dpt} payload is not an allowed enumerated value`)
+  }
+
+  if (resolved && typeof resolved.formatAPDU === 'function') resolved.formatAPDU(payload)
+  return payload
+}
+
+const coerceKnxAiCommandPayload = (value, { dpt } = {}) => {
+  const dptId = String(dpt || '').trim()
+  const parsed = parseActuatorPayloadInput(value)
+  const main = dptId.split('.')[0]
+  if (main === '1') {
+    if (parsed === true || parsed === false) return parsed
+    if (parsed === 1) return true
+    if (parsed === 0) return false
+    const rawBoolean = typeof parsed === 'string' ? parsed.trim() : String(parsed)
+    const normalized = rawBoolean.toLowerCase()
+    if (['true', '1', 'on'].includes(normalized)) return true
+    if (['false', '0', 'off'].includes(normalized)) return false
+    const normalizedLabel = normalizeSignalText(rawBoolean)
+    const booleanOption = getDptValueOptions(dptId).find(item => {
+      return normalizeSignalText(item.label) === normalizedLabel
+    })
+    if (booleanOption) {
+      const optionValue = parseActuatorPayloadInput(booleanOption.value)
+      if (optionValue === true || optionValue === 1) return true
+      if (optionValue === false || optionValue === 0) return false
+    }
+    throw new Error(`DPT ${dptId} payload must be true/false, 1/0, on/off, or an exact ETS value label`)
+  }
+  if (typeof parsed !== 'string') return parsed
+  const raw = parsed.trim()
+  if (main === '16') return raw
+  const normalizedRaw = normalizeSignalText(raw)
+  const option = getDptValueOptions(dptId).find(item => {
+    return String(item.value) === raw || normalizeSignalText(item.label) === normalizedRaw
+  })
+  if (option) return parseActuatorPayloadInput(option.value)
+  throw new Error(`DPT ${dptId} payload must be a typed JSON value or an exact ETS value label`)
+}
+
+const resolveKnxAiOperationEvent = (candidate) => {
+  const item = candidate && typeof candidate === 'object' ? candidate : {}
+  const raw = String(item.event || item.operation || item.action || '').trim().toLowerCase()
+  if (['groupvalue_read', 'read', 'query', 'request_status'].includes(raw)) return 'GroupValue_Read'
+  return 'GroupValue_Write'
+}
+
+const normalizeKnxAiCommandCandidates = ({
+  commands,
+  catalog,
+  maxCommands = 5,
+  maxReadCommands = 20,
+  coercePayload = value => value
+} = {}) => {
+  const sourceCommands = Array.isArray(commands) ? commands : []
+  const safeCatalog = Array.isArray(catalog) ? catalog : []
+  const catalogByGa = new Map(safeCatalog.map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+  const accepted = []
+  const rejected = []
+  const writeLimit = Math.max(1, Math.min(20, Number(maxCommands) || 5))
+  const readLimit = Math.max(1, Math.min(50, Number(maxReadCommands) || 20))
+  const totalLimit = writeLimit + readLimit
+  let acceptedWrites = 0
+  let acceptedReads = 0
+  let writeLimitReported = false
+  let readLimitReported = false
+
+  sourceCommands.slice(0, totalLimit).forEach((candidate, index) => {
+    try {
+      const item = candidate && typeof candidate === 'object' ? candidate : {}
+      const event = resolveKnxAiOperationEvent(item)
+      const destination = String(item.destination || item.ga || item.groupAddress || item.address || '').trim()
+      if (!destination) throw new Error('missing destination')
+      const catalogItem = catalogByGa.get(destination)
+      if (!catalogItem) throw new Error('destination is not present in the imported ETS catalog')
+      if (event === 'GroupValue_Write' && String(catalogItem.role || '').trim().toLowerCase() !== 'command') {
+        throw new Error('destination is not classified as a command group address')
+      }
+      const catalogDpt = String(catalogItem.dpt || '').trim()
+      if (!catalogDpt) throw new Error('the ETS catalog has no DPT for this destination')
+      const requestedDpt = String(item.dpt || '').trim()
+      if (requestedDpt && requestedDpt !== catalogDpt) {
+        throw new Error(`requested DPT ${requestedDpt} does not match ETS DPT ${catalogDpt}`)
+      }
+      if (event === 'GroupValue_Read') {
+        if (acceptedReads >= readLimit) {
+          if (readLimitReported) return
+          readLimitReported = true
+          throw new Error(`read limit exceeded (${readLimit})`)
+        }
+        acceptedReads += 1
+        accepted.push({
+          destination,
+          dpt: catalogDpt,
+          payload: '',
+          readstatus: true,
+          event,
+          label: String(catalogItem.label || destination).trim(),
+          reason: String(item.reason || '').trim(),
+          sourceIndex: index
+        })
+        return
+      }
+      if (acceptedWrites >= writeLimit) {
+        if (writeLimitReported) return
+        writeLimitReported = true
+        throw new Error(`command limit exceeded (${writeLimit})`)
+      }
+      const hasPayload = Object.prototype.hasOwnProperty.call(item, 'payload') || Object.prototype.hasOwnProperty.call(item, 'value')
+      if (!hasPayload) throw new Error('missing payload')
+      const rawPayload = Object.prototype.hasOwnProperty.call(item, 'payload') ? item.payload : item.value
+      const payload = coercePayload(rawPayload, {
+        dpt: catalogDpt,
+        action: item.action,
+        reason: item.reason,
+        label: catalogItem.label,
+        destination
+      })
+      validateKnxAiPayloadForDpt({ dpt: catalogDpt, payload })
+      acceptedWrites += 1
+      accepted.push({
+        destination,
+        dpt: catalogDpt,
+        payload,
+        event: 'GroupValue_Write',
+        label: String(catalogItem.label || destination).trim(),
+        reason: String(item.reason || '').trim(),
+        sourceIndex: index
+      })
+    } catch (error) {
+      rejected.push({
+        sourceIndex: index,
+        reason: error && error.message ? error.message : String(error)
+      })
+    }
+  })
+
+  if (sourceCommands.length > totalLimit) {
+    rejected.push({
+      sourceIndex: totalLimit,
+      reason: `operation limit exceeded (${totalLimit})`
+    })
+  }
+  return { accepted, rejected }
+}
+
 const normalizeValueForCompare = (value) => {
   if (value === undefined) return 'undefined'
   if (value === null) return 'null'
@@ -2939,12 +3559,117 @@ const ensureOllamaServerRunning = async ({ baseUrl, autoStart = false, timeoutMs
 const isProbablyChatModelId = (id) => {
   const s = String(id || '').toLowerCase()
   if (!s) return false
+  if (s === 'babbage-002' || s === 'davinci-002') return false
+  if (s.includes('instruct')) return false
   if (s.includes('embedding')) return false
   if (s.includes('whisper')) return false
   if (s.includes('tts')) return false
   if (s.includes('dall-e') || s.includes('dalle')) return false
   if (s.includes('moderation')) return false
   return true
+}
+
+const isChatCompletionsModelError = (value) => {
+  const message = String(value || '').toLowerCase()
+  return message.includes('not a chat model') ||
+    message.includes('not supported in the v1/chat/completions endpoint') ||
+    message.includes('only compatible with the legacy completions endpoint') ||
+    message.includes('not chat completions') ||
+    message.includes('does not support chat completions')
+}
+
+const decorateChatCompletionsModelError = ({ error, model, url }) => {
+  const originalMessage = String(error && error.message ? error.message : error || '').trim()
+  const selectedModel = String(model || '').trim() || '(empty)'
+  const endpoint = String(url || '').trim() || OPENAI_COMPAT_DEFAULT_CHAT_URL
+  const decorated = new Error(
+    `Model "${selectedModel}" is not compatible with the configured Chat Completions endpoint (${endpoint}). ` +
+    'Choose a chat-capable model, for example gpt-5.4 or gpt-4o-mini. ' +
+    `Legacy /v1/completions models are not supported by KNX AI.${originalMessage ? ` Provider response: ${originalMessage}` : ''}`
+  )
+  if (error && error.status !== undefined) decorated.status = error.status
+  if (error && error.response !== undefined) decorated.response = error.response
+  return decorated
+}
+
+const isUnsupportedTemperatureError = (value) => {
+  const message = String(value || '').toLowerCase()
+  return message.includes("unsupported value: 'temperature'") ||
+    message.includes('unsupported parameter: temperature') ||
+    (message.includes('temperature') && message.includes('only the default'))
+}
+
+const isResponseFormatCompatibilityError = (value) => {
+  const message = String(value || '')
+  return message.includes("Unsupported parameter: 'response_format'") ||
+    message.includes('Invalid schema for response_format') ||
+    message.includes('response_format') ||
+    message.includes('json_schema')
+}
+
+const postOpenAiCompatibleChatWithFallbacks = async ({
+  url,
+  headers,
+  body,
+  timeoutMs,
+  model,
+  post = postJson
+}) => {
+  let requestBody = Object.assign({}, body)
+  let lastError = null
+  const rejectedTokenParameters = new Set()
+  const hasOwn = key => Object.prototype.hasOwnProperty.call(requestBody, key)
+
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      return await post({ url, headers, body: requestBody, timeoutMs })
+    } catch (error) {
+      lastError = error
+      const message = String(error && error.message ? error.message : '')
+
+      if (isChatCompletionsModelError(message)) {
+        throw decorateChatCompletionsModelError({ error, model, url })
+      }
+
+      if (isUnsupportedTemperatureError(message) && hasOwn('temperature')) {
+        requestBody = Object.assign({}, requestBody)
+        delete requestBody.temperature
+        continue
+      }
+
+      if (isResponseFormatCompatibilityError(message) && hasOwn('response_format')) {
+        requestBody = Object.assign({}, requestBody)
+        delete requestBody.response_format
+        continue
+      }
+
+      if (message.includes("Unsupported parameter: 'max_tokens'") && hasOwn('max_tokens')) {
+        rejectedTokenParameters.add('max_tokens')
+        const value = requestBody.max_tokens
+        requestBody = Object.assign({}, requestBody)
+        delete requestBody.max_tokens
+        if (!rejectedTokenParameters.has('max_completion_tokens')) {
+          requestBody.max_completion_tokens = value
+          continue
+        }
+      }
+
+      if (message.includes("Unsupported parameter: 'max_completion_tokens'") && hasOwn('max_completion_tokens')) {
+        rejectedTokenParameters.add('max_completion_tokens')
+        const value = requestBody.max_completion_tokens
+        requestBody = Object.assign({}, requestBody)
+        delete requestBody.max_completion_tokens
+        if (!rejectedTokenParameters.has('max_tokens')) {
+          requestBody.max_tokens = value
+          continue
+        }
+      }
+
+      throw error
+    }
+  }
+
+  throw lastError || new Error('OpenAI-compatible chat request failed after compatibility retries')
 }
 
 module.exports = function (RED) {
@@ -4306,6 +5031,11 @@ module.exports = function (RED) {
     node.llmDocsLanguage = config.llmDocsLanguage ? String(config.llmDocsLanguage) : 'it'
     node.llmDocsMaxSnippets = (config.llmDocsMaxSnippets === undefined || config.llmDocsMaxSnippets === '') ? 5 : Number(config.llmDocsMaxSnippets)
     node.llmDocsMaxChars = (config.llmDocsMaxChars === undefined || config.llmDocsMaxChars === '') ? 60000 : Number(config.llmDocsMaxChars)
+    node.llmAllowKnxCommands = config.llmAllowKnxCommands !== undefined ? coerceBoolean(config.llmAllowKnxCommands) : false
+    node.llmRequireCommandConfirmation = config.llmRequireCommandConfirmation !== undefined ? coerceBoolean(config.llmRequireCommandConfirmation) : true
+    node.chatAdapterPreset = String(config.chatAdapterPreset || 'none')
+    node.chatInputCode = String(config.chatInputCode || '')
+    node.chatOutputCode = String(config.chatOutputCode || '')
 
     const pushStatus = (status) => {
       if (!status) return
@@ -4325,6 +5055,25 @@ module.exports = function (RED) {
       if (!status) return
       pushStatus(status)
     }
+
+    const compileConfiguredChatAdapter = ({ code, direction }) => {
+      try {
+        return compileKnxAiChatAdapter({ code, direction })
+      } catch (error) {
+        try { node.sysLogger?.error(`knxUltimateAI ${direction} adapter compile error: ${error.message || error}`) } catch (e) { /* ignore */ }
+        try { node.error(error) } catch (e) { /* ignore */ }
+        return null
+      }
+    }
+
+    node._chatInputAdapter = compileConfiguredChatAdapter({
+      code: node.chatInputCode,
+      direction: 'chat input'
+    })
+    node._chatOutputAdapter = compileConfiguredChatAdapter({
+      code: node.chatOutputCode,
+      direction: 'chat output'
+    })
 
     // Used to call the status update from the config node.
     node.setNodeStatus = ({ fill, shape, text, payload, GA, dpt, devicename }) => {
@@ -4357,6 +5106,8 @@ module.exports = function (RED) {
     node._summaryRebuildTimer = null
     node._anomalies = []
     node._assistantLog = []
+    node._conversationSessions = new Map()
+    node._pendingKnxCommands = new Map()
     node._flowContextCache = { at: 0, text: '' }
     node._docsContextCache = { at: 0, question: '', text: '' }
     node._areaSuggestionCache = { ref: null, snapshot: buildSuggestedAreasFromCsv([]) }
@@ -7603,47 +8354,15 @@ module.exports = function (RED) {
         })
         : baseBody
 
-      // Some OpenAI models (and some compatible gateways) require `max_completion_tokens` instead of `max_tokens`.
-      // Try with `max_tokens` first for broad compatibility, then fallback once if the server rejects it.
-      const bodyWithMaxTokens = Object.assign({ max_tokens: resolvedMaxTokens }, schemaBody)
-      const bodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: resolvedMaxTokens }, schemaBody)
-      const plainBodyWithMaxTokens = Object.assign({ max_tokens: resolvedMaxTokens }, baseBody)
-      const plainBodyWithMaxCompletionTokens = Object.assign({ max_completion_tokens: resolvedMaxTokens }, baseBody)
-
-      const isResponseFormatCompatibilityError = (message) => {
-        const msg = String(message || '')
-        return msg.includes("Unsupported parameter: 'response_format'") ||
-          msg.includes('Invalid schema for response_format') ||
-          msg.includes('response_format') ||
-          msg.includes('json_schema')
-      }
-
-      let json
-      try {
-        json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
-      } catch (error) {
-        const msg = (error && error.message) ? String(error.message) : ''
-        if (isResponseFormatCompatibilityError(msg)) {
-          try {
-            json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
-          } catch (innerError) {
-            const innerMsg = (innerError && innerError.message) ? String(innerError.message) : ''
-            if (innerMsg.includes("Unsupported parameter: 'max_tokens'") || innerMsg.includes('max_completion_tokens')) {
-              json = await postJson({ url, headers, body: plainBodyWithMaxCompletionTokens, timeoutMs: effectiveTimeoutMs })
-            } else if (innerMsg.includes("Unsupported parameter: 'max_completion_tokens'")) {
-              json = await postJson({ url, headers, body: plainBodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
-            } else {
-              throw innerError
-            }
-          }
-        } else if (msg.includes("Unsupported parameter: 'max_tokens'") || msg.includes('max_completion_tokens')) {
-          json = await postJson({ url, headers, body: bodyWithMaxCompletionTokens, timeoutMs: effectiveTimeoutMs })
-        } else if (msg.includes("Unsupported parameter: 'max_completion_tokens'")) {
-          json = await postJson({ url, headers, body: bodyWithMaxTokens, timeoutMs: effectiveTimeoutMs })
-        } else {
-          throw error
-        }
-      }
+      // OpenAI-compatible providers differ on optional sampling, response-format,
+      // and token-limit parameters. Retry only the rejected compatibility field.
+      const json = await postOpenAiCompatibleChatWithFallbacks({
+        url,
+        headers,
+        body: Object.assign({ max_tokens: resolvedMaxTokens }, schemaBody),
+        timeoutMs: effectiveTimeoutMs,
+        model: baseBody.model
+      })
       const content = extractOpenAICompatText(json) || buildOpenAICompatFallbackText(json)
       const finishReason = String(json && json.choices && json.choices[0] && json.choices[0].finish_reason ? json.choices[0].finish_reason : '')
       return { provider: 'openai_compat', model: baseBody.model, content, finishReason }
@@ -7842,6 +8561,303 @@ module.exports = function (RED) {
       }
       const finalContent = ensureSvgChartResponse({ question, summary, content: ret.content })
       return Object.assign({}, ret, { content: finalContent, summary })
+    }
+
+    const getConversationHistory = (sessionId) => {
+      const key = String(sessionId || 'default')
+      const history = node._conversationSessions.get(key)
+      return Array.isArray(history) ? history.slice(-8) : []
+    }
+
+    const rememberConversationTurn = ({ sessionId, question, reply }) => {
+      const key = String(sessionId || 'default')
+      const history = getConversationHistory(key)
+      history.push({
+        question: String(question || '').trim(),
+        reply: String(reply || '').trim()
+      })
+      node._conversationSessions.delete(key)
+      node._conversationSessions.set(key, history.slice(-8))
+      while (node._conversationSessions.size > 50) {
+        const oldestKey = node._conversationSessions.keys().next().value
+        node._conversationSessions.delete(oldestKey)
+      }
+    }
+
+    const callConversationalLLM = async ({ question, sessionId, requireConfirmation = true }) => {
+      const summary = rebuildCachedSummaryNow()
+      const catalog = getGaCatalogSnapshot()
+      const history = getConversationHistory(sessionId)
+      const gaLimit = 600
+      const gaLines = catalog.slice(0, gaLimit).map((item) => {
+        const role = String(item && item.role ? item.role : 'neutral').trim()
+        const dpt = String(item && item.dpt ? item.dpt : '').trim() || '?'
+        const label = String(item && item.label ? item.label : item && item.ga ? item.ga : '').trim()
+        const valueOptions = (Array.isArray(item && item.valueOptions) ? item.valueOptions : [])
+          .slice(0, 20)
+          .map(option => `${option.value}=${option.label}`)
+          .join(', ')
+        return `${item.ga} | dpt ${dpt} | role ${role} | ${label}${valueOptions ? ` | values ${valueOptions}` : ''}`
+      })
+      const conversationLines = history.flatMap(turn => [
+        `User: ${turn.question}`,
+        `Assistant: ${turn.reply}`
+      ])
+      const analysisContext = buildLLMPrompt({ question, summary, compact: true })
+      const systemPrompt = [
+        node.llmSystemPrompt || 'You are a KNX building automation assistant.',
+        '',
+        'KNX CHAT AND CONTROL CONTRACT:',
+        '- Return only one JSON object with exactly this shape: {"reply":"text for the user","language":"it","commands":[{"event":"GroupValue_Read|GroupValue_Write","destination":"1/2/3","dpt":"1.001","payload":null,"reason":"short reason"}]}.',
+        '- Use the same language as the user for reply and reason.',
+        '- Set language to the ISO code matching the current user request: en, it, de, fr, es, or zh.',
+        '- For an explicit request to refresh, read, query, or retrieve a current KNX state, create GroupValue_Read operations for the exact relevant objects. Use payload null for reads.',
+        '- GroupValue_Read is allowed for exact status, neutral, or command objects in AVAILABLE KNX OBJECTS because it does not modify the bus state.',
+        '- For a question that can be answered from recent data, return commands as an empty array. If current data is missing or the user explicitly asks for a fresh read, request it instead of claiming that read-only objects cannot be queried.',
+        '- Create a GroupValue_Write only when the user clearly asks to control an actuator now.',
+        '- Never invent, guess, transform, or substitute a group address or DPT.',
+        '- A GroupValue_Write destination must appear in AVAILABLE KNX OBJECTS with role command. Status and neutral objects must never receive GroupValue_Write.',
+        '- Copy the DPT exactly from AVAILABLE KNX OBJECTS.',
+        '- For every DPT 1.xxx GroupValue_Write, use a JSON boolean payload: true to activate and false to deactivate. Do not use numeric 1/0 or quoted boolean strings.',
+        '- Emit the smallest necessary operation set, in execution order, with at most 5 writes and 20 reads.',
+        '- Do not claim that an action succeeded. Say that the command is being forwarded or prepared; real KNX feedback is separate.',
+        requireConfirmation ? '- When GroupValue_Write operations are present, explain the proposed changes only. The node appends the exact localized confirmation instructions; do not invent different confirmation wording. Writes have not been sent yet. GroupValue_Read operations do not require confirmation.' : '',
+        '- If the request is ambiguous, unsafe, unsupported, or has no exact KNX object, ask a concise clarification and return no commands.'
+      ].filter(Boolean).join('\n')
+      const userContent = [
+        history.length ? 'RECENT CONVERSATION:' : '',
+        history.length ? conversationLines.join('\n') : '',
+        history.length ? '' : '',
+        analysisContext,
+        '',
+        `AVAILABLE KNX OBJECTS (showing ${Math.min(catalog.length, gaLimit)} of ${catalog.length}; every exact object may be read, but only role command may be written):`,
+        gaLines.length ? gaLines.join('\n') : '(no ETS group addresses imported; return no commands)',
+        '',
+        'Return the JSON object now.'
+      ].join('\n')
+      const configuredMaxTokens = Math.max(10000, Number(node.llmMaxTokens) || 0)
+      const ret = await callLLMChat({
+        systemPrompt,
+        userContent,
+        jsonSchema: {
+          name: 'knx_ai_conversation',
+          strict: true,
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              reply: { type: 'string' },
+              language: { type: 'string', enum: ['en', 'it', 'de', 'fr', 'es', 'zh'] },
+              commands: {
+                type: 'array',
+                maxItems: 25,
+                items: {
+                  type: 'object',
+                  additionalProperties: false,
+                  properties: {
+                    event: { type: 'string', enum: ['GroupValue_Read', 'GroupValue_Write'] },
+                    destination: { type: 'string' },
+                    dpt: { type: 'string' },
+                    payload: {},
+                    reason: { type: 'string' }
+                  },
+                  required: ['event', 'destination', 'dpt', 'payload', 'reason']
+                }
+              }
+            },
+            required: ['reply', 'language', 'commands']
+          }
+        },
+        maxTokensOverride: configuredMaxTokens
+      })
+
+      let envelope
+      try {
+        envelope = parseKnxAiConversationResponse(ret.content)
+      } catch (error) {
+        return Object.assign({}, ret, {
+          content: String(ret.content || '').trim() || 'The AI provider returned an empty response.',
+          commands: [],
+          rejectedCommands: [],
+          summary,
+          structuredOutputError: error.message || String(error)
+        })
+      }
+
+      const normalized = normalizeKnxAiCommandCandidates({
+        commands: envelope.commands,
+        catalog,
+        maxCommands: 5,
+        maxReadCommands: 20,
+        coercePayload: (value, context) => coerceKnxAiCommandPayload(value, context)
+      })
+      let reply = envelope.reply || (normalized.accepted.length ? 'KNX command prepared.' : 'No response text was returned.')
+      if (normalized.rejected.length) {
+        const details = normalized.rejected.map(item => item.reason).join('; ')
+        reply += `\n\nKNX command not sent: ${details}.`
+      }
+      return Object.assign({}, ret, {
+        content: reply,
+        language: envelope.language,
+        commands: normalized.accepted,
+        rejectedCommands: normalized.rejected,
+        summary
+      })
+    }
+
+    const cloneInputMessage = inputMessage => cloneKnxAiInputMessage(
+      inputMessage,
+      RED.util && typeof RED.util.cloneMessage === 'function'
+        ? message => RED.util.cloneMessage(message)
+        : null,
+      error => {
+        try { node.sysLogger?.warn(`knxUltimateAI input message clone warning: ${error.message || error}`) } catch (e) { /* ignore */ }
+      }
+    )
+
+    const adaptAssistantOutput = (value, inputMessage) => {
+      if (!node._chatOutputAdapter || value === null || value === undefined) return value
+      const adaptOne = message => executeKnxAiChatAdapter({
+        adapter: node._chatOutputAdapter,
+        msg: message,
+        inputMessage,
+        node,
+        RED
+      })
+      try {
+        if (Array.isArray(value)) {
+          const adapted = value.map(adaptOne).filter(message => message !== null)
+          return adapted.length ? adapted : null
+        }
+        return adaptOne(value)
+      } catch (error) {
+        try { node.sysLogger?.error(`knxUltimateAI chat output adapter error: ${error.message || error}`) } catch (e) { /* ignore */ }
+        try { node.error(error, inputMessage) } catch (e) { /* ignore */ }
+        try { updateStatus({ fill: 'red', shape: 'dot', text: `Chat output adapter error: ${error.message || error}` }) } catch (e) { /* ignore */ }
+        return null
+      }
+    }
+
+    const sendKnxAiOutputs = (outputs, inputMessage) => {
+      const preparedOutputs = Array.isArray(outputs) ? outputs.slice() : outputs
+      if (Array.isArray(preparedOutputs) && preparedOutputs.length > 2) {
+        preparedOutputs[2] = adaptAssistantOutput(preparedOutputs[2], inputMessage)
+      }
+      return safeKnxAiSend({
+        outputs: preparedOutputs,
+        send: messages => node.send(messages),
+        onError: error => {
+          try { node.sysLogger?.error(`knxUltimateAI output error: ${error.message || error}`) } catch (e) { /* ignore */ }
+          try { node.error(error, inputMessage) } catch (e) { /* ignore */ }
+          try { updateStatus({ fill: 'red', shape: 'dot', text: `AI output error: ${error.message || error}` }) } catch (e) { /* ignore */ }
+        }
+      })
+    }
+
+    const buildKnxAiReplyMessage = ({ inputMessage, content, metadata = {}, summary }) => {
+      const replyMessage = cloneInputMessage(inputMessage)
+      replyMessage.topic = node.outputtopic
+      replyMessage.payload = content
+      replyMessage.knxAi = metadata
+      replyMessage.inputMessage = cloneInputMessage(inputMessage)
+      if (summary !== undefined) replyMessage.summary = summary
+      return replyMessage
+    }
+
+    const buildKnxAiCommandMessages = ({ commands, question, sessionId, confirmed, inputMessage }) => {
+      return (Array.isArray(commands) ? commands : []).map((command, index) => buildKnxAiUniversalMessage({
+        command,
+        question,
+        sessionId,
+        confirmed,
+        index,
+        inputMessage: cloneInputMessage(inputMessage)
+      }))
+    }
+
+    const handleKnxAiConfirmationDecision = ({ msg, question, sessionId, decision }) => {
+      const pending = node._pendingKnxCommands.get(sessionId)
+      const language = pending && pending.language
+        ? pending.language
+        : resolveKnxAiLanguage(msg, node.llmDocsLanguage || 'en', question)
+      const copy = getKnxAiConfirmationCopy(language)
+      if (!pending) {
+        const reply = buildKnxAiReplyMessage({
+          inputMessage: msg,
+          content: copy.missing,
+          metadata: { type: 'knx_confirmation_missing', sessionId }
+        })
+        sendKnxAiOutputs([null, null, reply, null], msg)
+        return
+      }
+      node._pendingKnxCommands.delete(sessionId)
+      if (Number(pending.expiresAt || 0) <= nowMs()) {
+        const reply = buildKnxAiReplyMessage({
+          inputMessage: msg,
+          content: copy.expired,
+          metadata: { type: 'knx_confirmation_expired', sessionId }
+        })
+        if (!sendKnxAiOutputs([null, null, reply, null], msg)) return
+        updateStatus({ fill: 'grey', shape: 'dot', text: 'AI KNX confirmation expired' })
+        return
+      }
+      if (decision === 'cancel') {
+        const reply = buildKnxAiReplyMessage({
+          inputMessage: msg,
+          content: copy.cancelled,
+          metadata: { type: 'knx_confirmation_cancelled', sessionId }
+        })
+        rememberConversationTurn({ sessionId, question: question || 'CANCEL', reply: copy.cancelled })
+        if (!sendKnxAiOutputs([null, null, reply, null], msg)) return
+        updateStatus({ fill: 'grey', shape: 'dot', text: 'AI KNX commands cancelled' })
+        return
+      }
+
+      const normalized = normalizeKnxAiCommandCandidates({
+        commands: pending.commands,
+        catalog: getGaCatalogSnapshot(),
+        maxCommands: 5,
+        coercePayload: (value, context) => coerceKnxAiCommandPayload(value, context)
+      })
+      if (normalized.rejected.length || !normalized.accepted.length) {
+        const details = normalized.rejected.length
+          ? normalized.rejected.map(item => item.reason).join('; ')
+          : 'no valid command remains'
+        const content = copy.invalid(details)
+        const reply = buildKnxAiReplyMessage({
+          inputMessage: msg,
+          content,
+          metadata: {
+            type: 'knx_confirmation_invalid',
+            sessionId,
+            rejectedCommands: normalized.rejected
+          }
+        })
+        rememberConversationTurn({ sessionId, question: question || 'CONFIRM', reply: content })
+        if (!sendKnxAiOutputs([null, null, reply, null], msg)) return
+        updateStatus({ fill: 'red', shape: 'dot', text: 'AI KNX confirmation validation failed' })
+        return
+      }
+      const commandMessages = buildKnxAiCommandMessages({
+        commands: normalized.accepted,
+        question: pending.question,
+        sessionId,
+        confirmed: true,
+        inputMessage: msg
+      })
+      const content = copy.confirmed(commandMessages.length)
+      const reply = buildKnxAiReplyMessage({
+        inputMessage: msg,
+        content,
+        metadata: {
+          type: 'knx_confirmation_accepted',
+          sessionId,
+          commandCount: commandMessages.length
+        }
+      })
+      rememberConversationTurn({ sessionId, question: question || 'CONFIRM', reply: content })
+      if (!sendKnxAiOutputs([null, null, reply, commandMessages], msg)) return
+      updateStatus({ fill: 'green', shape: 'dot', text: `AI confirmed, ${commandMessages.length} KNX command(s)` })
     }
 
     const emitSummary = () => {
@@ -8156,6 +9172,8 @@ module.exports = function (RED) {
           }]
           node._lastSummary = null
           node._lastSummaryAt = 0
+          node._conversationSessions = new Map()
+          node._pendingKnxCommands = new Map()
           if (node._summaryRebuildTimer) {
             clearTimeout(node._summaryRebuildTimer)
             node._summaryRebuildTimer = null
@@ -8165,37 +9183,201 @@ module.exports = function (RED) {
           return
         }
 
+        if (cmd === 'confirm' || cmd === 'cancel') {
+          const question = extractKnxAiQuestion(msg)
+          const sessionId = resolveKnxAiSessionId(msg)
+          handleKnxAiConfirmationDecision({
+            msg,
+            question,
+            sessionId,
+            decision: cmd === 'confirm' ? 'confirm' : 'cancel'
+          })
+          return
+        }
+
         if (cmd === 'summary' || cmd === 'stats' || cmd === 'top' || cmd === '') {
           emitSummary()
           return
         }
 
         if (cmd === 'ask') {
-          const question = (msg.prompt !== undefined)
-            ? String(msg.prompt)
-            : (typeof msg.payload === 'string' ? msg.payload : safeStringify(msg.payload))
+          const question = extractKnxAiQuestion(msg)
+          const sessionId = resolveKnxAiSessionId(msg)
+          if (!question) throw new Error('Missing question')
+          const decision = classifyKnxAiConfirmation({ msg, question, topic: cmd })
+          if (node._pendingKnxCommands.has(sessionId) && decision !== 'none') {
+            handleKnxAiConfirmationDecision({ msg, question, sessionId, decision })
+            return
+          }
+          // A new natural-language request replaces an older unconfirmed plan in
+          // the same chat, preventing a later confirmation from acting on stale intent.
+          node._pendingKnxCommands.delete(sessionId)
           updateStatus({ fill: 'blue', shape: 'ring', text: 'AI thinking...' })
           try {
-            const ret = await callLLM({ question })
-            node._assistantLog.push({ at: new Date().toISOString(), question, content: ret.content, provider: ret.provider, model: ret.model })
+            const ret = node.llmAllowKnxCommands
+              ? await callConversationalLLM({
+                question,
+                sessionId,
+                requireConfirmation: node.llmRequireCommandConfirmation
+              })
+              : await callLLM({ question })
+            const preparedCommands = Array.isArray(ret.commands) ? ret.commands : []
+            const readCommands = preparedCommands.filter(command => command && command.event === 'GroupValue_Read')
+            const writeCommands = preparedCommands.filter(command => !command || command.event !== 'GroupValue_Read')
+            const language = resolveKnxAiLanguage(msg, node.llmDocsLanguage || 'en', question, ret.language)
+            const copy = getKnxAiConfirmationCopy(language)
+            const awaitingConfirmation = node.llmAllowKnxCommands &&
+              node.llmRequireCommandConfirmation &&
+              writeCommands.length > 0
+            let content = ret.content
+            let commandsToEmit = preparedCommands
+            let confirmationRequest = null
+            if (awaitingConfirmation) {
+              content = `${content}\n\n${formatKnxAiCommandPreview({ commands: writeCommands, copy })}`
+              const expiresAt = nowMs() + (5 * 60 * 1000)
+              node._pendingKnxCommands.set(sessionId, {
+                question,
+                commands: writeCommands,
+                language,
+                createdAt: nowMs(),
+                expiresAt
+              })
+              confirmationRequest = buildKnxAiConfirmationRequest({
+                sessionId,
+                expiresAt,
+                commandCount: writeCommands.length,
+                copy
+              })
+              while (node._pendingKnxCommands.size > 50) {
+                const oldestSessionId = node._pendingKnxCommands.keys().next().value
+                node._pendingKnxCommands.delete(oldestSessionId)
+              }
+              commandsToEmit = readCommands
+            }
+            const commandMessages = buildKnxAiCommandMessages({
+              commands: commandsToEmit,
+              question,
+              sessionId,
+              confirmed: node.llmRequireCommandConfirmation !== true,
+              inputMessage: msg
+            })
+            const emittedReadCommands = commandsToEmit.filter(command => command && command.event === 'GroupValue_Read')
+            let readResults = []
+            let readResultMetadata = []
+            if (emittedReadCommands.length > 0) {
+              const readStartedAt = nowMs()
+              const readWaiters = emittedReadCommands.map(command => waitForTelegram({
+                destination: command.destination,
+                events: ['GroupValue_Response', 'GroupValue_Write'],
+                minTs: readStartedAt,
+                timeoutMs: 6000
+              }))
+              if (!sendKnxAiOutputs([null, null, null, commandMessages], msg)) return
+              updateStatus({
+                fill: 'blue',
+                shape: 'ring',
+                text: `AI waiting for ${emittedReadCommands.length} KNX read response(s)`
+              })
+              readResults = await Promise.allSettled(readWaiters)
+              readResultMetadata = emittedReadCommands.map((command, index) => {
+                const result = readResults[index]
+                const telegram = result && result.status === 'fulfilled' ? result.value : null
+                return {
+                  destination: command.destination,
+                  dpt: command.dpt,
+                  label: command.label || '',
+                  received: !!telegram,
+                  event: telegram ? telegram.event : '',
+                  payload: telegram ? telegram.payload : undefined,
+                  payloadmeasureunit: telegram ? telegram.payloadmeasureunit : ''
+                }
+              })
+              const readReply = formatKnxAiReadResults({
+                operations: emittedReadCommands,
+                results: readResults,
+                language
+              })
+              content = writeCommands.length > 0 ? `${readReply}\n\n${content}` : readReply
+            }
+            const assistantEntry = {
+              at: new Date().toISOString(),
+              question,
+              content,
+              provider: ret.provider,
+              model: ret.model,
+              sessionId,
+              commandCount: writeCommands.length,
+              readCount: readCommands.length,
+              language,
+              awaitingConfirmation,
+              rejectedCommandCount: Array.isArray(ret.rejectedCommands) ? ret.rejectedCommands.length : 0
+            }
+            node._assistantLog.push(assistantEntry)
             while (node._assistantLog.length > 50) node._assistantLog.shift()
-            node.send([null, null, {
-              topic: node.outputtopic,
-              payload: ret.content,
-              knxAi: { type: 'llm', provider: ret.provider, model: ret.model, question },
-              summary: ret.summary
-            }])
-            updateStatus({ fill: 'green', shape: 'dot', text: 'AI answer ready' })
+            if (node.llmAllowKnxCommands) rememberConversationTurn({ sessionId, question, reply: content })
+            const replyMessage = buildKnxAiReplyMessage({
+              inputMessage: msg,
+              content,
+              metadata: {
+                type: 'llm',
+                provider: ret.provider,
+                model: ret.model,
+                question,
+                sessionId,
+                language,
+                operationCount: preparedCommands.length,
+                commandCount: writeCommands.length,
+                readCount: readCommands.length,
+                readResults: readResultMetadata,
+                awaitingConfirmation,
+                confirmationExpiresAt: confirmationRequest ? confirmationRequest.expiresAt : 0,
+                confirmationRequest,
+                rejectedCommands: Array.isArray(ret.rejectedCommands) ? ret.rejectedCommands : [],
+                structuredOutputError: ret.structuredOutputError || ''
+              },
+              summary: emittedReadCommands.length > 0 ? rebuildCachedSummaryNow() : ret.summary
+            })
+            if (emittedReadCommands.length > 0) {
+              if (!sendKnxAiOutputs([null, null, replyMessage, null], msg)) return
+            } else if (!sendKnxAiOutputs([null, null, replyMessage, commandMessages.length ? commandMessages : null], msg)) {
+              return
+            }
+            updateStatus({
+              fill: awaitingConfirmation ? 'yellow' : 'green',
+              shape: awaitingConfirmation ? 'ring' : 'dot',
+              text: awaitingConfirmation
+                ? `AI waiting for confirmation (${writeCommands.length} KNX command(s))`
+                : readCommands.length
+                  ? `AI answer ready, ${readResultMetadata.filter(item => item.received).length}/${readCommands.length} KNX read(s) received`
+                  : commandMessages.length
+                    ? `AI answer ready, ${commandMessages.length} KNX command(s)`
+                    : 'AI answer ready'
+            })
           } catch (error) {
             node._assistantLog.push({ at: new Date().toISOString(), question, error: error.message || String(error) })
             while (node._assistantLog.length > 50) node._assistantLog.shift()
-            node.send([null, null, {
-              topic: node.outputtopic,
-              payload: { error: error.message || String(error) },
-              knxAi: { type: 'llm_error', question }
-            }])
+            const replyMessage = buildKnxAiReplyMessage({
+              inputMessage: msg,
+              content: { error: error.message || String(error) },
+              metadata: { type: 'llm_error', question }
+            })
+            if (!sendKnxAiOutputs([null, null, replyMessage, null], msg)) return
             updateStatus({ fill: 'red', shape: 'dot', text: `AI error: ${error.message || error}` })
           }
+          return
+        }
+
+        if (cmd === 'clear_chat') {
+          const sessionId = resolveKnxAiSessionId(msg)
+          node._conversationSessions.delete(sessionId)
+          node._pendingKnxCommands.delete(sessionId)
+          const replyMessage = buildKnxAiReplyMessage({
+            inputMessage: msg,
+            content: { ok: true, sessionId },
+            metadata: { type: 'conversation_reset', sessionId }
+          })
+          if (!sendKnxAiOutputs([null, null, replyMessage, null], msg)) return
+          updateStatus({ fill: 'grey', shape: 'dot', text: `AI chat cleared (${sessionId})` })
           return
         }
 
@@ -8249,7 +9431,7 @@ module.exports = function (RED) {
           return
         }
 
-        node.warn(`knxUltimateAI: unknown command '${cmd}'. Supported: reset, summary, ask, run_profile, run_actuator_test, run_test_plan`)
+        node.warn(`knxUltimateAI: unknown command '${cmd}'. Supported: reset, summary, ask, confirm, cancel, clear_chat, run_profile, run_actuator_test, run_test_plan`)
       } catch (error) {
         try { node.sysLogger?.error(`knxUltimateAI handleCommand error: ${error.message || error}`) } catch (e) { /* ignore */ }
         try { node.error(error) } catch (e) { /* ignore */ }
@@ -8329,11 +9511,27 @@ module.exports = function (RED) {
 
     node.on('input', function (msg) {
       try {
-        const p = handleCommand(msg)
+        let adaptedMessage = msg
+        try {
+          adaptedMessage = executeKnxAiChatAdapter({
+            adapter: node._chatInputAdapter,
+            msg,
+            inputMessage: msg,
+            node,
+            RED
+          })
+        } catch (error) {
+          try { node.sysLogger?.error(`knxUltimateAI chat input adapter error: ${error.message || error}`) } catch (e) { /* ignore */ }
+          try { node.error(error, msg) } catch (e) { /* ignore */ }
+          try { updateStatus({ fill: 'red', shape: 'dot', text: `Chat input adapter error: ${error.message || error}` }) } catch (e) { /* ignore */ }
+          return
+        }
+        if (!adaptedMessage) return
+        const p = handleCommand(adaptedMessage)
         if (p && typeof p.catch === 'function') {
           p.catch((error) => {
             try { node.sysLogger?.error(`knxUltimateAI input error: ${error.message || error}`) } catch (e) { /* ignore */ }
-            try { node.error(error) } catch (e) { /* ignore */ }
+            try { node.error(error, adaptedMessage) } catch (e) { /* ignore */ }
           })
         }
       } catch (error) {
@@ -8399,4 +9597,31 @@ module.exports = function (RED) {
       llmApiKey: { type: 'password' }
     }
   })
+}
+
+module.exports.__test = {
+  buildKnxAiConfirmationRequest,
+  buildKnxAiUniversalMessage,
+  classifyKnxAiConfirmation,
+  cloneKnxAiInputMessage,
+  compileKnxAiChatAdapter,
+  coerceKnxAiCommandPayload,
+  detectKnxAiLanguageFromText,
+  executeKnxAiChatAdapter,
+  extractKnxAiQuestion,
+  formatKnxAiCommandPreview,
+  formatKnxAiReadResults,
+  getKnxAiConfirmationCopy,
+  getKnxAiReadCopy,
+  isChatCompletionsModelError,
+  isProbablyChatModelId,
+  isUnsupportedTemperatureError,
+  normalizeKnxAiCommandCandidates,
+  parseKnxAiConversationResponse,
+  postOpenAiCompatibleChatWithFallbacks,
+  resolveKnxAiLanguage,
+  resolveKnxAiOperationEvent,
+  resolveKnxAiSessionId,
+  safeKnxAiSend,
+  validateKnxAiPayloadForDpt
 }
