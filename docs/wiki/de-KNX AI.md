@@ -6,7 +6,7 @@ permalink: /wiki/de-KNX%20AI
 ---
 Dieser Node überwacht **alle KNX-Telegramme** des ausgewählten KNX-Ultimate-Gateways, erstellt Verkehrsstatistiken, erkennt Anomalien und kann optional ein LLM befragen.
 
-Die Editor-Bereiche verwenden dieselben vertikalen Tabs auf der linken Seite wie die Matter-Nodes. **Schnelleinrichtung** enthält nur die üblichen KI-Einstellungen (Aktivierung, Anbieter, Zugangsdaten, Modell, KNX-Zustandsabfrage/Aktorsteuerung und Bestätigung); technische Parameter sind thematisch in den übrigen Tabs gruppiert.
+Der Editor verwendet drei Hauptbereiche als Akkordeon: **KI-Assistent** enthält Einrichtung, Wissen/Kontext und Anbietergrenzen; **Gespräche & Zuhause** enthält Chat-Kanäle, proaktives Zuhause und begrenztes Gedächtnis; **KNX-Verkehrsanalyse** enthält Bus-Telegramme, Verlauf/Zusammenfassungen und Anomalien/Muster. Beim Öffnen eines Hauptbereichs werden alle zugehörigen Optionen gemeinsam angezeigt. Gespeicherte Feld-IDs und Werte bleiben unverändert.
 
 ## Ausgänge
 1. **Zusammenfassung/Statistik** (`msg.payload` JSON)
@@ -19,7 +19,7 @@ Jede an den Ausgängen 3 und 4 ausgegebene Nachricht enthält außerdem eine Kop
 ## Befehle (Eingang)
 Sende `msg.topic`:
 - `summary` (oder leer): Summary sofort senden
-- `reset`: internen Verlauf/Zähler zurücksetzen
+- `reset`: internen Verlauf, Zähler und gelerntes Hausgedächtnis löschen; die KI-Erziehung bleibt unverändert
 - `ask`: Frage an das konfigurierte LLM senden
 - `confirm` / `cancel`: ausstehende KNX-Befehle ohne erneuten LLM-Aufruf bestätigen oder abbrechen
 - `clear_chat`: Gesprächsspeicher der aktuellen Sitzung löschen
@@ -39,6 +39,40 @@ Solange ein Plan aussteht, enthält Ausgang 3 `msg.knxAi.confirmationRequest`. D
 Der Tab **Chat-Adapter** lädt seine auswählbaren Zuordnungen aus `resources/KNXAIChatAdapterMappings.js`. Die Auswahl einer Vorlage fügt zwei bearbeitbare synchrone JavaScript-Zuordnungen in Textfeldern über die volle Breite ein: eine vor der Verarbeitung des Eingangs durch KNX AI und eine vor der Ausgabe an Ausgang 3. Geben Sie `msg` zurück, um fortzufahren, oder keinen Wert, um die Nachricht zu verwerfen. Syntax- und Laufzeitfehler werden abgefangen und gemeldet, ohne Node-RED anzuhalten.
 
 Die enthaltene Vorlage **windkh/node-red-contrib-telegrambot** folgt dem Receiver-/Sender-Vertrag des Pakets. Verbinden Sie einen `telegram receiver` direkt mit KNX AI und Ausgang 3 direkt mit einem `telegram sender`. Für Inline-Bestätigungsschaltflächen verbinden Sie zusätzlich einen als `callback_query` konfigurierten `telegram event` mit demselben KNX-AI-Eingang. Die Eingangszuordnung liest `msg.payload.content`, `msg.payload.chatId` und die Telegram-Sprache. Die Ausgangszuordnung erstellt `msg.payload.chatId`, `type` und `content` und ergänzt bei ausstehender Schreibbestätigung `options.reply_markup` aus `msg.knxAi.confirmationRequest`. Das Telegram-Paket bleibt eine separate optionale Abhängigkeit.
+
+## Proaktive Hausintelligenz und begrenztes Gedächtnis
+Der Unterbereich **Proaktives Zuhause & Gedächtnis** in **Gespräche & Zuhause** aktiviert proaktive Benachrichtigungen auf Wunsch des Benutzers. Aus ETS-Hierarchie, Namen, Rollen und DPTs erstellt der Node ein deterministisches semantisches Modell für Rollläden, Fenster, Türen, Licht, Temperatur, Klima, Anwesenheit und Alarme mit italienischen, englischen, deutschen, französischen, spanischen und chinesischen Begriffen. Der erste proaktive Detektor überwacht nur zuverlässig erkannte Nicht-Befehlszustände von Rollläden/Fenstern/Türen. Nach der konfigurierten Offenzeit und außerhalb der Ruhezeiten gibt Ausgang 3 eine lokalisierte Nachricht mit `msg.knxAi.type = "proactive_notification"` aus. Ausgang 4 wird niemals proaktiv verwendet und KNX wird nicht selbstständig verändert; eine spätere Benutzeranfrage durchläuft weiterhin die normale Validierung und Bestätigung.
+
+Die letzte Chat-Sitzung wird als Eigentümer gespeichert; alternativ kann **Hauptempfänger / Chat-ID** sie ausdrücklich festlegen. Ein synthetisches `msg.inputMessage` bewahrt den Empfänger, damit der Telegram-Adapter eine spontane Nachricht senden kann. Cooldown und höchstens drei proaktive Nachrichten pro Stunde verhindern eine Nachrichtenflut.
+
+Die gelernte Referenz wird beim Start aus `<userDir>/knxai/memory/knxai-home-memory-<node-id>.md` geladen, alle 15 Minuten atomar neu geschrieben und strikt auf konfigurierbare 64–1.024 KB begrenzt (standardmäßig 256 KB). Sie enthält höchstens 120 wichtige Beobachtungen, 80 aggregierte Gewohnheiten, 80 Benachrichtigungen und 300 semantische ETS-Objekte, niemals einen unbegrenzten Rohtelegrammstrom. Alte Einträge mit niedriger Priorität werden zuerst entfernt. **KI-Erziehung** ist auf 16.000 Zeichen begrenzt und stammt immer aus der Node-Konfiguration: Die KI darf sie als verbindliche Vorgabe lesen, aber weder ändern noch überschreiben. Ist eine Erziehung vorhanden, kann das LLM sie aber nicht auswerten, wird die mögliche Benachrichtigung unterdrückt, statt ihr möglicherweise zu widersprechen.
+
+## Praktisches Konfigurationsbeispiel
+Dieses Beispiel erstellt einen knappen Assistenten, der wichtige Öffnungen meldet, aber akzeptiert, dass der Rollladen im Büro offen bleiben darf:
+
+| Editor-Feld | Beispielwert | Wirkung |
+|---|---|---|
+| **Proaktive Hausbenachrichtigungen aktivieren** (`proactiveEnabled`) | aktiv | Zuverlässig erkannte offene Rollladen-/Fenster-/Türzustände werden bewertet. |
+| **Hauptempfänger / Chat-ID** (`proactiveRecipient`) | `123456789` | Spontane Nachrichten gehen an diesen Chat; leer bedeutet: letzte Ask-Sitzung merken. |
+| **Nach offener Dauer benachrichtigen** (`proactiveOpenMinutes`) | `120` | Nach zwei Stunden wird eine mögliche Meldung bewertet. |
+| **Ruhezeit Beginn / Ende** | `23:00` / `07:00` | Nachts werden keine proaktiven Nachrichten ausgegeben. |
+| **Wiederholungs-Cooldown** (`proactiveCooldownMinutes`) | `360` | Dasselbe Objekt meldet sich sechs Stunden lang nicht erneut. |
+| **Maximale Hausgedächtnis-Datei** (`homeMemoryMaxKb`) | `256` | Die Markdown-Referenz dieses Nodes bleibt unter 256 KB. |
+
+Beispiel für **KI-Erziehung** (`aiEducation`):
+
+```text
+Nenne mich Alex und antworte in derselben Sprache wie ich.
+Antworte kurz, außer ich bitte um technische Einzelheiten.
+Der Büro-Rollladen darf tagsüber offen bleiben: benachrichtige mich nicht.
+Melde andere Rollläden, Fenster oder Türen, die ungewöhnlich lange offen bleiben.
+Wenn „Wohnzimmerlicht“ mehrdeutig ist, frage nach der gemeinten Leuchte.
+Behaupte nie eine Aktoränderung, bevor ein KNX-Statusobjekt sie bestätigt.
+```
+
+Damit kann Ausgang 3 nach 120 Minuten eine lokalisierte `proactive_notification` für den Wohnzimmer-Rollladen ausgeben, während eine Meldung für den Büro-Rollladen durch die Erziehung unterdrückt wird. Bittet Alex danach um das Schließen, erstellt KNX AI den exakten ETS-Befehl, behält aber Validierung und Bestätigung vor Ausgang 4 bei.
+
+Verwenden Sie aussagekräftige ETS-Hierarchien und Objektnamen sowie korrekte Status-/Befehlsrollen. Die Erziehung personalisiert Entscheidungen und Formulierungen, kann aber keine Gruppenadresse erfinden, keinen DPT ändern und die KNX-Validierung nicht umgehen.
 
 ## Kurzer Ablauf: KNX-Steuerung
 1. Importieren Sie die ETS-CSV in das Gateway und konfigurieren Sie LLM-Anbieter, Modell und Zugangsdaten.
@@ -95,6 +129,13 @@ Hier sind alle Felder aufgeführt, wie sie im KNX-AI-Editor sichtbar sind.
 - **Adapter-Vorlage**: Lädt ein Paar aus Ein- und Ausgangszuordnung aus der mitgelieferten Chat-Adapter-Datei. Die Auswahl ersetzt bewusst beide Textfelder; der Code bleibt danach bearbeitbar.
 - **Eingangszuordnung (Chat → KNX AI)**: Synchrones JavaScript vor der Verarbeitung des Eingangsbefehls.
 - **Ausgangszuordnung (KNX AI → Chat)**: Synchrones JavaScript ausschließlich für Nachrichten an Ausgang 3.
+- **Proaktive Hausbenachrichtigungen aktivieren**: Optionaler Detektor für zuverlässig erkannte offene Rollladen-/Fenster-/Türzustände; er schreibt nie selbstständig auf KNX.
+- **Hauptempfänger / Chat-ID**: Optionales Ziel für unaufgeforderte Chatnachrichten; andernfalls wird die letzte Ask-Sitzung gespeichert.
+- **Nach offener Dauer benachrichtigen (Minuten)**: Schwelle, bevor eine proaktive Nachricht erwogen wird.
+- **Ruhezeit Beginn / Ende**: Täglicher Zeitraum, in dem proaktive Nachrichten unterdrückt werden.
+- **KI-Erziehung**: Verbindliche, ausschließlich vom Benutzer verwaltete Hinweise, die die KI lesen, aber nie ändern darf.
+- **Wiederholungs-Cooldown (Minuten)**: Mindestintervall vor einer weiteren Meldung desselben Objekts.
+- **Maximale Hausgedächtnis-Datei (KB)**: Harte Grenze von 64 bis 1.024 KB; standardmäßig 256 KB.
 - Wenn das Festplattenarchiv aktiv ist, nutzt **Ask** standardmäßig dieses Archiv: explizite Datumsangaben/Zeitbereiche werden beachtet, sonst durchsucht der Assistent die letzten 24 Stunden plus aktuelle RAM-Events.
 - **Include raw payload hex**: Rohe Hex-Payload im Prompt einfügen.
 - **Node-RED-Projektinventar einbeziehen**: Nimmt das gesamte Node-RED-Projektinventar in den Prompt auf, einschließlich KNX-Nodes und anderer hilfreicher Nodes wie function/change/inject/template, wenn sie KNX-Logik oder Gruppenadressen enthalten.

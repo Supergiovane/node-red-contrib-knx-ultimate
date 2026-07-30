@@ -2,14 +2,19 @@
   "knxUltimateAI": {
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
-      "quickSetup": "Quick setup",
-      "capture": "Capture",
-      "storage": "Storage & Summary",
-      "detection": "Detection & Alerts",
+      "groupAssistant": "AI assistant",
+      "groupChatHome": "Conversations & home",
+      "groupKnxAnalysis": "KNX traffic analysis",
+      "quickSetup": "Assistant setup",
+      "capture": "Bus telegram input",
+      "storage": "KNX history & summaries",
+      "detection": "Anomalies & patterns",
       "llmConnection": "AI Assistant Connection",
-      "llmContext": "AI Assistant Context",
-      "chatAdapter": "Chat adapters",
-      "advanced": "Advanced AI"
+      "llmContext": "AI knowledge & context",
+      "chatAdapter": "Chat channels",
+      "homeIntelligence": "Proactive home & memory",
+      "homeIntelligenceAdvanced": "Advanced proactive settings",
+      "advanced": "Provider & limits"
     },
     "properties": {
       "server": "Gateway",
@@ -46,6 +51,14 @@
       "chatAdapterPreset": "Adapter preset",
       "chatInputCode": "Input mapping (chat → KNX AI)",
       "chatOutputCode": "Output mapping (KNX AI → chat)",
+      "proactiveEnabled": "Enable proactive home notifications",
+      "proactiveRecipient": "Primary recipient / chat ID",
+      "proactiveOpenMinutes": "Notify after open (minutes)",
+      "proactiveCooldownMinutes": "Repeat cooldown (minutes)",
+      "proactiveQuietStart": "Quiet hours start",
+      "proactiveQuietEnd": "Quiet hours end",
+      "homeMemoryMaxKb": "Maximum home-memory file (KB)",
+      "aiEducation": "AI Education (user managed)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
     },
@@ -82,13 +95,18 @@
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
       "ollamaStartedAuto": "Ollama server started automatically.",
       "chatAdapterIntro": "Choose a mapping preset to insert its input and output code. The list is loaded from the packaged chat-adapter mappings file; the generated code remains editable.",
-      "chatAdapterCodeHelp": "Mappings run synchronously. Return msg to continue or return no value to discard it. Errors are caught and reported without stopping Node-RED."
+      "chatAdapterCodeHelp": "Mappings run synchronously. Return msg to continue or return no value to discard it. Errors are caught and reported without stopping Node-RED.",
+      "homeIntelligenceIntro": "The node builds a multilingual semantic ETS model and can notify the chat when a reliably recognized cover, window, or door remains open. It never sends a KNX command proactively.",
+      "aiEducationHelp": "Only the user can edit this section. The AI reads it as authoritative guidance, but learned-memory updates can never overwrite it. Maximum 16,000 characters.",
+      "homeMemoryLimitHelp": "The Markdown memory is rewritten atomically every 15 minutes and is always capped between 64 and 1,024 KB. Old observations are pruned before habits and semantic objects."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
-      "llmSystemPrompt": "Optional. Leave empty for default."
+      "llmSystemPrompt": "Optional. Leave empty for default.",
+      "proactiveRecipient": "Optional: Telegram chat ID; otherwise the most recent chat session is remembered",
+      "aiEducation": "Example: Do not notify me between 23:00 and 07:00. The office shutter may remain open at night."
     },
     "sidebar": {
       "ui": {

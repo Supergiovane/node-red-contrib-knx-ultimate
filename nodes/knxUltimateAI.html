@@ -40,6 +40,59 @@
         line-height: 1.4;
     }
 
+    #knx-ai-accordion {
+        margin-top: 12px;
+    }
+
+    #knx-ai-accordion>h3 {
+        margin-top: 6px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    #knx-ai-accordion>.ui-accordion-content {
+        padding: 14px 16px;
+        overflow: visible;
+    }
+
+    #knx-ai-accordion .knx-ai-accordion-subsection {
+        padding: 0;
+    }
+
+    #knx-ai-accordion .knx-ai-accordion-subsection+.knx-ai-accordion-subsection {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid var(--red-ui-form-input-border-color, #ccc);
+    }
+
+    #knx-ai-accordion .knx-ai-accordion-subsection>h4 {
+        margin: 0 0 14px;
+        color: var(--red-ui-primary-text-color, #555);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    #knx-ai-accordion .knx-ai-accordion-subsection>h4 i {
+        width: 18px;
+        text-align: center;
+    }
+
+    #knx-ai-accordion .knx-ai-inline-subsection {
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--red-ui-form-input-border-color, #ccc);
+    }
+
+    #knx-ai-accordion .knx-ai-inline-subsection>h5 {
+        margin: 0 0 12px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    #knx-ai-accordion .knx-ai-accordion-mount>div {
+        display: block;
+    }
+
     #knx-ai-ollama-steps,
     #knx-ai-ollama-empty-help {
         margin-left: 290px;
@@ -109,7 +162,15 @@
             llmRequireCommandConfirmation: { value: true },
             chatAdapterPreset: { value: "none" },
             chatInputCode: { value: "" },
-            chatOutputCode: { value: "" }
+            chatOutputCode: { value: "" },
+            proactiveEnabled: { value: false },
+            proactiveRecipient: { value: "" },
+            proactiveOpenMinutes: { value: 120, required: true, validate: RED.validators.number() },
+            proactiveCooldownMinutes: { value: 360, required: true, validate: RED.validators.number() },
+            proactiveQuietStart: { value: "23:00" },
+            proactiveQuietEnd: { value: "07:00" },
+            homeMemoryMaxKb: { value: 256, required: true, validate: RED.validators.number() },
+            aiEducation: { value: "" }
         },
         credentials: {
             llmApiKey: { type: "password" }
@@ -139,71 +200,25 @@
             const OLLAMA_DEFAULT_MODEL = "llama3.1";
             const ANTHROPIC_DEFAULT_MODEL = "claude-opus-4-8";
 
-            // Reuse the same left-hand vertical tabs as the Matter nodes.
-            if ($("#knxUltimateMatterControllerDeviceVerticalTabs").length === 0) {
-                $("head").append(`
-                    <style id="knxUltimateMatterControllerDeviceVerticalTabs">
-                        .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
-                            display: flex;
-                            border: none;
-                            padding: 0;
-                        }
-                        .hue-vertical-tabs > ul.ui-tabs-nav {
-                            flex: 0 0 180px;
-                            border-right: 1px solid #ccc;
-                            border-left: none;
-                            border-top: none;
-                            border-bottom: none;
-                            padding: 0.5em 0.3em;
-                        }
-                        .hue-vertical-tabs > ul.ui-tabs-nav li {
-                            float: none;
-                            width: 100%;
-                            margin: 0 0 2px 0;
-                        }
-                        .hue-vertical-tabs > ul.ui-tabs-nav li a {
-                            display: block;
-                            width: 100%;
-                            white-space: normal;
-                            position: relative;
-                            border-bottom: none !important;
-                        }
-                        .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active {
-                            border-bottom: none !important;
-                        }
-                        .hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after {
-                            content: "";
-                            position: absolute;
-                            left: 0;
-                            bottom: 0;
-                            width: 50%;
-                            height: 3px;
-                            background: currentColor;
-                        }
-                        .hue-vertical-tabs .ui-tabs-panel {
-                            flex: 1;
-                            padding: 0.8em 1em;
-                            box-sizing: border-box;
-                            border: none;
-                            background: transparent;
-                        }
-                        .hue-vertical-tabs .form-row > dt {
-                            flex: 1 1 auto;
-                            margin: 0;
-                        }
-                        .hue-vertical-tabs hr {
-                            width: 100%;
-                            border: 0;
-                            border-top: 1px solid #ccc;
-                            margin: 8px 0;
-                        }
-                    </style>`);
-            }
-            const $tabs = $("#knx-ai-tabs");
-            $tabs.addClass("hue-vertical-tabs");
-            $tabs.tabs();
-            $tabs.find("ul").addClass("ui-tabs-nav");
-            $tabs.find("li").removeClass("ui-corner-top").addClass("ui-corner-left");
+            const mountAccordionSection = (mountSelector, sectionSelector) => {
+                const $mount = $(mountSelector);
+                const $section = $(sectionSelector);
+                if ($mount.length && $section.length) $mount.append($section);
+            };
+            mountAccordionSection("#knx-ai-mount-assistant-setup", "#knx-ai-tab-llm-connection");
+            mountAccordionSection("#knx-ai-mount-assistant-context", "#knx-ai-tab-llm-context");
+            mountAccordionSection("#knx-ai-mount-assistant-advanced", "#knx-ai-tab-advanced");
+            mountAccordionSection("#knx-ai-mount-chat-adapter", "#knx-ai-tab-chat-adapter");
+            mountAccordionSection("#knx-ai-mount-home-intelligence", "#knx-ai-tab-home-intelligence");
+            mountAccordionSection("#knx-ai-mount-knx-capture", "#knx-ai-tab-capture");
+            mountAccordionSection("#knx-ai-mount-knx-storage", "#knx-ai-tab-storage");
+            mountAccordionSection("#knx-ai-mount-knx-detection", "#knx-ai-tab-detection");
+            $("#knx-ai-accordion").accordion({
+                active: 0,
+                animate: false,
+                collapsible: true,
+                heightStyle: "content"
+            });
 
             const toggleLLM = () => {
                 const enabled = $("#node-input-llmEnabled").is(":checked");
@@ -299,6 +314,13 @@
                 });
             };
             configureChatAdapterPicker.call(this);
+
+            const updateProactiveVisibility = () => {
+                const enabled = $("#node-input-proactiveEnabled").is(":checked");
+                $("#knx-ai-proactive-settings").toggle(enabled);
+            };
+            $("#node-input-proactiveEnabled").on("change", updateProactiveVisibility);
+            updateProactiveVisibility();
 
             $("#knx-ai-open-web-page-vue").on("click", function (evt) {
                 evt.preventDefault();
@@ -544,16 +566,53 @@
         </div>
     </div>
 
-    <div id="knx-ai-tabs" style="margin-top:12px;">
-        <ul>
-            <li><a href="#knx-ai-tab-llm-connection"><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.quickSetup"></span></a></li>
-            <li><a href="#knx-ai-tab-capture"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateAI.sections.capture"></span></a></li>
-            <li><a href="#knx-ai-tab-storage"><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.storage"></span></a></li>
-            <li><a href="#knx-ai-tab-detection"><i class="fa fa-search"></i> <span data-i18n="knxUltimateAI.sections.detection"></span></a></li>
-            <li><a href="#knx-ai-tab-chat-adapter"><i class="fa fa-plug"></i> <span data-i18n="knxUltimateAI.sections.chatAdapter"></span></a></li>
-            <li><a href="#knx-ai-tab-llm-context"><i class="fa fa-comments"></i> <span data-i18n="knxUltimateAI.sections.llmContext"></span></a></li>
-            <li><a href="#knx-ai-tab-advanced"><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.advanced"></span></a></li>
-        </ul>
+    <div id="knx-ai-accordion">
+        <h3><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.groupAssistant"></span></h3>
+        <div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-cog"></i> <span data-i18n="knxUltimateAI.sections.quickSetup"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-assistant-setup"></div>
+            </div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-book"></i> <span data-i18n="knxUltimateAI.sections.llmContext"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-assistant-context"></div>
+            </div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.advanced"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-assistant-advanced"></div>
+            </div>
+        </div>
+
+        <h3><i class="fa fa-comments"></i> <span data-i18n="knxUltimateAI.sections.groupChatHome"></span></h3>
+        <div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-plug"></i> <span data-i18n="knxUltimateAI.sections.chatAdapter"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-chat-adapter"></div>
+            </div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-home"></i> <span data-i18n="knxUltimateAI.sections.homeIntelligence"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-home-intelligence"></div>
+            </div>
+        </div>
+
+        <h3><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateAI.sections.groupKnxAnalysis"></span></h3>
+        <div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimateAI.sections.capture"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-capture"></div>
+            </div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.storage"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-storage"></div>
+            </div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-search"></i> <span data-i18n="knxUltimateAI.sections.detection"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-detection"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="knx-ai-accordion-source" style="display:none;">
 
         <div id="knx-ai-tab-capture">
             <div class="form-row">
@@ -696,6 +755,57 @@
             </div>
             <div class="form-tips">
                 <span data-i18n="knxUltimateAI.messages.chatAdapterCodeHelp"></span>
+            </div>
+        </div>
+
+        <div id="knx-ai-tab-home-intelligence">
+            <div class="form-tips" style="margin-bottom:12px;">
+                <span data-i18n="knxUltimateAI.messages.homeIntelligenceIntro"></span>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-proactiveEnabled" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-proactiveEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.proactiveEnabled"></span></label>
+            </div>
+            <div id="knx-ai-proactive-settings">
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-proactiveRecipient"><i class="fa fa-user"></i> <span data-i18n="knxUltimateAI.properties.proactiveRecipient"></span></label>
+                    <input style="width:100%" type="text" id="node-input-proactiveRecipient" data-i18n="[placeholder]knxUltimateAI.placeholder.proactiveRecipient">
+                </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-proactiveOpenMinutes"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveOpenMinutes"></span></label>
+                    <input style="width:100px" type="number" min="1" max="1440" id="node-input-proactiveOpenMinutes">
+                </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-proactiveQuietStart"><i class="fa fa-moon-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveQuietStart"></span></label>
+                    <input style="width:120px" type="time" id="node-input-proactiveQuietStart">
+                </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-proactiveQuietEnd"><i class="fa fa-sun-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveQuietEnd"></span></label>
+                    <input style="width:120px" type="time" id="node-input-proactiveQuietEnd">
+                </div>
+            </div>
+            <div class="form-row" style="margin-top:14px;">
+                <label style="width:100%" for="node-input-aiEducation"><i class="fa fa-graduation-cap"></i> <span data-i18n="knxUltimateAI.properties.aiEducation"></span></label>
+                <textarea id="node-input-aiEducation" maxlength="16000" style="width:100%; min-height:180px; box-sizing:border-box;" data-i18n="[placeholder]knxUltimateAI.placeholder.aiEducation"></textarea>
+            </div>
+            <div class="form-tips" style="margin-bottom:12px;">
+                <span data-i18n="knxUltimateAI.messages.aiEducationHelp"></span>
+            </div>
+            <div class="knx-ai-inline-subsection">
+                <h5><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.homeIntelligenceAdvanced"></span></h5>
+                <div>
+                    <div class="form-row">
+                        <label style="width:290px" for="node-input-proactiveCooldownMinutes"><i class="fa fa-bell-slash-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveCooldownMinutes"></span></label>
+                        <input style="width:100px" type="number" min="5" max="10080" id="node-input-proactiveCooldownMinutes">
+                    </div>
+                    <div class="form-row">
+                        <label style="width:290px" for="node-input-homeMemoryMaxKb"><i class="fa fa-hdd-o"></i> <span data-i18n="knxUltimateAI.properties.homeMemoryMaxKb"></span></label>
+                        <input style="width:100px" type="number" min="64" max="1024" id="node-input-homeMemoryMaxKb">
+                    </div>
+                    <div class="form-tips">
+                        <span data-i18n="knxUltimateAI.messages.homeMemoryLimitHelp"></span>
+                    </div>
+                </div>
             </div>
         </div>
 

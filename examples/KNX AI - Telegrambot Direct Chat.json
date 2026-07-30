@@ -27,6 +27,16 @@
     "wires": []
   },
   {
+    "id": "comment_knx_ai_home_intelligence",
+    "type": "comment",
+    "z": "tab_knx_ai_telegram",
+    "name": "3. Home intelligence: bounded memory + proactive cover notifications",
+    "info": "This example enables proactive notifications after 120 minutes, outside 23:00-07:00. The most recent Telegram chat becomes the recipient. AI Education remains user-managed, and the Markdown memory file has a hard 256 KB limit. Proactive observations use output 3 only and never write to KNX.",
+    "x": 520,
+    "y": 120,
+    "wires": []
+  },
+  {
     "id": "telegram_receiver_knx_ai",
     "type": "telegram receiver",
     "z": "tab_knx_ai_telegram",
@@ -98,6 +108,14 @@
     "chatAdapterPreset": "none",
     "chatInputCode": "",
     "chatOutputCode": "",
+    "proactiveEnabled": true,
+    "proactiveRecipient": "",
+    "proactiveOpenMinutes": "120",
+    "proactiveCooldownMinutes": "360",
+    "proactiveQuietStart": "23:00",
+    "proactiveQuietEnd": "07:00",
+    "homeMemoryMaxKb": "256",
+    "aiEducation": "Avvisami se una persiana, una finestra o una porta rimane aperta insolitamente a lungo. Non inviare notifiche durante le ore silenziose configurate.",
     "x": 500,
     "y": 210,
     "wires": [

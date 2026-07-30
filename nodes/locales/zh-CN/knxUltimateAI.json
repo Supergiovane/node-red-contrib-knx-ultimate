@@ -2,14 +2,19 @@
   "knxUltimateAI": {
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
-      "quickSetup": "快速配置",
-      "capture": "Capture",
-      "storage": "历史与摘要",
-      "detection": "检测与告警",
+      "groupAssistant": "AI 助手",
+      "groupChatHome": "对话与家庭",
+      "groupKnxAnalysis": "KNX 总线流量分析",
+      "quickSetup": "助手配置",
+      "capture": "总线报文输入",
+      "storage": "KNX 历史与摘要",
+      "detection": "异常与模式",
       "llmConnection": "AI 助手连接",
-      "llmContext": "AI 助手上下文",
-      "chatAdapter": "聊天适配器",
-      "advanced": "AI 高级设置"
+      "llmContext": "AI 知识与上下文",
+      "chatAdapter": "聊天渠道",
+      "homeIntelligence": "主动家庭与记忆",
+      "homeIntelligenceAdvanced": "高级主动通知设置",
+      "advanced": "提供商与限制"
     },
     "properties": {
       "server": "Gateway",
@@ -46,6 +51,14 @@
       "chatAdapterPreset": "适配器预设",
       "chatInputCode": "输入映射（聊天 → KNX AI）",
       "chatOutputCode": "输出映射（KNX AI → 聊天）",
+      "proactiveEnabled": "启用主动家庭通知",
+      "proactiveRecipient": "主要接收者 / 聊天 ID",
+      "proactiveOpenMinutes": "保持打开多少分钟后通知",
+      "proactiveCooldownMinutes": "重复通知冷却时间（分钟）",
+      "proactiveQuietStart": "静默时段开始",
+      "proactiveQuietEnd": "静默时段结束",
+      "homeMemoryMaxKb": "家庭记忆文件最大值（KB）",
+      "aiEducation": "AI 教育（由用户管理）",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
     },
@@ -74,13 +87,18 @@
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
       "ollamaStartedAuto": "Ollama server started automatically.",
       "chatAdapterIntro": "选择预设即可插入输入和输出映射代码。列表从随包提供的聊天适配器文件加载；生成的代码仍可编辑。",
-      "chatAdapterCodeHelp": "映射同步运行。返回 msg 以继续，或不返回值以丢弃消息。错误会被捕获并报告，不会停止 Node-RED。"
+      "chatAdapterCodeHelp": "映射同步运行。返回 msg 以继续，或不返回值以丢弃消息。错误会被捕获并报告，不会停止 Node-RED。",
+      "homeIntelligenceIntro": "节点会创建多语言 ETS 语义模型，并在可靠识别的卷帘、窗户或门长时间保持打开时主动通知聊天。它绝不会自行发送 KNX 命令。",
+      "aiEducationHelp": "只有用户可以编辑此部分。AI 会把它作为权威指导读取，但学习到的记忆绝不能覆盖它。最多 16,000 个字符。",
+      "homeMemoryLimitHelp": "Markdown 记忆每 15 分钟以原子方式重写，并始终限制在 64 到 1,024 KB。达到限制时会先删除较旧的观察，再删除习惯和语义对象。"
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
-      "llmSystemPrompt": "Optional. Leave empty for default."
+      "llmSystemPrompt": "Optional. Leave empty for default.",
+      "proactiveRecipient": "可选：Telegram 聊天 ID；留空则记住最近一次聊天会话",
+      "aiEducation": "示例：23:00 到 07:00 之间不要通知我。书房卷帘夜间可以保持打开。"
     },
     "sidebar": {
       "ui": {

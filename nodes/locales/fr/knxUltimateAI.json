@@ -2,14 +2,19 @@
   "knxUltimateAI": {
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
-      "quickSetup": "Configuration rapide",
-      "capture": "Capture",
-      "storage": "Historique et Resume",
-      "detection": "Detection et Alertes",
+      "groupAssistant": "Assistant IA",
+      "groupChatHome": "Conversations et maison",
+      "groupKnxAnalysis": "Analyse du trafic KNX",
+      "quickSetup": "Configurer l'assistant",
+      "capture": "Télégrammes du bus",
+      "storage": "Historique et résumés KNX",
+      "detection": "Anomalies et motifs",
       "llmConnection": "Connexion Assistant IA",
-      "llmContext": "Contexte Assistant IA",
-      "chatAdapter": "Adaptateurs de chat",
-      "advanced": "IA avancee"
+      "llmContext": "Connaissances et contexte IA",
+      "chatAdapter": "Canaux de chat",
+      "homeIntelligence": "Maison proactive et mémoire",
+      "homeIntelligenceAdvanced": "Paramètres proactifs avancés",
+      "advanced": "Fournisseur et limites"
     },
     "properties": {
       "server": "Gateway",
@@ -46,6 +51,14 @@
       "chatAdapterPreset": "Préréglage d’adaptateur",
       "chatInputCode": "Mappage d’entrée (chat → KNX AI)",
       "chatOutputCode": "Mappage de sortie (KNX AI → chat)",
+      "proactiveEnabled": "Activer les notifications domestiques proactives",
+      "proactiveRecipient": "Destinataire principal / ID de chat",
+      "proactiveOpenMinutes": "Notifier après ouverture (minutes)",
+      "proactiveCooldownMinutes": "Délai avant répétition (minutes)",
+      "proactiveQuietStart": "Début des heures silencieuses",
+      "proactiveQuietEnd": "Fin des heures silencieuses",
+      "homeMemoryMaxKb": "Taille maximale de la mémoire maison (Ko)",
+      "aiEducation": "Éducation IA (gérée par l'utilisateur)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
     },
@@ -74,13 +87,18 @@
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
       "ollamaStartedAuto": "Ollama server started automatically.",
       "chatAdapterIntro": "Choisissez un préréglage pour insérer son code de mappage d’entrée et de sortie. La liste est chargée depuis le fichier d’adaptateurs de chat fourni ; le code généré reste modifiable.",
-      "chatAdapterCodeHelp": "Les mappages s’exécutent de façon synchrone. Renvoyez msg pour continuer ou aucune valeur pour l’écarter. Les erreurs sont interceptées et signalées sans arrêter Node-RED."
+      "chatAdapterCodeHelp": "Les mappages s’exécutent de façon synchrone. Renvoyez msg pour continuer ou aucune valeur pour l’écarter. Les erreurs sont interceptées et signalées sans arrêter Node-RED.",
+      "homeIntelligenceIntro": "Le nœud crée un modèle ETS sémantique multilingue et peut avertir le chat lorsqu'un volet, une fenêtre ou une porte reconnu avec suffisamment de fiabilité reste ouvert. Il n'envoie jamais de commande KNX de manière autonome.",
+      "aiEducationHelp": "Seul l'utilisateur peut modifier cette section. L'IA la lit comme une consigne faisant autorité, mais la mémoire apprise ne peut jamais l'écraser. Maximum 16 000 caractères.",
+      "homeMemoryLimitHelp": "La mémoire Markdown est réécrite atomiquement toutes les 15 minutes et reste toujours limitée entre 64 et 1 024 Ko. Les anciennes observations sont supprimées avant les habitudes et les objets sémantiques."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
-      "llmSystemPrompt": "Optional. Leave empty for default."
+      "llmSystemPrompt": "Optional. Leave empty for default.",
+      "proactiveRecipient": "Facultatif : ID de chat Telegram ; sinon la dernière session de chat est mémorisée",
+      "aiEducation": "Exemple : ne pas me notifier entre 23:00 et 07:00. Le volet du bureau peut rester ouvert la nuit."
     },
     "sidebar": {
       "ui": {

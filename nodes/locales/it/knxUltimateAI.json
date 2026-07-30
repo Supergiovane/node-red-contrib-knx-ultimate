@@ -2,14 +2,19 @@
   "knxUltimateAI": {
     "title": "KNX AI (Analisi Traffico)",
     "sections": {
-      "quickSetup": "Configurazione rapida",
-      "capture": "Cattura",
-      "storage": "Storico e Summary",
-      "detection": "Rilevamento e Avvisi",
+      "groupAssistant": "Assistente AI",
+      "groupChatHome": "Conversazioni e casa",
+      "groupKnxAnalysis": "Analisi traffico KNX",
+      "quickSetup": "Configurazione assistente",
+      "capture": "Telegrammi dal bus",
+      "storage": "Storico e riepiloghi KNX",
+      "detection": "Anomalie e pattern",
       "llmConnection": "Connessione Assistente AI",
-      "llmContext": "Contesto Assistente AI",
-      "chatAdapter": "Adattatori chat",
-      "advanced": "AI avanzata"
+      "llmContext": "Conoscenza e contesto AI",
+      "chatAdapter": "Canali chat",
+      "homeIntelligence": "Casa proattiva e memoria",
+      "homeIntelligenceAdvanced": "Impostazioni proattive avanzate",
+      "advanced": "Provider e limiti"
     },
     "properties": {
       "server": "Gateway",
@@ -46,6 +51,14 @@
       "chatAdapterPreset": "Preset adattatore",
       "chatInputCode": "Mappatura ingresso (chat → KNX AI)",
       "chatOutputCode": "Mappatura uscita (KNX AI → chat)",
+      "proactiveEnabled": "Abilita notifiche domestiche proattive",
+      "proactiveRecipient": "Destinatario principale / chat ID",
+      "proactiveOpenMinutes": "Avvisa dopo apertura (minuti)",
+      "proactiveCooldownMinutes": "Intervallo prima di ripetere (minuti)",
+      "proactiveQuietStart": "Inizio ore silenziose",
+      "proactiveQuietEnd": "Fine ore silenziose",
+      "homeMemoryMaxKb": "Dimensione massima memoria casa (KB)",
+      "aiEducation": "Educazione AI (gestita dall'utente)",
       "llmIncludeDocsSnippets": "Includi estratti documentazione (help/README/esempi)",
       "llmDocsLanguage": "Lingua documentazione"
     },
@@ -82,13 +95,18 @@
       "ollamaInstallSteps": "1) Apri la libreria, scegli un modello e copiane il nome (es. llama3.1). 2) Inserisci il nome nel campo Modello e clicca Installalo.",
       "ollamaStartedAuto": "Server Ollama avviato automaticamente.",
       "chatAdapterIntro": "Scegli un preset per inserire il codice di mappatura in ingresso e in uscita. La lista viene caricata dal file degli adattatori chat incluso nel pacchetto; il codice generato resta modificabile.",
-      "chatAdapterCodeHelp": "Le mappature sono sincrone. Restituisci msg per continuare oppure nessun valore per scartarlo. Gli errori vengono intercettati e segnalati senza arrestare Node-RED."
+      "chatAdapterCodeHelp": "Le mappature sono sincrone. Restituisci msg per continuare oppure nessun valore per scartarlo. Gli errori vengono intercettati e segnalati senza arrestare Node-RED.",
+      "homeIntelligenceIntro": "Il nodo crea un modello ETS semantico multilingue e può avvisare la chat quando una persiana, finestra o porta riconosciuta con sufficiente affidabilità rimane aperta. Non invia mai autonomamente comandi KNX.",
+      "aiEducationHelp": "Solo l'utente può modificare questa sezione. L'AI la legge come istruzione autorevole, ma la memoria appresa non può mai sovrascriverla. Massimo 16.000 caratteri.",
+      "homeMemoryLimitHelp": "La memoria Markdown viene riscritta atomicamente ogni 15 minuti ed è sempre limitata tra 64 e 1.024 KB. Le osservazioni vecchie vengono eliminate prima delle abitudini e degli oggetti semantici."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (o endpoint compatibile)",
       "llmApiKey": "Incolla la chiave (inizia con sk-)",
       "llmModel": "es. gpt-4o-mini",
-      "llmSystemPrompt": "Opzionale. Lascia vuoto per default."
+      "llmSystemPrompt": "Opzionale. Lascia vuoto per default.",
+      "proactiveRecipient": "Opzionale: chat ID Telegram; altrimenti viene ricordata l'ultima sessione chat",
+      "aiEducation": "Esempio: non avvisarmi tra le 23:00 e le 07:00. La persiana dello studio può restare aperta di notte."
     },
     "sidebar": {
       "ui": {

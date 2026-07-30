@@ -19,3 +19,4 @@ test/*
 !test/matterQrScanner.test.js
 !test/knxAiConversation.test.js
 !test/disabledSidebarPlugins.test.js
+!test/knxAiHomeMemory.test.js

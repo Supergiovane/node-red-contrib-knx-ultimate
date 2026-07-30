@@ -2,14 +2,19 @@
   "knxUltimateAI": {
     "title": "KNX AI (Traffic Analyzer)",
     "sections": {
-      "quickSetup": "Schnelleinrichtung",
-      "capture": "Capture",
-      "storage": "Speicher & Zusammenfassung",
-      "detection": "Erkennung & Warnungen",
+      "groupAssistant": "KI-Assistent",
+      "groupChatHome": "Gespräche & Zuhause",
+      "groupKnxAnalysis": "KNX-Verkehrsanalyse",
+      "quickSetup": "Assistent einrichten",
+      "capture": "Bus-Telegrammeingang",
+      "storage": "KNX-Verlauf & Zusammenfassungen",
+      "detection": "Anomalien & Muster",
       "llmConnection": "KI-Assistent-Verbindung",
-      "llmContext": "KI-Assistent-Kontext",
-      "chatAdapter": "Chat-Adapter",
-      "advanced": "Erweiterte KI"
+      "llmContext": "KI-Wissen & Kontext",
+      "chatAdapter": "Chat-Kanäle",
+      "homeIntelligence": "Proaktives Zuhause & Gedächtnis",
+      "homeIntelligenceAdvanced": "Erweiterte proaktive Einstellungen",
+      "advanced": "Anbieter & Grenzen"
     },
     "properties": {
       "server": "Gateway",
@@ -46,6 +51,14 @@
       "chatAdapterPreset": "Adapter-Vorlage",
       "chatInputCode": "Eingangszuordnung (Chat → KNX AI)",
       "chatOutputCode": "Ausgangszuordnung (KNX AI → Chat)",
+      "proactiveEnabled": "Proaktive Hausbenachrichtigungen aktivieren",
+      "proactiveRecipient": "Hauptempfänger / Chat-ID",
+      "proactiveOpenMinutes": "Nach Offenstand benachrichtigen (Minuten)",
+      "proactiveCooldownMinutes": "Wiederholsperre (Minuten)",
+      "proactiveQuietStart": "Beginn der Ruhezeit",
+      "proactiveQuietEnd": "Ende der Ruhezeit",
+      "homeMemoryMaxKb": "Maximale Hausgedächtnisdatei (KB)",
+      "aiEducation": "KI-Erziehung (vom Benutzer verwaltet)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
     },
@@ -69,7 +82,9 @@
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
-      "llmSystemPrompt": "Optional. Leave empty for default."
+      "llmSystemPrompt": "Optional. Leave empty for default.",
+      "proactiveRecipient": "Optional: Telegram-Chat-ID; andernfalls wird die letzte Chat-Sitzung gespeichert",
+      "aiEducation": "Beispiel: Zwischen 23:00 und 07:00 nicht benachrichtigen. Der Rollladen im Büro darf nachts offen bleiben."
     },
     "messages": {
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
@@ -80,7 +95,10 @@
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
       "ollamaStartedAuto": "Ollama server started automatically.",
       "chatAdapterIntro": "Wählen Sie eine Vorlage, um den Code für Ein- und Ausgang einzufügen. Die Liste wird aus der mitgelieferten Chat-Adapter-Datei geladen; der erzeugte Code bleibt bearbeitbar.",
-      "chatAdapterCodeHelp": "Zuordnungen laufen synchron. Geben Sie msg zurück, um fortzufahren, oder keinen Wert, um die Nachricht zu verwerfen. Fehler werden abgefangen und gemeldet, ohne Node-RED anzuhalten."
+      "chatAdapterCodeHelp": "Zuordnungen laufen synchron. Geben Sie msg zurück, um fortzufahren, oder keinen Wert, um die Nachricht zu verwerfen. Fehler werden abgefangen und gemeldet, ohne Node-RED anzuhalten.",
+      "homeIntelligenceIntro": "Der Node erstellt ein mehrsprachiges semantisches ETS-Modell und kann den Chat benachrichtigen, wenn ein zuverlässig erkannter Rollladen, ein Fenster oder eine Tür offen bleibt. Er sendet niemals selbstständig einen KNX-Befehl.",
+      "aiEducationHelp": "Nur der Benutzer kann diesen Abschnitt bearbeiten. Die KI liest ihn als verbindliche Vorgabe; gelernte Erinnerungen können ihn niemals überschreiben. Maximal 16.000 Zeichen.",
+      "homeMemoryLimitHelp": "Das Markdown-Gedächtnis wird alle 15 Minuten atomar neu geschrieben und bleibt stets auf 64 bis 1.024 KB begrenzt. Alte Beobachtungen werden vor Gewohnheiten und semantischen Objekten entfernt."
     },
     "sidebar": {
       "ui": {

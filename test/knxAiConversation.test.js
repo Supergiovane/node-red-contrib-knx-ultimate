@@ -566,6 +566,9 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('llmAllowKnxCommands: { value: false }')
     expect(editor).to.include('llmRequireCommandConfirmation: { value: true }')
     expect(editor).to.include('chatAdapterPreset: { value: "none" }')
+    expect(editor).to.include('proactiveEnabled: { value: false }')
+    expect(editor).to.include('homeMemoryMaxKb: { value: 256')
+    expect(editor).to.include('maxlength="16000"')
     expect(editor).to.include('KNXAIChatAdapterMappings.js')
     expect(editor).to.include('outputs: 4')
     expect(editor).to.include("case 3: return RED._('knxUltimateAI.outputs.knxCommands')")
@@ -587,12 +590,19 @@ describe('KNX AI conversational control', () => {
       const localeRoot = path.join(root, 'nodes', 'locales', locale)
       const messages = JSON.parse(fs.readFileSync(path.join(localeRoot, 'knxUltimateAI.json'), 'utf8'))
       expect(messages.knxUltimateAI.sections.quickSetup).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.groupAssistant).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.groupChatHome).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.groupKnxAnalysis).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmAllowKnxCommands).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmRequireCommandConfirmation).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.chatAdapter).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatAdapterPreset).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatInputCode).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatOutputCode).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.homeIntelligence).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties.proactiveEnabled).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties.homeMemoryMaxKb).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties.aiEducation).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.outputs.knxCommands).to.be.a('string').and.not.equal('')
 
       const helpHtml = fs.readFileSync(path.join(localeRoot, 'knxUltimateAI.html'), 'utf8')
@@ -606,6 +616,13 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('KNXAIChatAdapterMappings.js')
       expect(helpBody).to.include('callback_query')
       expect(helpBody).to.include('options.reply_markup')
+      expect(helpBody).to.include('proactive_notification')
+      expect(helpBody).to.include('home-memory')
+      expect(helpBody).to.include('proactiveOpenMinutes')
+      expect(helpBody).to.include('proactiveCooldownMinutes')
+      expect(helpBody).to.include('homeMemoryMaxKb')
+      expect(helpBody).to.include('aiEducation')
+      expect(helpBody).to.include('123456789')
       const docsBody = fs.readFileSync(path.join(root, 'docs', 'wiki', docName), 'utf8')
         .replace(/^---\n[\s\S]*?\n---\n+/, '')
         .trim()
@@ -656,28 +673,24 @@ describe('KNX AI conversational control', () => {
     expect(callbackEvent.wires[0]).to.deep.equal(['node_knx_ai_telegram'])
     expect(aiNode.wires[2]).to.include('telegram_sender_knx_ai')
     expect(aiNode.wires[3]).to.include('node_knx_ai_telegram_universal')
+    expect(aiNode.proactiveEnabled).to.equal(true)
+    expect(aiNode.homeMemoryMaxKb).to.equal('256')
+    expect(aiNode.aiEducation).to.include('persiana')
     expect(sender.type).to.equal('telegram sender')
   })
 
-  it('uses the shared Matter-style vertical tabs without changing field ids', () => {
+  it('groups every option into three main accordion sections without changing field ids', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
-    const matterEditor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateMatterBridge.html'), 'utf8')
-    const sharedSelectors = [
-      '.hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all',
-      '.hue-vertical-tabs > ul.ui-tabs-nav',
-      '.hue-vertical-tabs > ul.ui-tabs-nav li.ui-tabs-active a::after',
-      '.hue-vertical-tabs .ui-tabs-panel'
-    ]
-
-    sharedSelectors.forEach(selector => {
-      expect(editor).to.include(selector)
-      expect(matterEditor).to.include(selector)
-    })
-    expect(editor).to.include('id="knx-ai-tabs"')
-    expect(editor).to.include('$tabs.addClass("hue-vertical-tabs")')
-    expect(editor).to.include('$tabs.tabs()')
-    expect(editor).not.to.include('id="knx-ai-accordion"')
+    expect(editor).to.include('id="knx-ai-accordion"')
+    expect(editor).to.include('$("#knx-ai-accordion").accordion({')
+    expect(editor).to.include('heightStyle: "content"')
+    expect(editor).to.include('.knx-ai-accordion-subsection')
+    expect(editor).not.to.include('id="knx-ai-tabs"')
+    expect(editor).not.to.include('hue-vertical-tabs')
+    expect(editor).not.to.include('.tabs()')
+    expect(editor).not.to.include('<details')
+    expect(editor).not.to.include('<summary')
     const preservedFieldIds = [
       'node-input-server',
       'node-input-name',
@@ -691,8 +704,35 @@ describe('KNX AI conversational control', () => {
     preservedFieldIds.forEach(id => expect(editor).to.include(`id="${id}"`))
 
     const template = editor.match(/<script[^>]*data-template-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)[1]
+    const accordion = template.match(/<div id="knx-ai-accordion">([\s\S]*?)<div id="knx-ai-accordion-source"/i)[1]
+    const orderedGroups = [
+      'knxUltimateAI.sections.groupAssistant',
+      'knxUltimateAI.sections.groupChatHome',
+      'knxUltimateAI.sections.groupKnxAnalysis'
+    ]
+    orderedGroups.reduce((previousIndex, translationKey) => {
+      const currentIndex = accordion.indexOf(translationKey)
+      expect(currentIndex, translationKey).to.be.greaterThan(previousIndex)
+      return currentIndex
+    }, -1)
+    expect((accordion.match(/<h3>/g) || [])).to.have.length(3)
+    expect((accordion.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(8)
+    const mountPairs = [
+      ['knx-ai-mount-assistant-setup', 'knx-ai-tab-llm-connection'],
+      ['knx-ai-mount-assistant-context', 'knx-ai-tab-llm-context'],
+      ['knx-ai-mount-assistant-advanced', 'knx-ai-tab-advanced'],
+      ['knx-ai-mount-chat-adapter', 'knx-ai-tab-chat-adapter'],
+      ['knx-ai-mount-home-intelligence', 'knx-ai-tab-home-intelligence'],
+      ['knx-ai-mount-knx-capture', 'knx-ai-tab-capture'],
+      ['knx-ai-mount-knx-storage', 'knx-ai-tab-storage'],
+      ['knx-ai-mount-knx-detection', 'knx-ai-tab-detection']
+    ]
+    mountPairs.forEach(([mountId, sectionId]) => {
+      expect(editor).to.include(`mountAccordionSection("#${mountId}", "#${sectionId}")`)
+    })
     const quickSetup = template.match(/<div id="knx-ai-tab-llm-connection">([\s\S]*?)<div id="knx-ai-tab-chat-adapter">/i)[1]
-    const chatAdapter = template.match(/<div id="knx-ai-tab-chat-adapter">([\s\S]*?)<div id="knx-ai-tab-llm-context">/i)[1]
+    const chatAdapter = template.match(/<div id="knx-ai-tab-chat-adapter">([\s\S]*?)<div id="knx-ai-tab-home-intelligence">/i)[1]
+    const homeIntelligence = template.match(/<div id="knx-ai-tab-home-intelligence">([\s\S]*?)<div id="knx-ai-tab-llm-context">/i)[1]
     const aiContext = template.match(/<div id="knx-ai-tab-llm-context">([\s\S]*?)<div id="knx-ai-tab-advanced">/i)[1]
     const advancedAi = template.match(/<div id="knx-ai-tab-advanced">([\s\S]*?)<\/div>\s*<\/div>\s*$/i)[1]
 
@@ -709,6 +749,14 @@ describe('KNX AI conversational control', () => {
     expect(chatAdapter).to.include('id="node-input-chatAdapterPreset"')
     expect(chatAdapter).to.include('id="node-input-chatInputCode"')
     expect(chatAdapter).to.include('id="node-input-chatOutputCode"')
+    expect(homeIntelligence).to.include('id="node-input-proactiveEnabled"')
+    expect(homeIntelligence).to.include('id="node-input-proactiveRecipient"')
+    expect(homeIntelligence).to.include('id="node-input-proactiveOpenMinutes"')
+    expect(homeIntelligence).to.include('id="node-input-proactiveQuietStart"')
+    expect(homeIntelligence).to.include('id="node-input-proactiveQuietEnd"')
+    expect(homeIntelligence).to.include('id="node-input-proactiveCooldownMinutes"')
+    expect(homeIntelligence).to.include('id="node-input-homeMemoryMaxKb"')
+    expect(homeIntelligence).to.include('id="node-input-aiEducation"')
     expect(editor).to.include('width: 100% !important;')
     expect(editor).to.include('max-width: none !important;')
     expect(aiContext).to.include('id="node-input-llmSystemPrompt"')
@@ -729,14 +777,22 @@ describe('KNX AI conversational control', () => {
       'node-input-llmBaseUrl',
       'node-input-chatAdapterPreset',
       'node-input-chatInputCode',
-      'node-input-chatOutputCode'
+      'node-input-chatOutputCode',
+      'node-input-proactiveEnabled',
+      'node-input-proactiveRecipient',
+      'node-input-proactiveOpenMinutes',
+      'node-input-proactiveQuietStart',
+      'node-input-proactiveQuietEnd',
+      'node-input-proactiveCooldownMinutes',
+      'node-input-homeMemoryMaxKb',
+      'node-input-aiEducation'
     ]
     uniqueFieldIds.forEach(id => {
       expect((template.match(new RegExp(`id="${id}"`, 'g')) || [])).to.have.length(1)
     })
   })
 
-  it('preserves saved configuration through an untouched tabbed-editor round trip', () => {
+  it('preserves saved configuration through an untouched accordion-editor round trip', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     const inlineScript = editor.match(/<script type="text\/javascript">([\s\S]*?)<\/script>/)[1]
@@ -767,7 +823,7 @@ describe('KNX AI conversational control', () => {
           prop: () => element,
           removeClass: () => element,
           show: () => element,
-          tabs: () => element,
+          accordion: () => element,
           text: () => element,
           toggle: () => element,
           val: function (value) {
@@ -814,6 +870,14 @@ describe('KNX AI conversational control', () => {
       chatAdapterPreset: 'windkh-telegrambot',
       chatInputCode: 'msg.topic = "ask"; return msg;',
       chatOutputCode: 'return msg;',
+      proactiveEnabled: true,
+      proactiveRecipient: '123456789',
+      proactiveOpenMinutes: 90,
+      proactiveCooldownMinutes: 300,
+      proactiveQuietStart: '22:30',
+      proactiveQuietEnd: '06:45',
+      homeMemoryMaxKb: 192,
+      aiEducation: 'La persiana dello studio può restare aperta.',
       analysisWindowSec: 240,
       historyWindowSec: 1200
     }

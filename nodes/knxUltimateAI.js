@@ -5,6 +5,23 @@ const fs = require('fs')
 const path = require('path')
 const { spawn } = require('child_process')
 const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
+const {
+  HOME_MEMORY_MAX_EDUCATION_CHARS,
+  HOME_MEMORY_MAX_SEMANTIC_OBJECTS,
+  addBoundedKnxAiNotification,
+  addBoundedKnxAiObservation,
+  buildKnxAiHomeMemoryMarkdown,
+  buildKnxAiProactiveFallback,
+  clampHomeMemoryKb,
+  classifyKnxAiOpenState,
+  createEmptyKnxAiHomeMemory,
+  enrichKnxAiHomeCatalog,
+  isKnxAiQuietTime,
+  normalizeKnxAiHomeMemory,
+  normalizeHomeLanguage,
+  parseKnxAiHomeMemoryMarkdown,
+  updateKnxAiCoverHabit
+} = require('./utils/knxAiHomeMemory')
 let googleTranslateTTS = null
 try {
   googleTranslateTTS = require('google-translate-tts')
@@ -5036,6 +5053,14 @@ module.exports = function (RED) {
     node.chatAdapterPreset = String(config.chatAdapterPreset || 'none')
     node.chatInputCode = String(config.chatInputCode || '')
     node.chatOutputCode = String(config.chatOutputCode || '')
+    node.proactiveEnabled = config.proactiveEnabled !== undefined ? coerceBoolean(config.proactiveEnabled) : false
+    node.proactiveRecipient = String(config.proactiveRecipient || '').trim()
+    node.proactiveOpenMinutes = Math.max(1, Math.min(1440, Number(config.proactiveOpenMinutes) || 120))
+    node.proactiveCooldownMinutes = Math.max(5, Math.min(10080, Number(config.proactiveCooldownMinutes) || 360))
+    node.proactiveQuietStart = String(config.proactiveQuietStart || '23:00').trim()
+    node.proactiveQuietEnd = String(config.proactiveQuietEnd || '07:00').trim()
+    node.homeMemoryMaxKb = clampHomeMemoryKb(config.homeMemoryMaxKb)
+    node.aiEducation = String(config.aiEducation || '').slice(0, HOME_MEMORY_MAX_EDUCATION_CHARS)
 
     const pushStatus = (status) => {
       if (!status) return
@@ -5122,6 +5147,16 @@ module.exports = function (RED) {
     node._gaLabelCsvCache = { ref: null, map: {} }
     node._busConnectionWatchTimer = null
     node._historyDiskLastPruneAt = 0
+    node._homeMemory = createEmptyKnxAiHomeMemory()
+    node._homeMemoryWriteTimer = null
+    node._homeMemoryPeriodicTimer = null
+    node._proactiveCheckTimer = null
+    node._proactiveStates = new Map()
+    node._proactiveInFlight = new Set()
+    node._proactiveGlobalSentAt = []
+    node._homeCatalogByGa = null
+    node._homeCatalogSnapshotRef = null
+    node._closing = false
     node._busConnectionState = (node.serverKNX && typeof node.serverKNX.linkStatus === 'string')
       ? String(node.serverKNX.linkStatus).toLowerCase()
       : 'unknown'
@@ -6234,6 +6269,7 @@ module.exports = function (RED) {
       const wantsFunctionNodeSourceContext = node.llmIncludeFlowContext && shouldIncludeFunctionNodeSourceContext(question)
       const areasSnapshot = buildAreasSnapshot({ summary })
       const areasContext = buildAreasPromptContext(areasSnapshot)
+      const homeMemoryContext = getHomeMemoryPromptContext({ maxChars: compactMode ? 2200 : 6000 })
       const summaryForPrompt = buildLlmSummarySnapshot(summary)
       const summaryText = truncatePromptText(safeStringify(summaryForPrompt), compactMode ? 4000 : 10000)
       const lines = recent.map(t => {
@@ -6315,6 +6351,8 @@ module.exports = function (RED) {
         '',
         areasContext || '',
         areasContext ? '' : '',
+        homeMemoryContext || '',
+        homeMemoryContext ? '' : '',
         flowContext ? 'Node-RED context:' : '',
         flowContext || '',
         flowContext ? '' : '',
@@ -6355,10 +6393,10 @@ module.exports = function (RED) {
       if (node._gaCatalogCache && node._gaCatalogCache.ref === csv && node._gaCatalogCache.roleOverridesKey === roleOverridesKey && Array.isArray(node._gaCatalogCache.snapshot)) {
         return node._gaCatalogCache.snapshot
       }
-      const snapshot = applyGaRoleOverridesToCatalog({
+      const snapshot = enrichKnxAiHomeCatalog(applyGaRoleOverridesToCatalog({
         catalog: buildGaCatalogFromCsv(csv),
         roleOverrides
-      })
+      }))
       node._gaCatalogCache = { ref: csv, roleOverridesKey, snapshot }
       return snapshot
     }
@@ -6385,6 +6423,147 @@ module.exports = function (RED) {
     }
 
     const getHistoryArchiveFile = (dayKey) => path.join(getHistoryArchiveDir(), `${String(dayKey || '').trim() || formatArchiveDayKey(Date.now())}.jsonl`)
+
+    const getHomeMemoryFile = () => {
+      const baseDir = (node.serverKNX && node.serverKNX.userDir)
+        ? node.serverKNX.userDir
+        : path.join(RED.settings.userDir, 'knxultimatestorage')
+      return path.join(baseDir, 'knxai', 'memory', `knxai-home-memory-${node.id}.md`)
+    }
+
+    const cleanupHomeMemoryTempFiles = () => {
+      try {
+        const filePath = getHomeMemoryFile()
+        const dirPath = path.dirname(filePath)
+        if (!fs.existsSync(dirPath)) return
+        const prefix = `${path.basename(filePath)}.tmp-`
+        fs.readdirSync(dirPath)
+          .filter(name => String(name).startsWith(prefix))
+          .forEach(name => {
+            try { fs.unlinkSync(path.join(dirPath, name)) } catch (error) { /* ignore */ }
+          })
+      } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI home memory temporary-file cleanup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      }
+    }
+
+    const getHomeCatalogMap = () => {
+      const snapshot = getGaCatalogSnapshot()
+      if (node._homeCatalogSnapshotRef === snapshot && node._homeCatalogByGa instanceof Map) return node._homeCatalogByGa
+      node._homeCatalogSnapshotRef = snapshot
+      node._homeCatalogByGa = new Map(snapshot.map(item => [String(item && item.ga ? item.ga : '').trim(), item]))
+      return node._homeCatalogByGa
+    }
+
+    const synchronizeHomeMemorySemanticObjects = () => {
+      const semanticObjects = getGaCatalogSnapshot()
+        .filter(item => item && item.semantic && item.semantic.kind !== 'unknown')
+        .sort((a, b) => Number(b.semantic.confidence || 0) - Number(a.semantic.confidence || 0))
+        .slice(0, HOME_MEMORY_MAX_SEMANTIC_OBJECTS)
+        .map(item => ({
+          ga: item.ga,
+          dpt: item.dpt,
+          label: item.label || item.etsName || item.ga,
+          kind: item.semantic.kind,
+          area: item.semantic.area || '',
+          role: item.role || 'neutral',
+          confidence: Number(item.semantic.confidence || 0)
+        }))
+      node._homeMemory.semanticObjects = semanticObjects
+      node._homeMemory.updatedAt = new Date().toISOString()
+    }
+
+    const persistHomeMemoryNow = () => {
+      try {
+        synchronizeHomeMemorySemanticObjects()
+        const rendered = buildKnxAiHomeMemoryMarkdown({
+          memory: node._homeMemory,
+          education: node.aiEducation,
+          maxKb: node.homeMemoryMaxKb
+        })
+        node._homeMemory = rendered.memory
+        const filePath = getHomeMemoryFile()
+        const dirPath = path.dirname(filePath)
+        if (!ensureDirectorySync(dirPath)) throw new Error(`Unable to create ${dirPath}`)
+        const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`
+        try {
+          fs.writeFileSync(tempPath, rendered.markdown, 'utf8')
+          fs.renameSync(tempPath, filePath)
+        } catch (error) {
+          try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath) } catch (cleanupError) { /* ignore */ }
+          throw error
+        }
+        return {
+          filePath,
+          bytes: rendered.bytes,
+          maxBytes: rendered.maxBytes
+        }
+      } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI home memory write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        return null
+      }
+    }
+
+    const scheduleHomeMemoryPersist = ({ immediate = false } = {}) => {
+      if (node._homeMemoryWriteTimer) {
+        clearTimeout(node._homeMemoryWriteTimer)
+        node._homeMemoryWriteTimer = null
+      }
+      if (immediate) return persistHomeMemoryNow()
+      node._homeMemoryWriteTimer = setTimeout(() => {
+        node._homeMemoryWriteTimer = null
+        persistHomeMemoryNow()
+      }, 1500)
+      return null
+    }
+
+    const loadHomeMemoryFromDisk = () => {
+      const filePath = getHomeMemoryFile()
+      try {
+        cleanupHomeMemoryTempFiles()
+        if (!fs.existsSync(filePath)) {
+          node._homeMemory = createEmptyKnxAiHomeMemory()
+          return scheduleHomeMemoryPersist({ immediate: true })
+        }
+        const stat = fs.statSync(filePath)
+        const absoluteReadLimit = 4 * 1024 * 1024
+        if (Number(stat.size || 0) > absoluteReadLimit) {
+          throw new Error(`memory file exceeds the safe read limit (${absoluteReadLimit} bytes)`)
+        }
+        node._homeMemory = normalizeKnxAiHomeMemory(parseKnxAiHomeMemoryMarkdown(fs.readFileSync(filePath, 'utf8')))
+        return scheduleHomeMemoryPersist({ immediate: true })
+      } catch (error) {
+        node._homeMemory = createEmptyKnxAiHomeMemory()
+        try { node.sysLogger?.warn(`KNX AI home memory load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        return scheduleHomeMemoryPersist({ immediate: true })
+      }
+    }
+
+    const getHomeMemoryPromptContext = ({ maxChars = 6000 } = {}) => {
+      const memory = normalizeKnxAiHomeMemory(node._homeMemory)
+      const education = String(node.aiEducation || '').trim().slice(0, HOME_MEMORY_MAX_EDUCATION_CHARS)
+      const habitLines = memory.habits.slice(-20).map(item => {
+        return `- ${item.label || item.ga}: average open ${Number(item.averageMinutes || 0).toFixed(1)} min (${Number(item.samples || 0)} samples), last ${Number(item.lastMinutes || 0).toFixed(1)} min`
+      })
+      const observationLines = memory.observations.slice(-20).map(item => {
+        return `- ${item.at || ''} ${item.label || item.ga || ''}: ${item.event || item.value || item.type || ''}`
+      })
+      const educationContext = [
+        'USER-MANAGED AI EDUCATION (authoritative; never rewrite or contradict it):',
+        education || '(none)'
+      ].join('\n')
+      const learnedContext = [
+        'BOUNDED LEARNED HOME MEMORY:',
+        habitLines.length ? habitLines.join('\n') : '(no stable habits learned yet)',
+        observationLines.length ? `\nRecent significant observations:\n${observationLines.join('\n')}` : ''
+      ].join('\n')
+      const targetChars = Math.max(500, Number(maxChars) || 6000)
+      const remainingChars = Math.max(0, targetChars - educationContext.length - 2)
+      return [
+        educationContext,
+        remainingChars > 0 ? truncatePromptText(learnedContext, remainingChars) : ''
+      ].filter(Boolean).join('\n\n')
+    }
 
     const pruneHistoryArchiveFiles = ({ force = false } = {}) => {
       if (node.historyStoreToDisk !== true) return
@@ -8593,11 +8772,15 @@ module.exports = function (RED) {
         const role = String(item && item.role ? item.role : 'neutral').trim()
         const dpt = String(item && item.dpt ? item.dpt : '').trim() || '?'
         const label = String(item && item.label ? item.label : item && item.ga ? item.ga : '').trim()
+        const semantic = item && item.semantic && typeof item.semantic === 'object' ? item.semantic : {}
         const valueOptions = (Array.isArray(item && item.valueOptions) ? item.valueOptions : [])
           .slice(0, 20)
           .map(option => `${option.value}=${option.label}`)
           .join(', ')
-        return `${item.ga} | dpt ${dpt} | role ${role} | ${label}${valueOptions ? ` | values ${valueOptions}` : ''}`
+        const semanticText = semantic.kind && semantic.kind !== 'unknown'
+          ? ` | semantic ${semantic.kind}${semantic.area ? `/${semantic.area}` : ''} confidence=${Number(semantic.confidence || 0).toFixed(2)}`
+          : ''
+        return `${item.ga} | dpt ${dpt} | role ${role} | ${label}${semanticText}${valueOptions ? ` | values ${valueOptions}` : ''}`
       })
       const conversationLines = history.flatMap(turn => [
         `User: ${turn.question}`,
@@ -8628,6 +8811,8 @@ module.exports = function (RED) {
         history.length ? 'RECENT CONVERSATION:' : '',
         history.length ? conversationLines.join('\n') : '',
         history.length ? '' : '',
+        getHomeMemoryPromptContext({ maxChars: 6000 }),
+        '',
         analysisContext,
         '',
         `AVAILABLE KNX OBJECTS (showing ${Math.min(catalog.length, gaLimit)} of ${catalog.length}; every exact object may be read, but only role command may be written):`,
@@ -9136,6 +9321,267 @@ module.exports = function (RED) {
       node._gaState.set(ga, state)
     }
 
+    const rememberHomeOwner = ({ sessionId, language } = {}) => {
+      try {
+        const normalizedSessionId = String(sessionId || '').trim()
+        if (normalizedSessionId && normalizedSessionId !== 'default') {
+          node._homeMemory.ownerSessionId = normalizedSessionId
+        }
+        if (language) node._homeMemory.ownerLanguage = normalizeHomeLanguage(language)
+        scheduleHomeMemoryPersist()
+      } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI home owner memory error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      }
+    }
+
+    const recordProactiveObservation = ({ catalogItem, telegram, event }) => {
+      const semantic = catalogItem && catalogItem.semantic ? catalogItem.semantic : {}
+      node._homeMemory = addBoundedKnxAiObservation(node._homeMemory, {
+        at: new Date(Number(telegram.ts || nowMs())).toISOString(),
+        type: 'semantic_state_change',
+        event,
+        ga: catalogItem.ga,
+        dpt: catalogItem.dpt,
+        label: catalogItem.label || telegram.devicename || catalogItem.ga,
+        kind: semantic.kind || '',
+        area: semantic.area || '',
+        value: normalizeValueForCompare(telegram.payload)
+      })
+      scheduleHomeMemoryPersist()
+    }
+
+    const processProactiveTelegram = (telegram) => {
+      if (!telegram || !telegram.destination) return
+      const catalogItem = getHomeCatalogMap().get(String(telegram.destination).trim())
+      if (!catalogItem || !catalogItem.semantic) return
+      const openState = classifyKnxAiOpenState({
+        semantic: catalogItem.semantic,
+        dpt: telegram.dpt || catalogItem.dpt,
+        payload: telegram.payload,
+        valueOptions: catalogItem.valueOptions
+      })
+      if (!openState || Number(openState.confidence || 0) < 0.7) return
+      const ga = String(catalogItem.ga || telegram.destination).trim()
+      const now = Number(telegram.ts || nowMs())
+      const previous = node._proactiveStates.get(ga)
+      if (openState.open) {
+        if (previous && previous.open === true) {
+          previous.lastSeenAt = now
+          previous.value = openState.value
+          node._proactiveStates.set(ga, previous)
+          return
+        }
+        const lastNotification = normalizeKnxAiHomeMemory(node._homeMemory).notifications
+          .filter(item => item && item.ga === ga)
+          .sort((a, b) => String(a.at || '').localeCompare(String(b.at || '')))
+          .pop()
+        node._proactiveStates.set(ga, {
+          ga,
+          open: true,
+          openedAt: now,
+          lastSeenAt: now,
+          lastSentAt: lastNotification ? Date.parse(lastNotification.at || '') || 0 : 0,
+          value: openState.value,
+          confidence: openState.confidence,
+          catalogItem
+        })
+        recordProactiveObservation({
+          catalogItem,
+          telegram,
+          event: openState.reason || 'opened'
+        })
+        return
+      }
+      if (previous && previous.open === true) {
+        const durationMinutes = Math.max(0, (now - Number(previous.openedAt || now)) / 60000)
+        node._homeMemory = updateKnxAiCoverHabit(node._homeMemory, {
+          ga,
+          label: catalogItem.label || ga,
+          area: catalogItem.semantic.area || '',
+          durationMinutes,
+          at: new Date(now).toISOString()
+        })
+        recordProactiveObservation({
+          catalogItem,
+          telegram,
+          event: `${openState.reason || 'closed'} after ${durationMinutes.toFixed(1)} minutes`
+        })
+      }
+      node._proactiveStates.set(ga, {
+        ga,
+        open: false,
+        openedAt: 0,
+        lastSeenAt: now,
+        lastSentAt: previous ? Number(previous.lastSentAt || 0) : 0,
+        value: openState.value,
+        confidence: openState.confidence,
+        catalogItem
+      })
+    }
+
+    const createProactiveNotificationText = async ({ state, durationMinutes, language }) => {
+      const label = state.catalogItem.label || state.ga
+      const fallback = buildKnxAiProactiveFallback({ language, label, durationMinutes })
+      const hasAuthoritativeEducation = String(node.aiEducation || '').trim() !== ''
+      if (node.llmEnabled !== true) {
+        return hasAuthoritativeEducation
+          ? { notify: false, content: '' }
+          : { notify: true, content: fallback }
+      }
+      try {
+        const ret = await callLLMChat({
+          systemPrompt: [
+            'You decide whether to send one concise proactive smart-home notification.',
+            `Use language ${normalizeHomeLanguage(language)}.`,
+            'Return JSON only with exactly: {"notify":boolean,"message":"text"}.',
+            'Set notify=false when the authoritative user-managed AI Education says this condition is normal, allowed, unwanted, or should not generate a notification.',
+            'When notify=false, set message to an empty string.',
+            'Do not claim that a KNX command was sent or that an actuator changed.',
+            'The message must not contain Markdown, lists, addresses, DPTs, or technical details.',
+            'Explain the observed condition and end by asking whether the user wants help.',
+            'The user-managed AI Education is authoritative.'
+          ].join('\n'),
+          userContent: [
+            getHomeMemoryPromptContext({ maxChars: 3500 }),
+            '',
+            `Observed object: ${label}`,
+            `Semantic type: ${state.catalogItem.semantic.kind}`,
+            `Semantic area: ${state.catalogItem.semantic.area || 'unknown'}`,
+            `Condition duration: ${Math.max(1, Math.round(durationMinutes))} minutes`,
+            'Return the JSON decision now.'
+          ].join('\n'),
+          jsonSchema: {
+            name: 'knx_ai_proactive_decision',
+            strict: true,
+            schema: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                notify: { type: 'boolean' },
+                message: { type: 'string' }
+              },
+              required: ['notify', 'message']
+            }
+          },
+          maxTokensOverride: 2000
+        })
+        const decision = extractJsonFragmentFromText(ret && ret.content)
+        if (!decision || typeof decision !== 'object' || Array.isArray(decision) || typeof decision.notify !== 'boolean') {
+          throw new Error('The proactive decision is not a valid JSON object')
+        }
+        if (decision.notify === false) return { notify: false, content: '' }
+        const candidate = String(decision.message || '').trim()
+        if (!candidate || candidate.length > 1200 || candidate.startsWith('{') || candidate.startsWith('```')) {
+          return { notify: true, content: fallback }
+        }
+        return { notify: true, content: candidate }
+      } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI proactive wording fallback: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        return hasAuthoritativeEducation
+          ? { notify: false, content: '' }
+          : { notify: true, content: fallback }
+      }
+    }
+
+    const emitProactiveNotification = async ({ state, durationMinutes }) => {
+      if (node._closing === true) return false
+      const recipient = String(node.proactiveRecipient || node._homeMemory.ownerSessionId || '').trim()
+      if (node.chatAdapterPreset === 'windkh-telegrambot' && !recipient) return false
+      const language = normalizeHomeLanguage(node._homeMemory.ownerLanguage || node.llmDocsLanguage || 'en')
+      const notification = await createProactiveNotificationText({ state, durationMinutes, language })
+      if (!notification.notify) return 'suppressed'
+      const content = notification.content
+      if (node._closing === true) return false
+      const syntheticInputMessage = {
+        topic: 'proactive',
+        payload: Object.assign({
+          type: 'message',
+          content: ''
+        }, recipient ? { chatId: recipient } : {}),
+        sessionId: recipient || 'proactive',
+        language,
+        knxAi: {
+          type: 'proactive_observation',
+          destination: state.ga
+        }
+      }
+      const metadata = {
+        type: 'proactive_notification',
+        reason: 'open_too_long',
+        destination: state.ga,
+        dpt: state.catalogItem.dpt,
+        label: state.catalogItem.label || state.ga,
+        semantic: state.catalogItem.semantic,
+        openedAt: new Date(state.openedAt).toISOString(),
+        durationMinutes: Number(durationMinutes.toFixed(1)),
+        recipient,
+        sessionId: recipient || 'proactive',
+        language,
+        requiresConfirmationForCommands: true
+      }
+      const replyMessage = buildKnxAiReplyMessage({
+        inputMessage: syntheticInputMessage,
+        content,
+        metadata
+      })
+      if (!sendKnxAiOutputs([null, null, replyMessage, null], syntheticInputMessage)) return false
+      node._homeMemory = addBoundedKnxAiNotification(node._homeMemory, {
+        at: new Date().toISOString(),
+        type: 'proactive_notification',
+        reason: 'open_too_long',
+        ga: state.ga,
+        dpt: state.catalogItem.dpt,
+        label: state.catalogItem.label || state.ga,
+        durationMinutes: Number(durationMinutes.toFixed(1)),
+        recipient
+      })
+      rememberConversationTurn({
+        sessionId: recipient || 'proactive',
+        question: '[Proactive home observation]',
+        reply: content
+      })
+      scheduleHomeMemoryPersist({ immediate: true })
+      return true
+    }
+
+    const checkProactiveHomeState = () => {
+      if (node._closing === true || node.proactiveEnabled !== true) return
+      if (isKnxAiQuietTime({
+        date: new Date(),
+        start: node.proactiveQuietStart,
+        end: node.proactiveQuietEnd
+      })) return
+      const now = nowMs()
+      const thresholdMs = node.proactiveOpenMinutes * 60 * 1000
+      const cooldownMs = node.proactiveCooldownMinutes * 60 * 1000
+      node._proactiveGlobalSentAt = node._proactiveGlobalSentAt.filter(ts => (now - ts) < (60 * 60 * 1000))
+      if (node._proactiveGlobalSentAt.length >= 3) return
+      const candidate = Array.from(node._proactiveStates.values())
+        .filter(state => {
+          if (!state || state.open !== true || node._proactiveInFlight.has(state.ga)) return false
+          if ((now - Number(state.openedAt || now)) < thresholdMs) return false
+          if (Number(state.lastSentAt || 0) > 0 && (now - Number(state.lastSentAt)) < cooldownMs) return false
+          return true
+        })
+        .sort((a, b) => Number(a.openedAt || 0) - Number(b.openedAt || 0))[0]
+      if (!candidate) return
+      candidate.lastSentAt = now
+      node._proactiveInFlight.add(candidate.ga)
+      const durationMinutes = Math.max(1, (now - Number(candidate.openedAt || now)) / 60000)
+      Promise.resolve(emitProactiveNotification({ state: candidate, durationMinutes }))
+        .then(result => {
+          if (result === true) node._proactiveGlobalSentAt.push(now)
+          else if (result !== 'suppressed') candidate.lastSentAt = 0
+        })
+        .catch(error => {
+          candidate.lastSentAt = 0
+          try { node.sysLogger?.warn(`KNX AI proactive notification error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        })
+        .finally(() => {
+          node._proactiveInFlight.delete(candidate.ga)
+        })
+    }
+
     // Called by knxUltimate-config.js
     node.handleSend = (msg) => {
       try {
@@ -9149,6 +9595,7 @@ module.exports = function (RED) {
         trimHistory(now)
         maybeEmitGAAnomalies(telegram)
         maybeEmitOverallAnomaly(now)
+        processProactiveTelegram(telegram)
         scheduleRealtimeSummaryRebuild()
       } catch (error) {
         try { node.sysLogger?.error(`knxUltimateAI handleSend error: ${error.message || error}`) } catch (e) { /* ignore */ }
@@ -9174,6 +9621,11 @@ module.exports = function (RED) {
           node._lastSummaryAt = 0
           node._conversationSessions = new Map()
           node._pendingKnxCommands = new Map()
+          node._homeMemory = createEmptyKnxAiHomeMemory()
+          node._proactiveStates = new Map()
+          node._proactiveInFlight = new Set()
+          node._proactiveGlobalSentAt = []
+          scheduleHomeMemoryPersist({ immediate: true })
           if (node._summaryRebuildTimer) {
             clearTimeout(node._summaryRebuildTimer)
             node._summaryRebuildTimer = null
@@ -9225,6 +9677,7 @@ module.exports = function (RED) {
             const readCommands = preparedCommands.filter(command => command && command.event === 'GroupValue_Read')
             const writeCommands = preparedCommands.filter(command => !command || command.event !== 'GroupValue_Read')
             const language = resolveKnxAiLanguage(msg, node.llmDocsLanguage || 'en', question, ret.language)
+            rememberHomeOwner({ sessionId, language })
             const copy = getKnxAiConfirmationCopy(language)
             const awaitingConfirmation = node.llmAllowKnxCommands &&
               node.llmRequireCommandConfirmation &&
@@ -9542,8 +9995,16 @@ module.exports = function (RED) {
 
     node.on('close', function (done) {
       try {
+        node._closing = true
         if (node._timerEmit) clearInterval(node._timerEmit)
         if (node._busConnectionWatchTimer) clearInterval(node._busConnectionWatchTimer)
+        if (node._homeMemoryPeriodicTimer) clearInterval(node._homeMemoryPeriodicTimer)
+        if (node._proactiveCheckTimer) clearInterval(node._proactiveCheckTimer)
+        if (node._homeMemoryWriteTimer) {
+          clearTimeout(node._homeMemoryWriteTimer)
+          node._homeMemoryWriteTimer = null
+        }
+        persistHomeMemoryNow()
         if (node._summaryRebuildTimer) {
           clearTimeout(node._summaryRebuildTimer)
           node._summaryRebuildTimer = null
@@ -9579,9 +10040,22 @@ module.exports = function (RED) {
     try {
       pruneHistoryArchiveFiles({ force: true })
       loadRecentHistoryFromDisk()
+      loadHomeMemoryFromDisk()
     } catch (error) {
       node.sysLogger?.warn(`KNX AI history startup error: ${error.message || error}`)
     }
+
+    if (node._homeMemoryPeriodicTimer) clearInterval(node._homeMemoryPeriodicTimer)
+    node._homeMemoryPeriodicTimer = setInterval(() => {
+      try { persistHomeMemoryNow() } catch (error) { /* persistHomeMemoryNow already guards */ }
+    }, 15 * 60 * 1000)
+
+    if (node._proactiveCheckTimer) clearInterval(node._proactiveCheckTimer)
+    node._proactiveCheckTimer = setInterval(() => {
+      try { checkProactiveHomeState() } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI proactive check error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      }
+    }, 30 * 1000)
 
     if (node._busConnectionWatchTimer) clearInterval(node._busConnectionWatchTimer)
     node._busConnectionWatchTimer = setInterval(() => {

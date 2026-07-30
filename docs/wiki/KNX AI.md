@@ -6,7 +6,7 @@ permalink: /wiki/KNX%20AI
 ---
 This node listens to **all KNX telegrams** from the selected KNX Ultimate gateway, builds traffic statistics, detects anomalies, and can optionally query an LLM.
 
-The editor sections use the same left-hand vertical tabs as the Matter nodes. **Quick setup** contains only the common AI choices (enable, provider, credentials, model, KNX state reads/actuator control and confirmation); technical settings are grouped by topic in the other tabs.
+The editor uses three main accordion sections: **AI assistant** contains setup, knowledge/context and provider limits; **Conversations & home** contains chat channels, proactive home and bounded memory; **KNX traffic analysis** contains bus telegram input, history/summaries and anomalies/patterns. Opening a main section shows all of its related options together. Saved field IDs and values remain unchanged.
 
 ## Outputs
 1. **Summary/Stats** (`msg.payload` JSON)
@@ -19,7 +19,7 @@ Every message emitted by outputs 3 and 4 also contains a clone of the original i
 ## Commands (input)
 Send `msg.topic`:
 - `summary` (or empty): emit summary immediately
-- `reset`: clear internal history/counters
+- `reset`: clear internal history, counters and learned home memory; AI Education remains unchanged
 - `ask`: send a question to the configured LLM
 - `confirm` / `cancel`: confirm or cancel pending KNX commands without calling the LLM
 - `clear_chat`: clear the conversation memory for the current session
@@ -39,6 +39,44 @@ While a plan is pending, output 3 contains `msg.knxAi.confirmationRequest`. The 
 The **Chat adapters** tab loads its selectable mappings from `resources/KNXAIChatAdapterMappings.js`. Selecting a preset inserts two editable synchronous JavaScript mappings in full-width text boxes: one before KNX AI processes an input and one before output 3 is emitted. Return `msg` to continue or no value to discard the message. Syntax and execution failures are caught and reported without stopping Node-RED.
 
 The included **windkh/node-red-contrib-telegrambot** preset follows the package's receiver/sender contract. Connect a `telegram receiver` directly to KNX AI, output 3 directly to a `telegram sender`, and—when inline confirmation buttons are required—connect a `telegram event` configured for `callback_query` to the same KNX AI input. The input mapping extracts `msg.payload.content`, `msg.payload.chatId`, and the Telegram language. The output mapping creates the required `msg.payload.chatId`, `type`, and `content`, adding `options.reply_markup` from `msg.knxAi.confirmationRequest` when writes await confirmation. The Telegram package remains a separate optional dependency.
+
+## Proactive home intelligence and bounded memory
+The **Proactive home & memory** subsection inside **Conversations & home** enables opt-in proactive notifications. From ETS hierarchy, names, roles and DPTs, the node builds a deterministic semantic model for covers, windows, doors, lights, temperature, climate, occupancy and alarms using Italian, English, German, French, Spanish and Chinese terms. The first proactive detector watches only reliably recognized non-command cover/window/door states. After the configured open duration and outside quiet hours, output 3 emits a localized message with `msg.knxAi.type = "proactive_notification"`. It never emits output 4 or changes KNX autonomously; a subsequent user request still uses the normal validation and confirmation workflow.
+
+The most recent chat session is remembered as the owner, or **Primary recipient / chat ID** can set it explicitly. A synthetic `msg.inputMessage` preserves this recipient so the Telegram adapter can send an unsolicited notification. Cooldown and a maximum of three proactive messages per hour prevent flooding.
+
+The learned reference is loaded at startup from `<userDir>/knxai/memory/knxai-home-memory-<node-id>.md`, rewritten atomically every 15 minutes and hard-capped to the configured 64–1,024 KB (256 KB by default). It stores at most 120 significant observations, 80 aggregate habits, 80 notifications and 300 semantic ETS objects—never a raw unlimited telegram stream. Older low-priority entries are removed first. **AI Education** is limited to 16,000 characters and always comes from the node configuration: the AI can read it as authoritative guidance but cannot modify or overwrite it. When Education is present but the LLM cannot evaluate it, the candidate notification is suppressed rather than risking a contradiction.
+
+## Practical configuration example
+This example creates a concise assistant that notifies the owner about relevant openings but accepts that the office cover may stay open:
+
+| Editor field | Example value | Result |
+|---|---|---|
+| **Enable proactive home notifications** (`proactiveEnabled`) | enabled | The node evaluates reliably recognized open cover/window/door states. |
+| **Primary recipient / chat ID** (`proactiveRecipient`) | `123456789` | Unsolicited messages go to this chat. Leave it empty to remember the most recent Ask session. |
+| **Notify after open** (`proactiveOpenMinutes`) | `120` | A candidate notification is considered after two hours. |
+| **Quiet hours start / end** | `23:00` / `07:00` | No proactive message is emitted during the night. |
+| **Repeat cooldown** (`proactiveCooldownMinutes`) | `360` | The same object cannot notify again for six hours. |
+| **Maximum home-memory file** (`homeMemoryMaxKb`) | `256` | The per-node Markdown reference can never exceed 256 KB. |
+
+Example for **AI Education** (`aiEducation`):
+
+```text
+Call me Alex and answer in the same language I use.
+Keep replies short unless I ask for technical details.
+The office cover may remain open during the day: do not notify me about it.
+Notify me when another cover, window, or door remains open unusually long.
+When "living-room light" is ambiguous, ask which light I mean.
+Never say that an actuator changed until a KNX status object confirms it.
+```
+
+With these settings:
+
+1. If the living-room cover status remains open for 120 minutes outside quiet hours, output 3 can emit a localized `proactive_notification`.
+2. If the office cover remains open, the LLM reads Education and suppresses that candidate notification.
+3. If Alex later asks to close the living-room cover, KNX AI prepares the exact ETS command and still follows normal validation and confirmation before output 4.
+
+Use descriptive ETS hierarchy/object names and correct status/command roles. Education can personalize decisions and wording, but it cannot authorize an invented group address, change a DPT, or bypass KNX validation.
 
 ## Quick workflow: KNX control
 1. Import the ETS CSV into the gateway and configure the LLM provider, model, and credentials.
@@ -95,6 +133,13 @@ All fields exposed in the KNX AI editor are listed below.
 - **Adapter preset**: Loads an input/output mapping pair from the packaged chat-adapter file. Selecting a preset intentionally replaces both mapping text boxes; they remain editable afterwards.
 - **Input mapping (chat → KNX AI)**: Synchronous JavaScript applied before input command processing.
 - **Output mapping (KNX AI → chat)**: Synchronous JavaScript applied only to messages on output 3.
+- **Enable proactive home notifications**: Opt-in detector for reliably recognized open cover/window/door states; it never writes autonomously to KNX.
+- **Primary recipient / chat ID**: Optional destination for unsolicited chat messages; otherwise the most recent Ask session is remembered.
+- **Notify after open (minutes)**: Open-duration threshold before a proactive notification can be considered.
+- **Quiet hours start / end**: Daily interval in which proactive messages are suppressed.
+- **AI Education**: User-only, authoritative guidance read by the AI and never modified by it.
+- **Repeat cooldown (minutes)**: Minimum interval before the same object may notify again.
+- **Maximum home-memory file (KB)**: Hard size limit from 64 to 1,024 KB; 256 KB by default.
 - If disk archive is enabled, **Ask** uses the archive by default: explicit dates/ranges are honored, otherwise the assistant searches the last 24 hours plus current RAM events.
 - **Include raw payload hex**: Include raw telegram hex in prompt.
 - **Include Node-RED project inventory**: Include the whole Node-RED project inventory in the prompt, including KNX nodes and other useful nodes such as function/change/inject/template when they contain KNX-related logic or group addresses.
