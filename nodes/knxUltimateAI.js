@@ -214,7 +214,12 @@ const buildKnxAiPackageNodeCatalog = () => {
         const inputsRaw = knxAiMatchAfter(objText, /\binputs\s*:\s*(\d+)/)
         const outputsRaw = knxAiMatchAfter(objText, /\boutputs\s*:\s*(\d+)/)
         let fields = {}
-        const defIdx = objText.search(/\bdefaults\s*:\s*\{/)
+        let defIdx = objText.search(/\bdefaults\s*:\s*\{/)
+        // Profile-driven editors may compose their full Node-RED defaults from
+        // already registered node definitions. They can expose a compact static
+        // catalogDefaults block so the backend Flow Builder still discovers
+        // configuration references and essential persisted fields.
+        if (defIdx < 0) defIdx = objText.search(/\bcatalogDefaults\s*:\s*\{/)
         if (defIdx >= 0) {
           const braceIdx = objText.indexOf('{', defIdx)
           const defaultsBlock = knxAiSliceBalanced(objText, braceIdx)
@@ -10074,6 +10079,7 @@ module.exports = function (RED) {
 }
 
 module.exports.__test = {
+  buildKnxAiPackageNodeCatalog,
   buildKnxAiConfirmationRequest,
   buildKnxAiUniversalMessage,
   classifyKnxAiConfirmation,

@@ -4,6 +4,8 @@ title: "HUE Tapdial"
 lang: es
 permalink: /wiki/es-HUE%20Tapdial
 ---
+> **Obsoleto:** este nodo HUE dedicado sigue disponible para los flujos existentes. Usa **HUE Controller** para proyectos nuevos. Aparece marcado con `(deprecated)` en la paleta y en el lienzo, usa un color más claro que HUE Controller y su editor muestra arriba un aviso de migración. El botón naranja de migración de este editor abre el mismo convertidor de flujo completo disponible en HUE Controller.
+
 El nodo **TAP TAP** mapea el servicio rotativo del dial de toque de tono a KNX y reenvía los eventos de tono bruto a su flujo.Use el icono de actualización junto al campo del dispositivo después de combinar un nuevo dial en el puente.
 
 Pestañas ###

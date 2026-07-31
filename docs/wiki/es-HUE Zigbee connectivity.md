@@ -4,6 +4,8 @@ title: "HUE Zigbee connectivity"
 lang: es
 permalink: /wiki/es-HUE%20Zigbee%20connectivity
 ---
+> **Obsoleto:** este nodo HUE dedicado sigue disponible para los flujos existentes. Usa **HUE Controller** para proyectos nuevos. Aparece marcado con `(deprecated)` en la paleta y en el lienzo, usa un color más claro que HUE Controller y su editor muestra arriba un aviso de migración. El botón naranja de migración de este editor abre el mismo convertidor de flujo completo disponible en HUE Controller.
+
 Este nodo recupera el estado de conectividad Zigbee de un dispositivo de tono y lo expone a KNX. 
 
 Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el campo GA;Aparecen sugerencias mientras escribe.

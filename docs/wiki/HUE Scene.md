@@ -4,6 +4,8 @@ title: "HUE Scene"
 lang: en
 permalink: /wiki/HUE%20Scene
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 The **Hue Scene** node exposes Hue scenes to KNX and can forward the raw Hue events to a Node-RED flow. The scene field supports autocomplete; use the refresh icon after adding scenes on the bridge so the list stays up to date.
 
 ### Tabs at a glance

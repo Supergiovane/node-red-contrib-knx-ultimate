@@ -4,6 +4,8 @@ title: "HUE Light"
 lang: de
 permalink: /wiki/de-HUE%20Light
 ---
+> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton in diesem Editor öffnet denselben vollständigen Flow-Konverter wie HUE Controller.
+
 Dieser Node steuert HUE-Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zustände KNX-Gruppenadressen zu.
 
 **Allgemein**

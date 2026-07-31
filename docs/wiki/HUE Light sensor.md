@@ -4,6 +4,8 @@ title: "HUE Light sensor"
 lang: en
 permalink: /wiki/HUE%20Light%20sensor
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 This node reads lux events from a Hue Light Sensor and maps them to KNX.
 
 It emits the ambient illuminance (lux) each time it changes. Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.

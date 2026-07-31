@@ -6,7 +6,36 @@ permalink: /wiki/it-Matter-Controller-Configuration
 ---
 # Controller Matter
 
-## Panoramica
+<div data-matter-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#241047 0%,#5531a7 55%,#8b5cf6 100%);box-shadow:0 14px 30px rgba(36,16,71,0.25);color:#faf7ff;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#e3d7ff;">Fabric Matter · Commissioning · KNX</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">La tua fabric Matter, sotto il tuo controllo.</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#faf7ff;">Commissiona i dispositivi sulla rete IP e rendi i loro endpoint disponibili a KNX e Node-RED. Associa, monitora, salva e rimuovi da un solo nodo di configurazione.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Fabric locale</strong><span style="font-size:0.76rem;color:#eee7ff;">credenziali private</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">QR + manuale</strong><span style="font-size:0.76rem;color:#eee7ff;">codici di associazione</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Esporta / Importa</strong><span style="font-size:0.76rem;color:#eee7ff;">backup protetto</span></div>
+  </div>
+</div>
+
+## Un Controller per l’intero ciclo di vita
+
+| Area | Cosa comprende |
+|---|---|
+| **Commissioning** | Payload QR Matter, scansione da webcam o immagine, codice manuale e associazione multi-fabric su WiFi, Ethernet o Thread. |
+| **Gestione dispositivi** | Inventario, stato connessione, rimozione sicura e code comandi indipendenti per dispositivo. |
+| **KNX e Node-RED** | Mappatura endpoint, Modalità Universale, comandi dinamici e monitor batterie universale. |
+| **Resilienza e storage** | Fabric persistente, backup/ripristino, blocco dei device non disponibili e recupero automatico. |
+
+## Primi passi in quattro mosse
+
+1. Aggiungi Matter Controller e fai il **deploy**.
+2. Riaprilo e commissiona un dispositivo con il payload QR Matter o il codice manuale.
+3. Aggiungi **Control Matter from KNX**, quindi scegli il dispositivo e il suo profilo.
+4. Mappa gli indirizzi di gruppo KNX oppure abilita i PIN del flow, quindi fai il deploy.
+
+> **Suggerimento:** preferisci il payload QR `MT:...`: contiene il discriminatore completo, mentre il codice manuale a 11 cifre contiene solo quello corto.
+
+## Panoramica tecnica
 
 Questo nodo di configurazione è un **controller Matter** completo: crea una propria *fabric* Matter e vi associa (commissiona) i tuoi dispositivi Matter. I dispositivi associati diventano poi disponibili ai nodi **Matter Device**, che li mappano sugli indirizzi di gruppo KNX.
 

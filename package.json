@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "6.2.2",
+  "version": "6.2.3",
   "description": "KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT, diagnostics with AI, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.",
   "files": [
     "nodes/",
@@ -53,6 +53,7 @@
       "knxUltimateWatchDog": "/nodes/knxUltimateWatchDog.js",
       "knxUltimate-config": "/nodes/knxUltimate-config.js",
       "hueConfig": "/nodes/hue-config.js",
+      "knxUltimateHueController": "/nodes/knxUltimateHueController.js",
       "knxUltimateHueLight": "/nodes/knxUltimateHueLight.js",
       "knxUltimateMatterControllerDevice": "/nodes/knxUltimateMatterControllerDevice.js",
       "knxUltimateHueButton": "/nodes/knxUltimateHueButton.js",
@@ -108,8 +109,10 @@
     "build": "npm run knx-ai:build && npm run knx-viewer:build",
     "prepack": "npm run knx-ai:build && npm run knx-viewer:build",
     "prepublishOnly": "npm run build",
-    "test": "DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
+    "test": "npm run hue-controller:check && DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
     "test:unit": "mocha \"test/**/*.test.js\"",
+    "hue-controller:generate": "node scripts/generate-hue-controller-profiles.js",
+    "hue-controller:check": "node scripts/generate-hue-controller-profiles.js --check",
     "avviaquesto-itest:light": "node test/integration/hueLiveTest.mjs",
     "avviaquesto-itest:matterlight": "node test/integration/matterLiveTest.mjs",
     "avviaquesto-itest:nodered-knx": "node test/integration/nodeRedLiveTest.mjs",

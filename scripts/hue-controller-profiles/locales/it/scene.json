@@ -1,0 +1,41 @@
+{
+  "knxUltimateHueScene": {
+    "title": "Nodo Scena HUE",
+    "paletteLabel": "Hue Scena",
+    "hue_scene": "Scena HUE",
+    "recall_as": "Richiama come",
+    "recall_active": "Richiama come Attiva",
+    "recall_dynamic": "Richiama come Dinamica",
+    "recall_static": "Richiama come Statica",
+    "recall": "Richiama",
+    "status": "Stato",
+    "scene_selector": "Selettore scena",
+    "knx_scene_n": "Scena KNX n.",
+    "node_pins": "PIN di input/output del nodo",
+    "node_pins_hide": "Nascondi PIN",
+    "node_pins_show": "Mostra i PIN di input/output",
+    "tabs": {
+      "single": "Scena singola",
+      "multi": "Multi scena",
+      "behaviour": "Comportamento"
+    },
+    "single_info": "Seleziona la scena Hue e scegli come richiamarla quando viene attivato l'indirizzo KNX.",
+    "mapping_info": "Mappa gli indirizzi KNX che richiamano la scena o ne riportano lo stato attuale.",
+    "multi_info": "Associa i numeri scena KNX alle scene Hue. Ogni regola richiama una scena diversa.",
+    "behaviour_info": "Decidi se mantenere visibile il pin di output di Node-RED quando la consegna KNX è disattivata.",
+    "status_ga": "GA stato",
+    "output_info": "Senza gateway KNX l'uscita verso il flow rimane attiva per continuare a ricevere gli eventi Hue.",
+    "no_scenes": "Nessuna scena Hue trovata. Usa l'icona di aggiornamento dopo averne aggiunte di nuove.",
+    "multi_scene_placeholder": "Nome scena Hue"
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nome",
+    "youtube_sample": "Esempio YouTube",
+    "knx_gw": "Gateway KNX",
+    "hue_bridge": "Hue Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Leggi"
+  }
+}

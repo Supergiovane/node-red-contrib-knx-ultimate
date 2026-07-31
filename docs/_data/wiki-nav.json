@@ -149,78 +149,8 @@
           "external": false
         },
         {
-          "label": "Light",
-          "url": "/wiki/HUE%20Light",
-          "external": false
-        },
-        {
-          "label": "Battery",
-          "url": "/wiki/HUE%20Battery",
-          "external": false
-        },
-        {
-          "label": "Button",
-          "url": "/wiki/HUE%20Button",
-          "external": false
-        },
-        {
-          "label": "Contact",
-          "url": "/wiki/HUE%20Contact%20sensor",
-          "external": false
-        },
-        {
-          "label": "Device SW update",
-          "url": "/wiki/HUE%20Device%20software%20update",
-          "external": false
-        },
-        {
-          "label": "Light sensor",
-          "url": "/wiki/HUE%20Light%20sensor",
-          "external": false
-        },
-        {
-          "label": "Motion",
-          "url": "/wiki/HUE%20Motion",
-          "external": false
-        },
-        {
-          "label": "Motion area",
-          "url": "/wiki/HUE%20Motion%20area",
-          "external": false
-        },
-        {
-          "label": "Humidity",
-          "url": "/wiki/HUE%20Humidity%20sensor",
-          "external": false
-        },
-        {
-          "label": "Plug",
-          "url": "/wiki/HUE%20Plug",
-          "external": false
-        },
-        {
-          "label": "Camera motion",
-          "url": "/wiki/HUE%20Camera%20motion",
-          "external": false
-        },
-        {
-          "label": "Scene",
-          "url": "/wiki/HUE%20Scene",
-          "external": false
-        },
-        {
-          "label": "Tap Dial",
-          "url": "/wiki/HUE%20Tapdial",
-          "external": false
-        },
-        {
-          "label": "Temperature",
-          "url": "/wiki/HUE%20Temperature%20sensor",
-          "external": false
-        },
-        {
-          "label": "Zigbee connectivity",
-          "url": "/wiki/HUE%20Zigbee%20connectivity",
+          "label": "HUE Controller",
+          "url": "/wiki/HUE%20Controller",
           "external": false
         }
       ]
@@ -576,78 +506,8 @@
           "external": false
         },
         {
-          "label": "Luce",
-          "url": "/wiki/it-HUE%20Light",
-          "external": false
-        },
-        {
-          "label": "Batteria",
-          "url": "/wiki/it-HUE%20Battery",
-          "external": false
-        },
-        {
-          "label": "Pulsante",
-          "url": "/wiki/it-HUE%20Button",
-          "external": false
-        },
-        {
-          "label": "Contatto",
-          "url": "/wiki/it-HUE%20Contact%20sensor",
-          "external": false
-        },
-        {
-          "label": "Aggiornamento SW",
-          "url": "/wiki/it-HUE%20Device%20software%20update",
-          "external": false
-        },
-        {
-          "label": "Sensore Luce",
-          "url": "/wiki/it-HUE%20Light%20sensor",
-          "external": false
-        },
-        {
-          "label": "Movimento",
-          "url": "/wiki/it-HUE%20Motion",
-          "external": false
-        },
-        {
-          "label": "Area movimento",
-          "url": "/wiki/it-HUE%20Motion%20area",
-          "external": false
-        },
-        {
-          "label": "Umidità",
-          "url": "/wiki/it-HUE%20Humidity%20sensor",
-          "external": false
-        },
-        {
-          "label": "Presa",
-          "url": "/wiki/it-HUE%20Plug",
-          "external": false
-        },
-        {
-          "label": "Movimento camera",
-          "url": "/wiki/it-HUE%20Camera%20motion",
-          "external": false
-        },
-        {
-          "label": "Scena",
-          "url": "/wiki/it-HUE%20Scene",
-          "external": false
-        },
-        {
-          "label": "Tap Dial",
-          "url": "/wiki/it-HUE%20Tapdial",
-          "external": false
-        },
-        {
-          "label": "Temperatura",
-          "url": "/wiki/it-HUE%20Temperature%20sensor",
-          "external": false
-        },
-        {
-          "label": "Connettività Zigbee",
-          "url": "/wiki/it-HUE%20Zigbee%20connectivity",
+          "label": "HUE Controller",
+          "url": "/wiki/it-HUE%20Controller",
           "external": false
         }
       ]
@@ -1003,78 +863,8 @@
           "external": false
         },
         {
-          "label": "Licht",
-          "url": "/wiki/de-HUE%20Light",
-          "external": false
-        },
-        {
-          "label": "Batterie",
-          "url": "/wiki/de-HUE%20Battery",
-          "external": false
-        },
-        {
-          "label": "Taster",
-          "url": "/wiki/de-HUE%20Button",
-          "external": false
-        },
-        {
-          "label": "Kontakt",
-          "url": "/wiki/de-HUE%20Contact%20sensor",
-          "external": false
-        },
-        {
-          "label": "Geräte-SW-Update",
-          "url": "/wiki/de-HUE%20Device%20software%20update",
-          "external": false
-        },
-        {
-          "label": "Lichtsensor",
-          "url": "/wiki/de-HUE%20Light%20sensor",
-          "external": false
-        },
-        {
-          "label": "Bewegung",
-          "url": "/wiki/de-HUE%20Motion",
-          "external": false
-        },
-        {
-          "label": "Bewegungsbereich",
-          "url": "/wiki/de-HUE%20Motion%20area",
-          "external": false
-        },
-        {
-          "label": "Luftfeuchtigkeit",
-          "url": "/wiki/de-HUE%20Humidity%20sensor",
-          "external": false
-        },
-        {
-          "label": "Steckdose",
-          "url": "/wiki/de-HUE%20Plug",
-          "external": false
-        },
-        {
-          "label": "Kamerabewegung",
-          "url": "/wiki/de-HUE%20Camera%20motion",
-          "external": false
-        },
-        {
-          "label": "Szene",
-          "url": "/wiki/de-HUE%20Scene",
-          "external": false
-        },
-        {
-          "label": "Tap Dial",
-          "url": "/wiki/de-HUE%20Tapdial",
-          "external": false
-        },
-        {
-          "label": "Temperatur",
-          "url": "/wiki/de-HUE%20Temperature%20sensor",
-          "external": false
-        },
-        {
-          "label": "Zigbee-Konnektivität",
-          "url": "/wiki/de-HUE%20Zigbee%20connectivity",
+          "label": "HUE Controller",
+          "url": "/wiki/de-HUE%20Controller",
           "external": false
         }
       ]
@@ -1430,78 +1220,8 @@
           "external": false
         },
         {
-          "label": "Light",
-          "url": "/wiki/fr-HUE%20Light",
-          "external": false
-        },
-        {
-          "label": "Battery",
-          "url": "/wiki/fr-HUE%20Battery",
-          "external": false
-        },
-        {
-          "label": "Button",
-          "url": "/wiki/fr-HUE%20Button",
-          "external": false
-        },
-        {
-          "label": "Contact",
-          "url": "/wiki/fr-HUE%20Contact%20sensor",
-          "external": false
-        },
-        {
-          "label": "Device SW update",
-          "url": "/wiki/fr-HUE%20Device%20software%20update",
-          "external": false
-        },
-        {
-          "label": "Light sensor",
-          "url": "/wiki/fr-HUE%20Light%20sensor",
-          "external": false
-        },
-        {
-          "label": "Motion",
-          "url": "/wiki/fr-HUE%20Motion",
-          "external": false
-        },
-        {
-          "label": "Motion area",
-          "url": "/wiki/fr-HUE%20Motion%20area",
-          "external": false
-        },
-        {
-          "label": "Humidity",
-          "url": "/wiki/fr-HUE%20Humidity%20sensor",
-          "external": false
-        },
-        {
-          "label": "Plug",
-          "url": "/wiki/fr-HUE%20Plug",
-          "external": false
-        },
-        {
-          "label": "Camera motion",
-          "url": "/wiki/fr-HUE%20Camera%20motion",
-          "external": false
-        },
-        {
-          "label": "Scene",
-          "url": "/wiki/fr-HUE%20Scene",
-          "external": false
-        },
-        {
-          "label": "Tap Dial",
-          "url": "/wiki/fr-HUE%20Tapdial",
-          "external": false
-        },
-        {
-          "label": "Temperature",
-          "url": "/wiki/fr-HUE%20Temperature%20sensor",
-          "external": false
-        },
-        {
-          "label": "Zigbee connectivity",
-          "url": "/wiki/fr-HUE%20Zigbee%20connectivity",
+          "label": "HUE Controller",
+          "url": "/wiki/fr-HUE%20Controller",
           "external": false
         }
       ]
@@ -1857,78 +1577,8 @@
           "external": false
         },
         {
-          "label": "Light",
-          "url": "/wiki/es-HUE%20Light",
-          "external": false
-        },
-        {
-          "label": "Battery",
-          "url": "/wiki/es-HUE%20Battery",
-          "external": false
-        },
-        {
-          "label": "Button",
-          "url": "/wiki/es-HUE%20Button",
-          "external": false
-        },
-        {
-          "label": "Contact",
-          "url": "/wiki/es-HUE%20Contact%20sensor",
-          "external": false
-        },
-        {
-          "label": "Device SW update",
-          "url": "/wiki/es-HUE%20Device%20software%20update",
-          "external": false
-        },
-        {
-          "label": "Light sensor",
-          "url": "/wiki/es-HUE%20Light%20sensor",
-          "external": false
-        },
-        {
-          "label": "Motion",
-          "url": "/wiki/es-HUE%20Motion",
-          "external": false
-        },
-        {
-          "label": "Motion area",
-          "url": "/wiki/es-HUE%20Motion%20area",
-          "external": false
-        },
-        {
-          "label": "Humidity",
-          "url": "/wiki/es-HUE%20Humidity%20sensor",
-          "external": false
-        },
-        {
-          "label": "Plug",
-          "url": "/wiki/es-HUE%20Plug",
-          "external": false
-        },
-        {
-          "label": "Camera motion",
-          "url": "/wiki/es-HUE%20Camera%20motion",
-          "external": false
-        },
-        {
-          "label": "Scene",
-          "url": "/wiki/es-HUE%20Scene",
-          "external": false
-        },
-        {
-          "label": "Tap Dial",
-          "url": "/wiki/es-HUE%20Tapdial",
-          "external": false
-        },
-        {
-          "label": "Temperature",
-          "url": "/wiki/es-HUE%20Temperature%20sensor",
-          "external": false
-        },
-        {
-          "label": "Zigbee connectivity",
-          "url": "/wiki/es-HUE%20Zigbee%20connectivity",
+          "label": "HUE Controller",
+          "url": "/wiki/es-HUE%20Controller",
           "external": false
         }
       ]
@@ -2284,78 +1934,8 @@
           "external": false
         },
         {
-          "label": "灯",
-          "url": "/wiki/zh-CN-HUE%20Light",
-          "external": false
-        },
-        {
-          "label": "电池",
-          "url": "/wiki/zh-CN-HUE%20Battery",
-          "external": false
-        },
-        {
-          "label": "按钮",
-          "url": "/wiki/zh-CN-HUE%20Button",
-          "external": false
-        },
-        {
-          "label": "接触",
-          "url": "/wiki/zh-CN-HUE%20Contact%20sensor",
-          "external": false
-        },
-        {
-          "label": "设备软件更新",
-          "url": "/wiki/zh-CN-HUE%20Device%20software%20update",
-          "external": false
-        },
-        {
-          "label": "光照传感器",
-          "url": "/wiki/zh-CN-HUE%20Light%20sensor",
-          "external": false
-        },
-        {
-          "label": "运动",
-          "url": "/wiki/zh-CN-HUE%20Motion",
-          "external": false
-        },
-        {
-          "label": "运动区域",
-          "url": "/wiki/zh-CN-HUE%20Motion%20area",
-          "external": false
-        },
-        {
-          "label": "湿度",
-          "url": "/wiki/zh-CN-HUE%20Humidity%20sensor",
-          "external": false
-        },
-        {
-          "label": "插座",
-          "url": "/wiki/zh-CN-HUE%20Plug",
-          "external": false
-        },
-        {
-          "label": "摄像头运动",
-          "url": "/wiki/zh-CN-HUE%20Camera%20motion",
-          "external": false
-        },
-        {
-          "label": "场景",
-          "url": "/wiki/zh-CN-HUE%20Scene",
-          "external": false
-        },
-        {
-          "label": "Tap Dial",
-          "url": "/wiki/zh-CN-HUE%20Tapdial",
-          "external": false
-        },
-        {
-          "label": "温度",
-          "url": "/wiki/zh-CN-HUE%20Temperature%20sensor",
-          "external": false
-        },
-        {
-          "label": "Zigbee 连接",
-          "url": "/wiki/zh-CN-HUE%20Zigbee%20connectivity",
+          "label": "HUE Controller",
+          "url": "/wiki/zh-CN-HUE%20Controller",
           "external": false
         }
       ]

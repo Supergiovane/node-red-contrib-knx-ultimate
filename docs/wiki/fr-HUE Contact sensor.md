@@ -4,6 +4,8 @@ title: "HUE Contact sensor"
 lang: fr
 permalink: /wiki/fr-HUE%20Contact%20sensor
 ---
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+
 Ce nœud transmet les événements d'un capteur de contact de teinte et les mappe aux adresses de groupe KNX. 
 
 Commencez à taper le champ GA, le nom ou l'adresse de groupe de votre appareil KNX, les périphériques AVAIable commencent à apparaître pendant que vous tapez.

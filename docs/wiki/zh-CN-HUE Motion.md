@@ -4,6 +4,8 @@ title: "HUE Motion"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Motion
 ---
+> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会打开与 HUE Controller 相同的完整流程转换器。
+
 该节点订阅 Hue 运动传感器的事件，并将其同步到 KNX 以及 Node-RED 流程。
 
 在 GA 字段输入 KNX 设备名称或组地址即可自动补全；"Hue 传感器”旁的刷新按钮可重新加载 Hue 设备列表。

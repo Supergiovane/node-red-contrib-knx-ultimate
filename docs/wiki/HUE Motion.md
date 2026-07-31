@@ -4,6 +4,8 @@ title: "HUE Motion"
 lang: en
 permalink: /wiki/HUE%20Motion
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 This node listens to a Hue motion sensor and mirrors the events to KNX and/or your Node-RED flow.
 
 Start typing the KNX device name or Group Address in the GA field; suggestions appear while you type. Hit the refresh button next to "Hue sensor” to reload the device list from the bridge if you add new sensors.

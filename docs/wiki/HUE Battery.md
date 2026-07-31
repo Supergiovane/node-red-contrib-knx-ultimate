@@ -4,6 +4,8 @@ title: "HUE Battery"
 lang: en
 permalink: /wiki/HUE%20Battery
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 This node exposes the battery level of a Hue device to KNX and raises an event whenever the value changes.
 
 Start typing the KNX device name or Group Address in the GA field; matching entries appear while you type. Use the refresh icon next to <q>Hue sensor</q> to reload the list from the Hue bridge after adding new devices.

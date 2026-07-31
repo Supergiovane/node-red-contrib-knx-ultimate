@@ -6,9 +6,29 @@ permalink: /wiki/zh-CN-Matter-Bridge-Configuration
 ---
 # Matter 桥接器 (BETA)
 
-> 此节点处于 **BETA** 阶段：可以正常工作，但细节可能在版本之间发生变化。
+<div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Matter 服务器 · 多 Fabric · 持久身份</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">配对一个 Bridge，公开所有 KNX 设备。</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f3fbff;">此配置节点拥有 Matter 服务器、Bridge 身份和控制器会话。Alexa、Google Home、Apple Home 等控制器只需配对一次，设备节点随后会作为实时端点出现。</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">只配对一次</strong><span style="font-size:0.76rem;color:#e0f7ff;">二维码 + 手动代码</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">多 Fabric</strong><span style="font-size:0.76rem;color:#e0f7ff;">多个控制器</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">实时协调</strong><span style="font-size:0.76rem;color:#e0f7ff;">数秒内出现端点</span></div>
+  </div>
+</div>
 
-## 概述
+## Bridge 一览
+
+| 领域 | 功能范围 |
+|---|---|
+| **配对** | 二维码与手动代码、多个 Matter Fabric，以及明确的重置操作。 |
+| **身份** | 普通部署、名称变更和端点协调期间保持稳定的 Bridge 身份。 |
+| **扩展** | 在不同 UDP 端口运行多个独立 Bridge，并连接任意数量的设备节点。 |
+| **保护** | 导出/导入 Fabric、私有凭据、会话和配对数据。 |
+
+> **BETA：**Bridge 已可使用，但细节仍可能演进。请像密码一样保护备份，仅在需要移除全部控制器时使用**重置配对**。
+
+## 技术概述
 
 此配置节点就是 **Matter 桥接器本身**：它运行 Matter 服务器，Alexa、Google Home、Apple Home（或任何 Matter 控制器）只需配对**一次**。流程中的每个 **Matter Bridge device** 节点都指向这里，并在 App 中显示为桥接器的一个设备。
 

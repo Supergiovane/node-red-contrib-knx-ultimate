@@ -4,6 +4,8 @@ title: "HUE Zigbee connectivity"
 lang: fr
 permalink: /wiki/fr-HUE%20Zigbee%20connectivity
 ---
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+
 Ce nœud récupère l'état de connectivité ZigBee à partir d'un périphérique de teinte et l'expose à KNX. 
 
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les suggestions apparaissent pendant que vous tapez.

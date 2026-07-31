@@ -6,9 +6,36 @@ permalink: /wiki/Matter-Bridge
 ---
 # Expose KNX to Matter (BETA)
 
-> This node is in **BETA**: it works, but details may still change between releases.
+<div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#c9fff7;">Matter bridge · KNX devices · Voice assistants</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Expose KNX to the Matter ecosystem.</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f2fffd;">Each node turns one KNX or flow-backed function into a native Matter endpoint for Alexa, Google Home, Apple Home and other controllers. Pair the bridge once, then grow it device by device.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">17</strong><span style="font-size:0.76rem;color:#ddfffa;">Matter device profiles</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Pair once</strong><span style="font-size:0.76rem;color:#ddfffa;">one bridge QR code</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Live endpoints</strong><span style="font-size:0.76rem;color:#ddfffa;">no ordinary restart</span></div>
+  </div>
+</div>
 
-## Overview
+## Seventeen profiles, one bridge
+
+| Area | Matter profiles |
+|---|---|
+| **Lighting & power** | On/Off light, plug, dimmable light, RGB light and tunable-white light. |
+| **Climate & environment** | Temperature, humidity, illuminance, air quality, thermostat and fan. |
+| **Presence & safety** | Occupancy, contact, smoke/CO and water-leak detection. |
+| **Movement & automation** | Window covering and flow-driven robot vacuum. |
+
+## Start in four steps
+
+1. Configure and deploy one **Matter Bridge** configuration node.
+2. Add an **Expose KNX to Matter** node for each device or virtual function.
+3. Choose its profile, name and KNX group addresses, or enable flow-only PINs.
+4. Pair the bridge QR code with the desired Matter controller; later endpoints reconcile live.
+
+> **BETA:** the bridge is operational, but details may still evolve. Changing a device profile after pairing changes its Matter endpoint structure and may require re-pairing or a new exposed device.
+
+## Technical overview
 
 Each Expose KNX to Matter node exposes **one KNX device as a Matter device**: the paired controllers (Alexa, Google Home, Apple Home...) see it, with the name you typed, ready for app and voice control. Point it to a **Matter Bridge** configuration node (the actual bridge, paired once - the pairing QR code lives there) and add as many device nodes as you want, anywhere in your flows.
 

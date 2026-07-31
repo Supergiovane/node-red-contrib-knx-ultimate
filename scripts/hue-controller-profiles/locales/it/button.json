@@ -1,0 +1,34 @@
+{
+  "knxUltimateHueButton": {
+    "paletteLabel": "Pulsante Hue",
+    "hue_sensor": "Pulsante Hue",
+    "no_devices": "Nessun pulsante Hue disponibile",
+    "tabs": {
+      "switch": "Interruttore",
+      "dim": "Dimmer",
+      "behaviour": "Comportamento"
+    },
+    "switch_info": "Collega la GA KNX attivata da una pressione breve.",
+    "switch_status": "GA stato",
+    "dim_info": "Configura la GA KNX per il dimming durante le pressioni prolungate.",
+    "behaviour_info": "Scegli se alternare automaticamente i valori o inviare payload fissi.",
+    "toggle_values": "Alterna i valori ad ogni evento",
+    "toggle_values_hint": "Abilitando alterni true/false e direzioni di dimmer; disabilitando invii i payload fissi definiti sotto.",
+    "switch_send": "Payload interruttore",
+    "dim_send": "Payload dimmer",
+    "dim_up": "Su",
+    "dim_down": "Giù",
+    "dim_stop": "Stop",
+    "output_info": "Nessun gateway KNX selezionato. Gli eventi vengono comunque emessi sul pin di output di Node-RED."
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Nome",
+    "youtube_sample": "Esempio YouTube",
+    "knx_gw": "Gateway KNX",
+    "hue_bridge": "Hue Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Leggi"
+  }
+}

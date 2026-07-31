@@ -4,6 +4,8 @@ title: "HUE Scene"
 lang: de
 permalink: /wiki/de-HUE%20Scene
 ---
+> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton in diesem Editor öffnet denselben vollständigen Flow-Konverter wie HUE Controller.
+
 Der **Hue Scene** -Node stellt Hue-Szenen per KNX bereit und kann die Rohereignisse an Ihren Node-RED-Flow weitergeben. Das Feld "Hue Szene" besitzt Autovervollständigung; verwenden Sie nach dem Anlegen neuer Szenen das Aktualisierungssymbol, damit die Liste aktuell bleibt.
 
 ### Überblick über die Reiter

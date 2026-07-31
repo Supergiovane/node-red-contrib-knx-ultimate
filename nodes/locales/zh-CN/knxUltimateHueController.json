@@ -1,0 +1,48 @@
+{
+  "common": {
+    "knx_gw": "KNX 网关",
+    "hue_bridge": "Hue Bridge"
+  },
+  "knxUltimateHueController": {
+    "device_function": "设备功能",
+    "legacy_node_notice": "此旧版 HUE 节点已弃用。新流程请使用新的 HUE Controller 节点。",
+    "migration_button": "转换旧版 HUE 流程",
+    "migration_button_title": "粘贴 Node-RED 流程并转换其中的旧版 HUE 节点",
+    "migration_title": "转换旧版 HUE 流程",
+    "migration_privacy": "粘贴从 Node-RED 导出的流程。转换仅在本地进行，不会修改当前打开的流程。",
+    "migration_credentials_notice": "Node-RED 会特意从导出的流程中排除密钥和密码。转换器无法读取或重新创建这些凭据。",
+    "migration_reuse_configs": "复用现有 Hue 和 KNX 配置节点（推荐）",
+    "migration_reuse_configs_help": "重新导入同一个 Node-RED 实例时请保持选中。结果会省略被引用的配置节点，从而保留其中已存储的凭据。",
+    "migration_input": "原始流程 JSON",
+    "migration_input_placeholder": "在此粘贴完整的 Node-RED 流程导出内容",
+    "migration_convert": "转换",
+    "migration_copy": "复制转换后的流程",
+    "migration_output": "转换后的流程 JSON",
+    "migration_close": "关闭",
+    "migration_summary": "已转换 {{count}} 个旧版 HUE 节点。",
+    "migration_summary_reused": "将复用 {{count}} 个被引用的配置节点及其现有凭据。",
+    "migration_configs_included_warning": "配置节点已包含在结果中，但不含导出的凭据；请在导入后重新输入密钥和密码。",
+    "migration_none": "未找到旧版 HUE 节点。",
+    "migration_invalid": "流程 JSON 无效：",
+    "migration_copy_success": "已复制转换后的流程。",
+    "migration_copy_failed": "剪贴板访问被阻止。已选中转换后的 JSON，请手动复制。",
+    "migration_unavailable": "HUE 迁移工具不可用。更新软件包后请重启 Node-RED。",
+    "types": {
+      "light": "灯 / 灯组",
+      "plug": "插座 / 输出",
+      "button": "按钮",
+      "relative_rotary": "Tap dial",
+      "motion": "运动",
+      "area_motion": "区域运动",
+      "camera_motion": "摄像机运动",
+      "contact": "接触传感器",
+      "light_level": "光照度",
+      "temperature": "温度",
+      "humidity": "湿度",
+      "scene": "场景",
+      "device_power": "电池",
+      "zigbee_connectivity": "Zigbee 连接",
+      "device_software_update": "设备软件更新"
+    }
+  }
+}

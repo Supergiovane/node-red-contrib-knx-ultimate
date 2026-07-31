@@ -1,0 +1,1386 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerProfiles.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigration.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigrationDialog.js"></script>
+
+<script type="text/javascript">
+  (function () {
+    // Editor architecture
+    // -------------------
+    // HUE Controller is registered once, but hosts fifteen private editors. The
+    // resource loaded above owns their JavaScript, HTML and translations; this
+    // wrapper only selects a profile and bridges its lifecycle to one Node-RED
+    // dialog. In particular, nothing below queries RED.nodes for a legacy type.
+    //
+    // Keep this browser-facing catalog aligned with the canonical build catalog
+    // in scripts/hue-controller-profiles/catalog.js. Tests guard that alignment,
+    // including the independent runtime map.
+    const PROFILE_TYPES = Object.freeze({
+      light: { nodeType: 'knxUltimateHueLight', label: 'HUE Light / grouped light' },
+      plug: { nodeType: 'knxUltimateHuePlug', label: 'HUE Plug / outlet' },
+      button: { nodeType: 'knxUltimateHueButton', label: 'HUE Button' },
+      relative_rotary: { nodeType: 'knxUltimateHueTapDial', label: 'HUE Tap dial' },
+      motion: { nodeType: 'knxUltimateHueMotion', label: 'HUE Motion' },
+      area_motion: { nodeType: 'knxUltimateHueAreaMotion', label: 'HUE Area motion' },
+      camera_motion: { nodeType: 'knxUltimateHueCameraMotion', label: 'HUE Camera motion' },
+      contact: { nodeType: 'knxUltimateHueContactSensor', label: 'HUE Contact' },
+      light_level: { nodeType: 'knxUltimateHueLightSensor', label: 'HUE Light level' },
+      temperature: { nodeType: 'knxUltimateHueTemperatureSensor', label: 'HUE Temperature' },
+      humidity: { nodeType: 'knxUltimateHueHumiditySensor', label: 'HUE Humidity' },
+      scene: { nodeType: 'knxUltimateHueScene', label: 'HUE Scene' },
+      device_power: { nodeType: 'knxUltimateHueBattery', label: 'HUE Battery' },
+      zigbee_connectivity: { nodeType: 'knxUltimateHueZigbeeConnectivity', label: 'HUE Zigbee connectivity' },
+      device_software_update: { nodeType: 'knxUltimateHuedevice_software_update', label: 'HUE Device software update' }
+    });
+    // Node-RED 4.x uses `_ADD_` both for the visible "none" option (when
+    // gateways exist) and for "Add new..." (when none exist).
+    const KNX_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__']);
+    const TUTORIALS_URL = 'https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E';
+    const profileBundle = window.KNXUltimateHueControllerProfiles;
+
+    const getProfileDefinition = (controllerType) => {
+      // The bundle captures a private definition through a RED facade. It does
+      // not register that definition and its presentation metadata is inert.
+      if (!profileBundle || typeof profileBundle.getDefinition !== 'function') return undefined;
+      return profileBundle.getDefinition(controllerType, RED);
+    };
+
+    const focusProfileHelp = (controllerType) => {
+      // Node-RED renders localized help asynchronously after opening the dialog.
+      // A few bounded retries focus the matching function without leaving a
+      // timer running for the lifetime of the editor.
+      const anchorId = `hue-controller-help-${controllerType}`;
+      let attempts = 0;
+      const focus = () => {
+        const marker = document.getElementById(anchorId);
+        if (marker && typeof marker.scrollIntoView === 'function') {
+          marker.scrollIntoView({ block: 'start' });
+          return;
+        }
+        attempts += 1;
+        if (attempts < 4) setTimeout(focus, 100);
+      };
+      setTimeout(focus, 0);
+    };
+
+    const buildDefaults = () => {
+      // Node-RED persists only keys declared at registration time. Build the
+      // union once so changing function inside the dialog never drops fields
+      // belonging to the newly selected profile.
+      const defaults = {
+        // Keep config-node references explicit. Node-RED must see their `type`
+        // while this node is registered or it renders plain text inputs instead
+        // of managed config-node selectors.
+        server: { value: '', type: 'knxUltimate-config', required: false },
+        serverHue: { value: '', type: 'hue-config', required: true },
+        name: { value: '' },
+        hueControllerType: { value: 'light', required: true },
+        inputs: { value: 0 },
+        outputs: { value: 0 }
+      };
+      Object.keys(PROFILE_TYPES).forEach((controllerType) => {
+        const definition = getProfileDefinition(controllerType);
+        Object.entries(definition?.defaults || {}).forEach(([key, property]) => {
+          // HUE Controller starts as a light, so the first profile wins for
+          // shared keys. Clone the descriptor because Node-RED may decorate it.
+          if (!Object.prototype.hasOwnProperty.call(defaults, key)) defaults[key] = { ...property };
+        });
+      });
+      // Dynamic pins must always be persisted by this node, regardless of whether
+      // the selected legacy editor originally used fixed or configurable pins.
+      defaults.inputs = { value: 0 };
+      defaults.outputs = { value: 0 };
+      return defaults;
+    };
+
+    const setFieldValue = ($field, value) => {
+      // Property keys come from the private definition, never from CSS classes:
+      // jQuery UI mutates classes when it upgrades fields into widgets.
+      if (!$field.length) return;
+      if ($field.is(':checkbox')) {
+        $field.prop('checked', value === true || value === 'true' || value === 'yes');
+      } else if ($field.is(':radio')) {
+        $field.filter(`[value="${String(value).replace(/"/g, '\\"')}"]`).prop('checked', true);
+      } else if (value !== undefined && value !== null) {
+        $field.val(typeof value === 'object' ? JSON.stringify(value) : value);
+      }
+    };
+
+    const readFieldValue = ($field, currentValue) => {
+      // Mirror setFieldValue for the untouched-save round trip. Missing elements
+      // retain their current value instead of silently becoming undefined.
+      if (!$field.length) return currentValue;
+      if ($field.is(':checkbox')) return $field.prop('checked');
+      if ($field.is(':radio')) return $field.filter(':checked').val();
+      return $field.val();
+    };
+
+    const translateProfileEditor = ($container, controllerType, nodeType) => {
+      // Injected fragments miss Node-RED's initial i18n pass and belong to the
+      // original profile namespace. Resolve them against the private dictionaries;
+      // the bundle applies the active-locale, English and RED._ fallbacks.
+      $container.find('[data-i18n]').each(function () {
+        const $element = $(this);
+        const translationSpec = String($element.attr('data-i18n') || '').trim();
+        if (!translationSpec) return;
+
+        const attributeMatch = translationSpec.match(/^\[([^\]]+)](.+)$/);
+        const attributeName = attributeMatch ? attributeMatch[1] : undefined;
+        const translationKey = attributeMatch ? attributeMatch[2] : translationSpec;
+        const qualifiedKey = translationKey.includes(':')
+          ? translationKey
+          : `node-red-contrib-knx-ultimate/${nodeType}:${translationKey}`;
+        let translated;
+        try {
+          translated = profileBundle && typeof profileBundle.translate === 'function'
+            ? profileBundle.translate(controllerType, qualifiedKey, RED)
+            : RED._(qualifiedKey);
+        } catch (error) { /* empty */ }
+        if (!translated || translated === qualifiedKey || translated === translationKey) return;
+
+        if (attributeName) $element.attr(attributeName, translated);
+        else $element.text(translated);
+        // The fragment belongs to the selected legacy node namespace. Removing
+        // the marker prevents the controller namespace from blanking it later.
+        $element.removeAttr('data-i18n');
+      });
+    };
+
+    const ensureControllerEditorStyle = () => {
+      // Styles are scoped to the mounted fragment so no legacy editor or other
+      // Node-RED dialog is affected. Insert them once per browser page.
+      if ($('#knxUltimateHueControllerEditorStyle').length) return;
+      $('head').append(`
+        <style id="knxUltimateHueControllerEditorStyle">
+          /* Migration is an occasional but important action, so give it a
+             strong warning-orange treatment that remains legible in both the
+             light and dark Node-RED editor themes. */
+          #hue-controller-migrate-legacy-flow.red-ui-button {
+            background: #d97706 !important;
+            border-color: #b45309 !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            box-shadow: 0 2px 7px rgba(146, 64, 14, 0.35);
+          }
+          #hue-controller-migrate-legacy-flow.red-ui-button:hover {
+            background: #b45309 !important;
+            border-color: #92400e !important;
+          }
+          #hue-controller-migrate-legacy-flow.red-ui-button:active {
+            background: #92400e !important;
+          }
+          #hue-controller-migrate-legacy-flow.red-ui-button:focus-visible {
+            outline: 3px solid #fbbf24;
+            outline-offset: 2px;
+          }
+          #hue-controller-profile-editor.hue-controller-no-knx .hue-knx-section,
+          #hue-controller-profile-editor.hue-controller-light-profile.hue-controller-no-knx #tabs {
+            display: none !important;
+          }
+          /* Every profile inherited slightly different fixed KNX widths. Mark
+             actual DPT rows after mounting and compact only their DPT/Name
+             controls. No wrapping keeps one mapping on one visual line, while the
+             small flex allowance lets Name contract on narrow editor trays. */
+          #hue-controller-profile-editor .hue-controller-knx-mapping-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap !important;
+          }
+          #hue-controller-profile-editor .hue-controller-knx-mapping-row > label {
+            flex-shrink: 0;
+          }
+          #hue-controller-profile-editor .hue-controller-knx-mapping-row > select[id^="node-input-dpt"] {
+            box-sizing: border-box;
+            width: 105px !important;
+            min-width: 90px !important;
+            max-width: 105px !important;
+            flex: 0 1 105px !important;
+          }
+          #hue-controller-profile-editor .hue-controller-knx-mapping-row > input[type="text"][id^="node-input-name"] {
+            box-sizing: border-box;
+            width: 115px !important;
+            min-width: 70px !important;
+            max-width: 115px !important;
+            flex: 0 1 115px !important;
+          }
+        </style>
+      `);
+    };
+
+    const migrationText = (node, key, fallback, values) => {
+      try {
+        const translated = node._(`knxUltimateHueController.${key}`, values);
+        if (translated && translated !== `knxUltimateHueController.${key}`) return translated;
+      } catch (error) { /* empty */ }
+      return fallback;
+    };
+
+    const editorContainsLegacyHueNodes = () => {
+      // This read-only scan controls visibility only. The converter itself
+      // remains deliberately isolated from the open editor and still accepts
+      // only JSON explicitly pasted by the user.
+      const migrationApi = window.KNXUltimateHueControllerMigration;
+      if (!migrationApi || typeof migrationApi.isLegacyHueNode !== 'function') return false;
+      if (!RED.nodes || typeof RED.nodes.eachNode !== 'function') return false;
+      let found = false;
+      try {
+        RED.nodes.eachNode((node) => {
+          if (!found && migrationApi.isLegacyHueNode(node)) found = true;
+        });
+      } catch (error) {
+        // If an older/custom editor cannot enumerate nodes, hide the action:
+        // showing it without evidence of a migration target would be noisier.
+        return false;
+      }
+      return found;
+    };
+
+    const openLegacyMigrationDialog = (node) => {
+      const migrationApi = window.KNXUltimateHueControllerMigration;
+      if (!migrationApi || typeof migrationApi.convertLegacyHueFlowJson !== 'function') {
+        RED.notify(migrationText(node, 'migration_unavailable', 'The HUE migration tool is unavailable. Restart Node-RED after updating the package.'), 'error');
+        return () => { };
+      }
+
+      const $dialog = $('<div class="hue-controller-migration-dialog"></div>').appendTo('body');
+      $('<div class="hue-controller-migration-note"></div>')
+        .text(migrationText(node, 'migration_privacy', 'Paste an exported Node-RED flow. Conversion happens locally and does not modify the open flow.'))
+        .css({ marginBottom: '8px' })
+        .appendTo($dialog);
+      $('<div class="hue-controller-migration-credentials"></div>')
+        .text(migrationText(node, 'migration_credentials_notice', 'Node-RED deliberately excludes keys and passwords from exported flows. The converter cannot read or recreate them.'))
+        .css({ marginBottom: '12px', padding: '8px 10px', borderLeft: '4px solid #d79b00', background: '#fff8df' })
+        .appendTo($dialog);
+      $('<label for="hue-controller-migration-input"></label>')
+        .text(migrationText(node, 'migration_input', 'Original flow JSON'))
+        .css({ display: 'block', fontWeight: 'bold', marginBottom: '4px' })
+        .appendTo($dialog);
+      const $input = $('<textarea id="hue-controller-migration-input"></textarea>')
+        .attr('placeholder', migrationText(node, 'migration_input_placeholder', 'Paste the complete Node-RED flow export here'))
+        .css({ width: '100%', height: '190px', boxSizing: 'border-box', fontFamily: 'monospace', resize: 'vertical' })
+        .appendTo($dialog);
+      const $reuseConfigsRow = $('<div></div>')
+        .css({ margin: '10px 0' })
+        .appendTo($dialog);
+      const $reuseConfigs = $('<input type="checkbox" id="hue-controller-migration-reuse-configs">')
+        .prop('checked', true)
+        .appendTo($reuseConfigsRow);
+      $('<label for="hue-controller-migration-reuse-configs"></label>')
+        .text(` ${migrationText(node, 'migration_reuse_configs', 'Reuse existing Hue and KNX config nodes (recommended)')}`)
+        .css({ display: 'inline', fontWeight: 'bold' })
+        .appendTo($reuseConfigsRow);
+      $('<div></div>')
+        .text(migrationText(node, 'migration_reuse_configs_help', 'Keep this selected when importing back into the same Node-RED installation. Referenced config nodes are omitted from the result, so their stored credentials remain untouched.'))
+        .css({ margin: '4px 0 0 22px', color: '#666' })
+        .appendTo($reuseConfigsRow);
+      const $toolbar = $('<div></div>')
+        .css({ display: 'flex', gap: '8px', alignItems: 'center', margin: '10px 0' })
+        .appendTo($dialog);
+      const $convert = $('<button type="button" class="red-ui-button"></button>')
+        .append($('<i class="fa fa-exchange"></i>'))
+        .append(document.createTextNode(` ${migrationText(node, 'migration_convert', 'Convert')}`))
+        .appendTo($toolbar);
+      const $copy = $('<button type="button" class="red-ui-button"></button>')
+        .append($('<i class="fa fa-clipboard"></i>'))
+        .append(document.createTextNode(` ${migrationText(node, 'migration_copy', 'Copy converted flow')}`))
+        .prop('disabled', true)
+        .appendTo($toolbar);
+      const $status = $('<span class="hue-controller-migration-status"></span>')
+        .css({ marginLeft: '4px' })
+        .appendTo($toolbar);
+      $('<label for="hue-controller-migration-output"></label>')
+        .text(migrationText(node, 'migration_output', 'Converted flow JSON'))
+        .css({ display: 'block', fontWeight: 'bold', marginBottom: '4px' })
+        .appendTo($dialog);
+      const $output = $('<textarea id="hue-controller-migration-output" readonly></textarea>')
+        .css({ width: '100%', height: '230px', boxSizing: 'border-box', fontFamily: 'monospace', resize: 'vertical' })
+        .appendTo($dialog);
+
+      $convert.on('click.knxUltimateHueControllerMigration', () => {
+        try {
+          const result = migrationApi.convertLegacyHueFlowJson($input.val(), {
+            reuseConfigNodes: $reuseConfigs.prop('checked')
+          });
+          $output.val(result.json).scrollTop(0);
+          $copy.prop('disabled', false);
+          if (result.convertedCount === 0) {
+            $status.text(migrationText(node, 'migration_none', 'No legacy HUE nodes were found.')).css('color', '#a15c00');
+          } else {
+            let summary = migrationText(node, 'migration_summary', '{{count}} legacy HUE nodes converted.')
+              .replace('{{count}}', String(result.convertedCount));
+            let statusColor = '#1b7d33';
+            if (result.omittedConfigCount > 0) {
+              summary += ` ${migrationText(node, 'migration_summary_reused', '{{count}} referenced config nodes will be reused with their existing credentials.')
+                .replace('{{count}}', String(result.omittedConfigCount))}`;
+            } else if (!$reuseConfigs.prop('checked')) {
+              summary += ` ${migrationText(node, 'migration_configs_included_warning', 'Config nodes are included without exported credentials; enter their keys and passwords after import.')}`;
+              statusColor = '#a15c00';
+            }
+            $status.text(summary).css('color', statusColor);
+          }
+        } catch (error) {
+          $output.val('');
+          $copy.prop('disabled', true);
+          const message = error && error.message ? error.message : String(error);
+          $status
+            .text(`${migrationText(node, 'migration_invalid', 'Invalid flow JSON:')} ${message}`)
+            .css('color', '#b00020');
+        }
+      });
+
+      $copy.on('click.knxUltimateHueControllerMigration', () => {
+        const convertedJson = $output.val();
+        if (!convertedJson) return;
+        $copy.prop('disabled', true);
+        migrationApi.copyTextToClipboard(convertedJson, {
+          navigator: window.navigator,
+          document: window.document
+        }).then(() => {
+          RED.notify(migrationText(node, 'migration_copy_success', 'Converted flow copied.'), 'success');
+        }).catch(() => {
+          const outputElement = $output.get(0);
+          if (outputElement) {
+            outputElement.focus();
+            outputElement.select();
+            if (typeof outputElement.setSelectionRange === 'function') {
+              outputElement.setSelectionRange(0, convertedJson.length);
+            }
+          }
+          RED.notify(migrationText(node, 'migration_copy_failed', 'Clipboard access was blocked. The converted JSON has been selected; copy it manually.'), 'error');
+        }).finally(() => {
+          $copy.prop('disabled', false);
+        });
+      });
+
+      let closed = false;
+      const closeDialog = () => {
+        if (closed) return;
+        closed = true;
+        $convert.off('.knxUltimateHueControllerMigration');
+        $copy.off('.knxUltimateHueControllerMigration');
+        try { $dialog.dialog('destroy'); } catch (error) { /* empty */ }
+        $dialog.remove();
+      };
+
+      $dialog.dialog({
+        modal: true,
+        width: Math.min(920, Math.max(620, $(window).width() - 80)),
+        height: Math.min(760, Math.max(600, $(window).height() - 60)),
+        title: migrationText(node, 'migration_title', 'Convert legacy HUE flow'),
+        close: closeDialog,
+        buttons: [{
+          text: migrationText(node, 'migration_close', 'Close'),
+          click() { $(this).dialog('close'); }
+        }]
+      });
+      setTimeout(() => $input.trigger('focus'), 0);
+      return closeDialog;
+    };
+
+    RED.nodes.registerType('knxUltimateHueController', {
+      category: 'KNX Ultimate HUE',
+      color: '#C0C7E9',
+      defaults: buildDefaults(),
+      // catalogDefaults is consumed by the KNX AI catalog. It intentionally
+      // describes only the stable public surface; the real persistence contract
+      // remains the complete `defaults` union above.
+      catalogDefaults: {
+        server: { type: 'knxUltimate-config' },
+        serverHue: { type: 'hue-config' },
+        name: {},
+        hueControllerType: {},
+        hueDevice: {},
+        enableNodePINS: {},
+        inputs: {},
+        outputs: {}
+      },
+      inputs: 0,
+      outputs: 0,
+      icon: 'node-hue-icon.svg',
+      label() {
+        const profile = PROFILE_TYPES[this.hueControllerType] || PROFILE_TYPES.light;
+        return this.name || `HUE Controller · ${profile.label}`;
+      },
+      paletteLabel: 'HUE Controller',
+      oneditprepare() {
+        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
+        ensureControllerEditorStyle();
+        const controllerNode = this;
+        // activeProfile/legacyContext describe the currently mounted function.
+        // Drafts preserve unsaved edits when the user switches away and back;
+        // the migration closer prevents detached jQuery dialogs and handlers.
+        let activeProfile;
+        let legacyContext;
+        let closeMigrationDialog = () => { };
+        const profileDrafts = {};
+
+        const hasLegacyHueNodes = editorContainsLegacyHueNodes();
+        const $migrationButton = $('#hue-controller-migrate-legacy-flow');
+        $('#hue-controller-migrate-legacy-flow-row').toggle(hasLegacyHueNodes);
+        $migrationButton.off('.knxUltimateHueControllerMigration');
+        if (hasLegacyHueNodes) {
+          $migrationButton.on('click.knxUltimateHueControllerMigration', () => {
+            closeMigrationDialog();
+            closeMigrationDialog = openLegacyMigrationDialog(controllerNode);
+          });
+        }
+
+        const cloneEditorValue = (value) => {
+          // Profile defaults may contain arrays or objects. Clone them before
+          // drafting so editing one function cannot mutate shared definitions.
+          if (value === undefined || value === null || typeof value !== 'object') return value;
+          try { return JSON.parse(JSON.stringify(value)); } catch (error) { return value; }
+        };
+
+        const collectCurrentEditor = () => {
+          // Collect before unmounting. Exact keys come from the selected private
+          // definition, avoiding broad DOM scans and widget-added CSS classes.
+          if (!activeProfile || !legacyContext) return;
+          const definition = getProfileDefinition(controllerNode.hueControllerType);
+          const draft = {};
+          Object.keys(definition?.defaults || {}).forEach((key) => {
+            const value = readFieldValue($(`#node-input-${key}`), controllerNode[key]);
+            controllerNode[key] = value;
+            legacyContext[key] = value;
+            draft[key] = cloneEditorValue(value);
+          });
+          profileDrafts[controllerNode.hueControllerType] = draft;
+          if (Number.isFinite(Number(legacyContext.inputs))) controllerNode.inputs = Number(legacyContext.inputs);
+          if (Number.isFinite(Number(legacyContext.outputs))) controllerNode.outputs = Number(legacyContext.outputs);
+        };
+
+        const disposeCurrentEditor = () => {
+          // A profile can attach handlers or allocate editor-only state. Reuse
+          // its cancel hook when changing function, then remove the two handler
+          // namespaces that belong specifically to this wrapper.
+          if (!activeProfile || !legacyContext) return;
+          $('#node-input-server').off('.knxUltimateHueControllerLightVisibility');
+          $('#node-input-server').off('.knxUltimateHueControllerKnxVisibility');
+          const definition = getProfileDefinition(controllerNode.hueControllerType);
+          if (definition && typeof definition.oneditcancel === 'function') {
+            definition.oneditcancel.call(legacyContext);
+          }
+        };
+
+        const prepareProfileValues = (controllerType, definition) => {
+          // Returning to a profile restores its in-dialog draft. First visits use
+          // that profile's defaults, except shared gateway selections which must
+          // survive every function change.
+          const draft = profileDrafts[controllerType];
+          Object.entries(definition?.defaults || {}).forEach(([key, property]) => {
+            if (draft && Object.prototype.hasOwnProperty.call(draft, key)) {
+              controllerNode[key] = cloneEditorValue(draft[key]);
+            } else if (key !== 'server' && key !== 'serverHue') {
+              controllerNode[key] = cloneEditorValue(property.value);
+            }
+          });
+        };
+
+        const renderProfileEditor = (controllerType, skipCollect) => {
+          // Controlled lifecycle transition:
+          // collect old -> dispose old -> mount private HTML -> translate ->
+          // restore values -> execute the selected profile's oneditprepare.
+          if (skipCollect !== true) collectCurrentEditor();
+          disposeCurrentEditor();
+          const profile = PROFILE_TYPES[controllerType] || PROFILE_TYPES.light;
+          const definition = getProfileDefinition(controllerType);
+          const template = profileBundle && typeof profileBundle.getTemplate === 'function'
+            ? profileBundle.getTemplate(controllerType)
+            : undefined;
+          const $container = $('#hue-controller-profile-editor');
+          $container.toggleClass('hue-controller-light-profile', controllerType === 'light');
+
+          if (!definition || !template) {
+            $container.html('<div class="hue-controller-editor-error">The selected Hue editor is unavailable. Restart Node-RED after updating the package.</div>');
+            return;
+          }
+
+          activeProfile = profile;
+          controllerNode.hueControllerType = controllerType;
+          // Some dedicated definitions used fixed pins, others persisted them.
+          // Normalize both forms into per-instance numeric Controller pins.
+          if (!definition.defaults?.inputs) controllerNode.inputs = Number(definition.inputs || 0);
+          if (!definition.defaults?.outputs) controllerNode.outputs = Number(definition.outputs || 0);
+          controllerNode.inputs = Number.isFinite(Number(controllerNode.inputs))
+            ? Number(controllerNode.inputs)
+            : Number(definition.inputs || 0);
+          controllerNode.outputs = Number.isFinite(Number(controllerNode.outputs))
+            ? Number(controllerNode.outputs)
+            : Number(definition.outputs || 0);
+
+          const $profileContent = $('<div></div>').html(template);
+          // The unified editor owns the single playlist link at the top.
+          $profileContent.find(`a[href="${TUTORIALS_URL}"]`).each(function () {
+            $(this).closest('.form-row').remove();
+          });
+          // This notice belongs only to the dedicated legacy node editor. The
+          // current editor is already HUE Controller, so do not repeat it here.
+          $profileContent.find('.hue-legacy-controller-notice').remove();
+          // Configuration-node fields must exist before oneditprepare so Node-RED
+          // can turn them into its managed selectors. The unified template owns
+          // those two fixed fields; remove the duplicate legacy rows.
+          $profileContent.find('#node-input-server, #node-input-serverHue').each(function () {
+            $(this).closest('.form-row').remove();
+          });
+          $container.empty().append($profileContent.contents());
+          // Node-RED translates the static dialog before oneditprepare. This
+          // fragment belongs to another node type, so qualify every key with the
+          // selected profile's namespace instead of the controller namespace.
+          translateProfileEditor($container, controllerType, profile.nodeType);
+          // A row containing a DPT selector is a KNX mapping row regardless of
+          // which private profile supplied it. Tagging by the strict field ID
+          // avoids coupling the Controller layout to legacy CSS class names.
+          $container.find('select[id^="node-input-dpt"]').each(function () {
+            $(this).closest('.form-row').addClass('hue-controller-knx-mapping-row');
+          });
+          Object.keys(definition.defaults || {}).forEach((key) => {
+            setFieldValue($(`#node-input-${key}`), controllerNode[key]);
+          });
+
+          // The inherited context lets mature callbacks read the Controller's
+          // properties while isolating their temporary mutations. Never assign
+          // `legacyContext.type`: that could save the node under a legacy type.
+          legacyContext = Object.create(controllerNode);
+          legacyContext._ = definition._;
+          legacyContext.inputs = controllerNode.inputs;
+          legacyContext.outputs = controllerNode.outputs;
+          // Light deliberately receives the real Hue config-node selection.
+          // Its private editor owns the bounded readiness poll and displays the
+          // hourglass until the bridge resources are available or it times out.
+          if (typeof definition.oneditprepare === 'function') {
+            definition.oneditprepare.call(legacyContext);
+          }
+          // Profile guidance is already available in the node help. Keeping it
+          // out of the embedded editor makes every device profile more compact.
+          $container.find('.form-tips').remove();
+
+          const updateControllerKnxVisibility = () => {
+            // Node-RED has used several sentinel values for an empty config-node
+            // selector. Normalize them before deciding whether KNX rows exist.
+            const serverValue = $('#node-input-server').val();
+            const normalizedServerValue = serverValue === undefined || serverValue === null
+              ? ''
+              : String(serverValue).trim().toLowerCase();
+            const knxDisabled = KNX_EMPTY_SERVER_VALUES.has(normalizedServerValue);
+            $container.toggleClass('hue-controller-no-knx', knxDisabled);
+          };
+          updateControllerKnxVisibility();
+          $('#node-input-server')
+            .off('.knxUltimateHueControllerKnxVisibility')
+            .on('change.knxUltimateHueControllerKnxVisibility', updateControllerKnxVisibility);
+          focusProfileHelp(controllerType);
+        };
+
+        const selectedType = PROFILE_TYPES[this.hueControllerType] ? this.hueControllerType : 'light';
+        $('#node-input-hueControllerType')
+          .val(selectedType)
+          .off('.knxUltimateHueController')
+          .on('change.knxUltimateHueController', function () {
+            const nextType = PROFILE_TYPES[$(this).val()] ? $(this).val() : 'light';
+            const nextDefinition = getProfileDefinition(nextType);
+            collectCurrentEditor();
+            prepareProfileValues(nextType, nextDefinition);
+            // A deliberate function change adopts that function's normal pin shape.
+            controllerNode.inputs = Number(nextDefinition?.inputs || 0);
+            controllerNode.outputs = Number(nextDefinition?.outputs || 0);
+            renderProfileEditor(nextType, true);
+          });
+
+        this._hueControllerCollectEditor = collectCurrentEditor;
+        this._hueControllerGetLegacyContext = () => legacyContext;
+        this._hueControllerGetProfile = () => activeProfile;
+        this._hueControllerCloseMigration = () => closeMigrationDialog();
+        renderProfileEditor(selectedType);
+      },
+      oneditsave() {
+        // Preserve lifecycle order: close auxiliary UI, collect mounted fields,
+        // let the profile normalize them, then copy values and dynamic pins back
+        // onto the actual node that Node-RED will serialize.
+        if (typeof this._hueControllerCloseMigration === 'function') this._hueControllerCloseMigration();
+        if (typeof this._hueControllerCollectEditor === 'function') this._hueControllerCollectEditor();
+        const profile = typeof this._hueControllerGetProfile === 'function'
+          ? this._hueControllerGetProfile()
+          : undefined;
+        const legacyContext = typeof this._hueControllerGetLegacyContext === 'function'
+          ? this._hueControllerGetLegacyContext()
+          : undefined;
+        const definition = profile ? getProfileDefinition(this.hueControllerType) : undefined;
+        if (definition && typeof definition.oneditsave === 'function') {
+          definition.oneditsave.call(legacyContext || this);
+        }
+        if (legacyContext) {
+          Object.keys(definition?.defaults || {}).forEach((key) => {
+            if (Object.prototype.hasOwnProperty.call(legacyContext, key)) this[key] = legacyContext[key];
+          });
+          if (Number.isFinite(Number(legacyContext.inputs))) this.inputs = Number(legacyContext.inputs);
+          if (Number.isFinite(Number(legacyContext.outputs))) this.outputs = Number(legacyContext.outputs);
+        }
+        delete this._hueControllerCollectEditor;
+        delete this._hueControllerGetLegacyContext;
+        delete this._hueControllerGetProfile;
+        delete this._hueControllerCloseMigration;
+      },
+      oneditcancel() {
+        // Cancel releases profile-owned editor state but deliberately does not
+        // collect or persist the values currently visible in the dialog.
+        if (typeof this._hueControllerCloseMigration === 'function') this._hueControllerCloseMigration();
+        const profile = typeof this._hueControllerGetProfile === 'function'
+          ? this._hueControllerGetProfile()
+          : undefined;
+        const legacyContext = typeof this._hueControllerGetLegacyContext === 'function'
+          ? this._hueControllerGetLegacyContext()
+          : undefined;
+        const definition = profile ? getProfileDefinition(this.hueControllerType) : undefined;
+        if (definition && typeof definition.oneditcancel === 'function') {
+          definition.oneditcancel.call(legacyContext || this);
+        }
+        delete this._hueControllerCloseMigration;
+      }
+    });
+  }());
+</script>
+
+<script type="text/html" data-template-name="knxUltimateHueController">
+  <div class="form-row" style="margin-bottom:14px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;
+    <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+  <div class="form-row" id="hue-controller-migrate-legacy-flow-row" style="display:none; margin-bottom:14px;">
+    <button type="button" id="hue-controller-migrate-legacy-flow" class="red-ui-button" data-i18n="[title]knxUltimateHueController.migration_button_title">
+      <i class="fa fa-exchange"></i>
+      <span data-i18n="knxUltimateHueController.migration_button"></span>
+    </button>
+  </div>
+  <div class="form-row">
+    <label for="node-input-server">
+      <i class="fa fa-server"></i>
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-serverHue">
+      <i class="fa fa-circle"></i>
+      <span data-i18n="common.hue_bridge"></span>
+    </label>
+    <input type="text" id="node-input-serverHue">
+  </div>
+  <div class="form-row">
+    <label for="node-input-hueControllerType" style="width:160px;">
+      <i class="fa fa-cubes"></i>
+      <span data-i18n="knxUltimateHueController.device_function"></span>
+    </label>
+    <select id="node-input-hueControllerType" style="width:33.333%;">
+      <option value="light" data-i18n="knxUltimateHueController.types.light"></option>
+      <option value="plug" data-i18n="knxUltimateHueController.types.plug"></option>
+      <option value="button" data-i18n="knxUltimateHueController.types.button"></option>
+      <option value="relative_rotary" data-i18n="knxUltimateHueController.types.relative_rotary"></option>
+      <option value="motion" data-i18n="knxUltimateHueController.types.motion"></option>
+      <option value="area_motion" data-i18n="knxUltimateHueController.types.area_motion"></option>
+      <option value="camera_motion" data-i18n="knxUltimateHueController.types.camera_motion"></option>
+      <option value="contact" data-i18n="knxUltimateHueController.types.contact"></option>
+      <option value="light_level" data-i18n="knxUltimateHueController.types.light_level"></option>
+      <option value="temperature" data-i18n="knxUltimateHueController.types.temperature"></option>
+      <option value="humidity" data-i18n="knxUltimateHueController.types.humidity"></option>
+      <option value="scene" data-i18n="knxUltimateHueController.types.scene"></option>
+      <option value="device_power" data-i18n="knxUltimateHueController.types.device_power"></option>
+      <option value="zigbee_connectivity" data-i18n="knxUltimateHueController.types.zigbee_connectivity"></option>
+      <option value="device_software_update" data-i18n="knxUltimateHueController.types.device_software_update"></option>
+    </select>
+  </div>
+  <div id="hue-controller-profile-editor"></div>
+  <br/>
+   <br/>
+    <br/>
+     <br/>
+</script>
+
+<script type="text/markdown" data-help-name="knxUltimateHueController">
+# HUE Controller
+
+[**KNX-Ultimate video tutorials (YouTube playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
+
+The unified controller for Hue API v2 resources. Choose the device function and configure the same KNX mapping and behaviour already available in the established dedicated Hue node.
+
+The controller supports lights and grouped lights, plugs, buttons, Tap dial, motion resources, contacts, light level, temperature, humidity, scenes, battery, Zigbee connectivity, and device software update resources.
+
+## Convert a legacy HUE flow
+
+Use **Convert legacy HUE flow**, paste a complete Node-RED flow export, and press **Convert**. The conversion runs only in the browser: it does not inspect or modify the open flow. The returned JSON replaces every supported legacy HUE node with HUE Controller while preserving IDs, configuration references, properties, positions, and wires. Copy the result and import it into Node-RED, preferably as a new flow for comparison before removing the original.
+
+Node-RED intentionally excludes credentials from flow exports. When importing into the same Node-RED installation, keep **Reuse existing Hue and KNX config nodes** selected: referenced `hue-config` and `knxUltimate-config` objects are omitted from the converted JSON, while their IDs remain on the converted nodes so the existing configurations retain their keys and passwords. Clear the option only for a different installation, where credentials must be entered again after import.
+
+**Copy converted flow** uses the browser Clipboard API and falls back to a temporary selected textarea when direct clipboard access is unavailable. If the browser blocks both methods, the output JSON is selected so it can be copied manually.
+
+## Compatibility and loop protection
+
+Each function uses its private mature runtime contract. Hue events remain status updates and are never reflected to Hue or KNX as new commands unless the selected function explicitly maps them to a KNX output. The Controller owns its Light implementation without modifying the original legacy Hue Light node.
+
+Dedicated legacy HUE nodes remain registered for existing flows, but are frozen and receive no new features or maintenance updates. Node-RED hides their special `deprecated` category from the palette, while existing instances remain editable, deployable, lighter than HUE Controller and visibly marked `(deprecated)` on the canvas. They also show a migration notice at the top of their editor. Use HUE Controller for new work or migrate them with the paste-in converter.
+
+When no **KNX Gateway** is selected (including **none** and **Add new...**), the KNX mapping fields are hidden. Hue resource selection and flow-only options remain available.
+
+For a single light, the **Dim**, **Tunable White**, **RGB/HSV**, and native-effects sections are enabled from the live capabilities reported by the selected Hue API v2 light resource. A light that exposes `dimming`, `color_temperature`, or `color` therefore shows the corresponding KNX mappings automatically.
+
+While the Hue Bridge is still loading its resources, the Light editor displays a spinning hourglass and polls readiness every 500 ms. The wait is bounded: after about 10 seconds the editor is released, the mapping tabs remain hidden, and a localized error asks you to check the bridge configuration, deploy, and retry. Closing, saving, or changing function always cancels the pending timer.
+
+Changing **Device function** changes the visible editor and the node pin layout. After saving, reopen the node to verify the selected resource and mappings.
+
+KNX mapping rows keep GA, DPT and Name on one line. DPT selectors use a compact fixed range, while Name fields are shorter and may contract further on a narrow editor tray without changing their stored text.
+
+<!-- HUE_CONTROLLER_PROFILE_HELP_START -->
+
+## Device function
+
+- [Light / grouped light (`light`)](#hue-controller-help-light)
+- [Plug / outlet (`plug`)](#hue-controller-help-plug)
+- [Button (`button`)](#hue-controller-help-button)
+- [Tap dial (`relative_rotary`)](#hue-controller-help-relative_rotary)
+- [Motion (`motion`)](#hue-controller-help-motion)
+- [Area motion (`area_motion`)](#hue-controller-help-area_motion)
+- [Camera motion (`camera_motion`)](#hue-controller-help-camera_motion)
+- [Contact (`contact`)](#hue-controller-help-contact)
+- [Light level (`light_level`)](#hue-controller-help-light_level)
+- [Temperature (`temperature`)](#hue-controller-help-temperature)
+- [Humidity (`humidity`)](#hue-controller-help-humidity)
+- [Scene (`scene`)](#hue-controller-help-scene)
+- [Battery (`device_power`)](#hue-controller-help-device_power)
+- [Zigbee connectivity (`zigbee_connectivity`)](#hue-controller-help-zigbee_connectivity)
+- [Device software update (`device_software_update`)](#hue-controller-help-device_software_update)
+
+<span id="hue-controller-help-light" data-hue-controller-type="light"></span>
+
+## Light / grouped light (`light`)
+
+<p>This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.</p>
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Name | Hue light or grouped light to use (autocomplete while typing).|
+
+<br/>
+
+**Locate device**
+
+Use the `Locate` button (play icon) to start a Hue identify session for the selected resource. While the session is active the button switches to a stop icon and the bridge makes the light — or every light in the grouped resource — blink once per second. Press the button again to stop immediately; otherwise the session ends automatically after 10 minutes.
+
+<br/>
+
+**OPTIONS**
+
+Here you can link KNX Group Addresses to the available Hue commands/states.<br/>
+Start typing in the GA field (name or Group Address); suggestions appear while you type.
+
+**Switch**
+
+|Property|Description|
+|--|--|
+| Control | This GA is used to turn on/off the Hue light via a boolean KNX value true/false|
+| Status | Link this to the light's switch status group address|
+
+<br/>
+
+**Dim**
+
+|Property|Description|
+|--|--|
+| Control dim | Relative DIM of the Hue light. You can set the dimming speed in the **Behaviour** tab. |
+| Control % | Changes the absolute Hue light's brightness (0-100%)|
+| Status % | Link this to the light's brightness status KNX group address |
+| Dim Speed (ms) | Dimming speed in milliseconds. Applies to both the light brightness and the tunable-white datapoints. Calculated over the 0%→100% range. |
+| Min Dim brightness | Tha Minimum brightness that the lamp can reach. For example, if you are dimming the light down, the light will stop dimming at the specified brightness %. |
+| Max Dim brightness | Tha Maximum brightness that the lamp can reach. For example, if you are dimming the light up, the light will stop dimming at the specified brightness %. |
+
+<br/>
+
+**Tunable White**
+
+|Property|Description|
+|--|--|
+| Control dim | Change white temperature using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
+| Control % | Change white temperature using DPT 5.001. 0 = full warm, 100 = full cold.|
+| Status %| Temperature status GA. DPT 5.001 absolute value: 0 = full warm, 100 = full cold.|
+| Control kelvin | **DPT 7.600: ** set temperature in Kelvin using the KNX range 2000-6535 (converted to Hue mirek).<br/>**DPT 9.002:** set temperature using Hue range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations.|
+| Status kelvin | **DPT 7.600: ** read temperature in Kelvin using KNX range 2000-6535 (converted from Hue).<br/>**DPT 9.002:** read temperature using Hue range 2000-6535 K (Ambiance starts at 2200 K). Conversions may introduce small deviations. |
+| Invert dim direction | Inverts the DIM direction. |
+<br/>
+
+**RGB/HSV**
+
+|Property|Description|
+|--|--|
+| **RGB section** ||
+| Control rgb| Change color using RGB triplet (r,g,b). Gamut correction is handled. Sending a color turns the light on and sets color/brightness (perceptual). Sending r,g,b = 0 turns the light off. |
+| Status rgb | The light's color status group address. Accepted datapoint is RGB triplet (r,g,b)|
+| **HSV section** ||
+| Color H dim | Cycle through HSV hue using DPT 3.007 dimming. Speed is set in the **Behaviour** tab.|
+| Status H %| Status of the HSV chromatic circle.|
+| Control S dim | Changes the light's color saturation, using DPT 3.007 dimming. You can set the dimming speed in the **_Behaviour_** tab.|
+| Status S %| The light color saturation status group address.|
+| Dim Speed (ms) | The dimming speed, in Milliseconds, from bottom to top scale. |
+
+For controlling the HSV "V” (brightness), use the standard controls under the **Dim** tab.
+
+<br/>
+
+**Effects**
+
+_Non-Hue basic effects_
+
+|Property|Description|
+|--|--|
+| Blink | _true_ Blink the light, _false_ Stop blinking. Blinks the light on and off. Useful for signalling. Works with all Hue lights. |
+| Color Cycle | _true_ start cycle, _false_ Stop cycle. Randomly changes the Hue light's color at regular interval. Works with all Hue lights having color capabilities. The color effect will start 10 seconds after set. |
+
+_Hue native effects_
+
+Use the **Hue native effects** table to map your KNX values to the effects supported by the selected light (for example `candle`, `fireplace`, `prism`). Each row links a KNX value (boolean, numeric or textual, depending on the datapoint you pick) with a Hue effect. On the KNX side you can:
+
+- send the mapped value to activate that effect;
+- optionally provide a status Group Address: the node emits the mapped value whenever the Hue bridge reports an effect change; if no mapping exists the raw effect name is sent (requires a textual DPT such as 16.xxx).
+
+<br/>
+
+**Behaviour**
+
+| Property | Description |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read status at startup | Read the Hue light status at node-red's startup or node-red's full deploy, and send that status to the KNX BUS |
+| KNX Brightness Status | Updates the KNX brightness group address status, whenever the Hue lamp is switched ON/OFF. The options are **When Hue light is Off send 0%. When Hue On, restore previous value (Default KNX behaviour) ** and**Leave as is (default Hue behaviour) ** . If you have KNX dimmer with brightness status, like MDT, the suggested option is _**When Hue light is Off send 0%. When Hue On, restore previous value (Default KNX behaviour)** _ |
+| Update local cached Hue state from KNX bus writes | Advanced option, enabled by default. When enabled, writes arriving from the KNX bus also update the node's local cached Hue state immediately, without waiting for feedback/events from the Hue bridge. This gives faster local reactions and more consistent immediate KNX read responses, especially while the light or grouped light is OFF. Disable it if you prefer the cache to follow only real feedback/events from the Hue bridge. |
+| Switch on behaviour | It sets the behaviour of your lights when switched on. You can choose from differents behaviours.<br/> **Select color: ** the light will be switched on with the color of your choice. To change color, just CLICK on the color selector (under the _Select color_ control).<br/>**Select temperature and brightness: ** the light will be switched on with the temperature (Kelvin) and brightness (0-100) of your choice.<br/>**None:** the light will retain its last status. In case you've enable the night lighting, after the night time ends, the lamp will resume the color/temperature/brightness state set at day time. |
+| Night Lighting | It allows to set a particular light color/brightness at nighttime. The options are the same as the daytime. You could select either a temperature/brightness or color. A cozy temperature of 2700 Kelvin, with a brightness of 10% or 20%, is a good choice for bathroom's night light.|
+| Day/Night | Select the group address used to set the day/night behaviour. The group address value is _true_ if daytime, _false_ if nighttime. |
+| Invert day/night value | Invert the values of _Day/Night_ group address. Default value is **unchecked** . |
+| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+| Force day mode | You can force the day mode by manually switching the light as described here: **Switch to DAY mode by rapid switching the ligth off then on (This light only) ** does what described and acts only on this light.**Switch to DAY mode by rapid switching the ligth off then on (apply yo ALL light nodes)** acts to ALL Light nodes, by setting the Day/Night group address to Day mode. |
+| Node Input/Output PINs | Hide or show the input/output PINs. Input/output PINS allow the node to accept msg input from the flow and send msg output to the flow. Input msg must follow the Hue API v.2 Standards. This is an example msg, that turns on the light: <code>msg.on = {"on":true}</code>. Please refer to the [official Hue Api page](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put) |
+
+##### Note
+
+The Dimming function works in **KNX mode `start` and`stop` ** . To start dimming, send only one "start" KNX telegram. To stop dimming, send a "stop" KNX telegram. Please**remember that** , when you set your wall swiches properties.
+
+<br/>
+
+---
+
+<span id="hue-controller-help-plug" data-hue-controller-type="plug"></span>
+
+## Plug / outlet (`plug`)
+
+### Hue Plug / Outlet
+
+#### Overview
+
+The Hue Plug node links a Philips Hue smart plug (service `plug`) with KNX group addresses so you can control power and track the state directly from the BUS.
+
+- Supports **on/off control** and **status feedback**.
+- Optional mapping of the Hue `power_state` (on / standby).
+- Can expose Node-RED input/output pins to forward Hue events to flows or send advanced API payloads.
+
+#### Configuration
+
+|Field|Description|
+|--|--|
+| KNX GW | KNX gateway used for telegrams |
+| Hue Bridge | Configured Hue Bridge |
+| Name | Select the Hue plug from the autocomplete list |
+| Control | KNX GA for on/off commands (boolean DPT) |
+| Status | GA for the on/off feedback coming from Hue |
+| Power state | Optional GA mirroring Hue `power_state` (boolean/text) |
+| Read status at startup | When enabled, the node emits the current plug state on deploy/connection |
+| Node Input/Output PINs | Enable Node-RED input/output pins. Input expects Hue API payloads (e.g. `{ on: { on: true } }`). Output forwards every Hue event. |
+
+#### KNX Mapping Tips
+
+- Use a boolean datapoint (e.g. DPT 1.001) for both command and status.
+- If you expose `power_state`, map it to a boolean GA (true = `on`, false = `standby`).
+- For read requests (`GroupValue_Read`) the node returns the last cached Hue value.
+
+#### Flow Integration
+
+When _Node I/O pins_ are enabled:
+
+- **Input:** send Hue v2 payloads to perform advanced actions (e.g. `msg.on = { on: true }`).
+- **Output:** receive an event object `{ payload: boolean, on, power_state, rawEvent }` whenever Hue reports a change.
+
+#### Hue API Reference
+
+The node uses `/resource/plug/{id}` over HTTPS. Status changes are delivered via the Hue event stream and cached for KNX read responses.
+
+---
+
+<span id="hue-controller-help-button" data-hue-controller-type="button"></span>
+
+## Button (`button`)
+
+<p>The Hue Button node maps Hue button events to KNX group addresses and exposes the same events on its flow output via <code>button.button_report.event</code>.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Button | Hue button to be used (autocomplete while typing) |
+
+**Switch**
+
+|Property|Description|
+|--|--|
+| Switch | GA triggered by <code>short\_release</code> (quick press/release). |
+| Status GA | Optional feedback GA when <em>Toggle values</em> is enabled to keep the internal toggle state aligned with other actuators. |
+
+**Dim**
+
+|Property|Description|
+|--|--|
+| Dim | GA used during <code>long\_press</code>/<code>repeat</code> events for dimming (typically DPT 3.007). |
+
+**Behaviour**
+
+|Property|Description|
+|--|--|
+| Toggle values on each event | If enabled, the node alternates between <code>true/false</code> and up/down dimming payloads. |
+| Switch payload | Payload sent to KNX/flow when Toggle values is disabled. |
+| Dim payload | Direction sent to KNX/flow when Toggle values is disabled. |
+
+##### Outputs
+
+1. Standard output
+   : `msg.payload` carries the boolean (or dim object) sent to KNX; `msg.event` is the Hue event string (e.g. `short_release`, `repeat`).
+
+##### Details
+
+`msg.event` mirrors `button.button_report.event`. The original Hue event is exposed in `msg.rawEvent`. Use the optional Status GA to keep the toggle state in sync with wall switches or other controllers.
+
+---
+
+<span id="hue-controller-help-relative_rotary" data-hue-controller-type="relative_rotary"></span>
+
+## Tap dial (`relative_rotary`)
+
+The **Hue Tap Dial** node maps the rotary service of the Hue Tap Dial to KNX and forwards the raw Hue events to your flow. Use the refresh icon beside the device field after pairing a new dial on the bridge.
+
+##### Tabs
+
+- **Mapping** - select the KNX GA and DPT used for the rotation events. Supported datapoints: DPT 3.007 (relative dim), DPT 5.001 (absolute level 0-100 %) and DPT 232.600 (vendor colour control).
+- **Behaviour** - show or hide the Node-RED output pin. When no KNX gateway is configured the output is kept enabled so Hue events still reach the flow.
+
+##### General settings
+
+|Property|Description|
+|--|--|
+| KNX GW | KNX gateway used for GA autocomplete. |
+| Hue Bridge | Hue Bridge hosting the Tap Dial. |
+| Hue Tap Dial | Rotary device to control (autocomplete; refresh button reloads the list). |
+
+##### Mapping tab
+
+|Property|Description|
+|--|--|
+| Rotate GA | KNX GA receiving rotation events (supports DPT 3.007, 5.001, 232.600). |
+| Name | Friendly label for the GA. |
+
+##### Outputs
+
+|#|Port|Payload|
+|--|--|--|
+|1|Standard output|`msg.payload` (object) Raw Hue event emitted by the Tap Dial.|
+
+> ℹ️ KNX-specific widgets appear only after selecting a KNX gateway; the Mapping tab stays hidden until both the bridge and the gateway are configured.
+
+---
+
+<span id="hue-controller-help-motion" data-hue-controller-type="motion"></span>
+
+## Motion (`motion`)
+
+<p>This node listens to a Hue motion sensor and mirrors the events to KNX and/or your Node-RED flow.</p>
+
+Start typing the KNX device name or Group Address in the GA field; suggestions appear while you type. Hit the refresh button next to "Hue sensor” to reload the device list from the bridge if you add new sensors.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | KNX gateway that receives the motion updates (required before KNX mapping fields appear). |
+| Hue Bridge | Hue Bridge to query. |
+| Hue motion sensor | Hue motion sensor (supports autocomplete and refresh). |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Motion | KNX GA that receives `true` when motion is detected and `false` when the area is clear. Recommended DPT: <b>1.001</b>. |
+
+**Behaviour**
+
+|Property|Description|
+|--|--|
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output pin stays enabled so Hue motion events still reach your flow. |
+
+> ℹ️ KNX widgets remain hidden until you select a KNX gateway, making it easy to use the node purely as a Hue → Node-RED listener.
+
+##### Output
+
+1. Standard output — `msg.payload` (boolean)
+   : `true` on motion, `false` when motion ends.
+
+---
+
+<span id="hue-controller-help-area_motion" data-hue-controller-type="area_motion"></span>
+
+## Area motion (`area_motion`)
+
+<p>The Hue Motion Area node listens to MotionAware area motion events (Hue Bridge Pro) and mirrors the aggregated detected/not-detected state to KNX or your Node-RED flow.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used. |
+| HUE Bridge | Select the Hue Bridge Pro to be used. |
+| HUE Area | MotionAware area (convenience or security) to monitor (autocomplete while typing). |
+| Read status at startup | On startup/reconnect, read the current value and send it to KNX (default: yes). |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Motion | KNX GA for the area motion state (boolean). Recommended DPT: <b>1.001</b>. |
+
+**Behaviour**
+
+|Property|Description|
+|--|--|
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output pin stays enabled so MotionAware events still reach your flow. |
+
+##### Outputs
+
+1. Standard output
+   : `msg.payload` (boolean): `true` when motion is detected in the area, otherwise `false`.
+
+##### Details
+
+`msg.payload` carries the latest MotionAware area motion status (aggregated from the underlying sensors).
+
+---
+
+<span id="hue-controller-help-camera_motion" data-hue-controller-type="camera_motion"></span>
+
+## Camera motion (`camera_motion`)
+
+<p>The Hue Camera Motion node listens to Philips Hue camera motion services and mirrors the detected/not detected state to KNX.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Camera Motion | Hue camera motion sensor (autocomplete while typing) |
+| Read status at startup | On startup/reconnect, read the current value and send it to KNX (default: no) |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Motion | KNX GA for camera motion (boolean). Recommended DPT: <b>1.001</b> |
+
+##### Outputs
+
+1. Standard output
+   : `msg.payload` (boolean): `true` when motion is detected; otherwise `false`
+
+##### Details
+
+`msg.payload` carries the latest motion status reported by the Hue camera service.
+
+---
+
+<span id="hue-controller-help-contact" data-hue-controller-type="contact"></span>
+
+## Contact (`contact`)
+
+<p>This node forwards events from a Hue contact sensor and maps them to KNX group addresses.</p>
+
+Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Contact Sensor | Hue contact sensor to be used (autocomplete while typing).|
+
+| Property | Description |
+|--|--|
+| Contact | When the contact opens/closes, send KNX value: _true_ on active/open, otherwise _false_. |
+
+##### Outputs
+
+1. Standard output
+   : payload (boolean) : the standard output of the command.
+
+##### Details
+
+`msg.payload` carries the raw Hue event (boolean/object). Use it for custom logic if needed.
+
+---
+
+<span id="hue-controller-help-light_level" data-hue-controller-type="light_level"></span>
+
+## Light level (`light_level`)
+
+<p>This node reads lux events from a Hue Light Sensor and maps them to KNX.</p>
+
+It emits the ambient illuminance (lux) each time it changes. Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Light Sensor | Hue Light Sensor to use (autocomplete while typing).|
+| Read status at startup | Read the status at startup and emit the event to the KNX bus at startup/reconnection. (Default "no")|
+
+**Mapping**
+
+| Property | Description |
+|--|--|
+| Lux | KNX GA that receives the lux value. |
+
+##### Outputs
+
+1. Standard output
+   : payload (number): current lux value.
+
+##### Details
+
+`msg.payload` carries the numeric lux value. Use it for custom logic if needed.
+
+---
+
+<span id="hue-controller-help-temperature" data-hue-controller-type="temperature"></span>
+
+## Temperature (`temperature`)
+
+<p>This node reads temperature (°C) from a Hue temperature sensor and maps it to KNX.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue temperature sensor | Hue temperature sensor (autocomplete while typing) |
+| Read status at startup | On startup/reconnect, read current value and send it to KNX (default: no) |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Temp | KNX GA for temperature in Celsius. Recommended DPT: <b>9.001</b> |
+
+##### Outputs
+
+1. Standard output
+   : `msg.payload` (number): current temperature in °C
+
+##### Details
+
+`msg.payload` carries the numeric temperature value.
+
+---
+
+<span id="hue-controller-help-humidity" data-hue-controller-type="humidity"></span>
+
+## Humidity (`humidity`)
+
+<p>This node reads relative humidity (%) from a Hue humidity sensor and maps it to KNX.</p>
+
+Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue Sensor | Hue humidity sensor (autocomplete while typing) |
+| Read status at startup | On startup/reconnect, read current value and send it to KNX (default: no) |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Humidity | KNX GA for relative humidity %. Recommended DPT: <b>9.007</b> |
+
+##### Outputs
+
+1. Standard output
+   : `msg.payload` (number): current relative humidity in %
+
+##### Details
+
+`msg.payload` carries the numeric humidity value (percentage).
+
+---
+
+<span id="hue-controller-help-scene" data-hue-controller-type="scene"></span>
+
+## Scene (`scene`)
+
+The **Hue Scene** node exposes Hue scenes to KNX and can forward the raw Hue events to a Node-RED flow. The scene field supports autocomplete; use the refresh icon after adding scenes on the bridge so the list stays up to date.
+
+##### Tabs at a glance
+
+- **Mapping** - link KNX group addresses to the selected Hue scene. DPT 1.xxx performs boolean recall, while DPT 18.xxx sends a KNX scene number.
+- **Multi scene** - build a rule list that associates KNX scene numbers with different Hue scenes and chooses whether each scene is recalled as _active_, _dynamic\_palette_ or _static_.
+- **Behaviour** - toggle the Node-RED output pin. When no KNX gateway is configured the pin remains enabled so bridge events still reach the flow.
+
+##### General settings
+
+|Property|Description|
+|--|--|
+| KNX GW | KNX gateway supplying the address catalogue used for autocomplete. |
+| Hue Bridge | Hue Bridge that hosts the scenes. |
+| Hue Scene | Scene to recall (autocomplete; refresh button reloads the bridge catalogue). |
+
+##### Mapping tab
+
+|Property|Description|
+|--|--|
+| Recall | KNX group address that recalls the scene. Use DPT 1.xxx for boolean control or DPT 18.xxx to transmit a KNX scene number. |
+| DPT | Datapoint used with the recall GA (1.xxx or 18.001). |
+| Name | Friendly label for the recall GA. |
+| # | Appears when a KNX scene DPT is chosen; select the KNX scene number to send. |
+| Status GA | Optional boolean GA that mirrors whether the scene is currently active. |
+
+##### Multi scene tab
+
+|Property|Description|
+|--|--|
+| Recall | KNX GA (DPT 18.001) that selects scenes by number. |
+| Scene selector | Editable list that maps KNX scene numbers to Hue scenes with the desired recall mode. Drag handles reorder entries. |
+
+> ℹ️ KNX-specific widgets only appear after a KNX gateway is selected. The Mapping tabs remain hidden until both the bridge and the gateway are configured.
+
+---
+
+<span id="hue-controller-help-device_power" data-hue-controller-type="device_power"></span>
+
+## Battery (`device_power`)
+
+<p>This node exposes the battery level of a Hue device to KNX and raises an event whenever the value changes.</p>
+
+Start typing the KNX device name or Group Address in the GA field; matching entries appear while you type. Use the refresh icon next to <q>Hue sensor</q> to reload the list from the Hue bridge after adding new devices.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | KNX gateway used to publish the battery level (required before KNX mapping fields appear). |
+| Hue Bridge | Hue Bridge that hosts the device. |
+| Hue battery sensor | Hue device/sensor providing the battery level (supports autocomplete and refresh). |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Level | KNX GA for the battery percentage (0-100%). Recommended DPT: <b>5.001</b>. |
+
+**Behaviour**
+
+|Property|Description|
+|--|--|
+| Read status at startup | On deploy/reconnect read the current battery value and publish it to KNX. Default: "yes”. |
+| Node output pin | Show or hide the Node-RED output. When no KNX gateway is selected the output stays enabled so Hue events continue to reach the flow. |
+
+> ℹ️ KNX mapping widgets remain hidden until a KNX gateway is selected. This keeps the editor tidy when the node is used only to forward Hue events into Node-RED.
+
+---
+
+<span id="hue-controller-help-zigbee_connectivity" data-hue-controller-type="zigbee_connectivity"></span>
+
+## Zigbee connectivity (`zigbee_connectivity`)
+
+<p>This node retrieves the Zigbee connectivity status from a Hue device and exposes it to KNX.</p>
+
+Start typing the KNX device name or Group Address in the GA field; suggestions appear while you type.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | KNX gateway used to publish the status. |
+| Hue Bridge | Hue Bridge to query. |
+| Hue zigbee connectivity | Hue sensor/device providing the Zigbee connectivity info. Autocomplete while typing. |
+
+**Mapping**
+
+|Property|Description|
+|--|--|
+| Status | KNX Group Address that reflects Zigbee connectivity. Becomes _true_ when connected, otherwise _false_. |
+| Read status at startup | Reads current status at editor start/reconnection and emits to KNX. Default: "yes”. |
+
+##### Outputs
+
+1. Standard output
+   : payload (boolean): connectivity state.
+
+##### Details
+
+`msg.payload` carries the boolean state (true/false).\
+`msg.status` contains a textual status: one of **connected, disconnected, connectivity\_issue, unidirectional\_incoming** .
+
+---
+
+<span id="hue-controller-help-device_software_update" data-hue-controller-type="device_software_update"></span>
+
+## Device software update (`device_software_update`)
+
+<p>This node monitors whether a selected Hue device has a software update available and publishes the status to KNX.</p>
+
+Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while
+you're typing.
+
+**General**
+
+|Property|Description|
+|--|--|
+| KNX GW | Select the KNX gateway to be used |
+| Hue Bridge | Select the Hue Bridge to be used |
+| Hue device | Hue device to monitor for software updates (autocomplete while typing).|
+
+**Mapping**
+
+| Property | Description |
+|--|--|
+| Status | KNX GA reflecting update status. _true_ if an update is available/ready/being installed, otherwise _false_. |
+| Read status at startup | Read current status at startup/reconnection and emit to KNX (default "yes”). |
+
+##### Outputs
+
+1. Standard output
+   : payload (boolean): update flag.
+   : status (string): one of **no\_update, update\_pending, ready\_to\_install, installing** .
+
+<!-- HUE_CONTROLLER_PROFILE_HELP_END -->
+</script>

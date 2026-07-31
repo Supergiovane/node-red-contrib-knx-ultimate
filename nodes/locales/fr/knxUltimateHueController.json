@@ -1,0 +1,48 @@
+{
+  "common": {
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Hue Bridge"
+  },
+  "knxUltimateHueController": {
+    "device_function": "Fonction de l'appareil",
+    "legacy_node_notice": "Ce nœud HUE legacy est obsolète. Utilisez le nouveau nœud HUE Controller pour les nouveaux flows.",
+    "migration_button": "Convertir un flow HUE legacy",
+    "migration_button_title": "Collez un flow Node-RED et convertissez ses nœuds HUE legacy",
+    "migration_title": "Convertir un flow HUE legacy",
+    "migration_privacy": "Collez un flow exporté depuis Node-RED. La conversion s'effectue localement et ne modifie pas le flow ouvert.",
+    "migration_credentials_notice": "Node-RED exclut volontairement les clés et mots de passe des flows exportés. Le convertisseur ne peut ni les lire ni les recréer.",
+    "migration_reuse_configs": "Réutiliser les nœuds de configuration Hue et KNX existants (recommandé)",
+    "migration_reuse_configs_help": "Laissez cette option cochée lors de l'import dans la même installation Node-RED. Les nœuds de configuration référencés sont omis du résultat afin de conserver leurs identifiants stockés.",
+    "migration_input": "JSON du flow d'origine",
+    "migration_input_placeholder": "Collez ici l'export complet du flow Node-RED",
+    "migration_convert": "Convertir",
+    "migration_copy": "Copier le flow converti",
+    "migration_output": "JSON du flow converti",
+    "migration_close": "Fermer",
+    "migration_summary": "{{count}} nœuds HUE legacy convertis.",
+    "migration_summary_reused": "{{count}} nœuds de configuration référencés seront réutilisés avec leurs identifiants existants.",
+    "migration_configs_included_warning": "Les nœuds de configuration sont inclus sans les identifiants exportés ; saisissez leurs clés et mots de passe après l'import.",
+    "migration_none": "Aucun nœud HUE legacy trouvé.",
+    "migration_invalid": "JSON de flow invalide :",
+    "migration_copy_success": "Flow converti copié.",
+    "migration_copy_failed": "L'accès au presse-papiers a été bloqué. Le JSON converti a été sélectionné ; copiez-le manuellement.",
+    "migration_unavailable": "L'outil de migration HUE n'est pas disponible. Redémarrez Node-RED après la mise à jour du paquet.",
+    "types": {
+      "light": "Lampe / groupe de lampes",
+      "plug": "Prise / sortie",
+      "button": "Bouton",
+      "relative_rotary": "Tap dial",
+      "motion": "Mouvement",
+      "area_motion": "Mouvement de zone",
+      "camera_motion": "Mouvement de caméra",
+      "contact": "Contact",
+      "light_level": "Niveau de lumière",
+      "temperature": "Température",
+      "humidity": "Humidité",
+      "scene": "Scène",
+      "device_power": "Batterie",
+      "zigbee_connectivity": "Connectivité Zigbee",
+      "device_software_update": "Mise à jour logicielle"
+    }
+  }
+}

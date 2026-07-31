@@ -4,6 +4,8 @@ title: "HUE Motion"
 lang: fr
 permalink: /wiki/fr-HUE%20Motion
 ---
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+
 Ce nœud écoute un capteur de mouvement de teinte et reflète les événements de KNX et / ou de votre flux rouge-rouge. 
 
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les suggestions apparaissent pendant que vous tapez.Appuyez sur le bouton d'actualisation à côté du "capteur Hue" pour recharger la liste des périphériques à partir du pont si vous ajoutez de nouveaux capteurs.

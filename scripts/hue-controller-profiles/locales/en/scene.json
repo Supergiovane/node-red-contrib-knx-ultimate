@@ -1,0 +1,41 @@
+{
+  "knxUltimateHueScene": {
+    "title": "Hue Scene node",
+    "paletteLabel": "Hue Scene",
+    "hue_scene": "Hue Scene",
+    "recall_as": "Recall as",
+    "recall_active": "Recall as Active",
+    "recall_dynamic": "Recall as Dynamic",
+    "recall_static": "Recall as Static",
+    "recall": "Recall",
+    "status": "Status",
+    "scene_selector": "Scene selector",
+    "knx_scene_n": "KNX Scene n.",
+    "node_pins": "Node input/output pins",
+    "node_pins_hide": "Hide pins",
+    "node_pins_show": "Show node input/output pins",
+    "tabs": {
+      "single": "Single scene",
+      "multi": "Multi scene",
+      "behaviour": "Behaviour"
+    },
+    "single_info": "Select the Hue scene and choose how it should be recalled when the KNX address is triggered.",
+    "mapping_info": "Map the KNX addresses that recall the scene or report its current state.",
+    "multi_info": "Associate KNX scene numbers with Hue scenes. Each rule recalls a different Hue scene.",
+    "behaviour_info": "Decide whether the Node-RED output pin should remain visible when KNX delivery is disabled.",
+    "status_ga": "Status GA",
+    "output_info": "Without a KNX gateway the flow output stays enabled so Hue events continue to reach Node-RED.",
+    "no_scenes": "No Hue scenes found. Use the refresh icon after adding new scenes.",
+    "multi_scene_placeholder": "Hue scene name"
+  },
+  "common": {
+    "ga": "GA",
+    "dpt": "DPT",
+    "name": "Name",
+    "youtube_sample": "Youtube sample",
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Hue Bridge",
+    "philips_hue": "Philips HUE",
+    "read": "Read"
+  }
+}

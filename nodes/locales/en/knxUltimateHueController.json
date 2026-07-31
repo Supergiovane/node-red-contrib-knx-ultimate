@@ -1,0 +1,48 @@
+{
+  "common": {
+    "knx_gw": "KNX GW",
+    "hue_bridge": "Hue Bridge"
+  },
+  "knxUltimateHueController": {
+    "device_function": "Device function",
+    "legacy_node_notice": "This legacy HUE node is deprecated. Use the new HUE Controller node for new flows.",
+    "migration_button": "Convert legacy HUE flow",
+    "migration_button_title": "Paste a Node-RED flow and convert its legacy HUE nodes",
+    "migration_title": "Convert legacy HUE flow",
+    "migration_privacy": "Paste an exported Node-RED flow. Conversion happens locally and does not modify the open flow.",
+    "migration_credentials_notice": "Node-RED deliberately excludes keys and passwords from exported flows. The converter cannot read or recreate them.",
+    "migration_reuse_configs": "Reuse existing Hue and KNX config nodes (recommended)",
+    "migration_reuse_configs_help": "Keep this selected when importing back into the same Node-RED installation. Referenced config nodes are omitted from the result, so their stored credentials remain untouched.",
+    "migration_input": "Original flow JSON",
+    "migration_input_placeholder": "Paste the complete Node-RED flow export here",
+    "migration_convert": "Convert",
+    "migration_copy": "Copy converted flow",
+    "migration_output": "Converted flow JSON",
+    "migration_close": "Close",
+    "migration_summary": "{{count}} legacy HUE nodes converted.",
+    "migration_summary_reused": "{{count}} referenced config nodes will be reused with their existing credentials.",
+    "migration_configs_included_warning": "Config nodes are included without exported credentials; enter their keys and passwords after import.",
+    "migration_none": "No legacy HUE nodes were found.",
+    "migration_invalid": "Invalid flow JSON:",
+    "migration_copy_success": "Converted flow copied.",
+    "migration_copy_failed": "Clipboard access was blocked. The converted JSON has been selected; copy it manually.",
+    "migration_unavailable": "The HUE migration tool is unavailable. Restart Node-RED after updating the package.",
+    "types": {
+      "light": "Light / grouped light",
+      "plug": "Plug / outlet",
+      "button": "Button",
+      "relative_rotary": "Tap dial",
+      "motion": "Motion",
+      "area_motion": "Area motion",
+      "camera_motion": "Camera motion",
+      "contact": "Contact",
+      "light_level": "Light level",
+      "temperature": "Temperature",
+      "humidity": "Humidity",
+      "scene": "Scene",
+      "device_power": "Battery",
+      "zigbee_connectivity": "Zigbee connectivity",
+      "device_software_update": "Device software update"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "common": {
+    "knx_gw": "KNX-Gateway",
+    "hue_bridge": "Hue Bridge"
+  },
+  "knxUltimateHueController": {
+    "device_function": "Gerätefunktion",
+    "legacy_node_notice": "Dieser Legacy-HUE-Knoten ist veraltet. Verwenden Sie für neue Flows den neuen HUE Controller-Knoten.",
+    "migration_button": "Legacy-HUE-Flow konvertieren",
+    "migration_button_title": "Einen Node-RED-Flow einfügen und seine Legacy-HUE-Knoten konvertieren",
+    "migration_title": "Legacy-HUE-Flow konvertieren",
+    "migration_privacy": "Fügen Sie einen exportierten Node-RED-Flow ein. Die Konvertierung erfolgt lokal und ändert den geöffneten Flow nicht.",
+    "migration_credentials_notice": "Node-RED schließt Schlüssel und Passwörter absichtlich aus exportierten Flows aus. Der Konverter kann sie weder lesen noch wiederherstellen.",
+    "migration_reuse_configs": "Vorhandene Hue- und KNX-Konfigurationsknoten wiederverwenden (empfohlen)",
+    "migration_reuse_configs_help": "Lassen Sie diese Option aktiviert, wenn Sie in dieselbe Node-RED-Installation importieren. Referenzierte Konfigurationsknoten werden aus dem Ergebnis entfernt, sodass ihre gespeicherten Zugangsdaten unverändert bleiben.",
+    "migration_input": "JSON des ursprünglichen Flows",
+    "migration_input_placeholder": "Vollständigen Node-RED-Flow-Export hier einfügen",
+    "migration_convert": "Konvertieren",
+    "migration_copy": "Konvertierten Flow kopieren",
+    "migration_output": "JSON des konvertierten Flows",
+    "migration_close": "Schließen",
+    "migration_summary": "{{count}} Legacy-HUE-Knoten konvertiert.",
+    "migration_summary_reused": "{{count}} referenzierte Konfigurationsknoten werden mit ihren vorhandenen Zugangsdaten wiederverwendet.",
+    "migration_configs_included_warning": "Konfigurationsknoten sind ohne exportierte Zugangsdaten enthalten; geben Sie Schlüssel und Passwörter nach dem Import erneut ein.",
+    "migration_none": "Keine Legacy-HUE-Knoten gefunden.",
+    "migration_invalid": "Ungültiges Flow-JSON:",
+    "migration_copy_success": "Konvertierter Flow kopiert.",
+    "migration_copy_failed": "Der Zugriff auf die Zwischenablage wurde blockiert. Das konvertierte JSON wurde markiert; kopieren Sie es manuell.",
+    "migration_unavailable": "Das HUE-Migrationswerkzeug ist nicht verfügbar. Starten Sie Node-RED nach der Paketaktualisierung neu.",
+    "types": {
+      "light": "Leuchte / Leuchtengruppe",
+      "plug": "Steckdose / Ausgang",
+      "button": "Taster",
+      "relative_rotary": "Tap dial",
+      "motion": "Bewegung",
+      "area_motion": "Bereichsbewegung",
+      "camera_motion": "Kamerabewegung",
+      "contact": "Kontakt",
+      "light_level": "Lichtstärke",
+      "temperature": "Temperatur",
+      "humidity": "Luftfeuchtigkeit",
+      "scene": "Szene",
+      "device_power": "Batterie",
+      "zigbee_connectivity": "Zigbee-Verbindung",
+      "device_software_update": "Geräte-Softwareupdate"
+    }
+  }
+}

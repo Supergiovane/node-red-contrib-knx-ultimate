@@ -10,8 +10,14 @@ tutorial
 docs/_site/
 docs/Gemfile.lock
 scripts/
+!scripts/
+scripts/*
+!scripts/generate-hue-controller-profiles.js
+!scripts/hue-controller-profiles/
+!scripts/hue-controller-profiles/**
 
 # Live integration test secrets & local state (NEVER commit real IPs/tokens/passwords)
+flows_cred.json
 test/
 !test/
 test/*
@@ -20,3 +26,4 @@ test/*
 !test/knxAiConversation.test.js
 !test/disabledSidebarPlugins.test.js
 !test/knxAiHomeMemory.test.js
+!test/hueController.test.js

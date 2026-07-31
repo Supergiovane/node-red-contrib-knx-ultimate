@@ -4,6 +4,8 @@ title: "HUE Light sensor"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Light%20sensor
 ---
+> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会打开与 HUE Controller 相同的完整流程转换器。
+
 该节点从 HUE 光照传感器读取 Lux 事件并发布到 KNX。
 
 每当环境光变化时会输出 Lux 值。在 GA 字段输入 KNX 设备名或组地址（自动补全）以进行关联。

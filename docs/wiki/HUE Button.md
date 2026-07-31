@@ -4,6 +4,8 @@ title: "HUE Button"
 lang: en
 permalink: /wiki/HUE%20Button
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 The Hue Button node maps Hue button events to KNX group addresses and exposes the same events on its flow output via <code>button.button_report.event</code>.
 
 Start typing in the GA field (name or Group Address) to link the KNX GA; devices appear while you type.

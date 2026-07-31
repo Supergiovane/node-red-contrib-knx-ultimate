@@ -150,6 +150,8 @@ describe('Matter QR scanner editor helpers', () => {
       const wiki = fs.readFileSync(path.join(projectRoot, 'docs/wiki', wikiName), 'utf8')
       expect(help, `${locale}:help`).to.include('localhost')
       expect(wiki, `${locale}:wiki`).to.include('localhost')
+      expect(wiki, `${locale}:controller overview hero`).to.include('data-matter-controller-overview="hero"')
+      expect((wiki.match(/data-matter-controller-overview="hero"/g) || []), `${locale}:single controller hero`).to.have.length(1)
     })
   })
 

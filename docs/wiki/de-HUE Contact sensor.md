@@ -4,6 +4,8 @@ title: "HUE Contact sensor"
 lang: de
 permalink: /wiki/de-HUE%20Contact%20sensor
 ---
+> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton in diesem Editor öffnet denselben vollständigen Flow-Konverter wie HUE Controller.
+
 Dieser Node leitet Ereignisse eines HUE-Kontaktsensors weiter und ordnet sie KNX-Gruppenadressen zu.
 
 Tippen Sie in das Feld GA, die Name oder die Gruppenadresse Ihres KNX -Geräts, die avabaren Geräte werden beim Eingeben angezeigt.

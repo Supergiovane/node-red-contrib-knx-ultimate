@@ -4,6 +4,8 @@ title: "HUE Device software update"
 lang: de
 permalink: /wiki/de-HUE%20Device%20software%20update
 ---
+> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton in diesem Editor öffnet denselben vollständigen Flow-Konverter wie HUE Controller.
+
 Dieser Node überwacht, ob ein HUE-Gerät ein Software-Update hat, und spiegelt den Status nach KNX.
 
 Geben Sie den Namen oder die Gruppenadresse Ihres KNX -Geräts im Feld GA ein.

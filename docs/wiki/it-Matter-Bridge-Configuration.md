@@ -6,9 +6,29 @@ permalink: /wiki/it-Matter-Bridge-Configuration
 ---
 # Bridge Matter (BETA)
 
-> Questo nodo è in **BETA**: funziona, ma alcuni dettagli potrebbero cambiare tra una release e l'altra.
+<div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Server Matter · Multi-fabric · Identità persistente</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Abbina un bridge. Esponi tutti i dispositivi KNX.</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f3fbff;">Questo nodo di configurazione possiede server Matter, identità del bridge e sessioni dei controller abbinati. Alexa, Google Home, Apple Home e gli altri controller lo associano una sola volta; i nodi device compaiono poi sotto di esso come endpoint live.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Abbina una volta</strong><span style="font-size:0.76rem;color:#e0f7ff;">QR + codice manuale</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Multi-fabric</strong><span style="font-size:0.76rem;color:#e0f7ff;">più controller</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Riconciliazione live</strong><span style="font-size:0.76rem;color:#e0f7ff;">endpoint in pochi secondi</span></div>
+  </div>
+</div>
 
-## Panoramica
+## Il bridge in sintesi
+
+| Area | Cosa offre |
+|---|---|
+| **Abbinamento** | QR e codice manuale, più fabric Matter e reset esplicito per ripartire. |
+| **Identità** | Identità stabile tra deploy ordinari, cambi nome e riconciliazione degli endpoint. |
+| **Scalabilità** | Più bridge indipendenti su porte UDP distinte e qualsiasi numero di nodi device. |
+| **Protezione** | Esportazione/importazione di fabric, credenziali private, sessioni e dati di abbinamento. |
+
+> **BETA:** il bridge è operativo, ma alcuni dettagli possono ancora evolvere. Proteggi il backup come una password e usa **Reset abbinamento** solo per rimuovere tutti i controller associati.
+
+## Panoramica tecnica
 
 Questo nodo di configurazione è il **bridge Matter vero e proprio**: esegue il server Matter che Alexa, Google Home, Apple Home (o qualunque controller Matter) associano **una sola volta**. Ogni nodo **Matter Bridge device** nei tuoi flow punta qui e compare nelle app come un dispositivo del bridge.
 

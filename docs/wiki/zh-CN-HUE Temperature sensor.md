@@ -4,6 +4,8 @@ title: "HUE Temperature sensor"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Temperature%20sensor
 ---
+> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会打开与 HUE Controller 相同的完整流程转换器。
+
 此节点读取 HUE 温度传感器的温度（°C），并将其映射到 KNX。
 
 在 GA 字段（名称或组地址）中输入以关联 KNX GA；输入时会显示设备建议。

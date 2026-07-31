@@ -4,6 +4,8 @@ title: "HUE Motion area"
 lang: fr
 permalink: /wiki/fr-HUE%20Motion%20area
 ---
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+
 Le nœud Hue Motion Area écoute les événements de mouvement agrégés d’une zone MotionAware (Hue Bridge Pro) et reflète l’état mouvement / pas de mouvement vers KNX ou votre flow Node-RED.
 
 Commencez à saisir le nom ou l’adresse de groupe KNX dans le champ GA ; des suggestions apparaissent au fil de la saisie.
@@ -37,4 +39,3 @@ Commencez à saisir le nom ou l’adresse de groupe KNX dans le champ GA ; des s
 ### Détails
 
 `msg.payload` contient le dernier état de mouvement agrégé fourni par le service MotionAware de la zone sélectionnée.
-

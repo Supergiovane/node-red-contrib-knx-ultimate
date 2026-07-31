@@ -4,6 +4,8 @@ title: "HUE Device software update"
 lang: en
 permalink: /wiki/HUE%20Device%20software%20update
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 This node monitors whether a selected Hue device has a software update available and publishes the status to KNX.
 
 Start typing the name or group address of your KNX device in the GA field, the avaiable devices start showing up while

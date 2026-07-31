@@ -1,0 +1,115 @@
+<!-- Canonical private HUE Controller template: button. -->
+<div class="form-row hue-legacy-controller-notice" role="note" style="box-sizing:border-box; padding:10px 12px; margin-bottom:14px; border-left:4px solid #d79b00; background:#fff8df; color:#4d3a00;">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:#a15c00; margin-right:6px;"></i>
+    <span data-i18n="node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.legacy_node_notice"></span>
+  </div>
+  <div class="form-row" style="margin-bottom:10px;">
+    <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+  </div>
+  <div class="form-row">
+    <label for="node-input-server">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAKnRFWHRDcmVhdGlvbiBUaW1lAEZyIDYgQXVnIDIwMTAgMjE6NTI6MTkgKzAxMDD84aS8AAAAB3RJTUUH3gYYCicNV+4WIQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAARnQU1BAACxjwv8YQUAAACUSURBVHjaY2CgFZg5c+Z/ZEyWAZ8+f/6/ZsWs/xoamqMGkGrA6Wla/1+fVARjEBuGsSoGmY4eZSCNL59d/g8DIDbIAHR14OgFGQByKjIGKX5+6/T///8gGMQGiV1+/B0Fg70GIkD+RMYgxf/O5/7//2MSmAZhkBi6OrgB6Bg5DGB4ajr3f2xqsYYLSDE2THJUDg0AAAqyDVd4tp4YAAAAAElFTkSuQmCC" />
+      <span data-i18n="common.knx_gw"></span>
+    </label>
+    <input type="text" id="node-input-server">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-serverHue">
+      <img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAEKADAAQAAAABAAAAEAAAAAA0VXHyAAABFUlEQVQ4EZWSsWoCQRCG1yiENEFEi6QSkjqWWoqFoBYJ+Br6JHkMn8Iibd4ihQpaJIhWNkry/ZtdGZY78Qa+m39nZ+dm9s4550awglNBluS/gVtAX6KgDclf68w2OThgfR9iT/jnoEv4TtByDThWTCDKW4SSZTf/zj9/eZbN+izTDuKGimu0vPF8B/YN8aC8LmcOj/AAn9CFTEs70Js/oGqy79C69bqJ5XbQI2kGO5N8QL9D08S8zBtBF5ZaVsznpCMoqJnVdjTpb1Db0fwIWmQV6BLXzFOYgA6/gDVfQN9bBWp2J2hdWDPoBV5FrKnAJutHikk/CHHR8i7x4iG7qQ720IYvu3GFbpHjx3pFrOFYkA354z/5bkK826phyAAAAABJRU5ErkJggg=="/>
+      <span data-i18n="common.hue_bridge"></span>
+    </label>
+    <input type="text" id="node-input-serverHue">
+  </div>
+
+  <div class="form-row hue-requires-bridge">
+    <label for="node-input-name">
+      <i class="fa fa-tag"></i> <span data-i18n="knxUltimateHueButton.hue_sensor"></span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Hue button" style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" class="red-ui-button hue-refresh-devices" style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;">
+      <i class="fa fa-sync"></i>
+    </button>
+    <span class="hue-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+  </div>
+
+  <div id="hue-button-tabs">
+    <ul>
+      <li><a href="#hue-button-tab-switch"><i class="fa fa-toggle-on"></i> <span data-i18n="knxUltimateHueButton.tabs.switch"></span></a></li>
+      <li><a href="#hue-button-tab-dim"><i class="fa fa-sun"></i> <span data-i18n="knxUltimateHueButton.tabs.dim"></span></a></li>
+      <li><a href="#hue-button-tab-behaviour"><i class="fa fa-gear"></i> <span data-i18n="knxUltimateHueButton.tabs.behaviour"></span></a></li>
+    </ul>
+
+    <div id="hue-button-tab-switch">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueButton.switch_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GAshort_release" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GAshort_release" style="width:80px; text-align:left;" placeholder="1/1/1">
+        <label for="node-input-dptshort_release" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptshort_release" style="width:120px;"></select>
+        <label for="node-input-nameshort_release" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameshort_release" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Switch action">
+      </div>
+      <div class="form-row hue-knx-section hue-status-row">
+        <label for="node-input-GAshort_releaseStatus" style="width:70px;"><span data-i18n="knxUltimateHueButton.switch_status"></span></label>
+        <input type="text" id="node-input-GAshort_releaseStatus" style="width:80px; text-align:left;" placeholder="1/1/2">
+        <label for="node-input-dptshort_releaseStatus" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptshort_releaseStatus" style="width:120px;"></select>
+        <label for="node-input-nameshort_releaseStatus" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameshort_releaseStatus" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Switch status">
+      </div>
+    </div>
+
+    <div id="hue-button-tab-dim">
+      <div class="form-tips hue-form-tip hue-knx-section">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueButton.dim_info"></span>
+      </div>
+      <div class="form-row hue-knx-section">
+        <label for="node-input-GArepeat" style="width:70px;"><span data-i18n="common.ga"></span></label>
+        <input type="text" id="node-input-GArepeat" style="width:80px; text-align:left;" placeholder="1/1/3">
+        <label for="node-input-dptrepeat" style="width:40px; text-align:right;"><span data-i18n="common.dpt"></span></label>
+        <select id="node-input-dptrepeat" style="width:120px;"></select>
+        <label for="node-input-nameDim" style="width:50px; text-align:right;"><span data-i18n="common.name"></span></label>
+        <input type="text" id="node-input-nameDim" style="flex:1 1 140px; min-width:120px; text-align:left;" placeholder="Dim action">
+      </div>
+    </div>
+
+    <div id="hue-button-tab-behaviour">
+      <div class="form-tips hue-form-tip">
+        <i class="fa fa-circle-info"></i>
+        <span data-i18n="knxUltimateHueButton.behaviour_info"></span>
+      </div>
+      <div class="form-row">
+        <input type="checkbox" id="node-input-toggleValues" style="width:auto;">
+        <label for="node-input-toggleValues" style="flex:1 1 auto;">
+          <span data-i18n="knxUltimateHueButton.toggle_values"></span>
+        </label>
+      </div>
+      <div class="form-row hue-status-row" style="margin-left:24px;">
+        <span data-i18n="knxUltimateHueButton.toggle_values_hint"></span>
+      </div>
+      <div class="hue-fixed-values" style="margin-top:8px;">
+        <div class="form-row">
+          <label for="node-input-switchSend" style="width:130px;"><span data-i18n="knxUltimateHueButton.switch_send"></span></label>
+          <input type="text" id="node-input-switchSend" style="width:160px;">
+        </div>
+        <div class="form-row">
+          <label for="node-input-dimSend" style="width:130px;"><span data-i18n="knxUltimateHueButton.dim_send"></span></label>
+          <input type="text" id="node-input-dimSend" style="width:160px;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-tips hue-form-tip hue-output-info" style="display:none;">
+    <i class="fa fa-circle-info"></i>
+    <span data-i18n="knxUltimateHueButton.output_info"></span>
+  </div>
+
+  <input type="hidden" id="node-input-hueDevice">

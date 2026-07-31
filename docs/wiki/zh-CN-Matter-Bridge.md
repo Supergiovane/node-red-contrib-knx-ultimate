@@ -6,9 +6,36 @@ permalink: /wiki/zh-CN-Matter-Bridge
 ---
 # Expose KNX to Matter (BETA)
 
-> 此节点处于 **BETA** 阶段：可以正常工作，但细节可能在版本之间发生变化。
+<div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#c9fff7;">Matter Bridge · KNX 设备 · 语音助手</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">将 KNX 接入 Matter 生态系统。</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f2fffd;">每个节点把一项 KNX 或 Flow 功能转换为原生 Matter 端点，供 Alexa、Google Home、Apple Home 等控制器使用。Bridge 只需配对一次，之后可逐个扩展设备。</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">17</strong><span style="font-size:0.76rem;color:#ddfffa;">种 Matter 设备配置</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">只配对一次</strong><span style="font-size:0.76rem;color:#ddfffa;">一个 Bridge 二维码</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">实时端点</strong><span style="font-size:0.76rem;color:#ddfffa;">普通更新无需重启</span></div>
+  </div>
+</div>
 
-## 概述
+## 十七种配置，一个 Bridge
+
+| 领域 | Matter 配置 |
+|---|---|
+| **照明与电源** | 开关灯、插座、调光灯、RGB 灯和色温灯。 |
+| **气候与环境** | 温度、湿度、照度、空气质量、温控器和风扇。 |
+| **存在与安全** | 人体、门磁、烟雾/CO 和漏水检测。 |
+| **运动与自动化** | 窗帘/卷帘和由 Flow 驱动的扫地机器人。 |
+
+## 四步开始
+
+1. 配置并部署一个 **Matter Bridge** 配置节点。
+2. 为每个设备或虚拟功能添加一个 **Expose KNX to Matter** 节点。
+3. 选择配置、名称和 KNX 组地址，或启用纯 Flow 引脚。
+4. 用 Matter 控制器扫描 Bridge 二维码；后续端点会实时协调。
+
+> **BETA：**Bridge 已可使用，但细节仍可能演进。配对后更换设备配置会改变 Matter 端点结构，可能需要重新配对或创建新的公开设备。
+
+## 技术概述
 
 每个 Expose KNX to Matter 节点将**一个 KNX 设备公开为 Matter 设备**：已配对的控制器（Alexa、Google Home、Apple Home...）会以您输入的名称看到它，随时可通过 App 和语音控制。将它指向一个 **Matter 桥接器**配置节点（真正的桥接器，只需配对一次 - 配对二维码在那里），然后在流程中随意添加任意数量的设备节点。
 

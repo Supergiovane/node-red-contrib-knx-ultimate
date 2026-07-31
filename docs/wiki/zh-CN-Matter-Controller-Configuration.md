@@ -6,7 +6,36 @@ permalink: /wiki/zh-CN-Matter-Controller-Configuration
 ---
 # Matter 控制器
 
-## 概述
+<div data-matter-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#241047 0%,#5531a7 55%,#8b5cf6 100%);box-shadow:0 14px 30px rgba(36,16,71,0.25);color:#faf7ff;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#e3d7ff;">Matter Fabric · 配网 · KNX</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">您的 Matter Fabric，由您掌控。</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#faf7ff;">通过 IP 网络配网设备，并将端点提供给 KNX 与 Node-RED。在一个配置节点中完成配对、监控、备份和移除。</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">本地 Fabric</strong><span style="font-size:0.76rem;color:#eee7ff;">私有凭据</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">二维码 + 手动</strong><span style="font-size:0.76rem;color:#eee7ff;">配对码</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">导出 / 导入</strong><span style="font-size:0.76rem;color:#eee7ff;">受保护的备份</span></div>
+  </div>
+</div>
+
+## 一个控制器覆盖完整生命周期
+
+| 领域 | 功能范围 |
+|---|---|
+| **配网** | Matter QR Payload、摄像头或图片扫描、手动代码，以及通过 WiFi、以太网或 Thread 的多 Fabric 配对。 |
+| **设备管理** | 已配对设备清单、连接状态、安全移除和每台设备独立的命令队列。 |
+| **KNX 与 Node-RED** | 端点映射、通用模式、动态命令和通用电池监视器。 |
+| **可靠性与存储** | 持久化 Fabric、实例备份/恢复、不可用设备门控和自动恢复。 |
+
+## 四步开始
+
+1. 添加 Matter Controller 并先**部署**。
+2. 重新打开，用 Matter QR Payload 或手动配对码配网一台设备。
+3. 添加 **Control Matter from KNX**，选择设备及其配置。
+4. 映射 KNX 组地址，或启用 Node-RED 引脚，然后部署。
+
+> **提示：**优先使用 `MT:...` QR Payload：它包含完整判别器，而 11 位手动代码只包含短判别器。
+
+## 技术概述
 
 此配置节点是一个完整的 **Matter 控制器**：它创建自己的 Matter *fabric* 并将您的 Matter 设备配对（调试）进来。配对后的设备可供 **Matter Device** 节点使用，将它们映射到 KNX 组地址。
 

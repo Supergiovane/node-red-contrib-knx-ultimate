@@ -4,6 +4,8 @@ title: "HUE Camera motion"
 lang: de
 permalink: /wiki/de-HUE%20Camera%20motion
 ---
+> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton in diesem Editor öffnet denselben vollständigen Flow-Konverter wie HUE Controller.
+
 Der Hue Camera Motion Node lauscht auf Bewegungsereignisse der Philips-Hue-Kameras und spiegelt den erkannt/nicht-erkannt-Status in KNX.
 
 Geben Sie im GA-Feld (Name oder Gruppenadresse) den gewünschten Wert ein; passende Geräte werden während der Eingabe vorgeschlagen.

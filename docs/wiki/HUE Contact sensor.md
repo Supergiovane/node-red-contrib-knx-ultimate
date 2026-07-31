@@ -4,6 +4,8 @@ title: "HUE Contact sensor"
 lang: en
 permalink: /wiki/HUE%20Contact%20sensor
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 This node forwards events from a Hue contact sensor and maps them to KNX group addresses.
 
 Start typing in the GA field, the name or group address of your KNX device, the avaiable devices start showing up while you're typing.

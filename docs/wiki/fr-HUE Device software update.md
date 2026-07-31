@@ -4,6 +4,8 @@ title: "HUE Device software update"
 lang: fr
 permalink: /wiki/fr-HUE%20Device%20software%20update
 ---
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+
 Ce nœud surveille si un périphérique Hue sélectionné a une mise à jour logicielle disponible et publie le statut de KNX. 
 
 Commencez à taper le nom ou l'adresse de groupe de votre appareil KNX dans le champ GA, les périphériques AVAIable commencent à apparaître pendant que

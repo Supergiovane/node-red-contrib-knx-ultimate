@@ -119,8 +119,8 @@
     };
 
     RED.nodes.registerType('knxUltimateHuePlug', {
-      category: 'KNX Ultimate HUE',
-      color: '#C0C7E9',
+      category: 'deprecated',
+      color: '#E7E9F6',
       defaults: {
         server: { type: 'knxUltimate-config', required: false },
         serverHue: { type: 'hue-config', required: true },
@@ -151,9 +151,9 @@
       outputs: 0,
       icon: 'node-hue-icon.svg',
       label() {
-        return this.name || 'Hue Plug/Outlet';
+        return `${this.name || 'Hue Plug/Outlet'} (deprecated)`;
       },
-      paletteLabel: 'Hue Plug/Outlet',
+      paletteLabel: 'Hue Plug/Outlet (deprecated)',
       oneditprepare() {
         try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
         const node = this;
@@ -429,6 +429,15 @@
 </script>
 
 <script type="text/html" data-template-name="knxUltimateHuePlug">
+  <div class="form-row hue-legacy-controller-notice" role="note" style="box-sizing:border-box; padding:10px 12px; margin-bottom:14px; border-left:4px solid #d79b00; background:#fff8df; color:#4d3a00;">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true" style="color:#a15c00; margin-right:6px;"></i>
+    <span data-i18n="node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.legacy_node_notice"></span>
+  </div>
+  <div class="form-row hue-legacy-migration-action" style="margin-top:-6px; margin-bottom:14px;">
+    <button type="button" class="red-ui-button hue-legacy-migrate-flow" style="background:#d97706; border-color:#b45309; color:#fff; font-weight:700;" data-i18n="[title]node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.migration_button_title">
+      <i class="fa fa-exchange"></i> <span data-i18n="node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.migration_button"></span>
+    </button>
+  </div>
   <div class="form-row" style="margin-bottom:10px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>
@@ -543,4 +552,6 @@
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateHuePlug">
+> **Deprecated:** This dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. The legacy node is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice.
+
 </script>

@@ -4,6 +4,8 @@ title: "HUE Light"
 lang: en
 permalink: /wiki/HUE%20Light
 ---
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+
 This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.
 
 **General**

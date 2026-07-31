@@ -261,10 +261,15 @@ describe('knxUltimateMatterBridge editor layout', () => {
       const help = fs.readFileSync(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateMatterBridge.html'), 'utf8')
       const wikiName = locale === 'en' ? 'Matter-Bridge-Configuration.md' : `${locale}-Matter-Bridge-Configuration.md`
       const wiki = fs.readFileSync(path.join(projectRoot, 'docs', 'wiki', wikiName), 'utf8')
+      const deviceWikiName = locale === 'en' ? 'Matter-Bridge.md' : `${locale}-Matter-Bridge.md`
+      const deviceWiki = fs.readFileSync(path.join(projectRoot, 'docs', 'wiki', deviceWikiName), 'utf8')
       expect(help, `${locale}:help input`).to.include('msg.payload')
       expect(help, `${locale}:help output`).to.include('msg.matter')
       expect(wiki, `${locale}:wiki flow direction`).to.include('Flow → Matter')
       expect(wiki, `${locale}:wiki reverse direction`).to.include('Matter → Flow')
+      expect(wiki, `${locale}:bridge config overview hero`).to.include('data-matter-bridge-config-overview="hero"')
+      expect(deviceWiki, `${locale}:bridge device overview hero`).to.include('data-matter-bridge-overview="hero"')
+      expect(deviceWiki, `${locale}:bridge profile count`).to.match(/<strong[^>]*>17<\/strong>/)
     }
   })
 })

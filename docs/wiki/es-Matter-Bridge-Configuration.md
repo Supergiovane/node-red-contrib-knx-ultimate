@@ -6,9 +6,29 @@ permalink: /wiki/es-Matter-Bridge-Configuration
 ---
 # Bridge Matter (BETA)
 
-> Este nodo está en **BETA**: funciona, pero algunos detalles pueden cambiar entre versiones.
+<div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Servidor Matter · Multi-fabric · Identidad persistente</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Empareja un bridge. Expón todos los dispositivos KNX.</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f3fbff;">Este nodo de configuración posee el servidor Matter, la identidad del bridge y las sesiones de los controladores. Alexa, Google Home, Apple Home y otros controladores lo emparejan una vez; los nodos device aparecen después como endpoints live.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Empareja una vez</strong><span style="font-size:0.76rem;color:#e0f7ff;">QR + código manual</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Multi-fabric</strong><span style="font-size:0.76rem;color:#e0f7ff;">varios controladores</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Conciliación live</strong><span style="font-size:0.76rem;color:#e0f7ff;">endpoints en segundos</span></div>
+  </div>
+</div>
 
-## Descripción general
+## El bridge de un vistazo
+
+| Área | Funcionalidades |
+|---|---|
+| **Emparejamiento** | QR y código manual, varias fabrics Matter y restablecimiento explícito. |
+| **Identidad** | Identidad estable durante deploys normales, cambios de nombre y conciliación de endpoints. |
+| **Escala** | Varios bridges independientes en puertos UDP distintos y cualquier número de nodos device. |
+| **Protección** | Exportación/importación de fabrics, credenciales privadas, sesiones y datos de emparejado. |
+
+> **BETA:** el bridge está operativo, pero algunos detalles pueden evolucionar. Protege la copia como una contraseña y usa **Restablecer emparejamiento** solo para eliminar todos los controladores.
+
+## Vista técnica
 
 Este nodo de configuración es el **bridge Matter en sí**: ejecuta el servidor Matter que Alexa, Google Home, Apple Home (o cualquier controlador Matter) emparejan **una sola vez**. Cada nodo **Matter Bridge device** de tus flows apunta aquí y aparece en las apps como un dispositivo del bridge.
 

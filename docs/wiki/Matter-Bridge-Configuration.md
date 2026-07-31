@@ -6,9 +6,29 @@ permalink: /wiki/Matter-Bridge-Configuration
 ---
 # Matter Bridge (BETA)
 
-> This node is in **BETA**: it works, but details may still change between releases.
+<div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
+  <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Matter server · Multi-fabric · Persistent identity</div>
+  <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Pair one bridge. Expose every KNX device.</div>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f3fbff;">This configuration node owns the Matter server, bridge identity and paired-controller sessions. Alexa, Google Home, Apple Home and other controllers commission it once; device nodes then appear beneath it as live endpoints.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Pair once</strong><span style="font-size:0.76rem;color:#e0f7ff;">QR + manual code</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Multi-fabric</strong><span style="font-size:0.76rem;color:#e0f7ff;">multiple controllers</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Live reconcile</strong><span style="font-size:0.76rem;color:#e0f7ff;">endpoints in seconds</span></div>
+  </div>
+</div>
 
-## Overview
+## The bridge at a glance
+
+| Area | What it provides |
+|---|---|
+| **Pairing** | QR and manual code, multiple Matter fabrics and an explicit reset for starting over. |
+| **Identity** | Stable bridge identity across ordinary deploys, name changes and endpoint reconciliation. |
+| **Scale** | Multiple independent bridges on distinct UDP ports and any number of attached device nodes. |
+| **Protection** | Export/import of fabrics, private credentials, sessions and pairing data. |
+
+> **BETA:** the bridge is operational, but details may still evolve. Treat exported storage as a password and use **Reset pairing** only when every paired controller must be removed.
+
+## Technical overview
 
 This configuration node is the **Matter bridge itself**: it runs the Matter server that Alexa, Google Home, Apple Home (or any Matter controller) commission **once**. Every **Matter Bridge device** node in your flows points here and appears in the apps as one bridged device.
 

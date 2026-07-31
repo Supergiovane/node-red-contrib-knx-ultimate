@@ -4,6 +4,8 @@ title: "HUE Tapdial"
 lang: it
 permalink: /wiki/it-HUE%20Tapdial
 ---
+> **Deprecato:** questo nodo HUE dedicato resta disponibile per i flow esistenti. Usa **HUE Controller** per i nuovi progetti. È contrassegnato con `(deprecated)` nella palette e sul canvas, usa un colore più chiaro di HUE Controller e il suo editor mostra in alto un avviso di migrazione. Il pulsante arancione di migrazione in questo editor apre lo stesso convertitore dell’intero flow disponibile in HUE Controller.
+
 Il nodo **Hue Tap Dial** collega il servizio di rotazione del Tap Dial alle GA KNX e inoltra l'evento Hue originale al flow. Dopo aver associato un nuovo Tap Dial, premi l'icona di aggiornamento accanto al campo dispositivo.
 
 ### Schede
