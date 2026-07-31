@@ -92,10 +92,7 @@ permalink: /wiki/zh-CN-KNX%20AI
 - **Topic**：节点输出使用的基础 topic。
 - **Open KNX AI Web** 按钮：打开网页仪表板（`/knxUltimateAI/sidebar/page`）。
 
-### Capture
-- **Capture GroupValue_Write**：抓取 Write 电报。
-- **Capture GroupValue_Response**：抓取 Response 电报。
-- **Capture GroupValue_Read**：抓取 Read 电报。
+KNX AI 会自动监听 `GroupValue_Write`、`GroupValue_Response` 和 `GroupValue_Read` 报文。模式和异常分析始终使用内置默认值初始化，无需配置总线事件或检测参数。
 
 ### Analysis
 - **Analysis window (seconds)**：摘要/速率统计主窗口。
@@ -105,16 +102,6 @@ permalink: /wiki/zh-CN-KNX%20AI
 - **Max stored events**：内存中保留的最大电报数量。
 - **Auto emit summary (seconds, 0=off)**：周期性输出摘要间隔。
 - **Top list size**：摘要中 top 组地址/来源数量。
-- **Detect simple patterns (A -> B)**：启用组地址转移/模式检测。
-- **Pattern max lag (ms)**：模式关联允许的最大时间差。
-- **Pattern min occurrences**：报告模式前的最小出现次数。
-
-### Anomalies
-- **Rate window (seconds)**：异常速率检查滑动窗口。
-- **Max overall telegrams/sec (0=off)**：全总线 telegram/s 阈值。
-- **Max telegrams/sec per GA (0=off)**：单组地址 telegram/s 阈值。
-- **Flap window (seconds)**：抖动/快速变化检测窗口。
-- **Max changes per GA in window (0=off)**：窗口内允许的最大变化次数。
 
 ### AI 助手
 - **Enable LLM assistant**：启用 Ask/chat 功能。
@@ -123,37 +110,28 @@ permalink: /wiki/zh-CN-KNX%20AI
 - **API key**：API Key（本地 Ollama 可不填）。
 - **Model**：模型 ID/名称。
 - **聊天模型兼容性**：所选模型必须支持已配置的 Chat Completions 端点。刷新模型列表时，会排除仅支持旧版 completions 的模型，例如 `gpt-3.5-turbo-instruct`。如果提供商拒绝自定义 temperature 值或令牌限制参数，KNX AI 会仅移除或替换不兼容字段后重试。
-- **System prompt**：KNX 分析全局系统提示词（Advanced）。
 - **允许 AI 读取 KNX 状态并控制执行器**：启用输出 4，默认关闭。可以读取 ETS 目录中的精确对象；仅接受写入明确标记为 `command` 的对象。未知、DPT 不匹配、无效或数量过多的操作，以及向状态或中性对象的写入，都会在本地被拒绝。
 - **发送 KNX 命令前请求确认**：默认启用。先显示已验证的修改，在同一聊天会话确认前不会发送任何 KNX 命令。有命令等待确认时，回复始终会使用当前请求的语言附加准确的确认或取消说明。命令会在输出前再次验证。
-- **适配器预设**：从随附的聊天适配器文件加载一对输入/输出映射。选择预设会有意替换两个文本框，之后仍可编辑代码。
-- **输入映射（聊天 → KNX AI）**：在处理输入命令前运行的同步 JavaScript。
-- **输出映射（KNX AI → 聊天）**：仅应用于输出 3 消息的同步 JavaScript。
+- **适配器预设**：默认为**无适配器**。选择适配器前会隐藏 JavaScript 编辑器；选择后会加载并显示可编辑的输入和输出映射。
+- **输入映射（聊天 → KNX AI）**：在处理输入命令前运行的同步 JavaScript，使用绿色 JavaScript 编辑器。
+- **输出映射（KNX AI → 聊天）**：仅应用于输出 3 消息的同步 JavaScript，使用黄色 JavaScript 编辑器。
 - **启用主动家庭通知**：可选检测器，仅处理可靠识别的卷帘、窗户和门开启状态；绝不会自主写入 KNX。
 - **主要接收者 / 聊天 ID**：主动消息的可选目标；未填写时记住最近一次 Ask 会话。
-- **开启多久后通知（分钟）**：考虑发送主动通知前的开启时长阈值。
+- **开启多久后通知（分钟）**：考虑发送主动通知前的开启时长阈值；默认 120 分钟。
 - **静默时间开始 / 结束**：每天禁止主动消息的时间段。
 - **AI 教育**：仅由用户管理的权威指导，AI 可以读取但永远不能修改。
-- **重复冷却时间（分钟）**：同一对象再次通知前的最短间隔。
+- **重复冷却时间（分钟）**：同一对象再次通知前的最短间隔；默认 360 分钟。
 - **家庭记忆文件上限（KB）**：64 到 1,024 KB 的硬限制；默认 256 KB。
 - 如果启用了磁盘归档，**Ask** 默认会查询该归档：若问题里写了明确日期/时间范围就按其查询，否则默认查询最近 24 小时并补上当前 RAM 事件。
-- **Include raw payload hex**：在提示词中包含原始十六进制 payload。
 - **包含 Node-RED 项目清单**：在提示词中加入整个 Node-RED 项目的节点清单，不仅包含 KNX 节点，也包含 function/change/inject/template 等在内且带有 KNX 逻辑或组地址的有用节点。
-- **Include documentation snippets (help/README/examples)**：在提示词中包含文档片段。
-- **Docs language**：文档片段优先语言。
-- **Refresh** 按钮：请求 provider 并加载可用模型 ID。
+- 相关的帮助、README 和示例片段始终会自动包含。
+- **Docs language**：自动包含的文档片段所使用的首选语言。
+- **Refresh** 按钮：请求 provider 并加载可用模型 ID。加载期间图标会旋转；成功完成时不会显示额外消息。
 
 ### Advanced
 - **Analysis window (seconds)**：摘要/速率统计主窗口。
 - **Max stored events**：内存中保留的最大电报数量。
 - **Top list size**：摘要中 top 组地址/来源数量。
-- **Pattern max lag (ms)**：模式关联允许的最大时间差。
-- **Pattern min occurrences**：报告模式前的最小出现次数。
-- **Rate window (seconds)**：异常速率检查滑动窗口。
-- **Max overall telegrams/sec (0=off)**：全总线 telegram/s 阈值。
-- **Max telegrams/sec per GA (0=off)**：单组地址 telegram/s 阈值。
-- **Flap window (seconds)**：抖动/快速变化检测窗口。
-- **Max changes per GA in window (0=off)**：窗口内允许的最大变化次数。
 
 ### Ollama 快速配置（本地）
 - 选择 **Provider = Ollama**。

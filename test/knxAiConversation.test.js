@@ -567,6 +567,7 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('llmRequireCommandConfirmation: { value: true }')
     expect(editor).to.include('chatAdapterPreset: { value: "none" }')
     expect(editor).to.include('proactiveEnabled: { value: false }')
+    expect(editor).to.include('proactiveOpenMinutes: { value: 120 }')
     expect(editor).to.include('homeMemoryMaxKb: { value: 256')
     expect(editor).to.include('maxlength="16000"')
     expect(editor).to.include('KNXAIChatAdapterMappings.js')
@@ -577,6 +578,14 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('inputMessage: cloneInputMessage(inputMessage)')
     expect(runtime).to.include("events: ['GroupValue_Response', 'GroupValue_Write']")
     expect(runtime).to.include('readResults = await Promise.allSettled(readWaiters)')
+    expect(runtime).to.include('node.notifyreadrequest = true')
+    expect(runtime).to.include('node.notifyresponse = true')
+    expect(runtime).to.include('node.notifywrite = true')
+    expect(runtime).to.include('node.enablePattern = true')
+    expect(runtime).to.include('node.patternMaxLagMs = 1500')
+    expect(runtime).to.include('node.patternMinCount = 8')
+    expect(runtime).to.include('node.llmIncludeRaw = false')
+    expect(runtime).to.include('node.llmIncludeDocsSnippets = true')
 
     const locales = [
       ['en', 'KNX AI.md'],
@@ -679,7 +688,7 @@ describe('KNX AI conversational control', () => {
     expect(sender.type).to.equal('telegram sender')
   })
 
-  it('groups every option into three main accordion sections without changing field ids', () => {
+  it('keeps the streamlined options in three main accordion sections', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('id="knx-ai-accordion"')
@@ -695,7 +704,6 @@ describe('KNX AI conversational control', () => {
       'node-input-server',
       'node-input-name',
       'node-input-topic',
-      'node-input-notifywrite',
       'node-input-historyWindowSec',
       'node-input-llmEnabled',
       'node-input-llmAllowKnxCommands',
@@ -716,16 +724,14 @@ describe('KNX AI conversational control', () => {
       return currentIndex
     }, -1)
     expect((accordion.match(/<h3>/g) || [])).to.have.length(3)
-    expect((accordion.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(8)
+    expect((accordion.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(6)
     const mountPairs = [
       ['knx-ai-mount-assistant-setup', 'knx-ai-tab-llm-connection'],
       ['knx-ai-mount-assistant-context', 'knx-ai-tab-llm-context'],
       ['knx-ai-mount-assistant-advanced', 'knx-ai-tab-advanced'],
       ['knx-ai-mount-chat-adapter', 'knx-ai-tab-chat-adapter'],
       ['knx-ai-mount-home-intelligence', 'knx-ai-tab-home-intelligence'],
-      ['knx-ai-mount-knx-capture', 'knx-ai-tab-capture'],
-      ['knx-ai-mount-knx-storage', 'knx-ai-tab-storage'],
-      ['knx-ai-mount-knx-detection', 'knx-ai-tab-detection']
+      ['knx-ai-mount-knx-storage', 'knx-ai-tab-storage']
     ]
     mountPairs.forEach(([mountId, sectionId]) => {
       expect(editor).to.include(`mountAccordionSection("#${mountId}", "#${sectionId}")`)
@@ -747,6 +753,7 @@ describe('KNX AI conversational control', () => {
     quickSetupFieldIds.forEach(id => expect(quickSetup).to.include(`id="${id}"`))
     expect(quickSetup).not.to.include('id="node-input-llmBaseUrl"')
     expect(chatAdapter).to.include('id="node-input-chatAdapterPreset"')
+    expect(chatAdapter).to.include('id="knx-ai-chat-adapter-fields" style="display:none;"')
     expect(chatAdapter).to.include('id="node-input-chatInputCode"')
     expect(chatAdapter).to.include('id="node-input-chatOutputCode"')
     expect(homeIntelligence).to.include('id="node-input-proactiveEnabled"')
@@ -757,23 +764,26 @@ describe('KNX AI conversational control', () => {
     expect(homeIntelligence).to.include('id="node-input-proactiveCooldownMinutes"')
     expect(homeIntelligence).to.include('id="node-input-homeMemoryMaxKb"')
     expect(homeIntelligence).to.include('id="node-input-aiEducation"')
-    expect(editor).to.include('width: 100% !important;')
-    expect(editor).to.include('max-width: none !important;')
-    expect(aiContext).to.include('id="node-input-llmSystemPrompt"')
+    expect(chatAdapter).to.include('id="node-input-chatInputCode-editor"')
+    expect(chatAdapter).to.include('id="node-input-chatOutputCode-editor"')
+    expect(editor).to.include('RED.editor.createEditor({')
+    expect(editor).to.include('mode: "ace/mode/nrjavascript"')
+    expect(editor).to.include('"editor.background": "#e8f5e9"')
+    expect(editor).to.include('"editor.background": "#fffde7"')
+    expect(editor).to.include('updateAdapterFieldsVisibility(configuredPreset)')
+    expect(editor).to.include('$button.find("i.fa-refresh").toggleClass("fa-spin", !!busy)')
+    expect(editor).not.to.include('class="form-tips"')
+    expect(editor).not.to.include('id="knx-ai-models-status"')
+    expect(editor).not.to.include('knxUltimateAI.messages.loadedModels')
+    expect(editor).not.to.include('": " + models.length')
+    expect(aiContext).to.include('id="node-input-llmIncludeFlowContext"')
+    expect(aiContext).to.include('id="node-input-llmDocsLanguage"')
     expect(advancedAi).to.include('id="node-input-llmBaseUrl"')
 
     const uniqueFieldIds = [
       'node-input-analysisWindowSec',
       'node-input-maxEvents',
       'node-input-topN',
-      'node-input-patternMaxLagMs',
-      'node-input-patternMinCount',
-      'node-input-rateWindowSec',
-      'node-input-maxTelegramPerSecOverall',
-      'node-input-maxTelegramPerSecPerGA',
-      'node-input-flapWindowSec',
-      'node-input-flapMaxChanges',
-      'node-input-llmSystemPrompt',
       'node-input-llmBaseUrl',
       'node-input-chatAdapterPreset',
       'node-input-chatInputCode',
@@ -790,6 +800,30 @@ describe('KNX AI conversational control', () => {
     uniqueFieldIds.forEach(id => {
       expect((template.match(new RegExp(`id="${id}"`, 'g')) || [])).to.have.length(1)
     })
+
+    const removedFieldIds = [
+      'node-input-notifywrite',
+      'node-input-notifyresponse',
+      'node-input-notifyreadrequest',
+      'node-input-enablePattern',
+      'node-input-patternMaxLagMs',
+      'node-input-patternMinCount',
+      'node-input-rateWindowSec',
+      'node-input-maxTelegramPerSecOverall',
+      'node-input-maxTelegramPerSecPerGA',
+      'node-input-flapWindowSec',
+      'node-input-flapMaxChanges',
+      'node-input-llmSystemPrompt',
+      'node-input-llmIncludeRaw',
+      'node-input-llmIncludeDocsSnippets'
+    ]
+    removedFieldIds.forEach(id => expect(template).not.to.include(`id="${id}"`))
+    expect(editor).to.include('proactiveCooldownMinutes: { value: 360 }')
+    expect(editor).to.include('homeMemoryMaxKb: { value: 256 }')
+    expect(editor).to.include('applyNumericFallback("#node-input-proactiveOpenMinutes", 120)')
+    const defaultsBlock = editor.match(/defaults:\s*\{([\s\S]*?)\n\s*\},\n\s*credentials:/)[1]
+    expect((defaultsBlock.match(/required:\s*true/g) || [])).to.have.length(1)
+    expect(defaultsBlock).to.include('server: { type: "knxUltimate-config", required: true }')
   })
 
   it('preserves saved configuration through an untouched accordion-editor round trip', () => {
@@ -803,6 +837,7 @@ describe('KNX AI conversational control', () => {
         const element = {
           length: selector === '#knxUltimateMatterControllerDeviceVerticalTabs' ? 0 : 1,
           _checked: false,
+          _visible: true,
           _value: selector === '#node-input-llmProvider'
             ? 'openai_compat'
             : selector === '#node-input-llmBaseUrl'
@@ -825,7 +860,10 @@ describe('KNX AI conversational control', () => {
           show: () => element,
           accordion: () => element,
           text: () => element,
-          toggle: () => element,
+          toggle: function (visible) {
+            element._visible = !!visible
+            return element
+          },
           val: function (value) {
             if (arguments.length === 0) return element._value
             element._value = value
@@ -846,6 +884,23 @@ describe('KNX AI conversational control', () => {
       $: jqueryStub,
       RED: {
         _: key => key,
+        editor: {
+          createEditor: ({ value }) => {
+            let currentValue = String(value || '')
+            return {
+              destroy: () => {},
+              getValue: () => currentValue,
+              resize: () => {},
+              setOptions: () => {},
+              setShowPrintMargin: () => {},
+              setValue: valueToSet => { currentValue = String(valueToSet || '') },
+              updateOptions: () => {},
+              session: {
+                setValue: valueToSet => { currentValue = String(valueToSet || '') }
+              }
+            }
+          }
+        },
         nodes: { registerType: (name, value) => { definition = value } },
         notify: () => {},
         settings: {},
@@ -886,7 +941,21 @@ describe('KNX AI conversational control', () => {
     definition.oneditsave.call(savedNode)
     expect(savedNode).to.deep.equal(original)
     definition.oneditprepare.call(savedNode)
-    expect(savedNode).to.deep.equal(original)
+    expect(savedNode.chatInputCodeEditor.getValue()).to.equal(original.chatInputCode)
+    expect(savedNode.chatOutputCodeEditor.getValue()).to.equal(original.chatOutputCode)
     definition.oneditcancel.call(savedNode)
+    expect(savedNode).to.deep.equal(original)
+
+    const noAdapterNode = {
+      id: 'knx-ai-no-adapter',
+      chatAdapterPreset: 'none',
+      chatInputCode: '',
+      chatOutputCode: '',
+      llmProvider: 'openai_compat',
+      llmModel: 'gpt-5.4'
+    }
+    definition.oneditprepare.call(noAdapterNode)
+    expect(elements.get('#knx-ai-chat-adapter-fields')._visible).to.equal(false)
+    definition.oneditcancel.call(noAdapterNode)
   })
 })

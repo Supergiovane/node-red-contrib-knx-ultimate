@@ -1,11 +1,6 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXAIChatAdapterMappings.js"></script>
 <style type="text/css">
-    #knx-ai-models-status {
-        margin-top: 6px;
-        margin-bottom: 6px;
-    }
-
     #knx-ai-ollama-install-row {
         align-items: flex-start;
     }
@@ -26,18 +21,29 @@
         margin: 0 !important;
     }
 
-    .knx-ai-chat-adapter-code {
-        display: block;
+    .knx-ai-chat-adapter-editor {
         width: 100% !important;
-        min-width: 100%;
-        max-width: none !important;
-        min-height: 190px;
+        height: 220px;
+        min-height: 180px;
         box-sizing: border-box;
-        clear: both;
-        resize: vertical;
-        font-family: var(--red-ui-monospace-font, monospace);
-        font-size: 12px;
-        line-height: 1.4;
+    }
+
+    #node-input-chatInputCode-editor .monaco-editor,
+    #node-input-chatInputCode-editor .monaco-editor-background,
+    #node-input-chatInputCode-editor .monaco-editor .margin,
+    #node-input-chatInputCode-editor .monaco-editor .overflow-guard,
+    #node-input-chatInputCode-editor .monaco-editor .lines-content,
+    #node-input-chatInputCode-editor .monaco-editor .editor-scrollable {
+        background-color: #e8f5e9 !important;
+    }
+
+    #node-input-chatOutputCode-editor .monaco-editor,
+    #node-input-chatOutputCode-editor .monaco-editor-background,
+    #node-input-chatOutputCode-editor .monaco-editor .margin,
+    #node-input-chatOutputCode-editor .monaco-editor .overflow-guard,
+    #node-input-chatOutputCode-editor .monaco-editor .lines-content,
+    #node-input-chatOutputCode-editor .monaco-editor .editor-scrollable {
+        background-color: #fffde7 !important;
     }
 
     #knx-ai-accordion {
@@ -93,12 +99,6 @@
         display: block;
     }
 
-    #knx-ai-ollama-steps,
-    #knx-ai-ollama-empty-help {
-        margin-left: 290px;
-        margin-top: 6px;
-    }
-
     @media (max-width: 900px) {
         #knx-ai-ollama-install-row>label {
             width: 100% !important;
@@ -110,10 +110,6 @@
             max-width: 100%;
         }
 
-        #knx-ai-ollama-steps,
-        #knx-ai-ollama-empty-help {
-            margin-left: 0;
-        }
     }
 </style>
 
@@ -126,37 +122,19 @@
             name: { value: "KNX AI", required: false },
             topic: { value: "", required: false },
 
-            notifyreadrequest: { value: true },
-            notifyresponse: { value: true },
-            notifywrite: { value: true },
-
-            analysisWindowSec: { value: 120, required: true, validate: RED.validators.number() },
-            historyWindowSec: { value: 600, required: true, validate: RED.validators.number() },
+            analysisWindowSec: { value: 120 },
+            historyWindowSec: { value: 600 },
             historyStoreToDisk: { value: true },
-            historyStoreRetentionDays: { value: 10, required: true, validate: RED.validators.number() },
-            emitIntervalSec: { value: 0, required: true, validate: RED.validators.number() },
-            topN: { value: 10, required: true, validate: RED.validators.number() },
-            maxEvents: { value: 50000, required: true, validate: RED.validators.number() },
-
-            rateWindowSec: { value: 10, required: true, validate: RED.validators.number() },
-            maxTelegramPerSecOverall: { value: 0, required: true, validate: RED.validators.number() },
-            maxTelegramPerSecPerGA: { value: 0, required: true, validate: RED.validators.number() },
-
-            flapWindowSec: { value: 30, required: true, validate: RED.validators.number() },
-            flapMaxChanges: { value: 0, required: true, validate: RED.validators.number() },
-
-            enablePattern: { value: true },
-            patternMaxLagMs: { value: 1500, required: true, validate: RED.validators.number() },
-            patternMinCount: { value: 8, required: true, validate: RED.validators.number() },
+            historyStoreRetentionDays: { value: 10 },
+            emitIntervalSec: { value: 0 },
+            topN: { value: 10 },
+            maxEvents: { value: 50000 },
 
             llmEnabled: { value: false },
             llmProvider: { value: "openai_compat" },
             llmBaseUrl: { value: "https://api.openai.com/v1/chat/completions" },
             llmModel: { value: "gpt-5.4" },
-            llmSystemPrompt: { value: "" },
-            llmIncludeRaw: { value: false },
             llmIncludeFlowContext: { value: true },
-            llmIncludeDocsSnippets: { value: true },
             llmDocsLanguage: { value: "en" },
             llmAllowKnxCommands: { value: false },
             llmRequireCommandConfirmation: { value: true },
@@ -165,11 +143,11 @@
             chatOutputCode: { value: "" },
             proactiveEnabled: { value: false },
             proactiveRecipient: { value: "" },
-            proactiveOpenMinutes: { value: 120, required: true, validate: RED.validators.number() },
-            proactiveCooldownMinutes: { value: 360, required: true, validate: RED.validators.number() },
+            proactiveOpenMinutes: { value: 120 },
+            proactiveCooldownMinutes: { value: 360 },
             proactiveQuietStart: { value: "23:00" },
             proactiveQuietEnd: { value: "07:00" },
-            homeMemoryMaxKb: { value: 256, required: true, validate: RED.validators.number() },
+            homeMemoryMaxKb: { value: 256 },
             aiEducation: { value: "" }
         },
         credentials: {
@@ -192,6 +170,7 @@
         paletteLabel: "KNX AI",
         oneditprepare: function () {
             try { RED.sidebar.show("help"); } catch (error) { }
+            const node = this;
             const OPENAI_COMPAT_DEFAULT_CHAT_URL = "https://api.openai.com/v1/chat/completions";
             const OLLAMA_DEFAULT_CHAT_URL = "http://localhost:11434/api/chat";
             const ANTHROPIC_DEFAULT_CHAT_URL = "https://api.anthropic.com/v1/messages";
@@ -210,9 +189,7 @@
             mountAccordionSection("#knx-ai-mount-assistant-advanced", "#knx-ai-tab-advanced");
             mountAccordionSection("#knx-ai-mount-chat-adapter", "#knx-ai-tab-chat-adapter");
             mountAccordionSection("#knx-ai-mount-home-intelligence", "#knx-ai-tab-home-intelligence");
-            mountAccordionSection("#knx-ai-mount-knx-capture", "#knx-ai-tab-capture");
             mountAccordionSection("#knx-ai-mount-knx-storage", "#knx-ai-tab-storage");
-            mountAccordionSection("#knx-ai-mount-knx-detection", "#knx-ai-tab-detection");
             $("#knx-ai-accordion").accordion({
                 active: 0,
                 animate: false,
@@ -234,12 +211,6 @@
             };
             $("#node-input-historyStoreToDisk").on("change", toggleHistoryArchive);
 
-            const toggleDocsContext = () => {
-                const enabled = $("#node-input-llmIncludeDocsSnippets").is(":checked");
-                $("#knx-ai-docs-language-row").toggle(enabled);
-            };
-            $("#node-input-llmIncludeDocsSnippets").on("change", toggleDocsContext);
-
             const toggleCommandConfirmation = () => {
                 const enabled = $("#node-input-llmAllowKnxCommands").is(":checked");
                 $("#knx-ai-command-confirmation-row").toggle(enabled);
@@ -248,10 +219,27 @@
 
             toggleLLM();
             toggleHistoryArchive();
-            toggleDocsContext();
             toggleCommandConfirmation();
 
-            const nodeId = this.id;
+            const applyNumericFallback = (selector, fallback) => {
+                const $field = $(selector);
+                if (!$field.length) return;
+                const value = $field.val();
+                if (value === undefined || value === null || String(value).trim() === "") {
+                    $field.val(String(fallback));
+                }
+            };
+            applyNumericFallback("#node-input-analysisWindowSec", 120);
+            applyNumericFallback("#node-input-historyWindowSec", 600);
+            applyNumericFallback("#node-input-historyStoreRetentionDays", 10);
+            applyNumericFallback("#node-input-emitIntervalSec", 0);
+            applyNumericFallback("#node-input-topN", 10);
+            applyNumericFallback("#node-input-maxEvents", 50000);
+            applyNumericFallback("#node-input-proactiveOpenMinutes", 120);
+            applyNumericFallback("#node-input-proactiveCooldownMinutes", 360);
+            applyNumericFallback("#node-input-homeMemoryMaxKb", 256);
+
+            const nodeId = node.id;
             const resolveAdminRoot = () => {
                 const raw = (RED.settings && typeof RED.settings.httpAdminRoot === "string") ? RED.settings.httpAdminRoot : "/";
                 const trimmed = String(raw || "/").trim();
@@ -273,12 +261,115 @@
                 return value;
             };
 
+            const applyChatEditorOptions = (editor) => {
+                try {
+                    if (!editor) return;
+                    if (typeof editor.updateOptions === "function") {
+                        editor.updateOptions({
+                            lineNumbers: "off",
+                            minimap: { enabled: false },
+                            scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 }
+                        });
+                    } else if (editor.renderer && typeof editor.renderer.setShowGutter === "function") {
+                        editor.renderer.setShowGutter(false);
+                    }
+                    if (typeof editor.setShowPrintMargin === "function") editor.setShowPrintMargin(false);
+                    if (typeof editor.setOptions === "function") {
+                        editor.setOptions({
+                            enableBasicAutocompletion: true,
+                            enableLiveAutocompletion: true
+                        });
+                    }
+                } catch (error) { }
+            };
+            const setChatEditorValue = (editor, value) => {
+                try {
+                    if (!editor) return;
+                    if (typeof editor.setValue === "function") {
+                        editor.setValue(String(value || ""));
+                    } else if (editor.session && typeof editor.session.setValue === "function") {
+                        editor.session.setValue(String(value || ""));
+                    }
+                } catch (error) { }
+            };
+            const destroyChatEditors = () => {
+                ["chatInputCodeEditor", "chatOutputCodeEditor"].forEach(function (key) {
+                    try {
+                        if (node[key] && typeof node[key].destroy === "function") node[key].destroy();
+                    } catch (error) { }
+                    delete node[key];
+                });
+            };
+
+            try {
+                node.chatInputCodeEditor = RED.editor.createEditor({
+                    id: "node-input-chatInputCode-editor",
+                    mode: "ace/mode/nrjavascript",
+                    value: node.chatInputCode || ""
+                });
+            } catch (error) { }
+            try {
+                node.chatOutputCodeEditor = RED.editor.createEditor({
+                    id: "node-input-chatOutputCode-editor",
+                    mode: "ace/mode/nrjavascript",
+                    value: node.chatOutputCode || ""
+                });
+            } catch (error) { }
+            applyChatEditorOptions(node.chatInputCodeEditor);
+            applyChatEditorOptions(node.chatOutputCodeEditor);
+            if (typeof monaco !== "undefined") {
+                try {
+                    const globalScope = typeof window !== "undefined" ? window : globalThis;
+                    if (!globalScope._knxAiChatEditorThemesDefined) {
+                        monaco.editor.defineTheme("knx-ai-chat-input-theme", {
+                            base: "vs",
+                            inherit: true,
+                            rules: [],
+                            colors: {
+                                "editor.background": "#e8f5e9",
+                                "editorGutter.background": "#e8f5e9"
+                            }
+                        });
+                        monaco.editor.defineTheme("knx-ai-chat-output-theme", {
+                            base: "vs",
+                            inherit: true,
+                            rules: [],
+                            colors: {
+                                "editor.background": "#fffde7",
+                                "editorGutter.background": "#fffde7"
+                            }
+                        });
+                        globalScope._knxAiChatEditorThemesDefined = true;
+                    }
+                    if (node.chatInputCodeEditor && typeof node.chatInputCodeEditor.updateOptions === "function") {
+                        node.chatInputCodeEditor.updateOptions({ theme: "knx-ai-chat-input-theme" });
+                    }
+                    if (node.chatOutputCodeEditor && typeof node.chatOutputCodeEditor.updateOptions === "function") {
+                        node.chatOutputCodeEditor.updateOptions({ theme: "knx-ai-chat-output-theme" });
+                    }
+                } catch (error) { }
+            }
+            node._destroyKnxAiChatEditors = destroyChatEditors;
+
             const configureChatAdapterPicker = () => {
                 const adapters = Array.isArray(window.KNXAIChatAdapterMappings)
                     ? window.KNXAIChatAdapterMappings.slice()
                     : [];
                 const $picker = $("#node-input-chatAdapterPreset");
                 if (!$picker.length) return;
+                const updateAdapterFieldsVisibility = (preset) => {
+                    const visible = String(preset || "none") !== "none";
+                    $("#knx-ai-chat-adapter-fields").toggle(visible);
+                    if (visible) {
+                        const resizeEditors = function () {
+                            try {
+                                if (node.chatInputCodeEditor && typeof node.chatInputCodeEditor.resize === "function") node.chatInputCodeEditor.resize();
+                                if (node.chatOutputCodeEditor && typeof node.chatOutputCodeEditor.resize === "function") node.chatOutputCodeEditor.resize();
+                            } catch (error) { }
+                        };
+                        try { setTimeout(resizeEditors, 0); } catch (error) { resizeEditors(); }
+                    }
+                };
                 $picker.empty();
                 $("<option></option>")
                     .attr("value", "none")
@@ -300,20 +391,23 @@
                         .appendTo($picker);
                 }
                 $picker.val(configuredPreset);
+                updateAdapterFieldsVisibility(configuredPreset);
                 $picker.on("change", function () {
                     const selected = String($(this).val() || "none");
                     if (selected === "none") {
-                        $("#node-input-chatInputCode").val("");
-                        $("#node-input-chatOutputCode").val("");
+                        setChatEditorValue(node.chatInputCodeEditor, "");
+                        setChatEditorValue(node.chatOutputCodeEditor, "");
+                        updateAdapterFieldsVisibility(selected);
                         return;
                     }
                     const adapter = adapters.find(item => item && item.id === selected);
                     if (!adapter) return;
-                    $("#node-input-chatInputCode").val(adapter.inputCode || "");
-                    $("#node-input-chatOutputCode").val(adapter.outputCode || "");
+                    setChatEditorValue(node.chatInputCodeEditor, adapter.inputCode || "");
+                    setChatEditorValue(node.chatOutputCodeEditor, adapter.outputCode || "");
+                    updateAdapterFieldsVisibility(selected);
                 });
             };
-            configureChatAdapterPicker.call(this);
+            configureChatAdapterPicker.call(node);
 
             const updateProactiveVisibility = () => {
                 const enabled = $("#node-input-proactiveEnabled").is(":checked");
@@ -335,19 +429,10 @@
                 try { if (wnd && typeof wnd.focus === "function") wnd.focus(); } catch (e) { }
             });
 
-            const setModelsStatus = (text, level) => {
-                const $status = $("#knx-ai-models-status");
-                if (!$status || $status.length === 0) return;
-                $status.text(text || "");
-                $status.removeClass("knx-ai-models-ok knx-ai-models-warn knx-ai-models-err");
-                if (level === "ok") $status.addClass("knx-ai-models-ok");
-                if (level === "warn") $status.addClass("knx-ai-models-warn");
-                if (level === "err") $status.addClass("knx-ai-models-err");
-            };
-
-            const setOllamaNoModelsVisible = (visible) => {
-                if (visible) $("#knx-ai-ollama-empty-help").show();
-                else $("#knx-ai-ollama-empty-help").hide();
+            const setRefreshModelsBusy = (busy) => {
+                const $button = $("#knx-ai-refreshModels");
+                $button.prop("disabled", !!busy);
+                $button.find("i.fa-refresh").toggleClass("fa-spin", !!busy);
             };
 
             const setOllamaInstallUiState = (busy) => {
@@ -399,8 +484,7 @@
                 // Node-RED uses "__PWRD__" as placeholder for stored credentials: don't send it.
                 if (apiKey && apiKey !== "__PWRD__") payload.apiKey = apiKey;
 
-                setModelsStatus(t('knxUltimateAI.messages.loadingModels', "Loading models..."), "warn");
-                $("#knx-ai-refreshModels").prop("disabled", true);
+                setRefreshModelsBusy(true);
 
                 $.ajax({
                     url: "knxUltimateAI/models",
@@ -410,7 +494,6 @@
                 })
                     .done(function (data) {
                         const models = (data && data.models) ? data.models : [];
-                        let msg = "";
                         populateModels(models);
                         if (provider === "ollama" && data && data.ollamaStarted) {
                             try {
@@ -419,15 +502,9 @@
                             } catch (e) { }
                         }
                         if (provider === "ollama" && models.length === 0) {
-                            msg = t('knxUltimateAI.messages.ollamaNoModels', "No local Ollama model found. Install one from https://ollama.com/library.");
-                            setModelsStatus(msg, "warn");
-                            setOllamaNoModelsVisible(true);
-                        } else {
-                            msg = t('knxUltimateAI.messages.loadedModels', "Models loaded") + ": " + models.length;
-                            setModelsStatus(msg, "ok");
-                            setOllamaNoModelsVisible(false);
+                            const msg = t('knxUltimateAI.messages.ollamaNoModels', "No local Ollama model found. Install one from https://ollama.com/library.");
+                            try { RED.notify(msg, "warning"); } catch (e) { }
                         }
-                        try { RED.notify(msg, "success"); } catch (e) { }
                     })
                     .fail(function (xhr) {
                         let err = "Failed to load models";
@@ -435,11 +512,10 @@
                             const resp = xhr && xhr.responseJSON;
                             if (resp && resp.error) err = resp.error;
                         } catch (e) { }
-                        setModelsStatus(err, "err");
                         try { RED.notify(err, "error"); } catch (e) { }
                     })
                     .always(function () {
-                        $("#knx-ai-refreshModels").prop("disabled", false);
+                        setRefreshModelsBusy(false);
                     });
             };
 
@@ -450,7 +526,6 @@
                 const model = String($("#node-input-llmModel").val() || "").trim() || OLLAMA_DEFAULT_MODEL;
                 const payload = { nodeId: nodeId, baseUrl: baseUrl, model: model };
 
-                setModelsStatus(t('knxUltimateAI.messages.installingOllamaModel', "Installing Ollama model..."), "warn");
                 $("#knx-ai-refreshModels").prop("disabled", true);
                 setOllamaInstallUiState(true);
 
@@ -477,11 +552,10 @@
                             const resp = xhr && xhr.responseJSON;
                             if (resp && resp.error) err = resp.error;
                         } catch (e) { }
-                        setModelsStatus(err, "err");
                         try { RED.notify(err, "error"); } catch (e) { }
+                        $("#knx-ai-refreshModels").prop("disabled", false);
                     })
                     .always(function () {
-                        $("#knx-ai-refreshModels").prop("disabled", false);
                         setOllamaInstallUiState(false);
                     });
             };
@@ -496,16 +570,11 @@
                 if (applyDefaults) applyProviderDefaults(provider);
                 if (provider === "ollama") {
                     $("#knx-ai-apikey-row").hide();
-                    $("#knx-ai-ollama-warning").show();
                     $("#knx-ai-ollama-install-row").show();
-                    $("#knx-ai-ollama-steps").show();
                     if (autoLoadModels) refreshModels();
                 } else {
                     $("#knx-ai-apikey-row").show();
-                    $("#knx-ai-ollama-warning").hide();
                     $("#knx-ai-ollama-install-row").hide();
-                    $("#knx-ai-ollama-steps").hide();
-                    setOllamaNoModelsVisible(false);
                 }
             };
             $("#node-input-llmProvider").on("change", function () {
@@ -528,9 +597,35 @@
         },
         oneditsave: function () {
             try { RED.sidebar.show("info"); } catch (error) { }
+            try {
+                if (this.chatInputCodeEditor && typeof this.chatInputCodeEditor.getValue === "function") {
+                    this.chatInputCode = this.chatInputCodeEditor.getValue();
+                    $("#node-input-chatInputCode").val(this.chatInputCode);
+                }
+            } catch (error) { }
+            try {
+                if (this.chatOutputCodeEditor && typeof this.chatOutputCodeEditor.getValue === "function") {
+                    this.chatOutputCode = this.chatOutputCodeEditor.getValue();
+                    $("#node-input-chatOutputCode").val(this.chatOutputCode);
+                }
+            } catch (error) { }
+            try {
+                if (typeof this._destroyKnxAiChatEditors === "function") this._destroyKnxAiChatEditors();
+            } catch (error) { }
+            delete this._destroyKnxAiChatEditors;
         },
         oneditcancel: function () {
             try { RED.sidebar.show("info"); } catch (error) { }
+            try {
+                if (typeof this._destroyKnxAiChatEditors === "function") this._destroyKnxAiChatEditors();
+            } catch (error) { }
+            delete this._destroyKnxAiChatEditors;
+        },
+        oneditresize: function () {
+            try {
+                if (this.chatInputCodeEditor && typeof this.chatInputCodeEditor.resize === "function") this.chatInputCodeEditor.resize();
+                if (this.chatOutputCodeEditor && typeof this.chatOutputCodeEditor.resize === "function") this.chatOutputCodeEditor.resize();
+            } catch (error) { }
         }
     })
 </script>
@@ -598,36 +693,13 @@
         <h3><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateAI.sections.groupKnxAnalysis"></span></h3>
         <div>
             <div class="knx-ai-accordion-subsection">
-                <h4><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimateAI.sections.capture"></span></h4>
-                <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-capture"></div>
-            </div>
-            <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.storage"></span></h4>
                 <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-storage"></div>
-            </div>
-            <div class="knx-ai-accordion-subsection">
-                <h4><i class="fa fa-search"></i> <span data-i18n="knxUltimateAI.sections.detection"></span></h4>
-                <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-detection"></div>
             </div>
         </div>
     </div>
 
     <div id="knx-ai-accordion-source" style="display:none;">
-
-        <div id="knx-ai-tab-capture">
-            <div class="form-row">
-                <input type="checkbox" id="node-input-notifywrite" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifywrite">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.notifywrite"></span></label>
-            </div>
-            <div class="form-row">
-                <input type="checkbox" id="node-input-notifyresponse" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifyresponse">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.notifyresponse"></span></label>
-            </div>
-            <div class="form-row">
-                <input type="checkbox" id="node-input-notifyreadrequest" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-notifyreadrequest">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.notifyreadrequest"></span></label>
-            </div>
-        </div>
 
         <div id="knx-ai-tab-storage">
             <div class="form-row">
@@ -660,41 +732,6 @@
             </div>
         </div>
 
-        <div id="knx-ai-tab-detection">
-            <div class="form-row">
-                <input type="checkbox" id="node-input-enablePattern" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-enablePattern">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.enablePattern"></span></label>
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-patternMaxLagMs"><i class="fa fa-arrows-h"></i> <span data-i18n="knxUltimateAI.properties.patternMaxLagMs"></span></label>
-                <input style="width:120px" type="number" id="node-input-patternMaxLagMs">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-patternMinCount"><i class="fa fa-filter"></i> <span data-i18n="knxUltimateAI.properties.patternMinCount"></span></label>
-                <input style="width:90px" type="number" id="node-input-patternMinCount">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-rateWindowSec"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.rateWindowSec"></span></label>
-                <input style="width:90px" type="number" id="node-input-rateWindowSec">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-maxTelegramPerSecOverall"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimateAI.properties.maxTelegramPerSecOverall"></span></label>
-                <input style="width:90px" type="number" id="node-input-maxTelegramPerSecOverall">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-maxTelegramPerSecPerGA"><i class="fa fa-bolt"></i> <span data-i18n="knxUltimateAI.properties.maxTelegramPerSecPerGA"></span></label>
-                <input style="width:90px" type="number" id="node-input-maxTelegramPerSecPerGA">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-flapWindowSec"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateAI.properties.flapWindowSec"></span></label>
-                <input style="width:90px" type="number" id="node-input-flapWindowSec">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-flapMaxChanges"><i class="fa fa-random"></i> <span data-i18n="knxUltimateAI.properties.flapMaxChanges"></span></label>
-                <input style="width:90px" type="number" id="node-input-flapMaxChanges">
-            </div>
-        </div>
-
         <div id="knx-ai-tab-llm-connection">
             <div class="form-row">
                 <input type="checkbox" id="node-input-llmEnabled" style="display:inline-block; width:auto; vertical-align:top;">
@@ -723,7 +760,6 @@
                     </button>
                 </div>
                 <datalist id="knx-ai-llmModels"></datalist>
-                <div class="form-tips" id="knx-ai-models-status"></div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-llmAllowKnxCommands" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-llmAllowKnxCommands">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmAllowKnxCommands"></span></label>
@@ -736,32 +772,27 @@
         </div>
 
         <div id="knx-ai-tab-chat-adapter">
-            <div class="form-tips" style="margin-bottom:12px;">
-                <span data-i18n="knxUltimateAI.messages.chatAdapterIntro"></span>
-            </div>
             <div class="form-row">
                 <label style="width:290px" for="node-input-chatAdapterPreset"><i class="fa fa-plug"></i> <span data-i18n="knxUltimateAI.properties.chatAdapterPreset"></span></label>
                 <select style="width:100%" id="node-input-chatAdapterPreset">
                     <option value="none" data-i18n="knxUltimateAI.selectlists.chatAdapter.none"></option>
                 </select>
             </div>
-            <div class="form-row">
-                <label style="width:100%" for="node-input-chatInputCode"><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimateAI.properties.chatInputCode"></span></label>
-                <textarea id="node-input-chatInputCode" class="knx-ai-chat-adapter-code" spellcheck="false"></textarea>
-            </div>
-            <div class="form-row">
-                <label style="width:100%" for="node-input-chatOutputCode"><i class="fa fa-sign-out"></i> <span data-i18n="knxUltimateAI.properties.chatOutputCode"></span></label>
-                <textarea id="node-input-chatOutputCode" class="knx-ai-chat-adapter-code" spellcheck="false"></textarea>
-            </div>
-            <div class="form-tips">
-                <span data-i18n="knxUltimateAI.messages.chatAdapterCodeHelp"></span>
+            <div id="knx-ai-chat-adapter-fields" style="display:none;">
+                <div class="form-row">
+                    <label style="width:100%" for="node-input-chatInputCode"><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimateAI.properties.chatInputCode"></span></label>
+                    <input type="hidden" id="node-input-chatInputCode">
+                    <div id="node-input-chatInputCode-editor" class="node-text-editor knx-ai-chat-adapter-editor"></div>
+                </div>
+                <div class="form-row">
+                    <label style="width:100%" for="node-input-chatOutputCode"><i class="fa fa-sign-out"></i> <span data-i18n="knxUltimateAI.properties.chatOutputCode"></span></label>
+                    <input type="hidden" id="node-input-chatOutputCode">
+                    <div id="node-input-chatOutputCode-editor" class="node-text-editor knx-ai-chat-adapter-editor"></div>
+                </div>
             </div>
         </div>
 
         <div id="knx-ai-tab-home-intelligence">
-            <div class="form-tips" style="margin-bottom:12px;">
-                <span data-i18n="knxUltimateAI.messages.homeIntelligenceIntro"></span>
-            </div>
             <div class="form-row">
                 <input type="checkbox" id="node-input-proactiveEnabled" style="display:inline-block; width:auto; vertical-align:top;">
                 <label style="width:auto" for="node-input-proactiveEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.proactiveEnabled"></span></label>
@@ -788,9 +819,6 @@
                 <label style="width:100%" for="node-input-aiEducation"><i class="fa fa-graduation-cap"></i> <span data-i18n="knxUltimateAI.properties.aiEducation"></span></label>
                 <textarea id="node-input-aiEducation" maxlength="16000" style="width:100%; min-height:180px; box-sizing:border-box;" data-i18n="[placeholder]knxUltimateAI.placeholder.aiEducation"></textarea>
             </div>
-            <div class="form-tips" style="margin-bottom:12px;">
-                <span data-i18n="knxUltimateAI.messages.aiEducationHelp"></span>
-            </div>
             <div class="knx-ai-inline-subsection">
                 <h5><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.homeIntelligenceAdvanced"></span></h5>
                 <div>
@@ -802,9 +830,6 @@
                         <label style="width:290px" for="node-input-homeMemoryMaxKb"><i class="fa fa-hdd-o"></i> <span data-i18n="knxUltimateAI.properties.homeMemoryMaxKb"></span></label>
                         <input style="width:100px" type="number" min="64" max="1024" id="node-input-homeMemoryMaxKb">
                     </div>
-                    <div class="form-tips">
-                        <span data-i18n="knxUltimateAI.messages.homeMemoryLimitHelp"></span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -812,18 +837,8 @@
         <div id="knx-ai-tab-llm-context">
             <div id="knx-ai-llm-context-settings">
                 <div class="form-row">
-                    <input type="checkbox" id="node-input-llmIncludeRaw" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-llmIncludeRaw">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeRaw"></span></label>
-                </div>
-
-                <div class="form-row">
                     <input type="checkbox" id="node-input-llmIncludeFlowContext" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-llmIncludeFlowContext">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeFlowContext"></span></label>
-                </div>
-
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-llmIncludeDocsSnippets" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-llmIncludeDocsSnippets">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeDocsSnippets"></span></label>
                 </div>
 
                 <div class="form-row" id="knx-ai-docs-language-row">
@@ -837,10 +852,6 @@
                         <option value="zh-CN">简体中文</option>
                     </select>
                 </div>
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-llmSystemPrompt"><i class="fa fa-commenting-o"></i> <span data-i18n="knxUltimateAI.properties.llmSystemPrompt"></span></label>
-                    <textarea style="width:100%; height:110px;" id="node-input-llmSystemPrompt" data-i18n="[placeholder]knxUltimateAI.placeholder.llmSystemPrompt"></textarea>
-                </div>
             </div>
         </div>
 
@@ -849,9 +860,6 @@
                 <div class="form-row">
                     <label style="width:290px" for="node-input-llmBaseUrl"><i class="fa fa-link"></i> <span data-i18n="knxUltimateAI.properties.llmBaseUrl"></span></label>
                     <input type="text" id="node-input-llmBaseUrl" data-i18n="[placeholder]knxUltimateAI.placeholder.llmBaseUrl">
-                </div>
-                <div class="form-tips" id="knx-ai-ollama-warning" style="display:none;">
-                    <span data-i18n="knxUltimateAI.messages.ollamaNotSupported"></span>
                 </div>
                 <div class="form-row" id="knx-ai-ollama-install-row" style="display:none;">
                     <label style="width:290px"><i class="fa fa-download"></i> Ollama</label>
@@ -863,14 +871,6 @@
                             <i class="fa fa-download"></i> <span data-i18n="knxUltimateAI.buttons.installOllamaModel"></span>
                         </button>
                     </div>
-                </div>
-                <div class="form-tips" id="knx-ai-ollama-steps" style="display:none;">
-                    <span data-i18n="knxUltimateAI.messages.ollamaInstallSteps"></span>
-                </div>
-                <div class="form-tips" id="knx-ai-ollama-empty-help" style="display:none;">
-                    <span data-i18n="knxUltimateAI.messages.ollamaNoModels"></span>
-                    <br>
-                    <code>ollama pull llama3.1</code>
                 </div>
             </div>
         </div>

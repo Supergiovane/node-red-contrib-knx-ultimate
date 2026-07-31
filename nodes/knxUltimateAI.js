@@ -4994,11 +4994,11 @@ module.exports = function (RED) {
     node.outputtopic = node.topic
     node.dpt = ''
 
-    node.notifyreadrequest = config.notifyreadrequest !== undefined ? coerceBoolean(config.notifyreadrequest) : true
+    node.notifyreadrequest = true
     node.notifyreadrequestalsorespondtobus = 'false'
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ''
-    node.notifyresponse = config.notifyresponse !== undefined ? coerceBoolean(config.notifyresponse) : true
-    node.notifywrite = config.notifywrite !== undefined ? coerceBoolean(config.notifywrite) : true
+    node.notifyresponse = true
+    node.notifywrite = true
     node.initialread = false
     node.listenallga = true
     node.outputtype = 'write'
@@ -5013,16 +5013,16 @@ module.exports = function (RED) {
     node.emitIntervalSec = Number(config.emitIntervalSec || 0)
     node.topN = Number(config.topN || 10)
 
-    node.rateWindowSec = Number(config.rateWindowSec || 10)
-    node.maxTelegramPerSecOverall = Number(config.maxTelegramPerSecOverall || 0)
-    node.maxTelegramPerSecPerGA = Number(config.maxTelegramPerSecPerGA || 0)
+    node.rateWindowSec = 10
+    node.maxTelegramPerSecOverall = 0
+    node.maxTelegramPerSecPerGA = 0
 
-    node.flapWindowSec = Number(config.flapWindowSec || 30)
-    node.flapMaxChanges = Number(config.flapMaxChanges || 0)
+    node.flapWindowSec = 30
+    node.flapMaxChanges = 0
 
-    node.enablePattern = config.enablePattern !== undefined ? coerceBoolean(config.enablePattern) : true
-    node.patternMaxLagMs = Number(config.patternMaxLagMs || 1500)
-    node.patternMinCount = Number(config.patternMinCount || 8)
+    node.enablePattern = true
+    node.patternMaxLagMs = 1500
+    node.patternMinCount = 8
 
     node.llmEnabled = config.llmEnabled !== undefined ? coerceBoolean(config.llmEnabled) : false
     node.llmProvider = config.llmProvider || 'openai_compat'
@@ -5037,14 +5037,14 @@ module.exports = function (RED) {
     // Prefer Node-RED credentials store, fallback to legacy config field (backward compatible)
     node.llmApiKey = sanitizeApiKey((node.credentials && node.credentials.llmApiKey) ? node.credentials.llmApiKey : (config.llmApiKey || ''))
     node.llmModel = config.llmModel || (node.llmProvider === 'anthropic' ? ANTHROPIC_DEFAULT_MODEL : 'gpt-4o-mini')
-    node.llmSystemPrompt = config.llmSystemPrompt || 'You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.'
+    node.llmSystemPrompt = 'You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.'
     node.llmTemperature = (config.llmTemperature === undefined || config.llmTemperature === '') ? 0.2 : Number(config.llmTemperature)
     node.llmMaxTokens = (config.llmMaxTokens === undefined || config.llmMaxTokens === '') ? 50000 : Number(config.llmMaxTokens)
     node.llmTimeoutMs = (config.llmTimeoutMs === undefined || config.llmTimeoutMs === '') ? 120000 : Number(config.llmTimeoutMs)
     node.llmMaxEventsInPrompt = (config.llmMaxEventsInPrompt === undefined || config.llmMaxEventsInPrompt === '') ? 120 : Number(config.llmMaxEventsInPrompt)
-    node.llmIncludeRaw = config.llmIncludeRaw !== undefined ? coerceBoolean(config.llmIncludeRaw) : false
+    node.llmIncludeRaw = false
     node.llmIncludeFlowContext = config.llmIncludeFlowContext !== undefined ? coerceBoolean(config.llmIncludeFlowContext) : true
-    node.llmIncludeDocsSnippets = config.llmIncludeDocsSnippets !== undefined ? coerceBoolean(config.llmIncludeDocsSnippets) : true
+    node.llmIncludeDocsSnippets = true
     node.llmDocsLanguage = config.llmDocsLanguage ? String(config.llmDocsLanguage) : 'it'
     node.llmDocsMaxSnippets = (config.llmDocsMaxSnippets === undefined || config.llmDocsMaxSnippets === '') ? 5 : Number(config.llmDocsMaxSnippets)
     node.llmDocsMaxChars = (config.llmDocsMaxChars === undefined || config.llmDocsMaxChars === '') ? 60000 : Number(config.llmDocsMaxChars)

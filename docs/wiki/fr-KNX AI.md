@@ -92,10 +92,7 @@ Voici tous les champs tels qu'affichés dans l'éditeur KNX AI.
 - **Topic** : topic de base utilisé dans les sorties.
 - Bouton **Open KNX AI Web** : ouvre le dashboard web (`/knxUltimateAI/sidebar/page`).
 
-### Capture
-- **Capture GroupValue_Write** : capture les télégrammes Write.
-- **Capture GroupValue_Response** : capture les télégrammes Response.
-- **Capture GroupValue_Read** : capture les télégrammes Read.
+KNX AI écoute automatiquement les télégrammes `GroupValue_Write`, `GroupValue_Response` et `GroupValue_Read`. L'analyse des motifs et anomalies est toujours initialisée avec les valeurs intégrées par défaut ; aucune configuration des événements du bus ou de la détection n'est nécessaire.
 
 ### Analysis
 - **Analysis window (seconds)** : fenêtre principale pour résumé/débits.
@@ -105,16 +102,6 @@ Voici tous les champs tels qu'affichés dans l'éditeur KNX AI.
 - **Max stored events** : nombre maximal de télégrammes en mémoire.
 - **Auto emit summary (seconds, 0=off)** : intervalle périodique d'émission du résumé.
 - **Top list size** : nombre de group addresses/sources dans le top.
-- **Detect simple patterns (A -> B)** : active la détection de transitions/patterns.
-- **Pattern max lag (ms)** : écart temporel max pour corrélation des patterns.
-- **Pattern min occurrences** : occurrences minimales avant signalement.
-
-### Anomalies
-- **Rate window (seconds)** : fenêtre glissante pour contrôles de débit.
-- **Max overall telegrams/sec (0=off)** : seuil sur le bus global.
-- **Max telegrams/sec per GA (0=off)** : seuil par group address.
-- **Flap window (seconds)** : fenêtre de détection flapping/changements rapides.
-- **Max changes per GA in window (0=off)** : nombre max de changements autorisés.
 
 ### Assistant IA
 - **Enable LLM assistant** : active les fonctions Ask/chat.
@@ -123,37 +110,28 @@ Voici tous les champs tels qu'affichés dans l'éditeur KNX AI.
 - **API key** : clé API (non requise avec Ollama local).
 - **Model** : ID/nom du modèle.
 - **Compatibilité du modèle de chat** : le modèle sélectionné doit prendre en charge l'endpoint Chat Completions configuré. Les anciens modèles réservés aux completions, comme `gpt-3.5-turbo-instruct`, sont exclus lors de l'actualisation de la liste. Si le fournisseur refuse une valeur de température personnalisée ou le paramètre de limite de tokens, KNX AI réessaie en supprimant ou remplaçant uniquement le champ incompatible.
-- **System prompt** : instruction système globale pour l'analyse KNX (Advanced).
 - **Autoriser l’IA à lire les états KNX et commander les actionneurs** : active la sortie 4 et reste désactivé par défaut. Les objets exacts du catalogue ETS peuvent être lus ; seules les écritures vers des objets classés `command` sont acceptées. Les opérations inconnues, avec DPT discordant, invalides ou trop nombreuses, ainsi que les écritures vers des objets d'état ou neutres, sont rejetées localement.
 - **Demander confirmation avant d’envoyer les commandes KNX** : activé par défaut. Affiche d'abord les modifications validées et n'émet aucune commande tant que la même session de chat ne les confirme pas. Lorsque des commandes attendent une confirmation, la réponse ajoute toujours les instructions exactes de confirmation ou d'annulation dans la langue de la demande courante. Les commandes sont à nouveau validées juste avant la sortie.
-- **Préréglage d’adaptateur** : charge une paire de mappages entrée/sortie depuis le fichier d’adaptateurs de chat fourni. La sélection remplace volontairement les deux zones de texte ; le code reste ensuite modifiable.
-- **Mappage d’entrée (chat → KNX AI)** : JavaScript synchrone exécuté avant le traitement de la commande d’entrée.
-- **Mappage de sortie (KNX AI → chat)** : JavaScript synchrone appliqué uniquement aux messages de la sortie 3.
+- **Préréglage d’adaptateur** : utilise **Aucun adaptateur** par défaut. Les éditeurs JavaScript restent masqués jusqu’à la sélection d’un adaptateur, puis les mappages entrée/sortie modifiables sont chargés et affichés.
+- **Mappage d’entrée (chat → KNX AI)** : JavaScript synchrone exécuté avant le traitement de la commande d’entrée dans l’éditeur JavaScript vert.
+- **Mappage de sortie (KNX AI → chat)** : JavaScript synchrone appliqué uniquement aux messages de la sortie 3 dans l’éditeur JavaScript jaune.
 - **Activer les notifications domestiques proactives** : détecteur optionnel des états ouverts de volet/fenêtre/porte reconnus de façon fiable ; il n'écrit jamais de manière autonome sur KNX.
 - **Destinataire principal / ID de chat** : destination facultative des messages spontanés ; sinon la dernière session Ask est mémorisée.
-- **Notifier après ouverture (minutes)** : seuil de durée avant d'envisager une notification proactive.
+- **Notifier après ouverture (minutes)** : seuil de durée avant d'envisager une notification proactive ; 120 minutes par défaut.
 - **Début / fin des heures silencieuses** : intervalle quotidien pendant lequel les messages proactifs sont supprimés.
 - **Éducation de l’IA** : consignes autoritaires gérées uniquement par l'utilisateur, lues par l'IA et jamais modifiées.
-- **Délai de répétition (minutes)** : intervalle minimal avant qu'un même objet puisse notifier à nouveau.
+- **Délai de répétition (minutes)** : intervalle minimal avant qu'un même objet puisse notifier à nouveau ; 360 minutes par défaut.
 - **Taille maximale du fichier mémoire domestique (KB)** : limite stricte de 64 à 1 024 KB ; 256 KB par défaut.
 - Si l'archive disque est active, **Ask** l'utilise par défaut : les dates/plages explicites sont respectées, sinon l'assistant cherche sur les dernières 24 heures plus les événements RAM courants.
-- **Include raw payload hex** : inclut le payload hex brut dans le prompt.
 - **Inclure l'inventaire du projet Node-RED** : inclut dans le prompt l'inventaire de tout le projet Node-RED, avec les nœuds KNX et d'autres nœuds utiles comme function/change/inject/template lorsqu'ils contiennent de la logique KNX ou des adresses de groupe.
-- **Include documentation snippets (help/README/examples)** : inclut le contexte documentation.
-- **Docs language** : langue préférée des snippets documentation.
-- Bouton **Refresh** : interroge le provider et charge les modèles disponibles.
+- Les extraits pertinents de l’aide, du README et des exemples sont toujours inclus automatiquement.
+- **Docs language** : langue préférée des extraits de documentation inclus automatiquement.
+- Bouton **Refresh** : interroge le provider et charge les modèles disponibles. Son icône tourne pendant le chargement ; une réussite ne produit volontairement aucun message.
 
 ### Advanced
 - **Analysis window (seconds)** : fenêtre principale pour résumé/débits.
 - **Max stored events** : nombre maximal de télégrammes en mémoire.
 - **Top list size** : nombre de group addresses/sources dans le top.
-- **Pattern max lag (ms)** : écart temporel max pour corrélation des patterns.
-- **Pattern min occurrences** : occurrences minimales avant signalement.
-- **Rate window (seconds)** : fenêtre glissante pour contrôles de débit.
-- **Max overall telegrams/sec (0=off)** : seuil sur le bus global.
-- **Max telegrams/sec per GA (0=off)** : seuil par group address.
-- **Flap window (seconds)** : fenêtre de détection flapping/changements rapides.
-- **Max changes per GA in window (0=off)** : nombre max de changements autorisés.
 
 ### Démarrage rapide Ollama (local)
 - Choisir **Provider = Ollama**.

@@ -97,9 +97,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Open KNX AI Web** button: Opens the full KNX AI web dashboard (`/knxUltimateAI/sidebar/page`).
 
 ### Capture
-- **Capture GroupValue_Write**: Capture write telegrams.
-- **Capture GroupValue_Response**: Capture response telegrams.
-- **Capture GroupValue_Read**: Capture read telegrams.
+KNX AI automatically listens to `GroupValue_Write`, `GroupValue_Response`, and `GroupValue_Read` telegrams. Pattern and anomaly analysis is always initialized with the built-in defaults, so no bus-event or detection setup is required.
 
 ### Analysis
 - **Analysis window (seconds)**: Main analysis window used for summaries/rates.
@@ -109,16 +107,6 @@ All fields exposed in the KNX AI editor are listed below.
 - **Max stored events**: Maximum number of telegrams kept in memory.
 - **Auto emit summary (seconds, 0=off)**: Periodic summary output interval.
 - **Top list size**: Number of top group addresses/sources in summary.
-- **Detect simple patterns (A -> B)**: Enable transition/pattern detection.
-- **Pattern max lag (ms)**: Max time gap for pattern transition matching.
-- **Pattern min occurrences**: Minimum occurrences before a pattern is reported.
-
-### Anomalies
-- **Rate window (seconds)**: Sliding time window for anomaly rate checks.
-- **Max overall telegrams/sec (0=off)**: Overall bus rate threshold.
-- **Max telegrams/sec per GA (0=off)**: Per-group-address rate threshold.
-- **Flap window (seconds)**: Time window for flapping/change-rate detection.
-- **Max changes per GA in window (0=off)**: Max allowed changes in flap window.
 
 ### AI Assistant
 - **Enable LLM assistant**: Enable Ask/chat assistant features.
@@ -127,37 +115,28 @@ All fields exposed in the KNX AI editor are listed below.
 - **API key**: API key (not required for local Ollama).
 - **Model**: Model ID/name.
 - **Chat model compatibility**: The selected model must support the configured Chat Completions endpoint. Legacy completion-only models such as `gpt-3.5-turbo-instruct` are excluded when the model list is refreshed. If the provider rejects a custom temperature or token-limit parameter, KNX AI retries after removing or replacing only that incompatible field.
-- **System prompt**: Global instruction for KNX analysis behavior (Advanced).
 - **Allow AI to read KNX states and control actuators**: Enables output 4 and is off by default. Exact ETS catalog objects may be read; writes are accepted only for objects classified as `command`. Unknown, DPT-mismatched, invalid, or excessive operations and writes to status/neutral objects are rejected locally.
 - **Ask for confirmation before sending KNX commands**: Enabled by default. Shows the validated changes first and emits no KNX command until the same chat session confirms them. Whenever commands are awaiting confirmation, the response always appends the exact confirmation/cancellation instructions in the language of the current request. Commands are validated again immediately before output.
-- **Adapter preset**: Loads an input/output mapping pair from the packaged chat-adapter file. Selecting a preset intentionally replaces both mapping text boxes; they remain editable afterwards.
-- **Input mapping (chat → KNX AI)**: Synchronous JavaScript applied before input command processing.
-- **Output mapping (KNX AI → chat)**: Synchronous JavaScript applied only to messages on output 3.
+- **Adapter preset**: Defaults to **No adapter**. The JavaScript mapping editors remain hidden until an adapter is selected; selecting a preset loads and reveals its editable input/output mapping pair.
+- **Input mapping (chat → KNX AI)**: Synchronous JavaScript applied before input command processing. It uses the green JavaScript editor.
+- **Output mapping (KNX AI → chat)**: Synchronous JavaScript applied only to messages on output 3. It uses the yellow JavaScript editor.
 - **Enable proactive home notifications**: Opt-in detector for reliably recognized open cover/window/door states; it never writes autonomously to KNX.
 - **Primary recipient / chat ID**: Optional destination for unsolicited chat messages; otherwise the most recent Ask session is remembered.
-- **Notify after open (minutes)**: Open-duration threshold before a proactive notification can be considered.
+- **Notify after open (minutes)**: Open-duration threshold before a proactive notification can be considered; 120 minutes by default.
 - **Quiet hours start / end**: Daily interval in which proactive messages are suppressed.
 - **AI Education**: User-only, authoritative guidance read by the AI and never modified by it.
-- **Repeat cooldown (minutes)**: Minimum interval before the same object may notify again.
+- **Repeat cooldown (minutes)**: Minimum interval before the same object may notify again; 360 minutes by default.
 - **Maximum home-memory file (KB)**: Hard size limit from 64 to 1,024 KB; 256 KB by default.
 - If disk archive is enabled, **Ask** uses the archive by default: explicit dates/ranges are honored, otherwise the assistant searches the last 24 hours plus current RAM events.
-- **Include raw payload hex**: Include raw telegram hex in prompt.
 - **Include Node-RED project inventory**: Include the whole Node-RED project inventory in the prompt, including KNX nodes and other useful nodes such as function/change/inject/template when they contain KNX-related logic or group addresses.
-- **Include documentation snippets (help/README/examples)**: Include docs context.
-- **Docs language**: Preferred language for docs snippets.
-- **Refresh** button: Query provider and load available model IDs.
+- Relevant help, README, and example snippets are always included automatically.
+- **Docs language**: Preferred language for the automatically included documentation snippets.
+- **Refresh** button: Queries the provider and loads available model IDs. Its icon spins while loading; successful completion is intentionally silent.
 
 ### Advanced
 - **Analysis window (seconds)**: Main analysis window used for summaries/rates.
 - **Max stored events**: Maximum number of telegrams kept in memory.
 - **Top list size**: Number of top group addresses/sources in summary.
-- **Pattern max lag (ms)**: Max time gap for pattern transition matching.
-- **Pattern min occurrences**: Minimum occurrences before a pattern is reported.
-- **Rate window (seconds)**: Sliding time window for anomaly rate checks.
-- **Max overall telegrams/sec (0=off)**: Overall bus rate threshold.
-- **Max telegrams/sec per GA (0=off)**: Per-group-address rate threshold.
-- **Flap window (seconds)**: Time window for flapping/change-rate detection.
-- **Max changes per GA in window (0=off)**: Max allowed changes in flap window.
 
 ### Ollama quick setup (local)
 - Choose **Provider = Ollama**.
