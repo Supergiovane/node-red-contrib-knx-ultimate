@@ -24,6 +24,57 @@
     return fallback
   }
 
+  function closeEditorTray (RED, $) {
+    try {
+      if (RED.actions && typeof RED.actions.invoke === 'function') {
+        RED.actions.invoke('core:cancel-edit-tray')
+        return
+      }
+    } catch (error) { /* use the compatible button fallback */ }
+    const $cancel = $('#node-dialog-cancel:visible, #node-config-dialog-cancel:visible').first()
+    if ($cancel.length) $cancel.trigger('click')
+  }
+
+  function reserveDonationWindow (windowObject) {
+    try {
+      if (!windowObject || typeof windowObject.open !== 'function') return undefined
+      const donationWindow = windowObject.open('', '_blank')
+      if (donationWindow) {
+        try { donationWindow.opener = null } catch (error) { /* best-effort isolation */ }
+      }
+      return donationWindow
+    } catch (error) {
+      return undefined
+    }
+  }
+
+  function closeDonationWindow (donationWindow) {
+    try {
+      if (donationWindow && typeof donationWindow.close === 'function') donationWindow.close()
+    } catch (error) { /* best effort after a failed conversion */ }
+  }
+
+  function showCompletionMessage (RED, translate, convertedCount) {
+    if (!RED || typeof RED.notify !== 'function') return
+    const message = translate('migration_success', 'Process finished. {{count}} legacy HUE nodes were converted. Inspect every modified node, including its function, configuration, pins and wiring, before clicking Deploy.')
+      .replace('{{count}}', String(convertedCount))
+    let notification
+    try {
+      notification = RED.notify(message, {
+        modal: true,
+        fixed: true,
+        type: 'success',
+        buttons: [{
+          text: translate('migration_ok', 'OK'),
+          class: 'primary',
+          click () {
+            if (notification && typeof notification.close === 'function') notification.close()
+          }
+        }]
+      })
+    } catch (error) { /* the conversion is already complete */ }
+  }
+
   function open (options = {}) {
     const RED = options.RED
     const $ = options.$
@@ -34,143 +85,138 @@
       ? options.translate
       : (key, fallback, values) => defaultTranslate(RED, key, fallback, values)
 
-    if (!RED || !$ || !windowObject || !documentObject || !migrationApi || typeof migrationApi.convertLegacyHueFlowJson !== 'function') {
+    if (!RED || !$ || !windowObject || !documentObject || !migrationApi ||
+        typeof migrationApi.collectLegacyHueNodes !== 'function' ||
+        typeof migrationApi.createLocalMigrationPatches !== 'function' ||
+        typeof migrationApi.applyLocalMigration !== 'function' ||
+        typeof migrationApi.createUsageMailto !== 'function' ||
+        typeof migrationApi.openUsageMailto !== 'function' ||
+        typeof migrationApi.MIGRATION_DONATION_URL !== 'string') {
       if (RED && typeof RED.notify === 'function') {
         RED.notify(translate('migration_unavailable', 'The HUE migration tool is unavailable. Restart Node-RED after updating the package.'), 'error')
       }
       return function () {}
     }
 
+    const legacyNodes = migrationApi.collectLegacyHueNodes(RED)
+    if (legacyNodes.length === 0) {
+      if (typeof RED.notify === 'function') RED.notify(translate('migration_none', 'No legacy HUE nodes were found.'), 'warning')
+      return function () {}
+    }
+
     const $dialog = $('<div class="hue-controller-migration-dialog"></div>').appendTo('body')
-    $('<div class="hue-controller-migration-note"></div>')
-      .text(translate('migration_privacy', 'Paste an exported Node-RED flow. Conversion happens locally and does not modify the open flow.'))
-      .css({ marginBottom: '8px' })
+    $('<div class="hue-controller-migration-summary"></div>')
+      .text(translate('migration_confirm', '{{count}} legacy HUE nodes will be converted directly in the editor.').replace('{{count}}', String(legacyNodes.length)))
+      .css({ marginBottom: '10px', fontWeight: 'bold' })
       .appendTo($dialog)
-    $('<div class="hue-controller-migration-credentials"></div>')
-      .text(translate('migration_credentials_notice', 'Node-RED deliberately excludes keys and passwords from exported flows. The converter cannot read or recreate them.'))
+    $('<div class="hue-controller-migration-note"></div>')
+      .text(translate('migration_privacy', 'Conversion happens entirely in this browser. No flow, node, configuration, credential, group address, or wiring data is transmitted or retained.'))
+      .css({ marginBottom: '10px', padding: '8px 10px', borderLeft: '4px solid #2980b9', background: '#eaf4fb' })
+      .appendTo($dialog)
+    $('<div class="hue-controller-migration-email"></div>')
+      .text(translate('migration_email_notice', 'After conversion, your email app will open an editable draft addressed to the author without navigating away from Node-RED, and a new browser window will open the donation page. The draft contains only the number of converted nodes and space for optional notes; nothing is sent automatically and no flow data is added to the donation link.'))
+      .css({ marginBottom: '10px' })
+      .appendTo($dialog)
+    $('<div class="form-tips hue-controller-migration-backup"></div>')
+      .text(translate('migration_deploy_notice', 'Before continuing, export a backup of your flows. The current editor will close. Only the legacy HUE nodes will be changed; all config nodes and wiring remain untouched. Review the result, then click Deploy yourself.'))
+      .css({ marginBottom: '10px', padding: '8px 10px', borderLeft: '4px solid #d79b00', background: '#fff8df' })
+      .appendTo($dialog)
+    $('<div class="form-tips hue-controller-migration-review"></div>')
+      .text(translate('migration_review_notice', 'Safety check: after conversion, inspect every modified HUE node in the flow. Verify its selected function, configuration references, input/output pins and wiring before clicking Deploy.'))
       .css({ marginBottom: '12px', padding: '8px 10px', borderLeft: '4px solid #d79b00', background: '#fff8df' })
       .appendTo($dialog)
-    $('<label for="hue-controller-migration-input"></label>')
-      .text(translate('migration_input', 'Original flow JSON'))
-      .css({ display: 'block', fontWeight: 'bold', marginBottom: '4px' })
+    const $status = $('<div class="hue-controller-migration-status"></div>')
+      .css({ minHeight: '20px', marginTop: '8px' })
       .appendTo($dialog)
-    const $input = $('<textarea id="hue-controller-migration-input"></textarea>')
-      .attr('placeholder', translate('migration_input_placeholder', 'Paste the complete Node-RED flow export here'))
-      .css({ width: '100%', height: '190px', boxSizing: 'border-box', fontFamily: 'monospace', resize: 'vertical' })
-      .appendTo($dialog)
-    const $reuseConfigsRow = $('<div></div>')
-      .css({ margin: '10px 0' })
-      .appendTo($dialog)
-    const $reuseConfigs = $('<input type="checkbox" id="hue-controller-migration-reuse-configs">')
-      .prop('checked', true)
-      .appendTo($reuseConfigsRow)
-    $('<label for="hue-controller-migration-reuse-configs"></label>')
-      .text(` ${translate('migration_reuse_configs', 'Reuse existing Hue and KNX config nodes (recommended)')}`)
-      .css({ display: 'inline', fontWeight: 'bold' })
-      .appendTo($reuseConfigsRow)
-    $('<div></div>')
-      .text(translate('migration_reuse_configs_help', 'Keep this selected when importing back into the same Node-RED installation. Referenced config nodes are omitted from the result, so their stored credentials remain untouched.'))
-      .css({ margin: '4px 0 0 22px', color: '#666' })
-      .appendTo($reuseConfigsRow)
-    const $toolbar = $('<div></div>')
-      .css({ display: 'flex', gap: '8px', alignItems: 'center', margin: '10px 0' })
-      .appendTo($dialog)
-    const $convert = $('<button type="button" class="red-ui-button"></button>')
-      .append($('<i class="fa fa-exchange"></i>'))
-      .append(documentObject.createTextNode(` ${translate('migration_convert', 'Convert')}`))
-      .appendTo($toolbar)
-    const $copy = $('<button type="button" class="red-ui-button"></button>')
-      .append($('<i class="fa fa-clipboard"></i>'))
-      .append(documentObject.createTextNode(` ${translate('migration_copy', 'Copy converted flow')}`))
-      .prop('disabled', true)
-      .appendTo($toolbar)
-    const $status = $('<span class="hue-controller-migration-status"></span>')
-      .css({ marginLeft: '4px' })
-      .appendTo($toolbar)
-    $('<label for="hue-controller-migration-output"></label>')
-      .text(translate('migration_output', 'Converted flow JSON'))
-      .css({ display: 'block', fontWeight: 'bold', marginBottom: '4px' })
-      .appendTo($dialog)
-    const $output = $('<textarea id="hue-controller-migration-output" readonly></textarea>')
-      .css({ width: '100%', height: '230px', boxSizing: 'border-box', fontFamily: 'monospace', resize: 'vertical' })
-      .appendTo($dialog)
-
-    $convert.on(`click${EVENT_NAMESPACE}`, () => {
-      try {
-        const result = migrationApi.convertLegacyHueFlowJson($input.val(), {
-          reuseConfigNodes: $reuseConfigs.prop('checked')
-        })
-        $output.val(result.json).scrollTop(0)
-        $copy.prop('disabled', false)
-        if (result.convertedCount === 0) {
-          $status.text(translate('migration_none', 'No legacy HUE nodes were found.')).css('color', '#a15c00')
-        } else {
-          let summary = translate('migration_summary', '{{count}} legacy HUE nodes converted.')
-            .replace('{{count}}', String(result.convertedCount))
-          let statusColor = '#1b7d33'
-          if (result.omittedConfigCount > 0) {
-            summary += ` ${translate('migration_summary_reused', '{{count}} referenced config nodes will be reused with their existing credentials.')
-              .replace('{{count}}', String(result.omittedConfigCount))}`
-          } else if (!$reuseConfigs.prop('checked')) {
-            summary += ` ${translate('migration_configs_included_warning', 'Config nodes are included without exported credentials; enter their keys and passwords after import.')}`
-            statusColor = '#a15c00'
-          }
-          $status.text(summary).css('color', statusColor)
-        }
-      } catch (error) {
-        $output.val('')
-        $copy.prop('disabled', true)
-        const message = error && error.message ? error.message : String(error)
-        $status.text(`${translate('migration_invalid', 'Invalid flow JSON:')} ${message}`).css('color', '#b00020')
-      }
-    })
-
-    $copy.on(`click${EVENT_NAMESPACE}`, () => {
-      const convertedJson = $output.val()
-      if (!convertedJson) return
-      $copy.prop('disabled', true)
-      migrationApi.copyTextToClipboard(convertedJson, {
-        navigator: windowObject.navigator,
-        document: documentObject
-      }).then(() => {
-        RED.notify(translate('migration_copy_success', 'Converted flow copied.'), 'success')
-      }).catch(() => {
-        const outputElement = $output.get(0)
-        if (outputElement) {
-          outputElement.focus()
-          outputElement.select()
-          if (typeof outputElement.setSelectionRange === 'function') {
-            outputElement.setSelectionRange(0, convertedJson.length)
-          }
-        }
-        RED.notify(translate('migration_copy_failed', 'Clipboard access was blocked. The converted JSON has been selected; copy it manually.'), 'error')
-      }).finally(() => {
-        $copy.prop('disabled', false)
-      })
-    })
 
     let closed = false
+    let running = false
+    let $convert
     const closeDialog = () => {
       if (closed) return
       closed = true
-      $convert.off(EVENT_NAMESPACE)
-      $copy.off(EVENT_NAMESPACE)
+      if ($convert) $convert.off(EVENT_NAMESPACE)
       try { $dialog.dialog('destroy') } catch (error) { /* already detached */ }
       $dialog.remove()
     }
 
+    const performMigration = () => {
+      if (running) return
+      running = true
+      $convert.prop('disabled', true)
+      let donationWindow
+      try {
+        migrationApi.createLocalMigrationPatches(legacyNodes)
+        donationWindow = reserveDonationWindow(windowObject)
+        closeDialog()
+        closeEditorTray(RED, $)
+        windowObject.setTimeout(() => {
+          let convertedCount
+          try {
+            convertedCount = migrationApi.applyLocalMigration(RED, legacyNodes)
+          } catch (error) {
+            closeDonationWindow(donationWindow)
+            const message = error && error.message ? error.message : String(error)
+            RED.notify(`${translate('migration_failed', 'HUE migration failed; the flow was not changed:')} ${message}`, 'error')
+            return
+          }
+          try {
+            if (donationWindow && !donationWindow.closed && donationWindow.location) {
+              donationWindow.location.href = migrationApi.MIGRATION_DONATION_URL
+            } else if (typeof windowObject.open === 'function') {
+              const opened = windowObject.open(migrationApi.MIGRATION_DONATION_URL, '_blank', 'noopener,noreferrer')
+              if (!opened) throw new Error('The browser blocked the donation window')
+            } else {
+              throw new Error('Browser window opening is unavailable')
+            }
+          } catch (error) {
+            RED.notify(translate('migration_donation_failed', 'The nodes were converted, but the donation page could not be opened.'), 'warning')
+          }
+          try {
+            const mailto = migrationApi.createUsageMailto(convertedCount, {
+              subject: translate('migration_email_subject', 'KNX Ultimate - legacy HUE conversion used'),
+              body: translate('migration_email_body', 'Hello Massimo,\n\nI used the legacy HUE node conversion button.\nConverted legacy HUE nodes: {{count}}.\n\nOptional notes:\n')
+            })
+            migrationApi.openUsageMailto(mailto, {
+              document: documentObject,
+              setTimeout: (callback, delay) => windowObject.setTimeout(callback, delay)
+            })
+          } catch (error) {
+            RED.notify(translate('migration_email_failed', 'The nodes were converted, but the email draft could not be opened.'), 'warning')
+          }
+          showCompletionMessage(RED, translate, convertedCount)
+        }, 0)
+      } catch (error) {
+        closeDonationWindow(donationWindow)
+        running = false
+        $convert.prop('disabled', false)
+        const message = error && error.message ? error.message : String(error)
+        $status.text(`${translate('migration_failed', 'HUE migration failed; the flow was not changed:')} ${message}`).css('color', '#b00020')
+      }
+    }
+
     $dialog.dialog({
       modal: true,
-      width: Math.min(920, Math.max(620, $(windowObject).width() - 80)),
-      height: Math.min(760, Math.max(600, $(windowObject).height() - 60)),
-      title: translate('migration_title', 'Convert legacy HUE flow'),
+      width: Math.min(680, Math.max(520, $(windowObject).width() - 80)),
+      title: translate('migration_title', 'Convert legacy HUE nodes'),
+      beforeClose: () => !running,
       close: closeDialog,
-      buttons: [{
-        text: translate('migration_close', 'Close'),
-        click () { $(this).dialog('close') }
-      }]
+      buttons: [
+        {
+          text: translate('migration_close', 'Cancel'),
+          click () { if (!running) $(this).dialog('close') }
+        },
+        {
+          text: translate('migration_convert', 'Convert HUE nodes'),
+          class: 'hue-controller-migration-convert',
+          click: performMigration
+        }
+      ],
+      open () {
+        $convert = $dialog.parent().find('.hue-controller-migration-convert')
+        $convert.addClass('primary')
+      }
     })
-    setTimeout(() => $input.trigger('focus'), 0)
     return closeDialog
   }
 

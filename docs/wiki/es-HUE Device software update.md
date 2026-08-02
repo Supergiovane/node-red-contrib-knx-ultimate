@@ -4,7 +4,7 @@ title: "HUE Device software update"
 lang: es
 permalink: /wiki/es-HUE%20Device%20software%20update
 ---
-> **Obsoleto:** este nodo HUE dedicado sigue disponible para los flujos existentes. Usa **HUE Controller** para proyectos nuevos. Aparece marcado con `(deprecated)` en la paleta y en el lienzo, usa un color más claro que HUE Controller y su editor muestra arriba un aviso de migración. El botón naranja de migración de este editor abre el mismo convertidor de flujo completo disponible en HUE Controller.
+> **Obsoleto:** este nodo HUE dedicado sigue disponible para los flujos existentes. Usa **HUE Controller** para proyectos nuevos. Aparece marcado con `(deprecated)` en la paleta y en el lienzo, usa un color más claro que HUE Controller y su editor muestra arriba un aviso de migración. El botón naranja de migración convierte localmente todos los nodos HUE legacy; después abre un borrador de correo editable y la página de donación en una ventana nueva del navegador. El correo nunca se envía automáticamente. Al finalizar el proceso, un mensaje fijo de Node-RED permanece visible hasta que pulses OK.
 
 Este nodo monitorea si un dispositivo de Hue seleccionado tiene una actualización de software disponible y publica el estado a KNX. 
 

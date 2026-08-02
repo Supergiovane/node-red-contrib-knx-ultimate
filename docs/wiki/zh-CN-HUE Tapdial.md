@@ -4,7 +4,7 @@ title: "HUE Tapdial"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Tapdial
 ---
-> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会打开与 HUE Controller 相同的完整流程转换器。
+> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会在本地转换所有旧版 HUE 节点；完成后会打开一封可编辑的邮件草稿，并在浏览器新窗口中打开捐赠页面。邮件绝不会自动发送。流程结束后，Node-RED 的固定消息会一直显示，直到您点击“确定”。
 
 **Hue Tap Dial** 节点将 Tap Dial 的旋转服务映射到 KNX，并把原始 Hue 事件发送到 Node-RED 流程。配对新设备后，请点击设备字段旁的刷新图标。
 

@@ -4,7 +4,7 @@ title: "HUE Motion area"
 lang: en
 permalink: /wiki/HUE%20Motion%20area
 ---
-> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button in this editor opens the same full-flow converter available in HUE Controller.
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button converts all legacy HUE nodes locally; afterwards it opens an editable email draft and the donation page in a new browser window. The email is never sent automatically. When the process finishes, a fixed Node-RED message remains visible until you click OK.
 
 The Hue Motion Area node listens to MotionAware area motion events (Hue Bridge Pro) and mirrors the aggregated detected/not detected state to KNX or your Node-RED flow.
 

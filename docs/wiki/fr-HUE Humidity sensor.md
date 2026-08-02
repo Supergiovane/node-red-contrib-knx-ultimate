@@ -4,7 +4,7 @@ title: "HUE Humidity sensor"
 lang: fr
 permalink: /wiki/fr-HUE%20Humidity%20sensor
 ---
-> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange convertit localement tous les nœuds HUE legacy ; il ouvre ensuite un brouillon d’e-mail modifiable et la page de don dans une nouvelle fenêtre du navigateur. L’e-mail n’est jamais envoyé automatiquement. À la fin du processus, un message Node-RED fixe reste visible jusqu’à ce que vous cliquiez sur OK.
 
 Ce nœud lit l'humidité relative (%) à partir d'un capteur d'humidité de teinte et le mappe à Knx. 
 

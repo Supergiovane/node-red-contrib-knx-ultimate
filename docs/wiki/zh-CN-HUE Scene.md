@@ -4,7 +4,7 @@ title: "HUE Scene"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Scene
 ---
-> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会打开与 HUE Controller 相同的完整流程转换器。
+> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会在本地转换所有旧版 HUE 节点；完成后会打开一封可编辑的邮件草稿，并在浏览器新窗口中打开捐赠页面。邮件绝不会自动发送。流程结束后，Node-RED 的固定消息会一直显示，直到您点击“确定”。
 
 **Hue Scene** 节点将 Hue 场景发布到 KNX，并且可以把 Hue 的原始事件发送到 Node-RED 流程。场景字段支持自动补全；在网桥中新增场景后，请点击刷新图标更新列表。
 

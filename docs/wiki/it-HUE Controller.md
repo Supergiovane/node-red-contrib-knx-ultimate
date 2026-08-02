@@ -38,7 +38,7 @@ permalink: /wiki/it-HUE%20Controller
 - Gateway KNX opzionale: usa indirizzi di gruppo o nomi ETS importati; i datapoint compatibili arrivano dal gateway selezionato.
 - Pin Node-RED dinamici per input Hue API v2 validati e output degli eventi Hue, dove supportati.
 - Lettura stato all’avvio, sincronizzazione Hue→KNX e protezione dai loop conservate in ogni profilo privato.
-- Migrazione locale tramite copia/incolla per tutti i quindici node type HUE deprecati, senza leggere o modificare il flow aperto.
+- Migrazione interamente locale per tutti i quindici node type deprecati, seguita da una bozza email modificabile, dalla pagina per una donazione in una nuova finestra, dal controllo locale e dal Deploy manuale.
 
 ## Primi passi in quattro mosse
 
@@ -51,15 +51,13 @@ permalink: /wiki/it-HUE%20Controller
 
 Le sezioni sottostanti costituiscono il riferimento completo per funzione, consolidato dai precedenti nodi dedicati.
 
-## Conversione di un flow HUE legacy
+## Conversione dei nodi HUE legacy
 
-Il pulsante di migrazione compare solo quando l'editor Node-RED rileva almeno un nodo HUE legacy nei flow correnti. Lo stesso pulsante arancione è disponibile direttamente sotto l'avviso di deprecazione in ogni editor HUE legacy. È un controllo di visibilità in sola lettura: il convertitore continua a lavorare esclusivamente sul JSON che incolli esplicitamente.
+Il pulsante di migrazione compare solo quando l'editor Node-RED rileva almeno un nodo HUE legacy nei flow correnti. Lo stesso pulsante arancione è disponibile direttamente sotto l'avviso di deprecazione in ogni editor HUE legacy. Il disclaimer conferma che nessun dato del flow o dei nodi lascia il browser.
 
-Premi **Converti flow HUE legacy**, incolla l'esportazione completa di un flow Node-RED e premi **Converti**. Lo strumento lavora interamente nel browser e non legge né modifica il flow aperto. Il risultato sostituisce ogni nodo HUE legacy supportato con HUE Controller, conservando ID, riferimenti alle configurazioni, proprietà, posizioni e collegamenti. Copia il JSON ottenuto e importalo in Node-RED, preferibilmente come nuovo flow da confrontare prima di eliminare l'originale.
+Premi **Converti nodi HUE legacy** e conferma. Il browser esegue tutta la conversione in locale e non invia da nessuna parte dati relativi a flow, nodi, `hue-config`, `knxUltimate-config`, indirizzi di gruppo, collegamenti, credenziali, nomi, posizioni o ID. Dopo la conversione apre una bozza email modificabile indirizzata all'autore senza abbandonare Node-RED e apre la pagina per una donazione in una nuova finestra del browser. La bozza contiene soltanto il numero dei nodi convertiti e uno spazio per note facoltative; decidi tu se inviarla, non viene mai spedita automaticamente e al link PayPal non viene aggiunto alcun dato del flow.
 
-Node-RED esclude intenzionalmente le credenziali dai flow esportati. Quando reimporti nella stessa installazione, lascia selezionato **Riutilizza i config node Hue e KNX esistenti**. Il convertitore omette gli oggetti `hue-config` e `knxUltimate-config` referenziati, ma ne conserva gli ID in ogni nodo convertito: Node-RED riutilizza così le configurazioni esistenti con chiavi e password già memorizzate. Deseleziona l'opzione solo se il target è un'altra installazione; in quel caso dovrai reinserire le credenziali dopo l'importazione.
-
-**Copia flow convertito** usa prima la Clipboard API del browser e poi, come fallback, una textarea temporanea realmente selezionata. Se il browser blocca entrambi i metodi, il JSON di output viene selezionato così da poterlo copiare manualmente.
+Prima di iniziare, esporta un backup dei tuoi flow. Il browser chiude l'editor del nodo corrente e trasforma soltanto i nodi HUE legacy individuati in istanze HUE Controller. Tutte le proprietà salvate, i riferimenti alle configurazioni, le posizioni, l'appartenenza ai gruppi e i collegamenti restano invariati. Il workspace viene segnato come modificato, ma lo strumento non esegue mai il deploy: controlla il risultato e premi personalmente **Deploy**. Un nodo cambiato, un flow bloccato o un errore di conversione locale lascia il workspace invariato. **Controllo di sicurezza:** prima del Deploy esamina ogni nodo HUE modificato e verifica funzione, riferimenti alle configurazioni, pin di ingresso/uscita e collegamenti. Al termine del processo, un messaggio fisso di Node-RED resta visibile finché non premi **OK**.
 
 Gli eventi Hue restano aggiornamenti di stato e non diventano nuovi comandi Hue. HUE Controller contiene profili privati per runtime, editor, template e traduzioni, quindi non dipende dal caricamento dei node type deprecati. Il nodo Hue Light originale resta invariato. I nodi Hue dedicati restano registrati per i flow esistenti, ma sono congelati e non ricevono nuove funzioni o aggiornamenti di manutenzione. Node-RED nasconde dalla palette la loro categoria speciale `deprecated`; le istanze esistenti restano modificabili e distribuibili, usano un colore più chiaro di HUE Controller, sono contrassegnate con `(deprecated)` sul canvas e mostrano in alto nell'editor un avviso di migrazione.
 

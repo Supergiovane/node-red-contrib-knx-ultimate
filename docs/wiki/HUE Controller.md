@@ -38,7 +38,7 @@ permalink: /wiki/HUE%20Controller
 - Optional KNX gateway: use Group Addresses or imported ETS names; compatible datapoints come from the selected gateway.
 - Profile-driven Node-RED pins for validated Hue API v2 input and Hue event output where supported.
 - Startup state reads, Hue-to-KNX status synchronisation and loop protection inherited by each private profile.
-- Local paste-in migration for all fifteen deprecated HUE node types, without reading or modifying the open flow.
+- Fully local migration for all fifteen deprecated node types, followed by an editable usage email draft, a donation page in a new browser window, local review and manual Deploy.
 
 ## Start in four steps
 
@@ -51,15 +51,13 @@ permalink: /wiki/HUE%20Controller
 
 The sections below are the complete per-function reference consolidated from the former dedicated nodes.
 
-## Convert a legacy HUE flow
+## Convert legacy HUE nodes
 
-The migration button appears only when the Node-RED editor detects at least one legacy HUE node in the current flows. The same orange button is also available directly below the deprecation notice in every legacy HUE editor. This is a read-only visibility check: the converter still works exclusively on the JSON that you explicitly paste.
+The migration button appears only when the Node-RED editor detects at least one legacy HUE node in the current flows. The same orange button is available directly below the deprecation notice in every legacy HUE editor. The disclaimer confirms that no flow or node data leaves the browser.
 
-Press **Convert legacy HUE flow**, paste a complete Node-RED flow export, then press **Convert**. The tool works entirely in the browser and does not inspect or modify the open flow. Its output replaces every supported legacy HUE node with HUE Controller while preserving IDs, configuration references, properties, positions and wires. Copy the resulting JSON and import it into Node-RED, preferably as a new flow for comparison before removing the original.
+Press **Convert legacy HUE nodes** and confirm. The browser performs the entire conversion locally and sends no flow, node, `hue-config`, `knxUltimate-config`, group-address, wiring, credential, name, position or node-ID data anywhere. After a successful conversion, it opens an editable email draft addressed to the author without navigating away from Node-RED and opens the donation page in a new browser window. The draft contains only the number of converted nodes and space for optional notes; you decide whether to send it, it is never sent automatically, and no flow data is added to the PayPal link.
 
-Node-RED intentionally excludes credentials from flow exports. When importing into the same installation, leave **Reuse existing Hue and KNX config nodes** selected. The converter omits the referenced `hue-config` and `knxUltimate-config` objects but preserves their IDs in every converted node, so Node-RED reuses the existing configurations with their stored keys and passwords. Clear this option only when targeting a different installation; in that case, enter the credentials again after import.
-
-**Copy converted flow** first uses the browser Clipboard API, then falls back to a temporary selected textarea. If the browser blocks both methods, the output JSON is selected so it can be copied manually.
+Before starting, export a backup of your flows. The browser closes the current node editor and changes only the matched legacy HUE nodes into HUE Controller instances. All saved node properties, configuration references, positions, group membership and wiring remain unchanged. The workspace is marked dirty, but the tool never deploys it: review the result and click **Deploy** yourself. A changed node, locked flow or local conversion error leaves the workspace unchanged. **Safety check:** before Deploy, inspect every modified HUE node and verify its function, configuration references, input/output pins and wiring. When the process finishes, a fixed Node-RED message remains visible until you click **OK**.
 
 Hue events remain status updates and do not become new Hue commands. HUE Controller contains private runtime, editor, template and translation profiles, so it does not depend on loading the deprecated node types. The original Hue Light node remains unchanged. Dedicated Hue nodes remain registered for existing flows, but are frozen and receive no new features or maintenance updates. Node-RED hides their special `deprecated` category from the palette; existing instances remain editable and deployable, use a lighter color than HUE Controller, are marked `(deprecated)` on the canvas, and show a migration notice at the top of their editor.
 

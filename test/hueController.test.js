@@ -13,10 +13,17 @@ const hueControllerMigrationDialog = require('../resources/hueControllerMigratio
 const {
   CONFIG_NODE_REFERENCE_FIELDS,
   LEGACY_NODE_PROFILES,
+  MIGRATION_DONATION_URL,
+  MIGRATION_USAGE_EMAIL,
+  applyLocalMigration,
+  collectLegacyHueNodes,
   copyTextToClipboard,
   convertLegacyHueFlow,
   convertLegacyHueFlowJson,
-  isLegacyHueNode
+  createLocalMigrationPatches,
+  createUsageMailto,
+  isLegacyHueNode,
+  openUsageMailto
 } = require('../resources/hueControllerMigration')
 
 describe('Unified HUE Controller', () => {
@@ -290,6 +297,197 @@ describe('Unified HUE Controller', () => {
     expect(() => convertLegacyHueFlowJson('{"type":"knxUltimateHueLight"}')).to.throw('JSON array')
   })
 
+  it('creates conversion patches locally without copying private node data', () => {
+    const legacyNodes = [{
+      id: 'secret-node-id',
+      type: 'knxUltimateHueLight',
+      name: 'Private bedroom',
+      server: 'knx-config-id',
+      serverHue: 'hue-config-id',
+      hueDevice: 'private-hue-resource',
+      GALightSwitch: '1/2/3',
+      enableNodePINS: 'yes',
+      inputs: 1,
+      outputs: 1,
+      x: 100,
+      y: 200,
+      wires: [['private-debug-id']]
+    }]
+    const patches = createLocalMigrationPatches(legacyNodes)
+    expect(patches).to.deep.equal([{
+      index: 0,
+      type: 'knxUltimateHueController',
+      hueControllerType: 'light',
+      inputs: 1,
+      outputs: 1
+    }])
+    const serialized = JSON.stringify(patches)
+    expect(serialized).not.to.include('secret-node-id')
+    expect(serialized).not.to.include('Private bedroom')
+    expect(serialized).not.to.include('knx-config-id')
+    expect(serialized).not.to.include('hue-config-id')
+    expect(serialized).not.to.include('private-hue-resource')
+    expect(serialized).not.to.include('1/2/3')
+    expect(serialized).not.to.include('private-debug-id')
+  })
+
+  it('rejects unsupported entries before applying a local conversion', () => {
+    expect(() => createLocalMigrationPatches({})).to.throw('array')
+    expect(() => createLocalMigrationPatches([{ type: 'debug' }])).to.throw('not a supported legacy HUE node')
+    expect(createLocalMigrationPatches([{
+      type: 'knxUltimateHueButton',
+      enableNodePINS: 'no',
+      wires: []
+    }])).to.deep.equal([{
+      index: 0,
+      type: 'knxUltimateHueController',
+      hueControllerType: 'button',
+      inputs: 0,
+      outputs: 0
+    }])
+  })
+
+  it('changes only legacy HUE node types locally and leaves configs, properties, groups, and wires untouched', () => {
+    const controllerDefinition = { defaults: {}, _: () => 'controller' }
+    const wire = ['debug-id']
+    const legacyLight = {
+      id: 'legacy-light',
+      type: 'knxUltimateHueLight',
+      _def: { defaults: {} },
+      _: () => 'legacy',
+      z: 'tab-1',
+      g: 'group-1',
+      name: 'Living room',
+      server: 'knx-config',
+      serverHue: 'hue-config',
+      GALightSwitch: '1/2/3',
+      enableNodePINS: 'yes',
+      inputs: 1,
+      outputs: 1,
+      x: 240,
+      y: 120,
+      wires: [wire],
+      changed: false
+    }
+    const debugNode = { id: 'debug-id', type: 'debug', wires: [] }
+    const configNode = { id: 'hue-config', type: 'hue-config', name: 'Hue bridge' }
+    const allNodes = [legacyLight, debugNode, configNode]
+    let dirty = false
+    let historyEvent
+    let redrawCount = 0
+    const changedNodes = []
+    const RED = {
+      _: () => '',
+      nodes: {
+        eachNode: (callback) => allNodes.forEach(callback),
+        getType: (type) => type === 'knxUltimateHueController' ? controllerDefinition : undefined,
+        dirty: (value) => {
+          if (value !== undefined) dirty = value
+          return dirty
+        }
+      },
+      workspaces: { isLocked: () => false },
+      editor: { validateNode: (node) => { node.validated = true } },
+      events: { emit: (_event, node) => changedNodes.push(node) },
+      history: { push: (event) => { historyEvent = event } },
+      view: { redraw: () => { redrawCount += 1 } }
+    }
+
+    const legacyNodes = collectLegacyHueNodes(RED)
+    expect(legacyNodes).to.deep.equal([legacyLight])
+    const converted = applyLocalMigration(RED, legacyNodes)
+
+    expect(converted).to.equal(1)
+    expect(legacyLight).to.include({
+      type: 'knxUltimateHueController',
+      hueControllerType: 'light',
+      name: 'Living room',
+      server: 'knx-config',
+      serverHue: 'hue-config',
+      GALightSwitch: '1/2/3',
+      g: 'group-1',
+      x: 240,
+      y: 120,
+      changed: true,
+      validated: true
+    })
+    expect(legacyLight._def).to.equal(controllerDefinition)
+    expect(legacyLight.wires).to.have.length(1)
+    expect(legacyLight.wires[0]).to.equal(wire)
+    expect(debugNode).to.deep.equal({ id: 'debug-id', type: 'debug', wires: [] })
+    expect(configNode).to.deep.equal({ id: 'hue-config', type: 'hue-config', name: 'Hue bridge' })
+    expect(historyEvent).to.include({ t: 'edit', node: legacyLight, changed: false, dirty: false })
+    expect(historyEvent.changes.type).to.equal('knxUltimateHueLight')
+    expect(dirty).to.equal(true)
+    expect(redrawCount).to.equal(1)
+    expect(changedNodes).to.deep.equal([legacyLight])
+  })
+
+  it('opens an editable usage email containing only the converted-node count', () => {
+    expect(MIGRATION_USAGE_EMAIL).to.equal('maxsupergiovane@icloud.com')
+    expect(MIGRATION_DONATION_URL).to.equal('https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758')
+    const mailto = createUsageMailto(3, {
+      subject: 'Legacy HUE conversion used',
+      body: 'Converted nodes: {{count}}. Optional notes:'
+    })
+    expect(mailto).to.match(/^mailto:maxsupergiovane@icloud\.com\?/)
+    const parameters = new URLSearchParams(mailto.slice(mailto.indexOf('?') + 1))
+    expect(parameters.get('subject')).to.equal('Legacy HUE conversion used')
+    expect(parameters.get('body')).to.equal('Converted nodes: 3. Optional notes:')
+    expect(mailto).not.to.include('node-id')
+    expect(mailto).not.to.include('group-address')
+    expect(() => createUsageMailto(0)).to.throw('positive integer')
+    const migrationSource = fs.readFileSync(path.join(projectRoot, 'resources', 'hueControllerMigration.js'), 'utf8')
+    expect(migrationSource).not.to.match(/\bfetch\b/)
+    expect((migrationSource.match(/https?:\/\//g) || [])).to.have.length(1)
+
+    const serverFlowPath = path.join(projectRoot, 'examples', 'HUE Controller - Remote Legacy Migration Server.json')
+    expect(fs.existsSync(serverFlowPath)).to.equal(false)
+  })
+
+  it('opens the mail draft through a hidden iframe without navigating Node-RED', () => {
+    let appendedFrame
+    let cleanup
+    const body = {
+      appendChild: (frame) => {
+        appendedFrame = frame
+        frame.parentNode = body
+      },
+      removeChild: (frame) => {
+        expect(frame).to.equal(appendedFrame)
+        frame.parentNode = null
+      }
+    }
+    const frame = {
+      style: {},
+      setAttribute: (name, value) => {
+        expect({ name, value }).to.deep.equal({ name: 'aria-hidden', value: 'true' })
+      }
+    }
+    const mailto = createUsageMailto(2)
+    const result = openUsageMailto(mailto, {
+      document: {
+        body,
+        createElement: (tagName) => {
+          expect(tagName).to.equal('iframe')
+          return frame
+        }
+      },
+      setTimeout: (callback, delay) => {
+        expect(delay).to.equal(1000)
+        cleanup = callback
+      }
+    })
+
+    expect(result).to.equal(frame)
+    expect(appendedFrame).to.equal(frame)
+    expect(frame.style.display).to.equal('none')
+    expect(frame.src).to.equal(mailto)
+    cleanup()
+    expect(frame.parentNode).to.equal(null)
+    expect(() => openUsageMailto('https://example.com', {})).to.throw('valid mailto')
+  })
+
   it('copies converted JSON with the asynchronous Clipboard API', async () => {
     let copiedText
     const result = await copyTextToClipboard('[{"type":"tab"}]', {
@@ -490,11 +688,9 @@ describe('Unified HUE Controller', () => {
     expect(editor).to.include('#hue-controller-migrate-legacy-flow.red-ui-button')
     expect(editor).to.include('background: #d97706 !important;')
     expect(editor).to.include('outline: 3px solid #fbbf24;')
-    expect(editor).to.include('migrationApi.convertLegacyHueFlowJson')
-    expect(editor).to.include('migrationApi.copyTextToClipboard')
-    expect(editor).not.to.include('RED.clipboard.copyText')
-    expect(editor).to.include('outputElement.setSelectionRange(0, convertedJson.length)')
-    expect(editor).to.include("reuseConfigNodes: $reuseConfigs.prop('checked')")
+    expect(editor).to.include('dialogApi.open({')
+    expect(editor).not.to.include('migrationApi.convertLegacyHueFlowJson')
+    expect(editor).not.to.include('migrationApi.copyTextToClipboard')
     expect(editor).to.include('editorContainsLegacyHueNodes')
     expect(editor).to.include("typeof RED.nodes.eachNode !== 'function'")
     expect(editor).to.include('migrationApi.isLegacyHueNode(node)')
@@ -503,7 +699,8 @@ describe('Unified HUE Controller', () => {
     expect(editor).not.to.include('RED.nodes.createExportableNodeSet')
     expect(editor).to.include('$profileContent.find(`a[href="${TUTORIALS_URL}"]`)')
     expect(editor).to.include("$container.find('.form-tips').remove()")
-    expect(editor).not.to.match(/class=["'][^"']*\bform-tips\b/)
+    expect(editor).to.include('class="form-tips hue-controller-migration-disclaimer"')
+    expect(editor).to.include('knxUltimateHueController.migration_disclaimer')
     const templateStart = editor.indexOf('<script type="text/html" data-template-name="knxUltimateHueController">')
     const gatewayField = editor.indexOf('id="node-input-server"', templateStart)
     const tutorialLink = editor.indexOf('PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E', templateStart)
@@ -648,6 +845,8 @@ describe('Unified HUE Controller', () => {
         'node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.legacy_node_notice'
       )
       expect(html.slice(migrationActionStart, tutorialStart), `${file} shared migration button`).to.include('class="red-ui-button hue-legacy-migrate-flow"')
+      expect(html.slice(migrationActionStart, tutorialStart), `${file} migration disclaimer`).to.include('class="form-tips hue-controller-migration-disclaimer"')
+      expect(html.slice(migrationActionStart, tutorialStart), `${file} localized migration disclaimer`).to.include('knxUltimateHueController.migration_disclaimer')
       expect((html.match(/class="red-ui-button hue-legacy-migrate-flow"/g) || []), `${file} single migration button`).to.have.length(1)
 
       locales.forEach((locale) => {
@@ -673,13 +872,39 @@ describe('Unified HUE Controller', () => {
     expect(hueControllerMigrationDialog).to.have.keys('installLegacyButton', 'open')
     const sharedDialog = fs.readFileSync(path.join(projectRoot, 'resources/hueControllerMigrationDialog.js'), 'utf8')
     expect(sharedDialog).to.include("const BUTTON_SELECTOR = '.hue-legacy-migrate-flow'")
-    expect(sharedDialog).to.include('migrationApi.convertLegacyHueFlowJson')
-    expect(sharedDialog).to.include('migrationApi.copyTextToClipboard')
+    expect(sharedDialog).to.include('migrationApi.collectLegacyHueNodes(RED)')
+    expect(sharedDialog).to.include('migrationApi.createLocalMigrationPatches(legacyNodes)')
+    expect(sharedDialog).to.include('migrationApi.applyLocalMigration(RED, legacyNodes)')
+    expect(sharedDialog).to.include('migrationApi.createUsageMailto(convertedCount')
+    expect(sharedDialog).to.include('migrationApi.openUsageMailto(mailto')
+    expect(sharedDialog).not.to.include('windowObject.location.assign(mailto)')
+    expect(sharedDialog).not.to.include('windowObject.location.href = mailto')
+    expect(sharedDialog).to.include("const donationWindow = windowObject.open('', '_blank')")
+    expect(sharedDialog).to.include('donationWindow.location.href = migrationApi.MIGRATION_DONATION_URL')
+    expect(sharedDialog).to.include("RED.actions.invoke('core:cancel-edit-tray')")
+    expect(sharedDialog).to.include('Before continuing, export a backup of your flows.')
+    expect(sharedDialog).to.include('form-tips hue-controller-migration-backup')
+    expect(sharedDialog).to.include("borderLeft: '4px solid #d79b00', background: '#fff8df'")
+    expect(sharedDialog).to.include('migration_review_notice')
+    expect(sharedDialog).to.include('inspect every modified HUE node in the flow')
+    expect(sharedDialog).to.include('showCompletionMessage(RED, translate, convertedCount)')
+    expect(sharedDialog).to.include('modal: true')
+    expect(sharedDialog).to.include('fixed: true')
+    expect(sharedDialog).to.include("text: translate('migration_ok', 'OK')")
     expect(sharedDialog).not.to.include('RED.nodes.eachNode')
+    expect(sharedDialog).not.to.include('fetch(')
   })
 
   it('ships help, editor strings, and documentation in every supported language', () => {
     const locales = ['en', 'it', 'de', 'fr', 'es', 'zh-CN']
+    const localizedBackupWords = {
+      en: 'backup',
+      it: 'backup',
+      de: 'Sicherung',
+      fr: 'sauvegarde',
+      es: 'copia de seguridad',
+      'zh-CN': '备份'
+    }
     const wikiMenu = require('../scripts/wiki-menu.json')
     const wikiNavigation = require('../docs/_data/wiki-nav.json')
     const hueMenu = wikiMenu.sections.find((section) => section.key === 'hue')
@@ -696,21 +921,28 @@ describe('Unified HUE Controller', () => {
       expect(messages.knxUltimateHueController.legacy_node_notice, `${locale} legacy notice`).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateHueController, `${locale} migration labels`).to.include.keys(
         'migration_button',
+        'migration_button_title',
+        'migration_disclaimer',
         'migration_title',
+        'migration_confirm',
         'migration_privacy',
-        'migration_credentials_notice',
-        'migration_reuse_configs',
-        'migration_reuse_configs_help',
-        'migration_input',
+        'migration_email_notice',
+        'migration_email_subject',
+        'migration_email_body',
+        'migration_email_failed',
+        'migration_donation_failed',
+        'migration_deploy_notice',
+        'migration_review_notice',
         'migration_convert',
-        'migration_copy',
-        'migration_copy_failed',
-        'migration_output',
-        'migration_summary',
-        'migration_summary_reused',
-        'migration_configs_included_warning',
-        'migration_invalid'
+        'migration_close',
+        'migration_ok',
+        'migration_success',
+        'migration_failed',
+        'migration_none',
+        'migration_unavailable'
       )
+      expect(messages.knxUltimateHueController.migration_deploy_notice, `${locale} backup recommendation`)
+        .to.include(localizedBackupWords[locale])
       expect(Object.keys(messages.knxUltimateHueController.types), locale).to.have.members(supportedTypes)
       expect(fs.existsSync(path.join(projectRoot, 'nodes/locales', locale, 'knxUltimateHueController.html')), locale).to.equal(true)
       const wikiName = locale === 'en' ? 'HUE Controller.md' : `${locale}-HUE Controller.md`

@@ -4,7 +4,7 @@ title: "HUE Contact sensor"
 lang: de
 permalink: /wiki/de-HUE%20Contact%20sensor
 ---
-> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton in diesem Editor öffnet denselben vollständigen Flow-Konverter wie HUE Controller.
+> **Veraltet:** Dieser dedizierte HUE-Knoten bleibt für bestehende Flows verfügbar. Verwenden Sie **HUE Controller** für neue Projekte. Er ist in der Palette und auf der Arbeitsfläche mit `(deprecated)` gekennzeichnet, verwendet eine hellere Farbe als HUE Controller und sein Editor zeigt oben einen Migrationshinweis. Der orange Migrationsbutton konvertiert alle Legacy-HUE-Knoten lokal; anschließend öffnet er einen bearbeitbaren E-Mail-Entwurf und die Spendenseite in einem neuen Browserfenster. Die E-Mail wird niemals automatisch gesendet. Nach Abschluss des Vorgangs bleibt eine feste Node-RED-Meldung sichtbar, bis Sie auf OK klicken.
 
 Dieser Node leitet Ereignisse eines HUE-Kontaktsensors weiter und ordnet sie KNX-Gruppenadressen zu.
 

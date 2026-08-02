@@ -4,7 +4,7 @@ title: "HUE Button"
 lang: fr
 permalink: /wiki/fr-HUE%20Button
 ---
-> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange de cet éditeur ouvre le même convertisseur de flow complet que HUE Controller.
+> **Obsolète :** ce nœud HUE dédié reste disponible pour les flows existants. Utilisez **HUE Controller** pour les nouveaux projets. Il est marqué `(deprecated)` dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange convertit localement tous les nœuds HUE legacy ; il ouvre ensuite un brouillon d’e-mail modifiable et la page de don dans une nouvelle fenêtre du navigateur. L’e-mail n’est jamais envoyé automatiquement. À la fin du processus, un message Node-RED fixe reste visible jusqu’à ce que vous cliquiez sur OK.
 
 Le nœud du bouton Hue mappe les événements du bouton de teinte aux adresses du groupe KNX et expose les mêmes événements sur sa sortie de flux via <code> Button.button_report.event </code>. 
 
