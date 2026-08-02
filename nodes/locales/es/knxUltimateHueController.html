@@ -3,7 +3,7 @@
 <p><strong>HUE Controller</strong> es el nodo unificado para recursos de Hue API v2.</p>
 <p>Selecciona la función del dispositivo y configura el mismo mapeo KNX y comportamiento del nodo Hue dedicado ya consolidado.</p>
 <p>El selector de función utiliza un tercio del ancho disponible para mantener compacto el editor.</p>
-<p>Las filas de mapeo KNX mantienen GA, DPT y Nombre en una sola línea. Los campos DPT y Nombre usan anchos compactos; Nombre puede reducirse aún más en editores estrechos sin modificar el texto guardado.</p>
+<p>Las filas de mapeo KNX mantienen GA, DPT y Nombre en una sola línea. Los campos DPT y Nombre usan anchos compactos; Nombre puede reducirse aún más en editores estrechos sin modificar el texto guardado. Los valores DPT guardados se conservan mientras las opciones del selector se cargan de forma asíncrona.</p>
 <p>Admite luces y grupos de luces, enchufes, botones, Tap dial, movimiento y movimiento de cámara, contactos, nivel de luz, temperatura, humedad, escenas, batería, conectividad Zigbee y actualización de software.</p>
 <p>Cuando no hay ningún <strong>Gateway KNX</strong> seleccionado (incluidos <code>none</code> y <em>Añadir nuevo...</em>), se ocultan los campos de mapeo KNX; la selección del recurso Hue y las opciones exclusivas del flujo siguen disponibles.</p>
 <p>Para una luz individual, las secciones <strong>Regulación</strong>, <strong>Blanco regulable</strong>, <strong>RGB/HSV</strong> y efectos nativos siguen las capacidades en vivo declaradas por el recurso Hue API v2 seleccionado. Los mapeos KNX correspondientes aparecen automáticamente cuando la luz expone <code>dimming</code>, <code>color_temperature</code> o <code>color</code>.</p>

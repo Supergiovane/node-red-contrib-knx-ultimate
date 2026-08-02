@@ -3,7 +3,7 @@
 <p><strong>HUE Controller</strong> 是面向 Hue API v2 资源的统一节点。</p>
 <p>选择设备功能，然后使用原有专用 Hue 节点中已经稳定的 KNX 映射和行为设置。</p>
 <p>设备功能选择器使用可用宽度的三分之一，使编辑器保持紧凑。</p>
-<p>KNX 映射行会将 GA、DPT 和名称保持在同一行。DPT 与名称字段采用紧凑宽度；在较窄的编辑器中，名称字段还可继续收缩，而不会更改已保存的文本。</p>
+<p>KNX 映射行会将 GA、DPT 和名称保持在同一行。DPT 与名称字段采用紧凑宽度；在较窄的编辑器中，名称字段还可继续收缩，而不会更改已保存的文本。选择器选项异步加载时，已保存的 DPT 值会被保留。</p>
 <p>支持灯和灯组、插座、按钮、Tap dial、运动和摄像机运动、接触、光照度、温度、湿度、场景、电池、Zigbee 连接和设备软件更新。</p>
 <p>未选择<strong>KNX 网关</strong>时（包括 <code>none</code> 和“新增...”），KNX 映射字段会隐藏，而 Hue 资源选择和仅用于流程的选项仍然可用。</p>
 <p>对于单灯，<strong>调光</strong>、<strong>可调白光</strong>、<strong>RGB/HSV</strong> 和原生效果部分会根据所选 Hue API v2 资源实时报告的能力显示。当灯具提供 <code>dimming</code>、<code>color_temperature</code> 或 <code>color</code> 时，相应的 KNX 映射会自动出现。</p>

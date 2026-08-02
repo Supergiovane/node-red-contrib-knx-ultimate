@@ -34,7 +34,7 @@ permalink: /wiki/de-HUE%20Controller
 - Funktionsabhängige Hue-Ressourcensuche mit Autovervollständigung und Aktualisierung.
 - Fähigkeitsabhängige Leuchtenzuordnungen: Dimmen, abstimmbares Weiß, RGB/HSV und native Effekte folgen den Live-Eigenschaften `dimming`, `color_temperature`, `color` und `effects` der ausgewählten Hue-API-v2-Leuchtenressource.
 - Begrenzte Bereitschaftsprüfung im Leuchteneditor: Während die Hue Bridge ihre Ressourcen lädt, erscheint eine animierte Sanduhr; die Prüfung erfolgt alle 500 ms und gibt den Editor nach etwa 10 Sekunden mit einer lokalisierten Fehlermeldung frei. Speichern, Schließen und Funktionswechsel beenden den Timer.
-- Kompakte KNX-Zuordnungszeilen halten GA, DPT und Name in einer Zeile; DPT und Name verwenden reduzierte Breiten, wobei sich das Namensfeld in schmalen Editoren ohne Änderung des gespeicherten Werts weiter verkleinern kann.
+- Kompakte KNX-Zuordnungszeilen halten GA, DPT und Name in einer Zeile; DPT und Name verwenden reduzierte Breiten, wobei sich das Namensfeld in schmalen Editoren ohne Änderung des gespeicherten Werts weiter verkleinern kann. Gespeicherte DPT-Werte bleiben erhalten, während die Auswahloptionen asynchron geladen werden.
 - Optionales KNX-Gateway: Gruppenadressen oder importierte ETS-Namen verwenden; passende Datenpunkte liefert das ausgewählte Gateway.
 - Profildynamische Node-RED-Anschlüsse für validierte Hue-API-v2-Eingaben und Hue-Ereignisse, sofern unterstützt.
 - Startabfrage, Hue→KNX-Statussynchronisation und Schleifenschutz in jedem privaten Profil.

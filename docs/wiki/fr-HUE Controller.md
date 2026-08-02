@@ -34,7 +34,7 @@ permalink: /wiki/fr-HUE%20Controller
 - Recherche, autocomplétion et actualisation des ressources Hue adaptées à la fonction.
 - Mappages de lampe adaptés aux capacités : variation, blanc réglable, RGB/HSV et effets natifs suivent les propriétés live `dimming`, `color_temperature`, `color` et `effects` de la ressource lampe Hue API v2 sélectionnée.
 - Attente de disponibilité limitée dans l'éditeur Lampe : un sablier animé apparaît pendant le chargement des ressources du Hue Bridge, avec une vérification toutes les 500 ms et une libération après environ 10 secondes accompagnée d'une erreur localisée. Enregistrer, fermer ou changer de fonction annule le minuteur.
-- Les lignes KNX compactes conservent GA, DPT et Nom sur une seule ligne ; DPT et Nom utilisent des largeurs réduites, et Nom peut encore se contracter dans un éditeur étroit sans modifier la valeur enregistrée.
+- Les lignes KNX compactes conservent GA, DPT et Nom sur une seule ligne ; DPT et Nom utilisent des largeurs réduites, et Nom peut encore se contracter dans un éditeur étroit sans modifier la valeur enregistrée. Les valeurs DPT enregistrées sont conservées pendant le chargement asynchrone des options du sélecteur.
 - Passerelle KNX facultative : utilisez les adresses de groupe ou noms ETS importés ; les datapoints compatibles proviennent de la passerelle sélectionnée.
 - Ports Node-RED dynamiques pour les entrées Hue API v2 validées et les événements Hue, lorsqu’ils sont pris en charge.
 - Lecture au démarrage, synchronisation d’état Hue→KNX et protection contre les boucles conservées dans chaque profil privé.

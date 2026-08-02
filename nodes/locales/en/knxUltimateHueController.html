@@ -3,7 +3,7 @@
 <p><strong>HUE Controller</strong> is the unified node for Hue API v2 resources.</p>
 <p>Select the device function, then configure the same KNX mapping and behaviour provided by the established dedicated Hue node.</p>
 <p>The device function selector uses one third of the available width to keep the editor compact.</p>
-<p>KNX mapping rows keep GA, DPT and Name on one line. DPT selectors and Name fields use compact widths, and the Name field can contract further on narrow editor trays without changing its stored text.</p>
+<p>KNX mapping rows keep GA, DPT and Name on one line. DPT selectors and Name fields use compact widths, and the Name field can contract further on narrow editor trays without changing its stored text. Saved DPT values are retained while the selector options load asynchronously.</p>
 <p>Supported functions: lights and grouped lights, plugs, buttons, Tap dial, motion and camera motion, contacts, light level, temperature, humidity, scenes, battery, Zigbee connectivity, and device software update.</p>
 <p>When no <strong>KNX Gateway</strong> is selected (including <code>none</code> and <em>Add new...</em>), KNX mapping fields are hidden while Hue resource selection and flow-only options remain available.</p>
 <p>For a single light, the <strong>Dim</strong>, <strong>Tunable White</strong>, <strong>RGB/HSV</strong>, and native-effects sections follow the live capabilities reported by the selected Hue API v2 resource. The corresponding KNX mappings appear automatically when the light exposes <code>dimming</code>, <code>color_temperature</code>, or <code>color</code>.</p>

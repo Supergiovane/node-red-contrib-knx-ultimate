@@ -34,7 +34,7 @@ permalink: /wiki/HUE%20Controller
 - Function-aware Hue resource autocomplete and refresh.
 - Capability-aware light mappings: Dim, Tunable White, RGB/HSV and native effects follow the live `dimming`, `color_temperature`, `color` and `effects` properties of the selected Hue API v2 light resource.
 - Bounded Light-editor readiness wait: a spinning hourglass is shown while the Hue Bridge loads its resources, polling every 500 ms and releasing the editor with a localized error after about 10 seconds. Save, close and function changes cancel the timer.
-- Compact KNX mapping rows keep GA, DPT and Name on one line; DPT and Name controls use reduced widths, with Name allowed to contract on narrow editor trays without altering its stored value.
+- Compact KNX mapping rows keep GA, DPT and Name on one line; DPT and Name controls use reduced widths, with Name allowed to contract on narrow editor trays without altering its stored value. Saved DPT values are retained while selector options load asynchronously.
 - Optional KNX gateway: use Group Addresses or imported ETS names; compatible datapoints come from the selected gateway.
 - Profile-driven Node-RED pins for validated Hue API v2 input and Hue event output where supported.
 - Startup state reads, Hue-to-KNX status synchronisation and loop protection inherited by each private profile.

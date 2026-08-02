@@ -34,7 +34,7 @@ permalink: /wiki/it-HUE%20Controller
 - Ricerca automatica e aggiornamento delle risorse Hue adatti alla funzione scelta.
 - Mappature luce basate sulle capacità: Dimmer, Bianco regolabile, RGB/HSV ed effetti nativi seguono le proprietà live `dimming`, `color_temperature`, `color` ed `effects` della risorsa luce Hue API v2 selezionata.
 - Attesa delimitata nell'editor Luce: mentre Hue Bridge carica le risorse compare una clessidra animata, con controllo ogni 500 ms e rilascio dell'editor dopo circa 10 secondi accompagnato da un errore localizzato. Salvataggio, chiusura e cambio funzione annullano il timer.
-- Righe KNX compatte mantengono GA, DPT e Nome sulla stessa linea; DPT e Nome hanno larghezze ridotte e Nome può restringersi negli editor più stretti senza alterare il valore memorizzato.
+- Righe KNX compatte mantengono GA, DPT e Nome sulla stessa linea; DPT e Nome hanno larghezze ridotte e Nome può restringersi negli editor più stretti senza alterare il valore memorizzato. I valori DPT salvati vengono conservati mentre le opzioni del selettore si caricano in modo asincrono.
 - Gateway KNX opzionale: usa indirizzi di gruppo o nomi ETS importati; i datapoint compatibili arrivano dal gateway selezionato.
 - Pin Node-RED dinamici per input Hue API v2 validati e output degli eventi Hue, dove supportati.
 - Lettura stato all’avvio, sincronizzazione Hue→KNX e protezione dai loop conservate in ogni profilo privato.

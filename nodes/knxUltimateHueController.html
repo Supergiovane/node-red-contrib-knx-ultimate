@@ -113,7 +113,15 @@
       if (!$field.length) return currentValue;
       if ($field.is(':checkbox')) return $field.prop('checked');
       if ($field.is(':radio')) return $field.filter(':checked').val();
-      return $field.val();
+      const value = $field.val();
+      // DPT options are loaded asynchronously by the mounted profile. A select
+      // can therefore temporarily have no selected option even though the node
+      // has a valid saved value. Preserve that value when Save is pressed while
+      // the request is still in flight instead of persisting null.
+      if ($field.is('select') && (value === undefined || value === null)) {
+        return currentValue;
+      }
+      return value;
     };
 
     const translateProfileEditor = ($container, controllerType, nodeType) => {
@@ -600,7 +608,7 @@ While the Hue Bridge is still loading its resources, the Light editor displays a
 
 Changing **Device function** changes the visible editor and the node pin layout. After saving, reopen the node to verify the selected resource and mappings.
 
-KNX mapping rows keep GA, DPT and Name on one line. DPT selectors use a compact fixed range, while Name fields are shorter and may contract further on a narrow editor tray without changing their stored text.
+KNX mapping rows keep GA, DPT and Name on one line. DPT selectors use a compact fixed range, while Name fields are shorter and may contract further on a narrow editor tray without changing their stored text. Saved DPT values are retained while selector options load asynchronously.
 
 <!-- HUE_CONTROLLER_PROFILE_HELP_START -->
 

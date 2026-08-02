@@ -423,6 +423,85 @@ describe('Unified HUE Controller', () => {
     expect(changedNodes).to.deep.equal([legacyLight])
   })
 
+  it('preserves every legacy GA and DPT value across all fifteen local conversions', () => {
+    const definitionRED = {
+      nodes: { node: () => undefined },
+      _: (key) => key,
+      settings: { lang: 'en' }
+    }
+    const controllerDefinition = { defaults: {}, _: () => 'controller' }
+    const legacyNodes = Object.entries(LEGACY_NODE_PROFILES).map(([legacyType, profile], profileIndex) => {
+      const legacyEditorPath = path.join(projectRoot, 'nodes', `${legacyType}.html`)
+      const legacyEditor = fs.readFileSync(legacyEditorPath, 'utf8')
+      const legacyRegistrationScript = [...legacyEditor.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+        .find((match) => !/\bsrc\s*=/.test(match[1]) && (
+          match[2].includes(`registerType('${legacyType}'`) ||
+          match[2].includes(`registerType("${legacyType}"`)
+        ))
+      expect(legacyRegistrationScript, `${legacyType} registration script`).not.to.equal(undefined)
+      let legacyDefinition
+      const legacyRED = {
+        nodes: {
+          registerType: (type, definition) => {
+            if (type === legacyType) legacyDefinition = definition
+          }
+        },
+        _: (key) => key
+      }
+      vm.runInNewContext(legacyRegistrationScript[2], {
+        RED: legacyRED,
+        console,
+        setTimeout,
+        clearTimeout
+      }, { filename: `${legacyEditorPath}#legacy-registration` })
+      expect(legacyDefinition, `${legacyType} definition`).to.be.an('object')
+
+      const profileDefinition = hueControllerProfiles.getDefinition(profile.controllerType, definitionRED)
+      const legacyMappingFields = Object.keys(legacyDefinition.defaults)
+        .filter((key) => key.startsWith('GA') || key.startsWith('dpt'))
+      const controllerMappingFields = Object.keys(profileDefinition.defaults)
+        .filter((key) => key.startsWith('GA') || key.startsWith('dpt'))
+      expect(controllerMappingFields, `${legacyType} Controller mapping fields`).to.have.members(legacyMappingFields)
+      const node = {
+        id: `legacy-${profileIndex}`,
+        type: legacyType,
+        z: 'tab-1',
+        enableNodePINS: 'yes',
+        wires: []
+      }
+      legacyMappingFields.forEach((key, fieldIndex) => {
+        node[key] = key.startsWith('GA')
+          ? `${profileIndex}/${fieldIndex}/1`
+          : `legacy-${profile.controllerType}-${key}`
+      })
+      return node
+    })
+    const mappingSnapshots = legacyNodes.map((node) => Object.fromEntries(
+      Object.entries(node).filter(([key]) => key.startsWith('GA') || key.startsWith('dpt'))
+    ))
+    const RED = {
+      _: () => '',
+      nodes: {
+        getType: (type) => type === 'knxUltimateHueController' ? controllerDefinition : undefined,
+        dirty: () => false
+      },
+      workspaces: { isLocked: () => false },
+      editor: { validateNode: () => {} },
+      events: { emit: () => {} },
+      history: { push: () => {} },
+      view: { redraw: () => {} }
+    }
+
+    expect(applyLocalMigration(RED, legacyNodes)).to.equal(supportedTypes.length)
+    legacyNodes.forEach((node, index) => {
+      const convertedMappings = Object.fromEntries(
+        Object.entries(node).filter(([key]) => key.startsWith('GA') || key.startsWith('dpt'))
+      )
+      expect(node.hueControllerType).to.equal(LEGACY_NODE_PROFILES[Object.keys(LEGACY_NODE_PROFILES)[index]].controllerType)
+      expect(convertedMappings, node.hueControllerType).to.deep.equal(mappingSnapshots[index])
+    })
+  })
+
   it('opens an editable usage email containing only the converted-node count', () => {
     expect(MIGRATION_USAGE_EMAIL).to.equal('maxsupergiovane@icloud.com')
     expect(MIGRATION_DONATION_URL).to.equal('https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758')
@@ -692,6 +771,7 @@ describe('Unified HUE Controller', () => {
     expect(editor).not.to.include('migrationApi.convertLegacyHueFlowJson')
     expect(editor).not.to.include('migrationApi.copyTextToClipboard')
     expect(editor).to.include('editorContainsLegacyHueNodes')
+    expect(editor).to.include("$field.is('select') && (value === undefined || value === null)")
     expect(editor).to.include("typeof RED.nodes.eachNode !== 'function'")
     expect(editor).to.include('migrationApi.isLegacyHueNode(node)')
     expect(editor).to.include("$('#hue-controller-migrate-legacy-flow-row').toggle(hasLegacyHueNodes)")
