@@ -38,7 +38,7 @@ permalink: /wiki/de-HUE%20Controller
 - Optionales KNX-Gateway: Gruppenadressen oder importierte ETS-Namen verwenden; passende Datenpunkte liefert das ausgewählte Gateway.
 - Profildynamische Node-RED-Anschlüsse für validierte Hue-API-v2-Eingaben und Hue-Ereignisse, sofern unterstützt.
 - Startabfrage, Hue→KNX-Statussynchronisation und Schleifenschutz in jedem privaten Profil.
-- Vollständig lokale Migration aller fünfzehn veralteten Knotentypen mit anschließendem bearbeitbarem E-Mail-Entwurf, Spendenseite in einem neuen Browserfenster, lokaler Prüfung und manuellem Deploy.
+- Vollständig lokale Migration aller fünfzehn veralteten Knotentypen mit anschließendem bearbeitbarem E-Mail-Entwurf, optionaler Unterstützungsschaltfläche in der Abschlussmeldung, lokaler Prüfung und manuellem Deploy.
 
 ## Start in vier Schritten
 
@@ -53,9 +53,9 @@ Die folgenden Abschnitte bilden die vollständige, aus den früheren dedizierten
 
 ## Legacy-HUE-Knoten konvertieren
 
-Der Migrationsbutton erscheint nur, wenn der Node-RED-Editor mindestens einen Legacy-HUE-Knoten in den aktuellen Flows erkennt. Derselbe orange Button steht direkt unter dem Deprecated-Hinweis in jedem Legacy-HUE-Editor bereit. Der Hinweis bestätigt, dass keine Flow- oder Knotendaten den Browser verlassen.
+Der Migrationsbutton erscheint nur, wenn der Node-RED-Editor mindestens einen Legacy-HUE-Knoten in den aktuellen Flows erkennt. Ein Link zur [Videoanleitung für die Migration auf YouTube](https://youtu.be/f0Evf2QFI7c) steht unmittelbar vor demselben kontrastreichen orangefarbenen Button mit weißer Beschriftung in HUE Controller und jedem Legacy-HUE-Editor. Der Hinweis bestätigt, dass keine Flow- oder Knotendaten den Browser verlassen.
 
-Klicken Sie auf **Legacy-HUE-Knoten konvertieren** und bestätigen Sie. Der Browser führt die gesamte Konvertierung lokal aus und sendet keinerlei Flow-, Knoten-, `hue-config`-, `knxUltimate-config`-, Gruppenadress-, Verbindungs-, Zugangs-, Namens-, Positions- oder Knoten-ID-Daten. Nach erfolgreicher Konvertierung öffnet er einen bearbeitbaren E-Mail-Entwurf an den Autor, ohne Node-RED zu verlassen, und die Spendenseite in einem neuen Browserfenster. Der Entwurf enthält nur die Anzahl konvertierter Knoten und Platz für optionale Hinweise; Sie entscheiden über das Senden, automatisch gesendet wird er nie und dem PayPal-Link werden keine Flow-Daten hinzugefügt.
+Klicken Sie auf **Legacy-HUE-Knoten konvertieren** und bestätigen Sie. Der Browser führt die gesamte Konvertierung lokal aus und sendet keinerlei Flow-, Knoten-, `hue-config`-, `knxUltimate-config`-, Gruppenadress-, Verbindungs-, Zugangs-, Namens-, Positions- oder Knoten-ID-Daten. Nach erfolgreicher Konvertierung öffnet er nur einen bearbeitbaren E-Mail-Entwurf an den Autor, ohne Node-RED zu verlassen. Der Entwurf enthält nur die Anzahl konvertierter Knoten und Platz für optionale Hinweise; Sie entscheiden über das Senden und automatisch gesendet wird er nie. Die abschließende Node-RED-Meldung bietet eine optionale Unterstützungsschaltfläche; die Spendenseite öffnet sich nur nach einem Klick darauf.
 
 Exportieren Sie vor dem Start eine Sicherung Ihrer Flows. Der Browser schließt den aktuellen Knoteneditor und ändert ausschließlich die erkannten Legacy-HUE-Knoten in HUE-Controller-Instanzen. Gespeicherte Eigenschaften, Konfigurationsreferenzen, Positionen, Gruppenzugehörigkeit und Verbindungen bleiben unverändert. Der Arbeitsbereich wird als geändert markiert, aber nie automatisch deployt: Prüfen Sie das Ergebnis und klicken Sie selbst auf **Deploy**. Geänderte Knoten, gesperrte Flows oder lokale Konvertierungsfehler lassen den Arbeitsbereich unverändert. **Sicherheitsprüfung:** Prüfen Sie vor dem Deploy jeden geänderten HUE-Knoten einschließlich Funktion, Konfigurationsreferenzen, Ein-/Ausgangsanschlüssen und Verbindungen. Nach Abschluss bleibt eine feste Node-RED-Meldung sichtbar, bis Sie auf **OK** klicken.
 

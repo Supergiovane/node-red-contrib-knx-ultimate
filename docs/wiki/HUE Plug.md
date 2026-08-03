@@ -4,7 +4,7 @@ title: "HUE Plug"
 lang: en
 permalink: /wiki/HUE%20Plug
 ---
-> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The orange migration button converts all legacy HUE nodes locally; afterwards it opens an editable email draft and the donation page in a new browser window. The email is never sent automatically. When the process finishes, a fixed Node-RED message remains visible until you click OK.
+> **Deprecated:** this dedicated HUE node remains available for existing flows. Use **HUE Controller** for new work. It is marked `(deprecated)` in the palette and on the canvas, uses a lighter color than HUE Controller, and its editor opens with a migration notice. The high-contrast orange migration button with white text converts all legacy HUE nodes locally; afterwards it opens only an editable email draft. The email is never sent automatically. When the process finishes, a fixed Node-RED message remains visible until you click OK and offers an optional support button; the donation page opens only when that button is clicked. [Watch the explanatory video on YouTube](https://youtu.be/f0Evf2QFI7c) before starting.
 
 # Hue Plug / Outlet
 

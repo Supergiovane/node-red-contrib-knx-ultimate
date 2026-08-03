@@ -4,7 +4,7 @@ title: "HUE Motion area"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Motion%20area
 ---
-> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中的橙色迁移按钮会在本地转换所有旧版 HUE 节点；完成后会打开一封可编辑的邮件草稿，并在浏览器新窗口中打开捐赠页面。邮件绝不会自动发送。流程结束后，Node-RED 的固定消息会一直显示，直到您点击“确定”。
+> **已弃用：**此专用 HUE 节点仍可用于现有流程。新项目请使用 **HUE Controller**。该节点会在节点面板和画布上标记为 `(deprecated)`，颜色比 HUE Controller 更浅，编辑器顶部也会显示迁移提示。 此编辑器中带白色文字的高对比度橙色迁移按钮会在本地转换所有旧版 HUE 节点；完成后只会打开一封可编辑的邮件草稿。邮件绝不会自动发送。流程结束后，Node-RED 的固定消息会一直显示，直到您点击“确定”，并提供一个可选支持按钮；只有点击该按钮时才会打开捐赠页面。 开始前，请[在 YouTube 上观看说明视频](https://youtu.be/f0Evf2QFI7c)。
 
 Hue 区域人体传感器节点订阅 Hue Bridge Pro 上 MotionAware 区域的聚合运动事件，并将“有人 / 无人”的结果同步到 KNX 或 Node-RED 流程。
 

@@ -12,6 +12,7 @@
 
   const EVENT_NAMESPACE = '.knxUltimateHueControllerMigrationDialog'
   const BUTTON_SELECTOR = '.hue-legacy-migrate-flow'
+  const BUTTON_STYLE_ID = 'knxUltimateHueLegacyMigrationButtonStyle'
   const I18N_PREFIX = 'node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.'
   let closeActiveDialog = function () {}
 
@@ -35,28 +36,38 @@
     if ($cancel.length) $cancel.trigger('click')
   }
 
-  function reserveDonationWindow (windowObject) {
+  function ensureLegacyButtonStyle ($) {
+    if ($(`#${BUTTON_STYLE_ID}`).length) return
+    $('<style></style>')
+      .attr('id', BUTTON_STYLE_ID)
+      .text(`
+        .hue-legacy-migrate-flow.red-ui-button,
+        .hue-legacy-migrate-flow.red-ui-button:hover,
+        .hue-legacy-migrate-flow.red-ui-button:active,
+        .hue-legacy-migrate-flow.red-ui-button:focus,
+        .hue-legacy-migrate-flow.red-ui-button > i,
+        .hue-legacy-migrate-flow.red-ui-button > span {
+          color: #ffffff !important;
+        }
+      `)
+      .appendTo('head')
+  }
+
+  function openDonationPage (RED, translate, windowObject, donationUrl) {
     try {
-      if (!windowObject || typeof windowObject.open !== 'function') return undefined
-      const donationWindow = windowObject.open('', '_blank')
-      if (donationWindow) {
-        try { donationWindow.opener = null } catch (error) { /* best-effort isolation */ }
-      }
-      return donationWindow
+      if (!windowObject || typeof windowObject.open !== 'function') throw new Error('Browser window opening is unavailable')
+      const donationWindow = windowObject.open(donationUrl, '_blank', 'noopener,noreferrer')
+      if (!donationWindow) throw new Error('The browser blocked the donation window')
     } catch (error) {
-      return undefined
+      if (RED && typeof RED.notify === 'function') {
+        RED.notify(translate('migration_donation_failed', 'The donation page could not be opened. You can try again.'), 'warning')
+      }
     }
   }
 
-  function closeDonationWindow (donationWindow) {
-    try {
-      if (donationWindow && typeof donationWindow.close === 'function') donationWindow.close()
-    } catch (error) { /* best effort after a failed conversion */ }
-  }
-
-  function showCompletionMessage (RED, translate, convertedCount) {
+  function showCompletionMessage (RED, translate, convertedCount, windowObject, donationUrl) {
     if (!RED || typeof RED.notify !== 'function') return
-    const message = translate('migration_success', 'Process finished. {{count}} legacy HUE nodes were converted. Inspect every modified node, including its function, configuration, pins and wiring, before clicking Deploy.')
+    const message = translate('migration_success', 'Process finished. {{count}} legacy HUE nodes were converted. Inspect every modified node, including its function, configuration, pins and wiring, before clicking Deploy. If this conversion saved you time, you can support the continued development of KNX Ultimate with the optional button below.')
       .replace('{{count}}', String(convertedCount))
     let notification
     try {
@@ -64,13 +75,22 @@
         modal: true,
         fixed: true,
         type: 'success',
-        buttons: [{
-          text: translate('migration_ok', 'OK'),
-          class: 'primary',
-          click () {
-            if (notification && typeof notification.close === 'function') notification.close()
+        buttons: [
+          {
+            text: translate('migration_donate', 'Support KNX Ultimate ❤️'),
+            class: 'hue-controller-migration-donate',
+            click () {
+              openDonationPage(RED, translate, windowObject, donationUrl)
+            }
+          },
+          {
+            text: translate('migration_ok', 'OK'),
+            class: 'primary',
+            click () {
+              if (notification && typeof notification.close === 'function') notification.close()
+            }
           }
-        }]
+        ]
       })
     } catch (error) { /* the conversion is already complete */ }
   }
@@ -114,7 +134,7 @@
       .css({ marginBottom: '10px', padding: '8px 10px', borderLeft: '4px solid #2980b9', background: '#eaf4fb' })
       .appendTo($dialog)
     $('<div class="hue-controller-migration-email"></div>')
-      .text(translate('migration_email_notice', 'After conversion, your email app will open an editable draft addressed to the author without navigating away from Node-RED, and a new browser window will open the donation page. The draft contains only the number of converted nodes and space for optional notes; nothing is sent automatically and no flow data is added to the donation link.'))
+      .text(translate('migration_email_notice', 'After conversion, your email app will open an editable draft addressed to the author without navigating away from Node-RED. The draft contains only the number of converted nodes and space for optional notes; nothing is sent automatically. The final Node-RED message will offer an optional button to support KNX Ultimate.'))
       .css({ marginBottom: '10px' })
       .appendTo($dialog)
     $('<div class="form-tips hue-controller-migration-backup"></div>')
@@ -144,10 +164,8 @@
       if (running) return
       running = true
       $convert.prop('disabled', true)
-      let donationWindow
       try {
         migrationApi.createLocalMigrationPatches(legacyNodes)
-        donationWindow = reserveDonationWindow(windowObject)
         closeDialog()
         closeEditorTray(RED, $)
         windowObject.setTimeout(() => {
@@ -155,22 +173,9 @@
           try {
             convertedCount = migrationApi.applyLocalMigration(RED, legacyNodes)
           } catch (error) {
-            closeDonationWindow(donationWindow)
             const message = error && error.message ? error.message : String(error)
             RED.notify(`${translate('migration_failed', 'HUE migration failed; the flow was not changed:')} ${message}`, 'error')
             return
-          }
-          try {
-            if (donationWindow && !donationWindow.closed && donationWindow.location) {
-              donationWindow.location.href = migrationApi.MIGRATION_DONATION_URL
-            } else if (typeof windowObject.open === 'function') {
-              const opened = windowObject.open(migrationApi.MIGRATION_DONATION_URL, '_blank', 'noopener,noreferrer')
-              if (!opened) throw new Error('The browser blocked the donation window')
-            } else {
-              throw new Error('Browser window opening is unavailable')
-            }
-          } catch (error) {
-            RED.notify(translate('migration_donation_failed', 'The nodes were converted, but the donation page could not be opened.'), 'warning')
           }
           try {
             const mailto = migrationApi.createUsageMailto(convertedCount, {
@@ -184,10 +189,9 @@
           } catch (error) {
             RED.notify(translate('migration_email_failed', 'The nodes were converted, but the email draft could not be opened.'), 'warning')
           }
-          showCompletionMessage(RED, translate, convertedCount)
+          showCompletionMessage(RED, translate, convertedCount, windowObject, migrationApi.MIGRATION_DONATION_URL)
         }, 0)
       } catch (error) {
-        closeDonationWindow(donationWindow)
         running = false
         $convert.prop('disabled', false)
         const message = error && error.message ? error.message : String(error)
@@ -222,6 +226,7 @@
 
   function installLegacyButton (RED, $, windowObject, documentObject) {
     if (!RED || !$ || !documentObject) return
+    ensureLegacyButtonStyle($)
     const $document = $(documentObject)
     $document.off(`click${EVENT_NAMESPACE}`, BUTTON_SELECTOR)
     $document.on(`click${EVENT_NAMESPACE}`, BUTTON_SELECTOR, (event) => {

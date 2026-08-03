@@ -38,7 +38,7 @@ permalink: /wiki/fr-HUE%20Controller
 - Passerelle KNX facultative : utilisez les adresses de groupe ou noms ETS importés ; les datapoints compatibles proviennent de la passerelle sélectionnée.
 - Ports Node-RED dynamiques pour les entrées Hue API v2 validées et les événements Hue, lorsqu’ils sont pris en charge.
 - Lecture au démarrage, synchronisation d’état Hue→KNX et protection contre les boucles conservées dans chaque profil privé.
-- Migration entièrement locale des quinze types obsolètes, suivie d'un brouillon d'e-mail modifiable, de la page de don dans une nouvelle fenêtre, d'une vérification locale et d'un Deploy manuel.
+- Migration entièrement locale des quinze types obsolètes, suivie d'un brouillon d'e-mail modifiable, d'un bouton de soutien facultatif dans le message final, d'une vérification locale et d'un Deploy manuel.
 
 ## Démarrer en quatre étapes
 
@@ -53,9 +53,9 @@ Les sections suivantes constituent la référence complète par fonction, consol
 
 ## Convertir les nœuds HUE legacy
 
-Le bouton de migration apparaît uniquement lorsque l'éditeur Node-RED détecte au moins un nœud HUE legacy dans les flows actuels. Le même bouton orange est disponible sous l'avis d'obsolescence de chaque éditeur HUE legacy. L'avertissement confirme qu'aucune donnée de flow ou de nœud ne quitte le navigateur.
+Le bouton de migration apparaît uniquement lorsque l'éditeur Node-RED détecte au moins un nœud HUE legacy dans les flows actuels. Un lien vers la [vidéo explicative de la migration sur YouTube](https://youtu.be/f0Evf2QFI7c) apparaît juste avant le même bouton orange à contraste élevé avec texte blanc dans HUE Controller et chaque éditeur HUE legacy. L'avertissement confirme qu'aucune donnée de flow ou de nœud ne quitte le navigateur.
 
-Cliquez sur **Convertir les nœuds HUE legacy** et confirmez. Le navigateur effectue toute la conversion localement et n'envoie aucune donnée de flow, de nœud, de `hue-config`, de `knxUltimate-config`, d'adresse de groupe, de câblage, d'identifiant, de nom, de position ou d'ID. Après la conversion, il ouvre un brouillon d'e-mail modifiable adressé à l'auteur sans quitter Node-RED et ouvre la page de don dans une nouvelle fenêtre du navigateur. Le brouillon contient uniquement le nombre de nœuds convertis et un espace pour des notes facultatives ; vous décidez de l'envoyer, il ne part jamais automatiquement et aucune donnée du flow n'est ajoutée au lien PayPal.
+Cliquez sur **Convertir les nœuds HUE legacy** et confirmez. Le navigateur effectue toute la conversion localement et n'envoie aucune donnée de flow, de nœud, de `hue-config`, de `knxUltimate-config`, d'adresse de groupe, de câblage, d'identifiant, de nom, de position ou d'ID. Après la conversion, il ouvre uniquement un brouillon d'e-mail modifiable adressé à l'auteur sans quitter Node-RED. Le brouillon contient uniquement le nombre de nœuds convertis et un espace pour des notes facultatives ; vous décidez de l'envoyer et il ne part jamais automatiquement. Le message Node-RED final propose un bouton de soutien facultatif ; la page de don ne s'ouvre qu'après un clic sur ce bouton.
 
 Avant de commencer, exportez une sauvegarde de vos flows. Le navigateur ferme l'éditeur du nœud actuel et transforme uniquement les nœuds HUE legacy détectés en instances HUE Controller. Les propriétés enregistrées, références de configuration, positions, groupes et connexions restent inchangés. L'espace de travail est marqué comme modifié, mais l'outil ne le déploie jamais automatiquement : vérifiez le résultat puis cliquez vous-même sur **Deploy**. Un nœud modifié, un flow verrouillé ou une erreur de conversion locale laisse l'espace de travail inchangé. **Contrôle de sécurité :** avant le Deploy, examinez chaque nœud HUE modifié et vérifiez sa fonction, ses références de configuration, ses ports d'entrée/sortie et son câblage. À la fin du processus, un message Node-RED fixe reste visible jusqu'à ce que vous cliquiez sur **OK**.
 

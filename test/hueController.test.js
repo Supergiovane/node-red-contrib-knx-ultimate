@@ -881,6 +881,30 @@ describe('Unified HUE Controller', () => {
     const hueEditors = fs.readdirSync(path.join(projectRoot, 'nodes'))
       .filter((file) => /^knxUltimateHue(?!Controller).*\.html$/.test(file))
     const locales = ['en', 'it', 'de', 'fr', 'es', 'zh-CN']
+    const localizedSupportWords = {
+      en: 'optional support button',
+      it: 'pulsante facoltativo',
+      de: 'optionale Unterstützungsschaltfläche',
+      fr: 'bouton de soutien facultatif',
+      es: 'botón de apoyo opcional',
+      'zh-CN': '可选支持按钮'
+    }
+    const localizedWhiteButtonWords = {
+      en: 'white text',
+      it: 'testo bianco',
+      de: 'weißer Beschriftung',
+      fr: 'texte blanc',
+      es: 'texto blanco',
+      'zh-CN': '白色文字'
+    }
+    const automaticDonationPhrases = {
+      en: 'and the donation page in a new browser window',
+      it: 'e la pagina per una donazione in una nuova finestra',
+      de: 'und die Spendenseite in einem neuen Browserfenster',
+      fr: 'et la page de don dans une nouvelle fenêtre',
+      es: 'y la página de donación en una ventana nueva',
+      'zh-CN': '并在浏览器新窗口中打开捐赠页面'
+    }
     const legacyWikiNames = [
       'HUE Light.md',
       'HUE Plug.md',
@@ -924,14 +948,27 @@ describe('Unified HUE Controller', () => {
       expect(html.slice(noticeStart, migrationActionStart), `${file} localized notice`).to.include(
         'node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.legacy_node_notice'
       )
+      const migrationVideoStart = html.indexOf('class="hue-legacy-migration-video"', migrationActionStart)
+      const migrationButtonStart = html.indexOf('class="red-ui-button hue-legacy-migrate-flow"', migrationActionStart)
+      expect(migrationVideoStart, `${file} migration video`).to.be.greaterThan(migrationActionStart)
+      expect(migrationButtonStart, `${file} migration button after video`).to.be.greaterThan(migrationVideoStart)
+      expect(html.slice(migrationVideoStart, migrationButtonStart), `${file} migration video URL`).to.include('href="https://youtu.be/f0Evf2QFI7c"')
+      expect(html.slice(migrationVideoStart, migrationButtonStart), `${file} safe video target`).to.include('target="_blank" rel="noopener noreferrer"')
+      expect(html.slice(migrationVideoStart, migrationButtonStart), `${file} localized video label`).to.include('knxUltimateHueController.migration_video')
       expect(html.slice(migrationActionStart, tutorialStart), `${file} shared migration button`).to.include('class="red-ui-button hue-legacy-migrate-flow"')
+      expect(html.slice(migrationActionStart, tutorialStart), `${file} forced white migration label`).to.include('color:#fff !important;')
       expect(html.slice(migrationActionStart, tutorialStart), `${file} migration disclaimer`).to.include('class="form-tips hue-controller-migration-disclaimer"')
       expect(html.slice(migrationActionStart, tutorialStart), `${file} localized migration disclaimer`).to.include('knxUltimateHueController.migration_disclaimer')
       expect((html.match(/class="red-ui-button hue-legacy-migrate-flow"/g) || []), `${file} single migration button`).to.have.length(1)
+      expect((html.match(/class="hue-legacy-migration-video"/g) || []), `${file} single migration video`).to.have.length(1)
 
       locales.forEach((locale) => {
         const localizedHelp = fs.readFileSync(path.join(projectRoot, 'nodes/locales', locale, file), 'utf8')
         expect(localizedHelp, `${locale}/${file} help`).to.include('(deprecated)')
+        expect(localizedHelp, `${locale}/${file} optional donation`).to.include(localizedSupportWords[locale])
+        expect(localizedHelp, `${locale}/${file} white migration label`).to.include(localizedWhiteButtonWords[locale])
+        expect(localizedHelp, `${locale}/${file} migration video`).to.include('https://youtu.be/f0Evf2QFI7c')
+        expect(localizedHelp, `${locale}/${file} no automatic donation`).not.to.include(automaticDonationPhrases[locale])
       })
     })
 
@@ -940,6 +977,10 @@ describe('Unified HUE Controller', () => {
         const localizedWikiName = locale === 'en' ? wikiName : `${locale}-${wikiName}`
         const localizedWiki = fs.readFileSync(path.join(projectRoot, 'docs/wiki', localizedWikiName), 'utf8')
         expect(localizedWiki, `${locale}/${wikiName} documentation`).to.include('(deprecated)')
+        expect(localizedWiki, `${locale}/${wikiName} optional donation`).to.include(localizedSupportWords[locale])
+        expect(localizedWiki, `${locale}/${wikiName} white migration label`).to.include(localizedWhiteButtonWords[locale])
+        expect(localizedWiki, `${locale}/${wikiName} migration video`).to.include('https://youtu.be/f0Evf2QFI7c')
+        expect(localizedWiki, `${locale}/${wikiName} no automatic donation`).not.to.include(automaticDonationPhrases[locale])
       })
     })
 
@@ -948,10 +989,19 @@ describe('Unified HUE Controller', () => {
     expect(controller).to.match(/color:\s*['"]#C0C7E9['"]/)
     expect(controller).to.include("paletteLabel: 'HUE Controller'")
     expect(controller).not.to.match(/paletteLabel:\s*['"]HUE Controller \(deprecated\)['"]/)
+    const controllerMigrationRowStart = controller.indexOf('id="hue-controller-migrate-legacy-flow-row"')
+    const controllerMigrationVideoStart = controller.indexOf('class="hue-legacy-migration-video"', controllerMigrationRowStart)
+    const controllerMigrationButtonStart = controller.indexOf('id="hue-controller-migrate-legacy-flow"', controllerMigrationRowStart)
+    expect(controllerMigrationVideoStart, 'Controller migration video').to.be.greaterThan(controllerMigrationRowStart)
+    expect(controllerMigrationButtonStart, 'Controller migration button after video').to.be.greaterThan(controllerMigrationVideoStart)
+    expect(controller.slice(controllerMigrationVideoStart, controllerMigrationButtonStart), 'Controller migration video URL').to.include('href="https://youtu.be/f0Evf2QFI7c"')
+    expect((controller.match(/class="hue-legacy-migration-video"/g) || []), 'Controller single migration video').to.have.length(1)
     expect(controller).to.include("$profileContent.find('.hue-legacy-controller-notice').remove()")
     expect(hueControllerMigrationDialog).to.have.keys('installLegacyButton', 'open')
     const sharedDialog = fs.readFileSync(path.join(projectRoot, 'resources/hueControllerMigrationDialog.js'), 'utf8')
     expect(sharedDialog).to.include("const BUTTON_SELECTOR = '.hue-legacy-migrate-flow'")
+    expect(sharedDialog).to.include('.hue-legacy-migrate-flow.red-ui-button > span')
+    expect(sharedDialog).to.include('color: #ffffff !important;')
     expect(sharedDialog).to.include('migrationApi.collectLegacyHueNodes(RED)')
     expect(sharedDialog).to.include('migrationApi.createLocalMigrationPatches(legacyNodes)')
     expect(sharedDialog).to.include('migrationApi.applyLocalMigration(RED, legacyNodes)')
@@ -959,15 +1009,18 @@ describe('Unified HUE Controller', () => {
     expect(sharedDialog).to.include('migrationApi.openUsageMailto(mailto')
     expect(sharedDialog).not.to.include('windowObject.location.assign(mailto)')
     expect(sharedDialog).not.to.include('windowObject.location.href = mailto')
-    expect(sharedDialog).to.include("const donationWindow = windowObject.open('', '_blank')")
-    expect(sharedDialog).to.include('donationWindow.location.href = migrationApi.MIGRATION_DONATION_URL')
+    expect(sharedDialog).not.to.include('reserveDonationWindow')
+    expect(sharedDialog).not.to.include('donationWindow.location.href')
+    expect(sharedDialog).to.include("windowObject.open(donationUrl, '_blank', 'noopener,noreferrer')")
+    expect(sharedDialog).to.include("text: translate('migration_donate', 'Support KNX Ultimate ❤️')")
+    expect((sharedDialog.match(/windowObject\.open\(/g) || [])).to.have.length(1)
     expect(sharedDialog).to.include("RED.actions.invoke('core:cancel-edit-tray')")
     expect(sharedDialog).to.include('Before continuing, export a backup of your flows.')
     expect(sharedDialog).to.include('form-tips hue-controller-migration-backup')
     expect(sharedDialog).to.include("borderLeft: '4px solid #d79b00', background: '#fff8df'")
     expect(sharedDialog).to.include('migration_review_notice')
     expect(sharedDialog).to.include('inspect every modified HUE node in the flow')
-    expect(sharedDialog).to.include('showCompletionMessage(RED, translate, convertedCount)')
+    expect(sharedDialog).to.include('showCompletionMessage(RED, translate, convertedCount, windowObject, migrationApi.MIGRATION_DONATION_URL)')
     expect(sharedDialog).to.include('modal: true')
     expect(sharedDialog).to.include('fixed: true')
     expect(sharedDialog).to.include("text: translate('migration_ok', 'OK')")
@@ -1002,6 +1055,8 @@ describe('Unified HUE Controller', () => {
       expect(messages.knxUltimateHueController, `${locale} migration labels`).to.include.keys(
         'migration_button',
         'migration_button_title',
+        'migration_video',
+        'migration_video_title',
         'migration_disclaimer',
         'migration_title',
         'migration_confirm',
@@ -1015,6 +1070,7 @@ describe('Unified HUE Controller', () => {
         'migration_review_notice',
         'migration_convert',
         'migration_close',
+        'migration_donate',
         'migration_ok',
         'migration_success',
         'migration_failed',
@@ -1040,8 +1096,10 @@ describe('Unified HUE Controller', () => {
       expect(localizedWiki, `${locale} docs colour capabilities`).to.include('`color`')
       expect(localizedHelp, `${locale} help bounded Hue wait`).to.match(/500[^\n<]*/)
       expect(localizedHelp, `${locale} help Hue timeout`).to.include('10')
+      expect(localizedHelp, `${locale} help migration video`).to.include('https://youtu.be/f0Evf2QFI7c')
       expect(localizedWiki, `${locale} docs bounded Hue wait`).to.match(/500[^\n]*/)
       expect(localizedWiki, `${locale} docs Hue timeout`).to.include('10')
+      expect(localizedWiki, `${locale} docs migration video`).to.include('https://youtu.be/f0Evf2QFI7c')
       expect(localizedWiki, `${locale} docs front matter`).to.match(new RegExp(
         `^---\\nlayout: wiki\\ntitle: "HUE Controller"\\nlang: ${locale}\\npermalink: /wiki/${permalinkPrefix}HUE%20Controller\\n---\\n`
       ))

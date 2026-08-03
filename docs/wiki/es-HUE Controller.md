@@ -38,7 +38,7 @@ permalink: /wiki/es-HUE%20Controller
 - Gateway KNX opcional: usa direcciones de grupo o nombres ETS importados; los datapoints compatibles proceden del gateway seleccionado.
 - Puertos Node-RED dinámicos para entradas Hue API v2 validadas y eventos Hue, cuando sean compatibles.
 - Lectura inicial, sincronización de estado Hue→KNX y protección contra bucles conservadas en cada perfil privado.
-- Migración totalmente local de los quince tipos obsoletos, seguida de un borrador de correo editable, la página de donación en una ventana nueva, revisión local y Deploy manual.
+- Migración totalmente local de los quince tipos obsoletos, seguida de un borrador de correo editable, un botón de apoyo opcional en el mensaje final, revisión local y Deploy manual.
 
 ## Empieza en cuatro pasos
 
@@ -53,9 +53,9 @@ Las secciones siguientes forman la referencia completa por función, consolidada
 
 ## Convertir nodos HUE legacy
 
-El botón de migración solo aparece cuando el editor de Node-RED detecta al menos un nodo HUE legacy en los flujos actuales. El mismo botón naranja está disponible bajo el aviso de obsolescencia de cada editor HUE legacy. El aviso confirma que ningún dato del flujo ni de los nodos sale del navegador.
+El botón de migración solo aparece cuando el editor de Node-RED detecta al menos un nodo HUE legacy en los flujos actuales. Un enlace al [vídeo explicativo de la migración en YouTube](https://youtu.be/f0Evf2QFI7c) aparece inmediatamente antes del mismo botón naranja de alto contraste con texto blanco en HUE Controller y en cada editor HUE legacy. El aviso confirma que ningún dato del flujo ni de los nodos sale del navegador.
 
-Pulsa **Convertir nodos HUE legacy** y confirma. El navegador realiza toda la conversión localmente y no envía ningún dato de flujo, nodo, `hue-config`, `knxUltimate-config`, dirección de grupo, conexión, credencial, nombre, posición ni ID. Tras la conversión abre un borrador de correo editable dirigido al autor sin abandonar Node-RED y abre la página de donación en una ventana nueva del navegador. El borrador contiene solo el número de nodos convertidos y espacio para notas opcionales; tú decides si lo envías, nunca se manda automáticamente y no se añade ningún dato del flujo al enlace de PayPal.
+Pulsa **Convertir nodos HUE legacy** y confirma. El navegador realiza toda la conversión localmente y no envía ningún dato de flujo, nodo, `hue-config`, `knxUltimate-config`, dirección de grupo, conexión, credencial, nombre, posición ni ID. Tras la conversión solo abre un borrador de correo editable dirigido al autor sin abandonar Node-RED. El borrador contiene únicamente el número de nodos convertidos y espacio para notas opcionales; tú decides si lo envías y nunca se manda automáticamente. El mensaje final de Node-RED ofrece un botón de apoyo opcional; la página de donación solo se abre al pulsarlo.
 
 Antes de empezar, exporta una copia de seguridad de tus flujos. El navegador cierra el editor del nodo actual y transforma únicamente los nodos HUE legacy detectados en instancias de HUE Controller. Las propiedades guardadas, referencias de configuración, posiciones, grupos y conexiones permanecen intactos. El espacio de trabajo se marca como modificado, pero la herramienta nunca lo despliega automáticamente: revisa el resultado y pulsa **Deploy** personalmente. Un nodo modificado, un flujo bloqueado o un error de conversión local deja el espacio de trabajo sin cambios. **Comprobación de seguridad:** antes del Deploy, revisa cada nodo HUE modificado y comprueba su función, referencias de configuración, puertos de entrada/salida y conexiones. Al finalizar el proceso, un mensaje fijo de Node-RED permanece visible hasta que pulses **OK**.
 

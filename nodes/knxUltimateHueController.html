@@ -527,6 +527,10 @@
     <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>
   <div class="form-row" id="hue-controller-migrate-legacy-flow-row" style="display:none; margin-bottom:14px;">
+    <a class="hue-legacy-migration-video" href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:5px; margin-right:10px;" data-i18n="[title]knxUltimateHueController.migration_video_title">
+      <i class="fa fa-youtube-play" aria-hidden="true" style="color:#ff0000;"></i>
+      <span data-i18n="knxUltimateHueController.migration_video"></span>
+    </a>
     <button type="button" id="hue-controller-migrate-legacy-flow" class="red-ui-button" data-i18n="[title]knxUltimateHueController.migration_button_title">
       <i class="fa fa-exchange"></i>
       <span data-i18n="knxUltimateHueController.migration_button"></span>
@@ -598,7 +602,7 @@ Node-RED intentionally excludes credentials from flow exports. When importing in
 
 Each function uses its private mature runtime contract. Hue events remain status updates and are never reflected to Hue or KNX as new commands unless the selected function explicitly maps them to a KNX output. The Controller owns its Light implementation without modifying the original legacy Hue Light node.
 
-Dedicated legacy HUE nodes remain registered for existing flows, but are frozen and receive no new features or maintenance updates. Node-RED hides their special `deprecated` category from the palette, while existing instances remain editable, deployable, lighter than HUE Controller and visibly marked `(deprecated)` on the canvas. They also show a migration notice at the top of their editor. Use HUE Controller for new work or migrate them with the fully local conversion button; afterwards, the browser opens an editable usage email draft without navigating away from Node-RED and opens the donation page in a new browser window. The email is never sent automatically. Before Deploy, inspect every modified HUE node and verify its function, configuration references, pins and wiring. A fixed Node-RED completion message remains visible until you click **OK**.
+Dedicated legacy HUE nodes remain registered for existing flows, but are frozen and receive no new features or maintenance updates. Node-RED hides their special `deprecated` category from the palette, while existing instances remain editable, deployable, lighter than HUE Controller and visibly marked `(deprecated)` on the canvas. They also show a migration notice at the top of their editor. Before starting, [watch the explanatory migration video on YouTube](https://youtu.be/f0Evf2QFI7c). Use HUE Controller for new work or migrate them with the fully local conversion button; afterwards, the browser opens only an editable usage email draft without navigating away from Node-RED. The email is never sent automatically. Before Deploy, inspect every modified HUE node and verify its function, configuration references, pins and wiring. A fixed Node-RED completion message remains visible until you click **OK** and offers an optional support button; the donation page opens only when that button is clicked.
 
 When no **KNX Gateway** is selected (including **none** and **Add new...**), the KNX mapping fields are hidden. Hue resource selection and flow-only options remain available.
 
