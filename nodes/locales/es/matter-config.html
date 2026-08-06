@@ -15,7 +15,7 @@ El controlador se comunica con los dispositivos a través de la **red IP** (WiFi
 
 En lugar de escribir el payload QR, pulsa **Webcam** para escanearlo en directo o **Imagen** para leerlo desde una foto local. Se admiten tanto los códigos QR estándar oscuros sobre fondo claro como los invertidos blancos sobre fondo oscuro. La decodificación se realiza íntegramente en el navegador; tras leer un QR Matter válido, el editor rellena el campo del código e inicia inmediatamente el emparejamiento. Introduce antes el nombre opcional del dispositivo si lo deseas. Un código escrito manualmente sigue iniciándose solo al pulsar **EMPAREJAR**. El acceso en directo a la webcam requiere que el editor se abra mediante HTTPS o desde `localhost`; si no es posible, el editor explica la limitación y la carga de imágenes sigue disponible.
 
-Durante el comisionado, un panel de espera bloqueante cubre el editor e impide más clics hasta que la operación finaliza correctamente o con un error.
+Durante el comisionado, un panel bloqueante cubre el editor e impide más clics hasta que la operación finaliza correctamente o con un error. La barra de progreso sigue los hitos reales de matter.js y muestra en inglés la operación actual. Cuando el dispositivo expone su identidad de producto, el panel también muestra el nombre del producto, Vendor ID y Product ID.
 
 Si el dispositivo es nuevo de fábrica y solo admite emparejamiento por Bluetooth, emparéjalo primero con la app del fabricante o con otro controlador Matter (Alexa, Google Home, Apple Home) y usa después su función **"compartir / emparejar con otro hub"** para generar un nuevo código para KNX-Ultimate. Así el dispositivo se une a varias fabrics a la vez.
 

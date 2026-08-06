@@ -22,6 +22,11 @@
             var $devicesBody = $("#matter-devices-body");
             var $refreshDevices = $("#matterRefreshDevices");
             var $pairSpinner = $("#matterPairSpinner");
+            var $pairProgress = $("#matter-pairing-progress");
+            var $pairProgressBar = $("#matter-pairing-progress-bar");
+            var $pairProgressPercent = $("#matter-pairing-progress-percent");
+            var $pairProgressDescription = $("#matter-pairing-progress-description");
+            var $pairProgressDevice = $("#matter-pairing-progress-device");
             var $storageExport = $('#matter-storage-export');
             var $storageImport = $('#matter-storage-import');
             var $storageFile = $('#matter-storage-file');
@@ -35,6 +40,8 @@
             var qrScannerControls = null;
             var qrScannerStarting = false;
             var qrUtils = window.KNXUltimateMatterQrScanner;
+            var pairingProgressTimer = null;
+            var pairingOperationId = '';
 
             function qrText(key) {
                 return RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties." + key);
@@ -183,7 +190,10 @@
                 this.value = '';
                 scanQrImage(file);
             });
-            node._matterQrCleanup = stopQrCamera;
+            node._matterQrCleanup = function () {
+                stopQrCamera();
+                stopPairingProgress();
+            };
 
             function storageExportUrl() {
                 var adminRoot = (RED.settings && typeof RED.settings.httpAdminRoot === 'string') ? RED.settings.httpAdminRoot : '/';
@@ -207,6 +217,44 @@
                     fixed: true,
                     modal: false
                 });
+            }
+
+            function setPairingProgress(data) {
+                if (!data) return;
+                var percent = Number(data.percent);
+                if (!isFinite(percent)) percent = 0;
+                percent = Math.max(0, Math.min(100, Math.round(percent)));
+                $pairProgress.attr('aria-valuenow', percent);
+                $pairProgressBar.css('width', percent + '%');
+                $pairProgressPercent.text(percent + '%');
+                if (data.message) $pairProgressDescription.text(data.message);
+                if (data.device && data.device.productName) {
+                    var details = data.device.productName;
+                    if (data.device.vendorId !== undefined) details += ' · VID ' + data.device.vendorId;
+                    if (data.device.productId !== undefined) details += ' · PID ' + data.device.productId;
+                    $pairProgressDevice.text(details).show();
+                }
+            }
+
+            function stopPairingProgress() {
+                if (pairingProgressTimer !== null) clearInterval(pairingProgressTimer);
+                pairingProgressTimer = null;
+                pairingOperationId = '';
+            }
+
+            function startPairingProgress(operationId) {
+                stopPairingProgress();
+                pairingOperationId = operationId;
+                $pairProgressDevice.empty().hide();
+                setPairingProgress({ percent: 2, message: 'Preparing Matter commissioning…' });
+                pairingProgressTimer = setInterval(function () {
+                    var activeOperationId = pairingOperationId;
+                    if (!activeOperationId) return;
+                    $.getJSON('KNXUltimateMatterPairProgress?serverId=' + encodeURIComponent(node.id) + '&operationId=' + encodeURIComponent(activeOperationId) + '&_=' + Date.now(), function (data) {
+                        if (activeOperationId !== pairingOperationId || !data || data.operationId !== activeOperationId) return;
+                        setPairingProgress(data);
+                    });
+                }, 400);
             }
 
             function renderDevices(devices) {
@@ -293,15 +341,20 @@
                     return;
                 }
                 $pairButton.prop('disabled', true);
+                var operationId = 'matter-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+                var pairingSucceeded = false;
+                startPairingProgress(operationId);
                 $pairSpinner.show();
                 $.ajax({
-                    url: 'KNXUltimateMatterPair?serverId=' + node.id + '&code=' + encodeURIComponent(code) + (desiredName !== '' ? '&name=' + encodeURIComponent(desiredName) : ''),
+                    url: 'KNXUltimateMatterPair?serverId=' + encodeURIComponent(node.id) + '&operationId=' + encodeURIComponent(operationId) + '&code=' + encodeURIComponent(code) + (desiredName !== '' ? '&name=' + encodeURIComponent(desiredName) : ''),
                     dataType: 'json',
                     timeout: 180000
                 }).done(function (data) {
                     if (data && data.error) {
                         notifyPairingError(data.error);
                     } else {
+                        pairingSucceeded = true;
+                        setPairingProgress({ percent: 100, message: 'Matter commissioning completed successfully.' });
                         var pairedName = data.name || data.productName || data.nodeId;
                         RED.notify(RED._("node-red-contrib-knx-ultimate/matter-config:matter-config.properties.pairing_ok") + ' ' + pairedName + ' (Node ID ' + data.nodeId + ')', { type: 'success' });
                         if (data.renameError) RED.notify(data.renameError, { type: 'warning', fixed: true });
@@ -314,8 +367,10 @@
                     try { msg = jqXHR.responseJSON.error; } catch (e) { msg = errorThrown || textStatus; }
                     notifyPairingError(msg);
                 }).always(function () {
+                    stopPairingProgress();
                     $pairButton.prop('disabled', false);
-                    $pairSpinner.hide();
+                    if (pairingSucceeded) setTimeout(function () { $pairSpinner.hide(); }, 350);
+                    else $pairSpinner.hide();
                 });
             });
 
@@ -496,9 +551,15 @@
 
   <div id="matterPairSpinner" role="alertdialog" aria-modal="true" aria-labelledby="matter-pairing-overlay-message"
        style="display:none; position:fixed; inset:0; z-index:100000; background:rgba(20, 24, 28, 0.72); cursor:wait;">
-    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); min-width:280px; max-width:80vw; padding:28px 34px; border-radius:8px; background:#fff; color:#333; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.4);">
-      <i class="fa fa-circle-notch fa-spin" aria-hidden="true" style="display:block; margin-bottom:16px; color:#1b7d33; font-size:54px;"></i>
-      <strong id="matter-pairing-overlay-message" data-i18n="matter-config.properties.pairing_wait" style="font-size:16px;"></strong>
+    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:460px; max-width:80vw; padding:28px 34px; border-radius:8px; background:#fff; color:#333; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.4);">
+      <strong id="matter-pairing-overlay-message" data-i18n="matter-config.properties.pairing_wait" style="display:block; margin-bottom:18px; font-size:16px;"></strong>
+      <div id="matter-pairing-progress" role="progressbar" aria-label="Matter commissioning progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+           style="position:relative; width:100%; height:20px; overflow:hidden; border-radius:10px; background:#66717a; box-shadow:inset 0 1px 3px rgba(0,0,0,0.22);">
+        <div id="matter-pairing-progress-bar" style="width:0; height:100%; border-radius:10px; background:#1b7d33; transition:width 250ms ease;"></div>
+        <span id="matter-pairing-progress-percent" style="position:absolute; inset:0; color:#fff; font-size:12px; font-weight:bold; line-height:20px; text-shadow:0 1px 2px #000;">0%</span>
+      </div>
+      <div id="matter-pairing-progress-description" aria-live="polite" style="min-height:20px; margin-top:14px; font-size:14px; line-height:20px;">Preparing Matter commissioning…</div>
+      <div id="matter-pairing-progress-device" style="display:none; margin-top:7px; color:#666; font-size:12px;"></div>
     </div>
   </div>
 

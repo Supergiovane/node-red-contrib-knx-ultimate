@@ -49,7 +49,7 @@ Le contrôleur communique avec les appareils via le **réseau IP** (WiFi, Ethern
 
 Au lieu de saisir le payload QR, cliquez sur **Webcam** pour le scanner en direct ou sur **Image** pour le lire depuis une photo locale. Les QR codes standards sombres sur fond clair et les codes inversés blancs sur fond sombre sont pris en charge. Le décodage s'effectue entièrement dans le navigateur ; après la lecture d'un QR Matter valide, l'éditeur remplit le champ du code et démarre immédiatement l'appairage. Saisissez auparavant le nom facultatif de l'appareil si nécessaire. Un code saisi manuellement ne démarre toujours qu'après un clic sur **APPAIRER**. L'accès direct à la webcam exige que l'éditeur soit ouvert via HTTPS ou depuis `localhost` ; sinon l'éditeur explique cette limitation et le chargement d'une image reste disponible.
 
-Pendant le commissionnement, un panneau d'attente bloquant recouvre l'éditeur et empêche tout autre clic jusqu'à la réussite ou l'échec de l'opération.
+Pendant le commissionnement, un panneau bloquant recouvre l'éditeur et empêche tout autre clic jusqu'à la réussite ou l'échec de l'opération. La barre de progression suit les étapes réelles de matter.js et décrit l'opération en cours en anglais. Lorsque l'appareil expose son identité produit, le panneau affiche aussi le nom du produit, le Vendor ID et le Product ID.
 
 Si l'appareil est neuf et ne prend en charge que l'appairage Bluetooth, appairez-le d'abord avec l'app du fabricant ou un autre contrôleur Matter (Alexa, Google Home, Apple Home), puis utilisez sa fonction **« partager / appairer avec un autre hub »** pour générer un nouveau code pour KNX-Ultimate. L'appareil rejoint ainsi plusieurs fabrics à la fois.
 

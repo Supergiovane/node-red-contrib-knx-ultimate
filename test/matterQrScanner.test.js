@@ -118,6 +118,11 @@ describe('Matter QR scanner editor helpers', () => {
     expect(editor.indexOf('id="matter-devices-body"')).to.be.lessThan(editor.indexOf('id="matter-storage-export"'))
     expect(editor).to.include('id="matterPairSpinner" role="alertdialog"')
     expect(editor).to.include('position:fixed; inset:0; z-index:100000')
+    expect(editor).to.include('id="matter-pairing-progress" role="progressbar"')
+    expect(editor).to.include('id="matter-pairing-progress-description" aria-live="polite"')
+    expect(editor).to.include('id="matter-pairing-progress-device"')
+    expect(editor).to.include('KNXUltimateMatterPairProgress?serverId=')
+    expect(editor).not.to.include('fa-circle-notch fa-spin" aria-hidden="true"')
     expect(editor).to.include('$pairSpinner.show()')
     expect(editor).to.include('$pairSpinner.hide()')
     expect(editor).to.include('oneditcancel:')
@@ -149,10 +154,18 @@ describe('Matter QR scanner editor helpers', () => {
       const wikiName = locale === 'en' ? 'Matter-Controller-Configuration.md' : `${locale}-Matter-Controller-Configuration.md`
       const wiki = fs.readFileSync(path.join(projectRoot, 'docs/wiki', wikiName), 'utf8')
       expect(help, `${locale}:help`).to.include('localhost')
+      expect(help, `${locale}:commissioning progress`).to.include('Vendor ID')
       expect(wiki, `${locale}:wiki`).to.include('localhost')
+      expect(wiki, `${locale}:commissioning progress`).to.include('Vendor ID')
       expect(wiki, `${locale}:controller overview hero`).to.include('data-matter-controller-overview="hero"')
       expect((wiki.match(/data-matter-controller-overview="hero"/g) || []), `${locale}:single controller hero`).to.have.length(1)
     })
+  })
+
+  it('registers an operation-isolated local commissioning progress endpoint', () => {
+    const runtime = fs.readFileSync(path.join(projectRoot, 'nodes/commonFunctions.js'), 'utf8')
+    expect(runtime).to.include("RED.httpAdmin.get('/KNXUltimateMatterPairProgress'")
+    expect(runtime).to.include('Another Matter commissioning operation is already in progress.')
   })
 
   it('preserves saved configuration through an untouched open/save/reopen round trip', () => {

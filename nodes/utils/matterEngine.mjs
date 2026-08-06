@@ -88,13 +88,93 @@ class classMatter extends EventEmitter {
     const { Environment, StorageService, Logger, LogLevel } = await import('@matter/main')
     const { Seconds } = await import('@matter/general')
     const { CommissioningController } = await import('@project-chip/matter.js')
+    const { ControllerCommissioningFlow } = await import('@matter/protocol')
     const { NodeStates } = await import('@project-chip/matter.js/device')
     const { ManualPairingCodeCodec, QrPairingCodeCodec, NodeId } = await import('@matter/main/types')
     const { BasicInformation, GeneralCommissioning } = await import('@matter/main/clusters')
     this._api = {
-      Environment, StorageService, Logger, LogLevel, Seconds, CommissioningController, NodeStates, ManualPairingCodeCodec, QrPairingCodeCodec, NodeId, BasicInformation, GeneralCommissioning
+      Environment, StorageService, Logger, LogLevel, Seconds, CommissioningController, ControllerCommissioningFlow, NodeStates, ManualPairingCodeCodec, QrPairingCodeCodec, NodeId, BasicInformation, GeneralCommissioning
     }
     return this._api
+  }
+
+  _reportCommissioningProgress = (_callback, progress) => {
+    if (typeof _callback !== 'function') return
+    try {
+      _callback(progress)
+    } catch (error) {
+      this._log('warn', `classMatter: commissioning progress callback: ${error.message}`)
+    }
+  }
+
+  _createProgressCommissioningFlow = (_callback) => {
+    const BaseFlow = this._api.ControllerCommissioningFlow
+    const report = (progress) => this._reportCommissioningProgress(_callback, progress)
+    const descriptions = {
+      GetInitialData: { percent: 22, message: 'Reading commissioning information from the device…' },
+      'GeneralCommissioning.ArmFailsafe': { percent: 30, message: 'Arming the device fail-safe timer…' },
+      'GeneralCommissioning.ConfigureRegulatoryInformation': { percent: 36, message: 'Applying regulatory configuration…' },
+      'TimeSynchronization.SynchronizeTime': { percent: 42, message: 'Synchronizing the device clock…' },
+      'OperationalCredentials.DeviceAttestation': { percent: 50, message: 'Verifying device identity and attestation…' },
+      'OperationalCredentials.Certificates': { percent: 62, message: 'Installing operational credentials…' },
+      AccessControl: { percent: 72, message: 'Configuring Matter access control…' },
+      'NetworkCommissioning.Validate': { percent: 76, message: 'Checking the device network configuration…' },
+      'NetworkCommissioning.Wifi': { percent: 78, message: 'Connecting the device to the Wi-Fi network…' },
+      'NetworkCommissioning.Thread': { percent: 78, message: 'Connecting the device to the Thread network…' },
+      Reconnect: { percent: 84, message: 'Reconnecting through the operational CASE session…' },
+      'GeneralCommissioning.Complete': { percent: 92, message: 'Completing commissioning on the device…' },
+      'OperationalCredentials.UpdateFabricLabel': { percent: 96, message: 'Applying the Matter fabric label…' },
+      'AdditionalLogic.AddDefaultOtaProvider': { percent: 97, message: 'Configuring the default OTA provider…' }
+    }
+
+    return class ProgressCommissioningFlow extends BaseFlow {
+      constructor (...args) {
+        super(...args)
+        this.commissioningSteps.forEach((step) => {
+          const stepLogic = step.stepLogic
+          step.stepLogic = async () => {
+            const description = descriptions[step.name] || {
+              percent: 20,
+              message: `Running Matter commissioning step ${step.stepNumber}.${step.subStepNumber}: ${step.name}…`
+            }
+            const device = this.collectedCommissioningData?.productName
+              ? {
+                  productName: this.collectedCommissioningData.productName,
+                  vendorId: this.collectedCommissioningData.vendorId,
+                  productId: this.collectedCommissioningData.productId
+                }
+              : undefined
+            report({
+              phase: 'commissioning',
+              step: `${step.stepNumber}.${step.subStepNumber}`,
+              stepName: step.name,
+              percent: description.percent,
+              message: description.message,
+              device
+            })
+            const result = await stepLogic()
+            // GetInitialData is the first point where the commissionee may have exposed
+            // its product identity. Publish it immediately instead of waiting for the
+            // following step to make the editor show it.
+            if (step.name === 'GetInitialData' && this.collectedCommissioningData?.productName) {
+              report({
+                phase: 'commissioning',
+                step: `${step.stepNumber}.${step.subStepNumber}`,
+                stepName: step.name,
+                percent: 28,
+                message: 'Device identified. Preparing secure commissioning…',
+                device: {
+                  productName: this.collectedCommissioningData.productName,
+                  vendorId: this.collectedCommissioningData.vendorId,
+                  productId: this.collectedCommissioningData.productId
+                }
+              })
+            }
+            return result
+          }
+        })
+      }
+    }
   }
 
   _resolveTargetHosts = async (_targetHost) => {
@@ -286,6 +366,12 @@ class classMatter extends EventEmitter {
     let passcode
     let identifierData
     const discoveryCapabilities = { onIpNetwork: true }
+    const onProgress = _options?.onProgress
+    this._reportCommissioningProgress(onProgress, {
+      phase: 'preparing',
+      percent: 5,
+      message: 'Validating the Matter pairing code…'
+    })
     if (code.toUpperCase().startsWith('MT:')) {
       const qr = api.QrPairingCodeCodec.decode(code)[0]
       passcode = qr.passcode
@@ -305,6 +391,11 @@ class classMatter extends EventEmitter {
       }
       const targetHost = (_options?.targetHost || '').toString().trim()
       if (targetHost !== '') {
+        this._reportCommissioningProgress(onProgress, {
+          phase: 'discovery',
+          percent: 10,
+          message: `Looking for the Matter device at ${targetHost}…`
+        })
         const commissionableDevice = await this._discoverCommissionableDeviceAtHost(identifierData, discoveryCapabilities, targetHost)
         discovery = commissionableDevice !== undefined
           ? {
@@ -319,6 +410,11 @@ class classMatter extends EventEmitter {
       let lastError
       for (const discoveryAttempt of discoveryAttempts) {
         try {
+          this._reportCommissioningProgress(onProgress, {
+            phase: 'pase',
+            percent: 15,
+            message: 'Discovering the device and establishing a secure PASE session…'
+          })
           nodeId = await this.controller.commissionNode({
             commissioning: {
               nodeId: commissioningNodeId,
@@ -326,7 +422,10 @@ class classMatter extends EventEmitter {
             },
             discovery: discoveryAttempt,
             passcode
-          }, { connectNodeAfterCommissioning: false })
+          }, {
+            connectNodeAfterCommissioning: false,
+            commissioningFlowImpl: this._createProgressCommissioningFlow(onProgress)
+          })
           lastError = undefined
           break
         } catch (error) {
@@ -355,12 +454,22 @@ class classMatter extends EventEmitter {
       throw error
     }
     try {
+      this._reportCommissioningProgress(onProgress, {
+        phase: 'attaching',
+        percent: 98,
+        message: 'Loading the commissioned device structure…'
+      })
       await this._attachNode(nodeId)
     } catch (error) {
       // Pairing succeeded: never report it as failed just because the first connection
       // attempt errored. The node will be attached again at the next controller start.
       this._log('warn', `classMatter: commission: node ${nodeId} paired but not yet attached: ${error.message}`)
     }
+    this._reportCommissioningProgress(onProgress, {
+      phase: 'complete',
+      percent: 100,
+      message: 'Matter commissioning completed successfully.'
+    })
     return nodeId.toString()
   }
 

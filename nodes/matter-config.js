@@ -22,6 +22,13 @@ module.exports = (RED) => {
     node.matterManager = null
     node.timerMatterConfigCheckState = null
     node.storageOperation = null
+    node.commissioningProgress = {
+      active: false,
+      operationId: '',
+      sequence: 0,
+      percent: 0,
+      message: 'Waiting for commissioning to start.'
+    }
     try {
       node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: 'matter-config.js' })
     } catch (error) { console.log(error.stack) }
@@ -245,6 +252,50 @@ module.exports = (RED) => {
     node.commission = async (_pairingCode, _options = {}) => {
       if (node.matterManager === null) throw new Error('Matter controller not started')
       return node.matterManager.commission(_pairingCode, _options)
+    }
+
+    node.beginCommissioningProgress = (_operationId) => {
+      if (node.commissioningProgress.active === true) return false
+      node.commissioningProgress = {
+        active: true,
+        operationId: String(_operationId || ''),
+        sequence: node.commissioningProgress.sequence + 1,
+        percent: 2,
+        phase: 'starting',
+        message: 'Preparing Matter commissioning…',
+        updatedAt: Date.now()
+      }
+      return true
+    }
+
+    node.reportCommissioningProgress = (_operationId, _progress = {}) => {
+      if (node.commissioningProgress.operationId !== String(_operationId || '')) return false
+      const numericPercent = Number(_progress.percent)
+      const previousPercent = Number(node.commissioningProgress.percent) || 0
+      node.commissioningProgress = {
+        ...node.commissioningProgress,
+        ..._progress,
+        active: true,
+        operationId: node.commissioningProgress.operationId,
+        sequence: node.commissioningProgress.sequence + 1,
+        percent: Number.isFinite(numericPercent) ? Math.max(previousPercent, Math.min(100, Math.max(0, numericPercent))) : previousPercent,
+        updatedAt: Date.now()
+      }
+      return true
+    }
+
+    node.endCommissioningProgress = (_operationId, _progress = {}) => {
+      if (node.commissioningProgress.operationId !== String(_operationId || '')) return false
+      node.reportCommissioningProgress(_operationId, _progress)
+      node.commissioningProgress.active = false
+      return true
+    }
+
+    node.getCommissioningProgress = (_operationId) => {
+      if (node.commissioningProgress.operationId !== String(_operationId || '')) {
+        return { active: false, percent: 0, message: 'Waiting for commissioning to start.' }
+      }
+      return { ...node.commissioningProgress }
     }
 
     node.removeCommissionedNode = async (_nodeId) => {

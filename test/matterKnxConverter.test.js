@@ -593,6 +593,54 @@ describe('Matter controller rename after commissioning', () => {
   })
 })
 
+describe('Matter Controller commissioning progress', () => {
+  it('reports real matter.js steps and device identity when available', async () => {
+    const { classMatter } = await import('../nodes/utils/matterEngine.mjs')
+    const manager = new classMatter('', 'progress-test', 'test', null, { startQueue: false })
+    const updates = []
+
+    class FakeCommissioningFlow {
+      constructor () {
+        this.collectedCommissioningData = {}
+        this.commissioningSteps = [{
+          stepNumber: 0,
+          subStepNumber: 1,
+          name: 'GetInitialData',
+          stepLogic: async () => {
+            this.collectedCommissioningData = {
+              productName: 'Matter Test Lamp',
+              vendorId: 4660,
+              productId: 22136
+            }
+            return { code: 0 }
+          }
+        }, {
+          stepNumber: 7,
+          subStepNumber: 1,
+          name: 'GeneralCommissioning.ArmFailsafe',
+          stepLogic: async () => ({ code: 0 })
+        }]
+      }
+    }
+
+    manager._api = { ControllerCommissioningFlow: FakeCommissioningFlow }
+    const ProgressFlow = manager._createProgressCommissioningFlow((update) => updates.push(update))
+    const flow = new ProgressFlow()
+
+    await flow.commissioningSteps[0].stepLogic()
+    await flow.commissioningSteps[1].stepLogic()
+
+    expect(updates.map((update) => update.percent)).to.deep.equal([22, 28, 30])
+    expect(updates[0]).to.include({ step: '0.1', stepName: 'GetInitialData' })
+    expect(updates[1].device).to.deep.equal({
+      productName: 'Matter Test Lamp',
+      vendorId: 4660,
+      productId: 22136
+    })
+    expect(updates[2].message).to.equal('Arming the device fail-safe timer…')
+  })
+})
+
 describe('Matter controller commissioned-device list', () => {
   it('loads connection-state constants from the installed matter.js device API', async () => {
     const { classMatter } = await import('../nodes/utils/matterEngine.mjs')

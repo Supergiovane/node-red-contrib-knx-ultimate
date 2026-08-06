@@ -800,18 +800,51 @@ module.exports = (RED) => {
       }
     })
 
-    // MATTER: commissions (pairs) a new Matter device using a pairing code or QR code string
-    RED.httpAdmin.get('/KNXUltimateMatterPair', RED.auth.needsPermission('matter-config.write'), async (req, res) => {
+    // MATTER: current commissioning milestone for the blocking editor overlay.
+    // The operation id keeps simultaneous editor tabs from displaying each other's progress.
+    RED.httpAdmin.get('/KNXUltimateMatterPairProgress', RED.auth.needsPermission('matter-config.read'), (req, res) => {
       try {
         const matterServer = RED.nodes.getNode(req.query.serverId)
+        if (matterServer === null || matterServer === undefined) {
+          res.json({ active: false, percent: 0, error: 'PLEASE DEPLOY FIRST: then try again.' })
+          return
+        }
+        res.json(matterServer.getCommissioningProgress(req.query.operationId))
+      } catch (error) {
+        RED.log.error(`Err KNXUltimateMatterPairProgress: ${error.message}`)
+        res.json({ active: false, percent: 0, error: error.message })
+      }
+    })
+
+    // MATTER: commissions (pairs) a new Matter device using a pairing code or QR code string
+    RED.httpAdmin.get('/KNXUltimateMatterPair', RED.auth.needsPermission('matter-config.write'), async (req, res) => {
+      let matterServer
+      const requestedOperationId = String(req.query.operationId || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80)
+      // Keep direct callers of the pre-progress endpoint backward compatible. The editor
+      // supplies its own id so it can poll; legacy callers receive a server-only id.
+      const operationId = requestedOperationId || `server-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      try {
+        matterServer = RED.nodes.getNode(req.query.serverId)
         if (matterServer === null || matterServer === undefined) {
           res.json({ error: 'PLEASE DEPLOY FIRST: then try again.' })
           return
         }
-        const nodeId = await matterServer.commission(req.query.code, { targetHost: req.query.targetHost })
+        if (!matterServer.beginCommissioningProgress(operationId)) {
+          res.json({ error: 'Another Matter commissioning operation is already in progress.' })
+          return
+        }
+        const nodeId = await matterServer.commission(req.query.code, {
+          targetHost: req.query.targetHost,
+          onProgress: (progress) => matterServer.reportCommissioningProgress(operationId, progress)
+        })
         const requestedName = String(req.query.name || '').trim()
         let renameError = null
         if (requestedName !== '') {
+          matterServer.reportCommissioningProgress(operationId, {
+            phase: 'naming',
+            percent: 99,
+            message: 'Applying the requested device name…'
+          })
           try {
             await matterServer.renameCommissionedNode(nodeId, requestedName)
           } catch (error) {
@@ -823,8 +856,19 @@ module.exports = (RED) => {
         try {
           device = matterServer.getCommissionedNodesDetails().find((item) => String(item.nodeId) === String(nodeId)) || null
         } catch (error) { /* empty */ }
+        matterServer.endCommissioningProgress(operationId, {
+          phase: 'complete',
+          percent: 100,
+          message: 'Matter commissioning completed successfully.'
+        })
         res.json({ nodeId, name: device?.name, productName: device?.productName, vendorName: device?.vendorName, renameError })
       } catch (error) {
+        try {
+          matterServer?.endCommissioningProgress(operationId, {
+            phase: 'error',
+            message: `Commissioning failed: ${error.message}`
+          })
+        } catch (progressError) { /* empty */ }
         const targetHost = req.query.targetHost ? ` targetHost=${req.query.targetHost}` : ''
         RED.log.error(`Err KNXUltimateMatterPair:${targetHost} ${error.stack || error.message}`)
         res.json({ error: error.message })

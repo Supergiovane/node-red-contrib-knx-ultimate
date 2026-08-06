@@ -15,7 +15,7 @@ The controller talks to the devices over the **IP network** (WiFi, Ethernet, or 
 
 Instead of typing the QR payload, click **Webcam** to scan it live or **Image** to read it from a local picture. Both standard dark-on-light and inverted white-on-dark QR codes are supported. Decoding takes place entirely in the browser; after a valid Matter QR is read, the editor fills the pairing-code field and immediately starts pairing. Enter the optional device name before scanning if desired. A manually typed code still starts only when you click **PAIR**. Live webcam access requires the editor to be opened over HTTPS or from `localhost`; when that is not possible, the editor explains the limitation and image loading remains available.
 
-While commissioning is in progress, a blocking wait panel covers the editor and prevents further clicks until the operation succeeds or fails.
+While commissioning is in progress, a blocking panel covers the editor and prevents further clicks until the operation succeeds or fails. Its progress bar follows the actual matter.js milestones and shows the current operation in English. When the device exposes its product identity, the panel also shows its product name, Vendor ID and Product ID.
 
 If the device is brand new and only supports Bluetooth commissioning, first pair it with its vendor app or another Matter controller (Alexa, Google Home, Apple Home), then use that controller's **"share / pair with another hub"** function to generate a new pairing code for KNX-Ultimate. This way the device joins multiple fabrics at once.
 

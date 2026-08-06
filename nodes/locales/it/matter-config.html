@@ -15,7 +15,7 @@ Il controller comunica con i dispositivi tramite la **rete IP** (WiFi, Ethernet,
 
 In alternativa alla digitazione del payload QR, clicca **Webcam** per leggerlo in tempo reale oppure **Immagine** per ricavarlo da una foto locale. Sono supportati sia i QR standard scuri su fondo chiaro sia quelli invertiti bianchi su fondo scuro. La decodifica avviene interamente nel browser; dopo la lettura di un QR Matter valido, l'editor compila il campo del codice e avvia immediatamente l'associazione. Se desideri assegnare un nome, inseriscilo prima della scansione. Un codice digitato manualmente parte ancora soltanto quando clicchi **ASSOCIA**. L'accesso live alla webcam richiede che l'editor sia aperto tramite HTTPS o da `localhost`; quando non è possibile, l'editor spiega il limite e il caricamento dell'immagine rimane disponibile.
 
-Durante il commissioning, un pannello di attesa bloccante copre l'editor e impedisce ulteriori clic finché l'operazione non termina con successo o con un errore.
+Durante il commissioning, un pannello bloccante copre l'editor e impedisce ulteriori clic finché l'operazione non termina con successo o con un errore. La barra di avanzamento segue le fasi reali di matter.js e mostra in inglese l'operazione corrente. Quando il device espone la propria identità di prodotto, il pannello mostra anche nome prodotto, Vendor ID e Product ID.
 
 Se il dispositivo è nuovo di fabbrica e supporta solo il commissioning Bluetooth, associalo prima con l'app del produttore o con un altro controller Matter (Alexa, Google Home, Apple Home), poi usa la funzione **"condividi / abbina con altro hub"** di quel controller per generare un nuovo codice di abbinamento per KNX-Ultimate. In questo modo il dispositivo entra in più fabric contemporaneamente.
 
