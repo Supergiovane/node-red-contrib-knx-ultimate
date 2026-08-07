@@ -13,6 +13,7 @@ scripts/
 !scripts/
 scripts/*
 !scripts/generate-hue-controller-profiles.js
+!scripts/publish-and-refresh.js
 !scripts/hue-controller-profiles/
 !scripts/hue-controller-profiles/**
 

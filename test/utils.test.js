@@ -1,5 +1,12 @@
 const { expect } = require('chai')
 const { ToBoolean, fetchFromObject } = require('../nodes/utils/utils')
+const {
+  cookieHeaderFromResponse,
+  defaultDistTag,
+  extractCsrfToken,
+  flowPageHasVersion,
+  parseArgs
+} = require('../scripts/publish-and-refresh')
 
 describe('utils – ToBoolean', () => {
   describe('boolean input', () => {
@@ -90,5 +97,46 @@ describe('utils – fetchFromObject', () => {
   it('handles three levels of nesting', () => {
     const msg = { a: { b: { c: 99 } } }
     expect(fetchFromObject(msg, 'a.b.c')).to.equal(99)
+  })
+})
+
+describe('release publishing helpers', () => {
+  it('selects beta for prereleases and latest for stable versions', () => {
+    expect(defaultDistTag('6.3.1-beta.1')).to.equal('beta')
+    expect(defaultDistTag('6.4.0')).to.equal('latest')
+  })
+
+  it('parses safe release and recovery options', () => {
+    expect(parseArgs(['--tag', 'beta', '--skip-tests'])).to.include({
+      skipTests: true,
+      tag: 'beta'
+    })
+    expect(parseArgs(['--refresh-only']).refreshOnly).to.equal(true)
+    expect(() => parseArgs(['--dry-run', '--refresh-only'])).to.throw('cannot be used together')
+    expect(() => parseArgs(['--unknown'])).to.throw('Unknown option')
+  })
+
+  it('extracts the Flow Library CSRF token without persisting credentials', () => {
+    const html = '<form><input id="add-node-csrf" name="_csrf" type="hidden" value="temporary-token"></form>'
+    expect(extractCsrfToken(html)).to.equal('temporary-token')
+    expect(extractCsrfToken('<form></form>')).to.equal(null)
+  })
+
+  it('converts Set-Cookie response values into one request Cookie header', () => {
+    const response = {
+      headers: {
+        getSetCookie: () => [
+          '_csrf=session-value; Path=/',
+          '__cf_bm=cloudflare-value; HttpOnly; Secure'
+        ]
+      }
+    }
+    expect(cookieHeaderFromResponse(response)).to.equal('_csrf=session-value; __cf_bm=cloudflare-value')
+  })
+
+  it('recognizes the published version in the Flow Library page', () => {
+    const html = '<h1>node-red-contrib-knx-ultimate 6.4.0</h1><div>Version: 6.4.0</div>'
+    expect(flowPageHasVersion(html, 'node-red-contrib-knx-ultimate', '6.4.0')).to.equal(true)
+    expect(flowPageHasVersion(html, 'node-red-contrib-knx-ultimate', '6.3.0')).to.equal(false)
   })
 })

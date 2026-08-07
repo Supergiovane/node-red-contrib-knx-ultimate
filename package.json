@@ -111,6 +111,8 @@
     "prepublishOnly": "npm run build",
     "test": "npm run hue-controller:check && DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
     "test:unit": "mocha \"test/**/*.test.js\"",
+    "release:publish": "node scripts/publish-and-refresh.js",
+    "release:refresh-flows": "node scripts/publish-and-refresh.js --refresh-only",
     "hue-controller:generate": "node scripts/generate-hue-controller-profiles.js",
     "hue-controller:check": "node scripts/generate-hue-controller-profiles.js --check",
     "avviaquesto-itest:light": "node test/integration/hueLiveTest.mjs",
