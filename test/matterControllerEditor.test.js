@@ -5,6 +5,7 @@ const path = require('path')
 describe('Matter Controller editor flow-input section', () => {
   const projectRoot = path.resolve(__dirname, '..')
   const editor = fs.readFileSync(path.join(projectRoot, 'nodes/knxUltimateMatterControllerDevice.html'), 'utf8')
+  const knxEditor = fs.readFileSync(path.join(projectRoot, 'nodes/knxUltimate.html'), 'utf8')
 
   it('places the inline help below the node PIN selector instead of in a tab or modal', () => {
     expect(editor).not.to.include('href="#tabs-input"')
@@ -21,6 +22,27 @@ describe('Matter Controller editor flow-input section', () => {
     expect(editor).to.include('$inputHelpPanel.toggle(showInputHelp)')
     expect(editor).to.include("$pinSelect.on('change.knxUltimateMatterControllerDevice', updateTabsVisibility)")
     expect(editor).to.include('const shouldShowTabs = !isUniversalMode() && hueDeviceSelected && hasVisibleTab')
+  })
+
+  it('opens the complete Matter device list when the populated picker is clicked', () => {
+    expect(editor).to.include('mousedown.knxUltimateMatterControllerDevicePicker')
+    expect(editor).to.include('if (!matterDevicePickerMouseDown)')
+    expect(editor).to.include("setTimeout(() => $(input).autocomplete('search', ''), 0)")
+    expect(editor).not.to.include("$deviceNameInput.autocomplete('search', `${$deviceNameInput.val()}exactmatch`)")
+  })
+
+  it('keeps the complete imported GA list open when the populated KNXUltimate topic field is clicked', () => {
+    const blockStart = knxEditor.indexOf('$("#node-input-topic").autocomplete({')
+    const blockEnd = knxEditor.indexOf('.autocomplete("instance")._renderItem', blockStart)
+    const topicAutocomplete = knxEditor.slice(blockStart, blockEnd)
+
+    expect(blockStart).to.be.greaterThan(-1)
+    expect(blockEnd).to.be.greaterThan(blockStart)
+    expect(topicAutocomplete).to.include('mousedown.knxUltimateTopicPicker')
+    expect(topicAutocomplete).to.include('if (!topicPickerMouseDown)')
+    expect(topicAutocomplete).to.include('setTimeout(function () {')
+    expect(topicAutocomplete).to.include("$(input).autocomplete('search', '')")
+    expect(topicAutocomplete).not.to.include("$(this).val() + 'exactmatch'")
   })
 
   it('keeps the section label and documentation aligned in every supported locale', () => {

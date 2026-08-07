@@ -36,6 +36,7 @@
     // Node-RED 4.x uses `_ADD_` both for the visible "none" option (when
     // gateways exist) and for "Add new..." (when none exist).
     const KNX_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__']);
+    const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__']);
     const TUTORIALS_URL = 'https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E';
     const profileBundle = window.KNXUltimateHueControllerProfiles;
 
@@ -294,6 +295,11 @@
         let legacyContext;
         let closeMigrationDialog = () => { };
         const profileDrafts = {};
+        let cachedHueResources = [];
+        let selectedHueResource;
+        let activeHueServerId;
+        let hueDevicePickerMouseDown = false;
+        const defaultHueDevicePlaceholder = $('#node-input-name').attr('placeholder') || '';
 
         const hasLegacyHueNodes = editorContainsLegacyHueNodes();
         const $migrationButton = $('#hue-controller-migrate-legacy-flow');
@@ -357,6 +363,168 @@
           });
         };
 
+        const controllerText = (key, fallback) => {
+          try {
+            const translated = controllerNode._(`knxUltimateHueController.${key}`);
+            if (translated && translated !== `knxUltimateHueController.${key}`) return translated;
+          } catch (error) { /* empty */ }
+          return fallback;
+        };
+
+        const resolveHueServerId = ({ allowStored = false } = {}) => {
+          const domValue = $('#node-input-serverHue').val();
+          if (domValue !== undefined && domValue !== null) {
+            const normalized = String(domValue).trim();
+            if (normalized !== '' && !HUE_EMPTY_SERVER_VALUES.has(normalized.toLowerCase())) return normalized;
+          }
+          if (allowStored && controllerNode.serverHue !== undefined && controllerNode.serverHue !== null) {
+            const stored = String(controllerNode.serverHue).trim();
+            if (stored !== '' && !HUE_EMPTY_SERVER_VALUES.has(stored.toLowerCase())) return stored;
+          }
+          return '';
+        };
+
+        const getHueDeviceValue = () => {
+          const domValue = $('#node-input-hueDevice').val();
+          if (domValue !== undefined && domValue !== null && String(domValue).trim() !== '') return String(domValue).trim();
+          return controllerNode.hueDevice === undefined || controllerNode.hueDevice === null
+            ? ''
+            : String(controllerNode.hueDevice).trim();
+        };
+
+        const getRawHueResourceId = (value) => String(value || '').split('#')[0];
+
+        const updateSelectedDevicePresentation = (controllerType = controllerNode.hueControllerType) => {
+          const hasDevice = getHueDeviceValue() !== '';
+          const profile = PROFILE_TYPES[controllerType] || PROFILE_TYPES.light;
+          const typeLabel = controllerText(`types.${controllerType}`, profile.label);
+          $('#hue-controller-selected-device-type-value').text(typeLabel);
+          $('#hue-controller-selected-device-type').toggle(hasDevice);
+          $('#hue-controller-locate-device').toggle(hasDevice && controllerType === 'light');
+          $('#hue-controller-profile-editor').toggle(hasDevice);
+          $('#node-input-hueControllerType').val(controllerType);
+        };
+
+        const filterHueResources = (term) => {
+          const search = String(term || '').replace(/exactmatch/gi, '').trim().toLowerCase();
+          return cachedHueResources.filter((item) => {
+            if (search === '') return true;
+            return String(item.name || item.id || '').toLowerCase().includes(search);
+          }).map((item) => ({
+            ...item,
+            value: item.name || item.id,
+            label: item.name || item.id
+          }));
+        };
+
+        const reconcileSavedHueResource = () => {
+          const savedDevice = getHueDeviceValue();
+          if (savedDevice === '') return;
+          const rawId = getRawHueResourceId(savedDevice);
+          const match = cachedHueResources.find((item) => item.hueDevice === savedDevice)
+            || cachedHueResources.find((item) => item.id === rawId && item.controllerType === controllerNode.hueControllerType)
+            || cachedHueResources.find((item) => item.id === rawId);
+          if (!match) {
+            updateSelectedDevicePresentation();
+            return;
+          }
+          selectedHueResource = match;
+          if (!$('#node-input-name').val()) $('#node-input-name').val(match.name || match.id);
+          if (match.controllerType !== controllerNode.hueControllerType) {
+            applyHueResourceSelection(match);
+            return;
+          }
+          updateSelectedDevicePresentation(match.controllerType);
+        };
+
+        const fetchHueResources = (term, response, { forceRefresh = false } = {}) => {
+          const reply = typeof response === 'function' ? response : () => { };
+          const hueServerId = resolveHueServerId({ allowStored: true });
+          if (hueServerId === '') {
+            reply([]);
+            return;
+          }
+          if (!forceRefresh && cachedHueResources.length > 0) {
+            reply(filterHueResources(term));
+            return;
+          }
+          $('#hue-controller-devices-loading').show();
+          const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
+          $.getJSON(`KNXUltimateGetResourcesHUE?rtype=hue_controller&serverId=${encodeURIComponent(hueServerId)}${refreshQuery}&_=${Date.now()}`, (data) => {
+            const devices = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : []);
+            cachedHueResources = devices.filter((item) => item && PROFILE_TYPES[item.controllerType] && item.id && item.hueDevice);
+            $('#node-input-name').attr('placeholder', cachedHueResources.length > 0
+              ? defaultHueDevicePlaceholder
+              : controllerText('no_devices', 'No Hue resources found. Check the Hue Bridge and press refresh.'));
+            reconcileSavedHueResource();
+            reply(filterHueResources(term));
+          }).fail(() => {
+            cachedHueResources = [];
+            $('#node-input-name').attr('placeholder', controllerText('no_devices', 'No Hue resources found. Check the Hue Bridge and press refresh.'));
+            reply([]);
+          }).always(() => {
+            $('#hue-controller-devices-loading').hide();
+          });
+        };
+
+        const configureUnifiedDeviceControl = () => {
+          const $deviceName = $('#node-input-name');
+          if (!$deviceName.length) return;
+          $deviceName.autocomplete({
+            minLength: 0,
+            source(request, response) {
+              fetchHueResources(request.term, response);
+            },
+            select(event, ui) {
+              applyHueResourceSelection(ui.item);
+              return false;
+            },
+            change(event, ui) {
+              if (ui.item || selectedHueResource?.name === $deviceName.val()) return;
+              selectedHueResource = undefined;
+              controllerNode.hueDevice = '';
+              $('#node-input-hueDevice').val('');
+              updateSelectedDevicePresentation();
+            }
+          });
+          $deviceName.off('.knxUltimateHueControllerDevice')
+            .on('mousedown.knxUltimateHueControllerDevice', () => {
+              hueDevicePickerMouseDown = true;
+            })
+            .on('focus.knxUltimateHueControllerDevice', function () {
+              if (!hueDevicePickerMouseDown) $(this).autocomplete('search', '');
+            })
+            .on('click.knxUltimateHueControllerDevice', function () {
+              hueDevicePickerMouseDown = false;
+              const input = this;
+              setTimeout(() => $(input).autocomplete('search', ''), 0);
+            })
+            .on('blur.knxUltimateHueControllerDevice', () => {
+              hueDevicePickerMouseDown = false;
+            });
+        };
+
+        const applyHueResourceSelection = (item) => {
+          if (!item || !PROFILE_TYPES[item.controllerType] || !item.hueDevice) return;
+          const nextType = item.controllerType;
+          const typeChanged = nextType !== controllerNode.hueControllerType;
+          collectCurrentEditor();
+          if (typeChanged) prepareProfileValues(nextType, getProfileDefinition(nextType));
+          selectedHueResource = item;
+          controllerNode.hueControllerType = nextType;
+          controllerNode.name = item.name || item.id;
+          controllerNode.hueDevice = item.hueDevice;
+          if (item.deviceObject) controllerNode.hueDeviceObject = cloneEditorValue(item.deviceObject);
+          const nextDefinition = getProfileDefinition(nextType);
+          controllerNode.inputs = Number(nextDefinition?.inputs || 0);
+          controllerNode.outputs = Number(nextDefinition?.outputs || 0);
+          $('#node-input-name').val(controllerNode.name);
+          $('#node-input-hueDevice').val(controllerNode.hueDevice);
+          $('#node-input-hueControllerType').val(nextType);
+          renderProfileEditor(nextType, true);
+          updateSelectedDevicePresentation(nextType);
+        };
+
         const renderProfileEditor = (controllerType, skipCollect) => {
           // Controlled lifecycle transition:
           // collect old -> dispose old -> mount private HTML -> translate ->
@@ -403,6 +571,13 @@
           $profileContent.find('#node-input-server, #node-input-serverHue').each(function () {
             $(this).closest('.form-row').remove();
           });
+          // Device selection belongs to the unified wrapper. Remove the private
+          // profile's duplicate row/hidden value while keeping the static fields
+          // available to its mature lifecycle callbacks.
+          $profileContent.find('#node-input-name').each(function () {
+            $(this).closest('.form-row').remove();
+          });
+          $profileContent.find('#node-input-hueDevice').remove();
           $container.empty().append($profileContent.contents());
           // Node-RED translates the static dialog before oneditprepare. This
           // fragment belongs to another node type, so qualify every key with the
@@ -428,9 +603,14 @@
           // Light deliberately receives the real Hue config-node selection.
           // Its private editor owns the bounded readiness poll and displays the
           // hourglass until the bridge resources are available or it times out.
+          // The Light editor completes asynchronously and installs its historic
+          // light-only autocomplete inside Go(). Give it an explicit callback
+          // that restores the Controller-wide catalog after that late setup.
+          controllerNode.__configureHueControllerDeviceControl = configureUnifiedDeviceControl;
           if (typeof definition.oneditprepare === 'function') {
             definition.oneditprepare.call(legacyContext);
           }
+          configureUnifiedDeviceControl();
           // Profile guidance is already available in the node help. Keeping it
           // out of the embedded editor makes every device profile more compact.
           $container.find('.form-tips').remove();
@@ -449,29 +629,46 @@
           $('#node-input-server')
             .off('.knxUltimateHueControllerKnxVisibility')
             .on('change.knxUltimateHueControllerKnxVisibility', updateControllerKnxVisibility);
+          updateSelectedDevicePresentation(controllerType);
           focusProfileHelp(controllerType);
         };
 
         const selectedType = PROFILE_TYPES[this.hueControllerType] ? this.hueControllerType : 'light';
-        $('#node-input-hueControllerType')
-          .val(selectedType)
-          .off('.knxUltimateHueController')
-          .on('change.knxUltimateHueController', function () {
-            const nextType = PROFILE_TYPES[$(this).val()] ? $(this).val() : 'light';
-            const nextDefinition = getProfileDefinition(nextType);
-            collectCurrentEditor();
-            prepareProfileValues(nextType, nextDefinition);
-            // A deliberate function change adopts that function's normal pin shape.
-            controllerNode.inputs = Number(nextDefinition?.inputs || 0);
-            controllerNode.outputs = Number(nextDefinition?.outputs || 0);
-            renderProfileEditor(nextType, true);
+        $('#node-input-hueControllerType').val(selectedType);
+
+        activeHueServerId = resolveHueServerId({ allowStored: true });
+        $('#hue-controller-refresh-devices')
+          .off('.knxUltimateHueControllerDevice')
+          .on('click.knxUltimateHueControllerDevice', () => {
+            cachedHueResources = [];
+            fetchHueResources('', (items) => {
+              if (items.length) $('#node-input-name').autocomplete('search', '');
+            }, { forceRefresh: true });
+          });
+        $('#node-input-serverHue')
+          .off('.knxUltimateHueControllerDevice')
+          .on('change.knxUltimateHueControllerDevice', () => {
+            const nextServerId = resolveHueServerId();
+            if (nextServerId === activeHueServerId) return;
+            activeHueServerId = nextServerId;
+            cachedHueResources = [];
+            selectedHueResource = undefined;
+            controllerNode.name = '';
+            controllerNode.hueDevice = '';
+            $('#node-input-name, #node-input-hueDevice').val('');
+            updateSelectedDevicePresentation();
           });
 
         this._hueControllerCollectEditor = collectCurrentEditor;
         this._hueControllerGetLegacyContext = () => legacyContext;
         this._hueControllerGetProfile = () => activeProfile;
         this._hueControllerCloseMigration = () => closeMigrationDialog();
+        this._hueControllerCleanupDevice = () => {
+          $('#hue-controller-refresh-devices, #node-input-serverHue, #node-input-name').off('.knxUltimateHueControllerDevice');
+          delete controllerNode.__configureHueControllerDeviceControl;
+        };
         renderProfileEditor(selectedType);
+        fetchHueResources('', () => { });
       },
       oneditsave() {
         // Preserve lifecycle order: close auxiliary UI, collect mounted fields,
@@ -496,10 +693,12 @@
           if (Number.isFinite(Number(legacyContext.inputs))) this.inputs = Number(legacyContext.inputs);
           if (Number.isFinite(Number(legacyContext.outputs))) this.outputs = Number(legacyContext.outputs);
         }
+        if (typeof this._hueControllerCleanupDevice === 'function') this._hueControllerCleanupDevice();
         delete this._hueControllerCollectEditor;
         delete this._hueControllerGetLegacyContext;
         delete this._hueControllerGetProfile;
         delete this._hueControllerCloseMigration;
+        delete this._hueControllerCleanupDevice;
       },
       oneditcancel() {
         // Cancel releases profile-owned editor state but deliberately does not
@@ -515,7 +714,9 @@
         if (definition && typeof definition.oneditcancel === 'function') {
           definition.oneditcancel.call(legacyContext || this);
         }
+        if (typeof this._hueControllerCleanupDevice === 'function') this._hueControllerCleanupDevice();
         delete this._hueControllerCloseMigration;
+        delete this._hueControllerCleanupDevice;
       }
     });
   }());
@@ -551,29 +752,37 @@
     </label>
     <input type="text" id="node-input-serverHue">
   </div>
-  <div class="form-row">
-    <label for="node-input-hueControllerType" style="width:160px;">
-      <i class="fa fa-cubes"></i>
-      <span data-i18n="knxUltimateHueController.device_function"></span>
+  <br />
+  <p>
+    <b><span data-i18n="knxUltimateHueController.hue_section"></span></b>
+  </p>
+  <div class="form-row" id="hue-controller-device-row">
+    <label for="node-input-name">
+      <i class="fa fa-play-circle"></i>
+      <span data-i18n="knxUltimateHueController.hue_device"></span>
     </label>
-    <select id="node-input-hueControllerType" style="width:33.333%;">
-      <option value="light" data-i18n="knxUltimateHueController.types.light"></option>
-      <option value="plug" data-i18n="knxUltimateHueController.types.plug"></option>
-      <option value="button" data-i18n="knxUltimateHueController.types.button"></option>
-      <option value="relative_rotary" data-i18n="knxUltimateHueController.types.relative_rotary"></option>
-      <option value="motion" data-i18n="knxUltimateHueController.types.motion"></option>
-      <option value="area_motion" data-i18n="knxUltimateHueController.types.area_motion"></option>
-      <option value="camera_motion" data-i18n="knxUltimateHueController.types.camera_motion"></option>
-      <option value="contact" data-i18n="knxUltimateHueController.types.contact"></option>
-      <option value="light_level" data-i18n="knxUltimateHueController.types.light_level"></option>
-      <option value="temperature" data-i18n="knxUltimateHueController.types.temperature"></option>
-      <option value="humidity" data-i18n="knxUltimateHueController.types.humidity"></option>
-      <option value="scene" data-i18n="knxUltimateHueController.types.scene"></option>
-      <option value="device_power" data-i18n="knxUltimateHueController.types.device_power"></option>
-      <option value="zigbee_connectivity" data-i18n="knxUltimateHueController.types.zigbee_connectivity"></option>
-      <option value="device_software_update" data-i18n="knxUltimateHueController.types.device_software_update"></option>
-    </select>
+    <input type="text" id="node-input-name" data-i18n="[placeholder]knxUltimateHueController.hue_device_placeholder"
+      style="flex:1 1 240px; min-width:240px; max-width:240px;">
+    <button type="button" id="hue-controller-refresh-devices" class="red-ui-button"
+      style="margin-left:6px; color:#1b7d33; border-color:#1b7d33;" data-i18n="[title]knxUltimateHueController.refresh_devices">
+      <i class="fa fa-sync"></i>
+    </button>
+    <button type="button" id="hue-controller-locate-device" class="red-ui-button hue-locate-device"
+      style="display:none; margin-left:6px; color:#ff9800; border-color:#ff9800;" data-i18n="[title]knxUltimateHueController.locate_device">
+      <i class="fa fa-play"></i>
+    </button>
+    <span id="hue-controller-devices-loading" style="margin-left:6px; display:none; color:#1b7d33;">
+      <i class="fa fa-circle-notch fa-spin"></i>
+    </span>
+    <span id="hue-controller-selected-device-type" style="display:none; margin-left:10px; color:#666; white-space:nowrap;">
+      <i class="fa fa-cubes"></i>
+      <span data-i18n="knxUltimateHueController.device_type"></span>:
+      <span id="hue-controller-selected-device-type-value" style="font-weight:600;"></span>
+    </span>
+    <input type="hidden" id="node-input-hueDevice">
+    <input type="hidden" id="node-input-hueControllerType">
   </div>
+  <br />
   <div id="hue-controller-profile-editor"></div>
   <br/>
    <br/>
@@ -586,7 +795,9 @@
 
 [**KNX-Ultimate video tutorials (YouTube playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
 
-The unified controller for Hue API v2 resources. Choose the device function and configure the same KNX mapping and behaviour already available in the established dedicated Hue node.
+The unified controller for Hue API v2 resources. Choose a Hue device or resource; its device type is detected automatically and the matching KNX mapping, behaviour and node pins are then displayed.
+
+Clicking or focusing the Hue device field always opens the complete resource list, even when a device is already selected. Typing continues to filter the list.
 
 The controller supports lights and grouped lights, plugs, buttons, Tap dial, motion resources, contacts, light level, temperature, humidity, scenes, battery, Zigbee connectivity, and device software update resources.
 
@@ -610,7 +821,7 @@ For a single light, the **Dim**, **Tunable White**, **RGB/HSV**, and native-effe
 
 While the Hue Bridge is still loading its resources, the Light editor displays a spinning hourglass and polls readiness every 500 ms. The wait is bounded: after about 10 seconds the editor is released, the mapping tabs remain hidden, and a localized error asks you to check the bridge configuration, deploy, and retry. Closing, saving, or changing function always cancels the pending timer.
 
-Changing **Device function** changes the visible editor and the node pin layout. After saving, reopen the node to verify the selected resource and mappings.
+Changing the selected **Hue device** automatically changes the detected **Device type**, visible editor and node pin layout. After saving, reopen the node to verify the selected resource and mappings.
 
 KNX mapping rows keep GA, DPT and Name on one line. DPT selectors use a compact fixed range, while Name fields are shorter and may contract further on a narrow editor tray without changing their stored text. Saved DPT values are retained while selector options load asynchronously.
 

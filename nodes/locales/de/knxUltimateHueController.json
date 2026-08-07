@@ -5,6 +5,13 @@
   },
   "knxUltimateHueController": {
     "device_function": "Gerätefunktion",
+    "hue_section": "Philips Hue",
+    "hue_device": "Hue-Gerät",
+    "hue_device_placeholder": "Hue-Gerät oder -Ressource suchen",
+    "device_type": "Gerätetyp",
+    "refresh_devices": "Hue-Geräte aktualisieren",
+    "locate_device": "Ausgewählte Hue-Leuchte lokalisieren",
+    "no_devices": "Keine Hue-Ressourcen gefunden. Prüfen Sie die Hue Bridge und aktualisieren Sie die Liste.",
     "legacy_node_notice": "Dieser Legacy-HUE-Knoten ist veraltet. Verwenden Sie für neue Flows den neuen HUE Controller-Knoten.",
     "migration_button": "Legacy-HUE-Knoten konvertieren",
     "migration_button_title": "Alle Legacy-HUE-Knoten im Editor konvertieren",

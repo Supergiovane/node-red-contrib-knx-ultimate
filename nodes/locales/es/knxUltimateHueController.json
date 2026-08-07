@@ -5,6 +5,13 @@
   },
   "knxUltimateHueController": {
     "device_function": "Función del dispositivo",
+    "hue_section": "Philips Hue",
+    "hue_device": "Dispositivo Hue",
+    "hue_device_placeholder": "Buscar dispositivo o recurso Hue",
+    "device_type": "Tipo de dispositivo",
+    "refresh_devices": "Actualizar dispositivos Hue",
+    "locate_device": "Localizar la luz Hue seleccionada",
+    "no_devices": "No se encontraron recursos Hue. Comprueba Hue Bridge y actualiza la lista.",
     "legacy_node_notice": "Este nodo HUE legacy está obsoleto. Usa el nuevo nodo HUE Controller para los flujos nuevos.",
     "migration_button": "Convertir nodos HUE legacy",
     "migration_button_title": "Convertir todos los nodos HUE legacy del editor",

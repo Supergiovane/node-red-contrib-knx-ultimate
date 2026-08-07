@@ -5,6 +5,13 @@
   },
   "knxUltimateHueController": {
     "device_function": "设备功能",
+    "hue_section": "Philips Hue",
+    "hue_device": "Hue 设备",
+    "hue_device_placeholder": "搜索 Hue 设备或资源",
+    "device_type": "设备类型",
+    "refresh_devices": "刷新 Hue 设备",
+    "locate_device": "定位所选 Hue 灯",
+    "no_devices": "未找到 Hue 资源。请检查 Hue Bridge 并刷新列表。",
     "legacy_node_notice": "此旧版 HUE 节点已弃用。新流程请使用新的 HUE Controller 节点。",
     "migration_button": "转换旧版 HUE 节点",
     "migration_button_title": "转换编辑器中的所有旧版 HUE 节点",

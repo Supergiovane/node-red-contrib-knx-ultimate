@@ -11,7 +11,7 @@ permalink: /wiki/zh-CN-HUE%20Controller
 <div data-hue-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0b2d5a 0%,#1767bf 55%,#2a8dff 100%);box-shadow:0 14px 30px rgba(11,45,90,0.24);color:#f4f9ff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#cfe4ff;">Hue API v2 · KNX · Node-RED</div>
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">一个节点，十五种 Hue 功能。</div>
-  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f4f9ff;">HUE Controller 将原有专用 Hue 节点中经过验证的全部功能整合到一个独立且持续维护的节点中。选择设备功能后，编辑器、KNX 映射、Hue 资源选择器和流程端口会自动适配。</p>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f4f9ff;">HUE Controller 将原有专用 Hue 节点中经过验证的全部功能整合到一个独立且持续维护的节点中。选择 Hue 设备或资源后，系统会自动检测其类型，并适配编辑器、KNX 映射和流程端口。</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.12);"><strong style="display:block;font-size:1.05rem;color:#fff;">15</strong><span style="font-size:0.76rem;color:#e8f3ff;">种设备功能</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.12);"><strong style="display:block;font-size:1.05rem;color:#fff;">Hue API v2</strong><span style="font-size:0.76rem;color:#e8f3ff;">原生资源</span></div>
@@ -31,7 +31,8 @@ permalink: /wiki/zh-CN-HUE%20Controller
 
 ## 一致的 Controller 使用体验
 
-- 根据所选功能提供 Hue 资源自动完成和刷新。
+- 提供统一的 Hue 设备/资源自动完成和刷新，并自动确定对应功能。
+- 单击设备字段或使其获得焦点时，即使已有选择，也会打开完整的 Hue 列表；输入文字可筛选列表。
 - 灯具映射会根据能力显示：调光、可调白光、RGB/HSV 和原生效果遵循所选 Hue API v2 灯资源实时提供的 `dimming`、`color_temperature`、`color` 和 `effects` 属性。
 - 灯光编辑器使用有界就绪等待：Hue Bridge 加载资源时显示旋转沙漏，每 500 毫秒检查一次，并在约 10 秒后解除等待并显示本地化错误。保存、关闭或切换功能都会取消计时器。
 - 紧凑的 KNX 映射行会将 GA、DPT 和名称保持在同一行；DPT 与名称控件采用较小宽度，在较窄的编辑器中名称字段还可继续收缩，且不会改变已保存的值。选择器选项异步加载时，已保存的 DPT 值会被保留。
@@ -43,7 +44,7 @@ permalink: /wiki/zh-CN-HUE%20Controller
 ## 四步开始使用
 
 1. 只需配置一次 **Hue Bridge**。
-2. 添加 **HUE Controller**，选择**设备功能**，然后选择或刷新对应的 Hue 资源。
+2. 添加 **HUE Controller**，选择或刷新 **Hue 设备**；**设备类型**会自动填写。
 3. 选择 **KNX 网关**并映射命令/状态，或保留 `none` 仅用于流程。
 4. 设置该功能的行为和端口，部署并检查节点实时状态。
 

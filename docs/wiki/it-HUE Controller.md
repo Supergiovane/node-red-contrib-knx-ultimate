@@ -11,7 +11,7 @@ permalink: /wiki/it-HUE%20Controller
 <div data-hue-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0b2d5a 0%,#1767bf 55%,#2a8dff 100%);box-shadow:0 14px 30px rgba(11,45,90,0.24);color:#f4f9ff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#cfe4ff;">Hue API v2 · KNX · Node-RED</div>
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Un nodo. Quindici funzioni Hue.</div>
-  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f4f9ff;">HUE Controller riunisce tutte le funzionalità consolidate dei precedenti nodi Hue dedicati in un unico nodo autonomo e manutenuto. Scegli la funzione: editor, mappature KNX, selezione della risorsa Hue e pin del flow si adattano automaticamente.</p>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f4f9ff;">HUE Controller riunisce tutte le funzionalità consolidate dei precedenti nodi Hue dedicati in un unico nodo autonomo e manutenuto. Scegli un dispositivo o una risorsa Hue: il tipo viene rilevato automaticamente e editor, mappature KNX e pin del flow si adattano.</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.12);"><strong style="display:block;font-size:1.05rem;color:#fff;">15</strong><span style="font-size:0.76rem;color:#e8f3ff;">funzioni dispositivo</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.12);"><strong style="display:block;font-size:1.05rem;color:#fff;">Hue API v2</strong><span style="font-size:0.76rem;color:#e8f3ff;">risorse native</span></div>
@@ -31,7 +31,8 @@ permalink: /wiki/it-HUE%20Controller
 
 ## Un’esperienza Controller coerente
 
-- Ricerca automatica e aggiornamento delle risorse Hue adatti alla funzione scelta.
+- Un unico selettore Hue con ricerca e aggiornamento: la funzione corretta viene ricavata automaticamente dalla risorsa scelta.
+- Un click o il focus sul campo dispositivo apre sempre l'elenco Hue completo anche dopo una selezione; digitando, l'elenco viene filtrato.
 - Mappature luce basate sulle capacità: Dimmer, Bianco regolabile, RGB/HSV ed effetti nativi seguono le proprietà live `dimming`, `color_temperature`, `color` ed `effects` della risorsa luce Hue API v2 selezionata.
 - Attesa delimitata nell'editor Luce: mentre Hue Bridge carica le risorse compare una clessidra animata, con controllo ogni 500 ms e rilascio dell'editor dopo circa 10 secondi accompagnato da un errore localizzato. Salvataggio, chiusura e cambio funzione annullano il timer.
 - Righe KNX compatte mantengono GA, DPT e Nome sulla stessa linea; DPT e Nome hanno larghezze ridotte e Nome può restringersi negli editor più stretti senza alterare il valore memorizzato. I valori DPT salvati vengono conservati mentre le opzioni del selettore si caricano in modo asincrono.
@@ -43,7 +44,7 @@ permalink: /wiki/it-HUE%20Controller
 ## Primi passi in quattro mosse
 
 1. Configura una volta il **Bridge Hue**.
-2. Aggiungi **HUE Controller**, scegli la **Funzione dispositivo**, quindi seleziona o aggiorna la risorsa Hue corretta.
+2. Aggiungi **HUE Controller**, quindi scegli o aggiorna un **Dispositivo Hue**; il **Tipo dispositivo** viene compilato automaticamente.
 3. Seleziona un **Gateway KNX** e mappa comandi/stati disponibili, oppure lascia `none` per l’uso esclusivo nel flow.
 4. Imposta comportamento e pin specifici della funzione, fai il deploy e controlla lo stato live del nodo.
 

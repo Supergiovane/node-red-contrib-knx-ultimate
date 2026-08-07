@@ -297,6 +297,7 @@
             $deviceNameInput.val(node.name);
           }
           let selectedMatterDeviceName = ($deviceNameInput.val() || '').trim();
+          let matterDevicePickerMouseDown = false;
           let showingNoHueDevicesPlaceholder = false;
           const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
           let locateSessionActive = false;
@@ -1506,8 +1507,16 @@
               focus(event, ui) {
                 event.preventDefault();
               }
-            }).focus(function () {
-              $(this).autocomplete('search', `${$(this).val()}exactmatch`);
+            }).on('mousedown.knxUltimateMatterControllerDevicePicker', () => {
+              matterDevicePickerMouseDown = true;
+            }).on('focus.knxUltimateMatterControllerDevicePicker', function () {
+              if (!matterDevicePickerMouseDown) $(this).autocomplete('search', '');
+            }).on('click.knxUltimateMatterControllerDevicePicker', function () {
+              matterDevicePickerMouseDown = false;
+              const input = this;
+              setTimeout(() => $(input).autocomplete('search', ''), 0);
+            }).on('blur.knxUltimateMatterControllerDevicePicker', () => {
+              matterDevicePickerMouseDown = false;
             }).on('input.knxUltimateMatterControllerDevice', function () {
               const typedValue = $(this).val().trim();
               if (typedValue === '' || typedValue !== selectedMatterDeviceName) {
@@ -1529,7 +1538,7 @@
               node._cachedHueLightDevices = cachedHueDevices;
               fetchHueDevices('', () => {
                 if ($deviceNameInput.length) {
-                  $deviceNameInput.autocomplete('search', `${$deviceNameInput.val()}exactmatch`);
+                  $deviceNameInput.autocomplete('search', '');
                 }
               }, { forceRefresh: true });
             });
@@ -2667,6 +2676,9 @@ Matter functions. Bridged Matter devices are expanded into their individual endp
 the device picker. Door Lock, Window Covering, Thermostat, Fan and Switch endpoints use
 dedicated profiles. Switch press, long-press and multi-press events are emitted on the
 optional flow output; simpler endpoints continue through the generic mapped fallback.
+
+Clicking or focusing the Matter device field always opens the complete commissioned
+endpoint list, even when a device is already selected. Typing continues to filter it.
 
 **Flow input**
 

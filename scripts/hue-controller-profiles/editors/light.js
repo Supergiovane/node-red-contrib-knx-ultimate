@@ -1532,6 +1532,13 @@
             RED.sidebar.show("help");
           } catch (error) { }
           onEditPrepare();
+          // HUE Controller owns a device-first picker covering every supported
+          // Hue API v2 resource. onEditPrepare installs the mature Light-only
+          // autocomplete, so let the wrapper restore its unified source after
+          // this asynchronous readiness callback completes.
+          if (typeof node.__configureHueControllerDeviceControl === 'function') {
+            node.__configureHueControllerDeviceControl();
+          }
         }
 
 

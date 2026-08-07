@@ -10,6 +10,8 @@ permalink: /wiki/es-Control%20Matter%20from%20KNX
 
 Este nodo controla desde KNX un endpoint Matter ya emparejado. Selecciona el dispositivo Matter y el editor detecta sus capacidades, mostrando solo las asignaciones KNX coherentes con ese endpoint.
 
+Al hacer clic o enfocar el campo del dispositivo Matter siempre se abre la lista completa de endpoints emparejados, aunque ya haya un dispositivo seleccionado. Al escribir, la lista sigue filtrándose.
+
 Sustituye a los nodos Matter separados no publicados y conserva toda la UI de luz cuando el endpoint seleccionado es una luz.
 
 ## Configuración

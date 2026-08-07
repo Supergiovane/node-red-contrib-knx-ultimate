@@ -1,8 +1,9 @@
 <script type="text/markdown" data-help-name="knxUltimateHueController">
 <p><a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E" target="_blank" rel="noopener noreferrer"><strong>KNX-Ultimate video tutorials (YouTube playlist)</strong></a> Antes de empezar, <a href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer">mira el vídeo explicativo en YouTube</a>.</p>
 <p><strong>HUE Controller</strong> es el nodo unificado para recursos de Hue API v2.</p>
-<p>Selecciona la función del dispositivo y configura el mismo mapeo KNX y comportamiento del nodo Hue dedicado ya consolidado.</p>
-<p>El selector de función utiliza un tercio del ancho disponible para mantener compacto el editor.</p>
+<p>Selecciona un dispositivo o recurso Hue. HUE Controller detecta automáticamente su tipo y abre el editor correspondiente para mapeos KNX, comportamiento y puertos del nodo.</p>
+<p>El selector de dispositivo, la actualización y el tipo detectado comparten la misma fila compacta, como en Matter Controller.</p>
+<p>Al hacer clic o enfocar el campo del dispositivo siempre se abre la lista completa de recursos Hue, aunque ya haya un dispositivo seleccionado. Al escribir, la lista sigue filtrándose.</p>
 <p>Las filas de mapeo KNX mantienen GA, DPT y Nombre en una sola línea. Los campos DPT y Nombre usan anchos compactos; Nombre puede reducirse aún más en editores estrechos sin modificar el texto guardado. Los valores DPT guardados se conservan mientras las opciones del selector se cargan de forma asíncrona.</p>
 <p>Admite luces y grupos de luces, enchufes, botones, Tap dial, movimiento y movimiento de cámara, contactos, nivel de luz, temperatura, humedad, escenas, batería, conectividad Zigbee y actualización de software.</p>
 <p>Cuando no hay ningún <strong>Gateway KNX</strong> seleccionado (incluidos <code>none</code> y <em>Añadir nuevo...</em>), se ocultan los campos de mapeo KNX; la selección del recurso Hue y las opciones exclusivas del flujo siguen disponibles.</p>

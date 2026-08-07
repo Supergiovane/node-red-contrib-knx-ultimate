@@ -1,8 +1,9 @@
 <script type="text/markdown" data-help-name="knxUltimateHueController">
 <p><a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E" target="_blank" rel="noopener noreferrer"><strong>KNX-Ultimate 视频教程（YouTube 播放列表）</strong></a> 开始前，请<a href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer">在 YouTube 上观看说明视频</a>。</p>
 <p><strong>HUE Controller</strong> 是面向 Hue API v2 资源的统一节点。</p>
-<p>选择设备功能，然后使用原有专用 Hue 节点中已经稳定的 KNX 映射和行为设置。</p>
-<p>设备功能选择器使用可用宽度的三分之一，使编辑器保持紧凑。</p>
+<p>选择 Hue 设备或资源后，HUE Controller 会自动检测设备类型，并打开对应的 KNX 映射、行为和节点端口编辑器。</p>
+<p>设备选择、刷新操作和检测到的类型显示在同一紧凑行中，与 Matter Controller 的工作流程一致。</p>
+<p>单击设备字段或使其获得焦点时，即使已经选择了设备，也会始终打开完整的 Hue 资源列表；输入文字仍可筛选列表。</p>
 <p>KNX 映射行会将 GA、DPT 和名称保持在同一行。DPT 与名称字段采用紧凑宽度；在较窄的编辑器中，名称字段还可继续收缩，而不会更改已保存的文本。选择器选项异步加载时，已保存的 DPT 值会被保留。</p>
 <p>支持灯和灯组、插座、按钮、Tap dial、运动和摄像机运动、接触、光照度、温度、湿度、场景、电池、Zigbee 连接和设备软件更新。</p>
 <p>未选择<strong>KNX 网关</strong>时（包括 <code>none</code> 和“新增...”），KNX 映射字段会隐藏，而 Hue 资源选择和仅用于流程的选项仍然可用。</p>

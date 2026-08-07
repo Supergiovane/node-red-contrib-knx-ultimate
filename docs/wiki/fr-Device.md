@@ -16,7 +16,7 @@ permalink: /wiki/fr-Device
 |-|-|
 | Porte | Sélectionnez la passerelle KNX à utiliser |
 | Liste déroulante de type GA | Le type d'adresse de groupe. **3 niveaux** est la valeur par défaut, où vous pouvez saisir l'adresse du groupe de niveau _3 ou le _group name_ (si vous avez téléchargé le fichier ETS), ou **global**, pour lire le GA au démarrage à partir d'une variable globale, ou **flux** qui font la même chose que le _Global_, mais au niveau du flux. Sélectionnez **$Env variable** pour lire l'adresse de groupe à partir d'une variable d'environnement. Sélectionnez **Mode universel (écoutez toutes les adresses de groupe)** pour réagir à toutes les adresses de groupe. |
-| Groupe addr. | L'adresse du groupe KNX que vous souhaitez contrôler. Si vous avez importé le fichier d'adresses du groupe ETS, vous pouvez simplement commencer à saisir le nom de votre appareil. Vous pouvez le laisser vide si vous souhaitez le définir avec le message d'entrée _msg.setConfig_. |
+| Groupe addr. | L'adresse du groupe KNX que vous souhaitez contrôler. Si vous avez importé le fichier d'adresses de groupe ETS, cliquer sur ce champ ou lui donner le focus ouvre la liste complète, même lorsqu'une GA est déjà sélectionnée ; la saisie filtre les entrées. Vous pouvez le laisser vide si vous souhaitez le définir avec le message d'entrée _msg.setConfig_. |
 | Point de données | Le point de données appartenant à votre nœud. |
 
 ### Bouton de commande manuelle

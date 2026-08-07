@@ -5,6 +5,10 @@
 /* eslint-disable no-inner-declarations */
 /* eslint-disable max-len */
 const cloneDeep = require('lodash/cloneDeep')
+const {
+  HUE_CONTROLLER_RESOURCE_TYPES,
+  buildHueControllerResourceCatalog
+} = require('./utils/hueControllerResourceCatalog')
 // const classHUE = require("./utils/hueEngine").classHUE;
 const hueColorConverter = require('./utils/colorManipulators/hueColorConverter')
 
@@ -355,6 +359,15 @@ module.exports = (RED) => {
           }
         }
         if (node.hueAllResources === undefined) return
+        if (_rtype === 'hue_controller') {
+          const resourceResults = await Promise.all(HUE_CONTROLLER_RESOURCE_TYPES.map(async (resourceType) => {
+            const result = await node.getResources(resourceType)
+            return [resourceType, Array.isArray(result?.devices) ? result.devices : []]
+          }))
+          return {
+            devices: buildHueControllerResourceCatalog(Object.fromEntries(resourceResults))
+          }
+        }
         // Returns capitalized string
         function capStr (s) {
           if (typeof s !== 'string') return ''

@@ -1,8 +1,9 @@
 <script type="text/markdown" data-help-name="knxUltimateHueController">
 <p><a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E" target="_blank" rel="noopener noreferrer"><strong>KNX-Ultimate video tutorials (YouTube playlist)</strong></a> <a href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer">Watch the explanatory video on YouTube</a> before starting.</p>
 <p><strong>HUE Controller</strong> is the unified node for Hue API v2 resources.</p>
-<p>Select the device function, then configure the same KNX mapping and behaviour provided by the established dedicated Hue node.</p>
-<p>The device function selector uses one third of the available width to keep the editor compact.</p>
+<p>Select a Hue device or resource. HUE Controller detects its device type automatically and opens the matching KNX mapping, behaviour and node-pin editor.</p>
+<p>The device picker, refresh action and detected type share the same compact row, matching the Matter Controller workflow.</p>
+<p>Clicking or focusing the device field always opens the complete Hue resource list, even when a device is already selected. Typing continues to filter the list.</p>
 <p>KNX mapping rows keep GA, DPT and Name on one line. DPT selectors and Name fields use compact widths, and the Name field can contract further on narrow editor trays without changing its stored text. Saved DPT values are retained while the selector options load asynchronously.</p>
 <p>Supported functions: lights and grouped lights, plugs, buttons, Tap dial, motion and camera motion, contacts, light level, temperature, humidity, scenes, battery, Zigbee connectivity, and device software update.</p>
 <p>When no <strong>KNX Gateway</strong> is selected (including <code>none</code> and <em>Add new...</em>), KNX mapping fields are hidden while Hue resource selection and flow-only options remain available.</p>

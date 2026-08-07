@@ -1,24 +1,25 @@
 <!-- <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/jquery.searchableSelect.js"></script> -->
 
 <style>
-/* Monaco editor - first area (input to bus): light green */
-#sendMsgToKNXCode-editor .monaco-editor,
-#sendMsgToKNXCode-editor .monaco-editor-background,
-#sendMsgToKNXCode-editor .monaco-editor .margin,
-#sendMsgToKNXCode-editor .monaco-editor .overflow-guard,
-#sendMsgToKNXCode-editor .monaco-editor .lines-content,
-#sendMsgToKNXCode-editor .monaco-editor .editor-scrollable {
-    background-color: #e8f5e9 !important;
-}
-/* Monaco editor - second area (bus to output): light yellow */
-#receiveMsgFromKNXCode-editor .monaco-editor,
-#receiveMsgFromKNXCode-editor .monaco-editor-background,
-#receiveMsgFromKNXCode-editor .monaco-editor .margin,
-#receiveMsgFromKNXCode-editor .monaco-editor .overflow-guard,
-#receiveMsgFromKNXCode-editor .monaco-editor .lines-content,
-#receiveMsgFromKNXCode-editor .monaco-editor .editor-scrollable {
-    background-color: #fffde7 !important;
-}
+    /* Monaco editor - first area (input to bus): light green */
+    #sendMsgToKNXCode-editor .monaco-editor,
+    #sendMsgToKNXCode-editor .monaco-editor-background,
+    #sendMsgToKNXCode-editor .monaco-editor .margin,
+    #sendMsgToKNXCode-editor .monaco-editor .overflow-guard,
+    #sendMsgToKNXCode-editor .monaco-editor .lines-content,
+    #sendMsgToKNXCode-editor .monaco-editor .editor-scrollable {
+        background-color: #e8f5e9 !important;
+    }
+
+    /* Monaco editor - second area (bus to output): light yellow */
+    #receiveMsgFromKNXCode-editor .monaco-editor,
+    #receiveMsgFromKNXCode-editor .monaco-editor-background,
+    #receiveMsgFromKNXCode-editor .monaco-editor .margin,
+    #receiveMsgFromKNXCode-editor .monaco-editor .overflow-guard,
+    #receiveMsgFromKNXCode-editor .monaco-editor .lines-content,
+    #receiveMsgFromKNXCode-editor .monaco-editor .editor-scrollable {
+        background-color: #fffde7 !important;
+    }
 </style>
 
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
@@ -76,19 +77,19 @@
             return ((this.outputRBE === "true" || this.outputRBE === true) ? "|rbe| " : "") + functionSendMsgToKNXCode + (this.name || this.topic || "KNX Device") + (this.setTopicType === 'str' || this.setTopicType === undefined ? '' : ' [' + (this.setTopicType === 'listenAllGA' ? 'Universal' : this.setTopicType) + ']') + functionreceiveMsgFromKNXCode + ((this.inputRBE === "true" || this.inputRBE === true) ? " |rbe|" : "")
         },
         paletteLabel: "KNX DEVICE",
-	        button: {
-	            enabled: function () {
-	                return !this.changed;
-	            },
-	            visible: function () {
-	                const isUniversal = this.setTopicType === 'listenAllGA' || this.listenallga === true || this.listenallga === 'true';
-	                if (isUniversal) return false;
-	                return this.buttonEnabled === true || this.buttonEnabled === "true";
-	            },
-	            onclick: function () {
-	                const node = this;
-	                const mode = node.buttonMode || 'toggle';
-	                const request = { id: node.id, mode };
+        button: {
+            enabled: function () {
+                return !this.changed;
+            },
+            visible: function () {
+                const isUniversal = this.setTopicType === 'listenAllGA' || this.listenallga === true || this.listenallga === 'true';
+                if (isUniversal) return false;
+                return this.buttonEnabled === true || this.buttonEnabled === "true";
+            },
+            onclick: function () {
+                const node = this;
+                const mode = node.buttonMode || 'toggle';
+                const request = { id: node.id, mode };
                 if (mode === 'value') {
                     request.value = node.buttonStaticValue;
                 }
@@ -148,6 +149,7 @@
 
 
             var node = this;
+            let topicPickerMouseDown = false;
             if ($("#node-input-server").val() === "_ADD_") {
                 // Node-Red 4.0.x has a bug not selecting the default server node
                 try {
@@ -964,8 +966,20 @@ return msg;`
                                         }
                                     } catch (e) { }
                                 }
-                            }).focus(function () {
-                                $(this).autocomplete('search', $(this).val() + 'exactmatch');
+                            }).on('mousedown.knxUltimateTopicPicker', function () {
+                                topicPickerMouseDown = true;
+                            }).on('focus.knxUltimateTopicPicker', function () {
+                                if (!topicPickerMouseDown) {
+                                    $(this).autocomplete('search', '');
+                                }
+                            }).on('click.knxUltimateTopicPicker', function () {
+                                topicPickerMouseDown = false;
+                                const input = this;
+                                setTimeout(function () {
+                                    $(input).autocomplete('search', '');
+                                }, 0);
+                            }).on('blur.knxUltimateTopicPicker', function () {
+                                topicPickerMouseDown = false;
                             }).autocomplete("instance")._renderItem = function (ul, item) {
                                 const isSecure = !!item.isSecure;
                                 const colorStyle = isSecure ? 'color: green;' : '';
@@ -1185,10 +1199,6 @@ return msg;`
 <input id="node-input-gaSecure" name="node-input-gaSecure" type="hidden" value="false" />
 
 <div class="form-row">
-    <b>KNX Device node</b>
-    <br />
-    <br />
-
     <label for="node-input-server">
         <i class="fa fa-circle-o"></i> <span data-i18n="knxUltimate.properties.node-input-server"></span>
     </label>
@@ -1209,12 +1219,13 @@ return msg;`
             <option value="global" data-i18n="knxUltimate.selectlists.SetTopic_global"></option>
             <option value="env" data-i18n="knxUltimate.selectlists.SetTopic_env"></option>
         </select>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimate.placeholder.search"
+         <input type="text" id="node-input-topic" data-i18n="[placeholder]knxUltimate.placeholder.search"
             style="width:180px" />
         <span id="gaSecureShield" title="Data Secure" style="display:none;color:green;margin-left:6px;"><i
                 class="fa fa-shield"></i></span>
+        <input style="flex:1 1 240px; min-width:240px; max-width:240px;" type="text" id="node-input-name"
+            data-i18n="[placeholder]knxUltimate.properties.node-input-name" />
     </div>
-
 
     <div class="form-row" id="divDatapointSelection">
         <label for="node-input-dpt">
@@ -1229,19 +1240,10 @@ return msg;`
     </div>
     <div class="form-row">
         <span id="dptDetailsContainer" style="display:none;width:100%;">
-            <div id="sampleCodeEditor" class="dpt-details-helplink" style="color:red;margin-bottom:4px;"></div>
-            <div class="node-text-editor" id="example-editor" style="height:200px;min-height:150px;padding:0px;"></div>
+            <!-- <div id="sampleCodeEditor" class="dpt-details-helplink" style="color:red;margin-bottom:4px;"></div> -->
+            <div class="node-text-editor" id="example-editor" style="height:110px;padding:0px;"></div>
         </span>
     </div>
-    <!-- <div class="form-row">
-        <input type="checkbox" id="node-input-listenallga"
-            style="display:inline-block; width:auto; vertical-align:top;" />
-        <label style="width:auto" for="node-input-listenallga">
-            <img
-                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAB7CAAAewgFu0HU+AAAFGmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMSAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjAtMDMtMjNUMTY6MjM6MjMrMDE6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDIwLTAzLTIzVDE2OjI1OjM0KzAxOjAwIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyIgcGhvdG9zaG9wOklDQ1Byb2ZpbGU9InNSR0IgSUVDNjE5NjYtMi4xIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpiZjRjNzVlYy0yMDRmLTRmNWEtOWEzMS00OTU1OWFiZmQxODUiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmJmNGM3NWVjLTIwNGYtNGY1YS05YTMxLTQ5NTU5YWJmZDE4NSIgc3RFdnQ6d2hlbj0iMjAyMC0wMy0yM1QxNjoyMzoyMyswMTowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjEgKE1hY2ludG9zaCkiLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nhtLUgAAAE9JREFUKJG1UMsOACAIgub//7IdqvVQtjrExU1EEQLuiGCvgTNgl5D74MmVZPu4wIxQAgm+/sDec2VhgQPgf0sq1unjMlYJE/3MZrvy+kMFZQkZEWfC7ikAAAAASUVORK5CYII="></img>
-            <span data-i18n="knxUltimate.properties.node-input-listenallga"></span>
-        </label>
-    </div> -->
     <div id="tabs">
         <ul>
             <li><a href="#tabs-1"><i class="fa fa-braille"></i> Advanced options</a></li>
@@ -1253,14 +1255,6 @@ return msg;`
                     <dt>
                         <i class="fa fa-desktop"></i> General properties
                     </dt>
-                </div>
-                <div class="form-row">
-                    <label style="width:180px" for="node-input-name">
-                        <i class="fa fa-tag"></i>
-                        <span data-i18n="knxUltimate.properties.node-input-name"></span>
-                    </label>
-                    <input style="flex:1 1 240px; min-width:240px; max-width:240px;" type="text" id="node-input-name"
-                        data-i18n="[placeholder]knxUltimate.properties.node-input-name" />
                 </div>
                 <div class="form-row" id="divTopic">
                     <label style="width:180px" for="node-input-outputtopic">

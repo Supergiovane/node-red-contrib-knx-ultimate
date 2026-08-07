@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.2.3-beta.5** - August 2026<br/>
+
+- **HUE Controller**: device-first selection with automatic type detection and all supported Hue API v2 resources.<br/>
+- **Device pickers**: Hue, Matter and KNX Group Address lists now stay open on click and show all entries before filtering.<br/>
+
 **Version 6.2.3-beta.4** - August 2026<br/>
 
 - **Matter Controller — live commissioning progress**: replaced the pairing overlay spinner with a milestone-based progress bar driven by the actual matter.js commissioning flow. The blocking panel now describes the active discovery, PASE, device-information, fail-safe, regulatory, time-sync, attestation, credential, access-control, CASE reconnect and completion phase in English; when exposed by the commissionee, its product name, Vendor ID and Product ID appear below the current operation. Progress polling is local to the Node-RED editor, stops with the pairing request and is isolated by operation ID across editor tabs.<br/>

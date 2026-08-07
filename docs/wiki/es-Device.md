@@ -16,7 +16,7 @@ permalink: /wiki/es-Device
 |-|-|
 | Puerta | Seleccione la puerta de enlace KNX para ser utilizada |
 | Lista desplegable Tipo de GA | El tipo de dirección de grupo. **3 niveles** es el valor predeterminado, donde puede escribir la dirección de grupo de nivel _3 o el _group name_ (si ha cargado el archivo ETS), o **global**, para leer el GA al inicio desde una variable global, o **flujo** que hace lo mismo que el _global_, pero a nivel de flujo. Seleccione **$Env variable** para leer la dirección de grupo de una variable de entorno. Seleccione **Modo universal (escuche todas las direcciones de grupo)** para reaccionar a todas las direcciones de grupo. |
-| ADR DE GRUPO. | La dirección de grupo KNX que desea controlar. Si ha importado el archivo de direcciones del grupo ETS, puede comenzar a escribir el nombre de su dispositivo. Puede dejarlo vacío si lo desea establecerlo con _MSG.SetConfig_ Mensaje de entrada. |
+| ADR DE GRUPO. | La dirección de grupo KNX que desea controlar. Si ha importado el archivo de direcciones de grupo ETS, al hacer clic o enfocar este campo se abre la lista completa, aunque ya haya una GA seleccionada; al escribir se filtran las entradas. Puede dejarlo vacío si desea establecerlo con el mensaje de entrada _msg.setConfig_. |
 | Punto de datos | El punto de datos que pertenece a su nodo. |
 
 ### Botón de comando manual

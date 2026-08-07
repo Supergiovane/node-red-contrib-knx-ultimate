@@ -11,6 +11,11 @@ const {
 const hueControllerProfiles = require('../resources/hueControllerProfiles')
 const hueControllerMigrationDialog = require('../resources/hueControllerMigrationDialog')
 const {
+  HUE_CONTROLLER_RESOURCE_TYPES,
+  buildHueControllerResourceCatalog,
+  normalizeHueDeviceValue
+} = require('../nodes/utils/hueControllerResourceCatalog')
+const {
   CONFIG_NODE_REFERENCE_FIELDS,
   LEGACY_NODE_PROFILES,
   MIGRATION_DONATION_URL,
@@ -727,7 +732,19 @@ describe('Unified HUE Controller', () => {
     expect(editor).to.include('id="node-input-server"')
     expect(editor).to.include('id="node-input-serverHue"')
     expect(editor).to.include('id="node-input-hueControllerType"')
-    expect(editor).to.include('id="node-input-hueControllerType" style="width:33.333%;"')
+    expect(editor).to.include('id="hue-controller-device-row"')
+    expect(editor).to.include('id="hue-controller-selected-device-type"')
+    expect(editor).to.include('id="hue-controller-selected-device-type-value"')
+    expect(editor).to.include('id="hue-controller-refresh-devices"')
+    expect(editor).to.include('id="hue-controller-locate-device"')
+    expect(editor).to.include("controllerType === 'light'")
+    expect(editor).to.include('rtype=hue_controller')
+    expect(editor).to.include('applyHueResourceSelection(ui.item)')
+    expect(editor).to.include('updateSelectedDevicePresentation(nextType)')
+    expect(editor).to.include('mousedown.knxUltimateHueControllerDevice')
+    expect(editor).to.include('if (!hueDevicePickerMouseDown)')
+    expect(editor).to.include("setTimeout(() => $(input).autocomplete('search', ''), 0)")
+    expect(editor).not.to.include('<select id="node-input-hueControllerType"')
     expect(editor).to.include("definition.oneditprepare.call(legacyContext)")
     expect(editor).to.include("definition.oneditsave.call(legacyContext || this)")
     expect(editor).to.include("$profileContent.find('#node-input-server, #node-input-serverHue')")
@@ -787,13 +804,65 @@ describe('Unified HUE Controller', () => {
     expect(tutorialLink).to.be.greaterThan(templateStart)
     expect(tutorialLink).to.be.lessThan(gatewayField)
     expect(editor).to.include('catalogDefaults: {')
-    expect(editor).to.include('prepareProfileValues(nextType, nextDefinition)')
+    expect(editor).to.include('prepareProfileValues(nextType, getProfileDefinition(nextType))')
     expect(editor).to.include('profileDrafts[controllerNode.hueControllerType] = draft')
     expect(editor).not.to.include('legacyContext.type = profile.nodeType')
     supportedTypes.forEach((controllerType) => {
       expect(editor, controllerType).to.include(`${controllerType}: { nodeType:`)
-      expect(editor, controllerType).to.include(`value="${controllerType}"`)
     })
+  })
+
+  it('builds one device-first Hue catalog and derives the persisted Controller profile', () => {
+    const light = { id: 'shared-id', name: 'Light: Desk plug', deviceObject: { type: 'light' } }
+    const resources = buildHueControllerResourceCatalog({
+      light: [light, { id: 'group-id', name: 'Grouped light: Kitchen', deviceObject: { type: 'grouped_light' } }],
+      plug: [{ id: 'shared-id', name: 'Plug: Desk', type: 'light', deviceObject: { type: 'light' } }],
+      button: [{ id: 'button-id', name: 'Button: Wall switch' }]
+    })
+
+    expect(resources).to.have.length(3)
+    expect(resources.find((item) => item.id === 'shared-id')).to.include({
+      controllerType: 'plug',
+      hueDevice: 'shared-id#light'
+    })
+    expect(resources.find((item) => item.id === 'group-id')).to.include({
+      controllerType: 'light',
+      hueDevice: 'group-id#grouped_light'
+    })
+    expect(resources.find((item) => item.id === 'button-id')).to.include({
+      controllerType: 'button',
+      hueDevice: 'button-id'
+    })
+    expect(normalizeHueDeviceValue('light', { id: 'lamp-id', type: 'light' })).to.equal('lamp-id#light')
+  })
+
+  it('queries and retains every supported Hue resource family in the unified device list', () => {
+    expect(HUE_CONTROLLER_RESOURCE_TYPES).to.have.members(supportedTypes)
+    const resourcesByType = Object.fromEntries(supportedTypes.map((controllerType) => [
+      controllerType,
+      [{
+        id: `${controllerType}-id`,
+        name: `${controllerType}: Test resource`,
+        type: controllerType === 'light' ? 'light' : controllerType
+      }]
+    ]))
+    const catalog = buildHueControllerResourceCatalog(resourcesByType)
+
+    expect(catalog).to.have.length(supportedTypes.length)
+    expect(catalog.map((item) => item.controllerType)).to.have.members(supportedTypes)
+  })
+
+  it('restores the all-resource picker after the asynchronous Light editor becomes ready', () => {
+    const privateLightEditor = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
+      'utf8'
+    )
+    const goStart = privateLightEditor.indexOf('function Go()')
+    const onEditPrepareCall = privateLightEditor.indexOf('onEditPrepare();', goStart)
+    const restoreCall = privateLightEditor.indexOf('node.__configureHueControllerDeviceControl();', goStart)
+
+    expect(onEditPrepareCall).to.be.greaterThan(goStart)
+    expect(restoreCall).to.be.greaterThan(onEditPrepareCall)
   })
 
   it('loads light capabilities from the persisted Hue bridge during Controller bootstrap', () => {

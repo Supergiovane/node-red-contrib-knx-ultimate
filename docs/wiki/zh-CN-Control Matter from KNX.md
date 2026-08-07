@@ -10,6 +10,8 @@ permalink: /wiki/zh-CN-Control%20Matter%20from%20KNX
 
 此节点用于从 KNX 控制已经配对的 Matter endpoint。选择 Matter 设备后，编辑器会检测它的能力，并只显示与该 endpoint 匹配的 KNX 映射。
 
+单击 Matter 设备字段或使其获得焦点时，即使已经选择了设备，也会始终打开完整的已配对 endpoint 列表；输入文字仍可筛选列表。
+
 它替代未发布的多个专用 Matter 控制节点；当选择的 endpoint 是灯时，仍保留完整的灯光 UI。
 
 ## 配置

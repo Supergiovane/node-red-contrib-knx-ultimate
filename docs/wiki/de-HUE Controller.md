@@ -11,7 +11,7 @@ permalink: /wiki/de-HUE%20Controller
 <div data-hue-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0b2d5a 0%,#1767bf 55%,#2a8dff 100%);box-shadow:0 14px 30px rgba(11,45,90,0.24);color:#f4f9ff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#cfe4ff;">Hue API v2 · KNX · Node-RED</div>
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Ein Node. Fünfzehn Hue-Funktionen.</div>
-  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f4f9ff;">HUE Controller vereint den vollständigen, bewährten Funktionsumfang der früheren dedizierten Hue-Nodes in einem eigenständigen, gepflegten Node. Funktion auswählen – Editor, KNX-Zuordnungen, Hue-Ressource und Flow-Anschlüsse passen sich automatisch an.</p>
+  <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f4f9ff;">HUE Controller vereint den vollständigen, bewährten Funktionsumfang der früheren dedizierten Hue-Nodes in einem eigenständigen, gepflegten Node. Hue-Gerät oder -Ressource auswählen – der Typ wird automatisch erkannt und Editor, KNX-Zuordnungen sowie Flow-Anschlüsse passen sich an.</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.12);"><strong style="display:block;font-size:1.05rem;color:#fff;">15</strong><span style="font-size:0.76rem;color:#e8f3ff;">Gerätefunktionen</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.12);"><strong style="display:block;font-size:1.05rem;color:#fff;">Hue API v2</strong><span style="font-size:0.76rem;color:#e8f3ff;">native Ressourcen</span></div>
@@ -31,7 +31,8 @@ permalink: /wiki/de-HUE%20Controller
 
 ## Ein konsistentes Controller-Erlebnis
 
-- Funktionsabhängige Hue-Ressourcensuche mit Autovervollständigung und Aktualisierung.
+- Eine geräteorientierte Hue-Ressourcensuche mit Autovervollständigung und Aktualisierung; die passende Funktion wird automatisch ermittelt.
+- Ein Klick oder Fokus auf das Gerätefeld öffnet auch nach einer Auswahl immer die vollständige Hue-Liste; Tippen filtert sie.
 - Fähigkeitsabhängige Leuchtenzuordnungen: Dimmen, abstimmbares Weiß, RGB/HSV und native Effekte folgen den Live-Eigenschaften `dimming`, `color_temperature`, `color` und `effects` der ausgewählten Hue-API-v2-Leuchtenressource.
 - Begrenzte Bereitschaftsprüfung im Leuchteneditor: Während die Hue Bridge ihre Ressourcen lädt, erscheint eine animierte Sanduhr; die Prüfung erfolgt alle 500 ms und gibt den Editor nach etwa 10 Sekunden mit einer lokalisierten Fehlermeldung frei. Speichern, Schließen und Funktionswechsel beenden den Timer.
 - Kompakte KNX-Zuordnungszeilen halten GA, DPT und Name in einer Zeile; DPT und Name verwenden reduzierte Breiten, wobei sich das Namensfeld in schmalen Editoren ohne Änderung des gespeicherten Werts weiter verkleinern kann. Gespeicherte DPT-Werte bleiben erhalten, während die Auswahloptionen asynchron geladen werden.
@@ -43,7 +44,7 @@ permalink: /wiki/de-HUE%20Controller
 ## Start in vier Schritten
 
 1. Die **Hue Bridge** einmal konfigurieren.
-2. **HUE Controller** hinzufügen, **Gerätefunktion** wählen und die passende Hue-Ressource auswählen oder aktualisieren.
+2. **HUE Controller** hinzufügen und ein **Hue-Gerät** auswählen oder aktualisieren; der **Gerätetyp** wird automatisch eingetragen.
 3. Ein **KNX-Gateway** auswählen und Befehle/Zustände zuordnen – oder `none` für reine Flow-Nutzung belassen.
 4. Funktionsspezifisches Verhalten und Anschlüsse festlegen, deployen und den Live-Status prüfen.
 
