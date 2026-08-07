@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "6.3.0",
+  "version": "6.3.1",
   "description": "KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT, diagnostics with AI, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.",
   "files": [
     "nodes/",
@@ -16,17 +16,17 @@
     "LICENSE"
   ],
   "dependencies": {
-    "@matter/main": "^0.17.4",
-    "@project-chip/matter.js": "^0.17.4",
+    "@matter/main": "^0.17.9",
+    "@project-chip/matter.js": "^0.17.9",
     "dns-sync": "0.2.1",
     "google-translate-tts": "^0.3.0",
     "js-yaml": "4.3.1",
     "knxultimate": "6.0.2",
     "lodash": "4.18.1",
-    "mqtt": "^5.15.1",
-    "node-color-log": "12.0.1",
+    "mqtt": "^5.15.2",
     "ping": "0.4.4",
-    "simple-get": "4.0.1"
+    "simple-get": "4.0.1",
+    "winston": "^3.17.0"
   },
   "node-red": {
     "version": ">=3.1.1",
@@ -141,12 +141,12 @@
     "docs:serve:norl": "node scripts/dev-serve-docs.js"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue": "^6.0.8",
     "chai": "^4.3.10",
-    "jspdf": "^2.5.2",
+    "jspdf": "^4.2.1",
     "marked": "^14.1.0",
     "mocha": "^10.4.0",
-    "vite": "^7.1.3",
-    "vue": "^3.5.21"
+    "vite": "^7.3.6",
+    "vue": "^3.5.41"
   }
 }

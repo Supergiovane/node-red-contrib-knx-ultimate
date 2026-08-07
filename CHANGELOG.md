@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.3.1** - August 2026<br/>
+
+- Updated dependencies, including the security-fixed jsPDF release.<br/>
+- Replaced `node-color-log` with Winston, shared with the KNXUltimate engine.<br/>
+
 **Version 6.3.0** - August 2026<br/>
 
 - **HUE Controller**: unified device-first workflow for all supported Hue API v2 resources, with automatic type detection and legacy-node migration.<br/>

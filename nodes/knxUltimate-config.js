@@ -2755,8 +2755,8 @@ module.exports = (RED) => {
       } catch (error) { /* empty */ }
       node.nodeClients = [] // 05/04/2022 Nullify
       try {
-        if (node.sysLogger !== null) node.sysLogger = null
-        loggerEngine.destroy()
+        node.sysLogger?.destroy()
+        node.sysLogger = null
       } catch (error) { /* empty */ }
       done()
     })

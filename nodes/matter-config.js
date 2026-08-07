@@ -1,16 +1,9 @@
 /* eslint-disable max-len */
 const path = require('path')
+const LoggerClass = require('./utils/sysLogger')
 const { exportMatterStorage, importMatterStorage } = require('./utils/matterStorageBackup')
 const matterPackageVersion = require('@matter/main').version
 const { Specification } = require('@matter/model')
-
-// 10/09/2024 Setup the color logger
-const loggerSetup = (options) => {
-  const clog = require('node-color-log').createNamedLogger(options.setPrefix)
-  clog.setLevel(options.loglevel)
-  clog.setDate(() => (new Date()).toLocaleString())
-  return clog
-}
 
 module.exports = (RED) => {
   function matterConfig (config) {
@@ -30,7 +23,7 @@ module.exports = (RED) => {
       message: 'Waiting for commissioning to start.'
     }
     try {
-      node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: 'matter-config.js' })
+      node.sysLogger = new LoggerClass({ loglevel: node.loglevel, setPrefix: 'matter-config.js' })
     } catch (error) { console.log(error.stack) }
     node.name = config.name === undefined || config.name === '' ? 'Matter Controller' : config.name
     node.fabricLabel = config.fabricLabel === undefined || config.fabricLabel === '' ? 'KNX-Ultimate' : config.fabricLabel
@@ -378,6 +371,7 @@ module.exports = (RED) => {
           try {
             if (node.matterManager !== null) await node.matterManager.close()
             node.matterManager = null
+            node.sysLogger?.destroy()
             node.sysLogger = null
             done()
           } catch (error) {

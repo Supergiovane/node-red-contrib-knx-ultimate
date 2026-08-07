@@ -5,20 +5,13 @@
 /* eslint-disable no-inner-declarations */
 /* eslint-disable max-len */
 const cloneDeep = require('lodash/cloneDeep')
+const LoggerClass = require('./utils/sysLogger')
 const {
   HUE_CONTROLLER_RESOURCE_TYPES,
   buildHueControllerResourceCatalog
 } = require('./utils/hueControllerResourceCatalog')
 // const classHUE = require("./utils/hueEngine").classHUE;
 const hueColorConverter = require('./utils/colorManipulators/hueColorConverter')
-
-// 10/09/2024 Setup the color logger
-loggerSetup = (options) => {
-  const clog = require('node-color-log').createNamedLogger(options.setPrefix)
-  clog.setLevel(options.loglevel)
-  clog.setDate(() => (new Date()).toLocaleString())
-  return clog
-}
 
 module.exports = (RED) => {
   function hueConfig (config) {
@@ -33,7 +26,7 @@ module.exports = (RED) => {
     node.pendingHueResourceReload = null
     node.activeHueIdentifySessions = new Map()
     try {
-      node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: 'hue-config.js' })
+      node.sysLogger = new LoggerClass({ loglevel: node.loglevel, setPrefix: 'hue-config.js' })
     } catch (error) { console.log(error.stack) }
     node.name = config.name === undefined || config.name === '' ? node.host : config.name
 
@@ -798,6 +791,7 @@ module.exports = (RED) => {
 
     node.on('close', (done) => {
       try {
+        node.sysLogger?.destroy()
         node.sysLogger = null
         node.nodeClients = []
         node.closeConnection()

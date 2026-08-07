@@ -1,16 +1,9 @@
 /* eslint-disable max-len */
 const path = require('path')
+const LoggerClass = require('./utils/sysLogger')
 const { exportMatterStorage, importMatterStorage } = require('./utils/matterStorageBackup')
 const matterPackageVersion = require('@matter/main').version
 const { Specification } = require('@matter/model')
-
-// 10/09/2024 Setup the color logger
-const loggerSetup = (options) => {
-  const clog = require('node-color-log').createNamedLogger(options.setPrefix)
-  clog.setLevel(options.loglevel)
-  clog.setDate(() => (new Date()).toLocaleString())
-  return clog
-}
 
 // The running Matter servers, keyed by config node id. Kept OUTSIDE the node lifecycle:
 // a re-deploy must NOT restart the Matter server, otherwise the paired controllers
@@ -26,7 +19,7 @@ module.exports = (RED) => {
     node.loglevel = config.loglevel !== undefined ? config.loglevel : 'error'
     node.sysLogger = null
     try {
-      node.sysLogger = loggerSetup({ loglevel: node.loglevel, setPrefix: 'matterbridge-config.js' })
+      node.sysLogger = new LoggerClass({ loglevel: node.loglevel, setPrefix: 'matterbridge-config.js' })
     } catch (error) { console.log(error.stack) }
 
     node.name = config.name === undefined || config.name === '' ? 'Matter Bridge' : config.name
@@ -258,6 +251,7 @@ module.exports = (RED) => {
         } catch (error) { /* empty */ }
         node.matterBridge = null
         node.deviceClients.clear()
+        node.sysLogger?.destroy()
         node.sysLogger = null
         done()
       })()
