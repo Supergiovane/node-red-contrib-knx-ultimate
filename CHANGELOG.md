@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 6.3.0** - August 2026<br/>
+
+- **HUE Controller**: unified device-first workflow for all supported Hue API v2 resources, with automatic type detection and legacy-node migration.<br/>
+- **Matter**: clearer commissioning progress and refined Controller/Bridge workflows and documentation.<br/>
+- **Editor pickers**: Hue, Matter and KNX Group Address lists now open reliably and show every available entry before filtering.<br/>
+
 **Version 6.2.3-beta.5** - August 2026<br/>
 
 - **HUE Controller**: device-first selection with automatic type detection and all supported Hue API v2 resources.<br/>
