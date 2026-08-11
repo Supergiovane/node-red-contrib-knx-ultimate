@@ -10,6 +10,7 @@
 
 - Updated dependencies, including the security-fixed jsPDF release.<br/>
 - Replaced `node-color-log` with Winston, shared with the KNXUltimate engine.<br/>
+- **Website**: added KNX Store Italia to the partner section on every localized homepage.<br/>
 
 **Version 6.3.0** - August 2026<br/>
 
