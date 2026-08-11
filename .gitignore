@@ -28,3 +28,4 @@ test/*
 !test/disabledSidebarPlugins.test.js
 !test/knxAiHomeMemory.test.js
 !test/hueController.test.js
+!test/docsNavigation.test.js

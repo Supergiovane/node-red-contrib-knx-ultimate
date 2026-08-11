@@ -10,6 +10,7 @@
 
 - Updated dependencies, including the security-fixed jsPDF release.<br/>
 - Replaced `node-color-log` with Winston, shared with the KNXUltimate engine.<br/>
+- **Documentation language navigation**: fixed localized homepage links returning `404` on GitHub Pages because they incorrectly included a trailing slash.<br/>
 
 **Version 6.3.0** - August 2026<br/>
 
