@@ -89,6 +89,8 @@ Los eventos Hue siguen siendo actualizaciones de estado y no se convierten en nu
 
 Este nodo controla las luces de Hue Philips (single o agrupada) y mapea sus comandos/estados a KNX.
 
+**Grupos de luces:** cuando hay una pasarela KNX configurada, al seleccionar un `grouped_light` siempre se muestran todas las asignaciones de Interruptor, Regulación, Blanco ajustable, RGB/HSV, Efectos y Comportamiento. El editor no limita estos campos según las luces incluidas actualmente en el grupo.
+
 **General**
 
 | Propiedad | Descripción |

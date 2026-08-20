@@ -891,6 +891,22 @@ describe('Unified HUE Controller', () => {
     expect(legacyLightEditor).not.to.include('const capabilityServerId = resolveHueServerValue({ allowStored: true })')
   })
 
+  it('renders grouped-light mappings without requesting aggregate capabilities', () => {
+    const privateLightEditor = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
+      'utf8'
+    )
+    const groupedBranch = privateLightEditor.indexOf('if (selectedHueResourceType === "grouped_light")')
+    const groupedDefaults = privateLightEditor.indexOf('applyHueCapabilities({ type: "grouped_light" })', groupedBranch)
+    const individualCapabilityRequest = privateLightEditor.indexOf('getJsonPromise = $.getJSON(`knxUltimateGetLightObject', groupedDefaults)
+
+    expect(privateLightEditor).to.include('const selectedHueResourceType = String(initialHueDeviceRaw.split("#")[1] || \'\').trim().toLowerCase()')
+    expect(groupedBranch).to.be.greaterThan(-1)
+    expect(groupedDefaults).to.be.greaterThan(groupedBranch)
+    expect(individualCapabilityRequest).to.be.greaterThan(groupedDefaults)
+    expect(privateLightEditor.slice(groupedDefaults, individualCapabilityRequest)).to.include('} else {')
+  })
+
   it('renders the Light editor without waiting for the runtime Hue resource cache', () => {
     const privateLightEditor = fs.readFileSync(
       path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),

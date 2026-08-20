@@ -89,6 +89,8 @@ Hue events remain status updates and do not become new Hue commands. HUE Control
 
 This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.
 
+**Grouped lights:** when a KNX gateway is configured, selecting a `grouped_light` always displays the complete Switch, Dim, Tunable White, RGB/HSV, Effects and Behaviour mappings. The editor does not restrict these fields according to the group's current child lights.
+
 **General**
 
 |Property|Description|

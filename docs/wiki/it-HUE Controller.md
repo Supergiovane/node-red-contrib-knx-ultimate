@@ -89,6 +89,8 @@ Gli eventi Hue restano aggiornamenti di stato e non diventano nuovi comandi Hue.
 
 Questo nodo controlla le luci HUE (singole o raggruppate) e mappa comandi/stati su KNX.
 
+**Gruppi di luci:** quando è configurato un gateway KNX, selezionando un `grouped_light` vengono sempre mostrate tutte le mappature Switch, Dim, Tunable White, RGB/HSV, Effetti e Comportamento. L'editor non limita questi campi in base alle luci attualmente incluse nel gruppo.
+
 **Generale**
 
 | Proprietà | Descrizione |

@@ -1238,14 +1238,7 @@
                   $hueDeviceInput.val(initialHueDeviceRaw);
                   updateTabsVisibility();
                   if (getJsonPromise !== undefined) getJsonPromise.abort();
-                  // HUE Controller temporarily selects Node-RED's `_ADD_` sentinel
-                  // while it bootstraps this mature editor. Reading the select here
-                  // would therefore query an inexistent bridge and return `{}` even
-                  // though the selected light has dimming, colour or tunable-white
-                  // capabilities. Resolve the real persisted config-node ID through
-                  // the same helper used by resource discovery and Locate instead.
-                  const capabilityServerId = resolveHueServerValue({ allowStored: true });
-                  const capabilityResourceId = initialHueDeviceRaw.split("#")[0];
+                  const selectedHueResourceType = String(initialHueDeviceRaw.split("#")[1] || '').trim().toLowerCase();
                   const applyHueCapabilities = (data) => {
                     let oLight = data || {};
                     const effects = (oLight && oLight.effects && Array.isArray(oLight.effects.status_values))
@@ -1380,20 +1373,35 @@
                     $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
                     $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
                   };
-                  getJsonPromise = $.getJSON(`knxUltimateGetLightObject?id=${encodeURIComponent(capabilityResourceId)}&serverId=${encodeURIComponent(capabilityServerId)}&_=${Date.now()}`, (data) => {
-                    try {
-                      applyHueCapabilities(data);
-                    } catch (error) {
-                      notifyEditorError(error, 'capabilities');
-                    }
-                  }).fail((xhr, textStatus, errorThrown) => {
-                    if (textStatus === 'abort') return;
-                    const detail = xhr && xhr.responseJSON && xhr.responseJSON.error
-                      ? xhr.responseJSON.error
-                      : (errorThrown || textStatus || 'Unable to load Hue capabilities');
-                    notifyEditorError(new Error(detail), 'capabilities request');
-                  });
-                  setTimeout(function () { if (getJsonPromise !== undefined) getJsonPromise.abort(); }, 10000);
+                  if (selectedHueResourceType === "grouped_light") {
+                    // A Hue group represents an aggregate control surface. Its
+                    // editor must remain complete and deterministic regardless of
+                    // the capabilities exposed by its current child lights.
+                    applyHueCapabilities({ type: "grouped_light" });
+                  } else {
+                    // HUE Controller temporarily selects Node-RED's `_ADD_` sentinel
+                    // while it bootstraps this mature editor. Reading the select here
+                    // would therefore query an inexistent bridge and return `{}` even
+                    // though the selected light has dimming, colour or tunable-white
+                    // capabilities. Resolve the real persisted config-node ID through
+                    // the same helper used by resource discovery and Locate instead.
+                    const capabilityServerId = resolveHueServerValue({ allowStored: true });
+                    const capabilityResourceId = initialHueDeviceRaw.split("#")[0];
+                    getJsonPromise = $.getJSON(`knxUltimateGetLightObject?id=${encodeURIComponent(capabilityResourceId)}&serverId=${encodeURIComponent(capabilityServerId)}&_=${Date.now()}`, (data) => {
+                      try {
+                        applyHueCapabilities(data);
+                      } catch (error) {
+                        notifyEditorError(error, 'capabilities');
+                      }
+                    }).fail((xhr, textStatus, errorThrown) => {
+                      if (textStatus === 'abort') return;
+                      const detail = xhr && xhr.responseJSON && xhr.responseJSON.error
+                        ? xhr.responseJSON.error
+                        : (errorThrown || textStatus || 'Unable to load Hue capabilities');
+                      notifyEditorError(new Error(detail), 'capabilities request');
+                    });
+                    setTimeout(function () { if (getJsonPromise !== undefined) getJsonPromise.abort(); }, 10000);
+                  }
                 }
                 // Show/Hide the div of the color at swich on
                 if (node.specifySwitchOnBrightness === "yes") {

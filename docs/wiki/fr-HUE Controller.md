@@ -89,6 +89,8 @@ Les événements Hue restent des mises à jour d'état et ne deviennent pas de n
 
 Ce nœud contrôle les lumières de Hue Philips (simple ou groupées) et mappe leurs commandes / états à KNX.
 
+**Groupes de lampes :** lorsqu'une passerelle KNX est configurée, la sélection d'un `grouped_light` affiche toujours toutes les associations Interrupteur, Variation, Blanc réglable, RGB/HSV, Effets et Comportement. L'éditeur ne limite pas ces champs selon les lampes actuellement présentes dans le groupe.
+
 **Général**
 
 | Propriété | Description |

@@ -89,6 +89,8 @@ Hue-Ereignisse bleiben Statusaktualisierungen und werden nicht zu neuen Hue-Befe
 
 Dieser Node steuert HUE-Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zustände KNX-Gruppenadressen zu.
 
+**Leuchtengruppen:** wenn ein KNX-Gateway konfiguriert ist, zeigt die Auswahl eines `grouped_light` immer die vollständigen Zuordnungen für Schalten, Dimmen, Tunable White, RGB/HSV, Effekte und Verhalten. Der Editor schränkt diese Felder nicht anhand der aktuell enthaltenen Leuchten ein.
+
 **Allgemein**
 
 | Eigenschaft | Beschreibung |
