@@ -259,7 +259,7 @@
               function onEditPrepare() {
                 ensureVerticalTabsStyle();
                 const $knxServerInput = $("#node-input-server");
-                const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+                const KNX_EMPTY_VALUES = new Set(['', 'none', '_add_', '__none__']);
                 const $hueServerInput = $("#node-input-serverHue");
                 const $hueDeviceInput = $("#node-input-hueDevice");
                 const $deviceNameInput = $("#node-input-name");
@@ -471,7 +471,7 @@
                     updateLocateButtonState(false);
                     clearLocateAutoReset();
                     if (!silent) {
-                      RED.notify(message || (node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), 'error');
+                      RED.notify(message || (node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), { type: 'error', fixed: true });
                     }
                   }).always(() => {
                     locatePendingRequest = null;
@@ -495,19 +495,19 @@
 
                 const resolveKnxServerValue = () => {
                   const domValue = $knxServerInput.val();
-                  if (domValue !== undefined && domValue !== null && domValue !== '') {
-                    return domValue;
+                  if (domValue !== undefined && domValue !== null) {
+                    const normalized = String(domValue).trim();
+                    if (!KNX_EMPTY_VALUES.has(normalized.toLowerCase())) return normalized;
                   }
                   if (node.server !== undefined && node.server !== null) {
-                    return node.server;
+                    const stored = String(node.server).trim();
+                    if (!KNX_EMPTY_VALUES.has(stored.toLowerCase())) return stored;
                   }
                   return '';
                 };
 
                 const hasKnxServerSelected = () => {
-                  const val = resolveKnxServerValue();
-                  if (val === undefined || val === null) return false;
-                  return !KNX_EMPTY_VALUES.has(val);
+                  return resolveKnxServerValue() !== '';
                 };
 
                 const $tabs = $("#tabs");

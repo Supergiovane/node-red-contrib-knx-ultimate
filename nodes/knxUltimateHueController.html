@@ -617,12 +617,19 @@
 
           const updateControllerKnxVisibility = () => {
             // Node-RED has used several sentinel values for an empty config-node
-            // selector. Normalize them before deciding whether KNX rows exist.
+            // selector. During editor bootstrap the DOM can temporarily expose
+            // one of them even though the node has a persisted gateway, so use
+            // the stored reference as a fallback before hiding the Light tabs.
             const serverValue = $('#node-input-server').val();
             const normalizedServerValue = serverValue === undefined || serverValue === null
               ? ''
               : String(serverValue).trim().toLowerCase();
-            const knxDisabled = KNX_EMPTY_SERVER_VALUES.has(normalizedServerValue);
+            const storedServerValue = controllerNode.server === undefined || controllerNode.server === null
+              ? ''
+              : String(controllerNode.server).trim().toLowerCase();
+            const hasDomServer = !KNX_EMPTY_SERVER_VALUES.has(normalizedServerValue);
+            const hasStoredServer = !KNX_EMPTY_SERVER_VALUES.has(storedServerValue);
+            const knxDisabled = !hasDomServer && !hasStoredServer;
             $container.toggleClass('hue-controller-no-knx', knxDisabled);
           };
           updateControllerKnxVisibility();
@@ -821,7 +828,7 @@ For a single light, the **Dim**, **Tunable White**, **RGB/HSV**, and native-effe
 
 While the Hue Bridge is still loading its resources, the Light editor displays a spinning hourglass and polls readiness every 500 ms. The wait is bounded: after about 10 seconds the editor is released, the mapping tabs remain hidden, and a localized error asks you to check the bridge configuration, deploy, and retry. Closing, saving, or changing function always cancels the pending timer.
 
-Locate and the Light mapping container initialize before optional Effects and tab widgets. If a browser-side editor step fails, a fixed Node-RED error message shows the failing stage and technical detail; Locate remains responsive and the mapping container is not left silently blank.
+Locate and the Light mapping container initialize before optional Effects and tab widgets. A saved KNX gateway remains valid if Node-RED temporarily exposes an empty selector while the editor starts. Browser-side failures and a rejected initial Locate command produce a fixed red Node-RED error with the technical detail instead of leaving the editor silent.
 
 Changing the selected **Hue device** automatically changes the detected **Device type**, visible editor and node pin layout. After saving, reopen the node to verify the selected resource and mappings.
 

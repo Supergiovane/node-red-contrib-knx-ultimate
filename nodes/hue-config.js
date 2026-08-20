@@ -103,22 +103,33 @@ module.exports = (RED) => {
       }
 
       session.runIdentify = async (label = 'interval') => {
-        if (session.inFlight) return
-        if (!node.hueManager || !node.hueManager.hueApiV2 || typeof node.hueManager.hueApiV2.put !== 'function') return
-        if (node.linkStatus !== 'connected') return
+        if (session.inFlight) return { attempted: 0, succeeded: 0, lastError: null }
+        if (!node.hueManager || !node.hueManager.hueApiV2 || typeof node.hueManager.hueApiV2.put !== 'function') {
+          return { attempted: 0, succeeded: 0, lastError: new Error('Hue bridge not ready') }
+        }
+        if (node.linkStatus !== 'connected') {
+          return { attempted: 0, succeeded: 0, lastError: new Error('Hue bridge is not connected') }
+        }
         session.inFlight = true
+        let attempted = 0
+        let succeeded = 0
+        let lastError = null
         try {
           for (const target of session.targets) {
             if (!target || !target.id || !target.type) continue
+            attempted += 1
             try {
               await node.hueManager.hueApiV2.put(`/resource/${target.type}/${target.id}`, { identify: { action: 'identify' } })
+              succeeded += 1
             } catch (error) {
+              lastError = error
               node.sysLogger?.warn(`Hue identify ${target.type}:${target.id} failed (${label}): ${error.message}`)
             }
           }
         } finally {
           session.inFlight = false
         }
+        return { attempted, succeeded, lastError }
       }
 
       session.intervalHandle = setInterval(() => {
@@ -129,7 +140,12 @@ module.exports = (RED) => {
       }, resolvedDuration)
 
       node.activeHueIdentifySessions.set(sessionKey, session)
-      await session.runIdentify('initial')
+      const initialResult = await session.runIdentify('initial')
+      if (!initialResult || initialResult.succeeded === 0) {
+        node.stopHueIdentifySession(sessionKey, 'initial-error')
+        if (initialResult?.lastError) throw initialResult.lastError
+        return false
+      }
       return true
     }
 

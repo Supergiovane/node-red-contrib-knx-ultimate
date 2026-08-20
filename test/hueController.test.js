@@ -955,6 +955,40 @@ describe('Unified HUE Controller', () => {
     })
   })
 
+  it('keeps Light tabs visible while Node-RED temporarily exposes an empty gateway sentinel', () => {
+    const privateLightEditor = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
+      'utf8'
+    )
+    const controllerEditor = fs.readFileSync(
+      path.join(projectRoot, 'nodes/knxUltimateHueController.html'),
+      'utf8'
+    )
+
+    expect(privateLightEditor).to.include("if (!KNX_EMPTY_VALUES.has(normalized.toLowerCase())) return normalized")
+    expect(privateLightEditor).to.include("if (!KNX_EMPTY_VALUES.has(stored.toLowerCase())) return stored")
+    expect(controllerEditor).to.include('const hasDomServer = !KNX_EMPTY_SERVER_VALUES.has(normalizedServerValue)')
+    expect(controllerEditor).to.include('const hasStoredServer = !KNX_EMPTY_SERVER_VALUES.has(storedServerValue)')
+    expect(controllerEditor).to.include('const knxDisabled = !hasDomServer && !hasStoredServer')
+  })
+
+  it('reports an initial Hue Locate write failure instead of returning false success', () => {
+    const hueConfigRuntime = fs.readFileSync(
+      path.join(projectRoot, 'nodes/hue-config.js'),
+      'utf8'
+    )
+    const privateLightEditor = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
+      'utf8'
+    )
+
+    expect(hueConfigRuntime).to.include('const initialResult = await session.runIdentify(\'initial\')')
+    expect(hueConfigRuntime).to.include('if (!initialResult || initialResult.succeeded === 0)')
+    expect(hueConfigRuntime).to.include("node.stopHueIdentifySession(sessionKey, 'initial-error')")
+    expect(hueConfigRuntime).to.include('if (initialResult?.lastError) throw initialResult.lastError')
+    expect(privateLightEditor).to.include("node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), { type: 'error', fixed: true }")
+  })
+
   it('exposes the unified node and its configuration references to the KNX AI Flow Builder', () => {
     const catalog = require('../nodes/knxUltimateAI').__test.buildKnxAiPackageNodeCatalog()
     const controller = catalog.find((entry) => entry.type === 'knxUltimateHueController')
