@@ -28,6 +28,7 @@
     "wait": "Attendez...",
     "connection_wait": "Attente de la fin de la connexion du Hue Bridge...",
     "connection_timeout": "Le Hue Bridge n'est pas encore prêt. Vérifiez sa configuration, déployez puis réessayez.",
+    "editor_init_error": "Erreur de l'éditeur HUE pendant {{stage}} : {{error}}",
     "day_night": "Jour / nuit",
     "invert_day_night": "Valeur de jour / nuit inversée",
     "override_night_mode": "Forcer le mode jour",

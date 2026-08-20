@@ -28,6 +28,7 @@
     "wait": "Esperar...",
     "connection_wait": "Esperando a que Hue Bridge termine de conectarse...",
     "connection_timeout": "Hue Bridge todavía no está listo. Comprueba su configuración, despliega y vuelve a intentarlo.",
+    "editor_init_error": "Error del editor HUE durante {{stage}}: {{error}}",
     "locate_no_bridge": "Seleccione primero un bridge Hue",
     "locate_no_device": "Seleccione primero un dispositivo Hue",
     "locate_success": "Comando de localización enviado",

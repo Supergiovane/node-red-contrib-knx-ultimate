@@ -923,6 +923,38 @@ describe('Unified HUE Controller', () => {
     })
   })
 
+  it('keeps Light tabs and Locate available before optional editor widgets initialize', () => {
+    const privateLightEditor = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
+      'utf8'
+    )
+    const earlyLocateComment = privateLightEditor.indexOf('Bind Locate before tabs, effects and KNX widgets are initialized')
+    const locateBinding = privateLightEditor.indexOf("on('click.knxUltimateHueLight'", earlyLocateComment)
+    const earlyTabsVisibility = privateLightEditor.indexOf('updateTabsVisibility();', locateBinding)
+    const effectInitialization = privateLightEditor.indexOf('ensureEffectEditableList();', earlyTabsVisibility)
+    const tabsInitialization = privateLightEditor.indexOf('$tabs.tabs();', effectInitialization)
+
+    expect(earlyLocateComment).to.be.greaterThan(-1)
+    expect(locateBinding).to.be.greaterThan(earlyLocateComment)
+    expect(earlyTabsVisibility).to.be.greaterThan(locateBinding)
+    expect(effectInitialization).to.be.greaterThan(earlyTabsVisibility)
+    expect(tabsInitialization).to.be.greaterThan(effectInitialization)
+    expect(privateLightEditor).to.include("notifyEditorError(error, 'effects')")
+    expect(privateLightEditor).to.include("notifyEditorError(error, 'tabs')")
+    expect(privateLightEditor).to.include("RED.notify(message, { type: 'error', fixed: true })")
+    expect(privateLightEditor).to.include("stage: 'initialization'")
+
+    ;['en', 'it', 'de', 'fr', 'es', 'zh-CN'].forEach((locale) => {
+      const translations = require(path.join(
+        projectRoot,
+        'scripts/hue-controller-profiles/locales',
+        locale,
+        'light.json'
+      ))
+      expect(translations.knxUltimateHueLight.editor_init_error, `${locale} editor error`).to.include('{{error}}')
+    })
+  })
+
   it('exposes the unified node and its configuration references to the KNX AI Flow Builder', () => {
     const catalog = require('../nodes/knxUltimateAI').__test.buildKnxAiPackageNodeCatalog()
     const controller = catalog.find((entry) => entry.type === 'knxUltimateHueController')

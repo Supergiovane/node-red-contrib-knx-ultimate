@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.3** - August 2026<br/>
+
+- **HUE Controller**: fixed grouped-light editors opening without mapping tabs or an active Locate button. Editor errors now show a localized Node-RED error message.<br/>
+
 **Version 6.3.2** - August 2026<br/>
 
 - Fixed stop issue in dimme-up.<br/>

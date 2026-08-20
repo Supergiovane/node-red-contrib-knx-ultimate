@@ -305,8 +305,44 @@
               removeNodeRemovalListener();
             }
           };
-          RED.events.on('nodes:remove', handleNodeRemoved);
-          node.__cleanupNodeRemovalListener = handleNodeRemoved;
+          try {
+            RED.events.on('nodes:remove', handleNodeRemoved);
+            node.__cleanupNodeRemovalListener = handleNodeRemoved;
+          } catch (error) {
+            // Locate and the mapping editor must remain usable even when an
+            // older/custom Node-RED editor does not expose the event bus.
+            node.__cleanupNodeRemovalListener = null;
+          }
+
+          const notifyEditorError = (error, stage) => {
+            const detail = error && error.message ? error.message : String(error || 'Unknown error');
+            const fallback = `Hue editor error (${stage}): ${detail}`;
+            let message = fallback;
+            try {
+              message = node._('knxUltimateHueLight.editor_init_error', { stage, error: detail }) || fallback;
+            } catch (translationError) { /* use fallback */ }
+            try {
+              RED.notify(message, { type: 'error', fixed: true });
+            } catch (notifyError) { /* console fallback below */ }
+            try { console.error(fallback, error); } catch (consoleError) { /* empty */ }
+          };
+
+          const getHueDeviceValue = ({ allowStored = false } = {}) => {
+            if ($hueDeviceInput.length) {
+              const domValue = $hueDeviceInput.val();
+              if (domValue !== undefined && domValue !== null && domValue !== '') {
+                return domValue;
+              }
+            }
+            if (node.hueDevice !== undefined && node.hueDevice !== null && node.hueDevice !== '') {
+              return node.hueDevice;
+            }
+            if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.deviceId) {
+              const suffix = node.__locateSessionInfo.deviceType || 'light';
+              return `${node.__locateSessionInfo.deviceId}#${suffix}`;
+            }
+            return '';
+          };
 
           const buildLocateContext = ({ allowStored = false } = {}) => {
             const hueServerId = resolveHueServerValue({ allowStored });
@@ -405,6 +441,17 @@
             return request;
           };
 
+          // Bind Locate before tabs, effects and KNX widgets are initialized.
+          // A failure in an unrelated editor widget must never leave a visible
+          // Locate button without a click handler or user feedback.
+          if ($locateDeviceButton.length) {
+            $locateDeviceButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
+              const desiredAction = locateSessionActive ? 'stop' : 'start';
+              performLocateRequest({ silent: false, action: desiredAction });
+            });
+            updateLocateButtonState(false);
+          }
+
           const resolveKnxServerValue = () => {
             const domValue = $knxServerInput.val();
             if (domValue !== undefined && domValue !== null && domValue !== '') {
@@ -421,6 +468,37 @@
             if (val === undefined || val === null) return false;
             return !KNX_EMPTY_VALUES.has(val);
           };
+
+          const $tabs = $("#tabs");
+          const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
+          const $pinSelect = $("#node-input-enableNodePINS");
+          const $pinInfoRow = $pinSectionRow.next('.form-tips');
+          const updateTabsVisibility = () => {
+            const knxSelected = hasKnxServerSelected();
+            const hueDeviceSelected = getHueDeviceValue() !== '';
+            const shouldShowTabs = knxSelected && hueDeviceSelected;
+
+            if (shouldShowTabs) {
+              $tabs.show();
+              try { $tabs.tabs('refresh'); } catch (error) { /* tabs may not be initialized yet */ }
+            } else {
+              $tabs.hide();
+            }
+
+            if ($pinSelect.length) {
+              const desiredPins = knxSelected ? 'no' : 'yes';
+              if ($pinSelect.val() !== desiredPins) {
+                $pinSelect.val(desiredPins).trigger('change');
+              }
+            }
+
+            if ($pinSectionRow.length) $pinSectionRow.show();
+            if ($pinInfoRow.length) $pinInfoRow.show();
+          };
+
+          // Reveal the mapping container before initializing optional widgets.
+          // This also provides a usable fallback if one of those widgets fails.
+          updateTabsVisibility();
 
           const resolveHueServerValue = ({ allowStored = false } = {}) => {
             if ($hueServerInput.length) {
@@ -780,19 +858,23 @@
             $effectList.data('effectListInitialized', true);
           }
 
-          ensureEffectEditableList();
-          const initialEffects = (node.hueDeviceObject && node.hueDeviceObject.effects && Array.isArray(node.hueDeviceObject.effects.status_values))
-            ? node.hueDeviceObject.effects.status_values
-            : [];
-          setAvailableEffects(initialEffects);
-          if (Array.isArray(node.effectRules) && node.effectRules.length > 0) {
-            const items = $effectList.editableList('items');
-            items.each(function () { $(this).remove(); });
-            node.effectRules.forEach((rule) => {
-              $effectList.editableList('addItem', { rule });
-            });
-            refreshEffectRows();
-            rebuildEffectRulesFromUI();
+          try {
+            ensureEffectEditableList();
+            const initialEffects = (node.hueDeviceObject && node.hueDeviceObject.effects && Array.isArray(node.hueDeviceObject.effects.status_values))
+              ? node.hueDeviceObject.effects.status_values
+              : [];
+            setAvailableEffects(initialEffects);
+            if (Array.isArray(node.effectRules) && node.effectRules.length > 0) {
+              const items = $effectList.editableList('items');
+              items.each(function () { $(this).remove(); });
+              node.effectRules.forEach((rule) => {
+                $effectList.editableList('addItem', { rule });
+              });
+              refreshEffectRows();
+              rebuildEffectRulesFromUI();
+            }
+          } catch (error) {
+            notifyEditorError(error, 'effects');
           }
 
           $("#node-input-effect-autofill").off('click').on('click', function () {
@@ -814,14 +896,16 @@
             });
           });
 
-          const $tabs = $("#tabs");
-          const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
-          const $pinSelect = $("#node-input-enableNodePINS");
-          const $pinInfoRow = $pinSectionRow.next('.form-tips');
           $tabs.addClass('hue-vertical-tabs');
-          $tabs.tabs(); // Tabs gestione KNX
-          $tabs.find('ul').addClass('ui-tabs-nav');
-          $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+          try {
+            $tabs.tabs(); // Tabs gestione KNX
+            $tabs.find('ul').addClass('ui-tabs-nav');
+            $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+          } catch (error) {
+            // Keep the raw sections visible and report the exact widget error.
+            // Locate was already bound above and remains fully operational.
+            notifyEditorError(error, 'tabs');
+          }
 
           function getDPT(_dpt, _destinationWidget) {
             // DPT Switch command
@@ -992,49 +1076,6 @@
 
           refreshKnxBindings();
 
-          const getHueDeviceValue = ({ allowStored = false } = {}) => {
-            if ($hueDeviceInput.length) {
-              const domValue = $hueDeviceInput.val();
-              if (domValue !== undefined && domValue !== null && domValue !== '') {
-                return domValue;
-              }
-            }
-            if (node.hueDevice !== undefined && node.hueDevice !== null && node.hueDevice !== '') {
-              return node.hueDevice;
-            }
-            if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.deviceId) {
-              const suffix = node.__locateSessionInfo.deviceType || 'light';
-              return `${node.__locateSessionInfo.deviceId}#${suffix}`;
-            }
-            return '';
-          };
-
-          const updateTabsVisibility = () => {
-            const knxSelected = hasKnxServerSelected();
-            const hueDeviceSelected = getHueDeviceValue() !== '';
-            const shouldShowTabs = knxSelected && hueDeviceSelected;
-
-            if (shouldShowTabs) {
-              $tabs.show();
-              try { $tabs.tabs('refresh'); } catch (error) { /* empty */ }
-            } else {
-              $tabs.hide();
-            }
-
-            if ($pinSelect.length) {
-              const desiredPins = knxSelected ? 'no' : 'yes';
-              if ($pinSelect.val() !== desiredPins) {
-                $pinSelect.val(desiredPins).trigger('change');
-              }
-            }
-
-            if ($pinSectionRow.length) {
-              $pinSectionRow.show();
-            }
-            if ($pinInfoRow.length) {
-              $pinInfoRow.show();
-            }
-          };
           updateTabsVisibility();
 
           $knxServerInput.on('change.knxUltimateHueLight', () => {
@@ -1105,14 +1146,6 @@
             });
           }
 
-          if ($locateDeviceButton.length) {
-            $locateDeviceButton.off('.knxUltimateHueLight').on('click.knxUltimateHueLight', () => {
-              const desiredAction = locateSessionActive ? 'stop' : 'start';
-              performLocateRequest({ silent: false, action: desiredAction });
-            });
-            updateLocateButtonState(false);
-          }
-
           if ($hueServerInput.length) {
             $hueServerInput.off('.knxUltimateHueLightDevices').on('change.knxUltimateHueLightDevices', () => {
               cachedHueDevices = [];
@@ -1172,8 +1205,8 @@
             // the same helper used by resource discovery and Locate instead.
             const capabilityServerId = resolveHueServerValue({ allowStored: true });
             const capabilityResourceId = initialHueDeviceRaw.split("#")[0];
-            getJsonPromise = $.getJSON(`knxUltimateGetLightObject?id=${encodeURIComponent(capabilityResourceId)}&serverId=${encodeURIComponent(capabilityServerId)}&_=${Date.now()}`, (data) => {
-              let oLight = data;
+            const applyHueCapabilities = (data) => {
+              let oLight = data || {};
               const effects = (oLight && oLight.effects && Array.isArray(oLight.effects.status_values))
                 ? oLight.effects.status_values
                 : [];
@@ -1305,6 +1338,19 @@
               }
               $("#node-input-specifySwitchOnBrightness").val(node.specifySwitchOnBrightness).trigger('change');
               $("#node-input-enableDayNightLighting").val(node.enableDayNightLighting).trigger('change');
+            };
+            getJsonPromise = $.getJSON(`knxUltimateGetLightObject?id=${encodeURIComponent(capabilityResourceId)}&serverId=${encodeURIComponent(capabilityServerId)}&_=${Date.now()}`, (data) => {
+              try {
+                applyHueCapabilities(data);
+              } catch (error) {
+                notifyEditorError(error, 'capabilities');
+              }
+            }).fail((xhr, textStatus, errorThrown) => {
+              if (textStatus === 'abort') return;
+              const detail = xhr && xhr.responseJSON && xhr.responseJSON.error
+                ? xhr.responseJSON.error
+                : (errorThrown || textStatus || 'Unable to load Hue capabilities');
+              notifyEditorError(new Error(detail), 'capabilities request');
             });
             setTimeout(function () { if (getJsonPromise !== undefined) getJsonPromise.abort(); }, 10000);
           }
@@ -1531,7 +1577,26 @@
           try {
             RED.sidebar.show("help");
           } catch (error) { }
-          onEditPrepare();
+          try {
+            onEditPrepare();
+          } catch (error) {
+            // Never leave the editor silently half-rendered. Locate and tab
+            // visibility are initialized first inside onEditPrepare, while this
+            // fixed Node-RED message exposes any later unexpected failure.
+            const detail = error && error.message ? error.message : String(error || 'Unknown error');
+            const fallback = `Hue editor error (initialization): ${detail}`;
+            let message = fallback;
+            try {
+              message = node._('knxUltimateHueLight.editor_init_error', {
+                stage: 'initialization',
+                error: detail
+              }) || fallback;
+            } catch (translationError) { /* use fallback */ }
+            try {
+              RED.notify(message, { type: 'error', fixed: true });
+            } catch (notifyError) { /* console fallback below */ }
+            try { console.error(fallback, error); } catch (consoleError) { /* empty */ }
+          }
           // HUE Controller owns a device-first picker covering every supported
           // Hue API v2 resource. onEditPrepare installs the mature Light-only
           // autocomplete, so let the wrapper restore its unified source after

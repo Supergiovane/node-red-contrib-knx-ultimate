@@ -28,6 +28,7 @@
     "wait": "请稍候...",
     "connection_wait": "正在等待 Hue Bridge 完成连接...",
     "connection_timeout": "Hue Bridge 尚未就绪。请检查配置、部署后重试。",
+    "editor_init_error": "HUE 编辑器在 {{stage}} 阶段出错：{{error}}",
     "day_night": "昼/夜",
     "invert_day_night": "反转昼/夜值",
     "override_night_mode": "强制日间模式",
