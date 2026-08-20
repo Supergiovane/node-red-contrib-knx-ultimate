@@ -1566,11 +1566,6 @@
         }
 
         function Go() {
-          if (typeof node.__stopHueConnectionWait === 'function') {
-            node.__stopHueConnectionWait();
-          }
-          $("#waitWindow").hide();
-          $("#mainWindow").show();
           // $.post("banana", { func: "getNameAndTime" }, function (data) {
           //   //alert(data.body); // John
           // }, "json");
@@ -1600,104 +1595,16 @@
           // HUE Controller owns a device-first picker covering every supported
           // Hue API v2 resource. onEditPrepare installs the mature Light-only
           // autocomplete, so let the wrapper restore its unified source after
-          // this asynchronous readiness callback completes.
+          // this initialization completes.
           if (typeof node.__configureHueControllerDeviceControl === 'function') {
             node.__configureHueControllerDeviceControl();
           }
         }
-
-
-        // Bounded Hue Bridge readiness wait ##############################################
-        // The legacy editor stored its timeout on `this`. HUE Controller bundles
-        // private profiles in strict mode, where a plain function call has no
-        // `this`; keeping the state in this closure avoids a TypeError and makes
-        // cancellation deterministic when the editor is closed or remounted.
-        const HUE_CONNECTION_POLL_MS = 500;
-        const HUE_CONNECTION_MAX_ATTEMPTS = 20;
-        const HUE_CONNECTION_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
-        let hueConnectionAttempts = 0;
-        let hueConnectionTimer = null;
-        let hueConnectionGeneration = 0;
-
-        const resolveConnectionHueServerId = () => {
-          const domValue = $("#node-input-serverHue").val();
-          if (domValue !== undefined && domValue !== null) {
-            const normalized = String(domValue).trim();
-            return HUE_CONNECTION_EMPTY_SERVER_VALUES.has(normalized.toLowerCase()) ? '' : normalized;
-          }
-          const storedValue = node.serverHue === undefined || node.serverHue === null
-            ? ''
-            : String(node.serverHue).trim();
-          return HUE_CONNECTION_EMPTY_SERVER_VALUES.has(storedValue.toLowerCase()) ? '' : storedValue;
-        };
-
-        const stopHueConnectionWait = () => {
-          hueConnectionGeneration += 1;
-          if (hueConnectionTimer !== null) {
-            clearTimeout(hueConnectionTimer);
-            hueConnectionTimer = null;
-          }
-        };
-        node.__stopHueConnectionWait = stopHueConnectionWait;
-
-        const finishHueConnectionTimeout = () => {
-          stopHueConnectionWait();
-          hueConnectionAttempts = 0;
-          $("#waitWindow").hide();
-          $("#mainWindow").show();
-          $("#tabs").hide();
-          const message = node._("knxUltimateHueLight.connection_timeout")
-            || "The Hue Bridge is not ready yet. Check its configuration, deploy and retry.";
-          RED.notify(message, "error");
-        };
-
-        const checkConnection = (generation) => {
-          if (generation !== hueConnectionGeneration) return;
-          const hueServerId = resolveConnectionHueServerId();
-          if (!hueServerId || $("#node-input-serverHue").val() === undefined) {
-            Go();
-            return;
-          }
-          if (hueConnectionTimer !== null) clearTimeout(hueConnectionTimer);
-          hueConnectionTimer = setTimeout(() => {
-            hueConnectionTimer = null;
-            if (generation !== hueConnectionGeneration) return;
-            hueConnectionAttempts += 1;
-            if (hueConnectionAttempts > HUE_CONNECTION_MAX_ATTEMPTS) {
-              finishHueConnectionTimeout();
-              return;
-            }
-            $.getJSON(`knxultimateCheckHueConnected?serverId=${encodeURIComponent(hueServerId)}&_=${Date.now()}`)
-              .done((data) => {
-                if (generation !== hueConnectionGeneration) return;
-                if (data && data.ready === true) Go();
-                else checkConnection(generation);
-              })
-              .fail(() => {
-                if (generation === hueConnectionGeneration) checkConnection(generation);
-              });
-          }, HUE_CONNECTION_POLL_MS);
-        };
-
-        const startHueConnectionWait = () => {
-          stopHueConnectionWait();
-          hueConnectionAttempts = 0;
-          const hueServerId = resolveConnectionHueServerId();
-          if (!hueServerId) {
-            Go();
-            return;
-          }
-          $("#waitWindow").show();
-          $("#mainWindow").hide();
-          const generation = hueConnectionGeneration;
-          checkConnection(generation);
-        };
-
-        $("#node-input-serverHue")
-          .off("change.knxUltimateHueControllerConnectionWait")
-          .on("change.knxUltimateHueControllerConnectionWait", startHueConnectionWait);
-        startHueConnectionWait();
-        // ################################################################
+        // Do not gate the Light editor on the runtime resource cache. The
+        // selected device and its saved capabilities are sufficient to render
+        // the mappings immediately; the fresh capability request inside
+        // onEditPrepare updates them asynchronously and reports any failure.
+        Go();
 
       },
 
@@ -1740,10 +1647,6 @@
         this.effectRules = serialized;
         this.updateLocalStateFromKNXWrite = $("#node-input-updateLocalStateFromKNXWrite").is(":checked"); // Starting from v 4.1.31
         this._cachedHueLightDevices = [];
-        if (typeof this.__stopHueConnectionWait === 'function') {
-          try { this.__stopHueConnectionWait(); } catch (error) { /* empty */ }
-          this.__stopHueConnectionWait = null;
-        }
         if (typeof this.__stopHueLocateSession === 'function') {
           try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
           this.__stopHueLocateSession = null;
@@ -1763,10 +1666,6 @@
         //RED.sidebar.show("help");
 
         this._cachedHueLightDevices = [];
-        if (typeof this.__stopHueConnectionWait === 'function') {
-          try { this.__stopHueConnectionWait(); } catch (error) { /* empty */ }
-          this.__stopHueConnectionWait = null;
-        }
         if (typeof this.__stopHueLocateSession === 'function') {
           try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
           this.__stopHueLocateSession = null;
@@ -1783,10 +1682,6 @@
         }
       },
       oneditclose: function () {
-        if (typeof this.__stopHueConnectionWait === 'function') {
-          try { this.__stopHueConnectionWait(); } catch (error) { /* empty */ }
-          this.__stopHueConnectionWait = null;
-        }
         if (typeof this.__stopHueLocateSession === 'function') {
           try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
         }

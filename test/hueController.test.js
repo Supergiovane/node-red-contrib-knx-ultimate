@@ -891,7 +891,7 @@ describe('Unified HUE Controller', () => {
     expect(legacyLightEditor).not.to.include('const capabilityServerId = resolveHueServerValue({ allowStored: true })')
   })
 
-  it('shows a bounded, cancellable Hue Bridge readiness wait in the Light profile', () => {
+  it('renders the Light editor without waiting for the runtime Hue resource cache', () => {
     const privateLightEditor = fs.readFileSync(
       path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
       'utf8'
@@ -901,26 +901,16 @@ describe('Unified HUE Controller', () => {
       'utf8'
     )
 
-    expect(privateLightTemplate).to.include('id="waitWindow"')
-    expect(privateLightTemplate).to.include('fa-hourglass-start fa-spin-pulse')
-    expect(privateLightTemplate).to.include('knxUltimateHueLight.connection_wait')
-    expect(privateLightEditor).to.include('const HUE_CONNECTION_POLL_MS = 500')
-    expect(privateLightEditor).to.include('const HUE_CONNECTION_MAX_ATTEMPTS = 20')
-    expect(privateLightEditor).to.include('startHueConnectionWait()')
-    expect(privateLightEditor).to.include('finishHueConnectionTimeout()')
-    expect(privateLightEditor).to.include('node.__stopHueConnectionWait = stopHueConnectionWait')
-    expect(privateLightEditor).to.include("this.__stopHueConnectionWait = null")
-    expect(privateLightEditor).not.to.include('this.timerWaitBackEnd')
-    ;['en', 'it', 'de', 'fr', 'es', 'zh-CN'].forEach((locale) => {
-      const translations = require(path.join(
-        projectRoot,
-        'scripts/hue-controller-profiles/locales',
-        locale,
-        'light.json'
-      ))
-      expect(translations.knxUltimateHueLight.connection_wait, `${locale} wait label`).to.be.a('string').and.not.equal('')
-      expect(translations.knxUltimateHueLight.connection_timeout, `${locale} timeout label`).to.be.a('string').and.not.equal('')
-    })
+    expect(privateLightTemplate).not.to.include('id="waitWindow"')
+    expect(privateLightTemplate).not.to.include('knxUltimateHueLight.connection_wait')
+    expect(privateLightTemplate).to.include('<div id="mainWindow">')
+    expect(privateLightEditor).not.to.include('knxultimateCheckHueConnected')
+    expect(privateLightEditor).not.to.include('startHueConnectionWait()')
+    expect(privateLightEditor).not.to.include('finishHueConnectionTimeout()')
+    expect(privateLightEditor).not.to.include('__stopHueConnectionWait')
+    expect(privateLightEditor).not.to.include('#waitWindow')
+    expect(privateLightEditor).to.include('// Do not gate the Light editor on the runtime resource cache.')
+    expect(privateLightEditor).to.include('Go();')
   })
 
   it('keeps Light tabs and Locate available before optional editor widgets initialize', () => {
@@ -1173,6 +1163,14 @@ describe('Unified HUE Controller', () => {
       es: 'copia de seguridad',
       'zh-CN': '备份'
     }
+    const localizedImmediateMappingWords = {
+      en: 'saved mappings',
+      it: 'mappature salvate',
+      de: 'gespeicherte Zuordnungen',
+      fr: 'mappages enregistrés',
+      es: 'mapeos guardados',
+      'zh-CN': '已保存的映射'
+    }
     const wikiMenu = require('../scripts/wiki-menu.json')
     const wikiNavigation = require('../docs/_data/wiki-nav.json')
     const hueMenu = wikiMenu.sections.find((section) => section.key === 'hue')
@@ -1229,11 +1227,13 @@ describe('Unified HUE Controller', () => {
       expect(localizedHelp, `${locale} help colour capabilities`).to.include('<code>color</code>')
       expect(localizedWiki, `${locale} docs light capabilities`).to.include('`dimming`')
       expect(localizedWiki, `${locale} docs colour capabilities`).to.include('`color`')
-      expect(localizedHelp, `${locale} help bounded Hue wait`).to.match(/500[^\n<]*/)
-      expect(localizedHelp, `${locale} help Hue timeout`).to.include('10')
+      expect(localizedHelp.toLowerCase(), `${locale} help immediate Light mappings`)
+        .to.include(localizedImmediateMappingWords[locale].toLowerCase())
+      expect(localizedHelp, `${locale} help fixed red error`).to.include('Node-RED')
       expect(localizedHelp, `${locale} help migration video`).to.include('https://youtu.be/f0Evf2QFI7c')
-      expect(localizedWiki, `${locale} docs bounded Hue wait`).to.match(/500[^\n]*/)
-      expect(localizedWiki, `${locale} docs Hue timeout`).to.include('10')
+      expect(localizedWiki.toLowerCase(), `${locale} docs immediate Light mappings`)
+        .to.include(localizedImmediateMappingWords[locale].toLowerCase())
+      expect(localizedWiki, `${locale} docs fixed red error`).to.include('Node-RED')
       expect(localizedWiki, `${locale} docs migration video`).to.include('https://youtu.be/f0Evf2QFI7c')
       expect(localizedWiki, `${locale} docs front matter`).to.match(new RegExp(
         `^---\\nlayout: wiki\\ntitle: "HUE Controller"\\nlang: ${locale}\\npermalink: /wiki/${permalinkPrefix}HUE%20Controller\\n---\\n`

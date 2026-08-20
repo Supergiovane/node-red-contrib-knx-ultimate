@@ -34,7 +34,7 @@ permalink: /wiki/HUE%20Controller
 - One device-first Hue resource picker with autocomplete and refresh; the matching function is derived automatically.
 - Clicking or focusing the device field always opens the complete Hue resource list, even after a device has been selected; typing filters it.
 - Capability-aware light mappings: Dim, Tunable White, RGB/HSV and native effects follow the live `dimming`, `color_temperature`, `color` and `effects` properties of the selected Hue API v2 light resource.
-- Bounded Light-editor readiness wait: a spinning hourglass is shown while the Hue Bridge loads its resources, polling every 500 ms and releasing the editor with a localized error after about 10 seconds. Save, close and function changes cancel the timer.
+- Non-blocking Light editor: saved mappings render immediately without waiting for the runtime Hue resource cache. Current capabilities load in the background; failures leave mappings and the pin selector available and produce a fixed red Node-RED error.
 - Resilient Light editor: Locate and the mapping container initialize before optional Effects and tab widgets. A saved KNX gateway survives temporary empty selector values during editor bootstrap. Browser-side failures and a rejected initial Locate command produce a fixed red Node-RED error with the technical detail instead of leaving the editor silent.
 - Compact KNX mapping rows keep GA, DPT and Name on one line; DPT and Name controls use reduced widths, with Name allowed to contract on narrow editor trays without altering its stored value. Saved DPT values are retained while selector options load asynchronously.
 - Optional KNX gateway: use Group Addresses or imported ETS names; compatible datapoints come from the selected gateway.

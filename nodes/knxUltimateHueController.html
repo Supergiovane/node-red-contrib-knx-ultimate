@@ -826,7 +826,7 @@ When no **KNX Gateway** is selected (including **none** and **Add new...**), the
 
 For a single light, the **Dim**, **Tunable White**, **RGB/HSV**, and native-effects sections are enabled from the live capabilities reported by the selected Hue API v2 light resource. A light that exposes `dimming`, `color_temperature`, or `color` therefore shows the corresponding KNX mappings automatically.
 
-While the Hue Bridge is still loading its resources, the Light editor displays a spinning hourglass and polls readiness every 500 ms. The wait is bounded: after about 10 seconds the editor is released, the mapping tabs remain hidden, and a localized error asks you to check the bridge configuration, deploy, and retry. Closing, saving, or changing function always cancels the pending timer.
+The Light editor renders saved mappings immediately without waiting for the runtime Hue resource cache. Current capabilities load in the background; if that request fails, the saved mappings and pin selector remain available and a fixed red Node-RED error reports the failure.
 
 Locate and the Light mapping container initialize before optional Effects and tab widgets. A saved KNX gateway remains valid if Node-RED temporarily exposes an empty selector while the editor starts. Browser-side failures and a rejected initial Locate command produce a fixed red Node-RED error with the technical detail instead of leaving the editor silent.
 

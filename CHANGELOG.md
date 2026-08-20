@@ -6,9 +6,9 @@
 
 # CHANGELOG
 
-**Version 6.3.3** - August 2026<br/>
+**Version 6.3.4** - August 2026<br/>
 
-- **HUE Controller**: fixed missing Light mapping tabs and false-success Locate requests. Editor and Locate failures now show a red Node-RED message.<br/>
+- **HUE Controller**: fixed Light mapping tabs being blocked by the Hue resource-readiness check and false-success Locate requests. Editor and Locate failures now show a red Node-RED message.<br/>
 
 **Version 6.3.2** - August 2026<br/>
 
