@@ -753,7 +753,9 @@ module.exports = function (RED) {
         let numStep = 10 // Steps from 0 to 100 by 10
         const extendedConf = {}
 
-        if (_KNXbrightness_Direction === 0 && _KNXaction === 0) {
+        // DPT 3.x uses data/step-code 0 for BREAK. The direction bit may be
+        // either 0 ($00) or 1 ($08), so it must not be part of this check.
+        if (_KNXbrightness_Direction === 0) {
           // STOP DIM
           if (node.timerStepDim !== undefined) clearInterval(node.timerStepDim)
           node.brightnessStep = null
@@ -838,7 +840,7 @@ module.exports = function (RED) {
       // 23/23/2023 after many attempts to use dimming_delta function of the HueApeV2, loosing days of my life, without a decent success, will use the standard dimming calculations
       // i decide to go to the "step brightness" way.
       try {
-        if (_KNXbrightness_DirectionTunableWhite === 0 && _KNXaction === 0) {
+        if (_KNXbrightness_DirectionTunableWhite === 0) {
           // STOP DIM
           if (node.timerStepDimTunableWhite !== undefined) clearInterval(node.timerStepDimTunableWhite)
           node.brightnessStepTunableWhite = null
@@ -912,7 +914,7 @@ module.exports = function (RED) {
       // After many attempts to use dimming_delta function of the HueApiV2, loosing days of my life, without a decent success, will use the standard dimming calculations
       // i decide to go to the "step brightness" way.
       try {
-        if (_KNXbrightness_DirectionHSV_H === 0 && _KNXaction === 0) {
+        if (_KNXbrightness_DirectionHSV_H === 0) {
           // STOP DIM
           if (node.timerStepDimHSV_H !== undefined) clearInterval(node.timerStepDimHSV_H)
           node.deleteHueStateQueue() // Clear dimming queue.
@@ -1000,7 +1002,7 @@ module.exports = function (RED) {
       // After many attempts to use dimming_delta function of the HueApiV2, loosing days of my life, without a decent success, will use the standard dimming calculations
       // i decide to go to the "step brightness" way.
       try {
-        if (_KNXbrightness_DirectionHSV_S === 0 && _KNXaction === 0) {
+        if (_KNXbrightness_DirectionHSV_S === 0) {
           // STOP DIM
           if (node.timerStepDimHSV_S !== undefined) clearInterval(node.timerStepDimHSV_S)
           node.deleteHueStateQueue() // Clear dimming queue.

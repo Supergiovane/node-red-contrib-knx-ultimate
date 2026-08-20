@@ -276,6 +276,33 @@ describe('knxUltimateHueLight KNX to HUE routing', () => {
     expect(hueCommands).to.have.lengthOf(0)
   })
 
+  it('stops upward relative dimming on DPT 3.007 BREAK ($08)', () => {
+    withFakeTimers(({ tick, activeIntervals }) => {
+      const { node, config, hueCommands, hueQueueDeletes } = instantiateNode({
+        GALightDIM: '1/1/3',
+        dptLightDIM: '3.007',
+        dimSpeed: 1000
+      })
+
+      node.currentHUEDevice = {
+        on: { on: true },
+        dimming: { brightness: 50 }
+      }
+
+      node.handleSend(createSwitchTelegram(config.GALightDIM, 0x09))
+      expect(activeIntervals).to.have.lengthOf(1)
+      tick()
+      hueCommands.length = 0
+
+      node.handleSend(createSwitchTelegram(config.GALightDIM, 0x08))
+
+      expect(hueQueueDeletes).to.deep.equal(['test-light'])
+      expect(node.brightnessStep).to.equal(null)
+      expect(activeIntervals).to.have.lengthOf(0)
+      expect(hueCommands).to.have.lengthOf(0)
+    })
+  })
+
   it('does not update the local kelvin cache from KNX writes unless enabled', () => {
     const { node, config, hueCommands } = instantiateNode({
       GALightKelvin: '1/1/6',
@@ -757,7 +784,7 @@ describe('knxUltimateHueLight dimming helpers', () => {
     })
   })
 
-  it('clears timers and queue when dimming stop telegram arrives', () => {
+  it('clears timers and queue when upward dimming BREAK ($08) arrives', () => {
     withFakeTimers(({ tick, activeIntervals }) => {
       const { node, hueCommands, hueQueueDeletes } = instantiateNode()
 
@@ -770,7 +797,7 @@ describe('knxUltimateHueLight dimming helpers', () => {
       tick()
       hueCommands.length = 0
 
-      node.hueDimming(0, 0, 1000)
+      node.hueDimming(1, 0, 1000)
 
       expect(hueQueueDeletes).to.deep.equal(['test-light'])
       expect(node.brightnessStep).to.equal(null)
@@ -814,7 +841,7 @@ describe('knxUltimateHueLight dimming helpers', () => {
     })
   })
 
-  it('stops HSV hue dimming when stop telegram arrives', () => {
+  it('stops HSV hue dimming when upward BREAK ($08) arrives', () => {
     withFakeTimers(({ tick, activeIntervals }) => {
       const { node, hueCommands, hueQueueDeletes } = instantiateNode()
 
@@ -835,7 +862,7 @@ describe('knxUltimateHueLight dimming helpers', () => {
       tick()
       hueCommands.length = 0
 
-      node.hueDimmingHSV_H(0, 0, 1000)
+      node.hueDimmingHSV_H(1, 0, 1000)
 
       expect(hueQueueDeletes[hueQueueDeletes.length - 1]).to.equal('test-light')
       expect(activeIntervals).to.have.lengthOf(0)
@@ -925,7 +952,7 @@ describe('knxUltimateHueLight dimming helpers', () => {
     })
   })
 
-  it('clears queue and resets tunable white step on stop', () => {
+  it('clears queue and resets tunable white step on upward BREAK ($08)', () => {
     withFakeTimers(({ tick, activeIntervals }) => {
       const { node, hueCommands, hueQueueDeletes } = instantiateNode()
 
@@ -939,7 +966,7 @@ describe('knxUltimateHueLight dimming helpers', () => {
       tick()
       hueCommands.length = 0
 
-      node.hueDimmingTunableWhite(0, 0, 1000)
+      node.hueDimmingTunableWhite(1, 0, 1000)
 
       expect(hueQueueDeletes).to.include('test-light')
       expect(activeIntervals).to.have.lengthOf(0)
