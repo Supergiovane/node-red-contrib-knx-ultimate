@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.2** - August 2026<br/>
+
+- Fixed stop issue in dimme-up.<br/>
+
 **Version 6.3.1** - August 2026<br/>
 
 - Updated dependencies, including the security-fixed jsPDF release.<br/>
