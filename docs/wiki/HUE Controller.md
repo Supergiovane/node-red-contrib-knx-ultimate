@@ -33,6 +33,12 @@ permalink: /wiki/HUE%20Controller
 
 - One device-first Hue resource picker with autocomplete and refresh; the matching function is derived automatically.
 - Clicking or focusing the device field always opens the complete Hue resource list, even after a device has been selected; typing filters it.
+- Selecting another Hue resource is only a preview until the editor is saved. Pressing `Cancel` restores the previously saved device, function and mappings.
+- The Hue device picker remains hidden until a Hue Bridge is selected, connected, and has loaded its resource catalog. A loading indicator is shown while waiting. Returning the bridge selector to `none` hides the indicator, picker and device editor again.
+- A previously configured node keeps its saved Hue device picker visible but disabled while the selected bridge is offline; its KNX mapping tabs remain available. After 15 seconds the loading label reports that the Hue Bridge is not reachable. Discovery continues in the background and a fixed red error eventually appears if the bridge does not become ready.
+- Selecting `none` for the KNX gateway hides only the Light mapping tabs. Their mounted GA, DPT and Name fields are preserved unchanged and reappear immediately when the gateway is selected again, with the vertical tab layout restored unchanged.
+- Temporary placeholder values emitted programmatically by Node-RED while the KNX and Hue configuration selectors initialize do not replace saved gateways. Only an explicit user selection of `none` hides the Light mapping tabs.
+- Light mapping tabs contain only configuration controls; the decorative Dim, Tunable White and RGB images have been removed.
 - Capability-aware light mappings: Dim, Tunable White, RGB/HSV and native effects follow the live `dimming`, `color_temperature`, `color` and `effects` properties of the selected Hue API v2 light resource.
 - Non-blocking Light editor: saved mappings render immediately without waiting for the runtime Hue resource cache. Current capabilities load in the background; failures leave mappings and the pin selector available and produce a fixed red Node-RED error.
 - Resilient Light editor: Locate and the mapping container initialize before optional Effects and tab widgets. A saved KNX gateway survives temporary empty selector values during editor bootstrap. Browser-side failures and a rejected initial Locate command produce a fixed red Node-RED error with the technical detail instead of leaving the editor silent.
@@ -88,6 +94,8 @@ Hue events remain status updates and do not become new Hue commands. HUE Control
 ## Light / grouped light (`light`)
 
 This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.
+
+Without a KNX gateway, the editor shows a flow-only notice in place of the duplicate “Philips HUE” heading.
 
 **Grouped lights:** when a KNX gateway is configured, selecting a `grouped_light` always displays the complete Switch, Dim, Tunable White, RGB/HSV, Effects and Behaviour mappings. The editor does not restrict these fields according to the group's current child lights.
 

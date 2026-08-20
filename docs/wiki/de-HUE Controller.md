@@ -33,6 +33,12 @@ permalink: /wiki/de-HUE%20Controller
 
 - Eine geräteorientierte Hue-Ressourcensuche mit Autovervollständigung und Aktualisierung; die passende Funktion wird automatisch ermittelt.
 - Ein Klick oder Fokus auf das Gerätefeld öffnet auch nach einer Auswahl immer die vollständige Hue-Liste; Tippen filtert sie.
+- Die Auswahl einer anderen Hue-Ressource ist nur eine Vorschau, bis der Editor gespeichert wird. Mit `Abbrechen` werden das zuvor gespeicherte Gerät, die Funktion und die Zuordnungen wiederhergestellt.
+- Die Hue-Geräteauswahl bleibt ausgeblendet, bis eine Hue Bridge ausgewählt und verbunden ist und ihren Ressourcenkatalog geladen hat. Während der Wartezeit wird eine Ladeanzeige angezeigt. Wird die Bridge-Auswahl auf `none` zurückgesetzt, werden Ladeanzeige, Geräteauswahl und Geräteeditor wieder ausgeblendet.
+- Ein bereits konfigurierter Knoten lässt die gespeicherte Hue-Geräteauswahl sichtbar, aber deaktiviert, während die ausgewählte Bridge offline ist; die KNX-Zuordnungsregister bleiben verfügbar. Nach 15 Sekunden meldet die Warteanzeige, dass die Hue Bridge nicht erreichbar ist. Die Suche läuft im Hintergrund weiter; wird die Bridge nicht bereit, erscheint schließlich eine feste rote Fehlermeldung.
+- Wird für das KNX-Gateway `none` ausgewählt, werden nur die Registerkarten der Leuchtenzuordnung ausgeblendet. Die eingebundenen Felder GA, DPT und Name bleiben unverändert erhalten und erscheinen zusammen mit dem korrekten vertikalen Registerkartenlayout sofort wieder, sobald das Gateway erneut ausgewählt wird.
+- Temporäre Platzhalterwerte, die Node-RED während der Initialisierung der KNX- und Hue-Konfigurationsauswahl programmgesteuert auslöst, ersetzen keine gespeicherten Gateways. Nur die ausdrückliche Benutzerauswahl von `none` blendet die Leuchtenzuordnungsregister aus.
+- Die Registerkarten der Leuchtenzuordnung enthalten nur Konfigurationsfelder; die dekorativen Bilder für Dimmen, abstimmbares Weiß und RGB wurden entfernt.
 - Fähigkeitsabhängige Leuchtenzuordnungen: Dimmen, abstimmbares Weiß, RGB/HSV und native Effekte folgen den Live-Eigenschaften `dimming`, `color_temperature`, `color` und `effects` der ausgewählten Hue-API-v2-Leuchtenressource.
 - Nicht blockierender Leuchteneditor: Gespeicherte Zuordnungen werden sofort angezeigt, ohne auf den Hue-Ressourcencache der Runtime zu warten. Aktuelle Fähigkeiten werden im Hintergrund geladen; bei Fehlern bleiben Zuordnungen und Pin-Auswahl verfügbar und eine feste rote Node-RED-Fehlermeldung wird angezeigt.
 - Robuster Leuchteneditor: Locate und der Zuordnungsbereich werden vor den optionalen Effekt- und Register-Widgets initialisiert. Ein gespeichertes KNX-Gateway übersteht vorübergehend leere Selektorwerte beim Start des Editors. Browserseitige Fehler und ein abgewiesener erster Locate-Befehl erzeugen eine feste rote Node-RED-Fehlermeldung mit dem technischen Detail, statt den Editor still zu lassen.
@@ -88,6 +94,8 @@ Hue-Ereignisse bleiben Statusaktualisierungen und werden nicht zu neuen Hue-Befe
 ## Leuchte / Leuchtengruppe (`light`)
 
 Dieser Node steuert HUE-Leuchten (einzeln oder gruppiert) und ordnet Befehle/Zustände KNX-Gruppenadressen zu.
+
+Ohne KNX-Gateway erscheint anstelle der doppelten Überschrift „Philips HUE“ ein Hinweis zur reinen Flow-Nutzung.
 
 **Leuchtengruppen:** wenn ein KNX-Gateway konfiguriert ist, zeigt die Auswahl eines `grouped_light` immer die vollständigen Zuordnungen für Schalten, Dimmen, Tunable White, RGB/HSV, Effekte und Verhalten. Der Editor schränkt diese Felder nicht anhand der aktuell enthaltenen Leuchten ein.
 

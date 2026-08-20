@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 6.3.8** - August 2026<br/>
+
+- **HUE Controller**: fixed Light and grouped-light mapping tabs remaining hidden when Node-RED emits temporary empty KNX/Hue config-selector values during editor initialization; saved gateways now survive bootstrap and remount, while only an explicit user selection of `none` hides the mapping tabs.<br/>
+
+**Version 6.3.7** - August 2026<br/>
+
+- **HUE Controller**: improved gateway-dependent editor visibility, preserving all KNX mappings and restoring the correct tab layout when gateways are deselected or reselected; obsolete headings and decorative images were removed.<br/>
+- **HUE Controller**: added clearer Hue Bridge loading/offline feedback, kept saved mappings visible while disabling unavailable device discovery, and restored the complete previous configuration when the editor is cancelled after previewing another Hue resource.<br/>
+
 **Version 6.3.6** - August 2026<br/>
 
 - **HUE Controller**: grouped lights now always show the complete Light mapping editor when KNX is configured, without checking child-light capabilities.<br/>

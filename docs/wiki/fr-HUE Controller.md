@@ -33,6 +33,12 @@ permalink: /wiki/fr-HUE%20Controller
 
 - Un sélecteur Hue orienté appareil avec autocomplétion et actualisation ; la fonction correspondante est déterminée automatiquement.
 - Un clic ou le focus sur le champ de l'appareil ouvre toujours la liste Hue complète, même après une sélection ; la saisie la filtre.
+- La sélection d'une autre ressource Hue reste un aperçu tant que l'éditeur n'est pas enregistré. Appuyer sur `Annuler` restaure l'appareil, la fonction et les mappages précédemment enregistrés.
+- Le sélecteur d'appareil Hue reste masqué tant qu'un Hue Bridge n'est pas sélectionné, connecté et que son catalogue de ressources n'est pas chargé. Un indicateur de chargement est affiché pendant l'attente. Remettre le sélecteur du bridge sur `none` masque à nouveau l'indicateur, le sélecteur et l'éditeur de l'appareil.
+- Un nœud déjà configuré conserve le sélecteur de l'appareil Hue enregistré visible mais désactivé lorsque le bridge sélectionné est hors ligne ; les onglets de mappage KNX restent disponibles. Après 15 secondes, le libellé d'attente indique que le Hue Bridge est inaccessible. La recherche continue en arrière-plan et une erreur rouge fixe finit par apparaître si le bridge ne devient pas disponible.
+- Sélectionner `none` pour la passerelle KNX masque uniquement les onglets de mappage Lampe. Les champs GA, DPT et Nom déjà montés restent inchangés et réapparaissent immédiatement avec la disposition verticale correcte lorsque la passerelle est à nouveau sélectionnée.
+- Les valeurs temporaires émises par programmation par Node-RED pendant l'initialisation des sélecteurs de configuration KNX et Hue ne remplacent pas les passerelles enregistrées. Seule une sélection explicite de `none` masque les onglets de mappage Lampe.
+- Les onglets de mappage Lampe contiennent uniquement les contrôles de configuration ; les images décoratives Variation, Blanc réglable et RGB ont été supprimées.
 - Mappages de lampe adaptés aux capacités : variation, blanc réglable, RGB/HSV et effets natifs suivent les propriétés live `dimming`, `color_temperature`, `color` et `effects` de la ressource lampe Hue API v2 sélectionnée.
 - Éditeur Lampe non bloquant : les mappages enregistrés s'affichent immédiatement sans attendre le cache de ressources Hue de la runtime. Les capacités actuelles sont chargées en arrière-plan ; en cas d'échec, les mappages et le sélecteur de broches restent disponibles et une erreur Node-RED rouge et fixe apparaît.
 - Éditeur Lampe résilient : Locate et le conteneur de mappage sont initialisés avant les widgets facultatifs Effets et onglets. Une passerelle KNX enregistrée survit aux valeurs de sélecteur temporairement vides pendant le démarrage de l'éditeur. Les erreurs du navigateur et le rejet de la première commande Locate produisent une erreur Node-RED rouge et fixe avec le détail technique, au lieu de laisser l'éditeur silencieux.
@@ -88,6 +94,8 @@ Les événements Hue restent des mises à jour d'état et ne deviennent pas de n
 ## Lampe / groupe de lampes (`light`)
 
 Ce nœud contrôle les lumières de Hue Philips (simple ou groupées) et mappe leurs commandes / états à KNX.
+
+Sans passerelle KNX, un avis d'utilisation par le flow uniquement remplace le titre « Philips HUE » dupliqué.
 
 **Groupes de lampes :** lorsqu'une passerelle KNX est configurée, la sélection d'un `grouped_light` affiche toujours toutes les associations Interrupteur, Variation, Blanc réglable, RGB/HSV, Effets et Comportement. L'éditeur ne limite pas ces champs selon les lampes actuellement présentes dans le groupe.
 

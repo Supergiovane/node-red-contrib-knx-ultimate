@@ -367,16 +367,26 @@ module.exports = (RED) => {
             node.sysLogger?.warn(`KNXUltimateHue: getResources force refresh failed ${error.message}`)
           }
         }
-        if (node.hueAllResources === undefined) return
         if (_rtype === 'hue_controller') {
+          const ready = node.linkStatus === 'connected' && Array.isArray(node.hueAllResources)
+          if (!ready) {
+            return {
+              devices: [],
+              ready: false,
+              connectionStatus: node.linkStatus
+            }
+          }
           const resourceResults = await Promise.all(HUE_CONTROLLER_RESOURCE_TYPES.map(async (resourceType) => {
             const result = await node.getResources(resourceType)
             return [resourceType, Array.isArray(result?.devices) ? result.devices : []]
           }))
           return {
-            devices: buildHueControllerResourceCatalog(Object.fromEntries(resourceResults))
+            devices: buildHueControllerResourceCatalog(Object.fromEntries(resourceResults)),
+            ready: true,
+            connectionStatus: node.linkStatus
           }
         }
+        if (node.hueAllResources === undefined) return
         // Returns capitalized string
         function capStr (s) {
           if (typeof s !== 'string') return ''

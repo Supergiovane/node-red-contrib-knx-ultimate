@@ -4,9 +4,14 @@
 <p>Select a Hue device or resource. HUE Controller detects its device type automatically and opens the matching KNX mapping, behaviour and node-pin editor.</p>
 <p>The device picker, refresh action and detected type share the same compact row, matching the Matter Controller workflow.</p>
 <p>Clicking or focusing the device field always opens the complete Hue resource list, even when a device is already selected. Typing continues to filter the list.</p>
+<p>Selecting another Hue resource is only a preview until the editor is saved. Pressing <code>Cancel</code> restores the previously saved device, function and mappings.</p>
+<p>The Hue device picker remains hidden until a Hue Bridge is selected, connected, and has loaded its resource catalog. A loading indicator is shown while waiting. Returning the bridge selector to <code>none</code> hides the indicator, picker and device editor again.</p>
+<p>If the node already has a saved Hue device, its picker remains visible but disabled while the selected bridge is offline, and its KNX mapping tabs remain available. After 15 seconds the loading label reports that the Hue Bridge is not reachable. Resource discovery continues in the background and a fixed red error eventually appears if the bridge does not become ready.</p>
 <p>KNX mapping rows keep GA, DPT and Name on one line. DPT selectors and Name fields use compact widths, and the Name field can contract further on narrow editor trays without changing its stored text. Saved DPT values are retained while the selector options load asynchronously.</p>
 <p>Supported functions: lights and grouped lights, plugs, buttons, Tap dial, motion and camera motion, contacts, light level, temperature, humidity, scenes, battery, Zigbee connectivity, and device software update.</p>
-<p>When no <strong>KNX Gateway</strong> is selected (including <code>none</code> and <em>Add new...</em>), KNX mapping fields are hidden while Hue resource selection and flow-only options remain available.</p>
+<p>When no <strong>KNX Gateway</strong> is selected (including <code>none</code> and <em>Add new...</em>), the Light mapping tabs are hidden while Hue resource selection and flow-only options remain available. Their GA, DPT and Name fields stay mounted and retain their values when the gateway is selected again, with the vertical tab layout restored unchanged.</p>
+<p>Temporary placeholder values emitted programmatically by Node-RED while the KNX and Hue configuration selectors initialize do not replace saved gateways. Only an explicit user selection of <code>none</code> hides the Light mapping tabs.</p>
+<p>The Light mapping tabs contain only configuration controls; the decorative Dim, Tunable White and RGB images have been removed.</p>
 <p>For a single light, the <strong>Dim</strong>, <strong>Tunable White</strong>, <strong>RGB/HSV</strong>, and native-effects sections follow the live capabilities reported by the selected Hue API v2 resource. The corresponding KNX mappings appear automatically when the light exposes <code>dimming</code>, <code>color_temperature</code>, or <code>color</code>.</p>
 <p>The Light editor renders saved mappings immediately without waiting for the runtime Hue resource cache. Current capabilities load in the background; if that request fails, the saved mappings and pin selector remain available and a fixed red Node-RED error reports the failure.</p>
 <p>Locate and the Light mapping container initialize before optional Effects and tab widgets. A saved KNX gateway remains valid if Node-RED temporarily exposes an empty selector while the editor starts. Browser-side failures and a rejected initial Locate command produce a fixed red Node-RED error with the technical detail instead of leaving the editor silent.</p>
@@ -41,6 +46,8 @@
 ## Light / grouped light (`light`)
 
 <p>This node controls Philips Hue lights (single or grouped) and maps their commands/states to KNX.</p>
+
+<p>Without a KNX gateway, the editor shows a flow-only notice in place of the duplicate “Philips HUE” heading.</p>
 
 <p><strong>Grouped lights:</strong> when a KNX gateway is configured, selecting a <code>grouped_light</code> always displays the complete Switch, Dim, Tunable White, RGB/HSV, Effects and Behaviour mappings. The editor does not restrict these fields according to the group's current child lights.</p>
 

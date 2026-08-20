@@ -11,6 +11,11 @@ const {
 const hueControllerProfiles = require('../resources/hueControllerProfiles')
 const hueControllerMigrationDialog = require('../resources/hueControllerMigrationDialog')
 const {
+  normalizeSelection: normalizeEditorConfigSelection,
+  resolveSelectedOrStoredSelection,
+  shouldPreserveStoredSelection
+} = require('../resources/hueControllerEditorSelection')
+const {
   HUE_CONTROLLER_RESOURCE_TYPES,
   buildHueControllerResourceCatalog,
   normalizeHueDeviceValue
@@ -751,6 +756,9 @@ describe('Unified HUE Controller', () => {
     expect(editor).to.include('translateProfileEditor($container, controllerType, profile.nodeType)')
     expect(editor).to.include('node-red-contrib-knx-ultimate/${nodeType}:${translationKey}')
     expect(editor).to.include('resources/node-red-contrib-knx-ultimate/hueControllerProfiles.js')
+    expect(editor).to.include('resources/node-red-contrib-knx-ultimate/hueControllerEditorSelection.js')
+    expect(editor).to.include('shouldPreserveStoredSelection(event, selectedValue, controllerNode.server, KNX_EMPTY_SERVER_VALUES)')
+    expect(editor).to.include('shouldPreserveStoredSelection(event, selectedValue, controllerNode.serverHue, HUE_EMPTY_SERVER_VALUES)')
     expect(editor).to.include("server: { value: '', type: 'knxUltimate-config', required: false }")
     expect(editor).to.include("serverHue: { value: '', type: 'hue-config', required: true }")
     expect(editor).to.include('profileBundle.getDefinition(controllerType, RED)')
@@ -767,11 +775,13 @@ describe('Unified HUE Controller', () => {
     expect(editor).to.include("const KNX_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__'])")
     expect(editor).to.include('KNX_EMPTY_SERVER_VALUES.has(normalizedServerValue)')
     expect(editor).to.include("$container.toggleClass('hue-controller-no-knx', knxDisabled)")
-    expect(editor).to.include('#hue-controller-profile-editor.hue-controller-no-knx .hue-knx-section')
     expect(editor).to.include('#hue-controller-profile-editor.hue-controller-light-profile.hue-controller-no-knx #tabs')
+    expect(editor).to.include('#hue-controller-profile-editor:not(.hue-controller-light-profile).hue-controller-no-knx .hue-knx-section')
     expect(editor).to.include("$container.find('select[id^=\"node-input-dpt\"]')")
     expect(editor).to.include("addClass('hue-controller-knx-mapping-row')")
     expect(editor).to.include('#hue-controller-profile-editor .hue-controller-knx-mapping-row')
+    expect(editor).to.include("$knxFlowOnlyNotice.toggle(controllerType === 'light' && knxDisabled)")
+    expect(editor).to.include('knx_gateway_required_for_mappings')
     expect(editor).to.include('flex-wrap: nowrap !important;')
     expect(editor).to.include('width: 105px !important;')
     expect(editor).to.include('width: 115px !important;')
@@ -806,10 +816,52 @@ describe('Unified HUE Controller', () => {
     expect(editor).to.include('catalogDefaults: {')
     expect(editor).to.include('prepareProfileValues(nextType, getProfileDefinition(nextType))')
     expect(editor).to.include('profileDrafts[controllerNode.hueControllerType] = draft')
+    expect(editor).to.include('const originalEditorState = {}')
+    expect(editor).to.include('Object.keys(buildDefaults()).forEach((key) =>')
+    expect(editor).to.include('present: Object.prototype.hasOwnProperty.call(controllerNode, key)')
+    expect(editor).to.include('this._hueControllerRestoreOriginalState = restoreOriginalEditorState')
+    expect(editor).to.include("if (typeof this._hueControllerRestoreOriginalState === 'function') this._hueControllerRestoreOriginalState()")
+    expect(editor).to.include('if (snapshot.present) controllerNode[key] = cloneEditorValue(snapshot.value)')
+    expect(editor).to.include('else delete controllerNode[key]')
+    const cancelLifecycle = editor.slice(editor.indexOf('oneditcancel() {'), editor.indexOf("</script>", editor.indexOf('oneditcancel() {')))
+    expect(cancelLifecycle.indexOf('this._hueControllerCleanupDevice()')).to.be.lessThan(cancelLifecycle.indexOf('this._hueControllerRestoreOriginalState()'))
     expect(editor).not.to.include('legacyContext.type = profile.nodeType')
     supportedTypes.forEach((controllerType) => {
       expect(editor, controllerType).to.include(`${controllerType}: { nodeType:`)
     })
+  })
+
+  it('does not mistake transient config-selector bootstrap values for an explicit none selection', () => {
+    const emptyValues = new Set(['', 'none', '_add_', '__none__'])
+    let selectedServer = 'saved-knx-gateway'
+    const applySelection = (event, value) => {
+      if (!shouldPreserveStoredSelection(event, value, selectedServer, emptyValues)) {
+        selectedServer = normalizeEditorConfigSelection(value, emptyValues)
+      }
+    }
+
+    applySelection({ type: 'change' }, '_ADD_')
+    expect(selectedServer).to.equal('saved-knx-gateway')
+    expect(resolveSelectedOrStoredSelection('_ADD_', selectedServer, emptyValues)).to.equal('saved-knx-gateway')
+
+    ;['lamp-id#light', 'group-id#grouped_light'].forEach((hueDevice) => {
+      const serverAfterRemount = resolveSelectedOrStoredSelection('_ADD_', selectedServer, emptyValues)
+      expect(Boolean(serverAfterRemount && hueDevice), hueDevice).to.equal(true)
+    })
+
+    applySelection({ originalEvent: { type: 'change' } }, '_ADD_')
+    expect(selectedServer).to.equal('')
+    expect(resolveSelectedOrStoredSelection('_ADD_', selectedServer, emptyValues)).to.equal('')
+
+    applySelection({ originalEvent: { type: 'change' } }, 'replacement-knx-gateway')
+    expect(selectedServer).to.equal('replacement-knx-gateway')
+    ;['lamp-id#light', 'group-id#grouped_light'].forEach((hueDevice) => {
+      expect(Boolean(selectedServer && hueDevice), hueDevice).to.equal(true)
+    })
+
+    selectedServer = 'saved-hue-bridge'
+    applySelection({ type: 'change' }, 'new-hue-bridge')
+    expect(selectedServer).to.equal('new-hue-bridge')
   })
 
   it('builds one device-first Hue catalog and derives the persisted Controller profile', () => {
@@ -919,6 +971,8 @@ describe('Unified HUE Controller', () => {
 
     expect(privateLightTemplate).not.to.include('id="waitWindow"')
     expect(privateLightTemplate).not.to.include('knxUltimateHueLight.connection_wait')
+    expect(privateLightTemplate).not.to.include('common.philips_hue')
+    expect(privateLightTemplate).to.include('hue-controller-knx-flow-only-notice')
     expect(privateLightTemplate).to.include('<div id="mainWindow">')
     expect(privateLightEditor).not.to.include('knxultimateCheckHueConnected')
     expect(privateLightEditor).not.to.include('startHueConnectionWait()')
@@ -976,6 +1030,101 @@ describe('Unified HUE Controller', () => {
     expect(controllerEditor).to.include('const hasDomServer = !KNX_EMPTY_SERVER_VALUES.has(normalizedServerValue)')
     expect(controllerEditor).to.include('const hasStoredServer = !KNX_EMPTY_SERVER_VALUES.has(storedServerValue)')
     expect(controllerEditor).to.include('const knxDisabled = !hasDomServer && !hasStoredServer')
+
+    ;['en', 'it', 'de', 'fr', 'es', 'zh-CN'].forEach((locale) => {
+      const translations = require(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateHueController.json'))
+      expect(translations.knxUltimateHueController.knx_gateway_required_for_mappings, `${locale} KNX notice`).to.be.a('string').and.not.be.empty
+    })
+  })
+
+  it('hides only the Light tabs and preserves KNX mappings while the gateway is none', () => {
+    const privateLightEditor = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
+      'utf8'
+    )
+    const controllerEditor = fs.readFileSync(
+      path.join(projectRoot, 'nodes/knxUltimateHueController.html'),
+      'utf8'
+    )
+    const privateLightTemplate = fs.readFileSync(
+      path.join(projectRoot, 'scripts/hue-controller-profiles/templates/light.html'),
+      'utf8'
+    )
+
+    expect(controllerEditor).to.include("return KNX_EMPTY_SERVER_VALUES.has(normalized.toLowerCase()) ? '' : normalized")
+    expect(controllerEditor).to.include('resolveSelectedOrStoredSelection(fieldValue, controllerNode.server, KNX_EMPTY_SERVER_VALUES)')
+    expect(controllerEditor).to.include('controllerNode.server = selectedServer')
+    expect(controllerEditor).to.include('if (legacyContext) legacyContext.server = selectedServer')
+    expect(controllerEditor).to.include("const $lightTabs = $container.find('#tabs')")
+    expect(controllerEditor).to.include('const shouldShowLightTabs = !knxDisabled')
+    expect(controllerEditor).to.include("$lightTabs.css('display', shouldShowLightTabs ? 'flex' : 'none')")
+    expect(controllerEditor).to.include(".on('change.knxUltimateHueControllerKnxVisibility', '#node-input-server', handleControllerKnxSelection)")
+    expect(controllerEditor).to.include("$(document).off('change.knxUltimateHueControllerKnxVisibility', '#node-input-server')")
+
+    const selectionSync = privateLightEditor.indexOf('node.server = KNX_EMPTY_VALUES.has(normalizedValue.toLowerCase())')
+    const tabsRefresh = privateLightEditor.indexOf('updateTabsVisibility();', selectionSync)
+    expect(selectionSync).to.be.greaterThan(-1)
+    expect(tabsRefresh).to.be.greaterThan(selectionSync)
+    expect(privateLightEditor).to.include(".on('change.knxUltimateHueLightGateway', '#node-input-server', function (event)")
+    expect(privateLightEditor).to.include("if (node.server !== '')")
+    expect(privateLightEditor).to.include('const shouldShowTabs = knxSelected')
+    expect(privateLightEditor).not.to.include('const shouldShowTabs = knxSelected && hueDeviceSelected')
+    expect(privateLightEditor).to.include("$tabs.css('display', 'flex')")
+    expect(privateLightEditor).not.to.include('$tabs.show()')
+    expect(privateLightTemplate).not.to.include('resources/node-red-contrib-knx-ultimate/dim.png')
+    expect(privateLightTemplate).not.to.include('resources/node-red-contrib-knx-ultimate/tunablewhite.png')
+    expect(privateLightTemplate).not.to.include('resources/node-red-contrib-knx-ultimate/rgb.png')
+    expect(privateLightEditor).to.include('const valueToRestore = currentValue')
+    expect(privateLightEditor).to.include('if (resolveKnxServerValue() !== serverId) return')
+    expect(privateLightEditor).not.to.include('$(_destinationWidget).empty()')
+    expect(privateLightEditor).to.include("notifyEditorError(error, 'KNX mappings')")
+    expect(privateLightEditor).to.include("$(document).off('change.knxUltimateHueLightGateway', '#node-input-server')")
+  })
+
+  it('waits for a ready Hue catalog while keeping persisted mappings visible and disabling offline discovery', () => {
+    const controllerEditor = fs.readFileSync(
+      path.join(projectRoot, 'nodes/knxUltimateHueController.html'),
+      'utf8'
+    )
+    const hueConfigRuntime = fs.readFileSync(
+      path.join(projectRoot, 'nodes/hue-config.js'),
+      'utf8'
+    )
+
+    expect(controllerEditor).to.include('id="hue-controller-device-row" style="display:none;"')
+    expect(controllerEditor).to.include('id="hue-controller-devices-loading" style="display:none; color:#666;"')
+    expect(controllerEditor).to.include('id="hue-controller-devices-waiting"')
+    expect(controllerEditor).to.include('id="hue-controller-devices-unreachable"')
+    expect(controllerEditor).not.to.include('knxUltimateHueController.hue_section')
+    expect(controllerEditor).to.include("const hasPersistedDevice = getHueDeviceValue() !== ''")
+    expect(controllerEditor).to.include('const deviceControlVisible = hueServerSelected && (hueCatalogReady || hasPersistedDevice)')
+    expect(controllerEditor).to.include('const deviceCatalogPending = hueServerSelected && !hueCatalogReady')
+    expect(controllerEditor).to.include("$('#hue-controller-device-row').toggle(deviceControlVisible)")
+    expect(controllerEditor).to.include("$('#node-input-name').prop('disabled', hueServerSelected && !hueCatalogReady)")
+    expect(controllerEditor).to.include("$('#hue-controller-devices-loading').toggle(deviceCatalogPending)")
+    expect(controllerEditor).to.include('const HUE_UNREACHABLE_TIMEOUT_MS = 15000')
+    expect(controllerEditor).to.include('hueBridgeUnreachable = true')
+    expect(controllerEditor).to.include("if (!hueCatalogReady) {")
+    expect(controllerEditor).to.include('data-i18n="knxUltimateHueController.hue_bridge_unreachable"')
+    expect(controllerEditor).to.include('hueCatalogReady = data?.ready === true')
+    expect(controllerEditor).to.include('probeHueBridgeReadiness({ reset: true })')
+    expect(controllerEditor).to.include(".on('change.knxUltimateHueControllerHueServer', '#node-input-serverHue', (event) =>")
+    expect(controllerEditor).to.include('controllerNode.serverHue = nextServerId')
+    expect(controllerEditor).to.include('resolveSelectedOrStoredSelection(fieldValue, controllerNode.serverHue, HUE_EMPTY_SERVER_VALUES)')
+    expect(controllerEditor).to.include("RED.notify(controllerText(")
+    expect(controllerEditor).to.include("'hue_bridge_not_ready'")
+    expect(controllerEditor).to.include("{ type: 'error', fixed: true }")
+    expect(hueConfigRuntime).to.include("const ready = node.linkStatus === 'connected' && Array.isArray(node.hueAllResources)")
+    expect(hueConfigRuntime).to.include('ready: false')
+    expect(hueConfigRuntime).to.include('ready: true')
+
+    ;['en', 'it', 'de', 'fr', 'es', 'zh-CN'].forEach((locale) => {
+      const translations = require(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateHueController.json'))
+      expect(translations.knxUltimateHueController).not.to.have.property('hue_section')
+      expect(translations.knxUltimateHueController.loading_hue_devices, `${locale} Hue loading message`).to.be.a('string').and.not.be.empty
+      expect(translations.knxUltimateHueController.hue_bridge_unreachable, `${locale} Hue unreachable message`).to.be.a('string').and.not.be.empty
+      expect(translations.knxUltimateHueController.hue_bridge_not_ready, `${locale} Hue readiness error`).to.be.a('string').and.not.be.empty
+    })
   })
 
   it('reports an initial Hue Locate write failure instead of returning false success', () => {
@@ -1200,6 +1349,8 @@ describe('Unified HUE Controller', () => {
       const messages = require(path.join(projectRoot, 'nodes/locales', locale, 'knxUltimateHueController.json'))
       expect(messages.common, `${locale} common labels`).to.include.keys('knx_gw', 'hue_bridge')
       expect(messages.knxUltimateHueController.device_function, locale).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateHueController.hue_bridge_unreachable, `${locale} bridge unreachable message`).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateHueController.hue_bridge_not_ready, `${locale} bridge readiness error`).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateHueController.legacy_node_notice, `${locale} legacy notice`).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateHueController, `${locale} migration labels`).to.include.keys(
         'migration_button',

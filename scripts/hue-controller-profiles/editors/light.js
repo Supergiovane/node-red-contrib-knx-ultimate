@@ -469,17 +469,24 @@
             return resolveKnxServerValue() !== '';
           };
 
-          const $tabs = $("#tabs");
+          // Scope the generic legacy ID to this Controller profile. Other
+          // Node-RED/config dialogs may contain their own #tabs element.
+          const $tabs = $('#hue-controller-profile-editor').find('#tabs');
           const $pinSectionRow = $("#node-input-enableNodePINS").closest('.form-row');
           const $pinSelect = $("#node-input-enableNodePINS");
           const $pinInfoRow = $pinSectionRow.next('.form-tips');
           const updateTabsVisibility = () => {
             const knxSelected = hasKnxServerSelected();
-            const hueDeviceSelected = getHueDeviceValue() !== '';
-            const shouldShowTabs = knxSelected && hueDeviceSelected;
+            // The unified wrapper owns device/profile visibility. Inside the
+            // mounted Light profile, only KNX selection controls its GA tabs.
+            const shouldShowTabs = knxSelected;
 
             if (shouldShowTabs) {
-              $tabs.show();
+              // jQuery.show() restores a hidden div as display:block, which
+              // overrides the vertical tab widget's flex layout after the KNX
+              // gateway goes none -> selected. Restore the intended layout
+              // explicitly so the navigation remains beside its active panel.
+              $tabs.css('display', 'flex');
               try { $tabs.tabs('refresh'); } catch (error) { /* tabs may not be initialized yet */ }
             } else {
               $tabs.hide();
@@ -911,33 +918,47 @@
             // DPT Switch command
             // ########################
             const prefixes = Array.isArray(_dpt) ? _dpt : [_dpt];
-            $(_destinationWidget).empty();
+            const $destination = $(_destinationWidget);
+            const fieldKey = String(_destinationWidget).replace(/^#node-input-/, '');
+            const currentValue = $destination.val();
+            const storedValue = node[fieldKey];
+            const valueToRestore = currentValue !== undefined && currentValue !== null && String(currentValue) !== ''
+              ? String(currentValue)
+              : (storedValue === undefined || storedValue === null ? '' : String(storedValue));
             if (!hasKnxServerSelected()) {
               return;
             }
             const serverId = resolveKnxServerValue();
             $.getJSON(`knxUltimateDpts?serverId=${serverId}&_=${Date.now()}`, (data) => {
+              // A late response from the previous gateway must not overwrite
+              // the mappings kept in the editor after selecting none or a
+              // different gateway.
+              if (resolveKnxServerValue() !== serverId) return;
+              $destination.empty();
               data.forEach((dpt) => {
                 if (prefixes.some((prefix) => prefix === "" || dpt.value.startsWith(prefix))) {
                   // Adjustment for HUE Temperature
                   if (dpt.value.startsWith("7.600")) {
-                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute)"));
+                    $destination.append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - KNX Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute)"));
                   } else if (dpt.value.startsWith("9.002")) {
-                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - HUE Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute_float)"));
+                    $destination.append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - HUE Kelvin range 2000-6535k (Homeassistant color_temperature_mode: absolute_float)"));
                   } else if (dpt.value.startsWith("5.001")) {
-                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - Homeassistant color_temperature_mode: relative"));
+                    $destination.append($("<option></option>").attr("value", dpt.value).text(dpt.text + " - Homeassistant color_temperature_mode: relative"));
                   } else {
-                    $(_destinationWidget).append($("<option></option>").attr("value", dpt.value).text(dpt.text));
+                    $destination.append($("<option></option>").attr("value", dpt.value).text(dpt.text));
                   }
                 }
               });
-              // Eval
-              const format = "node." + _destinationWidget.replace("#node-input-", "");
-              try {
-                if (format !== undefined) $(_destinationWidget).val(eval(format).toString());
-              } catch (error) { }
+              if (valueToRestore !== '') {
+                const valueIsAvailable = $destination.find('option').toArray()
+                  .some((option) => option.value === valueToRestore);
+                if (!valueIsAvailable) {
+                  $destination.append($("<option></option>").attr("value", valueToRestore).text(valueToRestore));
+                }
+                $destination.val(valueToRestore);
+              }
               if (_destinationWidget === '#node-input-dptLightEffect') {
-                $(_destinationWidget).trigger('change');
+                $destination.trigger('change');
               }
             });
           }
@@ -1078,10 +1099,32 @@
 
           updateTabsVisibility();
 
-          $knxServerInput.on('change.knxUltimateHueLight', () => {
-            refreshKnxBindings();
-            updateTabsVisibility();
-          });
+          $(document)
+            .off('change.knxUltimateHueLightGateway', '#node-input-server')
+            .on('change.knxUltimateHueLightGateway', '#node-input-server', function (event) {
+              const selectedValue = $(this).val();
+              const normalizedValue = selectedValue === undefined || selectedValue === null
+                ? ''
+                : String(selectedValue).trim();
+              const selectionApi = window.KNXUltimateHueControllerEditorSelection;
+              const preserveStoredSelection = selectionApi && typeof selectionApi.shouldPreserveStoredSelection === 'function'
+                ? selectionApi.shouldPreserveStoredSelection(event, selectedValue, node.server, KNX_EMPTY_VALUES)
+                : ((!event || !event.originalEvent) && KNX_EMPTY_VALUES.has(normalizedValue.toLowerCase()) && resolveKnxServerValue() !== '');
+              if (!preserveStoredSelection) {
+                node.server = KNX_EMPTY_VALUES.has(normalizedValue.toLowerCase()) ? '' : normalizedValue;
+              }
+              // Selecting none is a visibility change only. Keep every GA,
+              // DPT option and name mounted exactly as-is so selecting the
+              // gateway again cannot expose a half-empty mapping editor.
+              if (node.server !== '') {
+                try {
+                  refreshKnxBindings();
+                } catch (error) {
+                  notifyEditorError(error, 'KNX mappings');
+                }
+              }
+              updateTabsVisibility();
+            });
 
           $hueDeviceInput.on('change.knxUltimateHueLight input.knxUltimateHueLight', updateTabsVisibility);
 
@@ -1206,9 +1249,9 @@
               setAvailableEffects(effects);
               // Check if grouped, to hide/show the "Get current" buttons
               if (oLight.type === "grouped_light") {
-                $("#tabs").tabs("enable", "#tabs-4");
-                $("#tabs").tabs("enable", "#tabs-3");
-                $("#tabs").tabs("enable", "#tabs-2");
+                $tabs.tabs("enable", "#tabs-4");
+                $tabs.tabs("enable", "#tabs-3");
+                $tabs.tabs("enable", "#tabs-2");
                 $("#getColorAtSwitchOnDayTimeButton").show();
                 $("#getColorAtSwitchOnNightTimeButton").show();
                 $("#node-input-specifySwitchOnBrightness").empty().append(
@@ -1256,9 +1299,9 @@
                 );
               }
 
-              $("#tabs").tabs("disable", "#tabs-4");
-              $("#tabs").tabs("disable", "#tabs-3");
-              $("#tabs").tabs("disable", "#tabs-2");
+              $tabs.tabs("disable", "#tabs-4");
+              $tabs.tabs("disable", "#tabs-3");
+              $tabs.tabs("disable", "#tabs-2");
               $("#divColorsAtSwitchOn").hide();
               $("#divColorsAtSwitchOnNightTime").hide();
               $("#divTemperatureAtSwitchOn").hide();
@@ -1271,11 +1314,11 @@
 
               // Enable options/tabs one by one
               if (oLight.dimming !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-2");
+                $tabs.tabs("enable", "#tabs-2");
                 $("#divBehaviourBrightness").show();
               }
               if (oLight.color !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-4");
+                $tabs.tabs("enable", "#tabs-4");
                 $("#divColorsAtSwitchOn").show();
                 $("#divColorsAtSwitchOnNightTime").show();
                 $("#divColorCycle").show();
@@ -1292,7 +1335,7 @@
               }
               // Check temperature (if the light supports temperature, it support dimming as well)
               if (oLight.color_temperature !== undefined) {
-                $("#tabs").tabs("enable", "#tabs-3");
+                $tabs.tabs("enable", "#tabs-3");
                 //$("#tabs").tabs("enable", "#tabs-2");
                 $("#node-input-specifySwitchOnBrightness").append(
                   $("<option>")
@@ -1617,6 +1660,7 @@
       },
 
       oneditsave: function () {
+        $(document).off('change.knxUltimateHueLightGateway', '#node-input-server');
         // Return to the info tab
         try {
           RED.sidebar.show("info");
@@ -1666,6 +1710,7 @@
         this.__locateSessionInfo = null;
       },
       oneditcancel: function () {
+        $(document).off('change.knxUltimateHueLightGateway', '#node-input-server');
         // Return to the info tab
         try {
           RED.sidebar.show("info");
@@ -1690,6 +1735,7 @@
         }
       },
       oneditclose: function () {
+        $(document).off('change.knxUltimateHueLightGateway', '#node-input-server');
         if (typeof this.__stopHueLocateSession === 'function') {
           try { this.__stopHueLocateSession(); } catch (error) { /* empty */ }
         }

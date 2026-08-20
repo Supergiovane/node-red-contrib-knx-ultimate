@@ -4,9 +4,14 @@
 <p>Selecciona un dispositivo o recurso Hue. HUE Controller detecta automáticamente su tipo y abre el editor correspondiente para mapeos KNX, comportamiento y puertos del nodo.</p>
 <p>El selector de dispositivo, la actualización y el tipo detectado comparten la misma fila compacta, como en Matter Controller.</p>
 <p>Al hacer clic o enfocar el campo del dispositivo siempre se abre la lista completa de recursos Hue, aunque ya haya un dispositivo seleccionado. Al escribir, la lista sigue filtrándose.</p>
+<p>Seleccionar otro recurso Hue es solo una vista previa hasta que se guarda el editor. Al pulsar <code>Cancelar</code> se restauran el dispositivo, la función y los mapeos guardados anteriormente.</p>
+<p>El selector de dispositivos Hue permanece oculto hasta que se selecciona y conecta un Hue Bridge y se carga su catálogo de recursos. Durante la espera se muestra un indicador de carga. Al volver a poner el bridge en <code>none</code>, el indicador, el selector y el editor del dispositivo se ocultan de nuevo.</p>
+<p>Si el nodo ya tiene un dispositivo Hue guardado, su selector permanece visible pero deshabilitado mientras el bridge seleccionado está desconectado, y las pestañas de mapeo KNX siguen disponibles. Tras 15 segundos, la etiqueta de espera indica que no se puede acceder a Hue Bridge. La búsqueda de recursos continúa en segundo plano y finalmente aparece un error rojo fijo si el bridge no llega a estar disponible.</p>
 <p>Las filas de mapeo KNX mantienen GA, DPT y Nombre en una sola línea. Los campos DPT y Nombre usan anchos compactos; Nombre puede reducirse aún más en editores estrechos sin modificar el texto guardado. Los valores DPT guardados se conservan mientras las opciones del selector se cargan de forma asíncrona.</p>
 <p>Admite luces y grupos de luces, enchufes, botones, Tap dial, movimiento y movimiento de cámara, contactos, nivel de luz, temperatura, humedad, escenas, batería, conectividad Zigbee y actualización de software.</p>
-<p>Cuando no hay ningún <strong>Gateway KNX</strong> seleccionado (incluidos <code>none</code> y <em>Añadir nuevo...</em>), se ocultan los campos de mapeo KNX; la selección del recurso Hue y las opciones exclusivas del flujo siguen disponibles.</p>
+<p>Cuando no hay ningún <strong>Gateway KNX</strong> seleccionado (incluidos <code>none</code> y <em>Añadir nuevo...</em>), se ocultan las pestañas de mapeo de Luz; la selección del recurso Hue y las opciones exclusivas del flujo siguen disponibles. Sus campos GA, DPT y Nombre permanecen montados y conservan sus valores cuando se vuelve a seleccionar el gateway, restaurando también sin cambios el diseño vertical de las pestañas.</p>
+<p>Los valores temporales emitidos mediante programación por Node-RED mientras se inicializan los selectores de configuración KNX y Hue no sustituyen los gateways guardados. Solo una selección explícita de <code>none</code> oculta las pestañas de mapeo de Luz.</p>
+<p>Las pestañas de mapeo de Luz contienen únicamente los controles de configuración; se han eliminado las imágenes decorativas de Regulación, Blanco regulable y RGB.</p>
 <p>Para una luz individual, las secciones <strong>Regulación</strong>, <strong>Blanco regulable</strong>, <strong>RGB/HSV</strong> y efectos nativos siguen las capacidades en vivo declaradas por el recurso Hue API v2 seleccionado. Los mapeos KNX correspondientes aparecen automáticamente cuando la luz expone <code>dimming</code>, <code>color_temperature</code> o <code>color</code>.</p>
 <p>El editor de Luz muestra inmediatamente los mapeos guardados sin esperar a la caché de recursos Hue del runtime. Las capacidades actuales se cargan en segundo plano; si la solicitud falla, los mapeos y el selector de pines siguen disponibles y un error rojo fijo de Node-RED informa del fallo.</p>
 <p>Locate y el contenedor de mapeo de Luz se inicializan antes que los widgets opcionales de Efectos y pestañas. Un gateway KNX guardado sigue siendo válido si Node-RED muestra temporalmente un selector vacío al iniciar el editor. Los fallos del navegador y un primer comando Locate rechazado generan un error rojo fijo de Node-RED con el detalle técnico, en lugar de dejar el editor en silencio.</p>
@@ -41,6 +46,8 @@
 ## Luz / grupo de luces (`light`)
 
 <p> Este nodo controla las luces de Hue Philips (single o agrupada) y mapea sus comandos/estados a KNX. </p>
+
+<p>Sin una pasarela KNX, aparece un aviso de uso exclusivo mediante el flujo en lugar del encabezado duplicado «Philips HUE».</p>
 
 <p><strong>Grupos de luces:</strong> cuando hay una pasarela KNX configurada, al seleccionar un <code>grouped_light</code> siempre se muestran todas las asignaciones de Interruptor, Regulación, Blanco ajustable, RGB/HSV, Efectos y Comportamiento. El editor no limita estos campos según las luces incluidas actualmente en el grupo.</p>
 

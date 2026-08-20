@@ -4,9 +4,14 @@
 <p>Seleziona un dispositivo o una risorsa Hue. HUE Controller ne rileva automaticamente il tipo e apre l'editor corretto per mappature KNX, comportamento e pin del nodo.</p>
 <p>Selettore del dispositivo, pulsante di aggiornamento e tipo rilevato condividono la stessa riga compatta, come nel workflow del Matter Controller.</p>
 <p>Un click o il focus sul campo dispositivo apre sempre l'elenco completo delle risorse Hue, anche quando un dispositivo è già selezionato. Digitando, l'elenco continua a essere filtrato.</p>
+<p>La selezione di un'altra risorsa Hue resta soltanto un'anteprima finché l'editor non viene salvato. Premendo <code>Annulla</code> vengono ripristinati il dispositivo, la funzione e le mappature salvati in precedenza.</p>
+<p>Il selettore del dispositivo Hue resta nascosto finché Hue Bridge non è selezionato, connesso e ha caricato il catalogo delle risorse. Durante l'attesa viene mostrato un indicatore di caricamento. Riportando il bridge su <code>none</code>, indicatore, selettore ed editor del dispositivo vengono nuovamente nascosti.</p>
+<p>Se il nodo possiede già un dispositivo Hue salvato, il relativo selettore resta visibile ma disabilitato mentre il bridge selezionato è offline, e le TAB delle mappature KNX restano disponibili. Dopo 15 secondi, l'etichetta di attesa segnala che Hue Bridge non è raggiungibile. La ricerca delle risorse continua in background e, se il bridge non diventa disponibile, compare infine un errore rosso fisso.</p>
 <p>Le righe di mappatura KNX mantengono GA, DPT e Nome sulla stessa linea. I campi DPT e Nome usano larghezze compatte e Nome può restringersi ulteriormente negli editor più stretti senza modificare il testo memorizzato. I valori DPT salvati vengono conservati mentre le opzioni del selettore si caricano in modo asincrono.</p>
 <p>Funzioni supportate: luci e gruppi di luci, prese, pulsanti, Tap dial, movimento e movimento telecamera, contatti, livello luce, temperatura, umidità, scene, batteria, connettività Zigbee e aggiornamento software.</p>
-<p>Quando non è selezionato alcun <strong>Gateway KNX</strong> (inclusi <code>none</code> e <em>Aggiungi nuovo...</em>), i campi di mappatura KNX vengono nascosti, mentre la selezione della risorsa Hue e le opzioni per il solo flow restano disponibili.</p>
+<p>Quando non è selezionato alcun <strong>Gateway KNX</strong> (inclusi <code>none</code> e <em>Aggiungi nuovo...</em>), vengono nascoste le TAB delle mappature Luce, mentre la selezione della risorsa Hue e le opzioni per il solo flow restano disponibili. I relativi campi GA, DPT e Nome rimangono montati e conservano i valori quando il gateway viene riselezionato, ripristinando invariato anche il layout verticale delle TAB.</p>
+<p>I valori segnaposto temporanei emessi programmaticamente da Node-RED durante l'inizializzazione dei selettori KNX e Hue non sostituiscono i gateway salvati. Soltanto la selezione esplicita di <code>none</code> nasconde le TAB delle mappature Luce.</p>
+<p>Le TAB delle mappature Luce contengono soltanto i controlli di configurazione; le immagini decorative Dimmer, Bianco regolabile e RGB sono state eliminate.</p>
 <p>Per una luce singola, le sezioni <strong>Dimmer</strong>, <strong>Bianco regolabile</strong>, <strong>RGB/HSV</strong> ed effetti nativi seguono le capacità live dichiarate dalla risorsa Hue API v2 selezionata. Le relative mappature KNX appaiono automaticamente quando la luce espone <code>dimming</code>, <code>color_temperature</code> o <code>color</code>.</p>
 <p>L'editor Luce mostra subito le mappature salvate senza attendere la cache delle risorse Hue del runtime. Le capability correnti vengono caricate in background; se la richiesta fallisce, mappature e selettore dei pin restano disponibili e un errore Node-RED rosso e fisso segnala il problema.</p>
 <p>Locate e il contenitore delle mappature Luce vengono inizializzati prima dei widget opzionali Effetti e schede. Un gateway KNX salvato resta valido se Node-RED mostra temporaneamente un selettore vuoto durante l'avvio dell'editor. Gli errori del browser e il rifiuto del primo comando Locate producono un errore Node-RED rosso e fisso con il dettaglio tecnico, invece di lasciare l'editor silenzioso.</p>
@@ -41,6 +46,8 @@
 ## Luce / gruppo luci (`light`)
 
 <p>Questo nodo controlla le luci HUE (singole o raggruppate) e mappa comandi/stati su KNX.</p>
+
+<p>Senza un gateway KNX, al posto dell'intestazione duplicata “Philips HUE” compare l'avviso per l'uso tramite input del flow.</p>
 
 <p><strong>Gruppi di luci:</strong> quando è configurato un gateway KNX, selezionando un <code>grouped_light</code> vengono sempre mostrate tutte le mappature Switch, Dim, Tunable White, RGB/HSV, Effetti e Comportamento. L'editor non limita questi campi in base alle luci attualmente incluse nel gruppo.</p>
 
