@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "6.3.8",
+  "version": "6.3.9",
   "description": "KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT, diagnostics with AI, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.",
   "files": [
     "nodes/",
@@ -17,6 +17,7 @@
   ],
   "dependencies": {
     "@matter/main": "^0.17.9",
+    "@matter/nodejs": "^0.17.9",
     "@project-chip/matter.js": "^0.17.9",
     "dns-sync": "0.2.1",
     "google-translate-tts": "^0.3.0",

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.9** - August 2026<br/>
+
+- **Matter on Home Assistant**: declared the Node.js platform adapter as a required runtime dependency so Home Assistant's Node-RED add-on cannot omit it while installing optional packages; Matter Controller and Matter Bridge now load normally instead of reporting `Cannot find module '@matter/nodejs'` at startup.<br/>
+
 **Version 6.3.8** - August 2026<br/>
 
 - **HUE Controller**: fixed Light and grouped-light mapping tabs remaining hidden when Node-RED emits temporary empty KNX/Hue config-selector values during editor initialization; saved gateways now survive bootstrap and remount, while only an explicit user selection of `none` hides the mapping tabs.<br/>
