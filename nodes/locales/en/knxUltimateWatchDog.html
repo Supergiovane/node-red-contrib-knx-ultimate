@@ -29,6 +29,7 @@ You can send an Email to the KNX installer responsible to your Building, or you 
 | Group Address to monitor | The node will send a telegram to this address and monitors the message flowing through the KNX BUS. The Datapoint must be DPT 1.x (boolean).|
 | Node Name | Node Name |
 | Auto start the watchdog timer | The watchdog timer starts automatically on deploy or on node-red start. |
+| Listen to KNX-Ultimate node errors | Enabled by default. Outputs a `NodeError` when a KNX-Ultimate node associated with the selected gateway, including KNX Device, reports a red error status. Disabling it suppresses only those `NodeError` messages; the WatchDog's own bus checks and control messages remain active. |
 | Check level (please see the wiki) | See below |
 
 **Check level** > _**Ethernet**_: Checks the connection between knx-ultimate Gateway in unicast mode and your KNX IP Interface.<br />
@@ -56,7 +57,7 @@ Twisted Pair connection is up and running.
 
 # MESSAGE OUTPUT FROM THE WATCHDOG
 
-The WatchDog node outs a message whenever it receives an error from one of your knx-ultimate node in your flows, or whenever the internal Watchdog intercepts a KNX Bus communication error.<br />
+The WatchDog always outputs its own bus-check and control messages. When **Listen to KNX-Ultimate node errors** is enabled, it also outputs errors reported by KNX-Ultimate nodes, including KNX Device, associated with the selected gateway.<br />
 
 **In case of Watchdog self connection problem**
 
@@ -77,7 +78,7 @@ description: // (whatever error description)
 
 <br />
 
-**In case of one of your KNX-Ultimate nodes is in trouble**
+**When KNX-Ultimate node error listening is enabled and one of your nodes is in trouble**
 
 ```javascript
 

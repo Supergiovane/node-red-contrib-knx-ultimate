@@ -23,6 +23,7 @@ const loggerClass = require('./utils/sysLogger')
 // const { Server } = require('http')
 const payloadRounder = require('./utils/payloadManipulation')
 const utils = require('./utils/utils')
+const dispatchWatchDogNodeError = require('./utils/watchDogErrorDispatcher')
 
 // Versions logged once at startup (node package + KNXUltimate engine)
 let NODE_VERSION = 'unknown'
@@ -831,13 +832,7 @@ module.exports = (RED) => {
     // 16/02/2020 KNX-Ultimate nodes calls this function, then this funcion calls the same function on the Watchdog
     node.reportToWatchdogCalledByKNXUltimateNode = (_oError) => {
       // _oError is = { nodeid: node.id, topic: node.outputtopic, devicename: devicename, GA: GA, text: text };
-      const readHistory = []
-      const delay = 0
-      node.nodeClients
-        .filter((_oClient) => _oClient.isWatchDog !== undefined && _oClient.isWatchDog === true)
-        .forEach((_oClient) => {
-          _oClient.signalNodeErrorCalledByConfigNode(_oError)
-        })
+      dispatchWatchDogNodeError(node, _oError)
     }
 
     node.addClient = (_Node) => {

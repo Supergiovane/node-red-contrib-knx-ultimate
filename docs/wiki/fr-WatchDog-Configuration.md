@@ -34,6 +34,7 @@ Vous pouvez envoyer un e-mail au programme d'installation KNX responsable de vot
 |Adresse du groupe à surveiller |Le nœud enverra un télégramme à cette adresse et surveille le message qui traverse le bus KNX.Le point de données doit être dpt 1.x (booléen). |
 |Nom de nœud |Nom du nœud |
 |Démarrer automatiquement la minuterie de chien de garde |Le temporisateur de surveillance commence automatiquement sur le déploiement ou au démarrage de Node-RED.|
+|Écouter les erreurs des nœuds KNX-Ultimate |Activé par défaut. Émet un message `NodeError` lorsqu'un nœud KNX-Ultimate associé à la passerelle sélectionnée, y compris KNX Device, signale un état d'erreur rouge. La désactivation supprime uniquement ces messages `NodeError`; les contrôles du bus et les messages de commande du WatchDog restent actifs.|
 |Vérifier le niveau (veuillez consulter le wiki) |Voir ci-dessous |
 
 **Vérifier le niveau ** > _**Ethernet** _: \* Chechks la connexion entre la passerelle KNX-ultimate en mode unicast et votre interface IP KNX. 
@@ -59,7 +60,7 @@ width = "90%">
 
 # Sortie du message du chien de garde
 
-Le nœud de surveillance ouvre un message chaque fois qu'il reçoit une erreur de l'un de votre nœud KNX-ultime dans vos flux, ou chaque fois que le chien de garde interne intercepte une erreur de communication de bus KNX. 
+Le WatchDog émet toujours ses propres messages de contrôle du bus et de commande. Lorsque **Écouter les erreurs des nœuds KNX-Ultimate** est activé, il émet aussi les erreurs signalées par les nœuds KNX-Ultimate, y compris KNX Device, associés à la passerelle sélectionnée.
  ** En cas de problème de connexion auto à surveillance** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration"
 Target = "_ Blank"> Veuillez voir ici. </a>
 
@@ -75,7 +76,7 @@ description: // (whatever error description)
 
 ```
 
- ** Dans le cas de l'un de vos nœuds ultimes KNX est en difficulté**
+ **Lorsque l'écoute est activée et qu'un nœud KNX-Ultimate signale une erreur**
 
 ```javascript
 

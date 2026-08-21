@@ -29,3 +29,4 @@ test/*
 !test/knxAiHomeMemory.test.js
 !test/hueController.test.js
 !test/docsNavigation.test.js
+!test/knxUltimateWatchDog.test.js

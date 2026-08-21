@@ -34,6 +34,7 @@ Puede enviar un correo electrónico al instalador KNX responsable de su edificio
 |Dirección de grupo para monitorear |El nodo enviará un telegrama a esta dirección y monitorea el mensaje que fluye a través del bus KNX.El punto de datos debe ser dpt 1.x (boolean). |
 |Nombre de nodo |Nombre del nodo |
 |Auto Iniciar el temporizador de vigilancia |El temporizador Watchdog comienza automáticamente en implementación o en el inicio de Node-RED.|
+|Escuchar errores de los nodos KNX-Ultimate |Activado de forma predeterminada. Emite un mensaje `NodeError` cuando un nodo KNX-Ultimate asociado a la puerta de enlace seleccionada, incluido KNX Device, informa de un estado de error rojo. Al desactivarlo solo se suprimen esos mensajes `NodeError`; las comprobaciones del bus y los mensajes de control del WatchDog siguen activos.|
 |Verificar el nivel (consulte el wiki) |Ver a continuación |
 
 **COMPROBAR NIVEL ** > _**Ethernet** _: \*checkks la conexión entre la puerta de enlace de ultimate KNX en modo unicast y su interfaz IP KNX. 
@@ -61,7 +62,7 @@ width = "90%">
 
 # Salida de mensajes del Watchdog
 
-El nodo Watchdog sale un mensaje cada vez que recibe un error de uno de su nodo ultimal KNX en sus flujos, o cuando el vigilante interno intercepta un error de comunicación de bus KNX. 
+El WatchDog siempre emite sus propios mensajes de comprobación del bus y de control. Cuando **Escuchar errores de los nodos KNX-Ultimate** está activado, también emite los errores informados por los nodos KNX-Ultimate, incluido KNX Device, asociados a la puerta de enlace seleccionada.
  ** En caso de problema de autoexpresión de vigilancia** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration"
 Target = "_ en blanco"> Consulte aquí. </a>
 
@@ -77,7 +78,7 @@ description: // (whatever error description)
 
 ```
 
- ** En caso de que uno de sus nodos ultimados KNX esté en problemas**
+ **Cuando la escucha está activada y un nodo KNX-Ultimate informa de un error**
 
 ```javascript
 

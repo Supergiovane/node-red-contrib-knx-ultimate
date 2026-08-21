@@ -21,6 +21,9 @@ module.exports = function (RED) {
     node.retryInterval = config.retryInterval !== undefined ? config.retryInterval * 1000 : 10000
     node.maxRetry = config.maxRetry !== undefined ? config.maxRetry : 6
     node.autoStart = config.autoStart !== undefined ? config.autoStart : true
+    // Keep existing flows compatible: before this option was exposed, KNX-Ultimate
+    // node errors were always forwarded by the gateway to every Watchdog node.
+    node.listenToKnxUltimateNodeErrors = config.listenToKnxUltimateNodeErrors !== false && config.listenToKnxUltimateNodeErrors !== 'false'
     node.beatNumber = 0 // Telegram counter
     node.timerWatchDog = null
     node.isWatchDog = true
@@ -119,6 +122,8 @@ module.exports = function (RED) {
 
     // 16/02/2020 This function is called by the knx-ultimate config node.
     node.signalNodeErrorCalledByConfigNode = _oError => {
+      if (!node.listenToKnxUltimateNodeErrors) return
+
       // Report an error from knx-ultimate node.
       // let oError = {nodeid:node.id,topic:node.outputtopic,devicename:devicename,GA:GA,text:text};
       const msg = {
@@ -214,9 +219,10 @@ module.exports = function (RED) {
     if (node.serverKNX) {
       if (node.timerWatchDog !== null) clearInterval(node.timerWatchDog)
       node.serverKNX.removeClient(node)
-      if (node.topic || node.listenallga) {
+      const hasHealthCheckTarget = node.checkLevel === 'Ethernet' || Boolean(node.topic)
+      if (hasHealthCheckTarget || node.listenToKnxUltimateNodeErrors) {
         node.serverKNX.addClient(node)
-        if (node.autoStart) node.StartWatchDogTimer() // Autostart watchdog
+        if (node.autoStart && hasHealthCheckTarget) node.StartWatchDogTimer() // Autostart watchdog
       }
     }
   }

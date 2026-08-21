@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.10** - August 2026<br/>
+
+- **Watchdog**: added a default-on option to listen for error states reported by KNX-Ultimate nodes, including KNX Device, through the selected gateway; disabling it suppresses `NodeError` flow messages without affecting the Watchdog's own bus checks or control messages. Existing flows retain the previous enabled behavior.<br/>
+
 **Version 6.3.9** - August 2026<br/>
 
 - **Matter on Home Assistant**: declared the Node.js platform adapter as a required runtime dependency so Home Assistant's Node-RED add-on cannot omit it while installing optional packages; Matter Controller and Matter Bridge now load normally instead of reporting `Cannot find module '@matter/nodejs'` at startup.<br/>

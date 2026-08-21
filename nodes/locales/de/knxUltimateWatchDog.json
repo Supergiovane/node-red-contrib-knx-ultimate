@@ -8,6 +8,7 @@
             "node-input-topic": "Gruppenadresse monitor",
             "node-input-name": "Name",
             "node-input-autoStart": "Watchdog-Timer automatisch starten",
+            "node-input-listenToKnxUltimateNodeErrors": "Fehler von KNX-Ultimate-Nodes überwachen",
             "advancedOptionsAccordion": "Erweiterte Optionen",
             "node-input-retryInterval": "Wiederholungsintervall (in Sekunden)",
             "node-input-maxRetry": "Anzahl der Wiederholungen, bevor ein Fehler ausgegeben wird"

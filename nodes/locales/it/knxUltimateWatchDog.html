@@ -26,6 +26,7 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 | Group Address da monitorare | GA a cui inviare il telegramma e da cui attendere risposta sul BUS KNX. Il Datapoint deve essere DPT 1.x (boolean). |
 | Nome nodo | Nome del nodo. |
 | Avvia il watchdog automaticamente | Avvio automatico del timer al deploy o all'avvio di Node-RED. |
+| Ascolta gli errori dei nodi KNX-Ultimate | Attiva per impostazione predefinita. Emette un `NodeError` quando un nodo KNX-Ultimate associato al gateway selezionato, incluso KNX Device, segnala uno stato di errore rosso. Disattivandola vengono soppressi solo questi messaggi `NodeError`; i controlli BUS e i messaggi di comando del WatchDog restano attivi. |
 | Livello controllo (vedi Wiki) | Vedi sotto. |
 
 **Check level**
@@ -47,7 +48,7 @@ Il WatchDog è molto utile per notificare errori e problemi di connessione: puoi
 
 # Messaggi in uscita dal WatchDog
 
-Il nodo emette un messaggio quando riceve un errore da un qualsiasi nodo KNX-Ultimate nel flow, oppure quando il watchdog interno intercetta un errore di comunicazione sul BUS KNX.
+Il WatchDog emette sempre i propri messaggi di controllo del BUS e di comando. Quando **Ascolta gli errori dei nodi KNX-Ultimate** è attiva, emette anche gli errori segnalati dai nodi KNX-Ultimate, incluso KNX Device, associati al gateway selezionato.
 
 **In caso di problema di connessione rilevato dal WatchDog**
 
@@ -64,7 +65,7 @@ msg = {
 }
 ```
 
-**In caso di errore di un tuo nodo KNX-Ultimate**
+**Quando l'ascolto è attivo e uno dei nodi KNX-Ultimate segnala un errore**
 
 ```javascript
 

@@ -31,6 +31,7 @@ Ideal zum Signalisieren von Fehlern/Verbindungsproblemen (E-Mail, automatisches 
 | Gruppenadresse monitor | GA, an die gelesen wird und von der eine Antwort erwartet wird. DPT muss 1.x (Boolean) sein. |
 | Name | Node-Name. |
 | Watchdog-Timer automatisch starten | Timer beim Deploy/Start automatisch starten. |
+| Fehler von KNX-Ultimate-Nodes überwachen | Standardmäßig aktiviert. Gibt eine `NodeError`-Nachricht aus, wenn ein KNX-Ultimate-Node am gewählten Gateway, einschließlich KNX Device, einen roten Fehlerstatus meldet. Bei Deaktivierung werden nur diese `NodeError`-Nachrichten unterdrückt; die eigenen Busprüfungen und Steuernachrichten des WatchDog bleiben aktiv. |
 | Check level (siehe wiki) | Siehe oben. |
 
 **Check level**
@@ -52,7 +53,7 @@ Ideal zum Signalisieren von Fehlern/Verbindungsproblemen (E-Mail, automatisches 
 
 # Ausgaben des WatchDog
 
-Der Node gibt Nachrichten aus, wenn eigene Prüfungen Fehler melden oder wenn ein KNX-Ultimate-Node im Flow einen Fehlerstatus meldet.
+Der WatchDog gibt seine eigenen Busprüfungs- und Steuernachrichten immer aus. Wenn **Fehler von KNX-Ultimate-Nodes überwachen** aktiviert ist, gibt er zusätzlich Fehler von KNX-Ultimate-Nodes, einschließlich KNX Device, am gewählten Gateway aus.
 
 **Bei WatchDog-eigenem Verbindungsproblem**
 
@@ -69,7 +70,7 @@ msg = {
 }
 ```
 
-**Wenn einer deiner KNX-Ultimate-Nodes Probleme hat**
+**Wenn die Fehlerüberwachung aktiviert ist und ein KNX-Ultimate-Node ein Problem meldet**
 
 ```javascript
 

@@ -26,6 +26,7 @@ WatchDog 提供两级检测：
 | 需要监控的组地址 | 用于发送与监测的组地址；DPT 必须为 1.x（布尔）。|
 | 节点名称 | 节点名称。|
 | 自动启动看门狗定时器 | 在部署/启动时自动启动定时器。|
+| 监听 KNX-Ultimate 节点错误 | 默认启用。当与所选网关关联的 KNX-Ultimate 节点（包括 KNX Device）报告红色错误状态时，输出 `NodeError` 消息。禁用后只抑制这些 `NodeError` 消息；WatchDog 自身的总线检测和控制消息仍保持启用。|
 | 检查等级 (请查阅wiki) | 见上。|
 
 **Check level**
@@ -47,7 +48,7 @@ WatchDog 提供两级检测：
 
 # WatchDog 的输出
 
-当内部检测发现故障，或某个 KNX-Ultimate 节点在流程中上报错误时，WatchDog 会输出消息。
+WatchDog 始终输出自身的总线检测和控制消息。启用 **监听 KNX-Ultimate 节点错误** 后，它还会输出与所选网关关联的 KNX-Ultimate 节点（包括 KNX Device）所报告的错误。
 
 **WatchDog 自身连接问题**
 
@@ -64,7 +65,7 @@ msg = {
 }
 ```
 
-**你的某个 KNX-Ultimate 节点出现异常**
+**启用错误监听且某个 KNX-Ultimate 节点报告错误时**
 
 ```javascript
 

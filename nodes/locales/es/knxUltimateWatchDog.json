@@ -8,6 +8,7 @@
       "node-input-topic": "Dirección de grupo para monitorear",
       "node-input-name": "Nombre de nodo",
       "node-input-autoStart": "Auto Iniciar el temporizador de vigilancia",
+      "node-input-listenToKnxUltimateNodeErrors": "Escuchar errores de los nodos KNX-Ultimate",
       "advancedOptionsAccordion": "Opciones avanzadas",
       "node-input-retryInterval": "Vuelva a intentar el intervalo (en segundos)",
       "node-input-maxRetry": "Número de reintento antes de dar un error"

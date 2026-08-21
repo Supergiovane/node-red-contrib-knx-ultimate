@@ -8,6 +8,7 @@
       "node-input-topic": "Adresse du groupe à surveiller",
       "node-input-name": "Nom de nœud",
       "node-input-autoStart": "Démarrer automatiquement la minuterie de chien de garde",
+      "node-input-listenToKnxUltimateNodeErrors": "Écouter les erreurs des nœuds KNX-Ultimate",
       "advancedOptionsAccordion": "Options avancées",
       "node-input-retryInterval": "Réessier l'intervalle (en quelques secondes)",
       "node-input-maxRetry": "Nombre de réessayer avant de donner une erreur"

@@ -9,6 +9,7 @@
             "node-input-topic": "需要监控的组地址",
             "node-input-name": "节点名称",
             "node-input-autoStart": "自动启动看门狗定时器",
+            "node-input-listenToKnxUltimateNodeErrors": "监听 KNX-Ultimate 节点错误",
             "advancedOptionsAccordion": "高级选项",
             "node-input-retryInterval": "重试间隔 (秒)",
             "node-input-maxRetry": "出错前的重试次数"
