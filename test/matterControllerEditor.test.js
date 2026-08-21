@@ -2,6 +2,16 @@ const { expect } = require('chai')
 const fs = require('fs')
 const path = require('path')
 
+describe('Matter runtime dependencies', () => {
+  const packageJson = require('../package.json')
+
+  it('installs the Node.js platform adapter as a required dependency', () => {
+    expect(packageJson.dependencies).to.have.property('@matter/nodejs')
+    expect(packageJson.dependencies['@matter/nodejs']).to.equal(packageJson.dependencies['@matter/main'])
+    expect(packageJson.optionalDependencies || {}).not.to.have.property('@matter/nodejs')
+  })
+})
+
 describe('Matter Controller editor flow-input section', () => {
   const projectRoot = path.resolve(__dirname, '..')
   const editor = fs.readFileSync(path.join(projectRoot, 'nodes/knxUltimateMatterControllerDevice.html'), 'utf8')
