@@ -18,7 +18,7 @@ Er ersetzt die unveröffentlichten getrennten Matter-Controller-Nodes und behäl
 
 |Feld|Beschreibung|
 |--|--|
-| KNX GW | KNX-Gateway zum Schreiben und Beantworten der konfigurierten Gruppenadressen. Kann leer bleiben, wenn nur der Node-RED-Ausgang benötigt wird. |
+| KNX GW | KNX-Gateway zum Schreiben und Beantworten der konfigurierten Gruppenadressen. Kann leer bleiben, wenn nur der Node-RED-Ausgang benötigt wird. Das gespeicherte Gateway bleibt während der Initialisierung des Editors ausgewählt und ändert sich erst nach einer ausdrücklichen Benutzerauswahl. |
 | Matter controller | Matter-Controller-Konfigurationsknoten, in dem das Gerät gekoppelt wurde. |
 | Matter device | Matter-Endpunkt aus den gekoppelten Geräten. Die UI wird aus den echten Fähigkeiten neu aufgebaut. |
 | Switch / Steckdose / Licht On-Off | On/Off-Befehls- und Status-Gruppenadressen, normalerweise DPT `1.001`. |

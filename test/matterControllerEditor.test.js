@@ -1,6 +1,11 @@
 const { expect } = require('chai')
 const fs = require('fs')
 const path = require('path')
+const {
+  normalizeSelection,
+  resolveSelectedOrStoredSelection,
+  shouldPreserveSelection
+} = require('../resources/configNodeEditorSelection')
 
 describe('Matter runtime dependencies', () => {
   const packageJson = require('../package.json')
@@ -16,6 +21,36 @@ describe('Matter Controller editor flow-input section', () => {
   const projectRoot = path.resolve(__dirname, '..')
   const editor = fs.readFileSync(path.join(projectRoot, 'nodes/knxUltimateMatterControllerDevice.html'), 'utf8')
   const knxEditor = fs.readFileSync(path.join(projectRoot, 'nodes/knxUltimate.html'), 'utf8')
+
+  it('preserves saved config nodes across Node-RED 5 synthetic empty change events', () => {
+    const emptyValues = new Set(['', 'none', '_add_', '__none__'])
+    let activeSelection = resolveSelectedOrStoredSelection('_ADD_', 'saved-knx-gateway', emptyValues)
+    const applyChange = (event, nextValue) => {
+      if (!shouldPreserveSelection(event, nextValue, activeSelection, emptyValues)) {
+        activeSelection = normalizeSelection(nextValue, emptyValues)
+      }
+      return activeSelection
+    }
+
+    expect(activeSelection).to.equal('saved-knx-gateway')
+    expect(applyChange({ type: 'change' }, '_ADD_')).to.equal('saved-knx-gateway')
+    expect(applyChange({ type: 'change', originalEvent: {} }, '_ADD_')).to.equal('')
+    expect(applyChange({ type: 'change', originalEvent: {} }, 'new-knx-gateway')).to.equal('new-knx-gateway')
+    expect(applyChange({ type: 'change' }, '__NONE__')).to.equal('new-knx-gateway')
+  })
+
+  it('uses the guarded selection state for both KNX and Matter config selectors', () => {
+    expect(editor).to.include('resources/node-red-contrib-knx-ultimate/configNodeEditorSelection.js')
+    expect(editor).to.include('let activeKnxServerId = resolveSelectedOrStoredSelection')
+    expect(editor).to.include('let activeMatterServerId = resolveSelectedOrStoredSelection')
+    expect(editor).to.include('shouldPreserveSelection(event, selectedValue, activeKnxServerId, KNX_EMPTY_VALUES)')
+    expect(editor).to.include('$knxServerInput.val(activeKnxServerId)')
+    expect(editor).to.include("if (activeKnxServerId !== '') refreshKnxBindings()")
+    expect(editor).to.include('shouldPreserveSelection(event, selectedValue, activeMatterServerId, HUE_EMPTY_SERVER_VALUES)')
+    expect(editor).to.include('$hueServerInput.val(activeMatterServerId)')
+    expect(editor).not.to.include('$(selector).prop("selectedIndex", 0)')
+    expect(editor).not.to.match(/node\.server(?:Matter)?\s*=/)
+  })
 
   it('places the inline help below the node PIN selector instead of in a tab or modal', () => {
     expect(editor).not.to.include('href="#tabs-input"')

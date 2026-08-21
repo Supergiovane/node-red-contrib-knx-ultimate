@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.11** - August 2026<br/>
+
+- **Matter Controller**: fixed KNX GA mapping tabs being hidden by transient empty KNX/Matter config-selector values during Node-RED 5 editor initialization; saved gateways now remain selected until the user explicitly changes them.<br/>
+
 **Version 6.3.10** - August 2026<br/>
 
 - **Watchdog**: added a default-on option to listen for error states reported by KNX-Ultimate nodes, including KNX Device, through the selected gateway; disabling it suppresses `NodeError` flow messages without affecting the Watchdog's own bus checks or control messages. Existing flows retain the previous enabled behavior.<br/>

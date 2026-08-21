@@ -3,6 +3,7 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/11f26b4500.js"></script>
 
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/configNodeEditorSelection.js"></script>
 
 <script type="text/javascript">
   (function () {
@@ -161,16 +162,6 @@
           });
         }
         $("#node-input-updateLocalStateFromKNXWrite").prop("checked", node.updateLocalStateFromKNXWrite === true || node.updateLocalStateFromKNXWrite === "true"); // Starting from v 4.1.31
-        const ensureConfigSelection = (selector) => {
-          if ($(selector).val() !== "_ADD_") return;
-          try {
-            $(selector).prop("selectedIndex", 0);
-          } catch (error) {
-            // Ignore UI quirks for legacy Node-RED versions
-          }
-        };
-        ["#node-input-server", "#node-input-serverMatter"].forEach(ensureConfigSelection);
-
         function ensureVerticalTabsStyle() {
           if ($('#knxUltimateMatterControllerDeviceVerticalTabs').length) return;
           const style = `
@@ -261,7 +252,7 @@
         function onEditPrepare() {
           ensureVerticalTabsStyle();
           const $knxServerInput = $("#node-input-server");
-          const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+          const KNX_EMPTY_VALUES = new Set(['', 'none', '_add_', '__none__']);
           // Historical variable names are retained for saved-flow compatibility; they point to Matter widgets.
           const $hueServerInput = $("#node-input-serverMatter");
           const $matterControllerModeInput = $("#node-input-matterControllerMode");
@@ -300,6 +291,21 @@
           let matterDevicePickerMouseDown = false;
           let showingNoHueDevicesPlaceholder = false;
           const HUE_EMPTY_SERVER_VALUES = new Set(['', 'none', '_add_', '__none__', '__null__', 'null', 'undefined']);
+          const selectionApi = window.KNXUltimateConfigNodeEditorSelection;
+          const normalizeConfigSelection = selectionApi && typeof selectionApi.normalizeSelection === 'function'
+            ? selectionApi.normalizeSelection
+            : (value, emptyValues) => {
+                const normalized = value === undefined || value === null ? '' : String(value).trim();
+                return emptyValues.has(normalized.toLowerCase()) ? '' : normalized;
+              };
+          const resolveSelectedOrStoredSelection = selectionApi && typeof selectionApi.resolveSelectedOrStoredSelection === 'function'
+            ? selectionApi.resolveSelectedOrStoredSelection
+            : (selectedValue, storedValue, emptyValues) => normalizeConfigSelection(selectedValue, emptyValues) || normalizeConfigSelection(storedValue, emptyValues);
+          const shouldPreserveSelection = selectionApi && typeof selectionApi.shouldPreserveSelection === 'function'
+            ? selectionApi.shouldPreserveSelection
+            : (event, nextValue, currentValue, emptyValues) => (!event || !event.originalEvent) && normalizeConfigSelection(nextValue, emptyValues) === '' && normalizeConfigSelection(currentValue, emptyValues) !== '';
+          let activeKnxServerId = resolveSelectedOrStoredSelection($knxServerInput.val(), node.server, KNX_EMPTY_VALUES);
+          let activeMatterServerId = resolveSelectedOrStoredSelection($hueServerInput.val(), node.serverMatter, HUE_EMPTY_SERVER_VALUES);
           let locateSessionActive = false;
           let locateAutoResetTimer = null;
           let locatePendingRequest = null;
@@ -483,14 +489,7 @@
           };
 
           const resolveKnxServerValue = () => {
-            const domValue = $knxServerInput.val();
-            if (domValue !== undefined && domValue !== null && domValue !== '') {
-              return domValue;
-            }
-            if (node.server !== undefined && node.server !== null) {
-              return node.server;
-            }
-            return '';
+            return activeKnxServerId;
           };
 
           const hasKnxServerSelected = () => {
@@ -500,17 +499,7 @@
           };
 
           const resolveHueServerValue = ({ allowStored = false } = {}) => {
-            if ($hueServerInput.length) {
-              const domValue = $hueServerInput.val();
-              if (domValue !== undefined && domValue !== null) {
-                const trimmed = String(domValue).trim();
-                if (trimmed !== '' && !HUE_EMPTY_SERVER_VALUES.has(trimmed.toLowerCase())) return trimmed;
-              }
-            }
-            if (node.serverMatter !== undefined && node.serverMatter !== null) {
-              const stored = String(node.serverMatter).trim();
-              if (stored !== '' && !HUE_EMPTY_SERVER_VALUES.has(stored.toLowerCase())) return stored;
-            }
+            if (activeMatterServerId !== '') return activeMatterServerId;
             if (allowStored && node.__locateSessionInfo && node.__locateSessionInfo.serverId) {
               return node.__locateSessionInfo.serverId;
             }
@@ -1458,8 +1447,20 @@
           $matterControllerModeInput.on('change.knxUltimateMatterControllerDevice', applyControllerMode);
           $universalServiceInput.on('change.knxUltimateMatterControllerDevice', refreshUniversalServiceVisibility);
 
-          $knxServerInput.on('change.knxUltimateMatterControllerDevice', () => {
-            refreshKnxBindings();
+          $knxServerInput.on('change.knxUltimateMatterControllerDevice', function (event) {
+            const selectedValue = $(this).val();
+            if (shouldPreserveSelection(event, selectedValue, activeKnxServerId, KNX_EMPTY_VALUES)) {
+              // Node-RED 5 can briefly emit an empty placeholder while rebuilding
+              // config-node selectors. Restore the effective saved value so an
+              // untouched save and the mapping tabs both keep the KNX gateway.
+              $knxServerInput.val(activeKnxServerId);
+              updateTabsVisibility();
+              return;
+            }
+            activeKnxServerId = normalizeConfigSelection(selectedValue, KNX_EMPTY_VALUES);
+            // Selecting none only changes visibility. Keep the mounted GA/DPT
+            // controls intact so choosing the gateway again cannot lose values.
+            if (activeKnxServerId !== '') refreshKnxBindings();
             updateTabsVisibility();
           });
 
@@ -1553,7 +1554,15 @@
           }
 
           if ($hueServerInput.length) {
-            $hueServerInput.off('.knxUltimateMatterControllerDeviceDevices').on('change.knxUltimateMatterControllerDeviceDevices', () => {
+            $hueServerInput.off('.knxUltimateMatterControllerDeviceDevices').on('change.knxUltimateMatterControllerDeviceDevices', function (event) {
+              const selectedValue = $(this).val();
+              if (shouldPreserveSelection(event, selectedValue, activeMatterServerId, HUE_EMPTY_SERVER_VALUES)) {
+                $hueServerInput.val(activeMatterServerId);
+                return;
+              }
+              const nextMatterServerId = normalizeConfigSelection(selectedValue, HUE_EMPTY_SERVER_VALUES);
+              if (nextMatterServerId === activeMatterServerId) return;
+              activeMatterServerId = nextMatterServerId;
               cachedHueDevices = [];
               node._cachedHueLightDevices = cachedHueDevices;
               showingNoHueDevicesPlaceholder = false;
@@ -1772,11 +1781,6 @@
 
         // The Matter controller needs no readiness poll here: the light list is fetched
         // on demand by the autocomplete. Start the editor immediately.
-        $("#node-input-serverMatter").change(function () {
-          try {
-            node._cachedHueLightDevices = [];
-          } catch (error) { }
-        });
         Go();
         // ################################################################
 

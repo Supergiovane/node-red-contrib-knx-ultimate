@@ -18,7 +18,7 @@ It replaces the unpublished per-device Matter controller nodes and keeps the ful
 
 |Field|Description|
 |--|--|
-| KNX GW | KNX gateway used to write and answer the configured group addresses. It can be left empty when only Node-RED output is needed. |
+| KNX GW | KNX gateway used to write and answer the configured group addresses. It can be left empty when only Node-RED output is needed. The saved gateway remains selected while the editor initializes and changes only after an explicit user selection. |
 | Matter controller | Matter controller configuration node where the device has been commissioned. |
 | Matter device | Matter endpoint selected from commissioned devices. The UI is rebuilt from its real capabilities. |
 | Switch / Plug / Light On-Off | On/Off command and status group addresses, usually DPT `1.001`. |

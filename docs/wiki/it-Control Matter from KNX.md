@@ -18,7 +18,7 @@ Sostituisce i nodi Matter separati non pubblicati e mantiene tutta la UI luce qu
 
 |Campo|Descrizione|
 |--|--|
-| KNX GW | Gateway KNX usato per scrivere e rispondere sugli indirizzi di gruppo configurati. Può restare vuoto se serve solo l'output Node-RED. |
+| KNX GW | Gateway KNX usato per scrivere e rispondere sugli indirizzi di gruppo configurati. Può restare vuoto se serve solo l'output Node-RED. Il gateway salvato rimane selezionato durante l'inizializzazione dell'editor e cambia soltanto dopo una selezione esplicita dell'utente. |
 | Matter controller | Nodo di configurazione Matter Controller in cui il dispositivo è stato associato. |
 | Dispositivo Matter | Endpoint Matter selezionato tra i dispositivi abbinati. La UI viene ricostruita in base alle capability reali. |
 | Switch / Presa / Luce On-Off | Indirizzi di gruppo di comando e stato On/Off, di solito DPT `1.001`. |
