@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Expose KNX to Matter (BETA)",
+    "title": "Expose KNX to Matter",
     "bridge_name": "Nom du bridge Matter",
     "port": "Port",
     "devices_help": "Ajoutez les appareils KNX à exposer sur Matter. Le \"Nom\" est celui qu'Alexa/Google/Apple affichent et utilisent pour les commandes vocales. GA de commande = écrite quand l'assistant envoie une commande ; GA d'état = lue depuis le bus pour tenir l'app à jour.",

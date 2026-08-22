@@ -4,7 +4,7 @@ title: "Matter-Bridge-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Matter-Bridge-Configuration
 ---
-# Matter 桥接器 (BETA)
+# Matter 桥接器
 
 <div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Matter 服务器 · 多 Fabric · 持久身份</div>
@@ -26,7 +26,7 @@ permalink: /wiki/zh-CN-Matter-Bridge-Configuration
 | **扩展** | 在不同 UDP 端口运行多个独立 Bridge，并连接任意数量的设备节点。 |
 | **保护** | 导出/导入 Fabric、私有凭据、会话和配对数据。 |
 
-> **BETA：**Bridge 已可使用，但细节仍可能演进。请像密码一样保护备份，仅在需要移除全部控制器时使用**重置配对**。
+> 请像密码一样保护备份，仅在需要移除全部控制器时使用**重置配对**。
 
 ## 技术概述
 

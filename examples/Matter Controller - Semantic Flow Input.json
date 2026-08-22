@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "Matter Controller - Flow input",
     "disabled": false,
-    "info": "Example of the semantic msg.payload = { function, value } contract for Control Matter from KNX (BETA).\n\nAfter importing:\n1. Open the example Matter Controller node.\n2. Select your existing Matter Controller configuration and a commissioned non-light endpoint.\n3. Enable Node Input/Output PINs.\n4. In the Flow input section shown below the PIN selector, use only the Inject nodes matching functions advertised by the device.\n\nThis example creates no matter-config and sends no command automatically."
+    "info": "Example of the semantic msg.payload = { function, value } contract for Control Matter from KNX.\n\nAfter importing:\n1. Open the example Matter Controller node.\n2. Select your existing Matter Controller configuration and a commissioned non-light endpoint.\n3. Enable Node Input/Output PINs.\n4. In the Flow input section shown below the PIN selector, use only the Inject nodes matching functions advertised by the device.\n\nThis example creates no matter-config and sends no command automatically."
   },
   {
     "id": "matter_semantic_instructions",

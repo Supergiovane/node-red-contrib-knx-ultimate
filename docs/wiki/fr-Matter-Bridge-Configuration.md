@@ -4,7 +4,7 @@ title: "Matter-Bridge-Configuration"
 lang: fr
 permalink: /wiki/fr-Matter-Bridge-Configuration
 ---
-# Bridge Matter (BETA)
+# Bridge Matter
 
 <div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Serveur Matter · Multi-fabric · Identité persistante</div>
@@ -26,7 +26,7 @@ permalink: /wiki/fr-Matter-Bridge-Configuration
 | **Échelle** | Plusieurs bridges indépendants sur des ports UDP distincts et autant de nœuds device que nécessaire. |
 | **Protection** | Export/import des fabrics, identifiants privés, sessions et données d’appairage. |
 
-> **BETA :** le bridge est opérationnel, mais certains détails peuvent évoluer. Protégez la sauvegarde comme un mot de passe et utilisez **Réinitialiser l’appairage** uniquement pour supprimer tous les contrôleurs.
+> Protégez la sauvegarde comme un mot de passe et utilisez **Réinitialiser l’appairage** uniquement pour supprimer tous les contrôleurs.
 
 ## Vue technique
 

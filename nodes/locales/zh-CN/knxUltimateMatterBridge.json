@@ -1,6 +1,6 @@
 {
   "knxUltimateMatterBridge": {
-    "title": "Expose KNX to Matter (BETA)",
+    "title": "Expose KNX to Matter",
     "bridge_name": "Matter 桥接器名称",
     "port": "端口",
     "devices_help": "添加要在 Matter 上公开的 KNX 设备。\"名称\"是 Alexa/Google/Apple 显示并用于语音命令的名称。命令 GA = 助手发送命令时写入；状态 GA = 从总线读取以保持 App 更新。",

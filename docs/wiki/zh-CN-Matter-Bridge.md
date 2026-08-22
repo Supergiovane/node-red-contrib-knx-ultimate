@@ -4,7 +4,9 @@ title: "Matter-Bridge"
 lang: zh-CN
 permalink: /wiki/zh-CN-Matter-Bridge
 ---
-# Expose KNX to Matter (BETA)
+# Expose KNX to Matter
+
+此节点使用 Matter 官方 **Day**（`#F3FFFF`）背景和 **Night**（`#131926`）图标。
 
 <div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#c9fff7;">Matter Bridge · KNX 设备 · 语音助手</div>
@@ -33,7 +35,7 @@ permalink: /wiki/zh-CN-Matter-Bridge
 3. 选择配置、名称和 KNX 组地址，或启用纯 Flow 引脚。
 4. 用 Matter 控制器扫描 Bridge 二维码；后续端点会实时协调。
 
-> **BETA：**Bridge 已可使用，但细节仍可能演进。配对后更换设备配置会改变 Matter 端点结构，可能需要重新配对或创建新的公开设备。
+> 配对后更换设备配置会改变 Matter 端点结构，可能需要重新配对或创建新的公开设备。
 
 ## 技术概述
 

@@ -4,7 +4,9 @@ title: "Matter-Bridge"
 lang: de
 permalink: /wiki/de-Matter-Bridge
 ---
-# Expose KNX to Matter (BETA)
+# Expose KNX to Matter
+
+Der Node verwendet den offiziellen Matter-Hintergrund **Day** (`#F3FFFF`) mit der Icon-Farbe **Night** (`#131926`).
 
 <div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#c9fff7;">Matter Bridge · KNX-Geräte · Sprachassistenten</div>
@@ -33,7 +35,7 @@ permalink: /wiki/de-Matter-Bridge
 3. Profil, Name und KNX-Gruppenadressen wählen oder Nur-Flow-PINs aktivieren.
 4. Den Bridge-QR-Code mit dem Matter-Controller koppeln; weitere Endpunkte werden live abgeglichen.
 
-> **BETA:** Die Bridge ist funktionsfähig, Details können sich aber noch ändern. Ein Profilwechsel nach der Kopplung verändert die Matter-Endpunktstruktur und kann erneutes Koppeln oder ein neues Gerät erfordern.
+> Ein Profilwechsel nach der Kopplung verändert die Matter-Endpunktstruktur und kann erneutes Koppeln oder ein neues Gerät erfordern.
 
 ## Technische Übersicht
 

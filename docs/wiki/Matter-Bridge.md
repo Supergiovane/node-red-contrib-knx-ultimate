@@ -4,7 +4,9 @@ title: "Matter-Bridge"
 lang: en
 permalink: /wiki/Matter-Bridge
 ---
-# Expose KNX to Matter (BETA)
+# Expose KNX to Matter
+
+The node uses the official Matter **Day** (`#F3FFFF`) background with **Night** (`#131926`) iconography.
 
 <div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#c9fff7;">Matter bridge · KNX devices · Voice assistants</div>
@@ -33,7 +35,7 @@ permalink: /wiki/Matter-Bridge
 3. Choose its profile, name and KNX group addresses, or enable flow-only PINs.
 4. Pair the bridge QR code with the desired Matter controller; later endpoints reconcile live.
 
-> **BETA:** the bridge is operational, but details may still evolve. Changing a device profile after pairing changes its Matter endpoint structure and may require re-pairing or a new exposed device.
+> Changing a device profile after pairing changes its Matter endpoint structure and may require re-pairing or a new exposed device.
 
 ## Technical overview
 

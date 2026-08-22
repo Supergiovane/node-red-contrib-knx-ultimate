@@ -164,17 +164,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
+          "label": "Control Matter from KNX",
           "url": "/wiki/Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
+          "label": "Matter Bridge",
           "url": "/wiki/Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
+          "label": "Expose KNX to Matter",
           "url": "/wiki/Matter-Bridge",
           "external": false
         }
@@ -521,17 +521,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
+          "label": "Control Matter from KNX",
           "url": "/wiki/it-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Bridge Matter (BETA)",
+          "label": "Bridge Matter",
           "url": "/wiki/it-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
+          "label": "Expose KNX to Matter",
           "url": "/wiki/it-Matter-Bridge",
           "external": false
         }
@@ -878,17 +878,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
+          "label": "Control Matter from KNX",
           "url": "/wiki/de-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
+          "label": "Matter Bridge",
           "url": "/wiki/de-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
+          "label": "Expose KNX to Matter",
           "url": "/wiki/de-Matter-Bridge",
           "external": false
         }
@@ -1235,17 +1235,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
+          "label": "Control Matter from KNX",
           "url": "/wiki/fr-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Bridge Matter (BETA)",
+          "label": "Bridge Matter",
           "url": "/wiki/fr-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
+          "label": "Expose KNX to Matter",
           "url": "/wiki/fr-Matter-Bridge",
           "external": false
         }
@@ -1592,17 +1592,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
+          "label": "Control Matter from KNX",
           "url": "/wiki/es-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Bridge Matter (BETA)",
+          "label": "Bridge Matter",
           "url": "/wiki/es-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
+          "label": "Expose KNX to Matter",
           "url": "/wiki/es-Matter-Bridge",
           "external": false
         }
@@ -1949,17 +1949,17 @@
           "external": false
         },
         {
-          "label": "从 KNX 控制 Matter (BETA)",
+          "label": "从 KNX 控制 Matter",
           "url": "/wiki/zh-CN-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Matter 桥接器 (BETA)",
+          "label": "Matter 桥接器",
           "url": "/wiki/zh-CN-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "将 KNX 暴露到 Matter (BETA)",
+          "label": "将 KNX 暴露到 Matter",
           "url": "/wiki/zh-CN-Matter-Bridge",
           "external": false
         }

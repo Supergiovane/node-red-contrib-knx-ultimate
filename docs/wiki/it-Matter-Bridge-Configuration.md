@@ -4,7 +4,7 @@ title: "Matter-Bridge-Configuration"
 lang: it
 permalink: /wiki/it-Matter-Bridge-Configuration
 ---
-# Bridge Matter (BETA)
+# Bridge Matter
 
 <div data-matter-bridge-config-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0d314f 0%,#176b91 55%,#27a9c7 100%);box-shadow:0 14px 30px rgba(13,49,79,0.25);color:#f3fbff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#d1f3ff;">Server Matter · Multi-fabric · Identità persistente</div>
@@ -26,7 +26,7 @@ permalink: /wiki/it-Matter-Bridge-Configuration
 | **Scalabilità** | Più bridge indipendenti su porte UDP distinte e qualsiasi numero di nodi device. |
 | **Protezione** | Esportazione/importazione di fabric, credenziali private, sessioni e dati di abbinamento. |
 
-> **BETA:** il bridge è operativo, ma alcuni dettagli possono ancora evolvere. Proteggi il backup come una password e usa **Reset abbinamento** solo per rimuovere tutti i controller associati.
+> Proteggi il backup come una password e usa **Reset abbinamento** solo per rimuovere tutti i controller associati.
 
 ## Panoramica tecnica
 

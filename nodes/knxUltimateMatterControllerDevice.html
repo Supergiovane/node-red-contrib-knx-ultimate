@@ -10,7 +10,7 @@
 
     RED.nodes.registerType("knxUltimateMatterControllerDevice", {
       category: "KNX Ultimate Matter",
-      color: "#8FE3D4",
+      color: "#F3FFFF",
       defaults: {
         //buttonState: {value: true},
         server: { type: "knxUltimate-config", required: false },
@@ -142,9 +142,9 @@
       outputs: 0,
       icon: "node-matter-controller-icon.svg",
       label: function () {
-        return this.name || this.matterDeviceName || "Control Matter from KNX (BETA)";
+        return this.name || this.matterDeviceName || "Control Matter from KNX";
       },
-      paletteLabel: "Control Matter from KNX (BETA)",
+      paletteLabel: "Control Matter from KNX",
       oneditprepare: function () {
         // Go to the help panel
         try {
@@ -2672,6 +2672,8 @@
 
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
 <p>This node controls commissioned Matter endpoints and maps their commands and states to KNX.</p>
+
+The node uses the official Matter **Day** (`#F3FFFF`) background with **Night** (`#131926`) iconography.
 
 **General**
 

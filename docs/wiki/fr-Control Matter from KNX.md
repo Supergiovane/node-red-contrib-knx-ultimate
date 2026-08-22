@@ -4,11 +4,11 @@ title: "Control Matter from KNX"
 lang: fr
 permalink: /wiki/fr-Control%20Matter%20from%20KNX
 ---
-# Control Matter from KNX (BETA)
-
-> Ce nœud est en **BETA** : le comportement peut changer pendant l amélioration de l'implémentation Matter.
+# Control Matter from KNX
 
 Ce nœud contrôle depuis KNX un endpoint Matter déjà appairé. Sélectionnez l'appareil Matter et l'éditeur détecte ses capacités, puis affiche uniquement les mappings KNX adaptés à cet endpoint.
+
+Le nœud utilise le fond officiel Matter **Day** (`#F3FFFF`) avec l'iconographie **Night** (`#131926`).
 
 Un clic ou le focus sur le champ de l'appareil Matter ouvre toujours la liste complète des endpoints appairés, même si un appareil est déjà sélectionné. La saisie continue de filtrer la liste.
 

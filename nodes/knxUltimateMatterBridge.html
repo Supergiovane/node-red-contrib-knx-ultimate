@@ -118,15 +118,15 @@
 
     RED.nodes.registerType('knxUltimateMatterBridge', {
       category: 'KNX Ultimate Matter',
-      color: '#8FE3D4',
+      color: '#F3FFFF',
       defaults: gaDefaults,
       inputs: 0,
       outputs: 0,
       icon: 'node-matter-bridge-icon.svg',
       label() {
-        return this.name || 'Expose KNX to Matter (BETA)';
+        return this.name || 'Expose KNX to Matter';
       },
-      paletteLabel: 'Expose KNX to Matter (BETA)',
+      paletteLabel: 'Expose KNX to Matter',
       oneditprepare() {
         try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
         const node = this;
@@ -632,7 +632,9 @@
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
-Exposes **one KNX device as a Matter device**. This node is in **BETA**.
+Exposes **one KNX device as a Matter device**.
+
+The node uses the official Matter **Day** (`#F3FFFF`) background with **Night** (`#131926`) iconography.
 
 Point it to a **Matter Bridge** configuration node (the actual bridge, paired once by Alexa/Google Home/Apple Home), pick the device type, give it the name the assistant will use, and fill the group addresses.
 

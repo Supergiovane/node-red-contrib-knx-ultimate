@@ -4,11 +4,11 @@ title: "Control Matter from KNX"
 lang: es
 permalink: /wiki/es-Control%20Matter%20from%20KNX
 ---
-# Control Matter from KNX (BETA)
-
-> Este nodo está en **BETA**: el comportamiento puede cambiar mientras se mejora la implementación Matter.
+# Control Matter from KNX
 
 Este nodo controla desde KNX un endpoint Matter ya emparejado. Selecciona el dispositivo Matter y el editor detecta sus capacidades, mostrando solo las asignaciones KNX coherentes con ese endpoint.
+
+El nodo utiliza el fondo oficial Matter **Day** (`#F3FFFF`) con la iconografía **Night** (`#131926`).
 
 Al hacer clic o enfocar el campo del dispositivo Matter siempre se abre la lista completa de endpoints emparejados, aunque ya haya un dispositivo seleccionado. Al escribir, la lista sigue filtrándose.
 

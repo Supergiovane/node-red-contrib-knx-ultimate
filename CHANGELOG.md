@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.3.13** - August 2026<br/>
+
+- **Matter**: promoted Matter Controller, Matter Bridge and Expose KNX to Matter from BETA to production-ready status; removed BETA labels and experimental warnings from the palette, editor help, examples and multilingual documentation while retaining pairing, backup and endpoint-structure safety guidance.<br/>
+- **Matter visual identity**: changed the Matter node background to the official Matter Day color (`#F3FFFF`) and the controller/bridge icon artwork to Matter Night (`#131926`) for readable, standards-aligned palette and canvas presentation.<br/>
+
 **Version 6.3.12** - August 2026<br/>
 
 - **HUE Controller**: completed the EN, IT, DE, FR, ES and zh-CN editor translations, including Light Level, Locate, Light mapping labels, mapping placeholders, error messages and tutorial links; the embedded profiles and dynamic device labels now follow Node-RED's active locale instead of a potentially stale page-language attribute. Corrected French/Spanish Hue and KNX terminology and realigned the localized help and wiki documentation.<br/>
