@@ -254,11 +254,18 @@
       `);
     };
 
-    const migrationText = (node, key, fallback, values) => {
+    const controllerMessage = (key, values) => {
       try {
-        const translated = node._(`knxUltimateHueController.${key}`, values);
-        if (translated && translated !== `knxUltimateHueController.${key}`) return translated;
+        const messageKey = `node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.${key}`;
+        const translated = RED._(messageKey, values);
+        if (translated && translated !== messageKey) return translated;
       } catch (error) { /* empty */ }
+      return undefined;
+    };
+
+    const migrationText = (_node, key, fallback, values) => {
+      const translated = controllerMessage(key, values);
+      if (translated) return translated;
       return fallback;
     };
 
@@ -318,7 +325,13 @@
       icon: 'node-hue-icon.svg',
       label() {
         const profile = PROFILE_TYPES[this.hueControllerType] || PROFILE_TYPES.light;
-        return this.name || `HUE Controller · ${profile.label}`;
+        let typeLabel = profile.label;
+        try {
+          const translationKey = `node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.types.${this.hueControllerType || 'light'}`;
+          const translated = RED._(translationKey);
+          if (translated && translated !== translationKey) typeLabel = translated;
+        } catch (error) { /* use catalog fallback */ }
+        return this.name || `HUE Controller · ${typeLabel}`;
       },
       paletteLabel: 'HUE Controller',
       oneditprepare() {
@@ -435,10 +448,8 @@
         };
 
         const controllerText = (key, fallback) => {
-          try {
-            const translated = controllerNode._(`knxUltimateHueController.${key}`);
-            if (translated && translated !== `knxUltimateHueController.${key}`) return translated;
-          } catch (error) { /* empty */ }
+          const translated = controllerMessage(key);
+          if (translated) return translated;
           return fallback;
         };
 
@@ -710,7 +721,9 @@
           $container.toggleClass('hue-controller-light-profile', controllerType === 'light');
 
           if (!definition || !template) {
-            $container.html('<div class="hue-controller-editor-error">The selected Hue editor is unavailable. Restart Node-RED after updating the package.</div>');
+            $container.html($('<div class="hue-controller-editor-error"></div>').text(
+              controllerText('editor_unavailable', 'The selected Hue editor is unavailable. Restart Node-RED after updating the package.')
+            ));
             return;
           }
 
@@ -967,7 +980,7 @@
 <script type="text/html" data-template-name="knxUltimateHueController">
   <div class="form-row" style="margin-bottom:14px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;
-    <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b data-i18n="knxUltimateHueController.tutorials_link"></b></a>
   </div>
   <div class="form-row" id="hue-controller-migrate-legacy-flow-row" style="display:none; margin-bottom:14px;">
     <a class="hue-legacy-migration-video" href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:5px; margin-right:10px;" data-i18n="[title]knxUltimateHueController.migration_video_title">

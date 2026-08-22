@@ -1,8 +1,8 @@
 {
   "knxUltimateHueScene": {
-    "title": "Node de la scène de la teinte",
-    "paletteLabel": "Scène de teinte",
-    "hue_scene": "Scène de teinte",
+    "title": "Nœud de scène Hue",
+    "paletteLabel": "Scène Hue",
+    "hue_scene": "Scène Hue",
     "recall_as": "Rappeler comme",
     "recall_active": "Rappel comme actif",
     "recall_dynamic": "Rappel comme dynamique",
@@ -21,21 +21,22 @@
     },
     "single_info": "Sélectionnez la scène Hue et choisissez comment elle doit être rappelée lorsque l'adresse KNX est déclenchée.",
     "mapping_info": "Carte les adresses KNX qui rappellent la scène ou signalent son état actuel.",
-    "multi_info": "Associez les numéros de scène KNX aux scènes de teinte. Chaque règle rappelle une scène de teinte différente.",
-    "behaviour_info": "Décidez si la broche de sortie du nœud-rouge doit rester visible lorsque la livraison KNX est désactivée.",
+    "multi_info": "Associez les numéros de scène KNX aux scènes Hue. Chaque règle rappelle une scène Hue différente.",
+    "behaviour_info": "Décidez si la broche de sortie Node-RED doit rester visible lorsque la communication KNX est désactivée.",
     "status_ga": "Statut GA",
-    "output_info": "Sans une passerelle KNX, la sortie de débit reste activée, de sorte que les événements de teinte continuent d'atteindre le nœud-rouge.",
-    "no_scenes": "Pas de scènes de teintes trouvées. Utilisez l'icône d'actualisation après l'ajout de nouvelles scènes.",
-    "multi_scene_placeholder": "Nom de la scène Hue"
+    "output_info": "Sans une passerelle KNX, la sortie du flow reste activée, de sorte que les événements Hue continuent d'atteindre Node-RED.",
+    "no_scenes": "Pas de scènes Hue trouvées. Utilisez l'icône d'actualisation après l'ajout de nouvelles scènes.",
+    "multi_scene_placeholder": "Nom de la scène Hue",
+    "editor_error": "Erreur de l'éditeur de scène Hue : {{error}}"
   },
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   }
 }

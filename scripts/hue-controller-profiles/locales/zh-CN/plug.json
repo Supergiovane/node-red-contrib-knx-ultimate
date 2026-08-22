@@ -1,7 +1,7 @@
 {
   "knxUltimateHuePlug": {
     "title": "HUE 插座",
-    "paletteLabel": "Hue Plug/Outlet",
+    "paletteLabel": "Hue 插座/输出",
     "tabs": {
       "switch": "开关",
       "behaviour": "行为"

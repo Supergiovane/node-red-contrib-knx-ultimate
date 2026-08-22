@@ -18,16 +18,16 @@
     "node_pins": "Broches d'entrée / sortie de nœud",
     "node_pins_hide": "Cacher",
     "node_pins_show": "Afficher les broches d'entrée / sortie du nœud",
-    "node_pins_help": "Activez les broches d'entrée / sortie de Node-Red pour envoyer des charges utiles API Hue personnalisées ou des événements transférés à votre flux."
+    "node_pins_help": "Activez les broches d'entrée / sortie de Node-RED pour envoyer des charges utiles API Hue personnalisées ou des événements transférés à votre flux."
   },
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   }
 }

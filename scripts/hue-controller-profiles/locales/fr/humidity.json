@@ -1,8 +1,8 @@
 {
   "knxUltimateHueHumiditySensor": {
-    "paletteLabel": "Capteur d'humidité de la teinte",
-    "heading": "Nœud de capteur d'humidité de la teinte",
-    "hue_sensor": "Capteur de teinte",
+    "paletteLabel": "Capteur d'humidité Hue",
+    "heading": "Nœud de capteur d'humidité Hue",
+    "hue_sensor": "Capteur Hue",
     "no_devices": "Aucun appareil disponible",
     "tabs": {
       "humidity": "Humidité",
@@ -11,20 +11,20 @@
     "humidity_info": "Reliez votre adresse de groupe d'humidité KNX pour recevoir l'humidité relative (%).",
     "node_pins": "Broche de sortie du nœud",
     "node_pins_hide": "Cacher",
-    "node_pins_show": "Afficher la broche de sortie du nœud-rouge",
-    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie du nœud-rouge est activée, les événements Hue sont toujours émis dans votre flux.",
+    "node_pins_show": "Afficher la broche de sortie Node-RED",
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie Node-RED est activée, les événements Hue sont toujours émis dans votre flux.",
     "read_status_startup": "Lire l'état au démarrage",
     "opt_no": "Non",
     "opt_yes_emit": "Oui, et émettez des télégrammes KNX."
   },
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   }
 }

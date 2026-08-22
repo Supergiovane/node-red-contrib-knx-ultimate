@@ -2,9 +2,22 @@
   "knxUltimateHueLightSensor": {
     "title": "Hue Light Sensor node",
     "paletteLabel": "Hue Light Sensor",
+    "hue_sensor": "Hue light sensor",
+    "no_devices": "No Hue light sensors available",
+    "tabs": {
+      "mapping": "Mapping",
+      "behaviour": "Behaviour"
+    },
+    "mapping_info": "Link the KNX group address that should receive the measured light level.",
+    "behaviour_info": "Configure startup synchronization and the Node-RED output pin.",
     "read_status_startup": "Read status at startup",
     "opt_no": "No",
-    "opt_yes_emit": "Yes, and emit KNX telegrams."
+    "opt_yes_emit": "Yes, and emit KNX telegrams.",
+    "node_pins": "Node output pin",
+    "node_pins_show": "Show Node-RED output pin",
+    "node_pins_hide": "Hide",
+    "output_info": "No KNX gateway selected. When the Node-RED output pin is enabled, Hue light-level events are still emitted to your flow.",
+    "mapping_name_placeholder": "Light level"
   },
   "common": {
     "ga": "GA",

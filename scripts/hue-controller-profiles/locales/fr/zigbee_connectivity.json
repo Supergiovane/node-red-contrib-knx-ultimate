@@ -1,12 +1,12 @@
 {
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   },
   "knxUltimateHueZigbeeConnectivity": {
@@ -18,13 +18,13 @@
       "behaviour": "Comportement"
     },
     "mapping_info": "LIEND L'adresse du groupe KNX qui devrait refléter l'état de connectivité Zigbee.",
-    "behaviour_info": "Choisissez s'il faut lire l'état de connectivité au démarrage et exposer la broche de sortie rouge-rouge.",
+    "behaviour_info": "Choisissez s'il faut lire l'état de connectivité au démarrage et exposer la broche de sortie Node-RED.",
     "read_status_startup": "Lire l'état au démarrage",
     "opt_no": "Non",
     "opt_yes_emit": "Oui, et émettez des télégrammes KNX.",
     "node_pins": "Broche de sortie du nœud",
-    "node_pins_show": "Afficher la broche de sortie du nœud-rouge",
+    "node_pins_show": "Afficher la broche de sortie Node-RED",
     "node_pins_hide": "Cacher",
-    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie du nœud-rouge est activée, les événements de connectivité Hue sont toujours émis dans votre flux."
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie Node-RED est activée, les événements de connectivité Hue sont toujours émis dans votre flux."
   }
 }

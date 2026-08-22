@@ -26,7 +26,8 @@
     "status_ga": "Status-GA",
     "output_info": "Ohne KNX-Gateway bleibt der Flow-Ausgang aktiv, damit Hue-Ereignisse weiterhin Node-RED erreichen.",
     "no_scenes": "Keine Hue-Szenen gefunden. Verwenden Sie das Aktualisierungssymbol, nachdem neue Szenen hinzugefügt wurden.",
-    "multi_scene_placeholder": "Hue-Szenenname"
+    "multi_scene_placeholder": "Hue-Szenenname",
+    "editor_error": "Fehler im Hue-Szeneneditor: {{error}}"
   },
   "common": {
     "ga": "GA",

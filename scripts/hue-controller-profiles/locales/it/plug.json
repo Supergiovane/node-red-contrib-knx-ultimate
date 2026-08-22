@@ -1,7 +1,7 @@
 {
   "knxUltimateHuePlug": {
     "title": "Presa/Plug HUE",
-    "paletteLabel": "Hue Plug/Outlet",
+    "paletteLabel": "Presa/uscita Hue",
     "tabs": {
       "switch": "On/Off",
       "behaviour": "Comportamento"
@@ -10,7 +10,7 @@
     "switch_info": "Collega l'indirizzo KNX per comandare accensione e spegnimento della presa Hue.",
     "switch_control": "Comando",
     "switch_status": "Stato",
-    "power_state": "Power state",
+    "power_state": "Stato alimentazione",
     "power_state_info": "Opzionale. Traccia lo stato di alimentazione restituito da Hue (on/standby) su un indirizzo KNX.",
     "read_status_startup": "Leggi stato all'avvio",
     "opt_yes_emit": "Sì, ed emetti i telegrammi KNX.",

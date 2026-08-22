@@ -1,30 +1,30 @@
 {
   "common": {
-    "ga": "Georgia",
+    "ga": "GA",
     "dpt": "DPT",
     "name": "Nombre",
-    "youtube_sample": "Muestra de youtube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Ejemplo de YouTube",
+    "knx_gw": "Pasarela KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Tono Philips",
+    "philips_hue": "Philips Hue",
     "read": "Leer"
   },
   "knxUltimateHueTemperatureSensor": {
-    "paletteLabel": "Sensor de temperatura del tono",
-    "hue_sensor": "Sensor de temperatura del tono",
+    "paletteLabel": "Sensor de temperatura Hue",
+    "hue_sensor": "Sensor de temperatura Hue",
     "no_devices": "No hay sensores de temperatura disponibles",
     "tabs": {
-      "mapping": "Cartografía",
+      "mapping": "Mapeo",
       "behaviour": "Comportamiento"
     },
     "mapping_info": "Enlace la dirección del grupo KNX que debe emitir el valor de temperatura.",
-    "behaviour_info": "Configure cómo se lee el sensor al inicio y si expone el pin de salida de nodo-rojo.",
+    "behaviour_info": "Configure cómo se lee el sensor al inicio y si expone el pin de salida de Node-RED.",
     "read_status_startup": "Estado de lectura en el inicio",
     "opt_no": "No",
     "opt_yes_emit": "Sí, y emitir telegramas KNX.",
     "node_pins": "Pin de salida de nodo",
-    "node_pins_show": "Mostrar pin de salida de nodo-rojo",
+    "node_pins_show": "Mostrar pin de salida de Node-RED",
     "node_pins_hide": "Esconder",
-    "output_info": "No se seleccionó KNX Gateway. Cuando se habilita el pin de salida de nodo-rojo, los valores de temperatura del tono todavía se emiten a su flujo."
+    "output_info": "No se seleccionó KNX Gateway. Cuando se habilita el pin de salida de Node-RED, los valores de temperatura Hue todavía se emiten a su flujo."
   }
 }

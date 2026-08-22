@@ -6,7 +6,7 @@ permalink: /wiki/es-HUE%20Controller
 ---
 # HUE Controller
 
-[**KNX-Ultimate video tutorials (YouTube playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
+[**Tutoriales en vídeo de KNX-Ultimate (lista de YouTube)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
 
 <div data-hue-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0b2d5a 0%,#1767bf 55%,#2a8dff 100%);box-shadow:0 14px 30px rgba(11,45,90,0.24);color:#f4f9ff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#cfe4ff;">Hue API v2 · KNX · Node-RED</div>
@@ -93,7 +93,7 @@ Los eventos Hue siguen siendo actualizaciones de estado y no se convierten en nu
 
 ## Luz / grupo de luces (`light`)
 
-Este nodo controla las luces de Hue Philips (single o agrupada) y mapea sus comandos/estados a KNX.
+Este nodo controla luces Philips Hue, individuales o agrupadas, y asocia sus comandos y estados con KNX.
 
 Sin una pasarela KNX, aparece un aviso de uso exclusivo mediante el flujo en lugar del encabezado duplicado «Philips HUE».
 
@@ -105,7 +105,7 @@ Sin una pasarela KNX, aparece un aviso de uso exclusivo mediante el flujo en lug
 |-|-|
 | KNX GW | Seleccione la puerta de enlace KNX para ser utilizada |
 | Hue Bridge | Seleccione la Hue Bridge que se utilizará |
-| Nombre | Luz de tono o luz agrupada para usar (autocompletar mientras escribe). |
+| Nombre | Luz Hue o luz agrupada para usar (autocompletar mientras escribe). |
 
 **Localizar dispositivo**
 
@@ -113,7 +113,7 @@ El botón `Locate` (icono de reproducción) inicia una sesión de identificació
 
 **Opciones**
 
-Aquí puede vincular las direcciones del grupo KNX con los comandos/estados de tono disponibles.
+Aquí puede vincular las direcciones del grupo KNX con los comandos/estados Hue disponibles.
 
 Comenzar a escribir en el campo GA (nombre o dirección de grupo); Aparecen sugerencias mientras escribe.
 
@@ -121,15 +121,15 @@ Comenzar a escribir en el campo GA (nombre o dirección de grupo); Aparecen suge
 
 | Propiedad | Descripción |
 |-|-|
-| Control | Este GA se usa para encender/apagar la luz del tono a través de un valor booleano KNX verdadero/falso |
+| Control | Este GA se usa para encender/apagar la luz Hue a través de un valor booleano KNX verdadero/falso |
 | Estado | Enlace esto a la dirección de grupo de estado del interruptor de la luz |
 
 **Oscuro**
 
 | Propiedad | Descripción |
 |-|-|
-| Control Dim | Relativo tenue de la luz del tono. Puede establecer la velocidad de atenuación en la pestaña **Comportamiento** . |
-| Control % | Cambia el brillo de la luz del tono absoluto (0-100%) |
+| Control Dim | Relativo tenue de la luz Hue. Puede establecer la velocidad de atenuación en la pestaña **Comportamiento** . |
+| Control % | Cambia el brillo de la luz Hue absoluto (0-100%) |
 | Estado % | Enlace esto al estado de brillo de la luz Dirección de grupo KNX |
 | Velocidad dim (MS) | Velocidad de atenuación en milisegundos. Se aplica tanto al brillo de la luz como a los puntos de datos de color blanco sintonizable. Calculado sobre el rango 0% → 100%. |
 | Min Dim brillo | El brillo mínimo que la lámpara puede alcanzar. Por ejemplo, si está atenuando la luz hacia abajo, la luz dejará de atenuar en el %de brillo especificado. |
@@ -144,7 +144,7 @@ Comenzar a escribir en el campo GA (nombre o dirección de grupo); Aparecen suge
 | Estado %| Estado de temperatura GA. DPT 5.001 Valor absoluto: 0 = completo cálido, 100 = frío completo. |
 | Control Kelvin | **DPT 7.600: ** Temperatura establecida en Kelvin usando el rango KNX 2000-6535 (convertido en Hue Mirek).
 **DPT 9.002:** Temperatura establecida usando el rango de Hue 2000-6535 K (la ambiente comienza a 2200 K). Las conversiones pueden introducir pequeñas desviaciones. |
-| Estado Kelvin | **DPT 7.600: ** Lea la temperatura en Kelvin usando el rango KNX 2000-6535 (convertido desde el tono).
+| Estado Kelvin | **DPT 7.600: ** Lea la temperatura en Kelvin usando el rango KNX 2000-6535 (convertido desde Hue).
 **DPT 9.002:** Temperatura de lectura usando el rango de Hue 2000-6535 K (la ambiente comienza en 2200 K). Las conversiones pueden introducir pequeñas desviaciones. |
 | Invertir la dirección tenue | Invierte la dirección tenue. |
 
@@ -170,12 +170,12 @@ _Non-Hue Efectos básicos_
 
 | Propiedad | Descripción |
 |-|-|
-| Parpadeo | _true_ parpadear la luz, _false_ deja de parpadear. Parpadea la luz encendida y apagada. Útil para la señalización. Funciona con todas las luces de tono. |
-| Ciclo de color | _true_ ciclo de inicio, _false_ ciclo de detención. Cambia aleatoriamente el color de la luz del tono a intervalo regular. Funciona con todas las luces de tono que tienen capacidades de color. El efecto de color comenzará 10 segundos después del conjunto. |
+| Parpadeo | _true_ parpadear la luz, _false_ deja de parpadear. Parpadea la luz encendida y apagada. Útil para la señalización. Funciona con todas las luces Hue. |
+| Ciclo de color | _true_ ciclo de inicio, _false_ ciclo de detención. Cambia aleatoriamente el color de la luz Hue a intervalo regular. Funciona con todas las luces Hue que tienen capacidades de color. El efecto de color comenzará 10 segundos después del conjunto. |
 
 _Extos efectos nativos_
 
-Use la tabla **Hue Native Effects** para asignar sus valores de KNX a los efectos respaldados por la luz seleccionada (por ejemplo, `vela`,` chimenea`, `prism`). Cada fila vincula un valor KNX (booleano, numérico o textual, dependiendo del punto de datos que elija) con un efecto de tono. En el lado de KNX puedes:
+Use la tabla **Hue Native Effects** para asignar sus valores de KNX a los efectos respaldados por la luz seleccionada (por ejemplo, `vela`,` chimenea`, `prism`). Cada fila vincula un valor KNX (booleano, numérico o textual, dependiendo del punto de datos que elija) con un efecto Hue. En el lado de KNX puedes:
 
 - Envíe el valor asignado para activar ese efecto;
 - Opcionalmente, proporcione una dirección de grupo de estado: el nodo emite el valor asignado cada vez que el puente HUE informa un cambio de efecto; Si no existe mapeo, se envía el nombre del efecto sin procesar (requiere un DPT textual como 16.xxx).
@@ -184,8 +184,8 @@ Use la tabla **Hue Native Effects** para asignar sus valores de KNX a los efecto
 
 | Propiedad | Descripción |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------- --------------------------------------------------------------------------------------------------- |
-| Leer el estado al inicio | Lea el estado de la luz del tono en la inicio de nodo-rojo o el despliegue completo de Node-Red, y envíe ese estado al bus KNX |
-| Estado de brillo KNX | Actualiza el estado de la dirección del grupo de brillo KNX, siempre que la lámpara de tono se encienda/apague. Las opciones son **cuando la luz del tono está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento de KNX predeterminado) ** y**dejar como es (comportamiento de tono predeterminado) ** . Si tiene KNX Dimmer con estado de brillo, como MDT, la opción sugerida es _**cuando la luz del tono está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento predeterminado KNX)** _ |
+| Leer el estado al inicio | Lea el estado de la luz Hue en la inicio de Node-RED o el despliegue completo de Node-RED, y envíe ese estado al bus KNX |
+| Estado de brillo KNX | Actualiza el estado de la dirección del grupo de brillo KNX, siempre que la lámpara Hue se encienda/apague. Las opciones son **cuando la luz Hue está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento de KNX predeterminado) ** y**dejar como es (comportamiento Hue predeterminado) ** . Si tiene KNX Dimmer con estado de brillo, como MDT, la opción sugerida es _**cuando la luz Hue está apagada, envíe 0%. Cuando se enciende, restaure el valor anterior (comportamiento predeterminado KNX)** _ |
 | Actualizar el estado local en caché de Hue a partir de escrituras del bus KNX | Opcion avanzada, activada por defecto. Si esta activa, las escrituras que llegan desde el bus KNX tambien actualizan inmediatamente el estado local en cache de Hue del nodo, sin esperar al feedback/evento del bridge Hue. Esto da reacciones locales mas rapidas y respuestas inmediatas de lectura KNX mas coherentes, especialmente cuando la luz o el grupo estan apagados. Desactivela si prefiere que la cache siga solo el feedback/evento real del bridge Hue. |
 | Encender el comportamiento | Establece el comportamiento de sus luces cuando se enciende. Puede elegir entre diferentes comportamientos.
  **Seleccione Color: ** La luz se encenderá con el color de su elección. Para cambiar el color, simplemente haga clic en el selector de color (debajo del control de color_select).
@@ -208,15 +208,15 @@ La función de atenuación funciona en el modo **KNX `Start` y`stop` ** . Para c
 
 ## Enchufe / salida (`plug`)
 
-### Enchufe / salida de tono
+### Enchufe / salida Hue
 
 #### Descripción general
 
 El nodo de enchufe de Hue enlaza un enchufe inteligente Philips Hue (servicio `plug``) con direcciones de grupo KNX para que pueda controlar la alimentación y rastrear el estado directamente desde el bus.
 
 - Admite **Control de encendido/apagado** y **Comentarios de estado**.
-- Mapeo opcional del tono `power_state` (en / en espera).
-- Puede exponer los pines de entrada/salida de Node-Red para reenviar eventos de HUE a flujos o enviar cargas útiles de API avanzadas.
+- Mapeo opcional Hue `power_state` (en / en espera).
+- Puede exponer los pines de entrada/salida de Node-RED para reenviar eventos de HUE a flujos o enviar cargas útiles de API avanzadas.
 
 #### Configuración
 
@@ -224,18 +224,18 @@ El nodo de enchufe de Hue enlaza un enchufe inteligente Philips Hue (servicio `p
 |-|-|
 |KNX GW |KNX Gateway utilizado para telegramas |
 |Hue Bridge |Hue Bridge configurada |
-|Nombre |Seleccione el enchufe de tono de la lista de autocompletar |
+|Nombre |Seleccione el enchufe Hue de la lista de autocompletar |
 |Control |KNX GA para comandos de encendido/apagado (DPT booleano) |
 |Estado |GA para la retroalimentación de encendido/apagado proveniente de Hue |
 |Estado de poder |Hue opcional GA de reflejo `power_state` (boolean/text) |
 |Leer el estado al inicio |Cuando está habilitado, el nodo emite el estado de enchufe actual en la implementación/conexión |
-|Pins de E/S de nodo |Habilite los pasadores de entrada/salida de nodo-rojo.La entrada espera cargas útiles de API de tono (por ejemplo, `{en: {on: true}}`).Salir reenvía cada evento de Hue.|
+|Pins de E/S de nodo |Habilite los pasadores de entrada/salida de Node-RED.La entrada espera cargas útiles de API Hue (por ejemplo, `{en: {on: true}}`).Salir reenvía cada evento de Hue.|
 
 #### consejos de mapeo KNX
 
 - Use un punto de datos booleano (por ejemplo, DPT 1.001) para el comando y el estado.
 - Si expone `power_state`, asigna a un ga booleano (true =` on`, false = `en espera`).
-- Para solicitudes de lectura (`groupValue_read`) El nodo devuelve el último valor de tono en caché.
+- Para solicitudes de lectura (`groupValue_read`) El nodo devuelve el último valor Hue en caché.
 
 #### Integración de flujo
 
@@ -264,7 +264,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Botón de tono |Botón Hue para ser utilizado (automáticamente mientras escribe) |
+|Botón Hue |Botón Hue para ser utilizado (automáticamente mientras escribe) |
 
 **Cambiar**
 
@@ -294,7 +294,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 
 ##### Detalles
 
-`msg.event` espejos` button.button_report.event`.El evento de tono original está expuesto en `msg.rawevent`.Use el estado opcional GA para mantener el estado de alternar en sincronización con interruptores de pared u otros controladores.
+`msg.event` espejos` button.button_report.event`.El evento Hue original está expuesto en `msg.rawevent`.Use el estado opcional GA para mantener el estado de alternar en sincronización con interruptores de pared u otros controladores.
 
 ---
 
@@ -302,12 +302,12 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 
 ## Tap dial (`relative_rotary`)
 
-El nodo **TAP TAP** mapea el servicio rotativo del dial de toque de tono a KNX y reenvía los eventos de tono bruto a su flujo.Use el icono de actualización junto al campo del dispositivo después de combinar un nuevo dial en el puente.
+El nodo **TAP TAP** mapea el servicio rotativo del Hue Tap dial a KNX y reenvía los eventos Hue bruto a su flujo.Use el icono de actualización junto al campo del dispositivo después de combinar un nuevo dial en el puente.
 
 Pestañas ###
 
 - **Mapeo** - Seleccione KNX GA y DPT utilizados para los eventos de rotación.Puntos de datos compatibles: DPT 3.007 (DIM relativo), DPT 5.001 (nivel absoluto 0-100%) y DPT 232.600 (control de color del proveedor).
-- **Comportamiento** - Mostrar u ocultar el pin de salida de nodo -rojo.Cuando no se configura la puerta de enlace KNX, la salida se mantiene habilitada para que los eventos de tono aún alcancen el flujo.
+- **Comportamiento** - Mostrar u ocultar el pin de salida de Node-RED.Cuando no se configura la puerta de enlace KNX, la salida se mantiene habilitada para que los eventos Hue aún alcancen el flujo.
 
 ##### Configuración general
 
@@ -315,7 +315,7 @@ Pestañas ###
 |-|-|
 |KNX GW |KNX Gateway utilizada para GA Autocomplete.|
 |Hue Bridge |Hue Bridge aloja el dial de grifo.|
-|Dial de toque de tono |Dispositivo rotativo para controlar (automáticamente; el botón de actualización vuelve a cargar la lista).|
+|Hue Tap dial |Dispositivo rotativo para controlar (automáticamente; el botón de actualización vuelve a cargar la lista).|
 
 Pestaña de mapeo ###
 
@@ -328,7 +328,7 @@ Pestaña de mapeo ###
 
 |#| Puerto | carga útil |
 |-|-|-|
-| 1 | Salida estándar | `msg.payload` (objeto) Evento de tono sin procesar emitido por el dial de toque. |
+| 1 | Salida estándar | `msg.payload` (objeto) Evento Hue sin procesar emitido por el dial de toque. |
 
 > ℹ️ Los widgets específicos de KNX aparecen solo después de seleccionar una puerta de enlace KNX;La pestaña de mapeo permanece oculta hasta que se configuran tanto el puente como la puerta de enlace.
 
@@ -338,7 +338,7 @@ Pestaña de mapeo ###
 
 ## Movimiento (`motion`)
 
-Este nodo escucha un sensor de movimiento de tono y refleja los eventos para KNX y/o su flujo de nodo-rojo.
+Este nodo escucha un sensor de movimiento Hue y refleja los eventos para KNX y/o su flujo de Node-RED.
 
 Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el campo GA;Aparecen sugerencias mientras escribe.Presione el botón Actualizar junto a "Sensor Hue" para volver a cargar la lista de dispositivos desde el puente si agrega nuevos sensores.
 
@@ -348,7 +348,7 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 |-|-|
 |KNX GW |KNX Gateway que recibe las actualizaciones de movimiento (requeridas antes de que aparezcan los campos de mapeo KNX).|
 |Hue Bridge |Hue Bridge para la consulta.|
-|Sensor de movimiento de tono |Sensor de movimiento de Hue (admite autocompletar y actualizar).|
+|Sensor de movimiento Hue |Sensor de movimiento de Hue (admite autocompletar y actualizar).|
 
 **Cartografía**
 
@@ -360,9 +360,9 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 
 | Propiedad | Descripción |
 |-|-|
-|Pin de salida del nodo |Mostrar u ocultar la salida de nodo-rojo.Cuando no se selecciona la puerta de enlace KNX, el pin de salida permanece habilitado para que los eventos de movimiento de tono aún alcancen su flujo.|
+|Pin de salida del nodo |Mostrar u ocultar la salida de Node-RED.Cuando no se selecciona la puerta de enlace KNX, el pin de salida permanece habilitado para que los eventos de movimiento Hue aún alcancen su flujo.|
 
-> ℹ️ Los widgets KNX permanecen ocultos hasta que seleccione una puerta de enlace KNX, lo que facilita el uso del nodo puramente como un oyente rojo de nodo.
+> ℹ️ Los widgets KNX permanecen ocultos hasta que seleccione una puerta de enlace KNX, lo que facilita el uso del nodo puramente como un oyente Node-RED.
 
 ##### Producción
 
@@ -425,7 +425,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Movimiento de la cámara de tono |Sensor de movimiento de la cámara de tono (autocompletar mientras se escribe) |
+|Movimiento de la cámara Hue |Sensor de movimiento de la cámara Hue (autocompletar mientras se escribe) |
 |Leer el estado al inicio |En Startup/Reconnect, lea el valor actual y envíelo a KNX (predeterminado: no) |
 
 **Cartografía**
@@ -449,7 +449,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 
 ## Contacto (`contact`)
 
-Este nodo reenvía los eventos desde un sensor de contacto de tono y los asigna a las direcciones de grupo KNX.
+Este nodo reenvía los eventos desde un sensor de contacto Hue y los asigna a las direcciones de grupo KNX.
 
 Comience a escribir en el campo GA, el nombre o la dirección de grupo de su dispositivo KNX, los dispositivos avaiables comienzan a aparecer mientras está escribiendo.
 
@@ -459,7 +459,7 @@ Comience a escribir en el campo GA, el nombre o la dirección de grupo de su dis
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Sensor de contacto de tono |Sensor de contacto de Hue para ser utilizado (autocompletar mientras se escribe). |
+|Sensor de contacto Hue |Sensor de contacto de Hue para ser utilizado (autocompletar mientras se escribe). |
 
 |Propiedad |Descripción |
 |-|-|
@@ -472,7 +472,7 @@ Comience a escribir en el campo GA, el nombre o la dirección de grupo de su dis
 
 ##### Detalles
 
-`msg.payload` lleva el evento de tono bruto (booleano/objeto).Úselo para una lógica personalizada si es necesario.
+`msg.payload` lleva el evento Hue bruto (booleano/objeto).Úselo para una lógica personalizada si es necesario.
 
 ---
 
@@ -480,7 +480,7 @@ Comience a escribir en el campo GA, el nombre o la dirección de grupo de su dis
 
 ## Nivel de luz (`light_level`)
 
-Este nodo lee eventos de Lux de un sensor de luz de tono y los mapea a KNX.
+Este nodo lee eventos de Lux de un sensor de luz Hue y los mapea a KNX.
 
 Emite la iluminancia ambiental (lux) cada vez que cambia.Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular el KNX GA;Los dispositivos aparecen mientras escribe.
 
@@ -490,7 +490,7 @@ Emite la iluminancia ambiental (lux) cada vez que cambia.Comience a escribir en 
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Sensor de luz de tono |Sensor de luz Hue para usar (autocompletar mientras escribe). |
+|Sensor de luz Hue |Sensor de luz Hue para usar (autocompletar mientras escribe). |
 |Leer el estado al inicio |Lea el estado en el inicio y emita el evento al autobús KNX al inicio/reconexión.(Predeterminado "no") |
 
 **Cartografía**
@@ -514,7 +514,7 @@ Emite la iluminancia ambiental (lux) cada vez que cambia.Comience a escribir en 
 
 ## Temperatura (`temperature`)
 
-Este nodo lee la temperatura (° C) de un sensor de temperatura del tono y lo asigna a KNX.
+Este nodo lee la temperatura (° C) de un sensor de temperatura Hue y lo asigna a KNX.
 
 Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular el KNX GA;Los dispositivos aparecen mientras escribe.
 
@@ -524,7 +524,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Sensor de temperatura del tono |Sensor de temperatura del tono (autocompletado mientras se escribe) |
+|Sensor de temperatura Hue |Sensor de temperatura Hue (autocompletado mientras se escribe) |
 |Leer el estado al inicio |En Startup/Reconext, lea el valor actual y envíelo a KNX (predeterminado: no) |
 
 **Cartografía**
@@ -548,7 +548,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 
 ## Humedad (`humidity`)
 
-Este nodo lee la humedad relativa (%) de un sensor de humedad de tono y lo asigna a KNX.
+Este nodo lee la humedad relativa (%) de un sensor de humedad Hue y lo asigna a KNX.
 
 Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular el KNX GA;Los dispositivos aparecen mientras escribe.
 
@@ -558,7 +558,7 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Sensor de tono |Sensor de humedad de tono (autocompletado mientras se escribe) |
+|Sensor Hue |Sensor de humedad Hue (autocompletado mientras se escribe) |
 |Leer el estado al inicio |En Startup/Reconext, lea el valor actual y envíelo a KNX (predeterminado: no) |
 
 **Cartografía**
@@ -582,13 +582,13 @@ Comience a escribir en el campo GA (nombre o dirección de grupo) para vincular 
 
 ## Escena (`scene`)
 
-La escena **Hue** nodo expone escenas de tono a KNX y puede reenviar los eventos de tono bruto a un flujo de rojo de nodo.El campo de la escena admite autocompletar;Use el icono de actualización después de agregar escenas en el puente para que la lista se mantenga actualizada.
+El nodo **Hue Scene** expone las escenas Hue a KNX y puede reenviar los eventos Hue sin procesar a un flujo de Node-RED. El campo de escena admite autocompletado; use el icono de actualización después de añadir escenas al Hue Bridge para mantener la lista actualizada.
 
 ##### pestañas de un vistazo
 
-- **Mapeo** - Enlace las direcciones de grupo KNX a la escena del tono seleccionada.DPT 1.xxx realiza un retiro booleano, mientras que DPT 18.xxx envía un número de escena KNX.
-- **Multi Scene** - Cree una lista de reglas que asocie los números de escena KNX con diferentes escenas de tono y elige si cada escena se recuerda como _Active_, _Dynamic \ _palette_ o _static_.
-- **Comportamiento** - Alternar el pin de salida de nodo -rojo.Cuando no se configura la puerta de enlace KNX, el PIN permanece habilitado para que los eventos del puente aún alcancen el flujo.
+- **Mapeo** - Enlace las direcciones de grupo KNX a la escena Hue seleccionada.DPT 1.xxx realiza un retiro booleano, mientras que DPT 18.xxx envía un número de escena KNX.
+- **Multi Scene** - Cree una lista de reglas que asocie los números de escena KNX con diferentes escenas Hue y elige si cada escena se recuerda como _Active_, _Dynamic \ _palette_ o _static_.
+- **Comportamiento** - Alternar el pin de salida de Node-RED.Cuando no se configura la puerta de enlace KNX, el PIN permanece habilitado para que los eventos del puente aún alcancen el flujo.
 
 ##### Configuración general
 
@@ -596,7 +596,7 @@ La escena **Hue** nodo expone escenas de tono a KNX y puede reenviar los eventos
 |-|-|
 |KNX GW |KNX Gateway que suministra el catálogo de direcciones utilizado para autocompletar.|
 |Hue Bridge |Hue Bridge que alberga las escenas.|
-|Escena de tono |Escena para recuperar (Autocompletar; Refresh Button Recargue el catálogo del puente).|
+|Escena Hue |Escena para recuperar (Autocompletar; Refresh Button Recargue el catálogo del puente).|
 
 Pestaña de mapeo ###
 
@@ -633,7 +633,7 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 |-|-|
 |KNX GW |KNX Gateway solía publicar el nivel de la batería (requerido antes de que aparezcan los campos de mapeo KNX).|
 |Hue Bridge |Hue Bridge que aloja el dispositivo.|
-|Sensor de batería de tono |Dispositivo/sensor de tono que proporciona el nivel de la batería (admite autocompletar y actualizar).|
+|Sensor de batería Hue |Dispositivo/sensor Hue que proporciona el nivel de la batería (admite autocompletar y actualizar).|
 
 **Cartografía**
 
@@ -646,9 +646,9 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 | Propiedad | Descripción |
 |-|-|
 |Leer el estado al inicio |En implementar/reconectar, lea el valor actual de la batería y publíquelo en KNX.Valor predeterminado: "Sí".|
-|Pin de salida del nodo |Mostrar u ocultar la salida de nodo-rojo.Cuando no se selecciona la puerta de enlace KNX, la salida permanece habilitada, por lo que los eventos de tono continúan alcanzando el flujo.|
+|Pin de salida del nodo |Mostrar u ocultar la salida de Node-RED.Cuando no se selecciona la puerta de enlace KNX, la salida permanece habilitada, por lo que los eventos Hue continúan alcanzando el flujo.|
 
-> ℹ️ KNX Mapping Widgets permanece oculto hasta que se selecciona una puerta de enlace KNX.Esto mantiene el editor ordenado cuando el nodo se usa solo para reenviar los eventos de Hue en Node-Red.
+> ℹ️ KNX Mapping Widgets permanece oculto hasta que se selecciona una puerta de enlace KNX.Esto mantiene el editor ordenado cuando el nodo se usa solo para reenviar los eventos de Hue en Node-RED.
 
 ---
 
@@ -656,7 +656,7 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 
 ## Conectividad Zigbee (`zigbee_connectivity`)
 
-Este nodo recupera el estado de conectividad Zigbee de un dispositivo de tono y lo expone a KNX.
+Este nodo recupera el estado de conectividad Zigbee de un dispositivo Hue y lo expone a KNX.
 
 Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el campo GA;Aparecen sugerencias mientras escribe.
 
@@ -666,7 +666,7 @@ Comience a escribir el nombre del dispositivo KNX o la dirección de grupo en el
 |-|-|
 |KNX GW |KNX Gateway solía publicar el estado.|
 |Hue Bridge |Hue Bridge para la consulta.|
-|Conectividad de tono zigbee |Sensor/dispositivo de tono que proporciona la información de conectividad Zigbee.Autocompletar mientras se escribe.|
+|Conectividad Hue zigbee |Sensor/dispositivo Hue que proporciona la información de conectividad Zigbee.Autocompletar mientras se escribe.|
 
 **Cartografía**
 
@@ -702,7 +702,7 @@ Estás escribiendo.
 |-|-|
 |KNX GW |Seleccione la puerta de enlace KNX para ser utilizada |
 |Hue Bridge |Seleccione la Hue Bridge que se utilizará |
-|Dispositivo para tonos |Dispositivo de Hue para monitorear las actualizaciones de software (autocompletar mientras escribe). |
+|Dispositivo para Hue |Dispositivo de Hue para monitorear las actualizaciones de software (autocompletar mientras escribe). |
 
 **Cartografía**
 

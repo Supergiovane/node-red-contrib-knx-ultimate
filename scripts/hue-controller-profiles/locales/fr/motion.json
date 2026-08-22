@@ -1,27 +1,27 @@
 {
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   },
   "knxUltimateHueMotion": {
-    "paletteLabel": "Mouvement de la teinte",
-    "hue_sensor": "Capteur de mouvement de la teinte",
+    "paletteLabel": "Mouvement Hue",
+    "hue_sensor": "Capteur de mouvement Hue",
     "no_devices": "Aucun capteur de mouvement disponible",
     "tabs": {
       "mapping": "Cartographie",
       "behaviour": "Comportement"
     },
     "mapping_info": "Lier l'adresse du groupe KNX qui devrait recevoir l'état détecté de la motion.",
-    "behaviour_info": "Basculez la broche de sortie du nœud-rouge lorsque vous souhaitez traiter les événements de mouvement de la teinte dans un flux sans KNX.",
+    "behaviour_info": "Basculez la broche de sortie Node-RED lorsque vous souhaitez traiter les événements de mouvement Hue dans un flux sans KNX.",
     "node_pins": "Broche de sortie du nœud",
-    "node_pins_show": "Afficher la broche de sortie du nœud-rouge",
+    "node_pins_show": "Afficher la broche de sortie Node-RED",
     "node_pins_hide": "Cacher",
-    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie du nœud-rouge est activée, les événements de mouvement Hue sont toujours émis dans votre flux."
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la broche de sortie Node-RED est activée, les événements de mouvement Hue sont toujours émis dans votre flux."
   }
 }

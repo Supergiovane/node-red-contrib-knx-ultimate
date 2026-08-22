@@ -6,7 +6,7 @@ permalink: /wiki/de-HUE%20Controller
 ---
 # HUE Controller
 
-[**KNX-Ultimate video tutorials (YouTube playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
+[**KNX-Ultimate-Videotutorials (YouTube-Playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
 
 <div data-hue-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0b2d5a 0%,#1767bf 55%,#2a8dff 100%);box-shadow:0 14px 30px rgba(11,45,90,0.24);color:#f4f9ff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#cfe4ff;">Hue API v2 · KNX · Node-RED</div>
@@ -191,6 +191,8 @@ Die Tabelle **Hue-native Effekte** ordnet KNX-Werte den vom Bridge gemeldeten Ef
 | Night lighting | Nacht-Profil (Farbe oder Temperatur/Helligkeit) |
 | Day/Night | GA zur Umschaltung Tag/Nacht (_true_ = Tag, _false_ = Nacht) |
 | Invert Day/Night | Wert der Tag/Nacht-GA invertieren |
+| Status beim Start lesen | Status beim Start lesen und bei Start/Wiederverbindung als Ereignis auf den KNX-Bus senden (Standard: „Nein“) |
+| Tagmodus erzwingen | Der Tagmodus kann durch schnelles Aus- und Einschalten dieser Leuchte oder aller Leuchtenknoten aktiviert werden. |
 | Node I/O pins | Ein/Ausblenden der Eingangs/Ausgangs-Pins; Input folgt HUE API v2 (z. B. <code>msg.on = { on: true }</code>) |
 
 Hinweis: Start/Stop-Dimmen im KNX-Modus wird über die üblichen Start/Stop-Telegramme gesteuert.

@@ -1,8 +1,8 @@
 {
   "knxUltimateHueHumiditySensor": {
-    "paletteLabel": "Sensor de humedad de tono",
-    "heading": "Nodo del sensor de humedad del tono",
-    "hue_sensor": "Sensor de tono",
+    "paletteLabel": "Sensor de humedad Hue",
+    "heading": "Nodo del sensor de humedad Hue",
+    "hue_sensor": "Sensor Hue",
     "no_devices": "No hay dispositivos disponibles",
     "tabs": {
       "humidity": "Humedad",
@@ -11,20 +11,20 @@
     "humidity_info": "Enlace su dirección de grupo de humedad KNX para recibir la humedad relativa (%).",
     "node_pins": "Pin de salida de nodo",
     "node_pins_hide": "Esconder",
-    "node_pins_show": "Mostrar pin de salida de nodo-rojo",
-    "output_info": "No se seleccionó KNX Gateway. Cuando el PIN de salida de Node-Red está habilitado, los eventos de HUE todavía se emiten a su flujo.",
+    "node_pins_show": "Mostrar pin de salida de Node-RED",
+    "output_info": "No se seleccionó KNX Gateway. Cuando el pin de salida de Node-RED está habilitado, los eventos de HUE todavía se emiten a su flujo.",
     "read_status_startup": "Estado de lectura en el inicio",
     "opt_no": "No",
     "opt_yes_emit": "Sí, y emitir telegramas KNX."
   },
   "common": {
-    "ga": "Georgia",
+    "ga": "GA",
     "dpt": "DPT",
     "name": "Nombre",
-    "youtube_sample": "Muestra de youtube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Ejemplo de YouTube",
+    "knx_gw": "Pasarela KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Tono Philips",
+    "philips_hue": "Philips Hue",
     "read": "Leer"
   }
 }

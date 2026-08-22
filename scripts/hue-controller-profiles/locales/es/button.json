@@ -1,7 +1,7 @@
 {
   "knxUltimateHueButton": {
-    "paletteLabel": "Botón de tono",
-    "hue_sensor": "Botón de tono",
+    "paletteLabel": "Botón Hue",
+    "hue_sensor": "Botón Hue",
     "no_devices": "No hay botones de Hue disponibles",
     "tabs": {
       "switch": "Cambiar",
@@ -19,16 +19,16 @@
     "dim_up": "Arriba",
     "dim_down": "Abajo",
     "dim_stop": "Detener",
-    "output_info": "No se seleccionó KNX Gateway. Los eventos todavía se emiten en el pin de salida de nodo-rojo."
+    "output_info": "No se seleccionó KNX Gateway. Los eventos todavía se emiten en el pin de salida de Node-RED."
   },
   "common": {
-    "ga": "Georgia",
+    "ga": "GA",
     "dpt": "DPT",
     "name": "Nombre",
-    "youtube_sample": "Muestra de youtube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Ejemplo de YouTube",
+    "knx_gw": "Pasarela KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Tono Philips",
+    "philips_hue": "Philips Hue",
     "read": "Leer"
   }
 }

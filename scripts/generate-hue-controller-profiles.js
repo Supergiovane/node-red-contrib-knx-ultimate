@@ -128,10 +128,23 @@ ${templateEntries}
     return Object.prototype.hasOwnProperty.call(PROFILE_TRANSLATIONS, shortLocale) ? shortLocale : 'en'
   }
 
+  const CONTROLLER_LOCALE_KEY = 'node-red-contrib-knx-ultimate/knxUltimateHueController:knxUltimateHueController.locale'
+
+  const nodeRedLocale = (RED) => {
+    try {
+      if (RED && typeof RED._ === 'function') {
+        const translated = RED._(CONTROLLER_LOCALE_KEY)
+        if (translated && translated !== CONTROLLER_LOCALE_KEY) return translated
+      }
+    } catch (error) { /* use the compatibility fallbacks below */ }
+    return undefined
+  }
+
   const currentLocale = (RED) => {
-    // RED.settings is preferred. The DOM and browser language fallbacks cover
-    // editor versions that do not expose the current language in settings.
+    // Ask Node-RED's active catalog first. documentElement.lang can remain
+    // English even while the editor has loaded another locale.
     const candidates = [
+      nodeRedLocale(RED),
       RED && RED.settings && RED.settings.lang,
       root && root.document && root.document.documentElement && root.document.documentElement.lang,
       root && root.navigator && root.navigator.language

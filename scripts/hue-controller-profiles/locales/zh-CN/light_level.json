@@ -2,8 +2,31 @@
   "knxUltimateHueLightSensor": {
     "title": "HUE 光照传感器节点",
     "paletteLabel": "Hue 光照传感器",
+    "hue_sensor": "Hue 光照传感器",
+    "no_devices": "没有可用的 Hue 光照传感器",
+    "tabs": {
+      "mapping": "映射",
+      "behaviour": "行为"
+    },
+    "mapping_info": "关联用于接收测量光照度的 KNX 组地址。",
+    "behaviour_info": "配置启动同步和 Node-RED 输出引脚。",
     "read_status_startup": "启动时读取状态",
     "opt_no": "否",
-    "opt_yes_emit": "是，并发送 KNX 电报。"
+    "opt_yes_emit": "是，并发送 KNX 报文。",
+    "node_pins": "节点输出引脚",
+    "node_pins_show": "显示 Node-RED 输出引脚",
+    "node_pins_hide": "隐藏",
+    "output_info": "未选择 KNX 网关。启用 Node-RED 输出引脚后，Hue 光照度事件仍会发送到流程。",
+    "mapping_name_placeholder": "光照度"
+  },
+  "common": {
+    "ga": "组地址",
+    "dpt": "数据点类型",
+    "name": "名称",
+    "youtube_sample": "YouTube 示例",
+    "knx_gw": "KNX 网关",
+    "hue_bridge": "Hue Bridge",
+    "philips_hue": "飞利浦 Hue",
+    "read": "读取"
   }
 }

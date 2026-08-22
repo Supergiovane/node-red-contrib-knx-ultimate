@@ -6,7 +6,7 @@ permalink: /wiki/fr-HUE%20Controller
 ---
 # HUE Controller
 
-[**KNX-Ultimate video tutorials (YouTube playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
+[**Tutoriels vidéo KNX-Ultimate (playlist YouTube)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
 
 <div data-hue-controller-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#0b2d5a 0%,#1767bf 55%,#2a8dff 100%);box-shadow:0 14px 30px rgba(11,45,90,0.24);color:#f4f9ff;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#cfe4ff;">Hue API v2 · KNX · Node-RED</div>
@@ -93,7 +93,7 @@ Les événements Hue restent des mises à jour d'état et ne deviennent pas de n
 
 ## Lampe / groupe de lampes (`light`)
 
-Ce nœud contrôle les lumières de Hue Philips (simple ou groupées) et mappe leurs commandes / états à KNX.
+Ce nœud contrôle les lampes Philips Hue, seules ou groupées, et associe leurs commandes et états à KNX.
 
 Sans passerelle KNX, un avis d'utilisation par le flow uniquement remplace le titre « Philips HUE » dupliqué.
 
@@ -128,7 +128,7 @@ Commencer à taper le champ GA (nom ou adresse de groupe); Les suggestions appar
 
 | Propriété | Description |
 |-|-|
-| Contrôle DIM | Dim relatif de la lumière de la teinte. Vous pouvez régler la vitesse de gradation dans l'onglet **comportement** . |
+| Contrôle DIM | Dim relatif de la lumière Hue. Vous pouvez régler la vitesse de gradation dans l'onglet **comportement** . |
 | Contrôle% | Modifie la luminosité de la lumière absolue (0-100%) |
 | Statut% | LIGNEZ CECI À L'Adresse du groupe KNX du statut de luminosité de la lumière |
 | Dim Speed ​​(MS) | Vitesse de gradation en millisecondes. S'applique à la fois à la luminosité lumineuse et aux points de données blancs de réglage. Calculé sur la plage de 0% → 100%. |
@@ -170,23 +170,23 @@ _NE-HUE BASIC EFFETS_
 
 | Propriété | Description |
 |-|-|
-| Clignotement | _True_ clignote la lumière, _false_ arrête de clignoter. Clignote la lumière allumée et éteinte. Utile pour la signalisation. Fonctionne avec toutes les lumières Hue. |
-| Cycle de couleur | _True_ Cycle de démarrage, _false_ Stop Cycle. Modifie au hasard la couleur de la lumière de la teinte à intervalle régulier. Fonctionne avec toutes les lumières Hue ayant des capacités de couleur. L'effet de couleur commencera 10 secondes après le jeu. |
+| Clignotement | _True_ clignote la lumière, _false_ arrête de clignoter. Clignote la lumière allumée et éHue. Utile pour la signalisation. Fonctionne avec toutes les lumières Hue. |
+| Cycle de couleur | _True_ Cycle de démarrage, _false_ Stop Cycle. Modifie au hasard la couleur de la lumière Hue à intervalle régulier. Fonctionne avec toutes les lumières Hue ayant des capacités de couleur. L'effet de couleur commencera 10 secondes après le jeu. |
 
 _Hue Effets natifs_
 
-Utilisez le tableau des effets natifs **Hue** pour cartographier vos valeurs KNX aux effets pris en charge par la lumière sélectionnée (par exemple «bougie», `foyer», «prisme»). Chaque ligne relie une valeur KNX (booléen, numérique ou textuelle, selon le point de données que vous choisissez) avec un effet de teinte. Du côté KNX, vous pouvez:
+Utilisez le tableau des effets natifs **Hue** pour cartographier vos valeurs KNX aux effets pris en charge par la lumière sélectionnée (par exemple «bougie», `foyer», «prisme»). Chaque ligne relie une valeur KNX (booléen, numérique ou textuelle, selon le point de données que vous choisissez) avec un effet Hue. Du côté KNX, vous pouvez:
 
 - Envoyez la valeur mappée pour activer cet effet;
-- Fournir éventuellement une adresse de groupe d'état: le nœud émet la valeur mappée chaque fois que le pont de teinte rapporte un changement d'effet; Si aucun mappage n'existe, le nom de l'effet brut est envoyé (nécessite un DPT textuel tel que 16.xxx).
+- Fournir éventuellement une adresse de groupe d'état: le nœud émet la valeur mappée chaque fois que le Hue Bridge rapporte un changement d'effet; Si aucun mappage n'existe, le nom de l'effet brut est envoyé (nécessite un DPT textuel tel que 16.xxx).
 
 **Comportement**
 
 | Propriété | Description |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lire l'état au démarrage | Lisez l'état de la lumière de Hue au démarrage de Node-Red ou le déploiement complet de Node-Red, et envoyez ce statut au bus KNX |
-| Statut de luminosité KNX | Met à jour l'état de l'adresse du groupe de luminosité KNX, chaque fois que la lampe à teinte est allumée / désactivée. Les options sont **lorsque Hue Light est éteint Envoyer 0%. Lorsque Hue On, restaurez la valeur précédente (comportement KNX par défaut) ** et**Laissez tel quel (comportement de teinte par défaut) ** . Si vous avez un gradateur KNX avec un statut de luminosité, comme le MDT, l'option suggérée est _**lorsque la lumière de Hue est éteinte envoyez 0%. Lorsque Hue on, restaurez la valeur précédente (comportement KNX par défaut)** _ |
-| Mettre à jour l'état Hue local en cache à partir des écritures du bus KNX | Option avancee, activee par defaut. Lorsqu'elle est activee, les ecritures recues depuis le bus KNX mettent aussi a jour immediatement l'etat Hue local en cache du noeud, sans attendre les retours/evenements du pont Hue. Cela apporte des reactions locales plus rapides et des reponses immediates de lecture KNX plus coherentes, surtout lorsque la lumiere ou le groupe est eteint. Desactivez-la si vous preferez que le cache suive uniquement les retours/evenements reels du pont Hue. |
+| Lire l'état au démarrage | Lisez l'état de la lumière de Hue au démarrage de Node-RED ou le déploiement complet de Node-RED, et envoyez ce statut au bus KNX |
+| Statut de luminosité KNX | Met à jour l'état de l'adresse du groupe de luminosité KNX, chaque fois que la lampe à Hue est allumée / désactivée. Les options sont **lorsque Hue Light est éteint Envoyer 0%. Lorsque Hue On, restaurez la valeur précédente (comportement KNX par défaut) ** et**Laissez tel quel (comportement Hue par défaut) ** . Si vous avez un gradateur KNX avec un statut de luminosité, comme le MDT, l'option suggérée est _**lorsque la lumière de Hue est éHue envoyez 0%. Lorsque Hue on, restaurez la valeur précédente (comportement KNX par défaut)** _ |
+| Mettre à jour l'état Hue local en cache à partir des écritures du bus KNX | Option avancee, activee par defaut. Lorsqu'elle est activee, les ecritures recues depuis le bus KNX mettent aussi a jour immediatement l'etat Hue local en cache du noeud, sans attendre les retours/evenements du Hue Bridge. Cela apporte des reactions locales plus rapides et des reponses immediates de lecture KNX plus coherentes, surtout lorsque la lumiere ou le groupe est eteint. Desactivez-la si vous preferez que le cache suive uniquement les retours/evenements reels du Hue Bridge. |
 | Affoncher le comportement | Il définit le comportement de vos lumières lorsqu'il est allumé. Vous pouvez choisir parmi les différents comportements.
  **Sélectionner la couleur: ** La lumière sera allumée avec la couleur de votre choix. Pour modifier la couleur, cliquez simplement sur le sélecteur de couleurs (sous le contrôle de couleur _Select).
 **Sélectionnez la température et la luminosité: ** La lumière sera allumée avec la température (Kelvin) et la luminosité (0-100) de votre choix.
@@ -212,13 +212,13 @@ La fonction de gradation fonctionne en mode **knx `start` et` `stop` ** . Pour c
 
 #### Aperçu
 
-Le nœud Hue Plug relie une fiche Smart Hue Philips (Service `Plug`) avec des adresses de groupe KNX afin que vous puissiez contrôler l'alimentation et suivre l'état directement à partir du bus.
+Le nœud Hue Plug relie une fiche Smart Philips Hue (Service `Plug`) avec des adresses de groupe KNX afin que vous puissiez contrôler l'alimentation et suivre l'état directement à partir du bus.
 
 - prend en charge **Contrôle ON / OFF** et **Feedback d'état**.
-- mappage facultatif de la teinte `power_state` (on / standby).
-- Peut exposer les broches d'entrée / sortie de Node-Red pour transmettre les événements de teinte aux flux ou envoyer des charges utiles API avancées.
+- mappage facultatif Hue `power_state` (on / standby).
+- Peut exposer les broches d'entrée / sortie de Node-RED pour transmettre les événements Hue aux flux ou envoyer des charges utiles API avancées.
 
-Configuration ##
+#### Configuration
 
 | Champ | Description |
 |-|-|
@@ -229,13 +229,13 @@ Configuration ##
 |Statut |GA pour les commentaires ON / OFF provenant de Hue |
 |État de pouvoir |Hue en miroir en option `power_state` (booléen / texte) |
 |Lire l'état au démarrage |Lorsqu'il est activé, le nœud émet l'état de fiche actuel sur le déploiement / la connexion |
-|Broches d'E / S de nœud |Activer les broches d'entrée / sortie rouge-rouge.L'entrée attend des charges utiles de l'API Hue (par exemple `{on: {on: true}}`).La sortie transmet chaque événement Hue.|
+|Broches d'E / S de nœud |Activer les broches d'entrée / sortie Node-RED.L'entrée attend des charges utiles de l'API Hue (par exemple `{on: {on: true}}`).La sortie transmet chaque événement Hue.|
 
 #### conseils de mappage KNX
 
 - Utilisez un point de données booléen (par exemple DPT 1.001) pour la commande et l'état.
 - Si vous exposez `Power_State`, mappez-le à un GA booléen (true =` on`, false = `standby`).
-- Pour les demandes de lecture (`GroupValue_Read`), le nœud renvoie la dernière valeur de teinte en cache.
+- Pour les demandes de lecture (`GroupValue_Read`), le nœud renvoie la dernière valeur Hue en cache.
 
 #### Intégration de flux
 
@@ -254,7 +254,7 @@ Le nœud utilise `/ ressource / plug / {id}` sur https.Les modifications d'état
 
 ## Bouton (`button`)
 
-Le nœud du bouton Hue mappe les événements du bouton de teinte aux adresses du groupe KNX et expose les mêmes événements sur sa sortie de flux via <code> Button.button_report.event </code>.
+Le nœud du bouton Hue mappe les événements du bouton Hue aux adresses du groupe KNX et expose les mêmes événements sur sa sortie de flux via <code> Button.button_report.event </code>.
 
 Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Les appareils apparaissent pendant que vous tapez.
 
@@ -264,7 +264,7 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
 |Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
-|Bouton de teinte |Bouton de teinte à utiliser (assortiment automatique pendant la frappe) |
+|Bouton Hue |Bouton Hue à utiliser (assortiment automatique pendant la frappe) |
 
 **Changer**
 
@@ -290,7 +290,7 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 ##### sorties
 
 1. Sortie standard
-: `msg.payload` transporte le booléen (ou objet DIM) envoyé à KNX;`msg.event` est la chaîne d'événements de teinte (par exemple` short_release`, `repeat`).
+: `msg.payload` transporte le booléen (ou objet DIM) envoyé à KNX;`msg.event` est la chaîne d'événements Hue (par exemple` short_release`, `repeat`).
 
 ##### Détails
 
@@ -302,12 +302,12 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 
 ## Tap dial (`relative_rotary`)
 
-Le Node **Hue Tap Dial** Maps Le service rotatif du Tap Down Tap To KNX et transmet les événements de teinte brute à votre flux.Utilisez l'icône d'actualisation à côté du champ de périphérique après avoir associé un nouveau cadran sur le pont.
+Le Node **Hue Tap Dial** Maps Le service rotatif du Tap Down Tap To KNX et transmet les événements Hue brute à votre flux.Utilisez l'icône d'actualisation à côté du champ de périphérique après avoir associé un nouveau cadran sur le pont.
 
 Onglets ###
 
 - **Mappage** - Sélectionnez le KNX GA et le DPT utilisés pour les événements de rotation.Points de données pris en charge: DPT 3.007 (relative DIM), DPT 5.001 (niveau absolu 0-100%) et DPT 232.600 (contrôle des couleurs du fournisseur).
-- **comportement** - afficher ou masquer la broche de sortie du nœud-rouge.Lorsqu'aucune passerelle KNX n'est configurée, la sortie est maintenue activée, les événements de teinte atteignent toujours le flux.
+- **comportement** - afficher ou masquer la broche de sortie du Node-RED.Lorsqu'aucune passerelle KNX n'est configurée, la sortie est maintenue activée, les événements Hue atteignent toujours le flux.
 
 ##### Paramètres généraux
 
@@ -328,7 +328,7 @@ Onglet de mappage ###
 
 | # | Port | Télélée utile |
 |-|-| - |
-| 1 | Sortie standard | `msg.payload` (objet) Événement de teinte brute émise par le cadran du robinet. |
+| 1 | Sortie standard | `msg.payload` (objet) Événement Hue brute émise par le cadran du robinet. |
 
 > ℹ️ Les widgets spécifiques à KNX n'apparaissent qu'après avoir sélectionné une passerelle KNX;L'onglet de mappage reste caché jusqu'à la configuration du pont et de la passerelle.
 
@@ -338,7 +338,7 @@ Onglet de mappage ###
 
 ## Mouvement (`motion`)
 
-Ce nœud écoute un capteur de mouvement de teinte et reflète les événements de KNX et / ou de votre flux rouge-rouge.
+Ce nœud écoute un capteur de mouvement Hue et reflète les événements de KNX et / ou de votre flux Node-RED.
 
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les suggestions apparaissent pendant que vous tapez.Appuyez sur le bouton d'actualisation à côté du "capteur Hue" pour recharger la liste des périphériques à partir du pont si vous ajoutez de nouveaux capteurs.
 
@@ -348,7 +348,7 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 |-|-|
 |KNX GW |KNX Gateway qui reçoit les mises à jour de mouvement (requise avant que les champs de mappage KNX n'apparaissent).|
 |Hue Bridge |Hue Bridge à la question.|
-|Capteur de mouvement de la teinte |Capteur de mouvement Hue (prend en charge la saisie semi-automatique et la rafraîchissement).|
+|Capteur de mouvement Hue |Capteur de mouvement Hue (prend en charge la saisie semi-automatique et la rafraîchissement).|
 
 **Mappage**
 
@@ -360,9 +360,9 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 
 | Propriété | Description |
 |-|-|
-|Pin de sortie de nœud |Afficher ou masquer la sortie du nœud-rouge.Lorsqu'aucune passerelle KNX n'est sélectionnée, la broche de sortie reste activée afin que les événements de mouvement de teinte atteignent toujours votre flux.|
+|Pin de sortie de nœud |Afficher ou masquer la sortie du Node-RED.Lorsqu'aucune passerelle KNX n'est sélectionnée, la broche de sortie reste activée afin que les événements de mouvement Hue atteignent toujours votre flux.|
 
-> ℹ️ Les widgets KNX restent cachés jusqu'à ce que vous sélectionniez une passerelle KNX, ce qui facilite l'utilisation du nœud purement comme une teinte → Écouteur rouge-rouge.
+> ℹ️ Les widgets KNX restent cachés jusqu'à ce que vous sélectionniez une passerelle KNX, ce qui facilite l'utilisation du nœud purement comme une Hue → Écouteur Node-RED.
 
 ##### Sortir
 
@@ -415,7 +415,7 @@ Commencez à saisir le nom ou l’adresse de groupe KNX dans le champ GA ; des s
 
 ## Mouvement de caméra (`camera_motion`)
 
-Le nœud de mouvement de la caméra Hue écoute les services de mouvement de la caméra Hue Philips et reflète l'état détecté / non détecté à KNX.
+Le nœud de mouvement de la caméra Hue écoute les services de mouvement de la caméra Philips Hue et reflète l'état détecté / non détecté à KNX.
 
 Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Les appareils apparaissent pendant que vous tapez.
 
@@ -449,7 +449,7 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 
 ## Contact (`contact`)
 
-Ce nœud transmet les événements d'un capteur de contact de teinte et les mappe aux adresses de groupe KNX.
+Ce nœud transmet les événements d'un capteur de contact Hue et les mappe aux adresses de groupe KNX.
 
 Commencez à taper le champ GA, le nom ou l'adresse de groupe de votre appareil KNX, les périphériques AVAIable commencent à apparaître pendant que vous tapez.
 
@@ -459,7 +459,7 @@ Commencez à taper le champ GA, le nom ou l'adresse de groupe de votre appareil 
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
 |Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
-|Capteur de contact de la teinte |Capteur de contact de la teinte à utiliser (assortiment automatique pendant la frappe). |
+|Capteur de contact Hue |Capteur de contact Hue à utiliser (assortiment automatique pendant la frappe). |
 
 |Propriété |Description |
 |-|-|
@@ -480,7 +480,7 @@ Commencez à taper le champ GA, le nom ou l'adresse de groupe de votre appareil 
 
 ## Niveau de lumière (`light_level`)
 
-Ce nœud lit les événements lux à partir d'un capteur de lumière de teinte et les mappe à Knx.
+Ce nœud lit les événements lux à partir d'un capteur de lumière Hue et les mappe à Knx.
 
 Il émet l'illuminance ambiante (lux) chaque fois qu'il change.Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Les appareils apparaissent pendant que vous tapez.
 
@@ -514,7 +514,7 @@ Il émet l'illuminance ambiante (lux) chaque fois qu'il change.Commencez à tape
 
 ## Température (`temperature`)
 
-Ce nœud lit la température (° C) à partir d'un capteur de température de teinte et le mappe à Knx.
+Ce nœud lit la température (° C) à partir d'un capteur de température Hue et le mappe à Knx.
 
 Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Les appareils apparaissent pendant que vous tapez.
 
@@ -524,7 +524,7 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
 |Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
-|Capteur de température de teinte |Capteur de température de la teinte (Ambordage automatique pendant la saisie) |
+|Capteur de température Hue |Capteur de température Hue (Ambordage automatique pendant la saisie) |
 |Lire l'état au démarrage |Au démarrage / reconnecter, lisez la valeur actuelle et envoyez-la à KNX (par défaut: non) |
 
 **Mappage**
@@ -548,7 +548,7 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 
 ## Humidité (`humidity`)
 
-Ce nœud lit l'humidité relative (%) à partir d'un capteur d'humidité de teinte et le mappe à Knx.
+Ce nœud lit l'humidité relative (%) à partir d'un capteur d'humidité Hue et le mappe à Knx.
 
 Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Les appareils apparaissent pendant que vous tapez.
 
@@ -558,7 +558,7 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 |-|-|
 |KNX GW |Sélectionnez la passerelle KNX à utiliser |
 |Hue Bridge |Sélectionnez la Hue Bridge à utiliser |
-|Capteur de teinte |Capteur d'humidité de la teinte (assortiment automatique pendant la frappe) |
+|Capteur Hue |Capteur d'humidité Hue (assortiment automatique pendant la frappe) |
 |Lire l'état au démarrage |Au démarrage / reconnecter, lisez la valeur actuelle et envoyez-la à KNX (par défaut: non) |
 
 **Mappage**
@@ -582,13 +582,13 @@ Commencez à taper le champ GA (nom ou adresse de groupe) pour lier le KNX GA;Le
 
 ## Scène (`scene`)
 
-Le nœud **Hue Scene** expose des scènes de teinLe champ de scène prend en charge la saisie semi-automatique;Utilisez l'icône d'actualisation après avoir ajouté des scènes sur le pont afin que la liste reste à jour.
+Le nœud **Hue Scene** expose les scènes Hue à KNX et peut transmettre les événements Hue bruts à un flow Node-RED. Le champ de scène prend en charge la saisie semi-automatique ; utilisez l'icône d'actualisation après avoir ajouté des scènes sur le Hue Bridge afin que la liste reste à jour.
 
 ##### Tabs en un coup d'œil
 
 - **Mapping** - Lien des adresses de groupe KNX à la scène Hue sélectionnée.DPT 1.xxx effectue un rappel Boolean, tandis que DPT 18.xxx envoie un numéro de scène KNX.
-- **Multi Scene** - Créez une liste de règles qui associe les numéros de scène KNX à différentes scènes de teintes et choisit si chaque scène est rappelée comme _ACTIVE_, _DYMAMIC \ _PALETTE_ ou _STATIC_.
-- **comportement** - basculer la broche de sortie du nœud-rouge.Lorsqu'aucune passerelle KNX n'est configurée, la broche reste activée afin que les événements de pont atteignent toujours l'écoulement.
+- **Multi Scene** - Créez une liste de règles qui associe les numéros de scène KNX à différentes scènes Hue et choisit si chaque scène est rappelée comme _ACTIVE_, _DYMAMIC \ _PALETTE_ ou _STATIC_.
+- **comportement** - basculer la broche de sortie du Node-RED.Lorsqu'aucune passerelle KNX n'est configurée, la broche reste activée afin que les événements de pont atteignent toujours l'écoulement.
 
 ##### Paramètres généraux
 
@@ -596,7 +596,7 @@ Le nœud **Hue Scene** expose des scènes de teinLe champ de scène prend en cha
 |-|-|
 |KNX GW |KNX Gateway Fourniture du catalogue d'adresses utilisé pour la saisie semi-automatique.|
 |Hue Bridge |Hue Bridge qui héberge les scènes.|
-|Scène de teinte |Scène à rappeler (Ambordage automatique; Bouton de rafraîchissement recharge le catalogue du pont).|
+|Scène Hue |Scène à rappeler (Ambordage automatique; Bouton de rafraîchissement recharge le catalogue du pont).|
 
 Onglet de mappage ###
 
@@ -613,7 +613,7 @@ Onglet ### Multi Scene
 | Propriété | Description |
 |-|-|
 |Rappel |KNX GA (DPT 18.001) qui sélectionne les scènes par numéro.|
-|Sélecteur de scène |Liste modifiable qui mappe les numéros de scène KNX aux scènes de teinte avec le mode de rappel souhaité.La traînée gère les entrées de réorganisation.|
+|Sélecteur de scène |Liste modifiable qui mappe les numéros de scène KNX aux scènes Hue avec le mode de rappel souhaité.La traînée gère les entrées de réorganisation.|
 
 > ℹ️ Les widgets spécifiques au KNX n'apparaissent qu'après la sélection d'une passerelle KNX.Les onglets de mappage restent masqués jusqu'à la configuration du pont et de la passerelle.
 
@@ -623,9 +623,9 @@ Onglet ### Multi Scene
 
 ## Batterie (`device_power`)
 
-Ce nœud expose le niveau de batterie d'un dispositif de teinte à KNX et soulève un événement chaque fois que la valeur change.
+Ce nœud expose le niveau de batterie d'un dispositif Hue à KNX et soulève un événement chaque fois que la valeur change.
 
-Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les entrées correspondantes apparaissent pendant que vous tapez.Utilisez l'icône de rafraîchissement à côté de <q> capteur de teinte </Q> pour recharger la liste à partir du pont de teinte après avoir ajouté de nouveaux appareils.
+Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les entrées correspondantes apparaissent pendant que vous tapez.Utilisez l'icône de rafraîchissement à côté de <q> capteur Hue </Q> pour recharger la liste à partir du Hue Bridge après avoir ajouté de nouveaux appareils.
 
 **Général**
 
@@ -633,7 +633,7 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 |-|-|
 |KNX GW |KNX Gateway a utilisé pour publier le niveau de la batterie (requis avant l'apparition des champs de mappage KNX).|
 |Hue Bridge |Hue Bridge qui héberge l'appareil.|
-|Capteur de batterie de teintes |Dispositif / capteur Hue Fournissant le niveau de la batterie (prend en charge la saisie semi-automatique et la rafraîchissement).|
+|Capteur de batterie Hue |Dispositif / capteur Hue Fournissant le niveau de la batterie (prend en charge la saisie semi-automatique et la rafraîchissement).|
 
 **Mappage**
 
@@ -646,9 +646,9 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 | Propriété | Description |
 |-|-|
 |Lire l'état au démarrage |Sur le déploiement / reconnecter, lisez la valeur actuelle de la batterie et publiez-la à KNX.Par défaut: "Oui".|
-|Pin de sortie de nœud |Afficher ou masquer la sortie du nœud-rouge.Lorsqu'aucune passerelle KNX n'est sélectionnée, la sortie reste activée, les événements de teinte continuent d'atteindre le flux.|
+|Pin de sortie de nœud |Afficher ou masquer la sortie du Node-RED.Lorsqu'aucune passerelle KNX n'est sélectionnée, la sortie reste activée, les événements Hue continuent d'atteindre le flux.|
 
-> ℹ️ Les widgets de mappage KNX restent cachés jusqu'à ce qu'une passerelle KNX soit sélectionnée.Cela maintient l'éditeur bien rangé lorsque le nœud est utilisé uniquement pour transmettre les événements de teinte dans Node-Red.
+> ℹ️ Les widgets de mappage KNX restent cachés jusqu'à ce qu'une passerelle KNX soit sélectionnée.Cela maintient l'éditeur bien rangé lorsque le nœud est utilisé uniquement pour transmettre les événements Hue dans Node-RED.
 
 ---
 
@@ -656,7 +656,7 @@ Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le c
 
 ## Connectivité Zigbee (`zigbee_connectivity`)
 
-Ce nœud récupère l'état de connectivité ZigBee à partir d'un périphérique de teinte et l'expose à KNX.
+Ce nœud récupère l'état de connectivité ZigBee à partir d'un périphérique Hue et l'expose à KNX.
 
 Commencez à taper le nom du périphérique KNX ou l'adresse de groupe dans le champ GA;Les suggestions apparaissent pendant que vous tapez.
 

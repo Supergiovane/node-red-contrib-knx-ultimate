@@ -1,27 +1,27 @@
 {
   "common": {
-    "ga": "Georgia",
+    "ga": "GA",
     "dpt": "DPT",
     "name": "Nombre",
-    "youtube_sample": "Muestra de youtube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Ejemplo de YouTube",
+    "knx_gw": "Pasarela KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Tono Philips",
+    "philips_hue": "Philips Hue",
     "read": "Leer"
   },
   "knxUltimateHueMotion": {
-    "paletteLabel": "Moción de tonos",
-    "hue_sensor": "Sensor de movimiento de tono",
+    "paletteLabel": "Moción Hue",
+    "hue_sensor": "Sensor de movimiento Hue",
     "no_devices": "No hay sensores de movimiento disponibles",
     "tabs": {
-      "mapping": "Cartografía",
+      "mapping": "Mapeo",
       "behaviour": "Comportamiento"
     },
     "mapping_info": "Enlace la dirección del grupo KNX que debe recibir el estado detectado de la moción.",
-    "behaviour_info": "Alterne el pin de salida de rojo nodo cuando desee procesar eventos de movimiento de tono en un flujo sin KNX.",
+    "behaviour_info": "Alterne el pin de salida de Node-RED cuando desee procesar eventos de movimiento Hue en un flujo sin KNX.",
     "node_pins": "Pin de salida de nodo",
-    "node_pins_show": "Mostrar pin de salida de nodo-rojo",
+    "node_pins_show": "Mostrar pin de salida de Node-RED",
     "node_pins_hide": "Esconder",
-    "output_info": "No se seleccionó KNX Gateway. Cuando el PIN de salida de Node-Red está habilitado, los eventos de movimiento de Hue todavía se emiten a su flujo."
+    "output_info": "No se seleccionó KNX Gateway. Cuando el pin de salida de Node-RED está habilitado, los eventos de movimiento de Hue todavía se emiten a su flujo."
   }
 }

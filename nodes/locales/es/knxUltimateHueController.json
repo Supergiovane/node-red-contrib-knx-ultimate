@@ -1,9 +1,12 @@
 {
   "common": {
-    "knx_gw": "KNX GW",
+    "knx_gw": "Pasarela KNX",
     "hue_bridge": "Hue Bridge"
   },
   "knxUltimateHueController": {
+    "locale": "es",
+    "tutorials_link": "Tutoriales en vídeo de KNX-Ultimate (lista de YouTube)",
+    "editor_unavailable": "El editor Hue seleccionado no está disponible. Reinicia Node-RED después de actualizar el paquete.",
     "device_function": "Función del dispositivo",
     "hue_device": "Dispositivo Hue",
     "hue_device_placeholder": "Buscar dispositivo o recurso Hue",

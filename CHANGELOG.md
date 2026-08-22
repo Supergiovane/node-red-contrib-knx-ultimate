@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.12** - August 2026<br/>
+
+- **HUE Controller**: completed the EN, IT, DE, FR, ES and zh-CN editor translations, including Light Level, Locate, Light mapping labels, mapping placeholders, error messages and tutorial links; the embedded profiles and dynamic device labels now follow Node-RED's active locale instead of a potentially stale page-language attribute. Corrected French/Spanish Hue and KNX terminology and realigned the localized help and wiki documentation.<br/>
+
 **Version 6.3.11** - August 2026<br/>
 
 - **Matter Controller**: fixed KNX GA mapping tabs being hidden by transient empty KNX/Matter config-selector values during Node-RED 5 editor initialization; saved gateways now remain selected until the user explicitly changes them.<br/>

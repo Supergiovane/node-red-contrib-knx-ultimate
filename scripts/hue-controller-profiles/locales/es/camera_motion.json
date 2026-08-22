@@ -1,18 +1,18 @@
 {
   "common": {
-    "ga": "Georgia",
+    "ga": "GA",
     "dpt": "DPT",
     "name": "Nombre",
-    "youtube_sample": "Muestra de youtube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Ejemplo de YouTube",
+    "knx_gw": "Pasarela KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Tono Philips",
+    "philips_hue": "Philips Hue",
     "read": "Leer"
   },
   "knxUltimateHueCameraMotion": {
-    "paletteLabel": "Movimiento de la cámara de tono",
-    "heading": "Nodo de movimiento de la cámara del tono",
-    "hue_sensor": "Movimiento de la cámara de tono",
+    "paletteLabel": "Movimiento de la cámara Hue",
+    "heading": "Nodo de movimiento de la cámara Hue",
+    "hue_sensor": "Movimiento de la cámara Hue",
     "no_devices": "No hay dispositivos de movimiento de cámara disponibles",
     "tabs": {
       "motion": "Movimiento",
@@ -20,8 +20,8 @@
     },
     "node_pins": "Pin de salida de nodo",
     "node_pins_hide": "Esconder",
-    "node_pins_show": "Mostrar pin de salida de nodo-rojo",
-    "output_info": "No se seleccionó KNX Gateway. Cuando se habilita el PIN de salida de Node-Red, los eventos de movimiento de la cámara HUE todavía se emiten a su flujo.",
+    "node_pins_show": "Mostrar pin de salida de Node-RED",
+    "output_info": "No se seleccionó KNX Gateway. Cuando se habilita el pin de salida de Node-RED, los eventos de movimiento de la cámara HUE todavía se emiten a su flujo.",
     "read_status_startup": "Estado de lectura en el inicio",
     "opt_no": "No",
     "opt_yes_emit": "Sí, y emitir telegramas KNX.",

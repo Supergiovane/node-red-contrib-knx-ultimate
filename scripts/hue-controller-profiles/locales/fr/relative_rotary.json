@@ -7,22 +7,22 @@
       "mapping": "Cartographie",
       "behaviour": "Comportement"
     },
-    "mapping_info": "Liez les événements de rotation de la cadran de la pointe de teinte à une adresse de groupe KNX.",
-    "behaviour_info": "Décidez si la broche de sortie du nœud-rouge doit rester visible lorsque la livraison KNX est désactivée.",
+    "mapping_info": "Liez les événements de rotation de la cadran de la pointe Hue à une adresse de groupe KNX.",
+    "behaviour_info": "Décidez si la broche de sortie Node-RED doit rester visible lorsque la communication KNX est désactivée.",
     "node_pins": "Broches d'entrée / sortie de nœud",
     "node_pins_hide": "Cacher les broches",
     "node_pins_show": "Afficher les broches d'entrée / sortie du nœud",
-    "output_info": "Sans une passerelle KNX, la sortie de débit reste activée, de sorte que les événements de teinte continuent d'atteindre le nœud-rouge.",
+    "output_info": "Sans une passerelle KNX, la sortie du flow reste activée, de sorte que les événements Hue continuent d'atteindre Node-RED.",
     "no_devices": "Pas de dispositifs de numérotation Hue Tap trouvés. Utilisez l'icône de rafraîchissement après le coupage d'un nouveau cadran."
   },
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   }
 }

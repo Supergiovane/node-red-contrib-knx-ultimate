@@ -4,6 +4,9 @@
     "hue_bridge": "Hue Bridge"
   },
   "knxUltimateHueController": {
+    "locale": "zh-CN",
+    "tutorials_link": "KNX-Ultimate 视频教程（YouTube 播放列表）",
+    "editor_unavailable": "所选 Hue 编辑器不可用。更新软件包后请重新启动 Node-RED。",
     "device_function": "设备功能",
     "hue_device": "Hue 设备",
     "hue_device_placeholder": "搜索 Hue 设备或资源",

@@ -551,7 +551,10 @@
         } catch (error) {
           try {
             console.error('knxUltimateHueScene oneditprepare error', error);
-            RED.notify(`Hue Scene editor error: ${error.message || error}`, { type: 'error', timeout: 8000 });
+            RED.notify(RED._(
+              'node-red-contrib-knx-ultimate/knxUltimateHueScene:knxUltimateHueScene.editor_error',
+              { error: error.message || error }
+            ), { type: 'error', timeout: 8000 });
           } catch (notifyError) {
             console.error('knxUltimateHueScene notify failure', notifyError);
           }

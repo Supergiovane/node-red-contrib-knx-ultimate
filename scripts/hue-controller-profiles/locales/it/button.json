@@ -18,7 +18,7 @@
     "dim_send": "Payload dimmer",
     "dim_up": "Su",
     "dim_down": "Giù",
-    "dim_stop": "Stop",
+    "dim_stop": "Arresta",
     "output_info": "Nessun gateway KNX selezionato. Gli eventi vengono comunque emessi sul pin di output di Node-RED."
   },
   "common": {

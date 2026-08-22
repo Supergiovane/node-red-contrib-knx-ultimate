@@ -1,19 +1,32 @@
 {
   "knxUltimateHueLightSensor": {
-    "title": "Nœud de capteur de lumière",
-    "paletteLabel": "Capteur de lumière",
+    "title": "Nœud de capteur de luminosité Hue",
+    "paletteLabel": "Capteur de luminosité Hue",
+    "hue_sensor": "Capteur de luminosité Hue",
+    "no_devices": "Aucun capteur de luminosité Hue disponible",
+    "tabs": {
+      "mapping": "Mappage",
+      "behaviour": "Comportement"
+    },
+    "mapping_info": "Associez l'adresse de groupe KNX qui doit recevoir le niveau de luminosité mesuré.",
+    "behaviour_info": "Configurez la synchronisation au démarrage et la sortie Node-RED.",
     "read_status_startup": "Lire l'état au démarrage",
     "opt_no": "Non",
-    "opt_yes_emit": "Oui, et émettez des télégrammes KNX."
+    "opt_yes_emit": "Oui, et envoyer les télégrammes KNX.",
+    "node_pins": "Sortie du nœud",
+    "node_pins_show": "Afficher la sortie Node-RED",
+    "node_pins_hide": "Masquer",
+    "output_info": "Aucune passerelle KNX sélectionnée. Lorsque la sortie Node-RED est activée, les événements de luminosité Hue sont quand même envoyés au flow.",
+    "mapping_name_placeholder": "Niveau de luminosité"
   },
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   }
 }

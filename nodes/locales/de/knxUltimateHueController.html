@@ -1,5 +1,5 @@
 <script type="text/markdown" data-help-name="knxUltimateHueController">
-<p><a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E" target="_blank" rel="noopener noreferrer"><strong>KNX-Ultimate video tutorials (YouTube playlist)</strong></a> Sehen Sie sich vor dem Start die <a href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer">Videoanleitung auf YouTube</a> an.</p>
+<p><a href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E" target="_blank" rel="noopener noreferrer"><strong>KNX-Ultimate-Videotutorials (YouTube-Playlist)</strong></a> Sehen Sie sich vor dem Start die <a href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer">Videoanleitung auf YouTube</a> an.</p>
 <p><strong>HUE Controller</strong> ist der einheitliche Knoten für Hue-API-v2-Ressourcen.</p>
 <p>Wählen Sie ein Hue-Gerät oder eine Hue-Ressource. HUE Controller erkennt den Gerätetyp automatisch und öffnet den passenden Editor für KNX-Zuordnungen, Verhalten und Node-Anschlüsse.</p>
 <p>Geräteauswahl, Aktualisierung und erkannter Typ stehen wie beim Matter Controller in derselben kompakten Zeile.</p>
@@ -154,6 +154,8 @@ Die Tabelle **Hue-native Effekte** ordnet KNX-Werte den vom Bridge gemeldeten Ef
 | Night lighting | Nacht-Profil (Farbe oder Temperatur/Helligkeit) |
 | Day/Night | GA zur Umschaltung Tag/Nacht (_true_ = Tag, _false_ = Nacht) |
 | Invert Day/Night | Wert der Tag/Nacht-GA invertieren |
+| Status beim Start lesen | Status beim Start lesen und bei Start/Wiederverbindung als Ereignis auf den KNX-Bus senden (Standard: „Nein“) |
+| Tagmodus erzwingen | Der Tagmodus kann durch schnelles Aus- und Einschalten dieser Leuchte oder aller Leuchtenknoten aktiviert werden. |
 | Node I/O pins | Ein/Ausblenden der Eingangs/Ausgangs-Pins; Input folgt HUE API v2 (z. B. <code>msg.on = { on: true }</code>) |
 
 Hinweis: Start/Stop-Dimmen im KNX-Modus wird über die üblichen Start/Stop-Telegramme gesteuert.

@@ -1,7 +1,7 @@
 {
   "knxUltimateHuePlug": {
     "title": "HUE Steckdose",
-    "paletteLabel": "Hue Plug/Outlet",
+    "paletteLabel": "Hue-Steckdose/Ausgang",
     "tabs": {
       "switch": "Schalten",
       "behaviour": "Verhalten"
@@ -10,7 +10,7 @@
     "switch_info": "Verknüpfe die KNX-Schaltadresse mit dem Ein/Aus-Zustand der Hue-Steckdose.",
     "switch_control": "Befehl",
     "switch_status": "Status",
-    "power_state": "Power state",
+    "power_state": "Versorgungsstatus",
     "power_state_info": "Optional. Übertrage den von Hue gemeldeten Leistungszustand (on/standby) auf eine KNX-Gruppenadresse.",
     "read_status_startup": "Status beim Start lesen",
     "opt_yes_emit": "Ja, und KNX-Telegramme senden.",

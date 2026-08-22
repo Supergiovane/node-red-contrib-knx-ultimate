@@ -1,7 +1,7 @@
 {
   "knxUltimateHueButton": {
-    "paletteLabel": "Bouton de teinte",
-    "hue_sensor": "Bouton de teinte",
+    "paletteLabel": "Bouton Hue",
+    "hue_sensor": "Bouton Hue",
     "no_devices": "Pas de boutons Hue disponibles",
     "tabs": {
       "switch": "Changer",
@@ -19,16 +19,16 @@
     "dim_up": "En haut",
     "dim_down": "Vers le bas",
     "dim_stop": "Arrêt",
-    "output_info": "Aucune passerelle KNX sélectionnée. Les événements sont toujours émis sur la broche de sortie du nœud-rouge."
+    "output_info": "Aucune passerelle KNX sélectionnée. Les événements sont toujours émis sur la broche de sortie Node-RED."
   },
   "common": {
-    "ga": "Géorgie",
-    "dpt": "Dpt",
+    "ga": "GA",
+    "dpt": "DPT",
     "name": "Nom",
-    "youtube_sample": "Échantillon YouTube",
-    "knx_gw": "KNX GW",
+    "youtube_sample": "Exemple YouTube",
+    "knx_gw": "Passerelle KNX",
     "hue_bridge": "Hue Bridge",
-    "philips_hue": "Hue Philips",
+    "philips_hue": "Philips Hue",
     "read": "Lire"
   }
 }

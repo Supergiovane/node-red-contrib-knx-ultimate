@@ -26,7 +26,8 @@
     "status_ga": "状态 GA",
     "output_info": "没有 KNX 网关时仍保持向流程输出，以继续接收 Hue 事件。",
     "no_scenes": "未找到 Hue 场景。添加新场景后请点击刷新图标。",
-    "multi_scene_placeholder": "Hue 场景名称"
+    "multi_scene_placeholder": "Hue 场景名称",
+    "editor_error": "Hue 场景编辑器错误：{{error}}"
   },
   "common": {
     "ga": "组地址",

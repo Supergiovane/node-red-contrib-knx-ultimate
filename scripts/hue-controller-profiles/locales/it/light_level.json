@@ -2,9 +2,22 @@
   "knxUltimateHueLightSensor": {
     "title": "Nodo Sensore Luce HUE",
     "paletteLabel": "Sensore luce Hue",
+    "hue_sensor": "Sensore di luminosità Hue",
+    "no_devices": "Nessun sensore di luminosità Hue disponibile",
+    "tabs": {
+      "mapping": "Mappatura",
+      "behaviour": "Comportamento"
+    },
+    "mapping_info": "Collega l'indirizzo di gruppo KNX che deve ricevere il livello di luminosità misurato.",
+    "behaviour_info": "Configura la sincronizzazione all'avvio e il pin di uscita Node-RED.",
     "read_status_startup": "Leggi lo stato all'avvio",
     "opt_no": "No",
-    "opt_yes_emit": "Sì, ed emetti i telegrammi KNX."
+    "opt_yes_emit": "Sì, e invia i telegrammi KNX.",
+    "node_pins": "Pin di uscita del nodo",
+    "node_pins_show": "Mostra il pin di uscita Node-RED",
+    "node_pins_hide": "Nascondi",
+    "output_info": "Nessun gateway KNX selezionato. Se il pin di uscita Node-RED è abilitato, gli eventi del livello di luminosità Hue vengono comunque inviati al flow.",
+    "mapping_name_placeholder": "Livello di luminosità"
   },
   "common": {
     "ga": "GA",

@@ -4,6 +4,9 @@
     "hue_bridge": "Hue Bridge"
   },
   "knxUltimateHueController": {
+    "locale": "de",
+    "tutorials_link": "KNX-Ultimate-Videotutorials (YouTube-Playlist)",
+    "editor_unavailable": "Der ausgewählte Hue-Editor ist nicht verfügbar. Starten Sie Node-RED nach der Paketaktualisierung neu.",
     "device_function": "Gerätefunktion",
     "hue_device": "Hue-Gerät",
     "hue_device_placeholder": "Hue-Gerät oder -Ressource suchen",

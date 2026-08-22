@@ -78,7 +78,7 @@
             data-i18n="knxUltimateHueLight.control"></span></label>
 
         <label for="node-input-GALightSwitch" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightSwitch" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightSwitch" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightSwitch" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -94,7 +94,7 @@
             data-i18n="knxUltimateHueLight.status"></span></label>
 
         <label for="node-input-GALightState" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightState" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightState" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightState" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -110,11 +110,11 @@
     <div id="tabs-2">
       <p>
       <div class="form-row">
-        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-          dim</label>
+        <label for="node-input-nameLightDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_dim"></span></label>
 
         <label for="node-input-GALightDIM" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightDIM" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightDIM" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightDIM" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -126,11 +126,11 @@
         <input type="text" id="node-input-nameLightDIM" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-          %</label>
+        <label for="node-input-nameLightBrightness" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_percent"></span></label>
 
         <label for="node-input-GALightBrightness" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightBrightness" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightBrightness" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightBrightness" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -144,15 +144,15 @@
 
       <div class="form-row">
         <label for="node-input-nameLightBrightnessState" style="width:110px;"><i class="fa fa-question-circle"></i>
-          Status %</label>
+          <span data-i18n="knxUltimateHueLight.status_percent"></span></label>
 
         <label for="node-input-GALightBrightnessState" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightBrightnessState" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightBrightnessState" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightBrightnessState"
-          style="width:40px; margin-left: 0px; text-align: right;">DPT</label>
+          style="width:40px; margin-left: 0px; text-align: right;"><span data-i18n="common.dpt"></span></label>
         <select id="node-input-dptLightBrightnessState" style="width:140px;"></select>
 
         <label for="node-input-nameLightBrightnessState" style="width:50px; margin-left: 0px; text-align: right;"><span
@@ -162,13 +162,13 @@
       </div>
       <div class="form-row">
         <label for="node-input-dimSpeed" style="width:260px">
-          <i class="fa fa-bolt"></i> Dim Speed (ms)
+          <i class="fa fa-bolt"></i> <span data-i18n="knxUltimateHueLight.dim_speed_ms"></span>
         </label>
-        <input type="text" id="node-input-dimSpeed" placeholder='Default is 5000' style="width:210px">
+        <input type="text" id="node-input-dimSpeed" data-i18n="[placeholder]knxUltimateHueLight.dim_speed_placeholder" style="width:210px">
       </div>
       <div class="form-row">
         <label for="node-input-minDimLevelLight" style="width:260px;">
-          <i class="fa fa-clone"></i> Min Dim Brightness
+          <i class="fa fa-clone"></i> <span data-i18n="knxUltimateHueLight.min_dim_brightness"></span>
         </label>
         <select id="node-input-minDimLevelLight">
           <option value="useHueLightLevel" data-i18n="knxUltimateHueLight.use_min_brightness"></option>
@@ -176,7 +176,7 @@
       </div>
       <div class="form-row">
         <label for="node-input-maxDimLevelLight" style="width:260px;">
-          <i class="fa fa-clone"></i> Max Dim Brightness
+          <i class="fa fa-clone"></i> <span data-i18n="knxUltimateHueLight.max_dim_brightness"></span>
         </label>
         <select id="node-input-maxDimLevelLight"></select>
       </div>
@@ -185,11 +185,11 @@
     <div id="tabs-3">
       <p>
       <div class="form-row">
-        <label for="node-input-nameLightKelvinDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-          dim</label>
+        <label for="node-input-nameLightKelvinDIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_dim"></span></label>
 
         <label for="node-input-GALightKelvinDIM" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightKelvinDIM" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightKelvinDIM" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightKelvinDIM" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -202,11 +202,10 @@
       </div>
       <div class="form-row">
         <label for="node-input-nameLightKelvinPercentage" style="width:110px;"><i class="fa fa-play-circle-o"></i>
-          Control
-          %</label>
+          <span data-i18n="knxUltimateHueLight.control_percent"></span></label>
 
         <label for="node-input-GALightKelvinPercentage" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightKelvinPercentage" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightKelvinPercentage" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightKelvinPercentage" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -214,18 +213,17 @@
         <select id="node-input-dptLightKelvinPercentage" style="width:140px;"></select>
 
         <label for="node-input-nameLightKelvinPercentage"
-          style="width:50px; margin-left: 0px; text-align: right;">Name</label>
+          style="width:50px; margin-left: 0px; text-align: right;"><span data-i18n="common.name"></span></label>
         <input type="text" id="node-input-nameLightKelvinPercentage"
           style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
         <label for="node-input-nameLightKelvinPercentageState" style="width:110px;"><i
-            class="fa fa-question-circle"></i> Status
-          %</label>
+            class="fa fa-question-circle"></i> <span data-i18n="knxUltimateHueLight.status_percent"></span></label>
 
         <label for="node-input-GALightKelvinPercentageState" style="width:20px;"><span
             data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightKelvinPercentageState" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightKelvinPercentageState" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightKelvinPercentageState"
@@ -238,11 +236,11 @@
           style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-          Kelvin</label>
+        <label for="node-input-nameLightKelvin" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_kelvin"></span></label>
 
         <label for="node-input-GALightKelvin" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightKelvin" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightKelvin" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightKelvin" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -254,10 +252,10 @@
         <input type="text" id="node-input-nameLightKelvin" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
-          Kelvin</label>
+        <label for="node-input-nameLightKelvinState" style="width:110px;"><i class="fa fa-question-circle"></i> <span
+            data-i18n="knxUltimateHueLight.status_kelvin"></span></label>
         <label for="node-input-GALightKelvinState" style="width:20px;"><span data-i18n="common.ga"></span></label>
-        <input type="text" id="node-input-GALightKelvinState" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightKelvinState" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightKelvinState" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -270,7 +268,7 @@
       </div>
       <div class="form-row">
         <label style="width:170px" for="node-input-invertDimTunableWhiteDirection">
-          <i class="fa fa-shuffle"></i> Invert dim direction
+          <i class="fa fa-shuffle"></i> <span data-i18n="knxUltimateHueLight.invert_dim_direction"></span>
         </label>
         <input type="checkbox" id="node-input-invertDimTunableWhiteDirection"
           style="display:inline-block; width:auto; vertical-align:top;" />
@@ -279,14 +277,14 @@
     </div>
     <div id="tabs-4">
       <p>
-      <p><b> RGB section</b></p>
+      <p><b data-i18n="knxUltimateHueLight.rgb_section"></b></p>
       <div class="form-row">
-        <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control
-          rgb</label>
+        <label for="node-input-nameLightColor" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_rgb"></span></label>
 
         <label for="node-input-GALightColor" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightColor" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightColor" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightColor" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -298,12 +296,12 @@
         <input type="text" id="node-input-nameLightColor" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> Status
-          rgb</label>
+        <label for="node-input-nameLightColorState" style="width:110px;"><i class="fa fa-question-circle"></i> <span
+            data-i18n="knxUltimateHueLight.status_rgb"></span></label>
 
         <label for="node-input-GALightColorState" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightColorState" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightColorState" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightColorState" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -315,18 +313,18 @@
         <input type="text" id="node-input-nameLightColorState" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
 
-      <p><b> HSV section</b></p>
+      <p><b data-i18n="knxUltimateHueLight.hsv_section"></b></p>
       <!-- // HSV Color change
         // nameLightHSV_H_DIM: { value: "" },
         // GALightHSV_H_DIM: { value: "" },
         // dptLightHSV_H_DIM: { value: "" }, -->
       <div class="form-row">
-        <label for="node-input-nameLightHSV_H_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control H
-          dim</label>
+        <label for="node-input-nameLightHSV_H_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_hue_dim"></span></label>
 
         <label for="node-input-GALightHSV_H_DIM" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightHSV_H_DIM" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightHSV_H_DIM" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightHSV_H_DIM" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -338,12 +336,12 @@
         <input type="text" id="node-input-nameLightHSV_H_DIM" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightHSV_H_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status H
-          %</label>
+        <label for="node-input-nameLightHSV_H_State" style="width:110px;"><i class="fa fa-question-circle"></i> <span
+            data-i18n="knxUltimateHueLight.status_hue_percent"></span></label>
 
         <label for="node-input-GALightHSV_H_State" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightHSV_H_State" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightHSV_H_State" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightHSV_H_State" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -363,12 +361,12 @@
         GALightHSV_S_State: { value: "" },
         dptLightHSV_S_State: { value: "" }, -->
       <div class="form-row">
-        <label for="node-input-nameLightHSV_S_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> Control S
-          dim</label>
+        <label for="node-input-nameLightHSV_S_DIM" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.control_saturation_dim"></span></label>
 
         <label for="node-input-GALightHSV_S_DIM" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightHSV_S_DIM" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightHSV_S_DIM" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightHSV_S_DIM" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -380,12 +378,12 @@
         <input type="text" id="node-input-nameLightHSV_S_DIM" style="width:190px;margin-left: 5px; text-align: left;">
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightHSV_S_State" style="width:110px;"><i class="fa fa-question-circle"></i> Status S
-          %</label>
+        <label for="node-input-nameLightHSV_S_State" style="width:110px;"><i class="fa fa-question-circle"></i> <span
+            data-i18n="knxUltimateHueLight.status_saturation_percent"></span></label>
 
         <label for="node-input-GALightHSV_S_State" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightHSV_S_State" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightHSV_S_State" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightHSV_S_State" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -406,9 +404,9 @@
         dptLightHSV_V_State: { value: "" }, -->
       <div class="form-row">
         <label for="node-input-HSVDimSpeed" style="width:260px">
-          <i class="fa fa-bolt"></i> Dim Speed (ms)
+          <i class="fa fa-bolt"></i> <span data-i18n="knxUltimateHueLight.dim_speed_ms"></span>
         </label>
-        <input type="text" id="node-input-HSVDimSpeed" placeholder='Default is 5000' style="width:210px">
+        <input type="text" id="node-input-HSVDimSpeed" data-i18n="[placeholder]knxUltimateHueLight.dim_speed_placeholder" style="width:210px">
       </div>
 
       </p>
@@ -420,11 +418,12 @@
         <span data-i18n="knxUltimateHueLight.effect_base_label"></span>
       </div>
       <div class="form-row">
-        <label for="node-input-nameLightBlink" style="width:110px;"><i class="fa fa-play-circle-o"></i> Blink</label>
+        <label for="node-input-nameLightBlink" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+            data-i18n="knxUltimateHueLight.blink"></span></label>
 
         <label for="node-input-GALightBlink" style="width:20px;"><span
             data-i18n="knxUltimateHueLight.node-input-GALightState"></span></label>
-        <input type="text" id="node-input-GALightBlink" placeholder="Ex: 1/1/1"
+        <input type="text" id="node-input-GALightBlink" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
           style="width:70px;margin-left: 5px; text-align: left;">
 
         <label for="node-input-dptLightBlink" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -438,11 +437,11 @@
 
       <div id="divColorCycle">
         <div class="form-row">
-          <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> Color
-            Cycle</label>
+          <label for="node-input-nameLightColorCycle" style="width:110px;"><i class="fa fa-play-circle-o"></i> <span
+              data-i18n="knxUltimateHueLight.color_cycle"></span></label>
 
           <label for="node-input-GALightColorCycle" style="width:20px;"><span data-i18n="common.ga"></span></label>
-          <input type="text" id="node-input-GALightColorCycle" placeholder="Ex: 1/1/1"
+          <input type="text" id="node-input-GALightColorCycle" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
             style="width:70px;margin-left: 5px; text-align: left;">
 
           <label for="node-input-dptLightColorCycle" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -471,7 +470,7 @@
                 data-i18n="knxUltimateHueLight.effect_command"></span></label>
 
             <label for="node-input-GALightEffect" style="width:20px;"><span data-i18n="common.ga"></span></label>
-            <input type="text" id="node-input-GALightEffect" placeholder="Ex: 1/1/1"
+            <input type="text" id="node-input-GALightEffect" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
               style="width:70px;margin-left: 5px; text-align: left;">
 
             <label for="node-input-dptLightEffect" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -488,7 +487,7 @@
                 data-i18n="knxUltimateHueLight.effect_status"></span></label>
 
             <label for="node-input-GALightEffectStatus" style="width:20px;"><span data-i18n="common.ga"></span></label>
-            <input type="text" id="node-input-GALightEffectStatus" placeholder="Ex: 1/1/1"
+            <input type="text" id="node-input-GALightEffectStatus" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
               style="width:70px;margin-left: 5px; text-align: left;">
 
             <label for="node-input-dptLightEffectStatus" style="width:40px; margin-left: 0px; text-align: right;"><span
@@ -611,7 +610,7 @@
               <label for="node-input-nameDaylightSensor" style="width:110px;"><i class="fa fa-clock-o"></i>
                 <span data-i18n="knxUltimateHueLight.day_night"></span></label>
               <label for="node-input-GADaylightSensor" style="width:20px;"><span data-i18n="common.ga"></span></label>
-              <input type="text" id="node-input-GADaylightSensor" placeholder="Ex: 1/1/1"
+              <input type="text" id="node-input-GADaylightSensor" data-i18n="[placeholder]knxUltimateHueLight.ga_placeholder" placeholder="Ex: 1/1/1"
                 style="width:70px;margin-left: 5px; text-align: left;">
 
               <label for="node-input-dptDaylightSensor" style="width:40px; margin-left: 0px; text-align: right;"><span
