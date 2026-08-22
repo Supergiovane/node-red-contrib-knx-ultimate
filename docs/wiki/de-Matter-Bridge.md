@@ -6,8 +6,6 @@ permalink: /wiki/de-Matter-Bridge
 ---
 # Expose KNX to Matter
 
-Der Node verwendet den offiziellen Matter-Hintergrund **Day** (`#F3FFFF`) mit der Icon-Farbe **Night** (`#131926`).
-
 <div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">
   <div style="font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;font-weight:700;color:#c9fff7;">Matter Bridge · KNX-Geräte · Sprachassistenten</div>
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">KNX für das Matter-Ökosystem öffnen.</div>

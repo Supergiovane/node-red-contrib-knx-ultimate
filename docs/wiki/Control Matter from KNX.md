@@ -8,8 +8,6 @@ permalink: /wiki/Control%20Matter%20from%20KNX
 
 This node controls a commissioned Matter endpoint from KNX. Select the Matter device and the editor detects its capabilities, then shows only the KNX mappings that make sense for that endpoint.
 
-The node uses the official Matter **Day** (`#F3FFFF`) background with **Night** (`#131926`) iconography.
-
 Clicking or focusing the Matter device field always opens the complete commissioned endpoint list, even when a device is already selected. Typing continues to filter it.
 
 It replaces the unpublished per-device Matter controller nodes and keeps the full light UI when the selected endpoint is a light.
