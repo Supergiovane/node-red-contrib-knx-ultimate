@@ -7,6 +7,7 @@ KNXUltimateDebugLog.txt
 AGENTS.md
 
 tutorial
+.continue/
 AGENTS/
 docs/_site/
 docs/Gemfile.lock
