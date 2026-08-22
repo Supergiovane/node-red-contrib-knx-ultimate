@@ -74,7 +74,9 @@
       "fn_leak_ga": "GA estado fuga de agua",
       "fn_co2_ga": "GA estado CO2 (ppm, DPT 9.008)",
       "fn_fanspeed_cmd": "GA comando velocidad ventilador %",
-      "fn_fanspeed_status": "GA estado velocidad ventilador %"
+      "fn_fanspeed_status": "GA estado velocidad ventilador %",
+      "fn_lock_cmd": "GA comando bloqueo/desbloqueo",
+      "fn_lock_status": "GA estado bloqueado/desbloqueado"
     },
     "types": {
       "onofflight": "Luz On/Off",
@@ -89,7 +91,9 @@
       "contactsensor": "Sensor de contacto",
       "windowcovering": "Persiana / Cortina",
       "thermostat": "Termostato (calefacción)",
+      "roomairconditioner": "Aire acondicionado de habitación",
       "fan": "Ventilador / VMC",
+      "doorlock": "Cerradura de puerta",
       "smokecoalarm": "Alarma humo/CO",
       "waterleakdetector": "Detector de fugas de agua",
       "airqualitysensor": "Sensor de calidad del aire (CO2)",

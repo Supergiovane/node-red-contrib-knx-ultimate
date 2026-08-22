@@ -55,6 +55,21 @@ module.exports = function (RED) {
       { fn: 'coolingsetpoint', direction: 'command', ga: 'gaCoolingSetpoint', dpt: 'dptCoolingSetpoint', fallbackDpt: '9.001' },
       { fn: 'coolingsetpoint', direction: 'status', ga: 'gaCoolingSetpointStatus', dpt: 'dptCoolingSetpointStatus', fallbackDpt: '9.001' }
     ],
+    roomairconditioner: [
+      { fn: 'onoff', direction: 'command', ga: 'gaOnOff', dpt: 'dptOnOff', fallbackDpt: '1.001' },
+      { fn: 'onoff', direction: 'status', ga: 'gaOnOffStatus', dpt: 'dptOnOffStatus', fallbackDpt: '1.001' },
+      { fn: 'currenttemp', direction: 'status', ga: 'gaCurrentTemp', dpt: 'dptCurrentTemp', fallbackDpt: '9.001' },
+      { fn: 'setpoint', direction: 'command', ga: 'gaSetpoint', dpt: 'dptSetpoint', fallbackDpt: '9.001' },
+      { fn: 'setpoint', direction: 'status', ga: 'gaSetpointStatus', dpt: 'dptSetpointStatus', fallbackDpt: '9.001' },
+      { fn: 'coolingsetpoint', direction: 'command', ga: 'gaCoolingSetpoint', dpt: 'dptCoolingSetpoint', fallbackDpt: '9.001' },
+      { fn: 'coolingsetpoint', direction: 'status', ga: 'gaCoolingSetpointStatus', dpt: 'dptCoolingSetpointStatus', fallbackDpt: '9.001' },
+      { fn: 'fanspeed', direction: 'command', ga: 'gaFanSpeed', dpt: 'dptFanSpeed', fallbackDpt: '5.001' },
+      { fn: 'fanspeed', direction: 'status', ga: 'gaFanSpeedStatus', dpt: 'dptFanSpeedStatus', fallbackDpt: '5.001' }
+    ],
+    doorlock: [
+      { fn: 'lock', direction: 'command', ga: 'gaLock', dpt: 'dptLock', fallbackDpt: '1.001' },
+      { fn: 'lock', direction: 'status', ga: 'gaLockStatus', dpt: 'dptLockStatus', fallbackDpt: '1.001' }
+    ],
     smokecoalarm: [
       { fn: 'smoke', direction: 'status', ga: 'gaSmoke', dpt: 'dptSmoke', fallbackDpt: '1.005' },
       { fn: 'co', direction: 'status', ga: 'gaCO', dpt: 'dptCO', fallbackDpt: '1.005' }
@@ -275,9 +290,9 @@ module.exports = function (RED) {
       coverSliderDebounceMs: node.coverSliderDebounceMs,
       commandDedupMs: node.commandDedupMs,
       coverUpdateMode: node.coverUpdateMode,
-      // Thermostat only: whether a heating/cooling setpoint GA (command or status) was
-      // configured, so the bridge engine can build a Heating-only, Cooling-only or dual
-      // ThermostatServer without a dedicated "mode" dropdown in the editor.
+      // Thermostat/Room Air Conditioner: whether a heating/cooling setpoint GA (command
+      // or status) was configured, so the bridge engine can build a Heating-only,
+      // Cooling-only or dual ThermostatServer without a dedicated mode dropdown.
       hasHeatingSetpoint: devConfigValue('gaSetpoint') !== '' || devConfigValue('gaSetpointStatus') !== '',
       hasCoolingSetpoint: devConfigValue('gaCoolingSetpoint') !== '' || devConfigValue('gaCoolingSetpointStatus') !== ''
     })

@@ -74,7 +74,9 @@
       "fn_leak_ga": "Leak status GA",
       "fn_co2_ga": "CO2 status GA (ppm, DPT 9.008)",
       "fn_fanspeed_cmd": "Fan speed % command GA",
-      "fn_fanspeed_status": "Fan speed % status GA"
+      "fn_fanspeed_status": "Fan speed % status GA",
+      "fn_lock_cmd": "Lock/Unlock command GA",
+      "fn_lock_status": "Locked/Unlocked status GA"
     },
     "types": {
       "onofflight": "On/Off light",
@@ -89,7 +91,9 @@
       "contactsensor": "Contact sensor",
       "windowcovering": "Cover / Shutter",
       "thermostat": "Thermostat (heating)",
+      "roomairconditioner": "Room air conditioner",
       "fan": "Fan / Ventilation",
+      "doorlock": "Door lock",
       "smokecoalarm": "Smoke/CO alarm",
       "waterleakdetector": "Water leak detector",
       "airqualitysensor": "Air quality sensor (CO2)",

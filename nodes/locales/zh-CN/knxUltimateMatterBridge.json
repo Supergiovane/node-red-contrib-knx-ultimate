@@ -74,7 +74,9 @@
       "fn_leak_ga": "漏水状态 GA",
       "fn_co2_ga": "CO2 状态 GA（ppm，DPT 9.008）",
       "fn_fanspeed_cmd": "风扇速度 % 命令 GA",
-      "fn_fanspeed_status": "风扇速度 % 状态 GA"
+      "fn_fanspeed_status": "风扇速度 % 状态 GA",
+      "fn_lock_cmd": "锁定/解锁 命令 GA",
+      "fn_lock_status": "锁定/解锁 状态 GA"
     },
     "types": {
       "onofflight": "开关灯",
@@ -89,7 +91,9 @@
       "contactsensor": "门磁传感器",
       "windowcovering": "窗帘 / 卷帘",
       "thermostat": "温控器（采暖）",
+      "roomairconditioner": "房间空调",
       "fan": "风扇 / 新风",
+      "doorlock": "门锁",
       "smokecoalarm": "烟雾/CO 报警器",
       "waterleakdetector": "漏水探测器",
       "airqualitysensor": "空气质量传感器 (CO2)",

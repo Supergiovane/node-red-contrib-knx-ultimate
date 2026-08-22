@@ -11,19 +11,19 @@ permalink: /wiki/de-Matter-Bridge
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">KNX für das Matter-Ökosystem öffnen.</div>
   <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f2fffd;">Jeder Node verwandelt eine KNX- oder Flow-Funktion in einen nativen Matter-Endpunkt für Alexa, Google Home, Apple Home und weitere Controller. Die Bridge einmal koppeln und danach Gerät für Gerät erweitern.</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
-    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">17</strong><span style="font-size:0.76rem;color:#ddfffa;">Matter-Geräteprofile</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">19</strong><span style="font-size:0.76rem;color:#ddfffa;">Matter-Geräteprofile</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Einmal koppeln</strong><span style="font-size:0.76rem;color:#ddfffa;">ein Bridge-QR-Code</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Live-Endpunkte</strong><span style="font-size:0.76rem;color:#ddfffa;">kein normaler Neustart</span></div>
   </div>
 </div>
 
-## Siebzehn Profile, eine Bridge
+## Neunzehn Profile, eine Bridge
 
 | Bereich | Matter-Profile |
 |---|---|
 | **Licht & Leistung** | Ein/Aus-Licht, Steckdose, dimmbares Licht, RGB-Licht und Tunable White. |
-| **Klima & Umwelt** | Temperatur, Feuchte, Helligkeit, Luftqualität, Thermostat und Ventilator. |
-| **Präsenz & Sicherheit** | Präsenz, Kontakt, Rauch/CO und Wasserleck. |
+| **Klima & Umwelt** | Temperatur, Feuchte, Helligkeit, Luftqualität, Thermostat, Raumklimagerät und Ventilator. |
+| **Präsenz & Sicherheit** | Präsenz, Kontakt, Türschloss, Rauch/CO und Wasserleck. |
 | **Bewegung & Automation** | Rollladen/Jalousie und Flow-gesteuerter Saugroboter. |
 
 ## Start in vier Schritten
@@ -62,8 +62,10 @@ Das Ändern des Gerätetyps nach der Kopplung der Bridge verändert die Matter-E
 | RGB-Farblicht | + RGB-Farbe Befehls-/Status-GA (DPT 232.600). Die Matter-Farbe (Hue/Saturation oder XY, vom Farbrad der App) wird von/zur KNX-RGB-Triplette konvertiert |
 | Tunable-White-Licht | + Farbtemperatur Befehls-/Status-GA in Kelvin (DPT 7.600) |
 | Rollladen / Jalousie | Auf/Ab (DPT 1.008), Stopp (DPT 1.017), Position % Befehl/Status (DPT 5.001), optionale Positionsumkehr |
-| Thermostat (Heizung) | GA aktuelle Temperatur, Sollwert Befehls-/Status-GA (DPT 9.001) |
+| Thermostat (Heizung und/oder Kühlung) | GA aktuelle Temperatur, Sollwert Befehls-/Status-GA (DPT 9.001). Mit zusätzlichem Kühl-Sollwert Befehls-/Status-GA wird auch der Kühlmodus (Doppel-Sollwert) bereitgestellt |
+| Raumklimagerät | Ein Matter-Gerät kombiniert Ein/Aus (DPT 1.001), aktuelle Temperatur und Heiz-/Kühl-Sollwerte (DPT 9.001) sowie Lüftergeschwindigkeit % (DPT 5.001), jeweils als Befehls-/Status-GA |
 | Ventilator / Lüftung | Geschwindigkeit % Befehls-/Status-GA (DPT 5.001) |
+| Türschloss | Verriegeln/Entriegeln Befehls-GA und Verriegelt/Entriegelt Status-GA (DPT 1.001; `true` = verriegelt) |
 | Sensoren (Temperatur, Feuchte, Licht, Präsenz, Kontakt) | Je eine Status-GA |
 | Rauch-/CO-Melder | Rauchalarm Status-GA + optionale CO-Alarm Status-GA (DPT 1.005): kritische Benachrichtigungen auf dem Telefon |
 | Wasserleckmelder | Leckage Status-GA (DPT 1.005) |
@@ -81,7 +83,7 @@ Diese Optionen werden nur angezeigt, wenn sie zum gewählten Typ passen. Dimmbar
 
 Wenn du die Input/Output-PINs des Nodes aktivierst:
 
-- **Input**: aktualisiere den Matter-Zustand aus dem Flow, ohne den KNX-Bus: `msg.payload = { function: "onoff", value: true }` (`function` ist eine von `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Nützlich, um im Flow berechnete Werte (z.B. einen virtuellen Sensor) für Alexa & Co. bereitzustellen.
+- **Input**: aktualisiere den Matter-Zustand aus dem Flow, ohne den KNX-Bus: `msg.payload = { function: "onoff", value: true }` (`function` ist eine von `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `coolingsetpoint`, `fanspeed`, `lock`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Nützlich, um im Flow berechnete Werte (z.B. einen virtuellen Sensor) für Alexa & Co. bereitzustellen.
 - **Output**: Jeder von einem Matter-Controller empfangene Befehl wird an den Flow weitergeleitet: `msg.topic` = Gerätename, `msg.payload` = Wert, `msg.matter` = der rohe Befehl. Ein Gerät ohne Befehls-GAs wird zum **Nur-Flow-Gerät**.
 
 ## Hinweise

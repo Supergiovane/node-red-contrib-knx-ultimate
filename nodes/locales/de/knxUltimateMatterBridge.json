@@ -74,7 +74,9 @@
       "fn_leak_ga": "Leckage Status-GA",
       "fn_co2_ga": "CO2 Status-GA (ppm, DPT 9.008)",
       "fn_fanspeed_cmd": "Lüftergeschwindigkeit % Befehls-GA",
-      "fn_fanspeed_status": "Lüftergeschwindigkeit % Status-GA"
+      "fn_fanspeed_status": "Lüftergeschwindigkeit % Status-GA",
+      "fn_lock_cmd": "Verriegeln/Entriegeln Befehls-GA",
+      "fn_lock_status": "Verriegelt/Entriegelt Status-GA"
     },
     "types": {
       "onofflight": "Ein/Aus-Licht",
@@ -89,7 +91,9 @@
       "contactsensor": "Kontaktsensor",
       "windowcovering": "Rollladen / Jalousie",
       "thermostat": "Thermostat (Heizung)",
+      "roomairconditioner": "Raumklimagerät",
       "fan": "Ventilator / Lüftung",
+      "doorlock": "Türschloss",
       "smokecoalarm": "Rauch-/CO-Melder",
       "waterleakdetector": "Wasserleckmelder",
       "airqualitysensor": "Luftqualitätssensor (CO2)",

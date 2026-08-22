@@ -74,7 +74,9 @@
       "fn_leak_ga": "GA stato allagamento",
       "fn_co2_ga": "GA stato CO2 (ppm, DPT 9.008)",
       "fn_fanspeed_cmd": "GA comando velocità ventola %",
-      "fn_fanspeed_status": "GA stato velocità ventola %"
+      "fn_fanspeed_status": "GA stato velocità ventola %",
+      "fn_lock_cmd": "GA comando blocco/sblocco",
+      "fn_lock_status": "GA stato bloccato/sbloccato"
     },
     "types": {
       "onofflight": "Luce On/Off",
@@ -89,7 +91,9 @@
       "contactsensor": "Sensore contatto",
       "windowcovering": "Tapparella / Tenda",
       "thermostat": "Termostato (riscaldamento)",
+      "roomairconditioner": "Condizionatore ambiente",
       "fan": "Ventola / VMC",
+      "doorlock": "Serratura porta",
       "smokecoalarm": "Rilevatore fumo/CO",
       "waterleakdetector": "Rilevatore allagamento",
       "airqualitysensor": "Sensore qualità aria (CO2)",

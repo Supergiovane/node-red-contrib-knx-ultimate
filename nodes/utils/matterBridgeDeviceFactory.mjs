@@ -28,6 +28,11 @@ import { AirQualitySensorDevice } from '@matter/main/devices/air-quality-sensor'
 import { AirQualityServer } from '@matter/main/behaviors/air-quality'
 import { CarbonDioxideConcentrationMeasurementServer } from '@matter/main/behaviors/carbon-dioxide-concentration-measurement'
 import { FanDevice } from '@matter/main/devices/fan'
+import { FanControlServer } from '@matter/main/behaviors/fan-control'
+import { RoomAirConditionerDevice } from '@matter/main/devices/room-air-conditioner'
+import { DoorLockDevice } from '@matter/main/devices/door-lock'
+import { DoorLockServer } from '@matter/main/behaviors/door-lock'
+import { DoorLock } from '@matter/main/clusters/door-lock'
 import { RoboticVacuumCleanerDevice } from '@matter/main/devices/robotic-vacuum-cleaner'
 import { RvcRunModeServer } from '@matter/main/behaviors/rvc-run-mode'
 import { RvcOperationalStateServer } from '@matter/main/behaviors/rvc-operational-state'
@@ -53,6 +58,8 @@ const BRIDGE_TYPES = {
   // Custom construction (dedicated server behaviors), handled in createBridgedEndpoint
   windowcovering: { device: null, functions: ['position'], commandFunctions: [] },
   thermostat: { device: null, functions: ['currenttemp', 'setpoint', 'coolingsetpoint'], commandFunctions: [] },
+  roomairconditioner: { device: null, functions: ['onoff', 'currenttemp', 'setpoint', 'coolingsetpoint', 'fanspeed'], commandFunctions: [] },
+  doorlock: { device: null, functions: ['lock'], commandFunctions: [] },
   rgblight: { device: null, functions: ['onoff', 'level', 'rgb'], commandFunctions: ['onoff', 'level'] },
   colortemperaturelight: { device: null, functions: ['onoff', 'level', 'colortemp'], commandFunctions: ['onoff', 'level'] },
   smokecoalarm: { device: null, functions: ['smoke', 'co'], commandFunctions: [] },
@@ -124,6 +131,8 @@ function knxValueToMatterPatch (def, fn, value) {
     }
     case 'onoff':
       return { onOff: { onOff: truthy(value) } }
+    case 'lock':
+      return { doorLock: { lockState: truthy(value) ? DoorLock.LockState.Locked : DoorLock.LockState.Unlocked } }
     case 'level': {
       const percent = Number(value)
       if (Number.isNaN(percent)) return undefined
@@ -281,6 +290,76 @@ function createRawColorControlServer (def, onCommand) {
   return { RawColorControlServer, attachLevelTracker }
 }
 
+function configureThermostatState (initialState, def, fallbackMode) {
+  let hasHeating = def.hasHeatingSetpoint === true
+  let hasCooling = def.hasCoolingSetpoint === true
+  // The Thermostat cluster cannot be composed without at least one operating feature.
+  // Preserve the historical heating default for the standalone Thermostat; a Room Air
+  // Conditioner with no setpoint GA configured defaults to cooling, its primary use case.
+  if (!hasHeating && !hasCooling) {
+    hasHeating = fallbackMode === 'heating'
+    hasCooling = fallbackMode === 'cooling'
+  }
+  const features = []
+  if (hasHeating) features.push('Heating')
+  if (hasCooling) features.push('Cooling')
+  initialState.thermostat = {
+    localTemperature: null,
+    // CoolingOnly=0, HeatingOnly=2, CoolingAndHeating=4 (ControlSequenceOfOperation).
+    controlSequenceOfOperation: hasHeating && hasCooling ? 4 : (hasCooling ? 0 : 2),
+    // Cool=3, Heat=4 (SystemMode). A dual-mode device starts in Heat.
+    systemMode: hasCooling && !hasHeating ? 3 : 4
+  }
+  if (hasHeating) initialState.thermostat.occupiedHeatingSetpoint = 2000 // 20°C
+  if (hasCooling) initialState.thermostat.occupiedCoolingSetpoint = 2400 // 24°C
+  return { features, hasHeating, hasCooling }
+}
+
+function attachThermostatCommandHandlers (endpoint, def, onCommand, capabilities) {
+  // Absolute thermostat targets are Matter attribute writes, not commands. The offline
+  // context marks KNX/flow state synchronization and prevents a feedback write to KNX.
+  if (capabilities.hasHeating) {
+    endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
+      try {
+        if (context?.offline === true || value === null || value === undefined) return
+        onCommand({ deviceId: def.id, fn: 'setpoint', value: Math.round(Number(value)) / 100 })
+      } catch (error) { /* empty */ }
+    })
+  }
+  if (capabilities.hasCooling) {
+    endpoint.events.thermostat.occupiedCoolingSetpoint$Changed.on((value, oldValue, context) => {
+      try {
+        if (context?.offline === true || value === null || value === undefined) return
+        onCommand({ deviceId: def.id, fn: 'coolingsetpoint', value: Math.round(Number(value)) / 100 })
+      } catch (error) { /* empty */ }
+    })
+  }
+}
+
+function configureFanState (initialState) {
+  initialState.fanControl = {
+    fanMode: 0, // Off
+    fanModeSequence: 0, // Off/Low/Med/High (Auto requires the AUT feature)
+    percentSetting: 0,
+    percentCurrent: 0
+  }
+}
+
+function attachFanCommandHandlers (endpoint, def, onCommand) {
+  endpoint.events.fanControl.percentSetting$Changed.on((value, oldValue, context) => {
+    try {
+      if (context?.offline === true || value === null || value === undefined) return
+      onCommand({ deviceId: def.id, fn: 'fanspeed', value: clamp(Math.round(Number(value)), 0, 100) })
+    } catch (error) { /* empty */ }
+  })
+  endpoint.events.fanControl.fanMode$Changed.on((value, oldValue, context) => {
+    try {
+      if (context?.offline === true) return
+      if (Number(value) === 0) onCommand({ deviceId: def.id, fn: 'fanspeed', value: 0 })
+    } catch (error) { /* empty */ }
+  })
+}
+
 /**
  * Creates the bridged Matter endpoint for a virtual device definition.
  * @param {object} def - { id, type, name }
@@ -353,7 +432,9 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     return false
   }
 
-  const RawOnOffBase = def.type === 'onoffplug' ? OnOffServer : OnOffServer.with('Lighting')
+  const RawOnOffBase = def.type === 'onoffplug'
+    ? OnOffServer
+    : def.type === 'roomairconditioner' ? OnOffServer.with('DeadFrontBehavior') : OnOffServer.with('Lighting')
   class RawOnOffServer extends RawOnOffBase {
     async on () {
       await super.on()
@@ -505,54 +586,55 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
     // Heating/Cooling capability is auto-detected from which setpoint GA(s) the KNX node
     // has configured (see knxUltimateMatterBridge.js#getMatterDef). Leaving both flags
     // unset keeps the original heating-only behavior, so existing flows are unaffected.
-    const hasCooling = def.hasCoolingSetpoint === true
-    const hasHeating = def.hasHeatingSetpoint !== false
-    const features = []
-    if (hasHeating) features.push('Heating')
-    if (hasCooling) features.push('Cooling')
-    if (features.length === 0) features.push('Heating') // never build a thermostat with neither mode
-
-    initialState.thermostat = {
-      localTemperature: null,
-      // CoolingOnly=0, HeatingOnly=2, CoolingAndHeating=4 (Matter ControlSequenceOfOperation enum)
-      controlSequenceOfOperation: hasHeating && hasCooling ? 4 : (hasCooling ? 0 : 2),
-      // Cool=3, Heat=4 (Matter SystemMode enum). Dual-mode starts in Heat; the controller can
-      // switch it, same as any physical dual thermostat without an auto/deadband mode.
-      systemMode: hasCooling && !hasHeating ? 3 : 4
-    }
-    if (hasHeating) initialState.thermostat.occupiedHeatingSetpoint = 2000 // 20°C
-    if (hasCooling) initialState.thermostat.occupiedCoolingSetpoint = 2400 // 24°C
-
-    endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with(...features), BridgedDeviceBasicInformationServer), initialState)
-
-    // Setpoint changes from a Matter controller. Unlike OnOff/LevelControl/WindowCovering/
-    // ColorControl, an absolute setpoint has no cluster COMMAND to intercept - Thermostat
-    // only exposes SetpointRaiseLower (a *relative* command) and SetActivePresetRequest;
-    // controllers set an absolute target via a plain attribute write. matter.js only fires
-    // $Changing/$Changed when the value actually differs (verified in @matter/node's
-    // Datasource#preCommit), so a duplicate setpoint (same value sent twice) cannot be
-    // forwarded raw here - there is no lower-level hook to capture it at.
-    if (hasHeating) {
-      endpoint.events.thermostat.occupiedHeatingSetpoint$Changed.on((value, oldValue, context) => {
-        try {
-          if (context?.offline === true) return
-          if (value === null || value === undefined) return
-          onCommand({ deviceId: def.id, fn: 'setpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
-        } catch (error) { /* empty */ }
-      })
-    }
-    if (hasCooling) {
-      endpoint.events.thermostat.occupiedCoolingSetpoint$Changed.on((value, oldValue, context) => {
-        try {
-          if (context?.offline === true) return
-          if (value === null || value === undefined) return
-          onCommand({ deviceId: def.id, fn: 'coolingsetpoint', value: Math.round(Number(value)) / 100 }) // centi-°C -> °C
-        } catch (error) { /* empty */ }
-      })
-    }
+    const thermostat = configureThermostatState(initialState, def, 'heating')
+    endpoint = new Endpoint(ThermostatDevice.with(ThermostatServer.with(...thermostat.features), BridgedDeviceBasicInformationServer), initialState)
+    attachThermostatCommandHandlers(endpoint, def, onCommand, thermostat)
     // NOTE: SystemMode (Heat/Cool/Off/Auto) changes from a controller are accepted by the
     // cluster but not forwarded to KNX yet: there is no single KNX DPT for HVAC mode that
     // fits every actuator. Track it via the node's optional input PIN if you need it today.
+    return endpoint
+  }
+
+  if (def.type === 'roomairconditioner') {
+    // Matter Room Air Conditioner (0x0072) requires OnOff with DeadFrontBehavior and a
+    // feature-selected Thermostat server. FanControl is optional in the specification,
+    // but included here so the former on/off + thermostat + fan trio becomes one endpoint.
+    const thermostat = configureThermostatState(initialState, def, 'cooling')
+    configureFanState(initialState)
+    endpoint = new Endpoint(RoomAirConditionerDevice.with(
+      RawOnOffServer,
+      ThermostatServer.with(...thermostat.features),
+      FanControlServer,
+      BridgedDeviceBasicInformationServer
+    ), initialState)
+    attachThermostatCommandHandlers(endpoint, def, onCommand, thermostat)
+    attachFanCommandHandlers(endpoint, def, onCommand)
+    return endpoint
+  }
+
+  if (def.type === 'doorlock') {
+    initialState.doorLock = {
+      lockState: DoorLock.LockState.Unlocked,
+      lockType: DoorLock.LockType.Other,
+      actuatorEnabled: true,
+      operatingMode: DoorLock.OperatingMode.Normal,
+      // matter.js currently defaults these constrained base attributes to 0, which is
+      // outside their Matter-defined 1..255 range and prevents endpoint initialization.
+      wrongCodeEntryLimit: 3,
+      userCodeTemporaryDisableTime: 10
+    }
+    class KnxDoorLockServer extends DoorLockServer {
+      async lockDoor (request) {
+        await super.lockDoor(request)
+        onCommand({ deviceId: def.id, fn: 'lock', value: true, matterCommand: { cluster: 'DoorLock', command: 'lockDoor' } })
+      }
+
+      async unlockDoor (request) {
+        await super.unlockDoor(request)
+        onCommand({ deviceId: def.id, fn: 'lock', value: false, matterCommand: { cluster: 'DoorLock', command: 'unlockDoor' } })
+      }
+    }
+    endpoint = new Endpoint(DoorLockDevice.with(KnxDoorLockServer, BridgedDeviceBasicInformationServer), initialState)
     return endpoint
   }
 
@@ -620,30 +702,13 @@ function createBridgedEndpoint (def, serialPrefix, onCommand) {
       BridgedDeviceBasicInformationServer
     ), initialState)
   } else if (def.type === 'fan') {
-    initialState.fanControl = {
-      fanMode: 0, // Off
-      fanModeSequence: 0, // Off/Low/Med/High (Auto requires the AUT feature)
-      percentSetting: 0,
-      percentCurrent: 0
-    }
+    configureFanState(initialState)
     endpoint = new Endpoint(FanDevice.with(BridgedDeviceBasicInformationServer), initialState)
     // Speed changes from the controller (percent write or fan mode change). Like the
     // Thermostat setpoints above, FanControlServer exposes no command to intercept for
     // percentSetting (@matter/node's FanControlServer overrides nothing beyond
     // initialize()) - it is attribute-write only, so this cannot be made "raw" either.
-    endpoint.events.fanControl.percentSetting$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (value === null || value === undefined) return
-        onCommand({ deviceId: def.id, fn: 'fanspeed', value: clamp(Math.round(Number(value)), 0, 100) })
-      } catch (error) { /* empty */ }
-    })
-    endpoint.events.fanControl.fanMode$Changed.on((value, oldValue, context) => {
-      try {
-        if (context?.offline === true) return
-        if (Number(value) === 0) onCommand({ deviceId: def.id, fn: 'fanspeed', value: 0 })
-      } catch (error) { /* empty */ }
-    })
+    attachFanCommandHandlers(endpoint, def, onCommand)
   } else if (def.type === 'robotvacuum') {
     // Flow-only device: run mode changes and operational commands are forwarded to the flow
     // (node PINs); the flow reports the state back through the input PIN.

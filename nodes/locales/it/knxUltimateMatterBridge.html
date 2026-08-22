@@ -27,7 +27,9 @@ Cambiare il tipo dispositivo dopo l'abbinamento del bridge modifica la struttura
 | Luce bianco dinamico | + GA comando/stato temperatura colore in Kelvin (DPT 7.600) |
 | Tapparella / Tenda | Su/Giù (DPT 1.008), Stop (DPT 1.017), posizione % comando/stato (DPT 5.001), inversione posizione opzionale |
 | Termostato (riscaldamento e/o raffrescamento) | GA temperatura attuale, GA comando/stato setpoint (DPT 9.001). Aggiungendo anche il GA comando/stato setpoint raffrescamento si espone anche la modalità Cool (doppio setpoint) |
+| Condizionatore ambiente | Un unico dispositivo Matter che combina GA comando/stato On/Off (DPT 1.001), temperatura attuale e setpoint caldo/freddo (DPT 9.001), e velocità ventola % (DPT 5.001) |
 | Ventola / VMC | GA comando/stato velocità % (DPT 5.001) |
+| Serratura porta | GA comando blocco/sblocco e GA stato bloccato/sbloccato (DPT 1.001; `true` = bloccata) |
 | Sensori (temperatura, umidità, luminosità, presenza, contatto) | Un GA di stato ciascuno |
 | Rilevatore fumo/CO | GA stato allarme fumo + GA stato allarme CO opzionale (DPT 1.005): notifiche critiche sul telefono |
 | Rilevatore allagamento | GA stato allagamento (DPT 1.005) |
@@ -45,7 +47,7 @@ Queste opzioni sono nascoste finché non servono al tipo selezionato. I disposit
 
 Il selettore dei PIN si trova fuori dalle TAB dell'editor. Abilitandolo compare subito sotto una sezione contestuale **Input/output del flow**, con esempi copiabili filtrati per il tipo di dispositivo selezionato:
 
-- **Input**: aggiorna lo stato Matter dal flow, senza passare dal bus KNX: `msg.payload = { function: "onoff", value: true }` (`function` è una tra `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile per esporre ad Alexa & Co. valori calcolati nel flow (es. un sensore virtuale).
+- **Input**: aggiorna lo stato Matter dal flow, senza passare dal bus KNX: `msg.payload = { function: "onoff", value: true }` (`function` è una tra `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `coolingsetpoint`, `fanspeed`, `lock`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile per esporre ad Alexa & Co. valori calcolati nel flow (es. un sensore virtuale).
 - **Output**: ogni comando ricevuto da un controller Matter viene inoltrato al flow: `msg.topic` = nome del dispositivo, `msg.payload` = valore, `msg.matter` = il comando grezzo. Un dispositivo senza GA di comando diventa un **dispositivo solo-flow**.
 
 ## Note

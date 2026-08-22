@@ -11,19 +11,19 @@ permalink: /wiki/fr-Matter-Bridge
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Exposez KNX à l’écosystème Matter.</div>
   <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f2fffd;">Chaque nœud transforme une fonction KNX ou alimentée par le flow en endpoint Matter natif pour Alexa, Google Home, Apple Home et d’autres contrôleurs. Appairez le bridge une fois, puis enrichissez-le appareil par appareil.</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
-    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">17</strong><span style="font-size:0.76rem;color:#ddfffa;">profils d’appareils Matter</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">19</strong><span style="font-size:0.76rem;color:#ddfffa;">profils d’appareils Matter</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Un seul appairage</strong><span style="font-size:0.76rem;color:#ddfffa;">un QR code du bridge</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Endpoints live</strong><span style="font-size:0.76rem;color:#ddfffa;">sans redémarrage ordinaire</span></div>
   </div>
 </div>
 
-## Dix-sept profils, un seul bridge
+## Dix-neuf profils, un seul bridge
 
 | Domaine | Profils Matter |
 |---|---|
 | **Éclairage et puissance** | Lumière On/Off, prise, lumière variable, RGB et blanc dynamique. |
-| **Climat et environnement** | Température, humidité, luminosité, qualité de l’air, thermostat et ventilateur. |
-| **Présence et sécurité** | Présence, contact, fumée/CO et fuite d’eau. |
+| **Climat et environnement** | Température, humidité, luminosité, qualité de l’air, thermostat, climatiseur individuel et ventilateur. |
+| **Présence et sécurité** | Présence, contact, serrure de porte, fumée/CO et fuite d’eau. |
 | **Mouvement et automatisation** | Volet/store et robot aspirateur piloté par le flow. |
 
 ## Démarrer en quatre étapes
@@ -62,8 +62,10 @@ Changer le type d'appareil après l'appairage du bridge modifie la structure de 
 | Lumière RGB (couleur) | + GA commande/état couleur RGB (DPT 232.600). La couleur Matter (hue/saturation ou XY, depuis la roue de couleur de l'app) est convertie depuis/vers le triplet RGB KNX |
 | Lumière blanc dynamique | + GA commande/état température de couleur en Kelvin (DPT 7.600) |
 | Volet / Store | Monter/Descendre (DPT 1.008), Stop (DPT 1.017), position % commande/état (DPT 5.001), inversion de position optionnelle |
-| Thermostat (chauffage) | GA température actuelle, GA commande/état consigne (DPT 9.001) |
+| Thermostat (chauffage et/ou rafraîchissement) | GA température actuelle, GA commande/état consigne (DPT 9.001). En ajoutant aussi la GA commande/état consigne rafraîchissement, le mode Cool (double consigne) est également exposé |
+| Climatiseur individuel | Un appareil Matter combine les GA commande/état On/Off (DPT 1.001), température actuelle et consignes chauffage/rafraîchissement (DPT 9.001), et vitesse ventilateur % (DPT 5.001) |
 | Ventilateur / VMC | GA commande/état vitesse % (DPT 5.001) |
+| Serrure de porte | GA commande verrouillage/déverrouillage et GA état verrouillé/déverrouillé (DPT 1.001 ; `true` = verrouillée) |
 | Capteurs (température, humidité, lumière, présence, contact) | Une GA d'état chacun |
 | Détecteur fumée/CO | GA état alarme fumée + GA état alarme CO optionnelle (DPT 1.005) : notifications critiques sur le téléphone |
 | Détecteur de fuite d'eau | GA état fuite (DPT 1.005) |
@@ -81,7 +83,7 @@ Ces options ne s'affichent que lorsqu'elles s'appliquent au type sélectionné. 
 
 Si vous activez les PIN entrée/sortie du nœud :
 
-- **Entrée** : mettez à jour l'état Matter depuis le flux, sans passer par le bus KNX : `msg.payload = { function: "onoff", value: true }` (`function` est l'une de `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile pour exposer à Alexa & Co. des valeurs calculées dans le flux (ex. un capteur virtuel).
+- **Entrée** : mettez à jour l'état Matter depuis le flux, sans passer par le bus KNX : `msg.payload = { function: "onoff", value: true }` (`function` est l'une de `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `coolingsetpoint`, `fanspeed`, `lock`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Utile pour exposer à Alexa & Co. des valeurs calculées dans le flux (ex. un capteur virtuel).
 - **Sortie** : chaque commande reçue d'un contrôleur Matter est transmise au flux : `msg.topic` = nom de l'appareil, `msg.payload` = valeur, `msg.matter` = la commande brute. Un appareil sans GA de commande devient un **appareil flow uniquement**.
 
 ## Notes

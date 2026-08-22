@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.14** - August 2026<br/>
+
+- **Expose KNX to Matter — Room Air Conditioner and Door Lock**: added native Matter **Room Air Conditioner** (`0x0072`) and **Door Lock** (`0x000A`) profiles. A room AC combines On/Off, current temperature, heating/cooling setpoints and fan speed in one endpoint; a door lock maps separate Lock/Unlock command and Locked/Unlocked status GAs. Both profiles support KNX or flow-backed state updates without feedback loops, with editor help and documentation in EN/IT/DE/FR/ES/zh-CN.<br/>
+
 **Version 6.3.13** - August 2026<br/>
 
 - **Matter**: promoted Matter Controller, Matter Bridge and Expose KNX to Matter from BETA to production-ready status; removed BETA labels and experimental warnings from the palette, editor help, examples and multilingual documentation while retaining pairing, backup and endpoint-structure safety guidance.<br/>

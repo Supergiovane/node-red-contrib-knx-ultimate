@@ -54,6 +54,11 @@ describe('matterBridgeDeviceFactory – knxValueToMatterPatch', () => {
     expect(patch({ type: 'contactsensor' }, 'contact', false).booleanState.stateValue).to.equal(false)
   })
 
+  it('converts a KNX lock boolean to the Matter DoorLock state', () => {
+    expect(patch({ type: 'doorlock' }, 'lock', true).doorLock.lockState).to.equal(1) // Locked
+    expect(patch({ type: 'doorlock' }, 'lock', false).doorLock.lockState).to.equal(2) // Unlocked
+  })
+
   it('converts cover position percent to percent100ths', () => {
     expect(patch({ type: 'windowcovering' }, 'position', 30).windowCovering.currentPositionLiftPercent100ths).to.equal(3000)
   })
@@ -192,6 +197,51 @@ describe('matterBridgeDeviceFactory – thermostat heating/cooling capability', 
   })
 })
 
+describe('matterBridgeDeviceFactory – room air conditioner and door lock', () => {
+  it('builds native device types, synchronizes state offline and emits validated AC controller commands', async function () {
+    this.timeout(10000)
+    const storagePath = fs.mkdtempSync(path.join(os.tmpdir(), 'knxu-matter-ac-lock-'))
+    const port = 56000 + Math.floor(Math.random() * 8000)
+    const logger = { info: () => {}, warn: () => {}, error: () => {}, debug: () => {} }
+    const bridge = new MatterBridgeEngine(storagePath, `knxu-ac-lock-${Date.now()}`, logger, { port, deviceName: 'AC lock test' })
+    const commands = []
+    bridge.on('command', (command) => commands.push(command))
+    try {
+      await bridge.start([
+        { id: 'ac1', type: 'roomairconditioner', name: 'Bedroom AC', hasCoolingSetpoint: true },
+        { id: 'lock1', type: 'doorlock', name: 'Front door' }
+      ])
+      const ac = bridge.endpoints.get('ac1')
+      const lock = bridge.endpoints.get('lock1')
+      expect(ac.type.deviceType).to.equal(0x0072)
+      expect(lock.type.deviceType).to.equal(0x000A)
+      expect(ac.state.thermostat.occupiedCoolingSetpoint).to.equal(2400)
+      expect(ac.state.fanControl.percentSetting).to.equal(0)
+      expect(lock.state.doorLock.lockState).to.equal(2) // Unlocked
+
+      await bridge.setDeviceState('ac1', 'onoff', true)
+      await bridge.setDeviceState('ac1', 'currenttemp', 25.5)
+      await bridge.setDeviceState('ac1', 'coolingsetpoint', 23)
+      await bridge.setDeviceState('ac1', 'fanspeed', 60)
+      await bridge.setDeviceState('lock1', 'lock', true)
+      expect(commands).to.deep.equal([]) // KNX/flow state updates never echo as Matter commands
+      expect(ac.state.onOff.onOff).to.equal(true)
+      expect(ac.state.thermostat.localTemperature).to.equal(2550)
+      expect(ac.state.thermostat.occupiedCoolingSetpoint).to.equal(2300)
+      expect(ac.state.fanControl.percentCurrent).to.equal(60)
+      expect(lock.state.doorLock.lockState).to.equal(1)
+
+      await ac.act((agent) => agent.get(OnOffServer).off())
+      expect(commands.map(({ fn, value }) => ({ fn, value }))).to.deep.equal([
+        { fn: 'onoff', value: false }
+      ])
+    } finally {
+      await bridge.close()
+      fs.rmSync(storagePath, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('matterBridgeDeviceFactory – bridged device identity', () => {
   it('sets a stable UniqueID matching the serial number on every bridged endpoint', async function () {
     this.timeout(10000)
@@ -213,7 +263,7 @@ describe('matterBridgeDeviceFactory – bridged device identity', () => {
 
 describe('matterBridgeDeviceFactory – BRIDGE_TYPES catalog', () => {
   it('covers all the device types exposed by the editor', () => {
-    const expected = ['onofflight', 'onoffplug', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'windowcovering', 'thermostat', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'fan', 'robotvacuum']
+    const expected = ['onofflight', 'onoffplug', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'windowcovering', 'thermostat', 'roomairconditioner', 'doorlock', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'fan', 'robotvacuum']
     expected.forEach((t) => {
       expect(factory.BRIDGE_TYPES, `missing type ${t}`).to.have.property(t)
     })
@@ -240,7 +290,7 @@ describe('knxUltimateMatterBridge editor layout', () => {
   })
 
   it('provides copyable input/output examples filtered by every bridge device type', () => {
-    const expectedTypes = ['onofflight', 'onoffplug', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'windowcovering', 'thermostat', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'fan', 'robotvacuum']
+    const expectedTypes = ['onofflight', 'onoffplug', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'windowcovering', 'thermostat', 'roomairconditioner', 'doorlock', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'fan', 'robotvacuum']
     expectedTypes.forEach((type) => expect(editor).to.match(new RegExp(`\\b${type}:\\s*\\{`)))
     expect(editor).to.include('matter-bridge-flow-help-copy')
     expect(editor).to.include("['position', 35]")
@@ -269,8 +319,85 @@ describe('knxUltimateMatterBridge editor layout', () => {
       expect(wiki, `${locale}:wiki reverse direction`).to.include('Matter → Flow')
       expect(wiki, `${locale}:bridge config overview hero`).to.include('data-matter-bridge-config-overview="hero"')
       expect(deviceWiki, `${locale}:bridge device overview hero`).to.include('data-matter-bridge-overview="hero"')
-      expect(deviceWiki, `${locale}:bridge profile count`).to.match(/<strong[^>]*>17<\/strong>/)
+      expect(deviceWiki, `${locale}:bridge profile count`).to.match(/<strong[^>]*>19<\/strong>/)
+      expect(help, `${locale}:room air conditioner help`).to.include('DPT 5.001')
+      expect(help, `${locale}:door lock help`).to.include('`true`')
     }
+  })
+})
+
+describe('knxUltimateMatterBridge – Room Air Conditioner and Door Lock routing', () => {
+  it('routes Matter commands to their configured KNX GAs and KNX statuses back to Matter', () => {
+    let NodeConstructor
+    const knxWrites = []
+    const matterUpdates = []
+    const bridge = {
+      registerDevice: () => {},
+      unregisterDevice: () => {},
+      getPairingInfo: () => ({ running: true, commissioned: true, fabrics: [] }),
+      setDeviceState: (deviceId, fn, value) => { matterUpdates.push({ deviceId, fn, value }); return true }
+    }
+    const knx = {
+      addClient: () => {},
+      removeClient: () => {},
+      sendKNXTelegramToKNXEngine: (telegram) => knxWrites.push(telegram)
+    }
+    const RED = {
+      nodes: {
+        createNode: (node, config) => {
+          Object.setPrototypeOf(node, EventEmitter.prototype)
+          EventEmitter.call(node)
+          node.id = config.id
+          node.send = () => {}
+          node.status = () => {}
+        },
+        getNode: (id) => ({ knx, bridge })[id],
+        registerType: (_type, constructor) => { NodeConstructor = constructor }
+      },
+      log: { error: () => {} }
+    }
+
+    require('../nodes/knxUltimateMatterBridge.js')(RED)
+    const ac = new NodeConstructor({
+      id: 'ac-route',
+      server: 'knx',
+      serverMatterBridge: 'bridge',
+      deviceType: 'roomairconditioner',
+      gaOnOff: '1/1/1',
+      gaOnOffStatus: '1/1/2',
+      gaCoolingSetpoint: '1/1/3',
+      gaFanSpeed: '1/1/4'
+    })
+    const lock = new NodeConstructor({
+      id: 'lock-route',
+      server: 'knx',
+      serverMatterBridge: 'bridge',
+      deviceType: 'doorlock',
+      gaLock: '2/1/1',
+      gaLockStatus: '2/1/2'
+    })
+
+    ac.handleMatterCommand({ fn: 'onoff', value: true })
+    ac.handleMatterCommand({ fn: 'coolingsetpoint', value: 23 })
+    ac.handleMatterCommand({ fn: 'fanspeed', value: 60 })
+    lock.handleMatterCommand({ fn: 'lock', value: true })
+    expect(knxWrites.map(({ grpaddr, payload, dpt, outputtype }) => ({ grpaddr, payload, dpt, outputtype }))).to.deep.equal([
+      { grpaddr: '1/1/1', payload: true, dpt: '1.001', outputtype: 'write' },
+      { grpaddr: '1/1/3', payload: 23, dpt: '9.001', outputtype: 'write' },
+      { grpaddr: '1/1/4', payload: 60, dpt: '5.001', outputtype: 'write' },
+      { grpaddr: '2/1/1', payload: true, dpt: '1.001', outputtype: 'write' }
+    ])
+
+    ac.handleSend({ knx: { event: 'GroupValue_Write', destination: '1/1/2', rawValue: Buffer.from([1]) } })
+    lock.handleSend({ knx: { event: 'GroupValue_Write', destination: '2/1/2', rawValue: Buffer.from([0]) } })
+    expect(matterUpdates).to.deep.equal([
+      { deviceId: 'ac-route', fn: 'onoff', value: true },
+      { deviceId: 'lock-route', fn: 'lock', value: false }
+    ])
+    expect(ac.knxUltimateAcceptedGAs).to.include('1/1/2')
+    expect(lock.knxUltimateAcceptedGAs).to.include('2/1/2')
+    ac.emit('close', () => {})
+    lock.emit('close', () => {})
   })
 })
 

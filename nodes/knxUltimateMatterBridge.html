@@ -54,6 +54,21 @@
         { key: 'CoolingSetpoint', labelKey: 'fn_coolingsetpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
         { key: 'CoolingSetpointStatus', labelKey: 'fn_coolingsetpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' }
       ],
+      roomairconditioner: [
+        { key: 'OnOff', labelKey: 'fn_onoff_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'OnOffStatus', labelKey: 'fn_onoff_status', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'CurrentTemp', labelKey: 'fn_currenttemp', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'Setpoint', labelKey: 'fn_setpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'SetpointStatus', labelKey: 'fn_setpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'CoolingSetpoint', labelKey: 'fn_coolingsetpoint_cmd', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'CoolingSetpointStatus', labelKey: 'fn_coolingsetpoint_status', dptPrefix: '9.', fallbackDpt: '9.001' },
+        { key: 'FanSpeed', labelKey: 'fn_fanspeed_cmd', dptPrefix: '5.', fallbackDpt: '5.001' },
+        { key: 'FanSpeedStatus', labelKey: 'fn_fanspeed_status', dptPrefix: '5.', fallbackDpt: '5.001' }
+      ],
+      doorlock: [
+        { key: 'Lock', labelKey: 'fn_lock_cmd', dptPrefix: '1.', fallbackDpt: '1.001' },
+        { key: 'LockStatus', labelKey: 'fn_lock_status', dptPrefix: '1.', fallbackDpt: '1.001' }
+      ],
       smokecoalarm: [
         { key: 'Smoke', labelKey: 'fn_smoke_ga', dptPrefix: '1.', fallbackDpt: '1.005' },
         { key: 'CO', labelKey: 'fn_co_ga', dptPrefix: '1.', fallbackDpt: '1.005' }
@@ -66,7 +81,7 @@
       ],
       robotvacuum: [] // Flow-only: no GA fields, controlled via the node PINs
     };
-    const TYPE_ORDER = ['onofflight', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'onoffplug', 'windowcovering', 'thermostat', 'fan', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'robotvacuum'];
+    const TYPE_ORDER = ['onofflight', 'dimmablelight', 'rgblight', 'colortemperaturelight', 'onoffplug', 'windowcovering', 'thermostat', 'roomairconditioner', 'fan', 'doorlock', 'temperaturesensor', 'humiditysensor', 'lightsensor', 'occupancysensor', 'contactsensor', 'smokecoalarm', 'waterleakdetector', 'airqualitysensor', 'robotvacuum'];
     const FLOW_HELP = {
       onofflight: { input: [['onoff', true]], output: [['onoff', true]] },
       onoffplug: { input: [['onoff', true]], output: [['onoff', true]] },
@@ -80,6 +95,8 @@
       contactsensor: { input: [['contact', true]], output: [] },
       windowcovering: { input: [['position', 35]], output: [['updown', false], ['position', 35], ['stop', true]] },
       thermostat: { input: [['currenttemp', 21.5], ['setpoint', 21], ['coolingsetpoint', 24]], output: [['setpoint', 21], ['coolingsetpoint', 24]] },
+      roomairconditioner: { input: [['onoff', true], ['currenttemp', 25.5], ['setpoint', 21], ['coolingsetpoint', 24], ['fanspeed', 60]], output: [['onoff', true], ['setpoint', 21], ['coolingsetpoint', 24], ['fanspeed', 60]] },
+      doorlock: { input: [['lock', true]], output: [['lock', true]] },
       smokecoalarm: { input: [['smoke', true], ['co', true]], output: [] },
       waterleakdetector: { input: [['leak', true]], output: [] },
       airqualitysensor: { input: [['co2', 850]], output: [] },
@@ -379,7 +396,7 @@
           const isCover = selected === 'windowcovering';
           // The Alexa duplicate-command dedup applies to any device that emits On/Off or
           // level commands (plain on/off lights and plugs included), not just dimmers.
-          const hasCommand = selected === 'onofflight' || selected === 'onoffplug' || hasLevel;
+          const hasCommand = selected === 'onofflight' || selected === 'onoffplug' || selected === 'roomairconditioner' || hasLevel;
           $advancedRows.toggle(hasCommand || isCover);
           $commandAdvancedRows.toggle(hasCommand);
           $dimmerAdvancedRows.toggle(hasLevel);

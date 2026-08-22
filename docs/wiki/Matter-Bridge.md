@@ -11,19 +11,19 @@ permalink: /wiki/Matter-Bridge
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">Expose KNX to the Matter ecosystem.</div>
   <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f2fffd;">Each node turns one KNX or flow-backed function into a native Matter endpoint for Alexa, Google Home, Apple Home and other controllers. Pair the bridge once, then grow it device by device.</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
-    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">17</strong><span style="font-size:0.76rem;color:#ddfffa;">Matter device profiles</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">19</strong><span style="font-size:0.76rem;color:#ddfffa;">Matter device profiles</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Pair once</strong><span style="font-size:0.76rem;color:#ddfffa;">one bridge QR code</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">Live endpoints</strong><span style="font-size:0.76rem;color:#ddfffa;">no ordinary restart</span></div>
   </div>
 </div>
 
-## Seventeen profiles, one bridge
+## Nineteen profiles, one bridge
 
 | Area | Matter profiles |
 |---|---|
 | **Lighting & power** | On/Off light, plug, dimmable light, RGB light and tunable-white light. |
-| **Climate & environment** | Temperature, humidity, illuminance, air quality, thermostat and fan. |
-| **Presence & safety** | Occupancy, contact, smoke/CO and water-leak detection. |
+| **Climate & environment** | Temperature, humidity, illuminance, air quality, thermostat, room air conditioner and fan. |
+| **Presence & safety** | Occupancy, contact, door lock, smoke/CO and water-leak detection. |
 | **Movement & automation** | Window covering and flow-driven robot vacuum. |
 
 ## Start in four steps
@@ -62,8 +62,10 @@ Changing the device type after the bridge has been paired changes the Matter end
 | RGB color light | + RGB color command/status GA (DPT 232.600). The Matter color (hue/saturation or XY, from the app color wheel) is converted to/from the KNX RGB triplet |
 | Tunable white light | + Color temperature command/status GA in Kelvin (DPT 7.600) |
 | Cover / Shutter | Up/Down (DPT 1.008), Stop (DPT 1.017), Position % command/status (DPT 5.001), optional position inversion |
-| Thermostat (heating) | Current temperature GA, Setpoint command/status GA (DPT 9.001) |
+| Thermostat (heating and/or cooling) | Current temperature GA, Setpoint command/status GA (DPT 9.001). Optionally add a Cooling setpoint command/status GA to also expose a Cool mode (dual-setpoint) |
+| Room air conditioner | One Matter device combining On/Off (DPT 1.001), current temperature and heating/cooling setpoints (DPT 9.001), and fan speed % (DPT 5.001) command/status GAs |
 | Fan / Ventilation | Fan speed % command/status GA (DPT 5.001) |
+| Door lock | Lock/Unlock command GA and Locked/Unlocked status GA (DPT 1.001; `true` = locked) |
 | Sensors (temperature, humidity, light, occupancy, contact) | One status GA each |
 | Smoke/CO alarm | Smoke alarm status GA + optional CO alarm status GA (DPT 1.005): critical notifications on the phone |
 | Water leak detector | Leak status GA (DPT 1.005) |
@@ -81,7 +83,7 @@ These options are hidden unless they apply to the selected type. Dimmable device
 
 If you enable the node input/output PINs:
 
-- **Input**: update the Matter state from the flow, without the KNX bus: `msg.payload = { function: "onoff", value: true }` (`function` is one of `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Useful to expose flow-computed values (e.g. a virtual sensor) to Alexa & Co.
+- **Input**: update the Matter state from the flow, without the KNX bus: `msg.payload = { function: "onoff", value: true }` (`function` is one of `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `coolingsetpoint`, `fanspeed`, `lock`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Useful to expose flow-computed values (e.g. a virtual sensor) to Alexa & Co.
 - **Output**: every command received from a Matter controller is forwarded to the flow: `msg.topic` = device name, `msg.payload` = value, `msg.matter` = the raw command. A device without command GAs becomes a **flow-only device**.
 
 ## Notes

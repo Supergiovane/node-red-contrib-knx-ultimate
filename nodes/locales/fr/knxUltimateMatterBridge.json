@@ -74,7 +74,9 @@
       "fn_leak_ga": "GA état fuite d'eau",
       "fn_co2_ga": "GA état CO2 (ppm, DPT 9.008)",
       "fn_fanspeed_cmd": "GA commande vitesse ventilateur %",
-      "fn_fanspeed_status": "GA état vitesse ventilateur %"
+      "fn_fanspeed_status": "GA état vitesse ventilateur %",
+      "fn_lock_cmd": "GA commande verrouillage/déverrouillage",
+      "fn_lock_status": "GA état verrouillé/déverrouillé"
     },
     "types": {
       "onofflight": "Lumière On/Off",
@@ -89,7 +91,9 @@
       "contactsensor": "Capteur de contact",
       "windowcovering": "Volet / Store",
       "thermostat": "Thermostat (chauffage)",
+      "roomairconditioner": "Climatiseur individuel",
       "fan": "Ventilateur / VMC",
+      "doorlock": "Serrure de porte",
       "smokecoalarm": "Détecteur fumée/CO",
       "waterleakdetector": "Détecteur de fuite d'eau",
       "airqualitysensor": "Capteur de qualité d'air (CO2)",

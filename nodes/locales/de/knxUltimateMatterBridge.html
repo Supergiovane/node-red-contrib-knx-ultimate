@@ -27,7 +27,9 @@ Das Ändern des Gerätetyps nach der Kopplung der Bridge verändert die Matter-E
 | Tunable-White-Licht | + Farbtemperatur Befehls-/Status-GA in Kelvin (DPT 7.600) |
 | Rollladen / Jalousie | Auf/Ab (DPT 1.008), Stopp (DPT 1.017), Position % Befehl/Status (DPT 5.001), optionale Positionsumkehr |
 | Thermostat (Heizung und/oder Kühlung) | GA aktuelle Temperatur, Sollwert Befehls-/Status-GA (DPT 9.001). Mit zusätzlichem Kühl-Sollwert Befehls-/Status-GA wird auch der Kühlmodus (Doppel-Sollwert) bereitgestellt |
+| Raumklimagerät | Ein Matter-Gerät kombiniert Ein/Aus (DPT 1.001), aktuelle Temperatur und Heiz-/Kühl-Sollwerte (DPT 9.001) sowie Lüftergeschwindigkeit % (DPT 5.001), jeweils als Befehls-/Status-GA |
 | Ventilator / Lüftung | Geschwindigkeit % Befehls-/Status-GA (DPT 5.001) |
+| Türschloss | Verriegeln/Entriegeln Befehls-GA und Verriegelt/Entriegelt Status-GA (DPT 1.001; `true` = verriegelt) |
 | Sensoren (Temperatur, Feuchte, Licht, Präsenz, Kontakt) | Je eine Status-GA |
 | Rauch-/CO-Melder | Rauchalarm Status-GA + optionale CO-Alarm Status-GA (DPT 1.005): kritische Benachrichtigungen auf dem Telefon |
 | Wasserleckmelder | Leckage Status-GA (DPT 1.005) |
@@ -45,7 +47,7 @@ Diese Optionen werden nur angezeigt, wenn sie zum gewählten Typ passen. Dimmbar
 
 Der PIN-Selektor befindet sich außerhalb der Editor-Tabs. Nach dem Aktivieren erscheint direkt darunter ein kontextbezogener Bereich **Flow-Eingang/-Ausgang** mit kopierbaren Beispielen für den ausgewählten Gerätetyp:
 
-- **Input**: aktualisiere den Matter-Zustand aus dem Flow, ohne den KNX-Bus: `msg.payload = { function: "onoff", value: true }` (`function` ist eine von `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `fanspeed`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Nützlich, um im Flow berechnete Werte (z.B. einen virtuellen Sensor) für Alexa & Co. bereitzustellen.
+- **Input**: aktualisiere den Matter-Zustand aus dem Flow, ohne den KNX-Bus: `msg.payload = { function: "onoff", value: true }` (`function` ist eine von `onoff`, `level`, `rgb`, `colortemp`, `position`, `temperature`, `humidity`, `illuminance`, `occupancy`, `contact`, `currenttemp`, `setpoint`, `coolingsetpoint`, `fanspeed`, `lock`, `smoke`, `co`, `leak`, `co2`, `rvcstate`, `rvcmode`). Nützlich, um im Flow berechnete Werte (z.B. einen virtuellen Sensor) für Alexa & Co. bereitzustellen.
 - **Output**: Jeder von einem Matter-Controller empfangene Befehl wird an den Flow weitergeleitet: `msg.topic` = Gerätename, `msg.payload` = Wert, `msg.matter` = der rohe Befehl. Ein Gerät ohne Befehls-GAs wird zum **Nur-Flow-Gerät**.
 
 ## Hinweise

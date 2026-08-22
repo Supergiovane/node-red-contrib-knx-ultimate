@@ -11,19 +11,19 @@ permalink: /wiki/zh-CN-Matter-Bridge
   <div style="font-size:1.75rem;line-height:1.15;font-weight:800;margin:8px 0 10px;">将 KNX 接入 Matter 生态系统。</div>
   <p style="margin:0 0 18px;max-width:860px;line-height:1.6;color:#f2fffd;">每个节点把一项 KNX 或 Flow 功能转换为原生 Matter 端点，供 Alexa、Google Home、Apple Home 等控制器使用。Bridge 只需配对一次，之后可逐个扩展设备。</p>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
-    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">17</strong><span style="font-size:0.76rem;color:#ddfffa;">种 Matter 设备配置</span></div>
+    <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">19</strong><span style="font-size:0.76rem;color:#ddfffa;">种 Matter 设备配置</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">只配对一次</strong><span style="font-size:0.76rem;color:#ddfffa;">一个 Bridge 二维码</span></div>
     <div style="flex:1 1 150px;min-width:130px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.13);"><strong style="display:block;font-size:1.05rem;color:#fff;">实时端点</strong><span style="font-size:0.76rem;color:#ddfffa;">普通更新无需重启</span></div>
   </div>
 </div>
 
-## 十七种配置，一个 Bridge
+## 十九种配置，一个 Bridge
 
 | 领域 | Matter 配置 |
 |---|---|
 | **照明与电源** | 开关灯、插座、调光灯、RGB 灯和色温灯。 |
-| **气候与环境** | 温度、湿度、照度、空气质量、温控器和风扇。 |
-| **存在与安全** | 人体、门磁、烟雾/CO 和漏水检测。 |
+| **气候与环境** | 温度、湿度、照度、空气质量、温控器、房间空调和风扇。 |
+| **存在与安全** | 人体、门磁、门锁、烟雾/CO 和漏水检测。 |
 | **运动与自动化** | 窗帘/卷帘和由 Flow 驱动的扫地机器人。 |
 
 ## 四步开始
@@ -62,8 +62,10 @@ permalink: /wiki/zh-CN-Matter-Bridge
 | RGB 彩色灯 | + RGB 颜色命令/状态 GA (DPT 232.600)。Matter 颜色（hue/saturation 或 XY，来自 App 的色轮）与 KNX RGB 三元组相互转换 |
 | 色温灯 | + 色温命令/状态 GA，开尔文 (DPT 7.600) |
 | 窗帘/卷帘 | 上/下 (DPT 1.008)、停止 (DPT 1.017)、位置 % 命令/状态 (DPT 5.001)、可选位置反转 |
-| 温控器（采暖） | 当前温度 GA、设定点命令/状态 GA (DPT 9.001) |
+| 温控器（采暖和/或制冷） | 当前温度 GA、设定点命令/状态 GA (DPT 9.001)。如再配置制冷设定点命令/状态 GA，则同时提供 Cool 模式（双设定点） |
+| 房间空调 | 一个 Matter 设备组合开/关命令/状态 GA (DPT 1.001)、当前温度与采暖/制冷设定点 (DPT 9.001)，以及风扇速度 % 命令/状态 GA (DPT 5.001) |
 | 风扇/新风 | 速度 % 命令/状态 GA (DPT 5.001) |
+| 门锁 | 锁定/解锁命令 GA 和锁定/解锁状态 GA (DPT 1.001；`true` = 已锁定) |
 | 传感器（温度、湿度、光照、人体、门磁） | 各一个状态 GA |
 | 烟雾/CO 报警器 | 烟雾报警状态 GA + 可选 CO 报警状态 GA (DPT 1.005)：手机上的紧急通知 |
 | 漏水探测器 | 漏水状态 GA (DPT 1.005) |
@@ -81,7 +83,7 @@ permalink: /wiki/zh-CN-Matter-Bridge
 
 如果启用节点的输入/输出引脚：
 
-- **输入**：从 Flow 更新 Matter 状态，无需经过 KNX 总线：`msg.payload = { function: "onoff", value: true }`（`function` 为 `onoff`、`level`、`rgb`、`colortemp`、`position`、`temperature`、`humidity`、`illuminance`、`occupancy`、`contact`、`currenttemp`、`setpoint`、`fanspeed`、`smoke`、`co`、`leak`、`co2`、`rvcstate`、`rvcmode` 之一）。适合把 Flow 中计算的值（如虚拟传感器）公开给 Alexa 等。
+- **输入**：从 Flow 更新 Matter 状态，无需经过 KNX 总线：`msg.payload = { function: "onoff", value: true }`（`function` 为 `onoff`、`level`、`rgb`、`colortemp`、`position`、`temperature`、`humidity`、`illuminance`、`occupancy`、`contact`、`currenttemp`、`setpoint`、`coolingsetpoint`、`fanspeed`、`lock`、`smoke`、`co`、`leak`、`co2`、`rvcstate`、`rvcmode` 之一）。适合把 Flow 中计算的值（如虚拟传感器）公开给 Alexa 等。
 - **输出**：从 Matter 控制器收到的每个命令都转发到 Flow：`msg.topic` = 设备名称，`msg.payload` = 值，`msg.matter` = 原始命令。没有命令 GA 的设备成为**纯 Flow 设备**。
 
 ## 说明
