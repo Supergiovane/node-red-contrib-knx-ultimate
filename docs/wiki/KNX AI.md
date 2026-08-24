@@ -19,14 +19,14 @@ Every message emitted by outputs 3 and 4 also contains a clone of the original i
 ## Commands (input)
 Send `msg.topic`:
 - `summary` (or empty): emit summary immediately
-- `reset`: clear internal history, counters and learned home memory; AI Education remains unchanged
+- `reset`: clear internal history, counters, learned home memory, and every persisted chat context; AI Education remains unchanged
 - `ask`: send a question to the configured LLM
 - `confirm` / `cancel`: confirm or cancel pending KNX commands without calling the LLM
-- `clear_chat`: clear the conversation memory for the current session
+- `clear_chat`: clear recent turns, persistent instructions, and pending commands for the current session
 
 For `ask`, provide the question in `msg.prompt` (preferred), `msg.payload` (string), or the common Telegram fields `msg.payload.content` / `msg.payload.text`.
 
-When KNX control is enabled, recent turns are remembered in RAM per `msg.knxAi.sessionId`, `msg.sessionId`, or a detected Telegram chat ID. Wire output 3 back to the chat sender and output 4 to a KNX Ultimate node configured in **Universal mode**. With confirmation enabled, the first reply previews every write GA, DPT, and payload without emitting writes; the same session must then reply `CONFIRM`/`CANCEL` (localized equivalents are accepted) within 5 minutes. A new request replaces any older pending plan. Each confirmed command has `msg.destination`, `msg.dpt`, `msg.payload`, and `msg.event = "GroupValue_Write"`.
+Every Ask/chat session keeps its last 8 turns and up to 20 explicit long-term instructions, separated by `msg.knxAi.sessionId`, `msg.sessionId`, or a detected Telegram chat ID. Requests such as “Remember not to use the term unknown” become durable instructions. All KNX AI nodes using the same storage share this live context and reload it after Node-RED restarts from `knxultimatestorage/knxai/memory/knxai-chat-context.md`. The atomically written file is bounded to 50 sessions and 512 KB. When KNX control is enabled, wire output 3 back to the chat sender and output 4 to a KNX Ultimate node configured in **Universal mode**. With confirmation enabled, the first reply previews every write GA, DPT, and payload without emitting writes; the same session must then reply `CONFIRM`/`CANCEL` (localized equivalents are accepted) within 5 minutes. A new request replaces any older pending plan. Each confirmed command has `msg.destination`, `msg.dpt`, `msg.payload`, and `msg.event = "GroupValue_Write"`.
 For DPT 1.xxx writes, safe AI equivalents `true`/`false`, `1`/`0`, and `on`/`off` are normalized to a real boolean before local validation and output.
 
 ### Fresh KNX reads
@@ -40,12 +40,14 @@ The **Chat adapters** tab loads its selectable mappings from `resources/KNXAICha
 
 The included **windkh/node-red-contrib-telegrambot** preset follows the package's receiver/sender contract. Connect a `telegram receiver` directly to KNX AI, output 3 directly to a `telegram sender`, and—when inline confirmation buttons are required—connect a `telegram event` configured for `callback_query` to the same KNX AI input. The input mapping extracts `msg.payload.content`, `msg.payload.chatId`, and the Telegram language. The output mapping creates the required `msg.payload.chatId`, `type`, and `content`, adding `options.reply_markup` from `msg.knxAi.confirmationRequest` when writes await confirmation. The Telegram package remains a separate optional dependency.
 
+The included **RedBot / node-red-contrib-chatbot (Telegram)** preset follows RedBot's common message contract. Connect `chatbot-telegram-receive` directly to KNX AI and output 3 directly to `chatbot-telegram-send`; no separate callback node is needed because RedBot converts inline-button postbacks into normal inbound messages. The input mapping reads `transport`, `chatId`, `type`, `content`, and the Telegram language. The output mapping preserves RedBot's `originalMessage`, `chat`, `api`, and `client` tracking data, then emits either a `message` payload or an `inline-buttons` payload containing `postback` actions for confirmation. RedBot remains a separate optional dependency.
+
 ## Proactive home intelligence and bounded memory
 The **Proactive home & memory** subsection inside **Conversations & home** enables opt-in proactive notifications. From ETS hierarchy, names, roles and DPTs, the node builds a deterministic semantic model for covers, windows, doors, lights, temperature, climate, occupancy and alarms using Italian, English, German, French, Spanish and Chinese terms. The first proactive detector watches only reliably recognized non-command cover/window/door states. After the configured open duration and outside quiet hours, output 3 emits a localized message with `msg.knxAi.type = "proactive_notification"`. It never emits output 4 or changes KNX autonomously; a subsequent user request still uses the normal validation and confirmation workflow.
 
 The most recent chat session is remembered as the owner, or **Primary recipient / chat ID** can set it explicitly. A synthetic `msg.inputMessage` preserves this recipient so the Telegram adapter can send an unsolicited notification. Cooldown and a maximum of three proactive messages per hour prevent flooding.
 
-The learned reference is loaded at startup from `<userDir>/knxai/memory/knxai-home-memory-<node-id>.md`, rewritten atomically every 15 minutes and hard-capped to the configured 64–1,024 KB (256 KB by default). It stores at most 120 significant observations, 80 aggregate habits, 80 notifications and 300 semantic ETS objects—never a raw unlimited telegram stream. Older low-priority entries are removed first. **AI Education** is limited to 16,000 characters and always comes from the node configuration: the AI can read it as authoritative guidance but cannot modify or overwrite it. When Education is present but the LLM cannot evaluate it, the candidate notification is suppressed rather than risking a contradiction.
+The shared learned reference is loaded at startup from `<userDir>/knxai/memory/knxai-home-memory.md`, rewritten atomically every 15 minutes and always hard-capped at 5 MB. It stores at most 120 significant observations, 80 aggregate habits, 80 notifications and 300 semantic ETS objects—never a raw unlimited telegram stream. Older low-priority entries are removed first. **AI Education** is limited to 16,000 characters and always comes from the node configuration: the AI can read it as authoritative guidance but cannot modify or overwrite it. When Education is present but the LLM cannot evaluate it, the candidate notification is suppressed rather than risking a contradiction.
 
 ## Practical configuration example
 This example creates a concise assistant that notifies the owner about relevant openings but accepts that the office cover may stay open:
@@ -57,7 +59,6 @@ This example creates a concise assistant that notifies the owner about relevant 
 | **Notify after open** (`proactiveOpenMinutes`) | `120` | A candidate notification is considered after two hours. |
 | **Quiet hours start / end** | `23:00` / `07:00` | No proactive message is emitted during the night. |
 | **Repeat cooldown** (`proactiveCooldownMinutes`) | `360` | The same object cannot notify again for six hours. |
-| **Maximum home-memory file** (`homeMemoryMaxKb`) | `256` | The per-node Markdown reference can never exceed 256 KB. |
 
 Example for **AI Education** (`aiEducation`):
 
@@ -126,7 +127,6 @@ KNX AI automatically listens to `GroupValue_Write`, `GroupValue_Response`, and `
 - **Quiet hours start / end**: Daily interval in which proactive messages are suppressed.
 - **AI Education**: User-only, authoritative guidance read by the AI and never modified by it.
 - **Repeat cooldown (minutes)**: Minimum interval before the same object may notify again; 360 minutes by default.
-- **Maximum home-memory file (KB)**: Hard size limit from 64 to 1,024 KB; 256 KB by default.
 - If disk archive is enabled, **Ask** uses the archive by default: explicit dates/ranges are honored, otherwise the assistant searches the last 24 hours plus current RAM events.
 - **Include Node-RED project inventory**: Include the whole Node-RED project inventory in the prompt, including KNX nodes and other useful nodes such as function/change/inject/template when they contain KNX-related logic or group addresses.
 - Relevant help, README, and example snippets are always included automatically.

@@ -147,7 +147,6 @@
             proactiveCooldownMinutes: { value: 360 },
             proactiveQuietStart: { value: "23:00" },
             proactiveQuietEnd: { value: "07:00" },
-            homeMemoryMaxKb: { value: 256 },
             aiEducation: { value: "" }
         },
         credentials: {
@@ -237,7 +236,6 @@
             applyNumericFallback("#node-input-maxEvents", 50000);
             applyNumericFallback("#node-input-proactiveOpenMinutes", 120);
             applyNumericFallback("#node-input-proactiveCooldownMinutes", 360);
-            applyNumericFallback("#node-input-homeMemoryMaxKb", 256);
 
             const nodeId = node.id;
             const resolveAdminRoot = () => {
@@ -825,10 +823,6 @@
                     <div class="form-row">
                         <label style="width:290px" for="node-input-proactiveCooldownMinutes"><i class="fa fa-bell-slash-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveCooldownMinutes"></span></label>
                         <input style="width:100px" type="number" min="5" max="10080" id="node-input-proactiveCooldownMinutes">
-                    </div>
-                    <div class="form-row">
-                        <label style="width:290px" for="node-input-homeMemoryMaxKb"><i class="fa fa-hdd-o"></i> <span data-i18n="knxUltimateAI.properties.homeMemoryMaxKb"></span></label>
-                        <input style="width:100px" type="number" min="64" max="1024" id="node-input-homeMemoryMaxKb">
                     </div>
                 </div>
             </div>

@@ -4,6 +4,7 @@ const path = require('path')
 const vm = require('vm')
 
 const {
+  bindSharedKnxAiState,
   buildKnxAiConfirmationRequest,
   buildKnxAiUniversalMessage,
   classifyKnxAiConfirmation,
@@ -25,9 +26,23 @@ const {
   resolveKnxAiLanguage,
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,
+  releaseSharedKnxAiState,
   safeKnxAiSend
 } = require('../nodes/knxUltimateAI').__test
 const chatAdapterMappings = require('../resources/KNXAIChatAdapterMappings')
+const {
+  CHAT_CONTEXT_MAX_SESSIONS,
+  CHAT_CONTEXT_MAX_TURNS_PER_SESSION,
+  addKnxAiChatTurn,
+  buildKnxAiChatContextMarkdown,
+  buildKnxAiChatPromptContext,
+  clearKnxAiChatSession,
+  conversationMapFromKnxAiChatContext,
+  createEmptyKnxAiChatContext,
+  extractExplicitKnxAiChatInstruction,
+  getKnxAiChatSession,
+  parseKnxAiChatContextMarkdown
+} = require('../nodes/utils/knxAiChatContext')
 
 describe('KNX AI conversational control', () => {
   const catalog = [
@@ -146,6 +161,109 @@ describe('KNX AI conversational control', () => {
       { text: 'Conferma', callback_data: 'confirm' },
       { text: 'Annulla', callback_data: 'cancel' }
     ])
+  })
+
+  it('maps RedBot Telegram messages and postbacks directly into KNX AI', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
+    expect(preset).to.be.an('object')
+    const adapter = compileKnxAiChatAdapter({
+      code: preset.inputCode,
+      direction: 'chat input'
+    })
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: {
+          transport: 'telegram',
+          chatId: 'redbot-chat-1',
+          userId: 'redbot-user-1',
+          type: 'message',
+          inbound: true,
+          content: 'Accendi la luce del soggiorno'
+        },
+        originalMessage: {
+          from: { language_code: 'it' }
+        }
+      }
+    })
+
+    expect(message).to.include({
+      topic: 'ask',
+      prompt: 'Accendi la luce del soggiorno',
+      sessionId: 'redbot-chat-1',
+      language: 'it'
+    })
+
+    const confirmation = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: {
+          transport: 'telegram',
+          chatId: 'redbot-chat-1',
+          type: 'message',
+          inbound: true,
+          content: 'confirm'
+        }
+      }
+    })
+    expect(confirmation.topic).to.equal('confirm')
+    expect(confirmation.knxAi).to.deep.equal({
+      sessionId: 'redbot-chat-1',
+      confirm: true
+    })
+  })
+
+  it('maps KNX AI replies and confirmation actions into RedBot inline buttons', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
+    const adapter = compileKnxAiChatAdapter({
+      code: preset.outputCode,
+      direction: 'chat output'
+    })
+    const chat = () => ({})
+    const client = () => ({})
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: 'Confermi l’accensione?',
+        inputMessage: {
+          payload: {
+            transport: 'telegram',
+            chatId: 'redbot-chat-1',
+            userId: 'redbot-user-1',
+            type: 'message',
+            inbound: true,
+            content: 'Accendi la luce'
+          },
+          originalMessage: { message_id: 42 },
+          chat,
+          client
+        },
+        knxAi: {
+          confirmationRequest: {
+            required: true,
+            actions: [
+              { label: 'Conferma', callbackData: 'confirm' },
+              { label: 'Annulla', callbackData: 'cancel' }
+            ]
+          }
+        }
+      }
+    })
+
+    expect(message.chat).to.equal(chat)
+    expect(message.client).to.equal(client)
+    expect(message.payload).to.deep.equal({
+      transport: 'telegram',
+      chatId: 'redbot-chat-1',
+      userId: 'redbot-user-1',
+      type: 'inline-buttons',
+      inbound: false,
+      content: 'Confermi l’accensione?',
+      buttons: [
+        { type: 'postback', label: 'Conferma', value: 'confirm' },
+        { type: 'postback', label: 'Annulla', value: 'cancel' }
+      ]
+    })
   })
 
   it('rejects invalid or asynchronous custom chat adapter code safely', () => {
@@ -568,7 +686,7 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('chatAdapterPreset: { value: "none" }')
     expect(editor).to.include('proactiveEnabled: { value: false }')
     expect(editor).to.include('proactiveOpenMinutes: { value: 120 }')
-    expect(editor).to.include('homeMemoryMaxKb: { value: 256')
+    expect(editor).not.to.include('homeMemoryMaxKb')
     expect(editor).to.include('maxlength="16000"')
     expect(editor).to.include('KNXAIChatAdapterMappings.js')
     expect(editor).to.include('outputs: 4')
@@ -586,6 +704,8 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('node.patternMinCount = 8')
     expect(runtime).to.include('node.llmIncludeRaw = false')
     expect(runtime).to.include('node.llmIncludeDocsSnippets = true')
+    expect(runtime).to.include('maxKb: HOME_MEMORY_DEFAULT_KB')
+    expect(runtime).not.to.include('config.homeMemoryMaxKb')
 
     const locales = [
       ['en', 'KNX AI.md'],
@@ -610,7 +730,7 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.properties.chatOutputCode).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.homeIntelligence).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.proactiveEnabled).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.properties.homeMemoryMaxKb).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties).not.to.have.property('homeMemoryMaxKb')
       expect(messages.knxUltimateAI.properties.aiEducation).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.outputs.knxCommands).to.be.a('string').and.not.equal('')
 
@@ -623,13 +743,16 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('msg.readstatus = true')
       expect(helpBody).to.include('msg.knxAi.readResults')
       expect(helpBody).to.include('KNXAIChatAdapterMappings.js')
+      expect(helpBody).to.include('RedBot / node-red-contrib-chatbot')
+      expect(helpBody).to.include('chatbot-telegram-receive')
+      expect(helpBody).to.include('chatbot-telegram-send')
       expect(helpBody).to.include('callback_query')
       expect(helpBody).to.include('options.reply_markup')
       expect(helpBody).to.include('proactive_notification')
       expect(helpBody).to.include('home-memory')
       expect(helpBody).to.include('proactiveOpenMinutes')
       expect(helpBody).to.include('proactiveCooldownMinutes')
-      expect(helpBody).to.include('homeMemoryMaxKb')
+      expect(helpBody).not.to.include('homeMemoryMaxKb')
       expect(helpBody).to.include('aiEducation')
       expect(helpBody).to.include('123456789')
       const docsBody = fs.readFileSync(path.join(root, 'docs', 'wiki', docName), 'utf8')
@@ -683,7 +806,7 @@ describe('KNX AI conversational control', () => {
     expect(aiNode.wires[2]).to.include('telegram_sender_knx_ai')
     expect(aiNode.wires[3]).to.include('node_knx_ai_telegram_universal')
     expect(aiNode.proactiveEnabled).to.equal(true)
-    expect(aiNode.homeMemoryMaxKb).to.equal('256')
+    expect(aiNode).not.to.have.property('homeMemoryMaxKb')
     expect(aiNode.aiEducation).to.include('persiana')
     expect(sender.type).to.equal('telegram sender')
   })
@@ -762,7 +885,7 @@ describe('KNX AI conversational control', () => {
     expect(homeIntelligence).to.include('id="node-input-proactiveQuietStart"')
     expect(homeIntelligence).to.include('id="node-input-proactiveQuietEnd"')
     expect(homeIntelligence).to.include('id="node-input-proactiveCooldownMinutes"')
-    expect(homeIntelligence).to.include('id="node-input-homeMemoryMaxKb"')
+    expect(homeIntelligence).not.to.include('id="node-input-homeMemoryMaxKb"')
     expect(homeIntelligence).to.include('id="node-input-aiEducation"')
     expect(chatAdapter).to.include('id="node-input-chatInputCode-editor"')
     expect(chatAdapter).to.include('id="node-input-chatOutputCode-editor"')
@@ -794,7 +917,6 @@ describe('KNX AI conversational control', () => {
       'node-input-proactiveQuietStart',
       'node-input-proactiveQuietEnd',
       'node-input-proactiveCooldownMinutes',
-      'node-input-homeMemoryMaxKb',
       'node-input-aiEducation'
     ]
     uniqueFieldIds.forEach(id => {
@@ -819,7 +941,7 @@ describe('KNX AI conversational control', () => {
     ]
     removedFieldIds.forEach(id => expect(template).not.to.include(`id="${id}"`))
     expect(editor).to.include('proactiveCooldownMinutes: { value: 360 }')
-    expect(editor).to.include('homeMemoryMaxKb: { value: 256 }')
+    expect(editor).not.to.include('homeMemoryMaxKb')
     expect(editor).to.include('applyNumericFallback("#node-input-proactiveOpenMinutes", 120)')
     const defaultsBlock = editor.match(/defaults:\s*\{([\s\S]*?)\n\s*\},\n\s*credentials:/)[1]
     expect((defaultsBlock.match(/required:\s*true/g) || [])).to.have.length(1)
@@ -931,7 +1053,6 @@ describe('KNX AI conversational control', () => {
       proactiveCooldownMinutes: 300,
       proactiveQuietStart: '22:30',
       proactiveQuietEnd: '06:45',
-      homeMemoryMaxKb: 192,
       aiEducation: 'La persiana dello studio può restare aperta.',
       analysisWindowSec: 240,
       historyWindowSec: 1200
@@ -957,5 +1078,121 @@ describe('KNX AI conversational control', () => {
     definition.oneditprepare.call(noAdapterNode)
     expect(elements.get('#knx-ai-chat-adapter-fields')._visible).to.equal(false)
     definition.oneditcancel.call(noAdapterNode)
+  })
+})
+
+describe('KNX AI persistent chat context', () => {
+  it('shares one live memory state across KNX AI node instances', () => {
+    const registry = new Map()
+    const firstNode = {}
+    const secondNode = {}
+    bindSharedKnxAiState({
+      registry,
+      filePath: '/memory/knxai-chat-context.md',
+      node: firstNode,
+      property: '_memory',
+      initialValue: { value: 'first' }
+    })
+    bindSharedKnxAiState({
+      registry,
+      filePath: '/memory/knxai-chat-context.md',
+      node: secondNode,
+      property: '_memory',
+      initialValue: { value: 'ignored' }
+    })
+
+    secondNode._memory = { value: 'shared' }
+    expect(firstNode._memory).to.deep.equal({ value: 'shared' })
+    releaseSharedKnxAiState({ registry, filePath: '/memory/knxai-chat-context.md', node: firstNode })
+    expect(registry.size).to.equal(1)
+    releaseSharedKnxAiState({ registry, filePath: '/memory/knxai-chat-context.md', node: secondNode })
+    expect(registry.size).to.equal(0)
+  })
+
+  it('uses global memory filenames without a node id', () => {
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include("path.join(baseDir, 'knxai', 'memory', 'knxai-home-memory.md')")
+    expect(runtime).to.include("path.join(baseDir, 'knxai', 'memory', 'knxai-chat-context.md')")
+    expect(runtime).not.to.match(/knxai-(?:home-memory|chat-context)-\$\{node\.id\}/)
+  })
+
+  it('recognizes explicit durable instructions in every supported language', () => {
+    const instructions = [
+      'Remember not to use the term unknown in replies.',
+      'Ricordati di non usare il termine unknown nelle risposte.',
+      'Merk dir, in Antworten nie den Begriff unknown zu verwenden.',
+      'Souviens-toi de ne pas employer le terme unknown dans tes réponses.',
+      'Recuerda no usar el término unknown en las respuestas.',
+      '请记住不要在回答中使用 unknown 这个词。'
+    ]
+    instructions.forEach(instruction => {
+      expect(extractExplicitKnxAiChatInstruction(instruction)).to.equal(instruction)
+    })
+    expect(extractExplicitKnxAiChatInstruction('Do you remember yesterday?')).to.equal('')
+  })
+
+  it('round-trips each session through the persistent Markdown context', () => {
+    let context = createEmptyKnxAiChatContext()
+    context = addKnxAiChatTurn(context, {
+      sessionId: 'telegram-123',
+      question: 'Ricordati di non usare il termine unknown nelle risposte.',
+      reply: 'Va bene.'
+    })
+    context = addKnxAiChatTurn(context, {
+      sessionId: 'telegram-123',
+      question: 'Come sta la casa?',
+      reply: 'Tutto regolare.'
+    })
+    const rendered = buildKnxAiChatContextMarkdown({ context })
+    const restored = parseKnxAiChatContextMarkdown(rendered.markdown)
+    const session = getKnxAiChatSession(restored, 'telegram-123')
+
+    expect(session.turns).to.have.length(2)
+    expect(session.instructions[0].text).to.equal('Ricordati di non usare il termine unknown nelle risposte.')
+    const prompt = buildKnxAiChatPromptContext({ context: restored, sessionId: 'telegram-123' })
+    expect(prompt).to.include('PERSISTENT CHAT INSTRUCTIONS AND PREFERENCES')
+    expect(prompt).to.include('non usare il termine unknown')
+    expect(prompt).to.include('RECENT CONVERSATION')
+    expect(conversationMapFromKnxAiChatContext(restored).get('telegram-123')).to.have.length(2)
+  })
+
+  it('keeps sessions isolated and clears only the selected chat', () => {
+    let context = createEmptyKnxAiChatContext()
+    context = addKnxAiChatTurn(context, {
+      sessionId: 'one',
+      question: 'Remember to answer briefly.',
+      reply: 'Understood.'
+    })
+    context = addKnxAiChatTurn(context, {
+      sessionId: 'two',
+      question: 'Remember to answer in Italian.',
+      reply: 'Va bene.'
+    })
+    context = clearKnxAiChatSession(context, 'one')
+
+    expect(getKnxAiChatSession(context, 'one').turns).to.deep.equal([])
+    expect(getKnxAiChatSession(context, 'one').instructions).to.deep.equal([])
+    expect(getKnxAiChatSession(context, 'two').instructions[0].text).to.include('Italian')
+  })
+
+  it('bounds turns, sessions, and the on-disk file', () => {
+    let context = createEmptyKnxAiChatContext()
+    for (let sessionIndex = 0; sessionIndex < CHAT_CONTEXT_MAX_SESSIONS + 10; sessionIndex += 1) {
+      for (let turnIndex = 0; turnIndex < CHAT_CONTEXT_MAX_TURNS_PER_SESSION + 5; turnIndex += 1) {
+        context = addKnxAiChatTurn(context, {
+          sessionId: `session-${sessionIndex}`,
+          question: `Question ${turnIndex} ${'q'.repeat(200)}`,
+          reply: `Reply ${turnIndex} ${'r'.repeat(400)}`
+        })
+      }
+    }
+    const rendered = buildKnxAiChatContextMarkdown({ context, maxBytes: 64 * 1024 })
+    const restored = parseKnxAiChatContextMarkdown(rendered.markdown)
+
+    expect(rendered.bytes).to.be.at.most(64 * 1024)
+    expect(restored.sessions.length).to.be.at.most(CHAT_CONTEXT_MAX_SESSIONS)
+    restored.sessions.forEach(session => {
+      expect(session.turns.length).to.be.at.most(CHAT_CONTEXT_MAX_TURNS_PER_SESSION)
+    })
   })
 })

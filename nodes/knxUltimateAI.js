@@ -6,13 +6,13 @@ const path = require('path')
 const { spawn } = require('child_process')
 const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
 const {
+  HOME_MEMORY_DEFAULT_KB,
   HOME_MEMORY_MAX_EDUCATION_CHARS,
   HOME_MEMORY_MAX_SEMANTIC_OBJECTS,
   addBoundedKnxAiNotification,
   addBoundedKnxAiObservation,
   buildKnxAiHomeMemoryMarkdown,
   buildKnxAiProactiveFallback,
-  clampHomeMemoryKb,
   classifyKnxAiOpenState,
   createEmptyKnxAiHomeMemory,
   enrichKnxAiHomeCatalog,
@@ -22,6 +22,17 @@ const {
   parseKnxAiHomeMemoryMarkdown,
   updateKnxAiCoverHabit
 } = require('./utils/knxAiHomeMemory')
+const {
+  CHAT_CONTEXT_MAX_BYTES,
+  addKnxAiChatTurn,
+  buildKnxAiChatContextMarkdown,
+  buildKnxAiChatPromptContext,
+  clearKnxAiChatSession,
+  conversationMapFromKnxAiChatContext,
+  createEmptyKnxAiChatContext,
+  normalizeKnxAiChatContext,
+  parseKnxAiChatContextMarkdown
+} = require('./utils/knxAiChatContext')
 let googleTranslateTTS = null
 try {
   googleTranslateTTS = require('google-translate-tts')
@@ -33,7 +44,33 @@ const coerceBoolean = (value) => (value === true || value === 'true')
 
 let adminEndpointsRegistered = false
 const aiRuntimeNodes = new Map()
+const sharedKnxAiHomeMemoryStores = new Map()
+const sharedKnxAiChatContextStores = new Map()
 const knxAiVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateAI-vue')
+
+const bindSharedKnxAiState = ({ registry, filePath, node, property, initialValue }) => {
+  let store = registry.get(filePath)
+  if (!store) {
+    store = { value: initialValue, nodes: new Set() }
+    registry.set(filePath, store)
+  }
+  store.nodes.add(node)
+  Object.defineProperty(node, property, {
+    configurable: true,
+    enumerable: true,
+    get: () => store.value,
+    set: value => { store.value = value }
+  })
+  node[property] = store.value
+  return store
+}
+
+const releaseSharedKnxAiState = ({ registry, filePath, node }) => {
+  const store = registry.get(filePath)
+  if (!store) return
+  store.nodes.delete(node)
+  if (store.nodes.size === 0) registry.delete(filePath)
+}
 
 // ---------------------------------------------------------------------------
 // KNX AI Flow Builder helpers
@@ -5064,7 +5101,6 @@ module.exports = function (RED) {
     node.proactiveCooldownMinutes = Math.max(5, Math.min(10080, Number(config.proactiveCooldownMinutes) || 360))
     node.proactiveQuietStart = String(config.proactiveQuietStart || '23:00').trim()
     node.proactiveQuietEnd = String(config.proactiveQuietEnd || '07:00').trim()
-    node.homeMemoryMaxKb = clampHomeMemoryKb(config.homeMemoryMaxKb)
     node.aiEducation = String(config.aiEducation || '').slice(0, HOME_MEMORY_MAX_EDUCATION_CHARS)
 
     const pushStatus = (status) => {
@@ -5137,6 +5173,8 @@ module.exports = function (RED) {
     node._anomalies = []
     node._assistantLog = []
     node._conversationSessions = new Map()
+    node._chatContext = createEmptyKnxAiChatContext()
+    node._chatContextWriteTimer = null
     node._pendingKnxCommands = new Map()
     node._flowContextCache = { at: 0, text: '' }
     node._docsContextCache = { at: 0, question: '', text: '' }
@@ -6433,7 +6471,14 @@ module.exports = function (RED) {
       const baseDir = (node.serverKNX && node.serverKNX.userDir)
         ? node.serverKNX.userDir
         : path.join(RED.settings.userDir, 'knxultimatestorage')
-      return path.join(baseDir, 'knxai', 'memory', `knxai-home-memory-${node.id}.md`)
+      return path.join(baseDir, 'knxai', 'memory', 'knxai-home-memory.md')
+    }
+
+    const getChatContextFile = () => {
+      const baseDir = (node.serverKNX && node.serverKNX.userDir)
+        ? node.serverKNX.userDir
+        : path.join(RED.settings.userDir, 'knxultimatestorage')
+      return path.join(baseDir, 'knxai', 'memory', 'knxai-chat-context.md')
     }
 
     const cleanupHomeMemoryTempFiles = () => {
@@ -6461,7 +6506,7 @@ module.exports = function (RED) {
     }
 
     const synchronizeHomeMemorySemanticObjects = () => {
-      const semanticObjects = getGaCatalogSnapshot()
+      const currentSemanticObjects = getGaCatalogSnapshot()
         .filter(item => item && item.semantic && item.semantic.kind !== 'unknown')
         .sort((a, b) => Number(b.semantic.confidence || 0) - Number(a.semantic.confidence || 0))
         .slice(0, HOME_MEMORY_MAX_SEMANTIC_OBJECTS)
@@ -6474,7 +6519,16 @@ module.exports = function (RED) {
           role: item.role || 'neutral',
           confidence: Number(item.semantic.confidence || 0)
         }))
-      node._homeMemory.semanticObjects = semanticObjects
+      const semanticByKey = new Map()
+      normalizeKnxAiHomeMemory(node._homeMemory).semanticObjects.forEach((item) => {
+        semanticByKey.set(`${item.ga || ''}\n${item.dpt || ''}\n${item.label || ''}`, item)
+      })
+      currentSemanticObjects.forEach((item) => {
+        semanticByKey.set(`${item.ga || ''}\n${item.dpt || ''}\n${item.label || ''}`, item)
+      })
+      node._homeMemory.semanticObjects = Array.from(semanticByKey.values())
+        .sort((a, b) => Number(b.confidence || 0) - Number(a.confidence || 0))
+        .slice(0, HOME_MEMORY_MAX_SEMANTIC_OBJECTS)
       node._homeMemory.updatedAt = new Date().toISOString()
     }
 
@@ -6484,7 +6538,7 @@ module.exports = function (RED) {
         const rendered = buildKnxAiHomeMemoryMarkdown({
           memory: node._homeMemory,
           education: node.aiEducation,
-          maxKb: node.homeMemoryMaxKb
+          maxKb: HOME_MEMORY_DEFAULT_KB
         })
         node._homeMemory = rendered.memory
         const filePath = getHomeMemoryFile()
@@ -6524,23 +6578,159 @@ module.exports = function (RED) {
 
     const loadHomeMemoryFromDisk = () => {
       const filePath = getHomeMemoryFile()
+      node._homeMemoryStorePath = filePath
       try {
         cleanupHomeMemoryTempFiles()
+        const sharedStore = sharedKnxAiHomeMemoryStores.get(filePath)
+        if (sharedStore) {
+          bindSharedKnxAiState({
+            registry: sharedKnxAiHomeMemoryStores,
+            filePath,
+            node,
+            property: '_homeMemory',
+            initialValue: sharedStore.value
+          })
+          return null
+        }
+        let loadedMemory
         if (!fs.existsSync(filePath)) {
-          node._homeMemory = createEmptyKnxAiHomeMemory()
-          return scheduleHomeMemoryPersist({ immediate: true })
+          loadedMemory = createEmptyKnxAiHomeMemory()
+        } else {
+          const stat = fs.statSync(filePath)
+          const absoluteReadLimit = 8 * 1024 * 1024
+          if (Number(stat.size || 0) > absoluteReadLimit) {
+            throw new Error(`memory file exceeds the safe read limit (${absoluteReadLimit} bytes)`)
+          }
+          loadedMemory = normalizeKnxAiHomeMemory(parseKnxAiHomeMemoryMarkdown(fs.readFileSync(filePath, 'utf8')))
         }
-        const stat = fs.statSync(filePath)
-        const absoluteReadLimit = 4 * 1024 * 1024
-        if (Number(stat.size || 0) > absoluteReadLimit) {
-          throw new Error(`memory file exceeds the safe read limit (${absoluteReadLimit} bytes)`)
-        }
-        node._homeMemory = normalizeKnxAiHomeMemory(parseKnxAiHomeMemoryMarkdown(fs.readFileSync(filePath, 'utf8')))
+        bindSharedKnxAiState({
+          registry: sharedKnxAiHomeMemoryStores,
+          filePath,
+          node,
+          property: '_homeMemory',
+          initialValue: loadedMemory
+        })
         return scheduleHomeMemoryPersist({ immediate: true })
       } catch (error) {
-        node._homeMemory = createEmptyKnxAiHomeMemory()
+        bindSharedKnxAiState({
+          registry: sharedKnxAiHomeMemoryStores,
+          filePath,
+          node,
+          property: '_homeMemory',
+          initialValue: createEmptyKnxAiHomeMemory()
+        })
         try { node.sysLogger?.warn(`KNX AI home memory load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return scheduleHomeMemoryPersist({ immediate: true })
+      }
+    }
+
+    const cleanupChatContextTempFiles = () => {
+      try {
+        const filePath = getChatContextFile()
+        const dirPath = path.dirname(filePath)
+        if (!fs.existsSync(dirPath)) return
+        const prefix = `${path.basename(filePath)}.tmp-`
+        fs.readdirSync(dirPath)
+          .filter(name => String(name).startsWith(prefix))
+          .forEach(name => {
+            try { fs.unlinkSync(path.join(dirPath, name)) } catch (error) { /* ignore */ }
+          })
+      } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI chat context temporary-file cleanup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      }
+    }
+
+    const persistChatContextNow = () => {
+      try {
+        const rendered = buildKnxAiChatContextMarkdown({
+          context: node._chatContext,
+          maxBytes: CHAT_CONTEXT_MAX_BYTES
+        })
+        node._chatContext = rendered.context
+        node._conversationSessions = conversationMapFromKnxAiChatContext(node._chatContext)
+        const filePath = getChatContextFile()
+        const dirPath = path.dirname(filePath)
+        if (!ensureDirectorySync(dirPath)) throw new Error(`Unable to create ${dirPath}`)
+        const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`
+        try {
+          fs.writeFileSync(tempPath, rendered.markdown, 'utf8')
+          fs.renameSync(tempPath, filePath)
+        } catch (error) {
+          try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath) } catch (cleanupError) { /* ignore */ }
+          throw error
+        }
+        return {
+          filePath,
+          bytes: rendered.bytes,
+          maxBytes: rendered.maxBytes
+        }
+      } catch (error) {
+        try { node.sysLogger?.warn(`KNX AI chat context write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        return null
+      }
+    }
+
+    const scheduleChatContextPersist = ({ immediate = false } = {}) => {
+      if (node._chatContextWriteTimer) {
+        clearTimeout(node._chatContextWriteTimer)
+        node._chatContextWriteTimer = null
+      }
+      if (immediate) return persistChatContextNow()
+      node._chatContextWriteTimer = setTimeout(() => {
+        node._chatContextWriteTimer = null
+        persistChatContextNow()
+      }, 1500)
+      return null
+    }
+
+    const loadChatContextFromDisk = () => {
+      const filePath = getChatContextFile()
+      node._chatContextStorePath = filePath
+      try {
+        cleanupChatContextTempFiles()
+        const sharedStore = sharedKnxAiChatContextStores.get(filePath)
+        if (sharedStore) {
+          bindSharedKnxAiState({
+            registry: sharedKnxAiChatContextStores,
+            filePath,
+            node,
+            property: '_chatContext',
+            initialValue: sharedStore.value
+          })
+          node._conversationSessions = conversationMapFromKnxAiChatContext(node._chatContext)
+          return null
+        }
+        let loadedContext
+        if (!fs.existsSync(filePath)) {
+          loadedContext = createEmptyKnxAiChatContext()
+        } else {
+          const stat = fs.statSync(filePath)
+          const absoluteReadLimit = 2 * 1024 * 1024
+          if (Number(stat.size || 0) > absoluteReadLimit) {
+            throw new Error(`chat context file exceeds the safe read limit (${absoluteReadLimit} bytes)`)
+          }
+          loadedContext = normalizeKnxAiChatContext(parseKnxAiChatContextMarkdown(fs.readFileSync(filePath, 'utf8')))
+        }
+        bindSharedKnxAiState({
+          registry: sharedKnxAiChatContextStores,
+          filePath,
+          node,
+          property: '_chatContext',
+          initialValue: loadedContext
+        })
+        node._conversationSessions = conversationMapFromKnxAiChatContext(node._chatContext)
+        return scheduleChatContextPersist({ immediate: true })
+      } catch (error) {
+        bindSharedKnxAiState({
+          registry: sharedKnxAiChatContextStores,
+          filePath,
+          node,
+          property: '_chatContext',
+          initialValue: createEmptyKnxAiChatContext()
+        })
+        node._conversationSessions = new Map()
+        try { node.sysLogger?.warn(`KNX AI chat context load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        return scheduleChatContextPersist({ immediate: true })
       }
     }
 
@@ -8719,9 +8909,15 @@ module.exports = function (RED) {
       }
     }
 
-    const callLLM = async ({ question }) => {
+    const callLLM = async ({ question, sessionId = 'default' }) => {
       const summary = rebuildCachedSummaryNow()
-      const userContent = buildLLMPrompt({ question, summary })
+      const chatContext = buildKnxAiChatPromptContext({
+        context: node._chatContext,
+        sessionId,
+        maxChars: 16000
+      })
+      const prompt = buildLLMPrompt({ question, summary })
+      const userContent = chatContext ? `${chatContext}\n\n${prompt}` : prompt
       const configuredMaxTokens = Math.max(10000, Number(node.llmMaxTokens) || 0)
       let ret = await callLLMChat({
         systemPrompt: node.llmSystemPrompt || '',
@@ -8731,7 +8927,13 @@ module.exports = function (RED) {
       const finishReason = String(ret && ret.finishReason ? ret.finishReason : '').trim().toLowerCase()
       const lengthLimited = finishReason === 'length' || isOpenAICompatLengthFallbackText(ret && ret.content)
       if (lengthLimited) {
-        const compactPrompt = buildLLMPrompt({ question, summary, compact: true })
+        const compactChatContext = buildKnxAiChatPromptContext({
+          context: node._chatContext,
+          sessionId,
+          maxChars: 6000
+        })
+        const compactBasePrompt = buildLLMPrompt({ question, summary, compact: true })
+        const compactPrompt = compactChatContext ? `${compactChatContext}\n\n${compactBasePrompt}` : compactBasePrompt
         const retryMaxTokens = Math.min(16000, Math.max(10000, Math.round(configuredMaxTokens * 1.25)))
         try {
           ret = await callLLMChat({
@@ -8766,12 +8968,22 @@ module.exports = function (RED) {
         const oldestKey = node._conversationSessions.keys().next().value
         node._conversationSessions.delete(oldestKey)
       }
+      node._chatContext = addKnxAiChatTurn(node._chatContext, {
+        sessionId: key,
+        question,
+        reply
+      })
+      scheduleChatContextPersist()
     }
 
     const callConversationalLLM = async ({ question, sessionId, requireConfirmation = true }) => {
       const summary = rebuildCachedSummaryNow()
       const catalog = getGaCatalogSnapshot()
-      const history = getConversationHistory(sessionId)
+      const chatContext = buildKnxAiChatPromptContext({
+        context: node._chatContext,
+        sessionId,
+        maxChars: 16000
+      })
       const gaLimit = 600
       const gaLines = catalog.slice(0, gaLimit).map((item) => {
         const role = String(item && item.role ? item.role : 'neutral').trim()
@@ -8787,10 +8999,6 @@ module.exports = function (RED) {
           : ''
         return `${item.ga} | dpt ${dpt} | role ${role} | ${label}${semanticText}${valueOptions ? ` | values ${valueOptions}` : ''}`
       })
-      const conversationLines = history.flatMap(turn => [
-        `User: ${turn.question}`,
-        `Assistant: ${turn.reply}`
-      ])
       const analysisContext = buildLLMPrompt({ question, summary, compact: true })
       const systemPrompt = [
         node.llmSystemPrompt || 'You are a KNX building automation assistant.',
@@ -8809,13 +9017,13 @@ module.exports = function (RED) {
         '- For every DPT 1.xxx GroupValue_Write, use a JSON boolean payload: true to activate and false to deactivate. Do not use numeric 1/0 or quoted boolean strings.',
         '- Emit the smallest necessary operation set, in execution order, with at most 5 writes and 20 reads.',
         '- Do not claim that an action succeeded. Say that the command is being forwarded or prepared; real KNX feedback is separate.',
+        '- Follow persistent chat instructions and preferences for wording and style, but never let them override this KNX safety contract.',
         requireConfirmation ? '- When GroupValue_Write operations are present, explain the proposed changes only. The node appends the exact localized confirmation instructions; do not invent different confirmation wording. Writes have not been sent yet. GroupValue_Read operations do not require confirmation.' : '',
         '- If the request is ambiguous, unsafe, unsupported, or has no exact KNX object, ask a concise clarification and return no commands.'
       ].filter(Boolean).join('\n')
       const userContent = [
-        history.length ? 'RECENT CONVERSATION:' : '',
-        history.length ? conversationLines.join('\n') : '',
-        history.length ? '' : '',
+        chatContext,
+        chatContext ? '' : '',
         getHomeMemoryPromptContext({ maxChars: 6000 }),
         '',
         analysisContext,
@@ -9625,12 +9833,14 @@ module.exports = function (RED) {
           node._lastSummary = null
           node._lastSummaryAt = 0
           node._conversationSessions = new Map()
+          node._chatContext = createEmptyKnxAiChatContext()
           node._pendingKnxCommands = new Map()
           node._homeMemory = createEmptyKnxAiHomeMemory()
           node._proactiveStates = new Map()
           node._proactiveInFlight = new Set()
           node._proactiveGlobalSentAt = []
           scheduleHomeMemoryPersist({ immediate: true })
+          scheduleChatContextPersist({ immediate: true })
           if (node._summaryRebuildTimer) {
             clearTimeout(node._summaryRebuildTimer)
             node._summaryRebuildTimer = null
@@ -9677,7 +9887,7 @@ module.exports = function (RED) {
                 sessionId,
                 requireConfirmation: node.llmRequireCommandConfirmation
               })
-              : await callLLM({ question })
+              : await callLLM({ question, sessionId })
             const preparedCommands = Array.isArray(ret.commands) ? ret.commands : []
             const readCommands = preparedCommands.filter(command => command && command.event === 'GroupValue_Read')
             const writeCommands = preparedCommands.filter(command => !command || command.event !== 'GroupValue_Read')
@@ -9772,7 +9982,7 @@ module.exports = function (RED) {
             }
             node._assistantLog.push(assistantEntry)
             while (node._assistantLog.length > 50) node._assistantLog.shift()
-            if (node.llmAllowKnxCommands) rememberConversationTurn({ sessionId, question, reply: content })
+            rememberConversationTurn({ sessionId, question, reply: content })
             const replyMessage = buildKnxAiReplyMessage({
               inputMessage: msg,
               content,
@@ -9828,7 +10038,9 @@ module.exports = function (RED) {
         if (cmd === 'clear_chat') {
           const sessionId = resolveKnxAiSessionId(msg)
           node._conversationSessions.delete(sessionId)
+          node._chatContext = clearKnxAiChatSession(node._chatContext, sessionId)
           node._pendingKnxCommands.delete(sessionId)
+          scheduleChatContextPersist({ immediate: true })
           const replyMessage = buildKnxAiReplyMessage({
             inputMessage: msg,
             content: { ok: true, sessionId },
@@ -9960,9 +10172,11 @@ module.exports = function (RED) {
       const q = String(question || '').trim()
       if (q === '') throw new Error('Missing question')
       updateStatus({ fill: 'blue', shape: 'ring', text: 'AI thinking...' })
-      const ret = await callLLM({ question: q })
+      const sessionId = 'sidebar'
+      const ret = await callLLM({ question: q, sessionId })
       node._assistantLog.push({ at: new Date().toISOString(), question: q, content: ret.content, provider: ret.provider, model: ret.model })
       while (node._assistantLog.length > 50) node._assistantLog.shift()
+      rememberConversationTurn({ sessionId, question: q, reply: ret.content })
       updateStatus({ fill: 'green', shape: 'dot', text: 'AI answer ready' })
       return { answer: ret.content, provider: ret.provider, model: ret.model, summary: ret.summary }
     }
@@ -10009,7 +10223,26 @@ module.exports = function (RED) {
           clearTimeout(node._homeMemoryWriteTimer)
           node._homeMemoryWriteTimer = null
         }
+        if (node._chatContextWriteTimer) {
+          clearTimeout(node._chatContextWriteTimer)
+          node._chatContextWriteTimer = null
+        }
         persistHomeMemoryNow()
+        persistChatContextNow()
+        if (node._homeMemoryStorePath) {
+          releaseSharedKnxAiState({
+            registry: sharedKnxAiHomeMemoryStores,
+            filePath: node._homeMemoryStorePath,
+            node
+          })
+        }
+        if (node._chatContextStorePath) {
+          releaseSharedKnxAiState({
+            registry: sharedKnxAiChatContextStores,
+            filePath: node._chatContextStorePath,
+            node
+          })
+        }
         if (node._summaryRebuildTimer) {
           clearTimeout(node._summaryRebuildTimer)
           node._summaryRebuildTimer = null
@@ -10046,6 +10279,7 @@ module.exports = function (RED) {
       pruneHistoryArchiveFiles({ force: true })
       loadRecentHistoryFromDisk()
       loadHomeMemoryFromDisk()
+      loadChatContextFromDisk()
     } catch (error) {
       node.sysLogger?.warn(`KNX AI history startup error: ${error.message || error}`)
     }
@@ -10079,6 +10313,7 @@ module.exports = function (RED) {
 }
 
 module.exports.__test = {
+  bindSharedKnxAiState,
   buildKnxAiPackageNodeCatalog,
   buildKnxAiConfirmationRequest,
   buildKnxAiUniversalMessage,
@@ -10102,6 +10337,7 @@ module.exports.__test = {
   resolveKnxAiLanguage,
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,
+  releaseSharedKnxAiState,
   safeKnxAiSend,
   validateKnxAiPayloadForDpt
 }

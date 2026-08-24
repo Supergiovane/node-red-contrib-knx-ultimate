@@ -57,7 +57,6 @@
       "proactiveCooldownMinutes": "重复通知冷却时间（分钟）",
       "proactiveQuietStart": "静默时段开始",
       "proactiveQuietEnd": "静默时段结束",
-      "homeMemoryMaxKb": "家庭记忆文件最大值（KB）",
       "aiEducation": "AI 教育（由用户管理）",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
@@ -89,8 +88,7 @@
       "chatAdapterIntro": "选择预设即可插入输入和输出映射代码。列表从随包提供的聊天适配器文件加载；生成的代码仍可编辑。",
       "chatAdapterCodeHelp": "映射同步运行。返回 msg 以继续，或不返回值以丢弃消息。错误会被捕获并报告，不会停止 Node-RED。",
       "homeIntelligenceIntro": "节点会创建多语言 ETS 语义模型，并在可靠识别的卷帘、窗户或门长时间保持打开时主动通知聊天。它绝不会自行发送 KNX 命令。",
-      "aiEducationHelp": "只有用户可以编辑此部分。AI 会把它作为权威指导读取，但学习到的记忆绝不能覆盖它。最多 16,000 个字符。",
-      "homeMemoryLimitHelp": "Markdown 记忆每 15 分钟以原子方式重写，并始终限制在 64 到 1,024 KB。达到限制时会先删除较旧的观察，再删除习惯和语义对象。"
+      "aiEducationHelp": "只有用户可以编辑此部分。AI 会把它作为权威指导读取，但学习到的记忆绝不能覆盖它。最多 16,000 个字符。"
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",

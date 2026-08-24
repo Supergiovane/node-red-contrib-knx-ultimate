@@ -57,7 +57,6 @@
       "proactiveCooldownMinutes": "Espera antes de repetir (minutos)",
       "proactiveQuietStart": "Inicio de horas silenciosas",
       "proactiveQuietEnd": "Fin de horas silenciosas",
-      "homeMemoryMaxKb": "Tamaño máximo de memoria del hogar (KB)",
       "aiEducation": "Educación IA (gestionada por el usuario)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
@@ -89,8 +88,7 @@
       "chatAdapterIntro": "Elige un preajuste para insertar su código de mapeo de entrada y salida. La lista se carga desde el archivo de adaptadores de chat incluido; el código generado sigue siendo editable.",
       "chatAdapterCodeHelp": "Los mapeos se ejecutan de forma síncrona. Devuelve msg para continuar o ningún valor para descartarlo. Los errores se capturan y notifican sin detener Node-RED.",
       "homeIntelligenceIntro": "El nodo crea un modelo ETS semántico multilingüe y puede avisar al chat cuando una persiana, ventana o puerta reconocida con suficiente fiabilidad permanece abierta. Nunca envía por sí solo un comando KNX.",
-      "aiEducationHelp": "Solo el usuario puede editar esta sección. La IA la lee como una instrucción autoritativa, pero la memoria aprendida nunca puede sobrescribirla. Máximo 16.000 caracteres.",
-      "homeMemoryLimitHelp": "La memoria Markdown se reescribe atómicamente cada 15 minutos y siempre queda limitada entre 64 y 1.024 KB. Las observaciones antiguas se eliminan antes que los hábitos y los objetos semánticos."
+      "aiEducationHelp": "Solo el usuario puede editar esta sección. La IA la lee como una instrucción autoritativa, pero la memoria aprendida nunca puede sobrescribirla. Máximo 16.000 caracteres."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",

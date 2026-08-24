@@ -1,10 +1,13 @@
 const { expect } = require('chai')
 
 const {
+  HOME_MEMORY_DEFAULT_KB,
+  HOME_MEMORY_MAX_KB,
   addBoundedKnxAiNotification,
   addBoundedKnxAiObservation,
   buildKnxAiHomeMemoryMarkdown,
   buildKnxAiProactiveFallback,
+  clampHomeMemoryKb,
   classifyKnxAiOpenState,
   createEmptyKnxAiHomeMemory,
   inferKnxAiHomeSemantic,
@@ -14,6 +17,13 @@ const {
 } = require('../nodes/utils/knxAiHomeMemory')
 
 describe('KNX AI bounded home intelligence memory', () => {
+  it('defaults and clamps the home-memory file to 5 MB', () => {
+    expect(HOME_MEMORY_DEFAULT_KB).to.equal(5120)
+    expect(HOME_MEMORY_MAX_KB).to.equal(5120)
+    expect(clampHomeMemoryKb(undefined)).to.equal(5120)
+    expect(clampHomeMemoryKb(9000)).to.equal(5120)
+  })
+
   it('recognizes cover and room labels in every supported language', () => {
     const cases = [
       ['Persiana soggiorno stato', 'cover', 'living_room'],

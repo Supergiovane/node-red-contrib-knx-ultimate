@@ -114,7 +114,6 @@
     "proactiveCooldownMinutes": "360",
     "proactiveQuietStart": "23:00",
     "proactiveQuietEnd": "07:00",
-    "homeMemoryMaxKb": "256",
     "aiEducation": "Avvisami se una persiana, una finestra o una porta rimane aperta insolitamente a lungo. Non inviare notifiche durante le ore silenziose configurate.",
     "x": 500,
     "y": 210,

@@ -57,7 +57,6 @@
       "proactiveCooldownMinutes": "Wiederholsperre (Minuten)",
       "proactiveQuietStart": "Beginn der Ruhezeit",
       "proactiveQuietEnd": "Ende der Ruhezeit",
-      "homeMemoryMaxKb": "Maximale Hausgedächtnisdatei (KB)",
       "aiEducation": "KI-Erziehung (vom Benutzer verwaltet)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)",
       "llmDocsLanguage": "Docs language"
@@ -97,8 +96,7 @@
       "chatAdapterIntro": "Wählen Sie eine Vorlage, um den Code für Ein- und Ausgang einzufügen. Die Liste wird aus der mitgelieferten Chat-Adapter-Datei geladen; der erzeugte Code bleibt bearbeitbar.",
       "chatAdapterCodeHelp": "Zuordnungen laufen synchron. Geben Sie msg zurück, um fortzufahren, oder keinen Wert, um die Nachricht zu verwerfen. Fehler werden abgefangen und gemeldet, ohne Node-RED anzuhalten.",
       "homeIntelligenceIntro": "Der Node erstellt ein mehrsprachiges semantisches ETS-Modell und kann den Chat benachrichtigen, wenn ein zuverlässig erkannter Rollladen, ein Fenster oder eine Tür offen bleibt. Er sendet niemals selbstständig einen KNX-Befehl.",
-      "aiEducationHelp": "Nur der Benutzer kann diesen Abschnitt bearbeiten. Die KI liest ihn als verbindliche Vorgabe; gelernte Erinnerungen können ihn niemals überschreiben. Maximal 16.000 Zeichen.",
-      "homeMemoryLimitHelp": "Das Markdown-Gedächtnis wird alle 15 Minuten atomar neu geschrieben und bleibt stets auf 64 bis 1.024 KB begrenzt. Alte Beobachtungen werden vor Gewohnheiten und semantischen Objekten entfernt."
+      "aiEducationHelp": "Nur der Benutzer kann diesen Abschnitt bearbeiten. Die KI liest ihn als verbindliche Vorgabe; gelernte Erinnerungen können ihn niemals überschreiben. Maximal 16.000 Zeichen."
     },
     "sidebar": {
       "ui": {

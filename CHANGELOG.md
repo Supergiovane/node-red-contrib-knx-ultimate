@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 6.3.15** - August 2026<br/>
+
+- **KNX AI — persistent shared CHAT context**: every Ask/chat session now reloads its bounded recent conversation and explicit long-term user instructions after Node-RED restarts. Requests such as “remember not to use the term unknown” are retained per session in the atomically written shared file `knxultimatestorage/knxai/memory/knxai-chat-context.md`, independently from home intelligence memory and even when KNX actuator control is disabled. All KNX AI nodes using the same storage share one live context; the file keeps up to 8 recent turns and 20 durable instructions per session, 50 sessions total, and a 512 KB hard limit. `clear_chat` removes only the selected shared session and `reset` clears the shared context.<br/>
+- **KNX AI — unified memory files**: all KNX AI instances using the same storage now share `knxai-home-memory.md` and `knxai-chat-context.md`, without `node.id` in either filename. Per-node memory files from earlier builds are deliberately not migrated or read.<br/>
+- **KNX AI — fixed 5 MB home memory**: the shared home-memory file now has a fixed 5 MB limit. The `homeMemoryMaxKb` editor option has been removed to simplify the UI, and saved values no longer affect runtime behavior.<br/>
+- **KNX AI — RedBot Telegram chat adapter**: added a selectable `RedBot / node-red-contrib-chatbot (Telegram)` preset for direct `chatbot-telegram-receive → KNX AI → chatbot-telegram-send` wiring. It preserves RedBot conversation tracking, maps normalized inbound text and postbacks, and emits native `inline-buttons` confirmation actions.<br/>
+
 **Version 6.3.14** - August 2026<br/>
 
 - **Expose KNX to Matter — Room Air Conditioner and Door Lock**: added native Matter **Room Air Conditioner** (`0x0072`) and **Door Lock** (`0x000A`) profiles. A room AC combines On/Off, current temperature, heating/cooling setpoints and fan speed in one endpoint; a door lock maps separate Lock/Unlock command and Locked/Unlocked status GAs. Both profiles support KNX or flow-backed state updates without feedback loops, with editor help and documentation in EN/IT/DE/FR/ES/zh-CN.<br/>

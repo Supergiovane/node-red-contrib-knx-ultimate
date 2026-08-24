@@ -14,14 +14,14 @@ Cada mensaje emitido por las salidas 3 y 4 también contiene una copia del mensa
 ## Comandos (entrada)
 Envía `msg.topic`:
 - `summary` (o vacío): emite el resumen inmediatamente
-- `reset`: borra el historial, los contadores y la memoria del hogar aprendida; la Educación de la IA permanece sin cambios
+- `reset`: borra el historial, los contadores, la memoria del hogar aprendida y todos los contextos de chat persistentes; la Educación de la IA permanece sin cambios
 - `ask`: envía una pregunta al LLM configurado
 - `confirm` / `cancel`: confirma o cancela los comandos KNX pendientes sin volver a llamar al LLM
-- `clear_chat`: borra la memoria de conversación de la sesión actual
+- `clear_chat`: borra los turnos recientes, las instrucciones persistentes y los comandos pendientes de la sesión actual
 
 Para `ask`, envía la pregunta en `msg.prompt` (recomendado), `msg.payload` (string), o los campos comunes de Telegram `msg.payload.content` / `msg.payload.text`.
 
-Cuando el control KNX está habilitado, los turnos recientes se guardan en RAM por `msg.knxAi.sessionId`, `msg.sessionId` o el ID de chat Telegram detectado. Conecta la salida 3 al nodo emisor del chat y la salida 4 a un nodo KNX Ultimate en **modo universal**. Con la confirmación activa, la primera respuesta muestra GA, DPT y payload sin emitir escrituras; la misma sesión debe responder `CONFIRMAR` o `CANCELAR` en 5 minutos. Una solicitud nueva sustituye cualquier plan anterior. Cada comando confirmado contiene `msg.destination`, `msg.dpt`, `msg.payload` y `msg.event = "GroupValue_Write"`.
+Cada sesión Ask/chat conserva sus últimos 8 turnos y hasta 20 instrucciones explícitas a largo plazo, separadas por `msg.knxAi.sessionId`, `msg.sessionId` o el ID de chat Telegram detectado. Solicitudes como «Recuerda no usar el término unknown» se convierten en instrucciones persistentes. Todos los nodos KNX AI que usan el mismo almacenamiento comparten este contexto en tiempo real y lo recargan tras reiniciar Node-RED desde `knxultimatestorage/knxai/memory/knxai-chat-context.md`. El archivo se escribe de forma atómica y está limitado a 50 sesiones y 512 KB. Cuando el control KNX está habilitado, conecta la salida 3 al nodo emisor del chat y la salida 4 a un nodo KNX Ultimate en **modo universal**. Con la confirmación activa, la primera respuesta muestra GA, DPT y payload sin emitir escrituras; la misma sesión debe responder `CONFIRMAR` o `CANCELAR` en 5 minutos. Una solicitud nueva sustituye cualquier plan anterior. Cada comando confirmado contiene `msg.destination`, `msg.dpt`, `msg.payload` y `msg.event = "GroupValue_Write"`.
 Para las escrituras DPT 1.xxx, los equivalentes seguros producidos por la IA `true`/`false`, `1`/`0` y `on`/`off` se normalizan a booleanos reales antes de la validación local y la salida.
 
 ### Lecturas KNX actualizadas
@@ -35,12 +35,14 @@ La pestaña **Adaptadores de chat** carga sus mapeos seleccionables desde `resou
 
 El preajuste incluido **windkh/node-red-contrib-telegrambot** sigue el contrato receiver/sender del paquete. Conecta directamente un `telegram receiver` a KNX AI y la salida 3 a un `telegram sender`. Para los botones inline de confirmación, conecta también un `telegram event` configurado como `callback_query` a la misma entrada KNX AI. El mapeo de entrada extrae `msg.payload.content`, `msg.payload.chatId` y el idioma de Telegram. El mapeo de salida crea `msg.payload.chatId`, `type` y `content`, y añade `options.reply_markup` desde `msg.knxAi.confirmationRequest` cuando una escritura espera confirmación. El paquete Telegram sigue siendo una dependencia opcional separada.
 
+El preajuste incluido **RedBot / node-red-contrib-chatbot (Telegram)** sigue el formato común de mensajes de RedBot. Conecta directamente `chatbot-telegram-receive` a KNX AI y la salida 3 a `chatbot-telegram-send`; no hace falta un nodo callback separado porque RedBot convierte los postbacks de los botones inline en mensajes de entrada normales. El mapeo de entrada lee `transport`, `chatId`, `type`, `content` y el idioma de Telegram. El mapeo de salida conserva los datos de seguimiento RedBot `originalMessage`, `chat`, `api` y `client`, y después emite un payload `message` o un payload `inline-buttons` con acciones `postback` de confirmación. RedBot sigue siendo una dependencia opcional separada.
+
 ## Inteligencia doméstica proactiva y memoria limitada
 La subsección **Hogar proactivo y memoria** dentro de **Conversaciones y hogar** activa las notificaciones proactivas de forma opcional. A partir de la jerarquía ETS, nombres, roles y DPT, el nodo crea un modelo semántico determinista para persianas, ventanas, puertas, luces, temperatura, clima, presencia y alarmas usando términos italianos, ingleses, alemanes, franceses, españoles y chinos. El primer detector proactivo vigila únicamente estados que no sean de comando de persianas/ventanas/puertas reconocidos con suficiente fiabilidad. Tras el tiempo abierto configurado y fuera de las horas silenciosas, la salida 3 emite un mensaje localizado con `msg.knxAi.type = "proactive_notification"`. Nunca emite por la salida 4 ni modifica KNX de manera autónoma; una solicitud posterior del usuario sigue pasando por la validación y confirmación normales.
 
 La última sesión de chat se recuerda como propietario, o **Destinatario principal / ID de chat** permite definirla explícitamente. Un `msg.inputMessage` sintético conserva el destinatario para que el adaptador de Telegram pueda enviar una notificación espontánea. El tiempo de espera y el máximo de tres notificaciones proactivas por hora evitan inundar el chat.
 
-La referencia aprendida se carga al arrancar desde `<userDir>/knxai/memory/knxai-home-memory-<node-id>.md`, se reescribe atómicamente cada 15 minutos y queda estrictamente limitada entre 64 y 1.024 KB configurables (256 KB de forma predeterminada). Conserva como máximo 120 observaciones importantes, 80 hábitos agregados, 80 notificaciones y 300 objetos ETS semánticos, nunca un flujo ilimitado de telegramas raw. Los elementos antiguos y de menor prioridad se eliminan primero. **Educación IA** está limitada a 16.000 caracteres y siempre procede de la configuración del nodo: la IA puede leerla como instrucción autoritativa, pero no modificarla ni sobrescribirla. Si existe Educación pero el LLM no puede evaluarla, la notificación candidata se suprime en lugar de arriesgarse a contradecirla.
+La referencia aprendida compartida se carga al arrancar desde `<userDir>/knxai/memory/knxai-home-memory.md`, se reescribe atómicamente cada 15 minutos y siempre queda estrictamente limitada a 5 MB. Conserva como máximo 120 observaciones importantes, 80 hábitos agregados, 80 notificaciones y 300 objetos ETS semánticos, nunca un flujo ilimitado de telegramas raw. Los elementos antiguos y de menor prioridad se eliminan primero. **Educación IA** está limitada a 16.000 caracteres y siempre procede de la configuración del nodo: la IA puede leerla como instrucción autoritativa, pero no modificarla ni sobrescribirla. Si existe Educación pero el LLM no puede evaluarla, la notificación candidata se suprime en lugar de arriesgarse a contradecirla.
 
 ## Ejemplo práctico de configuración
 Este ejemplo crea un asistente conciso que avisa sobre aperturas importantes, pero acepta que la persiana del despacho permanezca abierta:
@@ -52,7 +54,6 @@ Este ejemplo crea un asistente conciso que avisa sobre aperturas importantes, pe
 | **Avisar después de abierta** (`proactiveOpenMinutes`) | `120` | Se evalúa una posible notificación después de dos horas. |
 | **Inicio / fin de horas silenciosas** | `23:00` / `07:00` | No se emiten mensajes proactivos durante la noche. |
 | **Tiempo de espera de repetición** (`proactiveCooldownMinutes`) | `360` | El mismo objeto no vuelve a avisar durante seis horas. |
-| **Archivo máximo de memoria del hogar** (`homeMemoryMaxKb`) | `256` | La referencia Markdown de este nodo permanece por debajo de 256 KB. |
 
 Ejemplo para **Educación IA** (`aiEducation`):
 
@@ -116,7 +117,6 @@ KNX AI escucha automáticamente los telegramas `GroupValue_Write`, `GroupValue_R
 - **Inicio / fin de horas silenciosas**: intervalo diario en el que se suprimen los mensajes proactivos.
 - **Educación de la IA**: instrucciones vinculantes gestionadas solo por el usuario, leídas por la IA y nunca modificadas.
 - **Tiempo de espera de repetición (minutos)**: intervalo mínimo antes de que el mismo objeto pueda volver a avisar; 360 minutos por defecto.
-- **Archivo máximo de memoria del hogar (KB)**: límite estricto de 64 a 1.024 KB; 256 KB por defecto.
 - Si el archivo en disco esta activo, **Ask** lo usa por defecto: respeta fechas/rangos explicitos y, si no los indicas, busca en las ultimas 24 horas mas los eventos actuales en RAM.
 - **Incluir inventario del proyecto Node-RED**: incluye en el prompt el inventario de todo el proyecto Node-RED, con nodos KNX y otros nodos utiles como function/change/inject/template cuando contienen logica KNX o direcciones de grupo.
 - Los fragmentos pertinentes de la ayuda, README y ejemplos se incluyen siempre de forma automática.

@@ -14,14 +14,14 @@
 ## 命令（输入）
 发送 `msg.topic`：
 - `summary`（或空）：立即输出摘要
-- `reset`：清空内部历史、计数器和已学习的家庭记忆；AI 教育保持不变
+- `reset`：清空内部历史、计数器、已学习的家庭记忆和所有持久聊天上下文；AI 教育保持不变
 - `ask`：向已配置的 LLM 提问
 - `confirm` / `cancel`：无需再次调用 LLM，即可确认或取消待处理的 KNX 命令
-- `clear_chat`：清除当前会话的对话记忆
+- `clear_chat`：清除当前会话的最近对话、持久指令和待处理命令
 
 `ask` 的问题建议放在 `msg.prompt`，也可放在 `msg.payload`（字符串）或常见 Telegram 字段 `msg.payload.content` / `msg.payload.text`。
 
-启用 KNX 控制后，最近的对话会按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 保存在 RAM 中。将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
+每个 Ask/聊天会话都会保留最近 8 轮对话和最多 20 条明确的长期指令，并按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 隔离。像“请记住不要在回答中使用 unknown 这个词”这样的请求会成为持久指令。使用相同存储的所有 KNX AI 节点实时共享此上下文，并在 Node-RED 重启后从 `knxultimatestorage/knxai/memory/knxai-chat-context.md` 重新加载。该文件采用原子写入，最多保存 50 个会话且不超过 512 KB。启用 KNX 控制后，将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
 对于 DPT 1.xxx 写入，AI 生成的安全等价值 `true`/`false`、`1`/`0` 和 `on`/`off` 会在本地校验和输出前统一转换为真正的布尔值。
 
 ### 最新 KNX 读取
@@ -35,12 +35,14 @@
 
 随附的 **windkh/node-red-contrib-telegrambot** 预设遵循该包的 receiver/sender 消息约定。把 `telegram receiver` 直接连接到 KNX AI，并把输出 3 直接连接到 `telegram sender`。如需内联确认按钮，还要把配置为 `callback_query` 的 `telegram event` 连接到同一个 KNX AI 输入。输入映射会提取 `msg.payload.content`、`msg.payload.chatId` 和 Telegram 语言；输出映射会创建所需的 `msg.payload.chatId`、`type` 和 `content`，并在写入等待确认时从 `msg.knxAi.confirmationRequest` 添加 `options.reply_markup`。Telegram 包仍是独立的可选依赖项。
 
+随附的 **RedBot / node-red-contrib-chatbot (Telegram)** 预设遵循 RedBot 的通用消息格式。将 `chatbot-telegram-receive` 直接连接到 KNX AI，并将输出 3 直接连接到 `chatbot-telegram-send`；无需单独的 callback 节点，因为 RedBot 会把内联按钮的 postback 转换成普通入站消息。输入映射读取 `transport`、`chatId`、`type`、`content` 和 Telegram 语言。输出映射保留 RedBot 的 `originalMessage`、`chat`、`api` 和 `client` 跟踪数据，然后发送 `message` payload，或发送带有确认 `postback` 操作的 `inline-buttons` payload。RedBot 仍是独立的可选依赖项。
+
 ## 主动家庭智能与有限记忆
 **对话与家庭**中的**主动家庭与记忆**子部分以可选方式启用主动通知。节点会根据 ETS 层级、名称、角色和 DPT，使用意大利语、英语、德语、法语、西班牙语和中文术语，为卷帘、窗户、门、照明、温度、气候、占用和报警建立确定性的语义模型。首个主动检测器只监视可靠识别且非命令的卷帘/窗户/门状态。超过配置的打开时间且当前不在静默时段时，输出 3 会发送本地化消息，并设置 `msg.knxAi.type = "proactive_notification"`。节点绝不会主动使用输出 4，也不会自行修改 KNX；用户之后提出的任何操作仍须经过正常的校验与确认。
 
 最近一次聊天会话会被记为主人，也可以通过**主要接收者 / 聊天 ID**明确指定。合成的 `msg.inputMessage` 会保留接收者，使 Telegram 适配器能够发送主动通知。冷却时间和每小时最多三条主动通知可防止消息泛滥。
 
-学习到的参考文件会在启动时从 `<userDir>/knxai/memory/knxai-home-memory-<node-id>.md` 加载，每 15 分钟以原子方式重写，并严格限制在可配置的 64–1,024 KB（默认 256 KB）。最多保留 120 条重要观察、80 条聚合习惯、80 条通知和 300 个 ETS 语义对象，绝不会保存无限的原始报文流。较旧且优先级较低的项目会先被删除。**AI 教育**最多 16,000 个字符，并且始终来自节点配置：AI 可以将其作为权威指导读取，但不能修改或覆盖。如果已填写 AI 教育但 LLM 无法进行评估，候选通知会被抑制，以免违反用户指导。
+共享的学习参考文件会在启动时从 `<userDir>/knxai/memory/knxai-home-memory.md` 加载，每 15 分钟以原子方式重写，并始终严格限制为 5 MB。最多保留 120 条重要观察、80 条聚合习惯、80 条通知和 300 个 ETS 语义对象，绝不会保存无限的原始报文流。较旧且优先级较低的项目会先被删除。**AI 教育**最多 16,000 个字符，并且始终来自节点配置：AI 可以将其作为权威指导读取，但不能修改或覆盖。如果已填写 AI 教育但 LLM 无法进行评估，候选通知会被抑制，以免违反用户指导。
 
 ## 实用配置示例
 此示例创建一个简洁的助手：它会报告重要的长时间开启状态，但允许书房卷帘保持开启。
@@ -52,7 +54,6 @@
 | **开启多久后通知** (`proactiveOpenMinutes`) | `120` | 开启两小时后评估是否需要通知。 |
 | **静默时间开始 / 结束** | `23:00` / `07:00` | 夜间不会发送主动消息。 |
 | **重复冷却时间** (`proactiveCooldownMinutes`) | `360` | 同一对象六小时内不会再次通知。 |
-| **家庭记忆文件上限** (`homeMemoryMaxKb`) | `256` | 此节点的 Markdown 参考文件始终小于 256 KB。 |
 
 **AI 教育** (`aiEducation`) 示例：
 
@@ -116,7 +117,6 @@ KNX AI 会自动监听 `GroupValue_Write`、`GroupValue_Response` 和 `GroupValu
 - **静默时间开始 / 结束**：每天禁止主动消息的时间段。
 - **AI 教育**：仅由用户管理的权威指导，AI 可以读取但永远不能修改。
 - **重复冷却时间（分钟）**：同一对象再次通知前的最短间隔；默认 360 分钟。
-- **家庭记忆文件上限（KB）**：64 到 1,024 KB 的硬限制；默认 256 KB。
 - 如果启用了磁盘归档，**Ask** 默认会查询该归档：若问题里写了明确日期/时间范围就按其查询，否则默认查询最近 24 小时并补上当前 RAM 事件。
 - **包含 Node-RED 项目清单**：在提示词中加入整个 Node-RED 项目的节点清单，不仅包含 KNX 节点，也包含 function/change/inject/template 等在内且带有 KNX 逻辑或组地址的有用节点。
 - 相关的帮助、README 和示例片段始终会自动包含。
