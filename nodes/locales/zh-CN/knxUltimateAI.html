@@ -37,6 +37,11 @@
 
 随附的 **RedBot / node-red-contrib-chatbot (Telegram)** 预设遵循 RedBot 的通用消息格式。将 `chatbot-telegram-receive` 直接连接到 KNX AI，并将输出 3 直接连接到 `chatbot-telegram-send`；无需单独的 callback 节点，因为 RedBot 会把内联按钮的 postback 转换成普通入站消息。输入映射读取 `transport`、`chatId`、`type`、`content` 和 Telegram 语言。输出映射保留 RedBot 的 `originalMessage`、`chat`、`api` 和 `client` 跟踪数据，然后发送 `message` payload，或发送带有确认 `postback` 操作的 `inline-buttons` payload。RedBot 仍是独立的可选依赖项。
 
+### 自动检测的摄像机适配器
+已安装的摄像机软件包可以在运行时向 KNX AI 发布适配器。无需选择器，也无需将摄像机节点连接到 KNX AI：可用的适配器、控制器和摄像机会被自动检测并加入聊天上下文。`node-red-contrib-unifi-ultimate` 是首个受支持的提供方；`hikvision-ultimate` 等其他软件包可通过同一套厂商无关协议注册。
+
+用户可以请求当前快照，或询问视觉模型画面中可见的内容。Telegram 和 RedBot 预设会把图像作为带说明文字的原生照片发送。用户还可以为移动、智能越线或进入入侵/徘徊区域创建持久通知，并可按检测到的人员以及指定名称的线或区域进行限制。这些规则保存在同一个 `knxai-chat-context.md` 文件中，并在 Node-RED 重启后恢复。UniFi 事件订阅和快照请求直接通过检测到的提供方完成；不会使用 KNX AI 输出 4，也不需要中间 Flow 连线。
+
 ## 主动家庭智能与有限记忆
 **对话与家庭**中的**主动家庭与记忆**子部分以可选方式启用主动通知。节点会根据 ETS 层级、名称、角色和 DPT，使用意大利语、英语、德语、法语、西班牙语和中文术语，为卷帘、窗户、门、照明、温度、气候、占用和报警建立确定性的语义模型。首个主动检测器只监视可靠识别且非命令的卷帘/窗户/门状态。超过配置的打开时间且当前不在静默时段时，输出 3 会发送本地化消息，并设置 `msg.knxAi.type = "proactive_notification"`。节点绝不会主动使用输出 4，也不会自行修改 KNX；用户之后提出的任何操作仍须经过正常的校验与确认。
 

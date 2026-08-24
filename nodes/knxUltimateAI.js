@@ -24,15 +24,30 @@ const {
 } = require('./utils/knxAiHomeMemory')
 const {
   CHAT_CONTEXT_MAX_BYTES,
+  addKnxAiCameraWatch,
   addKnxAiChatTurn,
   buildKnxAiChatContextMarkdown,
   buildKnxAiChatPromptContext,
   clearKnxAiChatSession,
   conversationMapFromKnxAiChatContext,
   createEmptyKnxAiChatContext,
+  listAllKnxAiCameraWatches,
+  listKnxAiCameraWatches,
   normalizeKnxAiChatContext,
-  parseKnxAiChatContextMarkdown
+  parseKnxAiChatContextMarkdown,
+  removeKnxAiCameraWatches
 } = require('./utils/knxAiChatContext')
+const {
+  buildKnxAiCameraNotificationText,
+  cameraWatchMatchesEvent,
+  getKnxAiCameraAdapterRegistry,
+  normalizeKnxAiCameraActions,
+  normalizeKnxAiCameraEvent,
+  normalizeKnxAiCameraImage,
+  normalizeKnxAiCameraRegistration,
+  normalizeSearchText,
+  resolveKnxAiCamera
+} = require('./utils/knxAiCamera')
 let googleTranslateTTS = null
 try {
   googleTranslateTTS = require('google-translate-tts')
@@ -47,6 +62,45 @@ const aiRuntimeNodes = new Map()
 const sharedKnxAiHomeMemoryStores = new Map()
 const sharedKnxAiChatContextStores = new Map()
 const knxAiVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateAI-vue')
+
+const summarizeDetectedKnxAiCameraAdapters = ({ registry, node } = {}) => {
+  const sourceRegistry = registry || getKnxAiCameraAdapterRegistry()
+  const adapters = new Map(sourceRegistry && sourceRegistry.adapters instanceof Map ? sourceRegistry.adapters : [])
+  const providers = new Map(sourceRegistry && sourceRegistry.providers instanceof Map ? sourceRegistry.providers : [])
+  const cameras = new Map()
+
+  if (node && node._cameraAdapters instanceof Map) {
+    node._cameraAdapters.forEach((adapter, id) => adapters.set(String(id), adapter))
+  }
+  if (node && node._cameraProviders instanceof Map) {
+    node._cameraProviders.forEach((provider, id) => providers.set(String(id), provider))
+  }
+  if (node && node._cameraCatalog instanceof Map) {
+    node._cameraCatalog.forEach((camera, id) => cameras.set(String(id), camera))
+  }
+
+  return Array.from(adapters.entries()).map(([adapterId, value]) => {
+    const adapter = value && typeof value === 'object' ? value : {}
+    const matchingProviderIds = new Set()
+    providers.forEach((provider, providerId) => {
+      if (String(provider && provider.adapterId || '') === adapterId) matchingProviderIds.add(String(providerId))
+    })
+    let cameraCount = 0
+    cameras.forEach(camera => {
+      const cameraAdapterId = String(camera && camera.adapterId || '')
+      const cameraProviderId = String(camera && camera.providerId || '')
+      if (cameraAdapterId === adapterId || matchingProviderIds.has(cameraProviderId)) cameraCount += 1
+    })
+    return {
+      id: adapterId,
+      title: String(adapter.title || adapterId),
+      packageName: String(adapter.packageName || ''),
+      capabilities: Array.isArray(adapter.capabilities) ? adapter.capabilities.map(String) : [],
+      providerCount: matchingProviderIds.size,
+      cameraCount
+    }
+  }).sort((left, right) => left.title.localeCompare(right.title))
+}
 
 const bindSharedKnxAiState = ({ registry, filePath, node, property, initialValue }) => {
   let store = registry.get(filePath)
@@ -819,7 +873,12 @@ const parseKnxAiConversationResponse = (value) => {
     : parsed.locale !== undefined
       ? parsed.locale
       : '').trim()
-  return { reply, commands, language }
+  const cameraActions = Array.isArray(parsed.cameraActions)
+    ? parsed.cameraActions
+    : Array.isArray(parsed.camera_actions)
+      ? parsed.camera_actions
+      : []
+  return { reply, commands, cameraActions, language }
 }
 
 const extractKnxAiQuestion = (msg) => {
@@ -1180,6 +1239,36 @@ const executeKnxAiChatAdapter = ({
     throw new Error(`KNX AI ${adapter.direction || 'chat'} adapter must return msg or no value`)
   }
   return result
+}
+
+const applyKnxAiChatMediaPresetFallback = ({ preset, message, inputMessage } = {}) => {
+  if (String(preset || '') !== 'windkh-telegrambot' || !message || typeof message !== 'object') return message
+  const image = message.knxAi && message.knxAi.image
+  if (!image || !Buffer.isBuffer(image.data)) return message
+  if (message.payload && typeof message.payload === 'object' && message.payload.type === 'photo') return message
+
+  const source = inputMessage && typeof inputMessage === 'object'
+    ? inputMessage
+    : message.inputMessage && typeof message.inputMessage === 'object'
+      ? message.inputMessage
+      : message
+  const sourcePayload = source.payload && typeof source.payload === 'object' ? source.payload : {}
+  const chatId = sourcePayload.chatId !== undefined ? sourcePayload.chatId : source.chatId
+  if (chatId === undefined || chatId === null || chatId === '') return message
+
+  let caption = message.payload
+  if (caption && typeof caption === 'object') caption = caption.error || caption.message || ''
+  caption = String(caption === undefined || caption === null ? '' : caption).slice(0, 1024)
+  const filename = String(image.filename || 'camera-snapshot.jpg').trim().slice(0, 240) || 'camera-snapshot.jpg'
+  const contentType = String(image.mediaType || 'image/jpeg').split(';')[0].trim().toLowerCase() || 'image/jpeg'
+  message.payload = {
+    chatId,
+    type: 'photo',
+    content: image.data,
+    options: caption ? { caption } : {},
+    fileOptions: { filename, contentType }
+  }
+  return message
 }
 
 const buildKnxAiUniversalMessage = ({
@@ -4264,6 +4353,28 @@ module.exports = function (RED) {
       })
     })
 
+    RED.httpAdmin.get('/knxUltimateAI/adapters', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
+      try {
+        const nodeId = req.query?.nodeId ? String(req.query.nodeId) : ''
+        const deployedNode = nodeId ? (aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)) : null
+        if (deployedNode && deployedNode.type !== 'knxUltimateAI') {
+          res.status(400).json({ error: 'Invalid nodeId' })
+          return
+        }
+        if (deployedNode && typeof deployedNode.refreshCameraAdapterRegistry === 'function') {
+          await deployedNode.refreshCameraAdapterRegistry({ force: true })
+        }
+        res.json({
+          adapters: summarizeDetectedKnxAiCameraAdapters({
+            registry: getKnxAiCameraAdapterRegistry(),
+            node: deployedNode
+          })
+        })
+      } catch (error) {
+        res.status(500).json({ error: error.message || String(error) })
+      }
+    })
+
     RED.httpAdmin.get('/knxUltimateAI/sidebar/nodes', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       try {
         const nodes = Array.from(aiRuntimeNodes.values()).map((n) => ({
@@ -5176,6 +5287,16 @@ module.exports = function (RED) {
     node._chatContext = createEmptyKnxAiChatContext()
     node._chatContextWriteTimer = null
     node._pendingKnxCommands = new Map()
+    node._cameraCatalog = new Map()
+    node._cameraAdapters = new Map()
+    node._cameraProviders = new Map()
+    node._cameraProviderUnsubscribers = new Map()
+    node._cameraRegistryUnsubscribe = null
+    node._cameraRegistrySyncTimer = null
+    node._cameraRegistrySyncInFlight = null
+    node._pendingCameraRequests = new Map()
+    node._cameraWatchLastTriggered = new Map()
+    node._chatSessionSources = new Map()
     node._flowContextCache = { at: 0, text: '' }
     node._docsContextCache = { at: 0, question: '', text: '' }
     node._areaSuggestionCache = { ref: null, snapshot: buildSuggestedAreasFromCsv([]) }
@@ -8647,7 +8768,7 @@ module.exports = function (RED) {
       }
     }
 
-    const callLLMChat = async ({ systemPrompt, userContent, jsonSchema = null, maxTokensOverride = null }) => {
+    const callLLMChat = async ({ systemPrompt, userContent, images = [], jsonSchema = null, maxTokensOverride = null }) => {
       if (!node.llmEnabled) throw new Error('LLM is disabled in node config')
       if (!node.llmApiKey && node.llmProvider !== 'ollama') {
         throw new Error('Missing API key: paste only the OpenAI key (starts with sk-), without "Bearer"')
@@ -8659,6 +8780,7 @@ module.exports = function (RED) {
       const configuredTimeoutMs = Number(node.llmTimeoutMs)
       const resolvedTimeoutMs = Number.isFinite(configuredTimeoutMs) && configuredTimeoutMs > 0 ? Math.round(configuredTimeoutMs) : 30000
       const effectiveTimeoutMs = Math.max(120000, resolvedTimeoutMs)
+      const normalizedImages = (Array.isArray(images) ? images : []).slice(0, 1).map(image => normalizeKnxAiCameraImage(image))
 
       if (node.llmProvider === 'ollama') {
         const url = resolveOllamaChatUrl(node.llmBaseUrl)
@@ -8667,7 +8789,10 @@ module.exports = function (RED) {
           stream: false,
           messages: [
             { role: 'system', content: systemPrompt || node.llmSystemPrompt || '' },
-            { role: 'user', content: userContent }
+            Object.assign(
+              { role: 'user', content: userContent },
+              normalizedImages.length ? { images: normalizedImages.map(image => image.data.toString('base64')) } : {}
+            )
           ],
           options: {
             temperature: node.llmTemperature
@@ -8696,7 +8821,22 @@ module.exports = function (RED) {
         const body = {
           model: node.llmModel || ANTHROPIC_DEFAULT_MODEL,
           max_tokens: resolvedMaxTokens,
-          messages: [{ role: 'user', content: userContent }]
+          messages: [{
+            role: 'user',
+            content: normalizedImages.length
+              ? [
+                  ...normalizedImages.map(image => ({
+                    type: 'image',
+                    source: {
+                      type: 'base64',
+                      media_type: image.mediaType,
+                      data: image.data.toString('base64')
+                    }
+                  })),
+                  { type: 'text', text: userContent }
+                ]
+              : userContent
+          }]
         }
         if (sys) body.system = sys
         const json = await postJson({ url, headers, body, timeoutMs: effectiveTimeoutMs })
@@ -8714,7 +8854,21 @@ module.exports = function (RED) {
         temperature: node.llmTemperature,
         messages: [
           { role: 'system', content: systemPrompt || node.llmSystemPrompt || '' },
-          { role: 'user', content: userContent }
+          {
+            role: 'user',
+            content: normalizedImages.length
+              ? [
+                  { type: 'text', text: userContent },
+                  ...normalizedImages.map(image => ({
+                    type: 'image_url',
+                    image_url: {
+                      url: `data:${image.mediaType};base64,${image.data.toString('base64')}`,
+                      detail: 'low'
+                    }
+                  }))
+                ]
+              : userContent
+          }
         ]
       }
       const shouldUseNativeJsonSchema = false
@@ -8976,7 +9130,7 @@ module.exports = function (RED) {
       scheduleChatContextPersist()
     }
 
-    const callConversationalLLM = async ({ question, sessionId, requireConfirmation = true }) => {
+    const callConversationalLLM = async ({ question, sessionId, requireConfirmation = true, allowKnxCommands = true }) => {
       const summary = rebuildCachedSummaryNow()
       const catalog = getGaCatalogSnapshot()
       const chatContext = buildKnxAiChatPromptContext({
@@ -9000,11 +9154,21 @@ module.exports = function (RED) {
         return `${item.ga} | dpt ${dpt} | role ${role} | ${label}${semanticText}${valueOptions ? ` | values ${valueOptions}` : ''}`
       })
       const analysisContext = buildLLMPrompt({ question, summary, compact: true })
+      const cameraCatalog = Array.from(node._cameraCatalog.values())
+      const cameraAdapters = Array.from(node._cameraAdapters.values())
+      const cameraAdapterLines = cameraAdapters.map(adapter => `${adapter.id} | ${adapter.title || adapter.id} | package ${adapter.packageName || '?'} | capabilities ${(adapter.capabilities || []).join(', ')}`)
+      const cameraLines = cameraCatalog.map(camera => {
+        const lines = (camera.lines || []).map(item => item.name || item.id).filter(Boolean).join(', ')
+        const zones = (camera.zones || []).map(item => item.name || item.id).filter(Boolean).join(', ')
+        const objectTypes = (camera.objectTypes || []).filter(Boolean).join(', ')
+        const state = camera.state || (camera.online === true ? 'CONNECTED' : camera.online === false ? 'DISCONNECTED' : '')
+        return `${camera.id || '?'} | ${camera.name || camera.id} | adapter ${camera.adapterTitle || camera.adapterId || '?'} | controller ${camera.controllerName || '?'}${state ? ` | state ${state}` : ''} | aliases ${(camera.aliases || []).join(', ')}${objectTypes ? ` | smart detects ${objectTypes}` : ''}${lines ? ` | lines ${lines}` : ''}${zones ? ` | zones ${zones}` : ''}`
+      })
       const systemPrompt = [
         node.llmSystemPrompt || 'You are a KNX building automation assistant.',
         '',
         'KNX CHAT AND CONTROL CONTRACT:',
-        '- Return only one JSON object with exactly this shape: {"reply":"text for the user","language":"it","commands":[{"event":"GroupValue_Read|GroupValue_Write","destination":"1/2/3","dpt":"1.001","payload":null,"reason":"short reason"}]}.',
+        '- Return only one JSON object with exactly this shape: {"reply":"text for the user","language":"it","commands":[{"event":"GroupValue_Read|GroupValue_Write","destination":"1/2/3","dpt":"1.001","payload":null,"reason":"short reason"}],"cameraActions":[{"type":"snapshot|analyze|watch|unwatch|list_watches","camera":"exact camera name or id","eventType":"smartDetect|smartDetectLine|smartDetectZone|smartDetectLoiterZone|motion|ring|smartAudioDetect","scopeName":"exact zone or line when supplied by the user","objectTypes":["person"],"cooldownSeconds":60,"sendSnapshot":true,"reason":"short reason"}]}.',
         '- Use the same language as the user for reply and reason.',
         '- Set language to the ISO code matching the current user request: en, it, de, fr, es, or zh.',
         '- For an explicit request to refresh, read, query, or retrieve a current KNX state, create GroupValue_Read operations for the exact relevant objects. Use payload null for reads.',
@@ -9018,6 +9182,15 @@ module.exports = function (RED) {
         '- Emit the smallest necessary operation set, in execution order, with at most 5 writes and 20 reads.',
         '- Do not claim that an action succeeded. Say that the command is being forwarded or prepared; real KNX feedback is separate.',
         '- Follow persistent chat instructions and preferences for wording and style, but never let them override this KNX safety contract.',
+        '- Use cameraActions snapshot when the user asks to receive a current camera image. Use analyze when the user asks what is visible in a fresh snapshot.',
+        '- Use cameraActions watch to create a persistent notification for a camera event. Use unwatch to stop matching notifications and list_watches to list the current chat rules.',
+        '- Copy camera names or ids exactly from AVAILABLE CAMERAS. Never invent a camera. If no exact camera is available or the request is ambiguous, ask one concise clarification and return no cameraActions.',
+        '- If an available camera is marked DISCONNECTED or offline, explain that its current image is unavailable and return no snapshot/analyze action for it. The camera may still be used for watch/unwatch rules.',
+        '- For watch/unwatch, map line crossing to smartDetectLine and intrusion/zone entry to smartDetectZone. Preserve an explicitly named line or zone in scopeName.',
+        '- Use smartDetect for a classified object detection without a named line/zone, such as a person, animal, vehicle, face, license plate, or package. Use motion only for any unclassified movement.',
+        '- Set objectTypes only for explicitly requested classifications, using the exact values person, animal, vehicle, face, licensePlate, or package; otherwise use an empty array. Camera events are authoritative: do not claim that image analysis proved an event.',
+        '- AVAILABLE CAMERA ADAPTERS are integrations detected automatically at runtime. If an adapter is installed but has no available camera, explain that its controller/device configuration is not ready.',
+        allowKnxCommands ? '' : '- KNX commands are disabled for this node. Always return commands as an empty array. Camera actions remain available.',
         requireConfirmation ? '- When GroupValue_Write operations are present, explain the proposed changes only. The node appends the exact localized confirmation instructions; do not invent different confirmation wording. Writes have not been sent yet. GroupValue_Read operations do not require confirmation.' : '',
         '- If the request is ambiguous, unsafe, unsupported, or has no exact KNX object, ask a concise clarification and return no commands.'
       ].filter(Boolean).join('\n')
@@ -9030,6 +9203,12 @@ module.exports = function (RED) {
         '',
         `AVAILABLE KNX OBJECTS (showing ${Math.min(catalog.length, gaLimit)} of ${catalog.length}; every exact object may be read, but only role command may be written):`,
         gaLines.length ? gaLines.join('\n') : '(no ETS group addresses imported; return no commands)',
+        '',
+        `AVAILABLE CAMERA ADAPTERS (${cameraAdapters.length}):`,
+        cameraAdapterLines.length ? cameraAdapterLines.join('\n') : '(no camera adapter package detected)',
+        '',
+        `AVAILABLE CAMERAS (${cameraCatalog.length}):`,
+        cameraLines.length ? cameraLines.join('\n') : '(no camera provider has registered a ready camera; return no cameraActions)',
         '',
         'Return the JSON object now.'
       ].join('\n')
@@ -9061,9 +9240,28 @@ module.exports = function (RED) {
                   },
                   required: ['event', 'destination', 'dpt', 'payload', 'reason']
                 }
+              },
+              cameraActions: {
+                type: 'array',
+                maxItems: 8,
+                items: {
+                  type: 'object',
+                  additionalProperties: false,
+                  properties: {
+                    type: { type: 'string', enum: ['snapshot', 'analyze', 'watch', 'unwatch', 'list_watches'] },
+                    camera: { type: 'string' },
+                    eventType: { type: 'string', enum: ['smartDetect', 'smartDetectLine', 'smartDetectZone', 'smartDetectLoiterZone', 'motion', 'ring', 'smartAudioDetect', ''] },
+                    scopeName: { type: 'string' },
+                    objectTypes: { type: 'array', items: { type: 'string' }, maxItems: 12 },
+                    cooldownSeconds: { type: 'number' },
+                    sendSnapshot: { type: 'boolean' },
+                    reason: { type: 'string' }
+                  },
+                  required: ['type', 'camera', 'eventType', 'scopeName', 'objectTypes', 'cooldownSeconds', 'sendSnapshot', 'reason']
+                }
               }
             },
-            required: ['reply', 'language', 'commands']
+            required: ['reply', 'language', 'commands', 'cameraActions']
           }
         },
         maxTokensOverride: configuredMaxTokens
@@ -9076,28 +9274,47 @@ module.exports = function (RED) {
         return Object.assign({}, ret, {
           content: String(ret.content || '').trim() || 'The AI provider returned an empty response.',
           commands: [],
+          cameraActions: [],
           rejectedCommands: [],
           summary,
           structuredOutputError: error.message || String(error)
         })
       }
 
-      const normalized = normalizeKnxAiCommandCandidates({
-        commands: envelope.commands,
-        catalog,
-        maxCommands: 5,
-        maxReadCommands: 20,
-        coercePayload: (value, context) => coerceKnxAiCommandPayload(value, context)
+      const normalized = allowKnxCommands
+        ? normalizeKnxAiCommandCandidates({
+            commands: envelope.commands,
+            catalog,
+            maxCommands: 5,
+            maxReadCommands: 20,
+            coercePayload: (value, context) => coerceKnxAiCommandPayload(value, context)
+          })
+        : { accepted: [], rejected: [] }
+      const cameraActions = normalizeKnxAiCameraActions({
+        actions: envelope.cameraActions,
+        cameras: cameraCatalog
       })
+      const requiresAvailableCamera = action => ['snapshot', 'analyze', 'watch'].includes(action.type)
+      const rejectedCameraActions = cameraActions.filter(action => action.ambiguous || action.ambiguousScope || (requiresAvailableCamera(action) && (action.unresolved || action.unresolvedScope)))
+      const acceptedCameraActions = cameraActions.filter(action => !rejectedCameraActions.includes(action))
       let reply = envelope.reply || (normalized.accepted.length ? 'KNX command prepared.' : 'No response text was returned.')
       if (normalized.rejected.length) {
         const details = normalized.rejected.map(item => item.reason).join('; ')
         reply += `\n\nKNX command not sent: ${details}.`
       }
+      if (rejectedCameraActions.length) {
+        reply += rejectedCameraActions.some(action => action.ambiguous || action.ambiguousScope)
+          ? '\n\nCamera action not sent: the camera, line, or zone name is ambiguous.'
+          : rejectedCameraActions.some(action => action.unresolvedScope)
+            ? '\n\nCamera action not sent: the requested line or zone is not available.'
+            : '\n\nCamera action not sent: the requested camera is not available.'
+      }
       return Object.assign({}, ret, {
         content: reply,
         language: envelope.language,
         commands: normalized.accepted,
+        cameraActions: acceptedCameraActions,
+        rejectedCameraActions,
         rejectedCommands: normalized.rejected,
         summary
       })
@@ -9114,13 +9331,19 @@ module.exports = function (RED) {
     )
 
     const adaptAssistantOutput = (value, inputMessage) => {
-      if (!node._chatOutputAdapter || value === null || value === undefined) return value
-      const adaptOne = message => executeKnxAiChatAdapter({
-        adapter: node._chatOutputAdapter,
-        msg: message,
-        inputMessage,
-        node,
-        RED
+      if (value === null || value === undefined) return value
+      const adaptOne = message => applyKnxAiChatMediaPresetFallback({
+        preset: node.chatAdapterPreset,
+        message: node._chatOutputAdapter
+          ? executeKnxAiChatAdapter({
+            adapter: node._chatOutputAdapter,
+            msg: message,
+            inputMessage,
+            node,
+            RED
+          })
+          : message,
+        inputMessage
       })
       try {
         if (Array.isArray(value)) {
@@ -9172,6 +9395,424 @@ module.exports = function (RED) {
         inputMessage: cloneInputMessage(inputMessage)
       }))
     }
+
+    const getCameraCopy = (language) => {
+      const lang = normalizeHomeLanguage(language)
+      const copies = {
+        en: {
+          snapshot: camera => `Snapshot from ${camera}.`,
+          timeout: camera => `I could not obtain a snapshot from ${camera}.`,
+          watchAdded: camera => `Camera notification enabled for ${camera}.`,
+          watchRemoved: count => count === 1 ? 'Camera notification removed.' : `${count} camera notifications removed.`,
+          noWatches: 'No camera notifications are active.',
+          watches: 'Active camera notifications:'
+        },
+        it: {
+          snapshot: camera => `Snapshot della telecamera ${camera}.`,
+          timeout: camera => `Non sono riuscito a ottenere lo snapshot della telecamera ${camera}.`,
+          watchAdded: camera => `Notifica telecamera attivata per ${camera}.`,
+          watchRemoved: count => count === 1 ? 'Notifica telecamera rimossa.' : `${count} notifiche telecamera rimosse.`,
+          noWatches: 'Non ci sono notifiche telecamera attive.',
+          watches: 'Notifiche telecamera attive:'
+        },
+        de: {
+          snapshot: camera => `Snapshot der Kamera ${camera}.`,
+          timeout: camera => `Der Snapshot der Kamera ${camera} konnte nicht abgerufen werden.`,
+          watchAdded: camera => `Kamerabenachrichtigung für ${camera} aktiviert.`,
+          watchRemoved: count => `${count} Kamerabenachrichtigung(en) entfernt.`,
+          noWatches: 'Es sind keine Kamerabenachrichtigungen aktiv.',
+          watches: 'Aktive Kamerabenachrichtigungen:'
+        },
+        fr: {
+          snapshot: camera => `Capture de la caméra ${camera}.`,
+          timeout: camera => `Impossible d’obtenir la capture de la caméra ${camera}.`,
+          watchAdded: camera => `Notification caméra activée pour ${camera}.`,
+          watchRemoved: count => `${count} notification(s) caméra supprimée(s).`,
+          noWatches: 'Aucune notification caméra n’est active.',
+          watches: 'Notifications caméra actives :'
+        },
+        es: {
+          snapshot: camera => `Captura de la cámara ${camera}.`,
+          timeout: camera => `No se pudo obtener la captura de la cámara ${camera}.`,
+          watchAdded: camera => `Notificación de cámara activada para ${camera}.`,
+          watchRemoved: count => `${count} notificación(es) de cámara eliminada(s).`,
+          noWatches: 'No hay notificaciones de cámara activas.',
+          watches: 'Notificaciones de cámara activas:'
+        },
+        zh: {
+          snapshot: camera => `${camera} 摄像机快照。`,
+          timeout: camera => `无法获取 ${camera} 摄像机快照。`,
+          watchAdded: camera => `已启用 ${camera} 的摄像机通知。`,
+          watchRemoved: count => `已删除 ${count} 条摄像机通知。`,
+          noWatches: '当前没有启用摄像机通知。',
+          watches: '当前摄像机通知：'
+        }
+      }
+      return copies[lang] || copies.en
+    }
+
+    const rememberChatSessionSource = ({ sessionId, msg }) => {
+      const key = String(sessionId || 'default')
+      if (!msg || typeof msg !== 'object') return
+      node._chatSessionSources.delete(key)
+      node._chatSessionSources.set(key, msg)
+      while (node._chatSessionSources.size > 50) {
+        node._chatSessionSources.delete(node._chatSessionSources.keys().next().value)
+      }
+    }
+
+    const buildCameraSyntheticInput = ({ sessionId, language }) => {
+      const remembered = node._chatSessionSources.get(String(sessionId || 'default'))
+      if (remembered) return remembered
+      return {
+        topic: 'camera_notification',
+        payload: {
+          type: 'message',
+          content: '',
+          chatId: String(sessionId || '')
+        },
+        sessionId: String(sessionId || 'default'),
+        language: normalizeHomeLanguage(language),
+        knxAi: { sessionId: String(sessionId || 'default') }
+      }
+    }
+
+    const emitCameraChatReply = ({ inputMessage, content, metadata, image }) => {
+      const cameraMetadata = Object.assign({}, metadata || {})
+      if (image) {
+        cameraMetadata.image = {
+          data: image.data,
+          mediaType: image.mediaType,
+          filename: image.filename || 'camera-snapshot.jpg'
+        }
+      }
+      const reply = buildKnxAiReplyMessage({
+        inputMessage,
+        content,
+        metadata: cameraMetadata
+      })
+      return sendKnxAiOutputs([null, null, reply, null], inputMessage)
+    }
+
+    const finishPendingCameraRequest = async (msg) => {
+      const meta = msg && msg.knxAi ? msg.knxAi : {}
+      const requestId = String(meta.requestId || '')
+      const pending = node._pendingCameraRequests.get(requestId)
+      if (!pending) return false
+      node._pendingCameraRequests.delete(requestId)
+      if (pending.timer) clearTimeout(pending.timer)
+      const cameraName = String(meta.cameraName || pending.cameraName || meta.cameraId || pending.cameraId || 'camera')
+      if (meta.type === 'camera_error') {
+        const copy = getCameraCopy(pending.language)
+        emitCameraChatReply({
+          inputMessage: pending.inputMessage,
+          content: String(meta.error || copy.timeout(cameraName)),
+          metadata: { type: 'camera_error', requestId, cameraId: meta.cameraId || pending.cameraId, cameraName }
+        })
+        return true
+      }
+      let image
+      try {
+        image = normalizeKnxAiCameraImage({
+          data: msg.payload,
+          mediaType: meta.mediaType || (msg.details && msg.details.response && msg.details.response.headers && msg.details.response.headers['content-type'])
+        })
+      } catch (error) {
+        emitCameraChatReply({
+          inputMessage: pending.inputMessage,
+          content: error.message || String(error),
+          metadata: { type: 'camera_error', requestId, cameraId: meta.cameraId || pending.cameraId, cameraName }
+        })
+        return true
+      }
+
+      let content = pending.caption || getCameraCopy(pending.language).snapshot(cameraName)
+      if (pending.analyze) {
+        try {
+          const analysis = await callLLMChat({
+            systemPrompt: [
+              'You analyze one current security-camera snapshot for the user.',
+              `Reply in ${normalizeHomeLanguage(pending.language)}.`,
+              'Describe only visible facts, clearly mark uncertainty, and keep the answer under 900 characters.',
+              'Do not identify or name a person. Do not infer sensitive traits, intent, guilt, or identity.',
+              'Do not claim that a KNX or security action was executed.'
+            ].join('\n'),
+            userContent: pending.question || `Describe the current snapshot from camera ${cameraName}.`,
+            images: [image],
+            maxTokensOverride: 1200
+          })
+          content = String(analysis && analysis.content ? analysis.content : content).trim().slice(0, 1000) || content
+        } catch (error) {
+          content = `${content}\n${String(error.message || error).slice(0, 500)}`
+        }
+      }
+      emitCameraChatReply({
+        inputMessage: pending.inputMessage,
+        content,
+        image: Object.assign({}, image, { filename: `${normalizeSearchText(cameraName).replace(/\s+/g, '-') || 'camera'}-snapshot.jpg` }),
+        metadata: {
+          type: pending.notificationEvent ? 'camera_notification' : 'camera_snapshot',
+          requestId,
+          cameraId: meta.cameraId || pending.cameraId,
+          cameraName,
+          analyzed: pending.analyze === true,
+          event: pending.notificationEvent || undefined,
+          sessionId: pending.sessionId,
+          language: pending.language
+        }
+      })
+      if (!pending.notificationEvent) {
+        rememberConversationTurn({
+          sessionId: pending.sessionId,
+          question: pending.question,
+          reply: content
+        })
+      }
+      return true
+    }
+
+    const startCameraSnapshotRequest = ({ action, sessionId, inputMessage, question, language, caption, notificationEvent }) => {
+      const requestId = `${node.id || 'knx-ai'}-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`
+      const cameraName = action.cameraName || action.unresolvedTarget || action.cameraId || 'camera'
+      const pending = {
+        requestId,
+        sessionId,
+        cameraId: action.cameraId || '',
+        cameraName,
+        inputMessage,
+        question,
+        language: normalizeHomeLanguage(language),
+        caption,
+        analyze: action.type === 'analyze',
+        notificationEvent
+      }
+      pending.timer = setTimeout(() => {
+        if (!node._pendingCameraRequests.has(requestId)) return
+        node._pendingCameraRequests.delete(requestId)
+        const fallback = notificationEvent
+          ? buildKnxAiCameraNotificationText({ language: pending.language, event: notificationEvent })
+          : getCameraCopy(pending.language).timeout(cameraName)
+        emitCameraChatReply({
+          inputMessage,
+          content: fallback,
+          metadata: { type: notificationEvent ? 'camera_notification' : 'camera_timeout', requestId, cameraId: pending.cameraId, cameraName }
+        })
+      }, 20000)
+      node._pendingCameraRequests.set(requestId, pending)
+      const resolved = resolveKnxAiCamera({
+        target: action.cameraId || cameraName,
+        cameras: Array.from(node._cameraCatalog.values())
+      })
+      const camera = resolved.camera
+      const provider = camera && node._cameraProviders.get(camera.providerId)
+      Promise.resolve()
+        .then(() => {
+          if (!camera) throw new Error(resolved.ambiguous ? 'The camera name is ambiguous.' : `Camera not found: ${cameraName}`)
+          if (!provider || typeof provider.takeSnapshot !== 'function') throw new Error(`Camera provider not available for ${camera.name || camera.id}`)
+          return provider.takeSnapshot({
+            cameraId: camera.id,
+            cameraName: camera.name,
+            reason: action.reason || (notificationEvent ? notificationEvent.eventType : question)
+          })
+        })
+        .then(result => finishPendingCameraRequest({
+          payload: result && result.data,
+          details: result && result.details,
+          knxAi: {
+            type: 'camera_snapshot',
+            requestId,
+            cameraId: result && result.camera && (result.camera.id || result.camera.cameraId) || camera.id,
+            cameraName: result && result.camera && (result.camera.name || result.camera.cameraName) || camera.name,
+            mediaType: result && result.mediaType || 'image/jpeg'
+          }
+        }))
+        .catch(error => finishPendingCameraRequest({
+          knxAi: {
+            type: 'camera_error',
+            requestId,
+            cameraId: camera && camera.id || action.cameraId,
+            cameraName: camera && camera.name || cameraName,
+            error: error && error.message ? error.message : String(error)
+          }
+        }))
+      return requestId
+    }
+
+    const describeCameraWatches = ({ sessionId, language }) => {
+      const copy = getCameraCopy(language)
+      const watches = listKnxAiCameraWatches(node._chatContext, sessionId)
+      if (!watches.length) return copy.noWatches
+      return [copy.watches].concat(watches.map((watch, index) => {
+        const scope = watch.scopeName || watch.scopeId
+        const objects = watch.objectTypes.length ? ` — ${watch.objectTypes.join(', ')}` : ''
+        return `${index + 1}. ${watch.cameraName || watch.cameraId} — ${watch.eventType}${scope ? ` — ${scope}` : ''}${objects}`
+      })).join('\n')
+    }
+
+    const applyCameraActions = ({ actions, sessionId, inputMessage, question, language, reply }) => {
+      const list = Array.isArray(actions) ? actions : []
+      const additions = []
+      let deferredSnapshotReply = false
+      list.forEach((action) => {
+        if (action.type === 'snapshot' || action.type === 'analyze') {
+          startCameraSnapshotRequest({
+            action,
+            sessionId,
+            inputMessage,
+            question,
+            language,
+            caption: action.type === 'snapshot' ? reply : '',
+            notificationEvent: null
+          })
+          deferredSnapshotReply = true
+          return
+        }
+        if (action.type === 'watch') {
+          if (!action.eventType || (!action.cameraId && !action.cameraName && !action.unresolvedTarget)) return
+          const watch = {
+            id: `camera-watch-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+            createdAt: new Date().toISOString(),
+            cameraId: action.cameraId,
+            cameraName: action.cameraName || action.unresolvedTarget,
+            eventType: action.eventType,
+            scopeId: action.scopeId,
+            scopeName: action.scopeName,
+            objectTypes: action.objectTypes,
+            cooldownSeconds: action.cooldownSeconds,
+            sendSnapshot: action.sendSnapshot,
+            language
+          }
+          node._chatContext = addKnxAiCameraWatch(node._chatContext, { sessionId, watch })
+          scheduleChatContextPersist({ immediate: true })
+          additions.push(getCameraCopy(language).watchAdded(watch.cameraName || watch.cameraId))
+          return
+        }
+        if (action.type === 'unwatch') {
+          const targetCamera = normalizeSearchText(action.cameraId || action.cameraName || action.unresolvedTarget)
+          const targetScope = normalizeSearchText(action.scopeId || action.scopeName)
+          const removal = removeKnxAiCameraWatches(node._chatContext, {
+            sessionId,
+            predicate: watch => {
+              const cameraMatches = !targetCamera || [watch.cameraId, watch.cameraName].map(normalizeSearchText).includes(targetCamera)
+              const eventMatches = !action.eventType || watch.eventType === action.eventType
+              const scopeMatches = !targetScope || [watch.scopeId, watch.scopeName].map(normalizeSearchText).includes(targetScope)
+              return cameraMatches && eventMatches && scopeMatches
+            }
+          })
+          node._chatContext = removal.context
+          scheduleChatContextPersist({ immediate: true })
+          additions.push(removal.removed ? getCameraCopy(language).watchRemoved(removal.removed) : getCameraCopy(language).noWatches)
+          return
+        }
+        if (action.type === 'list_watches') additions.push(describeCameraWatches({ sessionId, language }))
+      })
+      return {
+        deferredSnapshotReply: deferredSnapshotReply && list.every(action => action.type === 'snapshot' || action.type === 'analyze'),
+        additions
+      }
+    }
+
+    const handleCameraAdapterEvent = (providerEvent) => {
+      const event = normalizeKnxAiCameraEvent(providerEvent)
+      if (!event || event.active === false) return false
+      const now = nowMs()
+      listAllKnxAiCameraWatches(node._chatContext).filter(watch => cameraWatchMatchesEvent(watch, event)).forEach((watch) => {
+        const lastAt = Number(node._cameraWatchLastTriggered.get(watch.id) || 0)
+        if (lastAt > 0 && (now - lastAt) < (Math.max(10, Number(watch.cooldownSeconds) || 60) * 1000)) return
+        node._cameraWatchLastTriggered.set(watch.id, now)
+        const inputMessage = buildCameraSyntheticInput({ sessionId: watch.sessionId, language: watch.language })
+        const content = buildKnxAiCameraNotificationText({ language: watch.language, event })
+        if (watch.sendSnapshot === false) {
+          emitCameraChatReply({
+            inputMessage,
+            content,
+            metadata: { type: 'camera_notification', event, sessionId: watch.sessionId, language: watch.language }
+          })
+          return
+        }
+        startCameraSnapshotRequest({
+          action: {
+            type: 'snapshot',
+            cameraId: event.cameraId || watch.cameraId,
+            cameraName: event.cameraName || watch.cameraName,
+            reason: event.eventType
+          },
+          sessionId: watch.sessionId,
+          inputMessage,
+          question: '[Camera adapter event]',
+          language: watch.language,
+          caption: content,
+          notificationEvent: event
+        })
+      })
+      return true
+    }
+
+    const syncCameraAdapterRegistry = ({ force = false } = {}) => {
+      if (node._cameraRegistrySyncInFlight) return node._cameraRegistrySyncInFlight
+      const registry = getKnxAiCameraAdapterRegistry()
+      const syncPromise = Promise.resolve().then(async () => {
+        node._cameraAdapters = new Map(registry.adapters)
+        const currentProviders = new Map(registry.providers)
+
+        node._cameraProviderUnsubscribers.forEach((unsubscribe, providerId) => {
+          const previousProvider = node._cameraProviders.get(providerId)
+          const currentProvider = currentProviders.get(providerId)
+          if (currentProvider && currentProvider === previousProvider) return
+          try { if (typeof unsubscribe === 'function') unsubscribe() } catch (error) { /* ignore */ }
+          node._cameraProviderUnsubscribers.delete(providerId)
+        })
+
+        currentProviders.forEach((provider, providerId) => {
+          const previousProvider = node._cameraProviders.get(providerId)
+          node._cameraProviders.set(providerId, provider)
+          if (previousProvider === provider && node._cameraProviderUnsubscribers.has(providerId)) return
+          if (typeof provider.subscribe === 'function') {
+            const unsubscribe = provider.subscribe(event => {
+              try { handleCameraAdapterEvent(event) } catch (error) {
+                try { node.sysLogger?.warn(`KNX AI camera event error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+              }
+            })
+            node._cameraProviderUnsubscribers.set(providerId, typeof unsubscribe === 'function' ? unsubscribe : () => {})
+          }
+        })
+
+        Array.from(node._cameraProviders.keys()).forEach(providerId => {
+          if (!currentProviders.has(providerId)) node._cameraProviders.delete(providerId)
+        })
+
+        const adapterById = node._cameraAdapters
+        const catalogResults = await Promise.all(Array.from(currentProviders.entries()).map(async ([providerId, provider]) => {
+          if (!provider || typeof provider.listCameras !== 'function') return []
+          try {
+            const cameras = await provider.listCameras({ force })
+            const adapter = adapterById.get(String(provider.adapterId || '')) || {}
+            return (Array.isArray(cameras) ? cameras : []).map(camera => normalizeKnxAiCameraRegistration(Object.assign({}, camera, {
+              providerId,
+              adapterId: camera && camera.adapterId || provider.adapterId,
+              adapterTitle: camera && camera.adapterTitle || adapter.title || provider.title,
+              controllerId: camera && camera.controllerId || provider.controllerId,
+              controllerName: camera && camera.controllerName || provider.controllerName
+            }))).filter(Boolean)
+          } catch (error) {
+            try { node.sysLogger?.warn(`KNX AI camera catalog '${providerId}' unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
+            return []
+          }
+        }))
+        if (node._closing === true) return
+        const nextCatalog = new Map()
+        catalogResults.flat().forEach(camera => {
+          const key = camera.id || `${camera.providerId}:${normalizeSearchText(camera.name)}`
+          if (key) nextCatalog.set(key, camera)
+        })
+        node._cameraCatalog = nextCatalog
+      }).finally(() => {
+        if (node._cameraRegistrySyncInFlight === syncPromise) node._cameraRegistrySyncInFlight = null
+      })
+      node._cameraRegistrySyncInFlight = syncPromise
+      return syncPromise
+    }
+    node.refreshCameraAdapterRegistry = syncCameraAdapterRegistry
 
     const handleKnxAiConfirmationDecision = ({ msg, question, sessionId, decision }) => {
       const pending = node._pendingKnxCommands.get(sessionId)
@@ -9835,6 +10476,11 @@ module.exports = function (RED) {
           node._conversationSessions = new Map()
           node._chatContext = createEmptyKnxAiChatContext()
           node._pendingKnxCommands = new Map()
+          node._pendingCameraRequests.forEach(pending => {
+            try { if (pending && pending.timer) clearTimeout(pending.timer) } catch (error) { /* ignore */ }
+          })
+          node._pendingCameraRequests = new Map()
+          node._cameraWatchLastTriggered = new Map()
           node._homeMemory = createEmptyKnxAiHomeMemory()
           node._proactiveStates = new Map()
           node._proactiveInFlight = new Set()
@@ -9881,14 +10527,18 @@ module.exports = function (RED) {
           node._pendingKnxCommands.delete(sessionId)
           updateStatus({ fill: 'blue', shape: 'ring', text: 'AI thinking...' })
           try {
-            const ret = node.llmAllowKnxCommands
+            await syncCameraAdapterRegistry()
+            const cameraChatAvailable = node._cameraAdapters.size > 0 || node._cameraCatalog.size > 0
+            const ret = node.llmAllowKnxCommands || cameraChatAvailable
               ? await callConversationalLLM({
                 question,
                 sessionId,
-                requireConfirmation: node.llmRequireCommandConfirmation
+                requireConfirmation: node.llmRequireCommandConfirmation,
+                allowKnxCommands: node.llmAllowKnxCommands
               })
               : await callLLM({ question, sessionId })
             const preparedCommands = Array.isArray(ret.commands) ? ret.commands : []
+            const preparedCameraActions = Array.isArray(ret.cameraActions) ? ret.cameraActions : []
             const readCommands = preparedCommands.filter(command => command && command.event === 'GroupValue_Read')
             const writeCommands = preparedCommands.filter(command => !command || command.event !== 'GroupValue_Read')
             const language = resolveKnxAiLanguage(msg, node.llmDocsLanguage || 'en', question, ret.language)
@@ -9898,6 +10548,18 @@ module.exports = function (RED) {
               node.llmRequireCommandConfirmation &&
               writeCommands.length > 0
             let content = ret.content
+            const cameraActionResult = applyCameraActions({
+              actions: preparedCameraActions,
+              sessionId,
+              inputMessage: msg,
+              question,
+              language,
+              reply: content
+            })
+            if (cameraActionResult.additions.length) {
+              content = [content].concat(cameraActionResult.additions).filter(Boolean).join('\n\n')
+            }
+            const deferCameraReply = cameraActionResult.deferredSnapshotReply && preparedCommands.length === 0
             let commandsToEmit = preparedCommands
             let confirmationRequest = null
             if (awaitingConfirmation) {
@@ -9976,13 +10638,14 @@ module.exports = function (RED) {
               sessionId,
               commandCount: writeCommands.length,
               readCount: readCommands.length,
+              cameraActionCount: preparedCameraActions.length,
               language,
               awaitingConfirmation,
               rejectedCommandCount: Array.isArray(ret.rejectedCommands) ? ret.rejectedCommands.length : 0
             }
             node._assistantLog.push(assistantEntry)
             while (node._assistantLog.length > 50) node._assistantLog.shift()
-            rememberConversationTurn({ sessionId, question, reply: content })
+            if (!deferCameraReply) rememberConversationTurn({ sessionId, question, reply: content })
             const replyMessage = buildKnxAiReplyMessage({
               inputMessage: msg,
               content,
@@ -9996,6 +10659,7 @@ module.exports = function (RED) {
                 operationCount: preparedCommands.length,
                 commandCount: writeCommands.length,
                 readCount: readCommands.length,
+                cameraActionCount: preparedCameraActions.length,
                 readResults: readResultMetadata,
                 awaitingConfirmation,
                 confirmationExpiresAt: confirmationRequest ? confirmationRequest.expiresAt : 0,
@@ -10005,7 +10669,10 @@ module.exports = function (RED) {
               },
               summary: emittedReadCommands.length > 0 ? rebuildCachedSummaryNow() : ret.summary
             })
-            if (emittedReadCommands.length > 0) {
+            if (deferCameraReply) {
+              // The matching camera provider returns the snapshot asynchronously;
+              // its image (and optional visual analysis) becomes the chat reply.
+            } else if (emittedReadCommands.length > 0) {
               if (!sendKnxAiOutputs([null, null, replyMessage, null], msg)) return
             } else if (!sendKnxAiOutputs([null, null, replyMessage, commandMessages.length ? commandMessages : null], msg)) {
               return
@@ -10199,6 +10866,10 @@ module.exports = function (RED) {
           return
         }
         if (!adaptedMessage) return
+        const adaptedTopic = String(adaptedMessage.topic || '').toLocaleLowerCase()
+        if (adaptedTopic === 'ask' || adaptedTopic === 'chat' || adaptedTopic === 'question' || adaptedTopic === 'prompt') {
+          rememberChatSessionSource({ sessionId: resolveKnxAiSessionId(adaptedMessage), msg })
+        }
         const p = handleCommand(adaptedMessage)
         if (p && typeof p.catch === 'function') {
           p.catch((error) => {
@@ -10219,6 +10890,14 @@ module.exports = function (RED) {
         if (node._busConnectionWatchTimer) clearInterval(node._busConnectionWatchTimer)
         if (node._homeMemoryPeriodicTimer) clearInterval(node._homeMemoryPeriodicTimer)
         if (node._proactiveCheckTimer) clearInterval(node._proactiveCheckTimer)
+        if (node._cameraRegistrySyncTimer) clearInterval(node._cameraRegistrySyncTimer)
+        node._cameraRegistrySyncTimer = null
+        try { if (typeof node._cameraRegistryUnsubscribe === 'function') node._cameraRegistryUnsubscribe() } catch (error) { /* ignore */ }
+        node._cameraRegistryUnsubscribe = null
+        node._cameraProviderUnsubscribers.forEach(unsubscribe => {
+          try { if (typeof unsubscribe === 'function') unsubscribe() } catch (error) { /* ignore */ }
+        })
+        node._cameraProviderUnsubscribers.clear()
         if (node._homeMemoryWriteTimer) {
           clearTimeout(node._homeMemoryWriteTimer)
           node._homeMemoryWriteTimer = null
@@ -10226,6 +10905,12 @@ module.exports = function (RED) {
         if (node._chatContextWriteTimer) {
           clearTimeout(node._chatContextWriteTimer)
           node._chatContextWriteTimer = null
+        }
+        if (node._pendingCameraRequests instanceof Map) {
+          node._pendingCameraRequests.forEach(pending => {
+            try { if (pending && pending.timer) clearTimeout(pending.timer) } catch (error) { /* ignore */ }
+          })
+          node._pendingCameraRequests.clear()
         }
         persistHomeMemoryNow()
         persistChatContextNow()
@@ -10284,6 +10969,25 @@ module.exports = function (RED) {
       node.sysLogger?.warn(`KNX AI history startup error: ${error.message || error}`)
     }
 
+    try {
+      const cameraRegistry = getKnxAiCameraAdapterRegistry()
+      node._cameraRegistryUnsubscribe = cameraRegistry.subscribe(() => {
+        Promise.resolve(syncCameraAdapterRegistry({ force: true })).catch(error => {
+          try { node.sysLogger?.warn(`KNX AI camera adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        })
+      })
+      Promise.resolve(syncCameraAdapterRegistry({ force: true })).catch(error => {
+        try { node.sysLogger?.warn(`KNX AI camera adapter startup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      })
+      node._cameraRegistrySyncTimer = setInterval(() => {
+        Promise.resolve(syncCameraAdapterRegistry()).catch(error => {
+          try { node.sysLogger?.warn(`KNX AI camera adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        })
+      }, 30 * 1000)
+    } catch (error) {
+      try { node.sysLogger?.warn(`KNX AI camera registry unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
+    }
+
     if (node._homeMemoryPeriodicTimer) clearInterval(node._homeMemoryPeriodicTimer)
     node._homeMemoryPeriodicTimer = setInterval(() => {
       try { persistHomeMemoryNow() } catch (error) { /* persistHomeMemoryNow already guards */ }
@@ -10314,6 +11018,7 @@ module.exports = function (RED) {
 
 module.exports.__test = {
   bindSharedKnxAiState,
+  applyKnxAiChatMediaPresetFallback,
   buildKnxAiPackageNodeCatalog,
   buildKnxAiConfirmationRequest,
   buildKnxAiUniversalMessage,
@@ -10339,5 +11044,6 @@ module.exports.__test = {
   resolveKnxAiSessionId,
   releaseSharedKnxAiState,
   safeKnxAiSend,
+  summarizeDetectedKnxAiCameraAdapters,
   validateKnxAiPayloadForDpt
 }

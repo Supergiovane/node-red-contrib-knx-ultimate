@@ -4,6 +4,7 @@ const path = require('path')
 const vm = require('vm')
 
 const {
+  applyKnxAiChatMediaPresetFallback,
   bindSharedKnxAiState,
   buildKnxAiConfirmationRequest,
   buildKnxAiUniversalMessage,
@@ -27,12 +28,14 @@ const {
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,
   releaseSharedKnxAiState,
-  safeKnxAiSend
+  safeKnxAiSend,
+  summarizeDetectedKnxAiCameraAdapters
 } = require('../nodes/knxUltimateAI').__test
 const chatAdapterMappings = require('../resources/KNXAIChatAdapterMappings')
 const {
   CHAT_CONTEXT_MAX_SESSIONS,
   CHAT_CONTEXT_MAX_TURNS_PER_SESSION,
+  addKnxAiCameraWatch,
   addKnxAiChatTurn,
   buildKnxAiChatContextMarkdown,
   buildKnxAiChatPromptContext,
@@ -41,8 +44,20 @@ const {
   createEmptyKnxAiChatContext,
   extractExplicitKnxAiChatInstruction,
   getKnxAiChatSession,
+  listAllKnxAiCameraWatches,
   parseKnxAiChatContextMarkdown
 } = require('../nodes/utils/knxAiChatContext')
+const {
+  KNX_AI_CAMERA_IMAGE_MAX_BYTES,
+  KNX_AI_CAMERA_REGISTRY_KEY,
+  buildKnxAiCameraNotificationText,
+  cameraWatchMatchesEvent,
+  getKnxAiCameraAdapterRegistry,
+  normalizeKnxAiCameraActions,
+  normalizeKnxAiCameraEvent,
+  normalizeKnxAiCameraImage,
+  resolveKnxAiCamera
+} = require('../nodes/utils/knxAiCamera')
 
 describe('KNX AI conversational control', () => {
   const catalog = [
@@ -61,10 +76,11 @@ describe('KNX AI conversational control', () => {
   }
 
   it('parses a structured provider response from a fenced JSON block', () => {
-    const parsed = parseKnxAiConversationResponse('```json\n{"reply":"Accendo la luce.","language":"it","commands":[{"destination":"1/2/3","payload":true}]}\n```')
+    const parsed = parseKnxAiConversationResponse('```json\n{"reply":"Accendo la luce.","language":"it","commands":[{"destination":"1/2/3","payload":true}],"cameraActions":[{"type":"snapshot","camera":"Ingresso"}]}\n```')
     expect(parsed.reply).to.equal('Accendo la luce.')
     expect(parsed.language).to.equal('it')
     expect(parsed.commands).to.have.length(1)
+    expect(parsed.cameraActions).to.deep.equal([{ type: 'snapshot', camera: 'Ingresso' }])
   })
 
   it('extracts text and a session id from common Telegram message shapes', () => {
@@ -161,6 +177,48 @@ describe('KNX AI conversational control', () => {
       { text: 'Conferma', callback_data: 'confirm' },
       { text: 'Annulla', callback_data: 'cancel' }
     ])
+  })
+
+  it('maps a camera snapshot into a telegrambot photo message', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'windkh-telegrambot')
+    const adapter = compileKnxAiChatAdapter({ code: preset.outputCode, direction: 'chat output' })
+    const image = Buffer.from([1, 2, 3])
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: 'Snapshot ingresso',
+        inputMessage: { payload: { chatId: 12345, type: 'message', content: 'Foto ingresso' } },
+        knxAi: { image: { data: image, mediaType: 'image/jpeg', filename: 'ingresso.jpg' } }
+      }
+    })
+
+    expect(message.payload).to.deep.equal({
+      chatId: 12345,
+      type: 'photo',
+      content: image,
+      options: { caption: 'Snapshot ingresso' },
+      fileOptions: { filename: 'ingresso.jpg', contentType: 'image/jpeg' }
+    })
+  })
+
+  it('upgrades a saved telegrambot adapter that predates camera-image support', () => {
+    const image = Buffer.from([0xff, 0xd8, 0xff, 0xd9])
+    const message = applyKnxAiChatMediaPresetFallback({
+      preset: 'windkh-telegrambot',
+      inputMessage: { payload: { chatId: 12345 } },
+      message: {
+        payload: 'Snapshot soggiorno',
+        knxAi: { image: { data: image, mediaType: 'image/jpeg', filename: 'soggiorno.jpg' } }
+      }
+    })
+
+    expect(message.payload).to.deep.equal({
+      chatId: 12345,
+      type: 'photo',
+      content: image,
+      options: { caption: 'Snapshot soggiorno' },
+      fileOptions: { filename: 'soggiorno.jpg', contentType: 'image/jpeg' }
+    })
   })
 
   it('maps RedBot Telegram messages and postbacks directly into KNX AI', () => {
@@ -263,6 +321,66 @@ describe('KNX AI conversational control', () => {
         { type: 'postback', label: 'Conferma', value: 'confirm' },
         { type: 'postback', label: 'Annulla', value: 'cancel' }
       ]
+    })
+  })
+
+  it('maps a camera snapshot into a RedBot Telegram photo message', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
+    const adapter = compileKnxAiChatAdapter({ code: preset.outputCode, direction: 'chat output' })
+    const image = Buffer.from([4, 5, 6])
+    const chat = () => ({})
+    const client = () => ({})
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: 'Persona al cancello',
+        inputMessage: {
+          payload: { transport: 'telegram', chatId: 'redbot-chat-1', userId: 'user-1' },
+          chat,
+          client
+        },
+        knxAi: { image: { data: image, mediaType: 'image/jpeg', filename: 'cancello.jpg' } }
+      }
+    })
+
+    expect(message.payload).to.deep.equal({
+      transport: 'telegram',
+      chatId: 'redbot-chat-1',
+      userId: 'user-1',
+      type: 'photo',
+      inbound: false,
+      content: image,
+      filename: 'cancello.jpg',
+      mimeType: 'image/jpeg',
+      caption: 'Persona al cancello'
+    })
+  })
+
+  it('builds the minimal RedBot envelope for a persistent camera alert after restart', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
+    const adapter = compileKnxAiChatAdapter({ code: preset.outputCode, direction: 'chat output' })
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: 'Movimento in giardino',
+        inputMessage: {
+          topic: 'camera_notification',
+          payload: { chatId: 'redbot-chat-1', type: 'message', content: '' }
+        },
+        knxAi: { type: 'camera_notification' }
+      }
+    })
+
+    expect(message.originalMessage).to.include({ transport: 'telegram', chatId: 'redbot-chat-1' })
+    expect(message.chat).to.be.a('function')
+    expect(message.chat().get()).to.deep.equal({})
+    expect(message.get('chatId')).to.equal('redbot-chat-1')
+    expect(message.payload).to.include({
+      transport: 'telegram',
+      chatId: 'redbot-chat-1',
+      type: 'message',
+      inbound: false,
+      content: 'Movimento in giardino'
     })
   })
 
@@ -706,6 +824,7 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('node.llmIncludeDocsSnippets = true')
     expect(runtime).to.include('maxKb: HOME_MEMORY_DEFAULT_KB')
     expect(runtime).not.to.include('config.homeMemoryMaxKb')
+    expect(runtime).not.to.include('highQuality: true')
 
     const locales = [
       ['en', 'KNX AI.md'],
@@ -721,6 +840,7 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.sections.quickSetup).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupAssistant).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupChatHome).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.detectedAdapters).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupKnxAnalysis).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmAllowKnxCommands).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmRequireCommandConfirmation).to.be.a('string').and.not.equal('')
@@ -733,6 +853,9 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.properties).not.to.have.property('homeMemoryMaxKb')
       expect(messages.knxUltimateAI.properties.aiEducation).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.outputs.knxCommands).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.detectedAdaptersLoading).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.detectedAdaptersNone).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.detectedAdapterDetected).to.be.a('string').and.not.equal('')
 
       const helpHtml = fs.readFileSync(path.join(localeRoot, 'knxUltimateAI.html'), 'utf8')
       const helpMatch = helpHtml.match(/<script[^>]*data-help-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)
@@ -815,6 +938,8 @@ describe('KNX AI conversational control', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('id="knx-ai-accordion"')
+    expect(editor).to.include('id="knx-ai-detected-adapters-panel"')
+    expect(editor).to.include('url: "knxUltimateAI/adapters"')
     expect(editor).to.include('$("#knx-ai-accordion").accordion({')
     expect(editor).to.include('heightStyle: "content"')
     expect(editor).to.include('.knx-ai-accordion-subsection')
@@ -946,6 +1071,53 @@ describe('KNX AI conversational control', () => {
     const defaultsBlock = editor.match(/defaults:\s*\{([\s\S]*?)\n\s*\},\n\s*credentials:/)[1]
     expect((defaultsBlock.match(/required:\s*true/g) || [])).to.have.length(1)
     expect(defaultsBlock).to.include('server: { type: "knxUltimate-config", required: true }')
+  })
+
+  it('summarizes automatically detected camera adapters for the editor', () => {
+    const registry = {
+      adapters: new Map([
+        ['unifi-ultimate', {
+          id: 'unifi-ultimate',
+          title: 'UniFi Ultimate / Protect',
+          packageName: 'node-red-contrib-unifi-ultimate',
+          capabilities: ['snapshot', 'smart_events']
+        }],
+        ['hikvision-ultimate', {
+          id: 'hikvision-ultimate',
+          title: 'Hikvision Ultimate',
+          packageName: 'node-red-contrib-hikvision-ultimate'
+        }]
+      ]),
+      providers: new Map([
+        ['unifi-controller-1', { adapterId: 'unifi-ultimate' }]
+      ])
+    }
+    const node = {
+      _cameraAdapters: new Map(),
+      _cameraProviders: new Map(),
+      _cameraCatalog: new Map([
+        ['camera-1', { adapterId: 'unifi-ultimate', providerId: 'unifi-controller-1' }],
+        ['camera-2', { adapterId: 'unifi-ultimate', providerId: 'unifi-controller-1' }]
+      ])
+    }
+    expect(summarizeDetectedKnxAiCameraAdapters({ registry, node })).to.deep.equal([
+      {
+        id: 'hikvision-ultimate',
+        title: 'Hikvision Ultimate',
+        packageName: 'node-red-contrib-hikvision-ultimate',
+        capabilities: [],
+        providerCount: 0,
+        cameraCount: 0
+      },
+      {
+        id: 'unifi-ultimate',
+        title: 'UniFi Ultimate / Protect',
+        packageName: 'node-red-contrib-unifi-ultimate',
+        capabilities: ['snapshot', 'smart_events'],
+        providerCount: 1,
+        cameraCount: 2
+      }
+    ])
   })
 
   it('preserves saved configuration through an untouched accordion-editor round trip', () => {
@@ -1194,5 +1366,126 @@ describe('KNX AI persistent chat context', () => {
     restored.sessions.forEach(session => {
       expect(session.turns.length).to.be.at.most(CHAT_CONTEXT_MAX_TURNS_PER_SESSION)
     })
+  })
+})
+
+describe('KNX AI camera adapters', () => {
+  afterEach(() => {
+    delete globalThis[KNX_AI_CAMERA_REGISTRY_KEY]
+  })
+
+  it('discovers any installed adapter and provider through the shared runtime registry', () => {
+    const registry = getKnxAiCameraAdapterRegistry()
+    const changes = []
+    const unsubscribe = registry.subscribe(change => changes.push(change.type))
+    const provider = { id: 'hikvision-ultimate:controller-1', adapterId: 'hikvision-ultimate' }
+    registry.registerAdapter({ id: 'hikvision-ultimate', title: 'Hikvision Ultimate', capabilities: ['camera_catalog', 'snapshot'] })
+    registry.registerProvider(provider)
+
+    expect(registry.adapters.get('hikvision-ultimate').title).to.equal('Hikvision Ultimate')
+    expect(registry.providers.get(provider.id)).to.equal(provider)
+    expect(changes).to.deep.equal(['adapter_registered', 'provider_registered'])
+    registry.unregisterProvider(provider.id)
+    unsubscribe()
+    expect(changes).to.deep.equal(['adapter_registered', 'provider_registered', 'provider_unregistered'])
+  })
+
+  it('resolves cameras and normalizes snapshot and line-watch actions without vendor-specific logic', () => {
+    const cameras = [
+      { id: 'controller-1:front', name: 'Ingresso principale', aliases: ['Porta ingresso'], state: 'DISCONNECTED', online: false, objectTypes: ['person', 'animal'], lines: [{ id: 'line-1', name: 'Vialetto' }] },
+      { id: 'controller-1:garden', name: 'Giardino', aliases: ['Esterno'] }
+    ]
+    const frontCamera = resolveKnxAiCamera({ target: 'Porta ingresso', cameras }).camera
+    expect(frontCamera).to.include({
+      id: 'controller-1:front',
+      state: 'DISCONNECTED',
+      online: false
+    })
+    expect(frontCamera.objectTypes).to.deep.equal(['person', 'animal'])
+    expect(resolveKnxAiCamera({ target: 'giard', cameras }).camera.id).to.equal('controller-1:garden')
+
+    const actions = normalizeKnxAiCameraActions({
+      cameras,
+      actions: [
+        { type: 'snapshot', camera: 'Porta ingresso' },
+        { type: 'watch', camera: 'Ingresso principale', eventType: 'line crossing', scopeName: 'Vialetto', objectTypes: ['Person'] },
+        { type: 'watch', camera: 'Giardino', eventType: 'motion', objectTypes: ['animale'] }
+      ]
+    })
+    expect(actions[0]).to.include({ type: 'snapshot', cameraId: 'controller-1:front', cameraName: 'Ingresso principale' })
+    expect(actions[1]).to.include({ type: 'watch', eventType: 'smartDetectLine', scopeId: 'line-1', scopeName: 'Vialetto', unresolvedScope: false })
+    expect(actions[1].objectTypes).to.deep.equal(['person'])
+    expect(actions[2]).to.include({ type: 'watch', eventType: 'smartDetect' })
+    expect(actions[2].objectTypes).to.deep.equal(['animal'])
+    expect(normalizeKnxAiCameraActions({
+      cameras,
+      actions: [{ type: 'snapshot', camera: 'Telecamera inventata' }]
+    })[0]).to.include({ unresolved: true, unresolvedTarget: 'Telecamera inventata' })
+  })
+
+  it('matches active camera events to the exact persistent rule', () => {
+    const event = normalizeKnxAiCameraEvent({
+      cameraId: 'controller-1:front',
+      cameraName: 'Ingresso principale',
+      eventType: 'smartDetectLine',
+      scopeId: 'line-1',
+      scopeName: 'Vialetto',
+      objectTypes: ['person'],
+      active: true
+    })
+    expect(cameraWatchMatchesEvent({
+      cameraId: 'controller-1:front',
+      eventType: 'smartDetectLine',
+      scopeName: 'Vialetto',
+      objectTypes: ['person']
+    }, event)).to.equal(true)
+    expect(cameraWatchMatchesEvent({ cameraId: 'controller-1:front', eventType: 'smartDetectZone' }, event)).to.equal(false)
+    expect(cameraWatchMatchesEvent({
+      cameraId: 'controller-1:front',
+      eventType: 'smartDetect',
+      objectTypes: ['persona']
+    }, event)).to.equal(true)
+    expect(cameraWatchMatchesEvent({
+      cameraId: 'controller-1:front',
+      eventType: 'motion',
+      objectTypes: ['person']
+    }, event)).to.equal(true)
+    expect(cameraWatchMatchesEvent({
+      cameraId: 'controller-1:front',
+      eventType: 'smartDetect',
+      objectTypes: ['animal']
+    }, event)).to.equal(false)
+    expect(buildKnxAiCameraNotificationText({ language: 'it', event }))
+      .to.equal('La telecamera Ingresso principale ha rilevato un attraversamento di linea (Vialetto — person).')
+  })
+
+  it('persists camera watches in the shared chat context file', () => {
+    const context = addKnxAiCameraWatch(createEmptyKnxAiChatContext(), {
+      sessionId: 'telegram-123',
+      watch: {
+        id: 'watch-1',
+        cameraId: 'controller-1:front',
+        cameraName: 'Ingresso principale',
+        eventType: 'smartDetectZone',
+        scopeName: 'Zona porta',
+        objectTypes: ['person'],
+        cooldownSeconds: 90,
+        sendSnapshot: true,
+        language: 'it'
+      }
+    })
+    const rendered = buildKnxAiChatContextMarkdown({ context })
+    const restored = parseKnxAiChatContextMarkdown(rendered.markdown)
+    const watches = listAllKnxAiCameraWatches(restored)
+    expect(watches).to.have.length(1)
+    expect(watches[0]).to.include({ sessionId: 'telegram-123', cameraName: 'Ingresso principale', eventType: 'smartDetectZone', scopeName: 'Zona porta', cooldownSeconds: 90, sendSnapshot: true })
+    expect(buildKnxAiChatPromptContext({ context: restored, sessionId: 'telegram-123' })).to.include('ACTIVE CAMERA WATCHES')
+  })
+
+  it('accepts supported binary images and rejects oversized snapshots', () => {
+    expect(normalizeKnxAiCameraImage({ data: Buffer.from([1, 2, 3]), mediaType: 'image/jpeg' }))
+      .to.include({ mediaType: 'image/jpeg', bytes: 3 })
+    expect(() => normalizeKnxAiCameraImage({ data: Buffer.alloc(KNX_AI_CAMERA_IMAGE_MAX_BYTES + 1), mediaType: 'image/jpeg' }))
+      .to.throw('exceeds')
   })
 })

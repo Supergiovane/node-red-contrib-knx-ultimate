@@ -52,6 +52,23 @@ if (content && typeof content === 'object') {
 }
 content = String(content === undefined || content === null ? '' : content);
 
+const image = msg.knxAi && msg.knxAi.image;
+if (image && Buffer.isBuffer(image.data)) {
+    msg.payload = {
+        chatId: chatId,
+        type: 'photo',
+        content: image.data,
+        options: {
+            caption: content.slice(0, 1024)
+        },
+        fileOptions: {
+            filename: image.filename || 'camera-snapshot.jpg',
+            contentType: image.mediaType || 'image/jpeg'
+        }
+    };
+    return msg;
+}
+
 const telegramPayload = {
     chatId: chatId,
     type: 'message',
@@ -133,13 +150,59 @@ if (chatId === undefined || chatId === null) return;
         msg[key] = source[key];
     }
 });
-if (typeof msg.chat !== 'function' || typeof msg.client !== 'function') return;
+
+// A persisted camera watch can fire immediately after Node-RED restarts,
+// before a new inbound RedBot message has recreated its conversation helpers.
+// RedBot's Telegram Sender still needs transport metadata and a chat accessor,
+// even when tracking is disabled. Supply the smallest compatible outbound
+// envelope; the configured Sender remains responsible for choosing the bot.
+if (!msg.originalMessage || typeof msg.originalMessage !== 'object') {
+    msg.originalMessage = {};
+}
+if (!msg.originalMessage.transport) msg.originalMessage.transport = sourcePayload.transport || 'telegram';
+if (msg.originalMessage.chatId === undefined) msg.originalMessage.chatId = chatId;
+if (sourcePayload.userId !== undefined && msg.originalMessage.userId === undefined) {
+    msg.originalMessage.userId = sourcePayload.userId;
+}
+if (typeof msg.chat !== 'function') {
+    msg.chat = function () {
+        return {
+            get: function () { return {}; },
+            set: function () { return undefined; },
+            remove: function () { return undefined; }
+        };
+    };
+}
+if (typeof msg.get !== 'function') {
+    msg.get = function (key) {
+        if (key === 'userId') return sourcePayload.userId;
+        if (key === 'chatId') return chatId;
+        if (key === 'transport') return sourcePayload.transport || 'telegram';
+        return undefined;
+    };
+}
 
 let content = msg.payload;
 if (content && typeof content === 'object') {
     content = content.error || content.message || JSON.stringify(content);
 }
 content = String(content === undefined || content === null ? '' : content);
+
+const image = msg.knxAi && msg.knxAi.image;
+if (image && Buffer.isBuffer(image.data)) {
+    msg.payload = {
+        transport: sourcePayload.transport || 'telegram',
+        chatId: chatId,
+        type: 'photo',
+        inbound: false,
+        content: image.data,
+        filename: image.filename || 'camera-snapshot.jpg',
+        mimeType: image.mediaType || 'image/jpeg',
+        caption: content.slice(0, 1024)
+    };
+    if (sourcePayload.userId !== undefined) msg.payload.userId = sourcePayload.userId;
+    return msg;
+}
 
 const redbotPayload = {
     transport: sourcePayload.transport || 'telegram',

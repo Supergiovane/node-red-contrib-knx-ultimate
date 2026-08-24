@@ -3,6 +3,7 @@ const CHAT_CONTEXT_MAX_BYTES = 512 * 1024
 const CHAT_CONTEXT_MAX_SESSIONS = 50
 const CHAT_CONTEXT_MAX_TURNS_PER_SESSION = 8
 const CHAT_CONTEXT_MAX_INSTRUCTIONS_PER_SESSION = 20
+const CHAT_CONTEXT_MAX_CAMERA_WATCHES_PER_SESSION = 20
 const CHAT_CONTEXT_MAX_QUESTION_CHARS = 4000
 const CHAT_CONTEXT_MAX_REPLY_CHARS = 8000
 const CHAT_CONTEXT_MAX_INSTRUCTION_CHARS = 2000
@@ -42,6 +43,30 @@ const normalizeInstruction = (instruction) => {
   }
 }
 
+const normalizeCameraWatch = (watch) => {
+  if (!watch || typeof watch !== 'object' || Array.isArray(watch)) return null
+  const id = clampText(watch.id, 160)
+  const cameraId = clampText(watch.cameraId, 160)
+  const cameraName = clampText(watch.cameraName, 240)
+  const eventType = clampText(watch.eventType, 80)
+  if (!id || (!cameraId && !cameraName) || !eventType) return null
+  return {
+    id,
+    createdAt: clampText(watch.createdAt || new Date().toISOString(), 64),
+    cameraId,
+    cameraName,
+    eventType,
+    scopeId: clampText(watch.scopeId, 160),
+    scopeName: clampText(watch.scopeName, 240),
+    objectTypes: Array.from(new Set((Array.isArray(watch.objectTypes) ? watch.objectTypes : [])
+      .map(value => clampText(value, 80).toLocaleLowerCase())
+      .filter(Boolean))).slice(0, 12),
+    cooldownSeconds: Math.max(10, Math.min(86400, Number(watch.cooldownSeconds) || 60)),
+    sendSnapshot: watch.sendSnapshot !== false,
+    language: clampText(watch.language || 'en', 8).toLocaleLowerCase()
+  }
+}
+
 const normalizeSession = (session) => {
   if (!session || typeof session !== 'object' || Array.isArray(session)) return null
   const id = normalizeSessionId(session.id)
@@ -53,11 +78,16 @@ const normalizeSession = (session) => {
     .map(normalizeInstruction)
     .filter(Boolean)
     .slice(-CHAT_CONTEXT_MAX_INSTRUCTIONS_PER_SESSION)
+  const cameraWatches = (Array.isArray(session.cameraWatches) ? session.cameraWatches : [])
+    .map(normalizeCameraWatch)
+    .filter(Boolean)
+    .slice(-CHAT_CONTEXT_MAX_CAMERA_WATCHES_PER_SESSION)
   return {
     id,
     updatedAt: clampText(session.updatedAt || new Date().toISOString(), 64),
     turns,
-    instructions
+    instructions,
+    cameraWatches
   }
 }
 
@@ -87,7 +117,7 @@ const touchSession = (context, sessionId) => {
   const target = normalizeKnxAiChatContext(context)
   const id = normalizeSessionId(sessionId)
   const existing = target.sessions.find(session => session.id === id)
-  const session = existing || { id, updatedAt: new Date().toISOString(), turns: [], instructions: [] }
+  const session = existing || { id, updatedAt: new Date().toISOString(), turns: [], instructions: [], cameraWatches: [] }
   target.sessions = target.sessions.filter(item => item.id !== id)
   target.sessions.push(session)
   target.sessions = target.sessions.slice(-CHAT_CONTEXT_MAX_SESSIONS)
@@ -146,19 +176,45 @@ const clearKnxAiChatSession = (context, sessionId) => {
   return target
 }
 
+const addKnxAiCameraWatch = (context, { sessionId, watch } = {}) => {
+  const normalized = normalizeCameraWatch(watch)
+  if (!normalized) return normalizeKnxAiChatContext(context)
+  const { target, session } = touchSession(context, sessionId)
+  session.cameraWatches = (Array.isArray(session.cameraWatches) ? session.cameraWatches : [])
+    .filter(item => item.id !== normalized.id)
+  session.cameraWatches.push(normalized)
+  session.cameraWatches = session.cameraWatches.slice(-CHAT_CONTEXT_MAX_CAMERA_WATCHES_PER_SESSION)
+  return target
+}
+
+const removeKnxAiCameraWatches = (context, { sessionId, predicate } = {}) => {
+  const { target, session } = touchSession(context, sessionId)
+  const before = Array.isArray(session.cameraWatches) ? session.cameraWatches.length : 0
+  session.cameraWatches = (Array.isArray(session.cameraWatches) ? session.cameraWatches : [])
+    .filter(watch => !(typeof predicate === 'function' && predicate(watch)))
+  return { context: target, removed: Math.max(0, before - session.cameraWatches.length) }
+}
+
+const listKnxAiCameraWatches = (context, sessionId) => getKnxAiChatSession(context, sessionId).cameraWatches.slice()
+
+const listAllKnxAiCameraWatches = (context) => normalizeKnxAiChatContext(context).sessions.flatMap(session => {
+  return session.cameraWatches.map(watch => Object.assign({ sessionId: session.id }, watch))
+})
+
 const getKnxAiChatSession = (context, sessionId) => {
   const session = findSession(context, sessionId)
   return session || {
     id: normalizeSessionId(sessionId),
     updatedAt: '',
     turns: [],
-    instructions: []
+    instructions: [],
+    cameraWatches: []
   }
 }
 
 const buildKnxAiChatPromptContext = ({ context, sessionId, maxChars = 16000 } = {}) => {
   const session = getKnxAiChatSession(context, sessionId)
-  if (!session.instructions.length && !session.turns.length) return ''
+  if (!session.instructions.length && !session.turns.length && !session.cameraWatches.length) return ''
   const lines = []
   if (session.instructions.length) {
     lines.push('PERSISTENT CHAT INSTRUCTIONS AND PREFERENCES (explicitly supplied by this user; follow them unless they conflict with safety or the KNX contract; newer entries override older conflicting entries):')
@@ -170,6 +226,16 @@ const buildKnxAiChatPromptContext = ({ context, sessionId, maxChars = 16000 } = 
     session.turns.forEach((turn) => {
       lines.push(`User: ${turn.question}`)
       lines.push(`Assistant: ${turn.reply}`)
+    })
+  }
+  if (session.cameraWatches.length) {
+    if (lines.length) lines.push('')
+    lines.push('ACTIVE CAMERA WATCHES (persistent notification rules created by this chat):')
+    session.cameraWatches.forEach((watch) => {
+      const camera = watch.cameraName || watch.cameraId
+      const scope = watch.scopeName || watch.scopeId
+      const objects = watch.objectTypes.length ? `; objects ${watch.objectTypes.join(', ')}` : ''
+      lines.push(`- ${watch.id}: ${camera}; event ${watch.eventType}${scope ? `; scope ${scope}` : ''}${objects}; cooldown ${watch.cooldownSeconds}s`)
     })
   }
   return lines.join('\n').slice(0, Math.max(1000, Number(maxChars) || 16000))
@@ -201,6 +267,14 @@ const renderKnxAiChatContext = (context) => {
     lines.push('### Persistent instructions', '')
     if (!session.instructions.length) lines.push('_None._')
     session.instructions.forEach(item => lines.push(`- ${escapeMarkdownText(item.at)} — ${escapeMarkdownText(item.text)}`))
+    lines.push('', '### Camera watches', '')
+    if (!session.cameraWatches.length) lines.push('_None._')
+    session.cameraWatches.forEach((watch) => {
+      const camera = watch.cameraName || watch.cameraId
+      const scope = watch.scopeName || watch.scopeId
+      const objects = watch.objectTypes.length ? `; objects ${watch.objectTypes.join(', ')}` : ''
+      lines.push(`- ${escapeMarkdownText(watch.id)} — ${escapeMarkdownText(camera)}; event ${escapeMarkdownText(watch.eventType)}${scope ? `; scope ${escapeMarkdownText(scope)}` : ''}${objects}; cooldown ${watch.cooldownSeconds}s`)
+    })
     lines.push('', '### Recent turns', '')
     if (!session.turns.length) lines.push('_None._')
     session.turns.forEach((turn) => {
@@ -260,10 +334,12 @@ const conversationMapFromKnxAiChatContext = (context) => {
 }
 
 module.exports = {
+  CHAT_CONTEXT_MAX_CAMERA_WATCHES_PER_SESSION,
   CHAT_CONTEXT_MAX_BYTES,
   CHAT_CONTEXT_MAX_INSTRUCTIONS_PER_SESSION,
   CHAT_CONTEXT_MAX_SESSIONS,
   CHAT_CONTEXT_MAX_TURNS_PER_SESSION,
+  addKnxAiCameraWatch,
   addKnxAiChatTurn,
   buildKnxAiChatContextMarkdown,
   buildKnxAiChatPromptContext,
@@ -272,6 +348,10 @@ module.exports = {
   createEmptyKnxAiChatContext,
   extractExplicitKnxAiChatInstruction,
   getKnxAiChatSession,
+  listAllKnxAiCameraWatches,
+  listKnxAiCameraWatches,
   normalizeKnxAiChatContext,
-  parseKnxAiChatContextMarkdown
+  normalizeCameraWatch,
+  parseKnxAiChatContextMarkdown,
+  removeKnxAiCameraWatches
 }

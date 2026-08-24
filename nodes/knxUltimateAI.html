@@ -99,6 +99,53 @@
         display: block;
     }
 
+    #knx-ai-detected-adapters-panel {
+        margin: 0 0 18px;
+        padding: 12px 14px;
+        border: 1px solid var(--red-ui-form-input-border-color, #ccc);
+        border-radius: 4px;
+        background: var(--red-ui-secondary-background, #f7f7f7);
+    }
+
+    #knx-ai-detected-adapters-panel>h4 {
+        margin: 0 0 9px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .knx-ai-detected-adapter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 0;
+    }
+
+    .knx-ai-detected-adapter+.knx-ai-detected-adapter {
+        border-top: 1px solid var(--red-ui-form-input-border-color, #ddd);
+    }
+
+    .knx-ai-detected-adapter-main {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .knx-ai-detected-adapter-package,
+    .knx-ai-detected-adapter-counts,
+    #knx-ai-detected-adapters-status {
+        color: var(--red-ui-secondary-text-color, #777);
+        font-size: 12px;
+    }
+
+    .knx-ai-detected-adapter-badge {
+        flex: 0 0 auto;
+        padding: 2px 7px;
+        border-radius: 10px;
+        color: #256029;
+        background: #dff0d8;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
     @media (max-width: 900px) {
         #knx-ai-ollama-install-row>label {
             width: 100% !important;
@@ -407,6 +454,53 @@
             };
             configureChatAdapterPicker.call(node);
 
+            const renderDetectedAdapters = (adapters) => {
+                const $list = $("#knx-ai-detected-adapters-list");
+                const $status = $("#knx-ai-detected-adapters-status");
+                if (!$list.length) return;
+                $list.empty();
+                const entries = Array.isArray(adapters) ? adapters : [];
+                if (!entries.length) {
+                    $status.text(t("knxUltimateAI.messages.detectedAdaptersNone", "No automatic adapter detected.")).show();
+                    return;
+                }
+                $status.hide();
+                entries.forEach(function (adapter) {
+                    if (!adapter || !adapter.id) return;
+                    const providerCount = Number(adapter.providerCount) || 0;
+                    const cameraCount = Number(adapter.cameraCount) || 0;
+                    const $row = $("<div></div>").addClass("knx-ai-detected-adapter");
+                    const $main = $("<div></div>").addClass("knx-ai-detected-adapter-main");
+                    $("<div></div>").text(adapter.title || adapter.id).appendTo($main);
+                    if (adapter.packageName) {
+                        $("<div></div>").addClass("knx-ai-detected-adapter-package").text(adapter.packageName).appendTo($main);
+                    }
+                    $("<div></div>")
+                        .addClass("knx-ai-detected-adapter-counts")
+                        .text(t("knxUltimateAI.messages.detectedAdapterControllers", "Controllers") + ": " + providerCount + " · " + t("knxUltimateAI.messages.detectedAdapterCameras", "Cameras") + ": " + cameraCount)
+                        .appendTo($main);
+                    $main.appendTo($row);
+                    $("<span></span>")
+                        .addClass("knx-ai-detected-adapter-badge")
+                        .text(t("knxUltimateAI.messages.detectedAdapterDetected", "Detected"))
+                        .appendTo($row);
+                    $row.appendTo($list);
+                });
+            };
+            $.ajax({
+                url: "knxUltimateAI/adapters",
+                type: "GET",
+                data: nodeId ? { nodeId: nodeId } : {}
+            })
+                .done(function (data) {
+                    renderDetectedAdapters(data && data.adapters);
+                })
+                .fail(function () {
+                    $("#knx-ai-detected-adapters-status")
+                        .text(t("knxUltimateAI.messages.detectedAdaptersUnavailable", "Automatic adapter detection is temporarily unavailable."))
+                        .show();
+                });
+
             const updateProactiveVisibility = () => {
                 const enabled = $("#node-input-proactiveEnabled").is(":checked");
                 $("#knx-ai-proactive-settings").toggle(enabled);
@@ -678,6 +772,11 @@
 
         <h3><i class="fa fa-comments"></i> <span data-i18n="knxUltimateAI.sections.groupChatHome"></span></h3>
         <div>
+            <div id="knx-ai-detected-adapters-panel">
+                <h4><i class="fa fa-puzzle-piece"></i> <span data-i18n="knxUltimateAI.sections.detectedAdapters"></span></h4>
+                <div id="knx-ai-detected-adapters-status" data-i18n="knxUltimateAI.messages.detectedAdaptersLoading"></div>
+                <div id="knx-ai-detected-adapters-list"></div>
+            </div>
             <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-plug"></i> <span data-i18n="knxUltimateAI.sections.chatAdapter"></span></h4>
                 <div class="knx-ai-accordion-mount" id="knx-ai-mount-chat-adapter"></div>
