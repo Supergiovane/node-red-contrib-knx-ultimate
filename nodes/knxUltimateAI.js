@@ -9153,7 +9153,10 @@ module.exports = function (RED) {
           : ''
         return `${item.ga} | dpt ${dpt} | role ${role} | ${label}${semanticText}${valueOptions ? ` | values ${valueOptions}` : ''}`
       })
-      const analysisContext = buildLLMPrompt({ question, summary, compact: true })
+      // Keep conversational channels (Telegram, RedBot, custom adapters, etc.)
+      // aligned with the web Assistant: the chat adds its control/camera context
+      // below, but starts from the same complete KNX analysis prompt.
+      const analysisContext = buildLLMPrompt({ question, summary })
       const cameraCatalog = Array.from(node._cameraCatalog.values())
       const cameraAdapters = Array.from(node._cameraAdapters.values())
       const cameraAdapterLines = cameraAdapters.map(adapter => `${adapter.id} | ${adapter.title || adapter.id} | package ${adapter.packageName || '?'} | capabilities ${(adapter.capabilities || []).join(', ')}`)

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.17** - August 2026<br/>
+
+- **KNX AI — unified Assistant context for chat channels**: Telegram, RedBot and custom chat adapters now receive the same complete KNX analysis context as the web Assistant, including the full relevant traffic selection, summaries, areas, learned home memory, Node-RED flow context, Function-node source and documentation snippets enabled by the node configuration. The chat-specific ETS catalog, camera capabilities, persistent conversation context, command validation and confirmation safeguards remain layered on top.<br/>
+
 **Version 6.3.16** - August 2026<br/>
 
 - **KNX AI — automatically detected camera adapters**: installed camera suites can now register vendor-neutral camera catalogs, connectivity state, snapshots and smart events directly in the KNX AI chat runtime, without selectors or camera-node wiring. The “Conversations & home” editor section shows every detected adapter together with its registered controllers and cameras. `node-red-contrib-unifi-ultimate` is the first provider: users can request or visually analyze a current Protect snapshot and create persistent Telegram/RedBot notifications for motion, smart line crossings and intrusion/loiter zones. Generic smart-detection rules now correctly distinguish classified people, animals, vehicles, faces, license plates and packages from unclassified motion, and match classifications across Protect smart zones, lines and loiter zones. Chat snapshots no longer force full-HD; the provider chooses a supported quality and retries only transient failures at standard quality. An offline camera is identified explicitly before Chat AI proposes an unavailable snapshot. Camera rules share `knxai-chat-context.md` and survive Node-RED restarts; Telegram adapters emit snapshots as native photos. Existing `node-red-contrib-telegrambot` presets saved before image support are upgraded at runtime for snapshot replies, including explicit JPEG filename and MIME metadata. The same registry contract is ready for packages such as `hikvision-ultimate`.<br/>

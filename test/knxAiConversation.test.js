@@ -1120,6 +1120,12 @@ describe('KNX AI conversational control', () => {
     ])
   })
 
+  it('gives conversational chat channels the complete web Assistant analysis context', () => {
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('const analysisContext = buildLLMPrompt({ question, summary })')
+    expect(runtime).not.to.include('const analysisContext = buildLLMPrompt({ question, summary, compact: true })')
+  })
+
   it('preserves saved configuration through an untouched accordion-editor round trip', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
