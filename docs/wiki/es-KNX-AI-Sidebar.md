@@ -48,7 +48,7 @@ Conviene saber:
 
 - Está en BETA: revisa los nodos generados antes de desplegar.
 - Los id de nodo y el cableado se reconstruyen automáticamente, y las referencias a config-node KNX/Hue apuntan a tus config-node existentes.
-- Funciona con cualquier proveedor LLM configurado (compatible con OpenAI, Anthropic/Claude u Ollama).
+- Funciona con cualquier proveedor LLM configurado (compatible con OpenAI, Anthropic/Claude, Ollama o Bionic LM Studio).
 
 ## Flujo recomendado (primera vez)
 
@@ -74,4 +74,4 @@ Es normal: la pagina bloquea los clics hasta terminar para evitar cambios accide
 
 - Al menos un nodo KNX AI configurado.
 - Un gateway conectado y en marcha.
-- Para respuestas en chat y para el Flow Builder: LLM activado en el nodo KNX AI, con un proveedor configurado — compatible con OpenAI, **Anthropic (Claude)** u Ollama (local). Los proveedores en la nube requieren API key.
+- Para respuestas en chat y para el Flow Builder: LLM activado en el nodo KNX AI, con un proveedor configurado — compatible con OpenAI, **Anthropic (Claude)**, Ollama (local) o Bionic LM Studio (local). Los proveedores en la nube requieren API key; con Bionic LM Studio es opcional salvo que la autenticación del servidor esté activada.

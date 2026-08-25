@@ -48,7 +48,7 @@ Bon a savoir :
 
 - C'est une BETA : verifiez les nœuds generes avant le deploiement.
 - Les id des nœuds et le cablage sont reconstruits automatiquement, et les references aux nœuds de configuration KNX/Hue pointent vers vos nœuds de configuration existants.
-- Fonctionne avec n'importe quel fournisseur LLM configure (compatible OpenAI, Anthropic/Claude ou Ollama).
+- Fonctionne avec n'importe quel fournisseur LLM configure (compatible OpenAI, Anthropic/Claude, Ollama ou Bionic LM Studio).
 
 ## Parcours conseille (premiere utilisation)
 
@@ -74,4 +74,4 @@ C'est normal : la page bloque les clics jusqu'a la fin pour eviter les modificat
 
 - Au moins un nœud KNX AI configure.
 - Une passerelle connectee et active.
-- Pour les reponses du chat et le Flow Builder : LLM active dans le nœud KNX AI, avec un fournisseur configure — compatible OpenAI, **Anthropic (Claude)** ou Ollama (local). Une cle API est requise pour les fournisseurs cloud.
+- Pour les reponses du chat et le Flow Builder : LLM active dans le nœud KNX AI, avec un fournisseur configure — compatible OpenAI, **Anthropic (Claude)**, Ollama (local) ou Bionic LM Studio (local). Une cle API est requise pour les fournisseurs cloud ; avec Bionic LM Studio, elle est facultative sauf si l’authentification du serveur est activee.

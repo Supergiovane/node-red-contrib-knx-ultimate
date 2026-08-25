@@ -6,7 +6,7 @@ permalink: /wiki/fr-KNX%20AI
 ---
 Ce nœud écoute **tous les télégrammes KNX** du gateway KNX Ultimate sélectionné, produit des statistiques de trafic, détecte des anomalies et peut interroger un LLM de façon optionnelle.
 
-L'éditeur utilise trois sections principales en accordéon : **Assistant IA** contient la configuration, les connaissances/le contexte et les limites du fournisseur ; **Conversations et maison** contient les canaux de chat, la maison proactive et la mémoire limitée ; **Analyse du trafic KNX** contient les télégrammes du bus, l'historique/les résumés et les anomalies/motifs. L'ouverture d'une section principale affiche ensemble toutes ses options. Les identifiants et valeurs enregistrés restent inchangés.
+L'éditeur utilise deux onglets horizontaux : **Assistant IA** contient la configuration, les connaissances/le contexte et les limites du fournisseur ; **Conversations et maison** contient les canaux de chat, la maison proactive et la mémoire limitée.
 
 ## Sorties
 1. **Résumé/Stats** (`msg.payload` JSON)
@@ -26,6 +26,12 @@ Envoyez `msg.topic` :
 
 Pour `ask`, mettez la question dans `msg.prompt` (recommandé), `msg.payload` (chaîne), ou les champs Telegram courants `msg.payload.content` / `msg.payload.text`.
 
+Si le traitement dure plus de 1,2 seconde, la sortie 3 émet immédiatement le message intermédiaire localisé « Je réfléchis… », avec `msg.knxAi.type = "thinking"` et `msg.knxAi.transient = true`. L’adaptateur de chat l’envoie au même utilisateur, puis la réponse finale arrive normalement dès qu’elle est prête. Ce message de progression n’est jamais enregistré dans le contexte de conversation ni dans la mémoire apprise.
+
+Les requêtes Ollama et Bionic LM Studio utilisent automatiquement un délai minimal de 10 minutes ; les fournisseurs cloud conservent un minimum de 2 minutes. Aucun champ de délai n’est à gérer dans l’éditeur. Si même la limite locale est atteinte, KNX AI indique que le modèle n’a pas terminé et conseille de réessayer ou de réduire le contexte du prompt.
+
+L’état du nœud sur le canvas est volontairement réservé à la dernière demande reçue et au message localisé « Je réfléchis… » pendant l’exécution du LLM. Les télégrammes KNX, mises à jour de la passerelle, débits de trafic, messages ready et résultats techniques ne l’écrasent jamais ; ils restent disponibles via les sorties, les journaux et les données de l’Assistant.
+
 Chaque session Ask/chat conserve ses 8 derniers échanges et jusqu'à 20 instructions explicites à long terme, séparées par `msg.knxAi.sessionId`, `msg.sessionId` ou l’ID de chat Telegram détecté. Les demandes telles que « Souviens-toi de ne pas employer le terme unknown » deviennent des instructions persistantes. Tous les nœuds KNX AI utilisant le même stockage partagent ce contexte en direct et le rechargent après un redémarrage de Node-RED depuis `knxultimatestorage/knxai/memory/knxai-chat-context.md`. Le fichier, écrit de façon atomique, est limité à 50 sessions et 512 Ko. Lorsque le contrôle KNX est activé, reliez la sortie 3 au nœud d'envoi du chat et la sortie 4 à un nœud KNX Ultimate en **mode universel**. Avec la confirmation active, la première réponse affiche GA, DPT et payload sans émettre d’écriture ; la même session doit répondre `CONFIRMER` ou `ANNULER` dans les 5 minutes. Une nouvelle demande remplace tout plan précédent. Chaque commande confirmée contient `msg.destination`, `msg.dpt`, `msg.payload` et `msg.event = "GroupValue_Write"`.
 Pour les écritures DPT 1.xxx, les équivalents sûrs produits par l’IA `true`/`false`, `1`/`0` et `on`/`off` sont normalisés en véritables booléens avant la validation locale et la sortie.
 
@@ -36,7 +42,7 @@ Lorsque l’utilisateur demande explicitement un état actuel ou actualisé, l�
 Lorsqu'un plan est en attente, la sortie 3 contient `msg.knxAi.confirmationRequest`. L'objet comprend `required`, `status`, `sessionId`, `expiresAt`, `commandCount` et deux éléments dans `actions`. Utilisez `action.label` comme texte du bouton Telegram, `action.callbackData` comme callback et renvoyez `action.message` à KNX AI pour confirmer ou annuler sans saisir de texte.
 
 ### Préréglages d’adaptateur de chat
-L’onglet **Adaptateurs de chat** charge ses mappages sélectionnables depuis `resources/KNXAIChatAdapterMappings.js`. Le choix d’un préréglage insère deux mappages JavaScript synchrones et modifiables dans des zones de texte pleine largeur : un avant le traitement de l’entrée par KNX AI et un avant l’émission sur la sortie 3. Renvoyez `msg` pour continuer ou aucune valeur pour écarter le message. Les erreurs de syntaxe et d’exécution sont interceptées et signalées sans arrêter Node-RED.
+L’onglet **Adaptateurs de chat** charge ses mappages sélectionnables depuis `resources/KNXAIChatAdapterMappings.js`. Le choix d’un préréglage installe en interne deux mappages JavaScript synchrones prédéfinis : un avant le traitement de l’entrée par KNX AI et un avant l’émission sur la sortie 3. Les mappages restent masqués dans l’éditeur. Les erreurs de syntaxe et d’exécution sont interceptées et signalées sans arrêter Node-RED.
 
 Le préréglage inclus **windkh/node-red-contrib-telegrambot** suit le contrat receiver/sender du paquet. Connectez directement un `telegram receiver` à KNX AI et la sortie 3 à un `telegram sender`. Pour les boutons de confirmation inline, connectez aussi un `telegram event` configuré pour `callback_query` à la même entrée KNX AI. Le mappage d’entrée extrait `msg.payload.content`, `msg.payload.chatId` et la langue Telegram. Le mappage de sortie crée `msg.payload.chatId`, `type` et `content`, puis ajoute `options.reply_markup` depuis `msg.knxAi.confirmationRequest` lorsqu’une écriture attend confirmation. Le paquet Telegram reste une dépendance optionnelle distincte.
 
@@ -47,31 +53,30 @@ Les paquets de caméra installés peuvent publier à l’exécution un adaptateu
 
 L’utilisateur peut demander une capture actuelle ou demander au modèle de vision ce qui est visible. Les préréglages Telegram et RedBot envoient l’image comme photo native avec une légende. L’utilisateur peut aussi créer des notifications persistantes pour un mouvement, le franchissement d’une ligne intelligente ou l’entrée dans une zone d’intrusion/de stationnement, avec une limitation facultative aux personnes détectées et à une ligne ou zone nommée précise. Ces règles sont stockées dans le même fichier `knxai-chat-context.md` et restaurées après les redémarrages de Node-RED. Les abonnements aux événements UniFi et les demandes de capture passent directement par le fournisseur détecté ; la sortie 4 de KNX AI et un câblage intermédiaire ne sont pas nécessaires.
 
-## Intelligence domestique proactive et mémoire limitée
-La sous-section **Maison proactive et mémoire** de **Conversations et maison** active les notifications proactives sur choix de l’utilisateur. À partir de la hiérarchie ETS, des noms, rôles et DPT, le nœud crée un modèle sémantique déterministe pour les volets, fenêtres, portes, éclairages, températures, climat, présence et alarmes avec des termes italiens, anglais, allemands, français, espagnols et chinois. Le premier détecteur proactif surveille uniquement les états hors commande de volets/fenêtres/portes reconnus avec une fiabilité suffisante. Après la durée d’ouverture configurée et hors heures silencieuses, la sortie 3 émet un message localisé avec `msg.knxAi.type = "proactive_notification"`. Il n’émet jamais sur la sortie 4 et ne modifie jamais KNX de façon autonome ; une demande ultérieure de l’utilisateur passe toujours par la validation et la confirmation normales.
+### Annonces avec TTS Ultimate
+Lorsque le paquet facultatif `node-red-contrib-tts-ultimate` est installé, il apparaît parmi les adaptateurs détectés automatiquement. Le sélecteur recense tous les nœuds `ttsultimate` de tous les flows du projet, avec le flow, le nom du nœud et le lecteur configuré. Sélectionnez le nœud chargé des annonces du chat, puis déployez le flow.
 
-La dernière session de chat est mémorisée comme propriétaire, ou **Destinataire principal / ID de chat** permet de la définir explicitement. Un `msg.inputMessage` synthétique conserve le destinataire afin que l’adaptateur Telegram puisse envoyer une notification spontanée. Le délai de répétition et la limite de trois notifications proactives par heure évitent les rafales.
+Seule une demande explicite dans le message de chat actuel peut créer une annonce. KNX AI envoie le texte exact directement au nœud choisi dans `msg.payload`, avec `msg.topic = "knx_ai_announcement"` ; aucun câblage intermédiaire n’est nécessaire. TTS Ultimate gère ensuite le lecteur Sonos configuré, la voix, le volume, le signal d’introduction et la file d’attente. Le contexte persistant, l’Éducation IA, le contenu des caméras et les événements déduits ne déclenchent jamais la parole de manière autonome.
+
+### Aperçu du contexte du chat
+L’éditeur du nœud affiche une carte compacte résumant les sources disponibles pour le chat : trafic KNX actuel, sémantique ETS et projet Node-RED, mémoire de session et de la maison, Éducation IA, caméras détectées et documentation pertinente. Elle répertorie aussi `knxai-chat-context.md`, `knxai-home-memory.md` et `knxai-config-<id-nœud>.json`, ainsi que la racine absolue de l’archive des télégrammes KNX, le dossier propre au nœud et le format quotidien `YYYY-MM-DD.jsonl`. Les chemins sont déterminés à l’exécution depuis le répertoire de données réellement utilisé par la passerelle configurée.
+
+## Intelligence domestique proactive guidée par l’Éducation et mémoire limitée
+À partir de la hiérarchie ETS, des noms, rôles et DPT, le nœud crée un modèle sémantique déterministe. Il n’existe ni interrupteur séparé ni paramètres proactifs avancés. Une notification n’est évaluée que si le LLM est actif et si **Éducation IA** la demande explicitement. L’Éducation définit seule les conditions, la durée, les heures silencieuses et la répétition. Sans règle explicite, ou si le LLM ne peut pas l’évaluer, aucun message n’est envoyé.
+
+La dernière session de chat est mémorisée comme propriétaire et reçoit les messages spontanés. La sortie 3 émet `msg.knxAi.type = "proactive_notification"` et `msg.inputMessage` conserve la session pour l’adaptateur de chat. Une limite stricte de trois notifications proactives par heure évite les rafales. La sortie 4 n’est jamais utilisée de façon proactive et KNX n’est jamais modifié de manière autonome.
 
 La référence apprise partagée est chargée au démarrage depuis `<userDir>/knxai/memory/knxai-home-memory.md`, réécrite atomiquement toutes les 15 minutes et toujours strictement limitée à 5 Mo. Elle conserve au maximum 120 observations importantes, 80 habitudes agrégées, 80 notifications et 300 objets ETS sémantiques, jamais un flux illimité de télégrammes bruts. Les éléments anciens et moins prioritaires sont supprimés en premier. **Éducation IA** est limitée à 16 000 caractères et provient toujours de la configuration du nœud : l’IA peut la lire comme une consigne faisant autorité, mais ne peut ni la modifier ni l’écraser. Si cette Éducation est présente mais que le LLM ne peut pas l’évaluer, la notification candidate est supprimée plutôt que de risquer de la contredire.
 
 ## Exemple pratique de configuration
-Cet exemple crée un assistant concis qui signale les ouvertures importantes, tout en acceptant que le volet du bureau reste ouvert :
-
-| Champ de l’éditeur | Valeur d’exemple | Résultat |
-|---|---|---|
-| **Activer les notifications domestiques proactives** (`proactiveEnabled`) | activé | Le nœud évalue les états ouverts de volet/fenêtre/porte reconnus avec fiabilité. |
-| **Destinataire principal / ID de chat** (`proactiveRecipient`) | `123456789` | Les messages spontanés vont vers ce chat ; laissez vide pour mémoriser la dernière session Ask. |
-| **Notifier après ouverture** (`proactiveOpenMinutes`) | `120` | Une notification potentielle est évaluée après deux heures. |
-| **Début / fin des heures silencieuses** | `23:00` / `07:00` | Aucun message proactif n’est émis pendant la nuit. |
-| **Délai de répétition** (`proactiveCooldownMinutes`) | `360` | Le même objet ne peut pas notifier à nouveau pendant six heures. |
-
-Exemple pour **Éducation IA** (`aiEducation`) :
+Placez toute la politique de notification dans **Éducation IA** (`aiEducation`) :
 
 ```text
 Appelle-moi Alex et réponds dans la même langue que moi.
 Réponds brièvement, sauf si je demande des détails techniques.
+Préviens mon dernier chat lorsqu’un volet, une fenêtre ou une porte reste ouvert au moins 120 minutes.
+Ne me préviens pas entre 23:00 et 07:00 et ne répète pas la même alerte avant six heures.
 Le volet du bureau peut rester ouvert le jour : ne m’envoie pas de notification.
-Préviens-moi lorsqu’un autre volet, une fenêtre ou une porte reste ouvert anormalement longtemps.
 Si « lumière du salon » est ambigu, demande-moi quel éclairage je veux dire.
 N’affirme jamais qu’un actionneur a changé avant confirmation par un objet d’état KNX.
 ```
@@ -98,45 +103,19 @@ Voici tous les champs tels qu'affichés dans l'éditeur KNX AI.
 - **Topic** : topic de base utilisé dans les sorties.
 - Bouton **Open KNX AI Web** : ouvre le dashboard web (`/knxUltimateAI/sidebar/page`).
 
-KNX AI écoute automatiquement les télégrammes `GroupValue_Write`, `GroupValue_Response` et `GroupValue_Read`. L'analyse des motifs et anomalies est toujours initialisée avec les valeurs intégrées par défaut ; aucune configuration des événements du bus ou de la détection n'est nécessaire.
-
-### Analysis
-- **Analysis window (seconds)** : fenêtre principale pour résumé/débits.
-- **History window (seconds)** : fenêtre de rétention de l'historique interne.
-- **Archiver aussi sur disque les telegrammes captures** : stocke aussi les télégrammes dans `knxultimatestorage/knxai/history/<node-id>/YYYY-MM-DD.jsonl`, en plus de la RAM.
-- **Retention de l'archive disque (jours)** : nombre de jours conservés sur disque avant suppression automatique des anciens fichiers.
-- **Max stored events** : nombre maximal de télégrammes en mémoire.
-- **Auto emit summary (seconds, 0=off)** : intervalle périodique d'émission du résumé.
-- **Top list size** : nombre de group addresses/sources dans le top.
-
 ### Assistant IA
 - **Enable LLM assistant** : active les fonctions Ask/chat.
-- **Provider** : backend LLM (OpenAI-compatible ou Ollama).
+- **Provider** : backend LLM (OpenAI-compatible, Anthropic, Ollama ou Bionic LM Studio).
 - **Endpoint URL** : URL endpoint chat/completions.
-- **API key** : clé API (non requise avec Ollama local).
+- **API key** : clé API (non requise avec Ollama local ; facultative pour Bionic LM Studio sauf si l’authentification du serveur est activée).
 - **Model** : ID/nom du modèle.
 - **Compatibilité du modèle de chat** : le modèle sélectionné doit prendre en charge l'endpoint Chat Completions configuré. Les anciens modèles réservés aux completions, comme `gpt-3.5-turbo-instruct`, sont exclus lors de l'actualisation de la liste. Si le fournisseur refuse une valeur de température personnalisée ou le paramètre de limite de tokens, KNX AI réessaie en supprimant ou remplaçant uniquement le champ incompatible.
 - **Autoriser l’IA à lire les états KNX et commander les actionneurs** : active la sortie 4 et reste désactivé par défaut. Les objets exacts du catalogue ETS peuvent être lus ; seules les écritures vers des objets classés `command` sont acceptées. Les opérations inconnues, avec DPT discordant, invalides ou trop nombreuses, ainsi que les écritures vers des objets d'état ou neutres, sont rejetées localement.
 - **Demander confirmation avant d’envoyer les commandes KNX** : activé par défaut. Affiche d'abord les modifications validées et n'émet aucune commande tant que la même session de chat ne les confirme pas. Lorsque des commandes attendent une confirmation, la réponse ajoute toujours les instructions exactes de confirmation ou d'annulation dans la langue de la demande courante. Les commandes sont à nouveau validées juste avant la sortie.
-- **Préréglage d’adaptateur** : utilise **Aucun adaptateur** par défaut. Les éditeurs JavaScript restent masqués jusqu’à la sélection d’un adaptateur, puis les mappages entrée/sortie modifiables sont chargés et affichés.
-- **Mappage d’entrée (chat → KNX AI)** : JavaScript synchrone exécuté avant le traitement de la commande d’entrée dans l’éditeur JavaScript vert.
-- **Mappage de sortie (KNX AI → chat)** : JavaScript synchrone appliqué uniquement aux messages de la sortie 3 dans l’éditeur JavaScript jaune.
-- **Activer les notifications domestiques proactives** : détecteur optionnel des états ouverts de volet/fenêtre/porte reconnus de façon fiable ; il n'écrit jamais de manière autonome sur KNX.
-- **Destinataire principal / ID de chat** : destination facultative des messages spontanés ; sinon la dernière session Ask est mémorisée.
-- **Notifier après ouverture (minutes)** : seuil de durée avant d'envisager une notification proactive ; 120 minutes par défaut.
-- **Début / fin des heures silencieuses** : intervalle quotidien pendant lequel les messages proactifs sont supprimés.
-- **Éducation de l’IA** : consignes autoritaires gérées uniquement par l'utilisateur, lues par l'IA et jamais modifiées.
-- **Délai de répétition (minutes)** : intervalle minimal avant qu'un même objet puisse notifier à nouveau ; 360 minutes par défaut.
-- Si l'archive disque est active, **Ask** l'utilise par défaut : les dates/plages explicites sont respectées, sinon l'assistant cherche sur les dernières 24 heures plus les événements RAM courants.
-- **Inclure l'inventaire du projet Node-RED** : inclut dans le prompt l'inventaire de tout le projet Node-RED, avec les nœuds KNX et d'autres nœuds utiles comme function/change/inject/template lorsqu'ils contiennent de la logique KNX ou des adresses de groupe.
-- Les extraits pertinents de l’aide, du README et des exemples sont toujours inclus automatiquement.
-- **Docs language** : langue préférée des extraits de documentation inclus automatiquement.
+- **Préréglage d’adaptateur** : utilise **Aucun adaptateur** par défaut. La sélection charge la paire prédéfinie de mappages entrée/sortie ; les deux restent masqués dans l’éditeur.
+- **Éducation de l’IA** : consignes autoritaires gérées uniquement par l'utilisateur, lues par l'IA et jamais modifiées. C’est le seul endroit où demander des notifications proactives et définir leurs conditions, durée, heures silencieuses et répétition.
+- Les extraits pertinents de l’aide, du README et des exemples sont toujours inclus automatiquement ; leur langue est déterminée à partir de la demande de l’utilisateur, avec des replis automatiques sur toutes les langues prises en charge.
 - Bouton **Refresh** : interroge le provider et charge les modèles disponibles. Son icône tourne pendant le chargement ; une réussite ne produit volontairement aucun message.
-
-### Advanced
-- **Analysis window (seconds)** : fenêtre principale pour résumé/débits.
-- **Max stored events** : nombre maximal de télégrammes en mémoire.
-- **Top list size** : nombre de group addresses/sources dans le top.
 
 ### Démarrage rapide Ollama (local)
 - Choisir **Provider = Ollama**.
@@ -147,6 +126,13 @@ KNX AI écoute automatiquement les télégrammes `GroupValue_Write`, `GroupValue
 - Pendant refresh/install, KNX AI tente aussi de démarrer automatiquement le serveur Ollama.
 - Si l'installation échoue avec une erreur de connexion, vérifier qu'Ollama est lancé (app desktop ou `ollama serve`).
 - Si Node-RED tourne dans Docker, utiliser `host.docker.internal` au lieu de `localhost` dans l'endpoint.
+
+### Démarrage rapide Bionic LM Studio (local)
+- Choisir **Provider = Bionic LM Studio**.
+- Démarrer le serveur API LM Studio depuis la page **Developer** ou avec `lms server start`.
+- Endpoint par défaut : `http://localhost:1234/v1/chat/completions`.
+- Cliquer sur **Refresh** pour charger tous les modèles exposés par `/v1/models` ; le premier est sélectionné si aucun modèle n’est configuré.
+- La clé API est facultative sauf si l’authentification est activée dans les paramètres du serveur LM Studio. Dans Docker, remplacer `localhost` par `host.docker.internal`.
 
 ## Note sécurité
 Si le LLM est activé, le contexte trafic KNX peut être envoyé à l'endpoint configuré. Pour un usage strictement on-premise, utilisez un provider local. Une commande émise en sortie 4 a passé la validation locale et a été transmise au flow, sans prouver son exécution par l'actionneur. Utilisez une GA d'état KNX pour la confirmation.

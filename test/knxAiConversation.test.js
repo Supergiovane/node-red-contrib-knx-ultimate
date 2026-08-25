@@ -4,6 +4,13 @@ const path = require('path')
 const vm = require('vm')
 
 const {
+  KNX_AI_CLOUD_LLM_TIMEOUT_MIN_MS,
+  KNX_AI_COMPACT_CONTEXT_MAX_TOKENS,
+  KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
+  KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS,
+  KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS,
+  KNX_AI_THINKING_DELAY_MS,
+  KNX_AI_TRAFFIC_DEFAULTS,
   applyKnxAiChatMediaPresetFallback,
   bindSharedKnxAiState,
   buildKnxAiConfirmationRequest,
@@ -11,25 +18,41 @@ const {
   classifyKnxAiConfirmation,
   cloneKnxAiInputMessage,
   compileKnxAiChatAdapter,
+  compactLlmMessagesForContextRetry,
   coerceKnxAiCommandPayload,
   detectKnxAiLanguageFromText,
+  deriveLmStudioNativeApiUrl,
+  dispatchKnxAiTtsUltimateAnnouncement,
+  ensureLmStudioModelMaxContext,
   executeKnxAiChatAdapter,
+  extractLlmHttpErrorDetail,
+  extractOllamaModelMaxContextLength,
   extractKnxAiQuestion,
   formatKnxAiCommandPreview,
   formatKnxAiReadResults,
   getKnxAiConfirmationCopy,
+  getKnxAiRequestStatusLabel,
+  getKnxAiThinkingCopy,
   isChatCompletionsModelError,
+  isLlmContextLengthError,
   isProbablyChatModelId,
   isUnsupportedTemperatureError,
   normalizeKnxAiCommandCandidates,
+  normalizeLmStudioModelCatalog,
   parseKnxAiConversationResponse,
+  postLocalLlmWithContextFallbacks,
   postOpenAiCompatibleChatWithFallbacks,
   resolveKnxAiLanguage,
+  resolveKnxAiLlmTimeoutMs,
+  resolveKnxAiPromptContextMode,
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,
+  resolveOllamaModelMaxContext,
   releaseSharedKnxAiState,
   safeKnxAiSend,
-  summarizeDetectedKnxAiCameraAdapters
+  selectKnxAiCatalogForPrompt,
+  summarizeDetectedKnxAiCameraAdapters,
+  summarizeDetectedKnxAiTtsAdapter
 } = require('../nodes/knxUltimateAI').__test
 const chatAdapterMappings = require('../resources/KNXAIChatAdapterMappings')
 const {
@@ -76,11 +99,12 @@ describe('KNX AI conversational control', () => {
   }
 
   it('parses a structured provider response from a fenced JSON block', () => {
-    const parsed = parseKnxAiConversationResponse('```json\n{"reply":"Accendo la luce.","language":"it","commands":[{"destination":"1/2/3","payload":true}],"cameraActions":[{"type":"snapshot","camera":"Ingresso"}]}\n```')
+    const parsed = parseKnxAiConversationResponse('```json\n{"reply":"Accendo la luce.","language":"it","commands":[{"destination":"1/2/3","payload":true}],"cameraActions":[{"type":"snapshot","camera":"Ingresso"}],"speechActions":[{"type":"announce","text":"La cena è pronta","reason":"richiesto"}]}\n```')
     expect(parsed.reply).to.equal('Accendo la luce.')
     expect(parsed.language).to.equal('it')
     expect(parsed.commands).to.have.length(1)
     expect(parsed.cameraActions).to.deep.equal([{ type: 'snapshot', camera: 'Ingresso' }])
+    expect(parsed.speechActions).to.deep.equal([{ type: 'announce', text: 'La cena è pronta', reason: 'richiesto' }])
   })
 
   it('extracts text and a session id from common Telegram message shapes', () => {
@@ -746,6 +770,52 @@ describe('KNX AI conversational control', () => {
     expect(resolveKnxAiLanguage({ language: 'de' }, 'en', 'Accendi la luce', 'it')).to.equal('de')
   })
 
+  it('provides delayed localized thinking feedback without adding it to the conversation', () => {
+    expect(KNX_AI_THINKING_DELAY_MS).to.equal(1200)
+    expect(getKnxAiThinkingCopy('en')).to.equal('I’m thinking…')
+    expect(getKnxAiThinkingCopy('it')).to.equal('Sto pensando…')
+    expect(getKnxAiThinkingCopy('de')).to.equal('Ich denke nach…')
+    expect(getKnxAiThinkingCopy('fr')).to.equal('Je réfléchis…')
+    expect(getKnxAiThinkingCopy('es')).to.equal('Estoy pensando…')
+    expect(getKnxAiThinkingCopy('zh')).to.equal('我正在思考…')
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include("type: 'thinking'")
+    expect(runtime).to.include('transient: true')
+    expect(runtime).to.include('stopThinkingFeedback()')
+    expect(runtime).not.to.match(/rememberConversationTurn\([^)]*thinking/s)
+  })
+
+  it('keeps the canvas status limited to incoming requests and thinking', () => {
+    expect(getKnxAiRequestStatusLabel('en')).to.equal('Request')
+    expect(getKnxAiRequestStatusLabel('it')).to.equal('Richiesta')
+    expect(getKnxAiRequestStatusLabel('de')).to.equal('Anfrage')
+    expect(getKnxAiRequestStatusLabel('fr')).to.equal('Demande')
+    expect(getKnxAiRequestStatusLabel('es')).to.equal('Solicitud')
+    expect(getKnxAiRequestStatusLabel('zh')).to.equal('请求')
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include("if (!status || status.scope !== 'conversation') return")
+    expect(runtime).to.include("if (type === 'thinking')")
+    expect(runtime).to.include("if (type !== 'request') return")
+    expect(runtime).to.include('node.setNodeStatus = ({ text } = {}) => {')
+    expect(runtime).not.to.include("text: GA + payload")
+    expect(runtime).not.to.include("node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' })")
+  })
+
+  it('gives local LLM providers a ten-minute minimum request timeout', () => {
+    expect(KNX_AI_CLOUD_LLM_TIMEOUT_MIN_MS).to.equal(120000)
+    expect(KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS).to.equal(600000)
+    expect(resolveKnxAiLlmTimeoutMs({ provider: 'ollama', configuredTimeoutMs: 120000 })).to.equal(600000)
+    expect(resolveKnxAiLlmTimeoutMs({ provider: 'lmstudio', configuredTimeoutMs: 30000 })).to.equal(600000)
+    expect(resolveKnxAiLlmTimeoutMs({ provider: 'lmstudio', configuredTimeoutMs: 900000 })).to.equal(900000)
+    expect(resolveKnxAiLlmTimeoutMs({ provider: 'anthropic', configuredTimeoutMs: 30000 })).to.equal(120000)
+    expect(resolveKnxAiLlmTimeoutMs({ provider: 'openai_compat', configuredTimeoutMs: 180000 })).to.equal(180000)
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).not.to.include('Increase "Timeout ms"')
+  })
+
   it('filters legacy completion-only models from the chat model picker', () => {
     expect(isProbablyChatModelId('gpt-5.4')).to.equal(true)
     expect(isProbablyChatModelId('gpt-4o-mini')).to.equal(true)
@@ -796,14 +866,245 @@ describe('KNX AI conversational control', () => {
     expect(response.choices[0].message.content).to.equal('ok')
   })
 
-  it('keeps the opt-in editor field, fourth output, help, and docs aligned in every locale', () => {
+  it('preserves LM Studio error strings instead of reducing them to HTTP 400', () => {
+    expect(extractLlmHttpErrorDetail({
+      json: { error: 'The requested max_tokens value exceeds the model context length.' },
+      text: '{"error":"The requested max_tokens value exceeds the model context length."}'
+    })).to.equal('The requested max_tokens value exceeds the model context length.')
+
+    expect(extractLlmHttpErrorDetail({
+      json: { error: { message: 'Model is not loaded' } },
+      text: '{"error":{"message":"Model is not loaded"}}'
+    })).to.equal('Model is not loaded')
+
+    expect(extractLlmHttpErrorDetail({
+      json: { raw: 'Bad Request' },
+      text: 'Bad Request'
+    })).to.equal('Bad Request')
+  })
+
+  it('lets LM Studio apply the loaded model token budget', () => {
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include("const tokenLimitBody = node.llmProvider === 'lmstudio'")
+    expect(runtime).to.include('body: Object.assign(tokenLimitBody, schemaBody)')
+  })
+
+  it('retries local context-length failures with progressively compact prompts', async () => {
+    const originalMessages = [
+      { role: 'system', content: `SYSTEM START ${'S'.repeat(10000)} SYSTEM END` },
+      { role: 'user', content: `USER START ${'U'.repeat(20000)} CURRENT USER REQUEST: accendi la cucina` }
+    ]
+    const bodies = []
+    const response = await postLocalLlmWithContextFallbacks({
+      body: { model: 'gemma', messages: originalMessages },
+      enabled: true,
+      request: async body => {
+        bodies.push(body)
+        const chars = body.messages.reduce((total, message) => total + String(message.content || '').length, 0)
+        if (chars > 5200) {
+          throw new Error('HTTP 400: The number of tokens to keep from the initial prompt is greater than the context length.')
+        }
+        return { choices: [{ message: { content: 'ok' } }] }
+      }
+    })
+
+    expect(KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS).to.deep.equal([9000, 5000])
+    expect(isLlmContextLengthError('tokens to keep from the initial prompt is greater than the context length')).to.equal(true)
+    expect(isLlmContextLengthError('HTTP 401: invalid API key')).to.equal(false)
+    expect(bodies).to.have.length(3)
+    expect(bodies[0].messages).to.equal(originalMessages)
+    const compactChars = bodies[2].messages.reduce((total, message) => total + String(message.content || '').length, 0)
+    expect(compactChars).to.be.at.most(5000)
+    expect(bodies[2].messages[0].content).to.include('SYSTEM START')
+    expect(bodies[2].messages[0].content).to.include('SYSTEM END')
+    expect(bodies[2].messages[1].content).to.include('USER START')
+    expect(bodies[2].messages[1].content).to.include('CURRENT USER REQUEST: accendi la cucina')
+    expect(response.choices[0].message.content).to.equal('ok')
+  })
+
+  it('compacts text parts without removing image parts', () => {
+    const imagePart = { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,abc' } }
+    const messages = compactLlmMessagesForContextRetry({
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'text', text: `QUESTION ${'x'.repeat(4000)} QUESTION END` },
+          imagePart
+        ]
+      }],
+      maxChars: 1024
+    })
+    expect(messages[0].content[0].text.length).to.be.at.most(1024)
+    expect(messages[0].content[0].text).to.include('QUESTION')
+    expect(messages[0].content[0].text).to.include('QUESTION END')
+    expect(messages[0].content[1]).to.equal(imagePart)
+  })
+
+  it('reads and applies the maximum context declared by an LM Studio model', async () => {
+    expect(deriveLmStudioNativeApiUrl(
+      'http://localhost:1234/v1/chat/completions',
+      '/api/v1/models'
+    )).to.equal('http://localhost:1234/api/v1/models')
+    expect(deriveLmStudioNativeApiUrl(
+      'http://server.local/lmstudio/v1/chat/completions',
+      '/api/v1/models/load'
+    )).to.equal('http://server.local/lmstudio/api/v1/models/load')
+
+    const catalogJson = {
+      models: [
+        {
+          type: 'llm',
+          key: 'google/gemma-3-12b',
+          display_name: 'Gemma 3 12B',
+          max_context_length: 131072,
+          loaded_instances: [{ id: 'google/gemma-3-12b', config: { context_length: 4096 } }]
+        },
+        {
+          type: 'embedding',
+          key: 'nomic/embed',
+          max_context_length: 2048,
+          loaded_instances: []
+        }
+      ]
+    }
+    expect(normalizeLmStudioModelCatalog(catalogJson)).to.deep.equal([{
+      id: 'google/gemma-3-12b',
+      displayName: 'Gemma 3 12B',
+      type: 'llm',
+      architecture: '',
+      maxContextLength: 131072,
+      loadedContextLength: 4096,
+      loadedInstances: [{ id: 'google/gemma-3-12b', contextLength: 4096 }],
+      variants: [],
+      selectedVariant: '',
+      vision: false
+    }])
+
+    const requests = []
+    const result = await ensureLmStudioModelMaxContext({
+      baseUrl: 'http://localhost:1234/v1/chat/completions',
+      model: 'google/gemma-3-12b',
+      get: async request => {
+        requests.push({ method: 'GET', request })
+        return catalogJson
+      },
+      post: async request => {
+        requests.push({ method: 'POST', request })
+        if (request.url.endsWith('/models/load')) {
+          return {
+            status: 'loaded',
+            instance_id: 'google/gemma-3-12b',
+            load_config: { context_length: request.body.context_length }
+          }
+        }
+        return { instance_id: request.body.instance_id }
+      }
+    })
+
+    expect(requests.map(item => `${item.method} ${new URL(item.request.url).pathname}`)).to.deep.equal([
+      'GET /api/v1/models',
+      'POST /api/v1/models/unload',
+      'POST /api/v1/models/load'
+    ])
+    expect(requests[2].request.body).to.deep.include({
+      model: 'google/gemma-3-12b',
+      context_length: 131072,
+      echo_load_config: true
+    })
+    expect(result).to.deep.include({
+      model: 'google/gemma-3-12b',
+      contextLength: 131072,
+      maxContextLength: 131072,
+      changed: true
+    })
+  })
+
+  it('does not reload an LM Studio model already using its maximum context', async () => {
+    let postCount = 0
+    const result = await ensureLmStudioModelMaxContext({
+      model: 'google/gemma-3-12b',
+      get: async () => ({
+        models: [{
+          type: 'llm',
+          key: 'google/gemma-3-12b',
+          max_context_length: 32768,
+          loaded_instances: [{ id: 'gemma-ready', config: { context_length: 32768 } }]
+        }]
+      }),
+      post: async () => { postCount += 1 }
+    })
+    expect(postCount).to.equal(0)
+    expect(result).to.deep.include({ instanceId: 'gemma-ready', contextLength: 32768, changed: false })
+  })
+
+  it('reads the Ollama model maximum context and sends it as num_ctx', async () => {
+    const showResponse = {
+      capabilities: ['completion', 'vision'],
+      model_info: {
+        'clip.context_length': 77,
+        'gemma3.context_length': 131072,
+        'gemma3.embedding_length': 2560
+      }
+    }
+    expect(extractOllamaModelMaxContextLength(showResponse)).to.equal(131072)
+
+    const requests = []
+    const result = await resolveOllamaModelMaxContext({
+      baseUrl: 'http://localhost:11434/api/chat',
+      model: 'gemma3:latest',
+      post: async request => {
+        requests.push(request)
+        return showResponse
+      }
+    })
+    expect(new URL(requests[0].url).pathname).to.equal('/api/show')
+    expect(requests[0].body).to.deep.equal({ model: 'gemma3:latest', verbose: false })
+    expect(result).to.deep.equal({
+      model: 'gemma3:latest',
+      maxContextLength: 131072,
+      contextLength: 131072
+    })
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('{ num_ctx: Math.round(node.llmContextLength) }')
+    expect(runtime).to.include("deriveOllamaApiUrl(tagsUrl, '/api/show')")
+  })
+
+  it('uses relevant compact context only for local models with limited windows', () => {
+    expect(KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS).to.equal(16384)
+    expect(KNX_AI_COMPACT_CONTEXT_MAX_TOKENS).to.equal(65536)
+    expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 8192 })).to.equal('minimal')
+    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 32768 })).to.equal('compact')
+    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072 })).to.equal('full')
+    expect(resolveKnxAiPromptContextMode({ provider: 'openai_compat', contextLength: 8192 })).to.equal('full')
+
+    const catalog = [
+      { ga: '1/1/1', dpt: '1.001', label: 'Luce cucina comando', semantic: { area: 'cucina', kind: 'light' } },
+      { ga: '1/1/2', dpt: '1.001', label: 'Luce cucina stato', semantic: { area: 'cucina', kind: 'light' } },
+      { ga: '2/1/1', dpt: '9.001', label: 'Temperatura camera', semantic: { area: 'camera', kind: 'temperature' } }
+    ]
+    const selected = selectKnxAiCatalogForPrompt({
+      catalog,
+      question: 'Accendi la luce della cucina',
+      mode: 'minimal'
+    })
+    expect(selected.map(item => item.ga)).to.deep.equal(['1/1/1', '1/1/2'])
+    expect(selectKnxAiCatalogForPrompt({ catalog, question: 'anything', mode: 'full' })).to.deep.equal(catalog)
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include("promptContextMode === 'minimal'")
+    expect(runtime).to.include('{ num_predict: localOutputTokenLimit }')
+    expect(runtime).to.include('selectKnxAiCatalogForPrompt({ catalog, question, mode: contextMode })')
+  })
+
+  it('keeps the Education-only proactive policy, fourth output, help, and docs aligned in every locale', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('llmAllowKnxCommands: { value: false }')
     expect(editor).to.include('llmRequireCommandConfirmation: { value: true }')
     expect(editor).to.include('chatAdapterPreset: { value: "none" }')
-    expect(editor).to.include('proactiveEnabled: { value: false }')
-    expect(editor).to.include('proactiveOpenMinutes: { value: 120 }')
+    expect(editor).not.to.include('proactiveEnabled:')
+    expect(editor).not.to.include('proactiveOpenMinutes:')
     expect(editor).not.to.include('homeMemoryMaxKb')
     expect(editor).to.include('maxlength="16000"')
     expect(editor).to.include('KNXAIChatAdapterMappings.js')
@@ -812,6 +1113,15 @@ describe('KNX AI conversational control', () => {
     const runtime = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('replyMessage.inputMessage = cloneInputMessage(inputMessage)')
     expect(runtime).to.include('inputMessage: cloneInputMessage(inputMessage)')
+    expect(runtime).to.include('node.llmEnabled !== true || !education')
+    ;[
+      'proactiveEnabled',
+      'proactiveRecipient',
+      'proactiveOpenMinutes',
+      'proactiveCooldownMinutes',
+      'proactiveQuietStart',
+      'proactiveQuietEnd'
+    ].forEach(property => expect(runtime).not.to.include(`config.${property}`))
     expect(runtime).to.include("events: ['GroupValue_Response', 'GroupValue_Write']")
     expect(runtime).to.include('readResults = await Promise.allSettled(readWaiters)')
     expect(runtime).to.include('node.notifyreadrequest = true')
@@ -841,16 +1151,41 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.sections.groupAssistant).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupChatHome).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.detectedAdapters).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.sections.groupKnxAnalysis).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections).not.to.have.property('groupKnxAnalysis')
+      expect(messages.knxUltimateAI.sections).not.to.have.property('storage')
       expect(messages.knxUltimateAI.properties.llmAllowKnxCommands).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmRequireCommandConfirmation).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties).not.to.have.property('llmIncludeFlowContext')
       expect(messages.knxUltimateAI.sections.chatAdapter).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatAdapterPreset).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatInputCode).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatOutputCode).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties.ttsUltimateNodeId).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.selectlists.ttsUltimate.select).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.ttsUltimateHint).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.lmStudioContextAvailable).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.lmStudioContextLoading).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.lmStudioContextConfigured).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.lmStudioContextFailed).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.lmStudioContextCurrentlyLoaded).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.homeIntelligence).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.properties.proactiveEnabled).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections).not.to.have.property('homeIntelligenceAdvanced')
       expect(messages.knxUltimateAI.properties).not.to.have.property('homeMemoryMaxKb')
+      ;[
+        'analysisWindowSec',
+        'historyWindowSec',
+        'historyStoreToDisk',
+        'historyStoreRetentionDays',
+        'emitIntervalSec',
+        'maxEvents',
+        'topN',
+        'proactiveEnabled',
+        'proactiveRecipient',
+        'proactiveOpenMinutes',
+        'proactiveCooldownMinutes',
+        'proactiveQuietStart',
+        'proactiveQuietEnd'
+      ].forEach(property => expect(messages.knxUltimateAI.properties).not.to.have.property(property))
       expect(messages.knxUltimateAI.properties.aiEducation).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.outputs.knxCommands).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.messages.detectedAdaptersLoading).to.be.a('string').and.not.equal('')
@@ -866,6 +1201,8 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('msg.readstatus = true')
       expect(helpBody).to.include('msg.knxAi.readResults')
       expect(helpBody).to.include('KNXAIChatAdapterMappings.js')
+      expect(helpBody).to.include('node-red-contrib-tts-ultimate')
+      expect(helpBody).to.include('msg.topic = "knx_ai_announcement"')
       expect(helpBody).to.include('RedBot / node-red-contrib-chatbot')
       expect(helpBody).to.include('chatbot-telegram-receive')
       expect(helpBody).to.include('chatbot-telegram-send')
@@ -873,11 +1210,11 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('options.reply_markup')
       expect(helpBody).to.include('proactive_notification')
       expect(helpBody).to.include('home-memory')
-      expect(helpBody).to.include('proactiveOpenMinutes')
-      expect(helpBody).to.include('proactiveCooldownMinutes')
+      expect(helpBody).not.to.include('proactiveOpenMinutes')
+      expect(helpBody).not.to.include('proactiveCooldownMinutes')
       expect(helpBody).not.to.include('homeMemoryMaxKb')
       expect(helpBody).to.include('aiEducation')
-      expect(helpBody).to.include('123456789')
+      expect(helpBody).not.to.include('knxultimatestorage/knxai/history')
       const docsBody = fs.readFileSync(path.join(root, 'docs', 'wiki', docName), 'utf8')
         .replace(/^---\n[\s\S]*?\n---\n+/, '')
         .trim()
@@ -928,66 +1265,66 @@ describe('KNX AI conversational control', () => {
     expect(callbackEvent.wires[0]).to.deep.equal(['node_knx_ai_telegram'])
     expect(aiNode.wires[2]).to.include('telegram_sender_knx_ai')
     expect(aiNode.wires[3]).to.include('node_knx_ai_telegram_universal')
-    expect(aiNode.proactiveEnabled).to.equal(true)
+    expect(aiNode).not.to.have.property('proactiveEnabled')
+    expect(aiNode).not.to.have.property('proactiveOpenMinutes')
+    expect(aiNode).not.to.have.property('proactiveCooldownMinutes')
     expect(aiNode).not.to.have.property('homeMemoryMaxKb')
     expect(aiNode.aiEducation).to.include('persiana')
     expect(sender.type).to.equal('telegram sender')
   })
 
-  it('keeps the streamlined options in three main accordion sections', () => {
+  it('keeps the streamlined options in two horizontal tabs', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
-    expect(editor).to.include('id="knx-ai-accordion"')
+    expect(editor).to.include('id="knx-ai-tabs"')
     expect(editor).to.include('id="knx-ai-detected-adapters-panel"')
     expect(editor).to.include('url: "knxUltimateAI/adapters"')
-    expect(editor).to.include('$("#knx-ai-accordion").accordion({')
-    expect(editor).to.include('heightStyle: "content"')
+    expect(editor).to.include('$("#knx-ai-tabs").tabs({ active: 0 })')
     expect(editor).to.include('.knx-ai-accordion-subsection')
-    expect(editor).not.to.include('id="knx-ai-tabs"')
+    expect(editor).not.to.include('id="knx-ai-accordion"')
     expect(editor).not.to.include('hue-vertical-tabs')
-    expect(editor).not.to.include('.tabs()')
+    expect(editor).not.to.include('.accordion(')
     expect(editor).not.to.include('<details')
     expect(editor).not.to.include('<summary')
     const preservedFieldIds = [
       'node-input-server',
       'node-input-name',
       'node-input-topic',
-      'node-input-historyWindowSec',
       'node-input-llmEnabled',
       'node-input-llmAllowKnxCommands',
-      'node-input-llmRequireCommandConfirmation'
+      'node-input-llmRequireCommandConfirmation',
+      'node-input-ttsUltimateNodeId'
     ]
     preservedFieldIds.forEach(id => expect(editor).to.include(`id="${id}"`))
 
     const template = editor.match(/<script[^>]*data-template-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)[1]
-    const accordion = template.match(/<div id="knx-ai-accordion">([\s\S]*?)<div id="knx-ai-accordion-source"/i)[1]
+    const tabs = template.match(/<div id="knx-ai-tabs">([\s\S]*?)<div id="knx-ai-accordion-source"/i)[1]
+    const chatHomeTab = tabs.match(/<div id="knx-ai-tabs-chat-home">([\s\S]*)$/i)[1]
+    expect(chatHomeTab.indexOf('id="knx-ai-chat-context-panel"'))
+      .to.be.greaterThan(chatHomeTab.indexOf('id="knx-ai-detected-adapters-panel"'))
     const orderedGroups = [
       'knxUltimateAI.sections.groupAssistant',
-      'knxUltimateAI.sections.groupChatHome',
-      'knxUltimateAI.sections.groupKnxAnalysis'
+      'knxUltimateAI.sections.groupChatHome'
     ]
     orderedGroups.reduce((previousIndex, translationKey) => {
-      const currentIndex = accordion.indexOf(translationKey)
+      const currentIndex = tabs.indexOf(translationKey)
       expect(currentIndex, translationKey).to.be.greaterThan(previousIndex)
       return currentIndex
     }, -1)
-    expect((accordion.match(/<h3>/g) || [])).to.have.length(3)
-    expect((accordion.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(6)
+    expect((tabs.match(/href="#knx-ai-tabs-/g) || [])).to.have.length(2)
+    expect((tabs.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(4)
     const mountPairs = [
       ['knx-ai-mount-assistant-setup', 'knx-ai-tab-llm-connection'],
-      ['knx-ai-mount-assistant-context', 'knx-ai-tab-llm-context'],
       ['knx-ai-mount-assistant-advanced', 'knx-ai-tab-advanced'],
       ['knx-ai-mount-chat-adapter', 'knx-ai-tab-chat-adapter'],
-      ['knx-ai-mount-home-intelligence', 'knx-ai-tab-home-intelligence'],
-      ['knx-ai-mount-knx-storage', 'knx-ai-tab-storage']
+      ['knx-ai-mount-home-intelligence', 'knx-ai-tab-home-intelligence']
     ]
     mountPairs.forEach(([mountId, sectionId]) => {
-      expect(editor).to.include(`mountAccordionSection("#${mountId}", "#${sectionId}")`)
+      expect(editor).to.include(`mountTabSection("#${mountId}", "#${sectionId}")`)
     })
     const quickSetup = template.match(/<div id="knx-ai-tab-llm-connection">([\s\S]*?)<div id="knx-ai-tab-chat-adapter">/i)[1]
     const chatAdapter = template.match(/<div id="knx-ai-tab-chat-adapter">([\s\S]*?)<div id="knx-ai-tab-home-intelligence">/i)[1]
-    const homeIntelligence = template.match(/<div id="knx-ai-tab-home-intelligence">([\s\S]*?)<div id="knx-ai-tab-llm-context">/i)[1]
-    const aiContext = template.match(/<div id="knx-ai-tab-llm-context">([\s\S]*?)<div id="knx-ai-tab-advanced">/i)[1]
+    const homeIntelligence = template.match(/<div id="knx-ai-tab-home-intelligence">([\s\S]*?)<div id="knx-ai-tab-advanced">/i)[1]
     const advancedAi = template.match(/<div id="knx-ai-tab-advanced">([\s\S]*?)<\/div>\s*<\/div>\s*$/i)[1]
 
     const quickSetupFieldIds = [
@@ -995,21 +1332,22 @@ describe('KNX AI conversational control', () => {
       'node-input-llmProvider',
       'node-input-llmApiKey',
       'node-input-llmModel',
+      'node-input-llmContextLength',
       'node-input-llmAllowKnxCommands',
       'node-input-llmRequireCommandConfirmation'
     ]
     quickSetupFieldIds.forEach(id => expect(quickSetup).to.include(`id="${id}"`))
+    expect(quickSetup).to.include('option value="lmstudio"')
+    expect(editor).to.include('http://localhost:1234/v1/chat/completions')
+    expect(editor).to.include('url: "knxUltimateAI/lmstudio/select-model"')
+    expect(editor).to.include('detail.maxContextLength')
+    expect(editor).to.include('const configureSelectedLocalModel = () => {')
+    expect(editor).to.include('id="knx-ai-local-context-status"')
     expect(quickSetup).not.to.include('id="node-input-llmBaseUrl"')
     expect(chatAdapter).to.include('id="node-input-chatAdapterPreset"')
     expect(chatAdapter).to.include('id="knx-ai-chat-adapter-fields" style="display:none;"')
     expect(chatAdapter).to.include('id="node-input-chatInputCode"')
     expect(chatAdapter).to.include('id="node-input-chatOutputCode"')
-    expect(homeIntelligence).to.include('id="node-input-proactiveEnabled"')
-    expect(homeIntelligence).to.include('id="node-input-proactiveRecipient"')
-    expect(homeIntelligence).to.include('id="node-input-proactiveOpenMinutes"')
-    expect(homeIntelligence).to.include('id="node-input-proactiveQuietStart"')
-    expect(homeIntelligence).to.include('id="node-input-proactiveQuietEnd"')
-    expect(homeIntelligence).to.include('id="node-input-proactiveCooldownMinutes"')
     expect(homeIntelligence).not.to.include('id="node-input-homeMemoryMaxKb"')
     expect(homeIntelligence).to.include('id="node-input-aiEducation"')
     expect(chatAdapter).to.include('id="node-input-chatInputCode-editor"')
@@ -1018,30 +1356,24 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('mode: "ace/mode/nrjavascript"')
     expect(editor).to.include('"editor.background": "#e8f5e9"')
     expect(editor).to.include('"editor.background": "#fffde7"')
-    expect(editor).to.include('updateAdapterFieldsVisibility(configuredPreset)')
+    expect(editor).to.include('const hideAdapterMappingFields = () => {')
+    expect(editor).to.include('$("#knx-ai-chat-adapter-fields").hide()')
+    expect(editor).not.to.include('$("#knx-ai-chat-adapter-fields").toggle(')
     expect(editor).to.include('$button.find("i.fa-refresh").toggleClass("fa-spin", !!busy)')
     expect(editor).not.to.include('class="form-tips"')
     expect(editor).not.to.include('id="knx-ai-models-status"')
     expect(editor).not.to.include('knxUltimateAI.messages.loadedModels')
     expect(editor).not.to.include('": " + models.length')
-    expect(aiContext).to.include('id="node-input-llmIncludeFlowContext"')
-    expect(aiContext).to.include('id="node-input-llmDocsLanguage"')
+    expect(editor).not.to.include('id="node-input-llmIncludeFlowContext"')
     expect(advancedAi).to.include('id="node-input-llmBaseUrl"')
 
     const uniqueFieldIds = [
-      'node-input-analysisWindowSec',
-      'node-input-maxEvents',
-      'node-input-topN',
       'node-input-llmBaseUrl',
+      'node-input-llmContextLength',
       'node-input-chatAdapterPreset',
       'node-input-chatInputCode',
       'node-input-chatOutputCode',
-      'node-input-proactiveEnabled',
-      'node-input-proactiveRecipient',
-      'node-input-proactiveOpenMinutes',
-      'node-input-proactiveQuietStart',
-      'node-input-proactiveQuietEnd',
-      'node-input-proactiveCooldownMinutes',
+      'node-input-ttsUltimateNodeId',
       'node-input-aiEducation'
     ]
     uniqueFieldIds.forEach(id => {
@@ -1060,17 +1392,69 @@ describe('KNX AI conversational control', () => {
       'node-input-maxTelegramPerSecPerGA',
       'node-input-flapWindowSec',
       'node-input-flapMaxChanges',
+      'node-input-analysisWindowSec',
+      'node-input-historyWindowSec',
+      'node-input-historyStoreToDisk',
+      'node-input-historyStoreRetentionDays',
+      'node-input-emitIntervalSec',
+      'node-input-maxEvents',
+      'node-input-topN',
+      'node-input-llmIncludeFlowContext',
       'node-input-llmSystemPrompt',
       'node-input-llmIncludeRaw',
-      'node-input-llmIncludeDocsSnippets'
+      'node-input-llmIncludeDocsSnippets',
+      'node-input-proactiveEnabled',
+      'node-input-proactiveRecipient',
+      'node-input-proactiveOpenMinutes',
+      'node-input-proactiveQuietStart',
+      'node-input-proactiveQuietEnd',
+      'node-input-proactiveCooldownMinutes'
     ]
     removedFieldIds.forEach(id => expect(template).not.to.include(`id="${id}"`))
-    expect(editor).to.include('proactiveCooldownMinutes: { value: 360 }')
     expect(editor).not.to.include('homeMemoryMaxKb')
-    expect(editor).to.include('applyNumericFallback("#node-input-proactiveOpenMinutes", 120)')
     const defaultsBlock = editor.match(/defaults:\s*\{([\s\S]*?)\n\s*\},\n\s*credentials:/)[1]
     expect((defaultsBlock.match(/required:\s*true/g) || [])).to.have.length(1)
     expect(defaultsBlock).to.include('server: { type: "knxUltimate-config", required: true }')
+    ;[
+      'analysisWindowSec',
+      'historyWindowSec',
+      'historyStoreToDisk',
+      'historyStoreRetentionDays',
+      'emitIntervalSec',
+      'maxEvents',
+      'topN'
+    ].forEach(property => expect(defaultsBlock).not.to.include(`${property}:`))
+    expect(defaultsBlock).not.to.include('llmIncludeFlowContext:')
+  })
+
+  it('uses the hidden traffic-analysis defaults and ignores legacy flow values', () => {
+    expect(KNX_AI_TRAFFIC_DEFAULTS).to.deep.equal({
+      analysisWindowSec: 120,
+      historyWindowSec: 600,
+      historyStoreToDisk: true,
+      historyStoreRetentionDays: 10,
+      emitIntervalSec: 0,
+      maxEvents: 5000,
+      topN: 12
+    })
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    ;[
+      'analysisWindowSec',
+      'historyWindowSec',
+      'historyStoreToDisk',
+      'historyStoreRetentionDays',
+      'emitIntervalSec',
+      'maxEvents',
+      'topN'
+    ].forEach(property => expect(runtime).not.to.include(`config.${property}`))
+  })
+
+  it('always includes the Node-RED project inventory without a legacy toggle', () => {
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).not.to.include('config.llmIncludeFlowContext')
+    expect(runtime).not.to.include('node.llmIncludeFlowContext')
+    expect(runtime).to.include('flowContext = buildKnxUltimateProjectInventory()')
+    expect(runtime).to.include('const wantsFunctionNodeSourceContext = shouldIncludeFunctionNodeSourceContext(question)')
   })
 
   it('summarizes automatically detected camera adapters for the editor', () => {
@@ -1120,9 +1504,79 @@ describe('KNX AI conversational control', () => {
     ])
   })
 
-  it('gives conversational chat channels the complete web Assistant analysis context', () => {
+  it('detects every TTS Ultimate node across flows for the editor selector', () => {
+    const configuredNodes = [
+      { id: 'flow-upstairs', type: 'tab', label: 'Upstairs' },
+      { id: 'flow-ground', type: 'tab', label: 'Ground floor' },
+      { id: 'tts-bedroom', type: 'ttsultimate', z: 'flow-upstairs', name: 'Bedroom Sonos', playertype: 'sonos' },
+      { id: 'tts-kitchen', type: 'ttsultimate', z: 'flow-ground', name: 'Kitchen Sonos', playertype: 'sonos' },
+      { id: 'debug-1', type: 'debug', z: 'flow-ground', name: 'Ignore me' }
+    ]
+    const summary = summarizeDetectedKnxAiTtsAdapter({
+      red: {
+        nodes: {
+          getType: type => type === 'ttsultimate' ? function TtsUltimate () {} : null,
+          eachNode: callback => configuredNodes.forEach(callback)
+        }
+      },
+      selectedNodeId: 'tts-bedroom'
+    })
+
+    expect(summary.detected).to.equal(true)
+    expect(summary.adapter).to.deep.include({
+      id: 'tts-ultimate',
+      kind: 'tts',
+      packageName: 'node-red-contrib-tts-ultimate',
+      nodeCount: 2
+    })
+    expect(summary.nodes.map(item => item.id)).to.deep.equal(['tts-kitchen', 'tts-bedroom'])
+    expect(summary.nodes.find(item => item.id === 'tts-bedroom')).to.include({
+      flowName: 'Upstairs',
+      playerType: 'sonos',
+      selected: true
+    })
+  })
+
+  it('injects an announcement only into the selected TTS Ultimate node', () => {
+    const received = []
+    const target = {
+      id: 'tts-kitchen',
+      type: 'ttsultimate',
+      name: 'Kitchen Sonos',
+      playertype: 'sonos',
+      receive: message => received.push(message)
+    }
+    const result = dispatchKnxAiTtsUltimateAnnouncement({
+      red: { nodes: { getNode: id => id === target.id ? target : null } },
+      nodeId: target.id,
+      text: 'La cena è pronta.',
+      sourceNodeId: 'knx-ai-1',
+      sessionId: 'telegram-123'
+    })
+
+    expect(result).to.include({ nodeId: target.id, nodeName: target.name, playerType: 'sonos' })
+    expect(received).to.deep.equal([{
+      topic: 'knx_ai_announcement',
+      payload: 'La cena è pronta.',
+      knxAi: {
+        type: 'tts_announcement',
+        sourceNodeId: 'knx-ai-1',
+        targetNodeId: target.id,
+        sessionId: 'telegram-123'
+      }
+    }])
+    expect(() => dispatchKnxAiTtsUltimateAnnouncement({
+      red: { nodes: { getNode: () => ({ type: 'debug', receive: () => {} }) } },
+      nodeId: 'not-tts',
+      text: 'Do not send'
+    })).to.throw('TTS Ultimate node not available')
+  })
+
+  it('gives chat the full Assistant context unless the local model requires an adaptive compact view', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
-    expect(runtime).to.include('const analysisContext = buildLLMPrompt({ question, summary })')
+    expect(runtime).to.include('const analysisContext = buildLLMPrompt({')
+    expect(runtime).to.include("compact: contextMode === 'full' ? false : contextMode")
+    expect(runtime).to.include("if (mode === 'full') return source.slice(0, 600)")
     expect(runtime).not.to.include('const analysisContext = buildLLMPrompt({ question, summary, compact: true })')
   })
 
@@ -1152,13 +1606,17 @@ describe('KNX AI conversational control', () => {
           attr: () => element,
           empty: () => element,
           find: () => element,
-          hide: () => element,
+          hide: () => {
+            element._visible = false
+            return element
+          },
           is: () => element._checked,
           on: () => element,
           prop: () => element,
           removeClass: () => element,
           show: () => element,
           accordion: () => element,
+          tabs: () => element,
           text: () => element,
           toggle: function (visible) {
             element._visible = !!visible
@@ -1225,18 +1683,11 @@ describe('KNX AI conversational control', () => {
       chatAdapterPreset: 'windkh-telegrambot',
       chatInputCode: 'msg.topic = "ask"; return msg;',
       chatOutputCode: 'return msg;',
-      proactiveEnabled: true,
-      proactiveRecipient: '123456789',
-      proactiveOpenMinutes: 90,
-      proactiveCooldownMinutes: 300,
-      proactiveQuietStart: '22:30',
-      proactiveQuietEnd: '06:45',
-      aiEducation: 'La persiana dello studio può restare aperta.',
-      analysisWindowSec: 240,
-      historyWindowSec: 1200
+      aiEducation: 'La persiana dello studio può restare aperta.'
     }
     const original = JSON.parse(JSON.stringify(savedNode))
     definition.oneditprepare.call(savedNode)
+    expect(elements.get('#knx-ai-chat-adapter-fields')._visible).to.equal(false)
     definition.oneditsave.call(savedNode)
     expect(savedNode).to.deep.equal(original)
     definition.oneditprepare.call(savedNode)

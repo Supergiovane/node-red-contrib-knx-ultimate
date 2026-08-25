@@ -49,7 +49,7 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 - Uses KNX Ultimate nodes, the Philips Hue nodes and native Function/logic nodes, wired to your imported group addresses.
 - Generated node ids, wiring and config-node references (KNX server, Hue bridge) are validated and rewired server-side before output.
 - Copy the JSON and paste it in Node-RED via **Menu > Import**. Review the result before deploying (it is BETA).
-- Works with any configured LLM provider: OpenAI-compatible, Anthropic (Claude), or Ollama.
+- Works with any configured LLM provider: OpenAI-compatible, Anthropic (Claude), Ollama, or Bionic LM Studio.
 
 ## 7) Settings and operations
 

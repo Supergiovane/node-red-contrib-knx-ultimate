@@ -46,60 +46,99 @@
         background-color: #fffde7 !important;
     }
 
-    #knx-ai-accordion {
-        margin-top: 12px;
+    #knx-ai-tabs.ui-tabs {
+        background: transparent;
+        border: none;
     }
 
-    #knx-ai-accordion>h3 {
-        margin-top: 6px;
-        font-size: 14px;
-        font-weight: 600;
+    #knx-ai-tabs>.ui-tabs-nav {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #c0c0c0;
+        border-radius: 0;
     }
 
-    #knx-ai-accordion>.ui-accordion-content {
-        padding: 14px 16px;
+    #knx-ai-tabs>.ui-tabs-nav>li.ui-state-default {
+        float: none;
+        margin: 0 2px -1px 0;
+        background: transparent;
+        border: none;
+    }
+
+    #knx-ai-tabs>.ui-tabs-nav>li.ui-state-default>a {
+        padding: 0.5em 1em;
+        color: #878787;
+        outline: none;
+    }
+
+    #knx-ai-tabs>.ui-tabs-nav>li.ui-state-active {
+        background: transparent no-repeat bottom center;
+        border: none;
+    }
+
+    #knx-ai-tabs>.ui-tabs-nav>li.ui-state-active>a {
+        color: #377e00;
+        border-bottom: 1px solid #377e00;
+        outline: none;
+    }
+
+    #knx-ai-tabs>.ui-tabs-nav>li>a>i {
+        color: inherit;
+    }
+
+    #knx-ai-tabs>.ui-tabs-panel {
+        padding: 1em 1.4em;
         overflow: visible;
+        background: transparent;
+        border: none;
+        border-radius: 0;
     }
 
-    #knx-ai-accordion .knx-ai-accordion-subsection {
+    #knx-ai-tabs .knx-ai-accordion-subsection {
         padding: 0;
     }
 
-    #knx-ai-accordion .knx-ai-accordion-subsection+.knx-ai-accordion-subsection {
+    #knx-ai-tabs .knx-ai-accordion-subsection+.knx-ai-accordion-subsection {
         margin-top: 18px;
         padding-top: 16px;
         border-top: 1px solid var(--red-ui-form-input-border-color, #ccc);
     }
 
-    #knx-ai-accordion .knx-ai-accordion-subsection>h4 {
+    #knx-ai-tabs .knx-ai-accordion-subsection>h4 {
         margin: 0 0 14px;
         color: var(--red-ui-primary-text-color, #555);
         font-size: 14px;
         font-weight: 600;
     }
 
-    #knx-ai-accordion .knx-ai-accordion-subsection>h4 i {
+    #knx-ai-tabs .knx-ai-accordion-subsection>h4 i {
         width: 18px;
         text-align: center;
     }
 
-    #knx-ai-accordion .knx-ai-inline-subsection {
+    #knx-ai-tabs .knx-ai-inline-subsection {
         margin-top: 18px;
         padding-top: 14px;
         border-top: 1px dashed var(--red-ui-form-input-border-color, #ccc);
     }
 
-    #knx-ai-accordion .knx-ai-inline-subsection>h5 {
+    #knx-ai-tabs .knx-ai-inline-subsection>h5 {
         margin: 0 0 12px;
         font-size: 13px;
         font-weight: 600;
     }
 
-    #knx-ai-accordion .knx-ai-accordion-mount>div {
+    #knx-ai-tabs .knx-ai-accordion-mount>div {
         display: block;
     }
 
-    #knx-ai-detected-adapters-panel {
+    #knx-ai-detected-adapters-panel,
+    #knx-ai-chat-context-panel {
         margin: 0 0 18px;
         padding: 12px 14px;
         border: 1px solid var(--red-ui-form-input-border-color, #ccc);
@@ -107,7 +146,16 @@
         background: var(--red-ui-secondary-background, #f7f7f7);
     }
 
-    #knx-ai-detected-adapters-panel>h4 {
+    #knx-ai-tabs-chat-home>#knx-ai-detected-adapters-panel {
+        margin: 18px 0 0;
+    }
+
+    #knx-ai-tabs-chat-home>#knx-ai-detected-adapters-panel+#knx-ai-chat-context-panel {
+        margin: 18px 0 0;
+    }
+
+    #knx-ai-detected-adapters-panel>h4,
+    #knx-ai-chat-context-panel>h4 {
         margin: 0 0 9px;
         font-size: 14px;
         font-weight: 600;
@@ -131,9 +179,31 @@
 
     .knx-ai-detected-adapter-package,
     .knx-ai-detected-adapter-counts,
-    #knx-ai-detected-adapters-status {
+    #knx-ai-detected-adapters-status,
+    #knx-ai-chat-context-status,
+    .knx-ai-chat-context-intro,
+    .knx-ai-chat-context-description,
+    .knx-ai-chat-context-pattern {
         color: var(--red-ui-secondary-text-color, #777);
         font-size: 12px;
+    }
+
+    .knx-ai-chat-context-group-title {
+        margin: 12px 0 2px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .knx-ai-chat-context-path {
+        margin-top: 2px;
+        color: var(--red-ui-secondary-text-color, #777);
+        font-family: monospace;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .knx-ai-chat-context-pattern {
+        margin-top: 8px;
     }
 
     .knx-ai-detected-adapter-badge {
@@ -144,6 +214,29 @@
         background: #dff0d8;
         font-size: 11px;
         font-weight: 600;
+    }
+
+    #knx-ai-tts-ultimate-picker {
+        margin-top: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--red-ui-form-input-border-color, #ddd);
+    }
+
+    #knx-ai-tts-ultimate-picker label {
+        display: block;
+        width: 100%;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    #node-input-ttsUltimateNodeId {
+        width: 100%;
+    }
+
+    .knx-ai-tts-ultimate-hint {
+        margin-top: 6px;
+        color: var(--red-ui-secondary-text-color, #777);
+        font-size: 12px;
     }
 
     @media (max-width: 900px) {
@@ -169,31 +262,17 @@
             name: { value: "KNX AI", required: false },
             topic: { value: "", required: false },
 
-            analysisWindowSec: { value: 120 },
-            historyWindowSec: { value: 600 },
-            historyStoreToDisk: { value: true },
-            historyStoreRetentionDays: { value: 10 },
-            emitIntervalSec: { value: 0 },
-            topN: { value: 10 },
-            maxEvents: { value: 50000 },
-
             llmEnabled: { value: false },
             llmProvider: { value: "openai_compat" },
             llmBaseUrl: { value: "https://api.openai.com/v1/chat/completions" },
             llmModel: { value: "gpt-5.4" },
-            llmIncludeFlowContext: { value: true },
-            llmDocsLanguage: { value: "en" },
+            llmContextLength: { value: 0 },
             llmAllowKnxCommands: { value: false },
             llmRequireCommandConfirmation: { value: true },
             chatAdapterPreset: { value: "none" },
             chatInputCode: { value: "" },
             chatOutputCode: { value: "" },
-            proactiveEnabled: { value: false },
-            proactiveRecipient: { value: "" },
-            proactiveOpenMinutes: { value: 120 },
-            proactiveCooldownMinutes: { value: 360 },
-            proactiveQuietStart: { value: "23:00" },
-            proactiveQuietEnd: { value: "07:00" },
+            ttsUltimateNodeId: { value: "" },
             aiEducation: { value: "" }
         },
         credentials: {
@@ -220,42 +299,29 @@
             const OPENAI_COMPAT_DEFAULT_CHAT_URL = "https://api.openai.com/v1/chat/completions";
             const OLLAMA_DEFAULT_CHAT_URL = "http://localhost:11434/api/chat";
             const ANTHROPIC_DEFAULT_CHAT_URL = "https://api.anthropic.com/v1/messages";
+            const LMSTUDIO_DEFAULT_CHAT_URL = "http://localhost:1234/v1/chat/completions";
             const OLLAMA_LIBRARY_URL = "https://ollama.com/library";
             const OPENAI_COMPAT_DEFAULT_MODELS = ["gpt-5.4", "gpt-4o-mini"];
             const OLLAMA_DEFAULT_MODEL = "llama3.1";
             const ANTHROPIC_DEFAULT_MODEL = "claude-opus-4-8";
 
-            const mountAccordionSection = (mountSelector, sectionSelector) => {
+            const mountTabSection = (mountSelector, sectionSelector) => {
                 const $mount = $(mountSelector);
                 const $section = $(sectionSelector);
                 if ($mount.length && $section.length) $mount.append($section);
             };
-            mountAccordionSection("#knx-ai-mount-assistant-setup", "#knx-ai-tab-llm-connection");
-            mountAccordionSection("#knx-ai-mount-assistant-context", "#knx-ai-tab-llm-context");
-            mountAccordionSection("#knx-ai-mount-assistant-advanced", "#knx-ai-tab-advanced");
-            mountAccordionSection("#knx-ai-mount-chat-adapter", "#knx-ai-tab-chat-adapter");
-            mountAccordionSection("#knx-ai-mount-home-intelligence", "#knx-ai-tab-home-intelligence");
-            mountAccordionSection("#knx-ai-mount-knx-storage", "#knx-ai-tab-storage");
-            $("#knx-ai-accordion").accordion({
-                active: 0,
-                animate: false,
-                collapsible: true,
-                heightStyle: "content"
-            });
+            mountTabSection("#knx-ai-mount-assistant-setup", "#knx-ai-tab-llm-connection");
+            mountTabSection("#knx-ai-mount-assistant-advanced", "#knx-ai-tab-advanced");
+            mountTabSection("#knx-ai-mount-chat-adapter", "#knx-ai-tab-chat-adapter");
+            mountTabSection("#knx-ai-mount-home-intelligence", "#knx-ai-tab-home-intelligence");
+            $("#knx-ai-tabs").tabs({ active: 0 });
 
             const toggleLLM = () => {
                 const enabled = $("#node-input-llmEnabled").is(":checked");
                 $("#knx-ai-llm-connection-settings").toggle(enabled);
-                $("#knx-ai-llm-context-settings").toggle(enabled);
                 $("#knx-ai-llm-advanced-settings").toggle(enabled);
             };
             $("#node-input-llmEnabled").on("change", toggleLLM);
-
-            const toggleHistoryArchive = () => {
-                const enabled = $("#node-input-historyStoreToDisk").is(":checked");
-                $("#knx-ai-history-retention-row").toggle(enabled);
-            };
-            $("#node-input-historyStoreToDisk").on("change", toggleHistoryArchive);
 
             const toggleCommandConfirmation = () => {
                 const enabled = $("#node-input-llmAllowKnxCommands").is(":checked");
@@ -264,25 +330,7 @@
             $("#node-input-llmAllowKnxCommands").on("change", toggleCommandConfirmation);
 
             toggleLLM();
-            toggleHistoryArchive();
             toggleCommandConfirmation();
-
-            const applyNumericFallback = (selector, fallback) => {
-                const $field = $(selector);
-                if (!$field.length) return;
-                const value = $field.val();
-                if (value === undefined || value === null || String(value).trim() === "") {
-                    $field.val(String(fallback));
-                }
-            };
-            applyNumericFallback("#node-input-analysisWindowSec", 120);
-            applyNumericFallback("#node-input-historyWindowSec", 600);
-            applyNumericFallback("#node-input-historyStoreRetentionDays", 10);
-            applyNumericFallback("#node-input-emitIntervalSec", 0);
-            applyNumericFallback("#node-input-topN", 10);
-            applyNumericFallback("#node-input-maxEvents", 50000);
-            applyNumericFallback("#node-input-proactiveOpenMinutes", 120);
-            applyNumericFallback("#node-input-proactiveCooldownMinutes", 360);
 
             const nodeId = node.id;
             const resolveAdminRoot = () => {
@@ -402,18 +450,8 @@
                     : [];
                 const $picker = $("#node-input-chatAdapterPreset");
                 if (!$picker.length) return;
-                const updateAdapterFieldsVisibility = (preset) => {
-                    const visible = String(preset || "none") !== "none";
-                    $("#knx-ai-chat-adapter-fields").toggle(visible);
-                    if (visible) {
-                        const resizeEditors = function () {
-                            try {
-                                if (node.chatInputCodeEditor && typeof node.chatInputCodeEditor.resize === "function") node.chatInputCodeEditor.resize();
-                                if (node.chatOutputCodeEditor && typeof node.chatOutputCodeEditor.resize === "function") node.chatOutputCodeEditor.resize();
-                            } catch (error) { }
-                        };
-                        try { setTimeout(resizeEditors, 0); } catch (error) { resizeEditors(); }
-                    }
+                const hideAdapterMappingFields = () => {
+                    $("#knx-ai-chat-adapter-fields").hide();
                 };
                 $picker.empty();
                 $("<option></option>")
@@ -436,23 +474,98 @@
                         .appendTo($picker);
                 }
                 $picker.val(configuredPreset);
-                updateAdapterFieldsVisibility(configuredPreset);
+                hideAdapterMappingFields();
                 $picker.on("change", function () {
                     const selected = String($(this).val() || "none");
                     if (selected === "none") {
                         setChatEditorValue(node.chatInputCodeEditor, "");
                         setChatEditorValue(node.chatOutputCodeEditor, "");
-                        updateAdapterFieldsVisibility(selected);
+                        hideAdapterMappingFields();
                         return;
                     }
                     const adapter = adapters.find(item => item && item.id === selected);
                     if (!adapter) return;
                     setChatEditorValue(node.chatInputCodeEditor, adapter.inputCode || "");
                     setChatEditorValue(node.chatOutputCodeEditor, adapter.outputCode || "");
-                    updateAdapterFieldsVisibility(selected);
+                    hideAdapterMappingFields();
                 });
             };
             configureChatAdapterPicker.call(node);
+
+            const collectEditorTtsUltimateNodes = () => {
+                const tabById = new Map();
+                const entries = [];
+                try {
+                    RED.nodes.eachNode(function (candidate) {
+                        if (!candidate || String(candidate.type || "") !== "tab") return;
+                        tabById.set(String(candidate.id || ""), String(candidate.label || candidate.name || ""));
+                    });
+                    RED.nodes.eachNode(function (candidate) {
+                        if (!candidate || String(candidate.type || "") !== "ttsultimate") return;
+                        const id = String(candidate.id || "").trim();
+                        if (!id) return;
+                        entries.push({
+                            id: id,
+                            name: String(candidate.name || "TTS Ultimate"),
+                            flowId: String(candidate.z || ""),
+                            flowName: tabById.get(String(candidate.z || "")) || "",
+                            playerType: String(candidate.playertype || "sonos")
+                        });
+                    });
+                } catch (error) { }
+                return entries;
+            };
+
+            const populateTtsUltimatePicker = (runtimeSummary) => {
+                const $pickerContainer = $("#knx-ai-tts-ultimate-picker");
+                const $picker = $("#node-input-ttsUltimateNodeId");
+                if (!$picker.length) return;
+                const byId = new Map();
+                const runtimeNodes = runtimeSummary && Array.isArray(runtimeSummary.nodes) ? runtimeSummary.nodes : [];
+                runtimeNodes.forEach(function (item) {
+                    if (item && item.id) byId.set(String(item.id), item);
+                });
+                collectEditorTtsUltimateNodes().forEach(function (item) {
+                    byId.set(String(item.id), item);
+                });
+                const entries = Array.from(byId.values()).sort(function (left, right) {
+                    return String((left.flowName || "") + "\u0000" + (left.name || "") + "\u0000" + left.id)
+                        .localeCompare(String((right.flowName || "") + "\u0000" + (right.name || "") + "\u0000" + right.id));
+                });
+                const configuredId = String(node.ttsUltimateNodeId || "").trim();
+                $picker.empty();
+                $("<option></option>")
+                    .attr("value", "")
+                    .text(entries.length
+                        ? t("knxUltimateAI.selectlists.ttsUltimate.select", "Select a TTS Ultimate node")
+                        : t("knxUltimateAI.selectlists.ttsUltimate.none", "No TTS Ultimate node found"))
+                    .appendTo($picker);
+                entries.forEach(function (item) {
+                    const flowName = String(item.flowName || t("knxUltimateAI.messages.ttsUltimateUnknownFlow", "Flow without name"));
+                    const playerType = String(item.playerType || "sonos");
+                    $("<option></option>")
+                        .attr("value", item.id)
+                        .text(flowName + " · " + String(item.name || "TTS Ultimate") + " · " + playerType)
+                        .appendTo($picker);
+                });
+                if (configuredId && !byId.has(configuredId)) {
+                    $("<option></option>")
+                        .attr("value", configuredId)
+                        .text(t("knxUltimateAI.messages.ttsUltimateUnavailable", "Unavailable TTS Ultimate node") + " · " + configuredId)
+                        .appendTo($picker);
+                }
+                if (configuredId) {
+                    $picker.val(configuredId);
+                } else if (entries.length === 1) {
+                    $picker.val(entries[0].id);
+                } else {
+                    $picker.val("");
+                }
+                const detected = entries.length > 0 || !!(runtimeSummary && runtimeSummary.detected);
+                $picker.prop("disabled", entries.length === 0 && !configuredId);
+                $pickerContainer.toggle(detected || !!configuredId);
+            };
+            populateTtsUltimatePicker(null);
 
             const renderDetectedAdapters = (adapters) => {
                 const $list = $("#knx-ai-detected-adapters-list");
@@ -469,6 +582,7 @@
                     if (!adapter || !adapter.id) return;
                     const providerCount = Number(adapter.providerCount) || 0;
                     const cameraCount = Number(adapter.cameraCount) || 0;
+                    const nodeCount = Number(adapter.nodeCount) || 0;
                     const $row = $("<div></div>").addClass("knx-ai-detected-adapter");
                     const $main = $("<div></div>").addClass("knx-ai-detected-adapter-main");
                     $("<div></div>").text(adapter.title || adapter.id).appendTo($main);
@@ -477,7 +591,9 @@
                     }
                     $("<div></div>")
                         .addClass("knx-ai-detected-adapter-counts")
-                        .text(t("knxUltimateAI.messages.detectedAdapterControllers", "Controllers") + ": " + providerCount + " · " + t("knxUltimateAI.messages.detectedAdapterCameras", "Cameras") + ": " + cameraCount)
+                        .text(adapter.kind === "tts"
+                            ? t("knxUltimateAI.messages.detectedAdapterNodes", "Nodes") + ": " + nodeCount
+                            : t("knxUltimateAI.messages.detectedAdapterControllers", "Controllers") + ": " + providerCount + " · " + t("knxUltimateAI.messages.detectedAdapterCameras", "Cameras") + ": " + cameraCount)
                         .appendTo($main);
                     $main.appendTo($row);
                     $("<span></span>")
@@ -487,6 +603,89 @@
                     $row.appendTo($list);
                 });
             };
+
+            const renderChatContextOverview = (overview) => {
+                const $status = $("#knx-ai-chat-context-status");
+                const $content = $("#knx-ai-chat-context-content");
+                const $sources = $("#knx-ai-chat-context-sources-list").empty();
+                const $files = $("#knx-ai-chat-context-files-list").empty();
+                const $directories = $("#knx-ai-chat-context-directories-list").empty();
+                if (!overview || typeof overview !== "object") {
+                    $content.hide();
+                    $status
+                        .text(t("knxUltimateAI.messages.chatContextUnavailable", "The chat context summary is temporarily unavailable."))
+                        .show();
+                    return;
+                }
+
+                const addRow = function ($list, title, description, pathText, badge) {
+                    const $row = $("<div></div>").addClass("knx-ai-detected-adapter");
+                    const $main = $("<div></div>").addClass("knx-ai-detected-adapter-main");
+                    $("<div></div>").text(title || "").appendTo($main);
+                    if (description) {
+                        $("<div></div>").addClass("knx-ai-chat-context-description").text(description).appendTo($main);
+                    }
+                    if (pathText) {
+                        $("<div></div>").addClass("knx-ai-chat-context-path").text(pathText).appendTo($main);
+                    }
+                    $main.appendTo($row);
+                    $("<span></span>").addClass("knx-ai-detected-adapter-badge").text(badge).appendTo($row);
+                    $row.appendTo($list);
+                };
+
+                const sourceLabels = {
+                    knxTraffic: t("knxUltimateAI.messages.chatContextSourceKnxTraffic", "Live KNX summary, anomalies, topology and selected telegrams."),
+                    etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "ETS semantics and the full Node-RED project inventory."),
+                    memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education and bounded home memory."),
+                    camerasDocs: t("knxUltimateAI.messages.chatContextSourceCamerasDocs", "Detected cameras and relevant help, README and example snippets."),
+                    ttsUltimate: t("knxUltimateAI.messages.chatContextSourceTtsUltimate", "Selected TTS Ultimate announcement target.")
+                };
+                (Array.isArray(overview.sources) ? overview.sources : []).forEach(function (sourceId) {
+                    addRow(
+                        $sources,
+                        sourceLabels[sourceId] || String(sourceId),
+                        "",
+                        "",
+                        t("knxUltimateAI.messages.chatContextSourceBadge", "Source")
+                    );
+                });
+
+                const fileDescriptions = {
+                    chatContext: t("knxUltimateAI.messages.chatContextFileChatContext", "Persistent conversation turns, instructions and camera notification rules."),
+                    homeMemory: t("knxUltimateAI.messages.chatContextFileHomeMemory", "AI Education and bounded learned home memory."),
+                    assistantConfig: t("knxUltimateAI.messages.chatContextFileAssistantConfig", "Persistent web Assistant configuration and semantic areas for this node.")
+                };
+                (Array.isArray(overview.files) ? overview.files : []).forEach(function (item) {
+                    if (!item || !item.name || !item.path) return;
+                    addRow(
+                        $files,
+                        item.name,
+                        fileDescriptions[item.id] || "",
+                        item.path,
+                        t("knxUltimateAI.messages.chatContextFileBadge", "File")
+                    );
+                });
+
+                const directoryLabels = {
+                    archiveRoot: t("knxUltimateAI.messages.chatContextDirectoryRoot", "Telegram archive root"),
+                    nodeArchive: t("knxUltimateAI.messages.chatContextDirectoryNode", "This node's telegram archive")
+                };
+                (Array.isArray(overview.telegramDirectories) ? overview.telegramDirectories : []).forEach(function (item) {
+                    if (!item || !item.path) return;
+                    addRow(
+                        $directories,
+                        directoryLabels[item.id] || String(item.id || ""),
+                        "",
+                        item.path,
+                        t("knxUltimateAI.messages.chatContextDirectoryBadge", "KNX")
+                    );
+                });
+
+                $("#knx-ai-chat-context-pattern")
+                    .text(t("knxUltimateAI.messages.chatContextTelegramPattern", "Daily files") + ": " + String(overview.telegramFilePattern || "YYYY-MM-DD.jsonl"));
+                $status.hide();
+                $content.show();
+            };
             $.ajax({
                 url: "knxUltimateAI/adapters",
                 type: "GET",
@@ -494,19 +693,15 @@
             })
                 .done(function (data) {
                     renderDetectedAdapters(data && data.adapters);
+                    populateTtsUltimatePicker(data && data.ttsUltimate);
+                    renderChatContextOverview(data && data.chatContext);
                 })
                 .fail(function () {
                     $("#knx-ai-detected-adapters-status")
                         .text(t("knxUltimateAI.messages.detectedAdaptersUnavailable", "Automatic adapter detection is temporarily unavailable."))
                         .show();
+                    renderChatContextOverview(null);
                 });
-
-            const updateProactiveVisibility = () => {
-                const enabled = $("#node-input-proactiveEnabled").is(":checked");
-                $("#knx-ai-proactive-settings").toggle(enabled);
-            };
-            $("#node-input-proactiveEnabled").on("change", updateProactiveVisibility);
-            updateProactiveVisibility();
 
             $("#knx-ai-open-web-page-vue").on("click", function (evt) {
                 evt.preventDefault();
@@ -532,12 +727,55 @@
                 $("#knx-ai-downloadOllamaModel").prop("disabled", !!busy);
             };
 
-            const populateModels = (models) => {
+            let localModelDetailsById = new Map();
+            let localContextRequestVersion = 0;
+
+            const formatContextTokens = (value) => {
+                const tokens = Math.max(0, Number(value) || 0);
+                return tokens ? tokens.toLocaleString() : "?";
+            };
+
+            const setLocalModelContextStatus = (detail, state, errorText) => {
+                const $status = $("#knx-ai-local-context-status");
+                const provider = $("#node-input-llmProvider").val();
+                if (!$status.length || (provider !== "lmstudio" && provider !== "ollama") || !detail) {
+                    $status.hide();
+                    return;
+                }
+                const maxTokens = formatContextTokens(detail.maxContextLength);
+                const loadedTokens = formatContextTokens(detail.loadedContextLength);
+                let text = t("knxUltimateAI.messages.lmStudioContextAvailable", "Maximum model context") + ": " + maxTokens + " token";
+                let color = "#555";
+                if (state === "loading") {
+                    text = t("knxUltimateAI.messages.lmStudioContextLoading", "Loading the model with its maximum context") + ": " + maxTokens + " token…";
+                    color = "#1565c0";
+                } else if (state === "configured") {
+                    const configuredTokens = formatContextTokens(detail.configuredContextLength || detail.loadedContextLength || detail.maxContextLength);
+                    text = t("knxUltimateAI.messages.lmStudioContextConfigured", "Maximum model context configured") + ": " + configuredTokens + " token";
+                    color = "#2e7d32";
+                } else if (state === "error") {
+                    text = String(errorText || t("knxUltimateAI.messages.lmStudioContextFailed", "Unable to configure the model context"));
+                    color = "#c62828";
+                } else if (detail.loadedContextLength > 0) {
+                    text += " · " + t("knxUltimateAI.messages.lmStudioContextCurrentlyLoaded", "currently loaded") + ": " + loadedTokens + " token";
+                }
+                $status.text(text).css("color", color).show();
+            };
+
+            const populateModels = (models, modelDetails) => {
                 const $dl = $("#knx-ai-llmModels");
                 if (!$dl || $dl.length === 0) return;
+                localModelDetailsById = new Map();
+                (modelDetails || []).forEach(function (detail) {
+                    if (detail && detail.id) localModelDetailsById.set(String(detail.id), detail);
+                });
                 $dl.empty();
                 (models || []).forEach(function (m) {
-                    $("<option>").attr("value", m).appendTo($dl);
+                    const detail = localModelDetailsById.get(String(m));
+                    const label = detail
+                        ? String(detail.displayName || detail.id) + " · " + formatContextTokens(detail.maxContextLength) + " token"
+                        : String(m);
+                    $("<option>").attr("value", m).attr("label", label).appendTo($dl);
                 });
             };
 
@@ -545,7 +783,7 @@
             const isOpenAiDefaultUrl = (value) => normalizeUrl(value) === normalizeUrl(OPENAI_COMPAT_DEFAULT_CHAT_URL);
             const isOllamaDefaultUrl = (value) => normalizeUrl(value) === normalizeUrl(OLLAMA_DEFAULT_CHAT_URL);
             const isOpenAiDefaultModel = (value) => OPENAI_COMPAT_DEFAULT_MODELS.indexOf(String(value || "").trim().toLowerCase()) >= 0;
-            const DEFAULT_CHAT_URLS = [OPENAI_COMPAT_DEFAULT_CHAT_URL, OLLAMA_DEFAULT_CHAT_URL, ANTHROPIC_DEFAULT_CHAT_URL];
+            const DEFAULT_CHAT_URLS = [OPENAI_COMPAT_DEFAULT_CHAT_URL, OLLAMA_DEFAULT_CHAT_URL, ANTHROPIC_DEFAULT_CHAT_URL, LMSTUDIO_DEFAULT_CHAT_URL];
             const DEFAULT_MODELS = OPENAI_COMPAT_DEFAULT_MODELS.concat([OLLAMA_DEFAULT_MODEL, ANTHROPIC_DEFAULT_MODEL]);
             const isAnyDefaultUrl = (value) => DEFAULT_CHAT_URLS.some((u) => normalizeUrl(u) === normalizeUrl(value));
             const isAnyDefaultModel = (value) => DEFAULT_MODELS.indexOf(String(value || "").trim().toLowerCase()) >= 0;
@@ -556,15 +794,77 @@
                 const currentBaseUrl = String($baseUrl.val() || "").trim();
                 const currentModel = String($model.val() || "").trim();
 
-                const urlByProvider = { ollama: OLLAMA_DEFAULT_CHAT_URL, anthropic: ANTHROPIC_DEFAULT_CHAT_URL, openai_compat: OPENAI_COMPAT_DEFAULT_CHAT_URL };
-                const modelByProvider = { ollama: OLLAMA_DEFAULT_MODEL, anthropic: ANTHROPIC_DEFAULT_MODEL, openai_compat: OPENAI_COMPAT_DEFAULT_MODELS[0] };
+                const urlByProvider = { ollama: OLLAMA_DEFAULT_CHAT_URL, anthropic: ANTHROPIC_DEFAULT_CHAT_URL, lmstudio: LMSTUDIO_DEFAULT_CHAT_URL, openai_compat: OPENAI_COMPAT_DEFAULT_CHAT_URL };
+                const modelByProvider = { ollama: OLLAMA_DEFAULT_MODEL, anthropic: ANTHROPIC_DEFAULT_MODEL, lmstudio: "", openai_compat: OPENAI_COMPAT_DEFAULT_MODELS[0] };
                 const targetUrl = urlByProvider[provider] || OPENAI_COMPAT_DEFAULT_CHAT_URL;
-                const targetModel = modelByProvider[provider] || OPENAI_COMPAT_DEFAULT_MODELS[0];
+                const targetModel = Object.prototype.hasOwnProperty.call(modelByProvider, provider)
+                    ? modelByProvider[provider]
+                    : OPENAI_COMPAT_DEFAULT_MODELS[0];
 
                 // Only overwrite when the field is empty or still holds another provider's default,
                 // so a user's custom base URL / model is never clobbered when switching providers.
                 if (!currentBaseUrl || isAnyDefaultUrl(currentBaseUrl)) $baseUrl.val(targetUrl);
                 if (!currentModel || isAnyDefaultModel(currentModel)) $model.val(targetModel);
+            };
+
+            const configureSelectedLocalModel = () => {
+                const provider = $("#node-input-llmProvider").val();
+                if (provider !== "lmstudio" && provider !== "ollama") return;
+                const model = String($("#node-input-llmModel").val() || "").trim();
+                const detail = localModelDetailsById.get(model);
+                if (!detail || !(Number(detail.maxContextLength) > 0)) {
+                    $("#node-input-llmContextLength").val(0);
+                    setLocalModelContextStatus(null);
+                    return;
+                }
+
+                const requestVersion = ++localContextRequestVersion;
+                $("#node-input-llmContextLength").val(Number(detail.maxContextLength));
+                if (provider === "ollama") {
+                    detail.configuredContextLength = Number(detail.maxContextLength);
+                    setLocalModelContextStatus(detail, "configured");
+                    return;
+                }
+
+                setLocalModelContextStatus(detail, "loading");
+                $("#node-input-llmModel").prop("disabled", true);
+                $("#knx-ai-refreshModels").prop("disabled", true);
+
+                const payload = {
+                    nodeId: nodeId,
+                    baseUrl: $("#node-input-llmBaseUrl").val() || LMSTUDIO_DEFAULT_CHAT_URL,
+                    model: model
+                };
+                const apiKey = $("#node-input-llmApiKey").val() || "";
+                if (apiKey && apiKey !== "__PWRD__") payload.apiKey = apiKey;
+
+                $.ajax({
+                    url: "knxUltimateAI/lmstudio/select-model",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload)
+                })
+                    .done(function (data) {
+                        if (requestVersion !== localContextRequestVersion) return;
+                        detail.loadedContextLength = Math.max(0, Number(data && data.contextLength) || Number(detail.maxContextLength));
+                        detail.configuredContextLength = detail.loadedContextLength;
+                        $("#node-input-llmContextLength").val(detail.loadedContextLength);
+                        setLocalModelContextStatus(detail, "configured");
+                    })
+                    .fail(function (xhr) {
+                        if (requestVersion !== localContextRequestVersion) return;
+                        let errorText = t("knxUltimateAI.messages.lmStudioContextFailed", "Unable to configure the model context");
+                        try {
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.error) errorText = xhr.responseJSON.error;
+                        } catch (e) { }
+                        setLocalModelContextStatus(detail, "error", errorText);
+                        try { RED.notify(errorText, "error"); } catch (e) { }
+                    })
+                    .always(function () {
+                        if (requestVersion !== localContextRequestVersion) return;
+                        $("#node-input-llmModel").prop("disabled", false);
+                        $("#knx-ai-refreshModels").prop("disabled", false);
+                    });
             };
 
             const refreshModels = () => {
@@ -586,7 +886,21 @@
                 })
                     .done(function (data) {
                         const models = (data && data.models) ? data.models : [];
-                        populateModels(models);
+                        populateModels(models, data && data.modelDetails);
+                        let selectedAutomatically = false;
+                        if (provider === "lmstudio" && models.length > 0 && !String($("#node-input-llmModel").val() || "").trim()) {
+                            $("#node-input-llmModel").val(models[0]);
+                            selectedAutomatically = true;
+                        }
+                        if (provider === "lmstudio" || provider === "ollama") {
+                            const selectedDetail = localModelDetailsById.get(String($("#node-input-llmModel").val() || ""));
+                            if (selectedDetail) {
+                                setLocalModelContextStatus(selectedDetail);
+                                configureSelectedLocalModel();
+                            } else if (selectedAutomatically) {
+                                configureSelectedLocalModel();
+                            }
+                        }
                         if (provider === "ollama" && data && data.ollamaStarted) {
                             try {
                                 const startedMsg = t('knxUltimateAI.messages.ollamaStartedAuto', "Ollama server started automatically.");
@@ -667,6 +981,11 @@
                 } else {
                     $("#knx-ai-apikey-row").show();
                     $("#knx-ai-ollama-install-row").hide();
+                    if (provider === "lmstudio" && autoLoadModels) refreshModels();
+                    if (provider !== "lmstudio") {
+                        $("#node-input-llmContextLength").val(0);
+                        if (provider !== "ollama") $("#knx-ai-local-context-status").hide();
+                    }
                 }
             };
             $("#node-input-llmProvider").on("change", function () {
@@ -677,6 +996,9 @@
             $("#knx-ai-refreshModels").on("click", function (evt) {
                 evt.preventDefault();
                 refreshModels();
+            });
+            $("#node-input-llmModel").on("change", function () {
+                configureSelectedLocalModel();
             });
             $("#knx-ai-downloadOllamaModel").on("click", function (evt) {
                 evt.preventDefault();
@@ -753,16 +1075,15 @@
         </div>
     </div>
 
-    <div id="knx-ai-accordion">
-        <h3><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.groupAssistant"></span></h3>
-        <div>
+    <div id="knx-ai-tabs">
+        <ul>
+            <li><a href="#knx-ai-tabs-assistant"><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.groupAssistant"></span></a></li>
+            <li><a href="#knx-ai-tabs-chat-home"><i class="fa fa-comments"></i> <span data-i18n="knxUltimateAI.sections.groupChatHome"></span></a></li>
+        </ul>
+        <div id="knx-ai-tabs-assistant">
             <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-cog"></i> <span data-i18n="knxUltimateAI.sections.quickSetup"></span></h4>
                 <div class="knx-ai-accordion-mount" id="knx-ai-mount-assistant-setup"></div>
-            </div>
-            <div class="knx-ai-accordion-subsection">
-                <h4><i class="fa fa-book"></i> <span data-i18n="knxUltimateAI.sections.llmContext"></span></h4>
-                <div class="knx-ai-accordion-mount" id="knx-ai-mount-assistant-context"></div>
             </div>
             <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.advanced"></span></h4>
@@ -770,13 +1091,7 @@
             </div>
         </div>
 
-        <h3><i class="fa fa-comments"></i> <span data-i18n="knxUltimateAI.sections.groupChatHome"></span></h3>
-        <div>
-            <div id="knx-ai-detected-adapters-panel">
-                <h4><i class="fa fa-puzzle-piece"></i> <span data-i18n="knxUltimateAI.sections.detectedAdapters"></span></h4>
-                <div id="knx-ai-detected-adapters-status" data-i18n="knxUltimateAI.messages.detectedAdaptersLoading"></div>
-                <div id="knx-ai-detected-adapters-list"></div>
-            </div>
+        <div id="knx-ai-tabs-chat-home">
             <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-plug"></i> <span data-i18n="knxUltimateAI.sections.chatAdapter"></span></h4>
                 <div class="knx-ai-accordion-mount" id="knx-ai-mount-chat-adapter"></div>
@@ -785,49 +1100,35 @@
                 <h4><i class="fa fa-home"></i> <span data-i18n="knxUltimateAI.sections.homeIntelligence"></span></h4>
                 <div class="knx-ai-accordion-mount" id="knx-ai-mount-home-intelligence"></div>
             </div>
-        </div>
-
-        <h3><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateAI.sections.groupKnxAnalysis"></span></h3>
-        <div>
-            <div class="knx-ai-accordion-subsection">
-                <h4><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.storage"></span></h4>
-                <div class="knx-ai-accordion-mount" id="knx-ai-mount-knx-storage"></div>
+            <div id="knx-ai-detected-adapters-panel">
+                <h4><i class="fa fa-puzzle-piece"></i> <span data-i18n="knxUltimateAI.sections.detectedAdapters"></span></h4>
+                <div id="knx-ai-detected-adapters-status" data-i18n="knxUltimateAI.messages.detectedAdaptersLoading"></div>
+                <div id="knx-ai-detected-adapters-list"></div>
+                <div id="knx-ai-tts-ultimate-picker" style="display:none;">
+                    <label for="node-input-ttsUltimateNodeId"><i class="fa fa-volume-up"></i> <span data-i18n="knxUltimateAI.properties.ttsUltimateNodeId"></span></label>
+                    <select id="node-input-ttsUltimateNodeId"></select>
+                    <div class="knx-ai-tts-ultimate-hint" data-i18n="knxUltimateAI.messages.ttsUltimateHint"></div>
+                </div>
+            </div>
+            <div id="knx-ai-chat-context-panel">
+                <h4><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.chatContextOverview"></span></h4>
+                <div id="knx-ai-chat-context-status" data-i18n="knxUltimateAI.messages.chatContextLoading"></div>
+                <div id="knx-ai-chat-context-content" style="display:none;">
+                    <div class="knx-ai-chat-context-intro" data-i18n="knxUltimateAI.messages.chatContextIntro"></div>
+                    <div class="knx-ai-chat-context-group-title" data-i18n="knxUltimateAI.messages.chatContextSourcesTitle"></div>
+                    <div id="knx-ai-chat-context-sources-list"></div>
+                    <div class="knx-ai-chat-context-group-title" data-i18n="knxUltimateAI.messages.chatContextFilesTitle"></div>
+                    <div id="knx-ai-chat-context-files-list"></div>
+                    <div class="knx-ai-chat-context-group-title" data-i18n="knxUltimateAI.messages.chatContextDirectoriesTitle"></div>
+                    <div id="knx-ai-chat-context-directories-list"></div>
+                    <div id="knx-ai-chat-context-pattern" class="knx-ai-chat-context-pattern"></div>
+                </div>
             </div>
         </div>
+
     </div>
 
     <div id="knx-ai-accordion-source" style="display:none;">
-
-        <div id="knx-ai-tab-storage">
-            <div class="form-row">
-                <label style="width:290px" for="node-input-historyWindowSec"><i class="fa fa-history"></i> <span data-i18n="knxUltimateAI.properties.historyWindowSec"></span></label>
-                <input style="width:90px" type="number" id="node-input-historyWindowSec">
-            </div>
-            <div class="form-row">
-                <input type="checkbox" id="node-input-historyStoreToDisk" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-historyStoreToDisk">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.historyStoreToDisk"></span></label>
-            </div>
-            <div class="form-row" id="knx-ai-history-retention-row">
-                <label style="width:290px" for="node-input-historyStoreRetentionDays"><i class="fa fa-calendar"></i> <span data-i18n="knxUltimateAI.properties.historyStoreRetentionDays"></span></label>
-                <input style="width:90px" type="number" id="node-input-historyStoreRetentionDays">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-emitIntervalSec"><i class="fa fa-send"></i> <span data-i18n="knxUltimateAI.properties.emitIntervalSec"></span></label>
-                <input style="width:90px" type="number" id="node-input-emitIntervalSec">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-analysisWindowSec"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.analysisWindowSec"></span></label>
-                <input style="width:90px" type="number" id="node-input-analysisWindowSec">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-maxEvents"><i class="fa fa-bars"></i> <span data-i18n="knxUltimateAI.properties.maxEvents"></span></label>
-                <input style="width:90px" type="number" id="node-input-maxEvents">
-            </div>
-            <div class="form-row">
-                <label style="width:290px" for="node-input-topN"><i class="fa fa-list-ol"></i> <span data-i18n="knxUltimateAI.properties.topN"></span></label>
-                <input style="width:90px" type="number" id="node-input-topN">
-            </div>
-        </div>
 
         <div id="knx-ai-tab-llm-connection">
             <div class="form-row">
@@ -842,6 +1143,7 @@
                         <option value="openai_compat" data-i18n="knxUltimateAI.selectlists.llmProvider.openai_compat"></option>
                         <option value="anthropic" data-i18n="knxUltimateAI.selectlists.llmProvider.anthropic"></option>
                         <option value="ollama" data-i18n="knxUltimateAI.selectlists.llmProvider.ollama"></option>
+                        <option value="lmstudio" data-i18n="knxUltimateAI.selectlists.llmProvider.lmstudio"></option>
                     </select>
                 </div>
                 <div class="form-row" id="knx-ai-apikey-row">
@@ -857,6 +1159,8 @@
                     </button>
                 </div>
                 <datalist id="knx-ai-llmModels"></datalist>
+                <input type="hidden" id="node-input-llmContextLength">
+                <div id="knx-ai-local-context-status" style="display:none; margin:-8px 0 12px 290px; font-size:12px;"></div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-llmAllowKnxCommands" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-llmAllowKnxCommands">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmAllowKnxCommands"></span></label>
@@ -891,60 +1195,8 @@
 
         <div id="knx-ai-tab-home-intelligence">
             <div class="form-row">
-                <input type="checkbox" id="node-input-proactiveEnabled" style="display:inline-block; width:auto; vertical-align:top;">
-                <label style="width:auto" for="node-input-proactiveEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.proactiveEnabled"></span></label>
-            </div>
-            <div id="knx-ai-proactive-settings">
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-proactiveRecipient"><i class="fa fa-user"></i> <span data-i18n="knxUltimateAI.properties.proactiveRecipient"></span></label>
-                    <input style="width:100%" type="text" id="node-input-proactiveRecipient" data-i18n="[placeholder]knxUltimateAI.placeholder.proactiveRecipient">
-                </div>
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-proactiveOpenMinutes"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveOpenMinutes"></span></label>
-                    <input style="width:100px" type="number" min="1" max="1440" id="node-input-proactiveOpenMinutes">
-                </div>
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-proactiveQuietStart"><i class="fa fa-moon-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveQuietStart"></span></label>
-                    <input style="width:120px" type="time" id="node-input-proactiveQuietStart">
-                </div>
-                <div class="form-row">
-                    <label style="width:290px" for="node-input-proactiveQuietEnd"><i class="fa fa-sun-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveQuietEnd"></span></label>
-                    <input style="width:120px" type="time" id="node-input-proactiveQuietEnd">
-                </div>
-            </div>
-            <div class="form-row" style="margin-top:14px;">
                 <label style="width:100%" for="node-input-aiEducation"><i class="fa fa-graduation-cap"></i> <span data-i18n="knxUltimateAI.properties.aiEducation"></span></label>
                 <textarea id="node-input-aiEducation" maxlength="16000" style="width:100%; min-height:180px; box-sizing:border-box;" data-i18n="[placeholder]knxUltimateAI.placeholder.aiEducation"></textarea>
-            </div>
-            <div class="knx-ai-inline-subsection">
-                <h5><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.homeIntelligenceAdvanced"></span></h5>
-                <div>
-                    <div class="form-row">
-                        <label style="width:290px" for="node-input-proactiveCooldownMinutes"><i class="fa fa-bell-slash-o"></i> <span data-i18n="knxUltimateAI.properties.proactiveCooldownMinutes"></span></label>
-                        <input style="width:100px" type="number" min="5" max="10080" id="node-input-proactiveCooldownMinutes">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="knx-ai-tab-llm-context">
-            <div id="knx-ai-llm-context-settings">
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-llmIncludeFlowContext" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-llmIncludeFlowContext">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmIncludeFlowContext"></span></label>
-                </div>
-
-                <div class="form-row" id="knx-ai-docs-language-row">
-                    <label style="width:290px" for="node-input-llmDocsLanguage"><i class="fa fa-language"></i> <span data-i18n="knxUltimateAI.properties.llmDocsLanguage"></span></label>
-                    <select style="width:100%" id="node-input-llmDocsLanguage">
-                        <option value="it">Italiano</option>
-                        <option value="en">English</option>
-                        <option value="de">Deutsch</option>
-                        <option value="fr">Français</option>
-                        <option value="es">Español</option>
-                        <option value="zh-CN">简体中文</option>
-                    </select>
-                </div>
             </div>
         </div>
 

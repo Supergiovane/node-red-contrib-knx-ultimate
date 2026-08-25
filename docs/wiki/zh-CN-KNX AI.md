@@ -6,7 +6,7 @@ permalink: /wiki/zh-CN-KNX%20AI
 ---
 此节点会监听所选 KNX Ultimate 网关上的**所有 KNX 电报**，生成流量统计、检测异常，并可选调用 LLM。
 
-编辑器使用三个主要折叠面板：**AI 助手**包含配置、知识/上下文以及提供商限制；**对话与家庭**包含聊天渠道、主动家庭和受限记忆；**KNX 总线流量分析**包含总线报文、历史/摘要以及异常/模式。打开一个主要面板即可同时看到其中全部相关选项。已保存字段的 ID 和值保持不变。
+编辑器使用两个水平标签页：**AI 助手**包含配置、知识/上下文以及提供商限制；**对话与家庭**包含聊天渠道、主动家庭和受限记忆。
 
 ## 输出
 1. **摘要/统计**（`msg.payload` 为 JSON）
@@ -26,6 +26,12 @@ permalink: /wiki/zh-CN-KNX%20AI
 
 `ask` 的问题建议放在 `msg.prompt`，也可放在 `msg.payload`（字符串）或常见 Telegram 字段 `msg.payload.content` / `msg.payload.text`。
 
+如果处理时间超过 1.2 秒，输出 3 会立即发送本地化的中间消息“我正在思考…”，并设置 `msg.knxAi.type = "thinking"` 和 `msg.knxAi.transient = true`。聊天适配器会将其发送给同一用户，最终答案准备好后仍会正常送达。此进度消息绝不会写入对话上下文或学习记忆。
+
+Ollama 和 Bionic LM Studio 请求会自动使用至少 10 分钟的超时时间；云端提供商仍使用至少 2 分钟。编辑器中无需维护超时字段。即使达到本地模型限制，KNX AI 也会说明模型未完成响应，并建议重试或缩减提示上下文。
+
+Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM 运行期间本地化的“我正在思考…”状态。KNX 报文、网关更新、流量速率、ready 消息和技术结果绝不会覆盖该状态；这些信息仍可通过节点输出、日志和助手数据查看。
+
 每个 Ask/聊天会话都会保留最近 8 轮对话和最多 20 条明确的长期指令，并按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 隔离。像“请记住不要在回答中使用 unknown 这个词”这样的请求会成为持久指令。使用相同存储的所有 KNX AI 节点实时共享此上下文，并在 Node-RED 重启后从 `knxultimatestorage/knxai/memory/knxai-chat-context.md` 重新加载。该文件采用原子写入，最多保存 50 个会话且不超过 512 KB。启用 KNX 控制后，将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
 对于 DPT 1.xxx 写入，AI 生成的安全等价值 `true`/`false`、`1`/`0` 和 `on`/`off` 会在本地校验和输出前统一转换为真正的布尔值。
 
@@ -36,7 +42,7 @@ permalink: /wiki/zh-CN-KNX%20AI
 计划等待确认时，输出 3 包含 `msg.knxAi.confirmationRequest`。该对象包括 `required`、`status`、`sessionId`、`expiresAt`、`commandCount`，以及 `actions` 中的两个项目。使用 `action.label` 作为 Telegram 按钮文本，使用 `action.callbackData` 作为回调，并将 `action.message` 发送回 KNX AI，即可在无需输入文本的情况下确认或取消。
 
 ### 聊天适配器预设
-**聊天适配器**选项卡从 `resources/KNXAIChatAdapterMappings.js` 加载可选映射。选择预设会在全宽文本框中插入两段可编辑的同步 JavaScript 映射：一段在 KNX AI 处理输入前运行，另一段在输出 3 发出消息前运行。返回 `msg` 以继续，或不返回值以丢弃消息。语法和执行错误会被捕获并报告，不会停止 Node-RED。
+**聊天适配器**选项卡从 `resources/KNXAIChatAdapterMappings.js` 加载可选映射。选择预设会在内部安装两段预定义的同步 JavaScript 映射：一段在 KNX AI 处理输入前运行，另一段在输出 3 发出消息前运行。这些映射在编辑器中始终保持隐藏。语法和执行错误会被捕获并报告，不会停止 Node-RED。
 
 随附的 **windkh/node-red-contrib-telegrambot** 预设遵循该包的 receiver/sender 消息约定。把 `telegram receiver` 直接连接到 KNX AI，并把输出 3 直接连接到 `telegram sender`。如需内联确认按钮，还要把配置为 `callback_query` 的 `telegram event` 连接到同一个 KNX AI 输入。输入映射会提取 `msg.payload.content`、`msg.payload.chatId` 和 Telegram 语言；输出映射会创建所需的 `msg.payload.chatId`、`type` 和 `content`，并在写入等待确认时从 `msg.knxAi.confirmationRequest` 添加 `options.reply_markup`。Telegram 包仍是独立的可选依赖项。
 
@@ -47,31 +53,30 @@ permalink: /wiki/zh-CN-KNX%20AI
 
 用户可以请求当前快照，或询问视觉模型画面中可见的内容。Telegram 和 RedBot 预设会把图像作为带说明文字的原生照片发送。用户还可以为移动、智能越线或进入入侵/徘徊区域创建持久通知，并可按检测到的人员以及指定名称的线或区域进行限制。这些规则保存在同一个 `knxai-chat-context.md` 文件中，并在 Node-RED 重启后恢复。UniFi 事件订阅和快照请求直接通过检测到的提供方完成；不会使用 KNX AI 输出 4，也不需要中间 Flow 连线。
 
-## 主动家庭智能与有限记忆
-**对话与家庭**中的**主动家庭与记忆**子部分以可选方式启用主动通知。节点会根据 ETS 层级、名称、角色和 DPT，使用意大利语、英语、德语、法语、西班牙语和中文术语，为卷帘、窗户、门、照明、温度、气候、占用和报警建立确定性的语义模型。首个主动检测器只监视可靠识别且非命令的卷帘/窗户/门状态。超过配置的打开时间且当前不在静默时段时，输出 3 会发送本地化消息，并设置 `msg.knxAi.type = "proactive_notification"`。节点绝不会主动使用输出 4，也不会自行修改 KNX；用户之后提出的任何操作仍须经过正常的校验与确认。
+### 使用 TTS Ultimate 播报
+安装可选软件包 `node-red-contrib-tts-ultimate` 后，它会显示在自动检测的适配器中。选择器会列出项目所有 Flow 中的全部 `ttsultimate` 节点，并显示 Flow、节点名称和已配置的播放器。请选择负责聊天播报的节点，然后部署 Flow。
 
-最近一次聊天会话会被记为主人，也可以通过**主要接收者 / 聊天 ID**明确指定。合成的 `msg.inputMessage` 会保留接收者，使 Telegram 适配器能够发送主动通知。冷却时间和每小时最多三条主动通知可防止消息泛滥。
+只有当前聊天消息中的明确请求才能创建播报。KNX AI 会将准确文本作为 `msg.payload` 直接发送到所选节点，并设置 `msg.topic = "knx_ai_announcement"`；无需在 Flow 中增加中间连线。之后由 TTS Ultimate 处理已配置的 Sonos 播放器、语音、音量、提示音和队列。持久上下文、AI 教育、摄像机内容和推断事件绝不会自行触发语音。
+
+### 聊天上下文概览
+节点编辑器会显示一张紧凑卡片，汇总聊天可用的来源：当前 KNX 流量、ETS 语义与 Node-RED 项目、会话和家庭记忆、AI 教育、检测到的摄像机及相关文档。卡片还会列出 `knxai-chat-context.md`、`knxai-home-memory.md` 和 `knxai-config-<节点-id>.json`，以及 KNX 报文归档的绝对根目录、该节点专用目录和每日文件模式 `YYYY-MM-DD.jsonl`。这些路径会在运行时根据已配置网关实际使用的数据目录解析。
+
+## 由 AI 教育驱动的主动家庭智能与有限记忆
+节点会根据 ETS 层级、名称、角色和 DPT 建立确定性的语义模型。不再提供单独的开关或高级主动通知设置。只有启用 LLM 且 **AI 教育**明确要求时，系统才会评估通知。条件、持续时间、静默时段和重复频率完全由 AI 教育定义。没有明确规则或 LLM 无法评估时，不会发送任何消息。
+
+最近一次聊天会话会被记为主人并接收主动消息。输出 3 会设置 `msg.knxAi.type = "proactive_notification"`，`msg.inputMessage` 为聊天适配器保留该会话。每小时最多三条主动通知可防止消息泛滥。节点绝不会主动使用输出 4，也不会自行修改 KNX。
 
 共享的学习参考文件会在启动时从 `<userDir>/knxai/memory/knxai-home-memory.md` 加载，每 15 分钟以原子方式重写，并始终严格限制为 5 MB。最多保留 120 条重要观察、80 条聚合习惯、80 条通知和 300 个 ETS 语义对象，绝不会保存无限的原始报文流。较旧且优先级较低的项目会先被删除。**AI 教育**最多 16,000 个字符，并且始终来自节点配置：AI 可以将其作为权威指导读取，但不能修改或覆盖。如果已填写 AI 教育但 LLM 无法进行评估，候选通知会被抑制，以免违反用户指导。
 
 ## 实用配置示例
-此示例创建一个简洁的助手：它会报告重要的长时间开启状态，但允许书房卷帘保持开启。
-
-| 编辑器字段 | 示例值 | 结果 |
-|---|---|---|
-| **启用主动家庭通知** (`proactiveEnabled`) | 启用 | 节点评估可靠识别的卷帘、窗户和门开启状态。 |
-| **主要接收者 / 聊天 ID** (`proactiveRecipient`) | `123456789` | 主动消息发送到该聊天；留空则记住最近一次 Ask 会话。 |
-| **开启多久后通知** (`proactiveOpenMinutes`) | `120` | 开启两小时后评估是否需要通知。 |
-| **静默时间开始 / 结束** | `23:00` / `07:00` | 夜间不会发送主动消息。 |
-| **重复冷却时间** (`proactiveCooldownMinutes`) | `360` | 同一对象六小时内不会再次通知。 |
-
-**AI 教育** (`aiEducation`) 示例：
+请将完整的通知策略写入 **AI 教育** (`aiEducation`)：
 
 ```text
 称呼我为 Alex，并使用与我相同的语言回答。
 除非我要求技术细节，否则回答要简短。
+卷帘、窗户或门保持打开至少 120 分钟时，通知我最近的聊天。
+23:00 到 07:00 之间不要通知，同一提醒在六小时内不要重复。
 书房卷帘白天可以保持开启：不要因此通知我。
-其他卷帘、窗户或门异常长时间开启时请通知我。
 如果“客厅灯”指向多个灯，请先询问我具体是哪一个。
 在 KNX 状态对象确认之前，绝不要声称执行器已经改变。
 ```
@@ -98,45 +103,19 @@ permalink: /wiki/zh-CN-KNX%20AI
 - **Topic**：节点输出使用的基础 topic。
 - **Open KNX AI Web** 按钮：打开网页仪表板（`/knxUltimateAI/sidebar/page`）。
 
-KNX AI 会自动监听 `GroupValue_Write`、`GroupValue_Response` 和 `GroupValue_Read` 报文。模式和异常分析始终使用内置默认值初始化，无需配置总线事件或检测参数。
-
-### Analysis
-- **Analysis window (seconds)**：摘要/速率统计主窗口。
-- **History window (seconds)**：内部历史保留窗口。
-- **同时将捕获的报文归档到磁盘**：除了 RAM，还会把报文保存到 `knxultimatestorage/knxai/history/<node-id>/YYYY-MM-DD.jsonl`。
-- **磁盘归档保留天数**：归档文件在磁盘上保留的天数，超期后旧文件会自动删除。
-- **Max stored events**：内存中保留的最大电报数量。
-- **Auto emit summary (seconds, 0=off)**：周期性输出摘要间隔。
-- **Top list size**：摘要中 top 组地址/来源数量。
-
 ### AI 助手
 - **Enable LLM assistant**：启用 Ask/chat 功能。
-- **Provider**：LLM 后端（OpenAI-compatible 或 Ollama）。
+- **Provider**：LLM 后端（OpenAI-compatible、Anthropic、Ollama 或 Bionic LM Studio）。
 - **Endpoint URL**：chat/completions 接口 URL。
-- **API key**：API Key（本地 Ollama 可不填）。
+- **API key**：API Key（本地 Ollama 可不填；Bionic LM Studio 在未启用服务器身份验证时也可不填）。
 - **Model**：模型 ID/名称。
 - **聊天模型兼容性**：所选模型必须支持已配置的 Chat Completions 端点。刷新模型列表时，会排除仅支持旧版 completions 的模型，例如 `gpt-3.5-turbo-instruct`。如果提供商拒绝自定义 temperature 值或令牌限制参数，KNX AI 会仅移除或替换不兼容字段后重试。
 - **允许 AI 读取 KNX 状态并控制执行器**：启用输出 4，默认关闭。可以读取 ETS 目录中的精确对象；仅接受写入明确标记为 `command` 的对象。未知、DPT 不匹配、无效或数量过多的操作，以及向状态或中性对象的写入，都会在本地被拒绝。
 - **发送 KNX 命令前请求确认**：默认启用。先显示已验证的修改，在同一聊天会话确认前不会发送任何 KNX 命令。有命令等待确认时，回复始终会使用当前请求的语言附加准确的确认或取消说明。命令会在输出前再次验证。
-- **适配器预设**：默认为**无适配器**。选择适配器前会隐藏 JavaScript 编辑器；选择后会加载并显示可编辑的输入和输出映射。
-- **输入映射（聊天 → KNX AI）**：在处理输入命令前运行的同步 JavaScript，使用绿色 JavaScript 编辑器。
-- **输出映射（KNX AI → 聊天）**：仅应用于输出 3 消息的同步 JavaScript，使用黄色 JavaScript 编辑器。
-- **启用主动家庭通知**：可选检测器，仅处理可靠识别的卷帘、窗户和门开启状态；绝不会自主写入 KNX。
-- **主要接收者 / 聊天 ID**：主动消息的可选目标；未填写时记住最近一次 Ask 会话。
-- **开启多久后通知（分钟）**：考虑发送主动通知前的开启时长阈值；默认 120 分钟。
-- **静默时间开始 / 结束**：每天禁止主动消息的时间段。
-- **AI 教育**：仅由用户管理的权威指导，AI 可以读取但永远不能修改。
-- **重复冷却时间（分钟）**：同一对象再次通知前的最短间隔；默认 360 分钟。
-- 如果启用了磁盘归档，**Ask** 默认会查询该归档：若问题里写了明确日期/时间范围就按其查询，否则默认查询最近 24 小时并补上当前 RAM 事件。
-- **包含 Node-RED 项目清单**：在提示词中加入整个 Node-RED 项目的节点清单，不仅包含 KNX 节点，也包含 function/change/inject/template 等在内且带有 KNX 逻辑或组地址的有用节点。
-- 相关的帮助、README 和示例片段始终会自动包含。
-- **Docs language**：自动包含的文档片段所使用的首选语言。
+- **适配器预设**：默认为**无适配器**。选择后会加载预定义的输入和输出映射；两者在编辑器中始终保持隐藏。
+- **AI 教育**：仅由用户管理的权威指导，AI 可以读取但永远不能修改。主动通知及其条件、持续时间、静默时段和重复频率只能在这里定义。
+- 相关的帮助、README 和示例片段始终会自动包含；系统会从用户请求中自动识别语言，并在所有受支持语言之间自动回退。
 - **Refresh** 按钮：请求 provider 并加载可用模型 ID。加载期间图标会旋转；成功完成时不会显示额外消息。
-
-### Advanced
-- **Analysis window (seconds)**：摘要/速率统计主窗口。
-- **Max stored events**：内存中保留的最大电报数量。
-- **Top list size**：摘要中 top 组地址/来源数量。
 
 ### Ollama 快速配置（本地）
 - 选择 **Provider = Ollama**。
@@ -147,6 +126,13 @@ KNX AI 会自动监听 `GroupValue_Write`、`GroupValue_Response` 和 `GroupValu
 - 在刷新/安装模型时，KNX AI 也会在可能情况下尝试自动启动 Ollama 服务。
 - 若安装因连接错误失败，请确认 Ollama 已运行（桌面应用或 `ollama serve`）。
 - 若 Node-RED 运行在 Docker 中，endpoint 请使用 `host.docker.internal` 替代 `localhost`。
+
+### Bionic LM Studio 快速配置（本地）
+- 选择 **Provider = Bionic LM Studio**。
+- 在 LM Studio 的 **Developer** 页面启动 API 服务，或运行 `lms server start`。
+- 默认 endpoint：`http://localhost:1234/v1/chat/completions`。
+- 点击 **Refresh** 加载 `/v1/models` 提供的全部模型；未配置模型时会自动选择第一个。
+- 除非在 LM Studio 服务设置中启用了身份验证，否则 API Key 可留空。在 Docker 中请将 `localhost` 替换为 `host.docker.internal`。
 
 ## 安全说明
 启用 LLM 后，KNX 流量上下文可能发送到所配置的 endpoint。若需严格本地化，请使用本地 provider。输出 4 上的命令仅表示已通过本地验证并转发到 flow，并不能证明执行器已执行；需要确认时请使用 KNX 状态 GA。

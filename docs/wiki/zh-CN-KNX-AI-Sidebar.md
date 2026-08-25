@@ -48,7 +48,7 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 
 - 这是测试版：部署前请检查生成的节点。
 - 节点 id 和连线会自动重建，KNX/Hue 配置节点引用会指向你已有的配置节点。
-- 适用于任何已配置的 LLM 提供商（OpenAI 兼容、Anthropic/Claude 或 Ollama）。
+- 适用于任何已配置的 LLM 提供商（OpenAI 兼容、Anthropic/Claude、Ollama 或 Bionic LM Studio）。
 
 ## 推荐使用流程（首次）
 
@@ -74,4 +74,4 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 
 - 至少有一个已配置的 KNX AI 节点。
 - 网关已连接并正常运行。
-- 如需聊天回答和 Flow Builder：在 KNX AI 节点中启用 LLM，并配置一个提供商 —— OpenAI 兼容、**Anthropic (Claude)** 或 Ollama（本地）。云端提供商需要 API key。
+- 如需聊天回答和 Flow Builder：在 KNX AI 节点中启用 LLM，并配置一个提供商 —— OpenAI 兼容、**Anthropic (Claude)**、Ollama（本地）或 Bionic LM Studio（本地）。云端提供商需要 API key；Bionic LM Studio 仅在服务器启用身份验证时才需要。

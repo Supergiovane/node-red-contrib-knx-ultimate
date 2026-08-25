@@ -137,22 +137,6 @@
     "server": "cfg_knx_ai_1",
     "name": "KNX AI",
     "topic": "knx-ai",
-    "notifywrite": true,
-    "notifyresponse": true,
-    "notifyreadrequest": true,
-    "analysisWindowSec": "60",
-    "historyWindowSec": "300",
-    "maxEvents": "5000",
-    "emitIntervalSec": "0",
-    "topN": "10",
-    "enablePattern": true,
-    "patternMaxLagMs": "1500",
-    "patternMinCount": "8",
-    "rateWindowSec": "10",
-    "maxTelegramPerSecOverall": "0",
-    "maxTelegramPerSecPerGA": "0",
-    "flapWindowSec": "30",
-    "flapMaxChanges": "0",
     "llmEnabled": false,
     "llmProvider": "openai_compat",
     "llmBaseUrl": "https://api.openai.com/v1/chat/completions",
@@ -236,4 +220,3 @@
     "autoReconnect": "yes"
   }
 ]
-
