@@ -9,7 +9,9 @@ const {
   KNX_AI_COMPACT_CONTEXT_MAX_TOKENS,
   KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
   KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS,
+  KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS,
   KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS,
+  KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS,
   KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS,
   KNX_AI_THINKING_DELAY_MS,
   KNX_AI_TRAFFIC_DEFAULTS,
@@ -27,7 +29,7 @@ const {
   detectKnxAiLanguageFromText,
   deriveLmStudioNativeApiUrl,
   dispatchKnxAiTtsUltimateAnnouncement,
-  ensureLmStudioModelMaxContext,
+  resolveLmStudioModelContext,
   executeKnxAiChatAdapter,
   extractLlmHttpErrorDetail,
   extractOllamaModelMaxContextLength,
@@ -43,6 +45,7 @@ const {
   isLikelyKnxAiRoutineRequest,
   isProbablyChatModelId,
   isUnsupportedTemperatureError,
+  measureKnxAiPromptContext,
   normalizeKnxAiCommandCandidates,
   normalizeKnxAiRoutineDescriptor,
   normalizeLmStudioModelCatalog,
@@ -52,6 +55,7 @@ const {
   postOpenAiCompatibleChatWithFallbacks,
   resolveKnxAiLanguage,
   resolveKnxAiLlmTimeoutMs,
+  resolveKnxAiOperationalContextLimit,
   resolveKnxAiPromptContextMode,
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,
@@ -557,6 +561,37 @@ describe('KNX AI conversational control', () => {
     }])
   })
 
+  it('infers safe reads when a small model omits the event and payload from a state query', () => {
+    const result = normalizeKnxAiCommandCandidates({
+      commands: [
+        { destination: '1/2/4', dpt: '1.001', reason: 'Current light state' },
+        { operation: 'get_state', destination: '1/2/4', dpt: '1.001', reason: 'Current light state' },
+        { event: 'GroupValue_Response', destination: '1/2/4', dpt: '1.001', payload: null, reason: 'Current light state' }
+      ],
+      catalog,
+      coercePayload
+    })
+
+    expect(resolveKnxAiOperationEvent({ destination: '1/2/4' })).to.equal('GroupValue_Read')
+    expect(resolveKnxAiOperationEvent({ operation: 'get_state' })).to.equal('GroupValue_Read')
+    expect(result.rejected).to.deep.equal([])
+    expect(result.accepted).to.have.length(3)
+    expect(result.accepted.every(item => item.event === 'GroupValue_Read' && item.readstatus === true && item.payload === '')).to.equal(true)
+  })
+
+  it('keeps payload-bearing legacy operations as validated writes', () => {
+    expect(resolveKnxAiOperationEvent({ destination: '1/2/3', payload: false })).to.equal('GroupValue_Write')
+    expect(resolveKnxAiOperationEvent({ event: 'GroupValue_Write', destination: '1/2/3' })).to.equal('GroupValue_Write')
+
+    const result = normalizeKnxAiCommandCandidates({
+      commands: [{ destination: '1/2/3', dpt: '1.001', payload: false }],
+      catalog,
+      coercePayload: coerceKnxAiCommandPayload
+    })
+    expect(result.rejected).to.deep.equal([])
+    expect(result.accepted[0]).to.include({ event: 'GroupValue_Write', payload: false })
+  })
+
   it('rejects reads with unknown addresses or a DPT different from ETS', () => {
     const result = normalizeKnxAiCommandCandidates({
       commands: [
@@ -858,6 +893,13 @@ describe('KNX AI conversational control', () => {
     expect(resolveKnxAiLanguage({ language: 'de' }, 'en', 'Accendi la luce', 'it')).to.equal('de')
   })
 
+  it('does not prime small models with fabricated operations in the response example', () => {
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('"commands":[],"cameraActions":[],"speechActions":[]')
+    expect(runtime).not.to.include('"commands":[{"event":"GroupValue_Read|GroupValue_Write"')
+    expect(runtime).to.include('Begin with every action array empty')
+  })
+
   it('provides delayed localized thinking feedback without adding it to the conversation', () => {
     expect(KNX_AI_THINKING_DELAY_MS).to.equal(1200)
     expect(getKnxAiThinkingCopy('en')).to.equal('I’m thinking…')
@@ -1046,7 +1088,7 @@ describe('KNX AI conversational control', () => {
     expect(messages[0].content[1]).to.equal(imagePart)
   })
 
-  it('reads and applies the maximum context declared by an LM Studio model', async () => {
+  it('preserves the context of an already loaded LM Studio model', async () => {
     expect(deriveLmStudioNativeApiUrl(
       'http://localhost:1234/v1/chat/completions',
       '/api/v1/models'
@@ -1087,7 +1129,7 @@ describe('KNX AI conversational control', () => {
     }])
 
     const requests = []
-    const result = await ensureLmStudioModelMaxContext({
+    const result = await resolveLmStudioModelContext({
       baseUrl: 'http://localhost:1234/v1/chat/completions',
       model: 'google/gemma-3-12b',
       get: async request => {
@@ -1108,26 +1150,49 @@ describe('KNX AI conversational control', () => {
     })
 
     expect(requests.map(item => `${item.method} ${new URL(item.request.url).pathname}`)).to.deep.equal([
-      'GET /api/v1/models',
-      'POST /api/v1/models/unload',
-      'POST /api/v1/models/load'
+      'GET /api/v1/models'
     ])
-    expect(requests[2].request.body).to.deep.include({
-      model: 'google/gemma-3-12b',
-      context_length: 131072,
-      echo_load_config: true
-    })
     expect(result).to.deep.include({
       model: 'google/gemma-3-12b',
-      contextLength: 131072,
+      instanceId: 'google/gemma-3-12b',
+      contextLength: 4096,
       maxContextLength: 131072,
-      changed: true
+      active: true,
+      changed: false
+    })
+  })
+
+  it('leaves an inactive LM Studio model to JIT-load with its per-model defaults', async () => {
+    const requests = []
+    const result = await resolveLmStudioModelContext({
+      model: 'google/gemma-3-12b',
+      get: async request => {
+        requests.push({ method: 'GET', request })
+        return {
+          models: [{
+            type: 'llm',
+            key: 'google/gemma-3-12b',
+            max_context_length: 32768,
+            loaded_instances: []
+          }]
+        }
+      }
+    })
+    expect(requests.map(item => `${item.method} ${new URL(item.request.url).pathname}`)).to.deep.equal([
+      'GET /api/v1/models'
+    ])
+    expect(result).to.deep.include({
+      instanceId: '',
+      contextLength: 16384,
+      maxContextLength: 32768,
+      active: false,
+      changed: false
     })
   })
 
   it('does not reload an LM Studio model already using its maximum context', async () => {
     let postCount = 0
-    const result = await ensureLmStudioModelMaxContext({
+    const result = await resolveLmStudioModelContext({
       model: 'google/gemma-3-12b',
       get: async () => ({
         models: [{
@@ -1140,10 +1205,10 @@ describe('KNX AI conversational control', () => {
       post: async () => { postCount += 1 }
     })
     expect(postCount).to.equal(0)
-    expect(result).to.deep.include({ instanceId: 'gemma-ready', contextLength: 32768, changed: false })
+    expect(result).to.deep.include({ instanceId: 'gemma-ready', contextLength: 32768, active: true, changed: false })
   })
 
-  it('reads the Ollama model maximum context and sends it as num_ctx', async () => {
+  it('keeps the Ollama maximum informative and caps the operational num_ctx at 16K', async () => {
     const showResponse = {
       capabilities: ['completion', 'vision'],
       model_info: {
@@ -1168,7 +1233,7 @@ describe('KNX AI conversational control', () => {
     expect(result).to.deep.equal({
       model: 'gemma3:latest',
       maxContextLength: 131072,
-      contextLength: 131072
+      contextLength: 16384
     })
 
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
@@ -1176,13 +1241,19 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include("deriveOllamaApiUrl(tagsUrl, '/api/show')")
   })
 
-  it('uses relevant compact context only for local models with limited windows', () => {
+  it('forces local prompts into a relevant 16K semantic view independently of advertised context', () => {
     expect(KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS).to.equal(16384)
     expect(KNX_AI_COMPACT_CONTEXT_MAX_TOKENS).to.equal(65536)
+    expect(KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS).to.equal(16384)
+    expect(KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS).to.equal(16384)
     expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 8192 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 32768 })).to.equal('compact')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072 })).to.equal('full')
+    expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 32768 })).to.equal('minimal')
+    expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 131072 })).to.equal('minimal')
+    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 0 })).to.equal('minimal')
+    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 32768 })).to.equal('minimal')
+    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'openai_compat', contextLength: 8192 })).to.equal('full')
+    expect(resolveKnxAiPromptContextMode({ provider: 'anthropic', contextLength: 8192 })).to.equal('full')
 
     const catalog = [
       { ga: '1/1/1', dpt: '1.001', label: 'Luce cucina comando', semantic: { area: 'cucina', kind: 'light' } },
@@ -1201,6 +1272,40 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include("promptContextMode === 'minimal'")
     expect(runtime).to.include('{ num_predict: localOutputTokenLimit }')
     expect(runtime).to.include('selectKnxAiCatalogForPrompt({ catalog, question, mode: contextMode })')
+  })
+
+  it('reports the operational limit and measures the real chat prompt payload', () => {
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 131072 })).to.deep.equal({
+      provider: 'lmstudio',
+      tokens: 16384,
+      mode: 'fixed'
+    })
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 8192 }).tokens).to.equal(8192)
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 0 }).tokens).to.equal(16384)
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'anthropic', contextLength: 200000 })).to.deep.equal({
+      provider: 'anthropic',
+      tokens: 0,
+      mode: 'provider-managed'
+    })
+
+    const measured = measureKnxAiPromptContext({
+      provider: 'lmstudio',
+      model: 'gemma',
+      body: {
+        system: 'system',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: 'ciao' },
+            { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,AA==' } }
+          ],
+          images: ['AA==']
+        }]
+      }
+    })
+    expect(measured.bytes).to.equal(Buffer.byteLength('system\nciao', 'utf8'))
+    expect(measured.estimatedInputTokens).to.equal(Math.ceil(measured.bytes / 4))
+    expect(measured.imageCount).to.equal(2)
   })
 
   it('recognizes routine language and broadens limited local context with home capabilities', () => {
@@ -1248,6 +1353,11 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('KNXAIChatAdapterMappings.js')
     expect(editor).to.include('outputs: 4')
     expect(editor).to.include("case 3: return this._('knxUltimateAI.outputs.knxCommands')")
+    expect(editor).to.include('chatContextSourceCameras')
+    expect(editor).not.to.include('chatContextSourceCamerasDocs')
+    expect(editor).to.include('id="knx-ai-chat-context-limit"')
+    expect(editor).to.include('id="knx-ai-chat-context-last-prompt"')
+    expect(editor).to.include('promptUsage.exactInputTokens')
     const runtime = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('replyMessage.inputMessage = cloneInputMessage(inputMessage)')
     expect(runtime).to.include('inputMessage: cloneInputMessage(inputMessage)')
@@ -1270,6 +1380,12 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('node.patternMinCount = 8')
     expect(runtime).to.include('node.llmIncludeRaw = false')
     expect(runtime).to.include('node.llmIncludeDocsSnippets = true')
+    expect(runtime).to.include("languageHint = '', includeDocs = true")
+    expect(runtime).to.include('if (includeDocs && node.llmIncludeDocsSnippets)')
+    expect(runtime).to.include('languageHint: requestLanguage, includeDocs: false')
+    expect(runtime).to.include('includeDocs: false\n      })')
+    expect(runtime).to.include('ret = await callLLM({ question: q, sessionId })')
+    expect(runtime).not.to.include("'camerasDocs'")
     expect(runtime).to.include('maxKb: HOME_MEMORY_DEFAULT_KB')
     expect(runtime).not.to.include('config.homeMemoryMaxKb')
     expect(runtime).not.to.include('highQuality: true')
@@ -1329,6 +1445,10 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.messages.detectedAdaptersLoading).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.messages.detectedAdaptersNone).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.messages.detectedAdapterDetected).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.chatContextSourceCameras).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages).not.to.have.property('chatContextSourceCamerasDocs')
+      expect(messages.knxUltimateAI.messages.chatContextLimitLabel).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.chatContextLastPromptLabel).to.be.a('string').and.not.equal('')
 
       const helpHtml = fs.readFileSync(path.join(localeRoot, 'knxUltimateAI.html'), 'utf8')
       const helpMatch = helpHtml.match(/<script[^>]*data-help-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)
@@ -1651,10 +1771,20 @@ describe('KNX AI conversational control', () => {
 
   it('shows both KNX and adapter daily archives in the context overview', () => {
     const overview = summarizeKnxAiChatContext({
-      node: { id: 'ai-node-1', serverKNX: { userDir: path.join('/tmp', 'knx-ai-history-test') } },
+      node: {
+        id: 'ai-node-1',
+        serverKNX: { userDir: path.join('/tmp', 'knx-ai-history-test') },
+        llmProvider: 'lmstudio',
+        llmContextLength: 131072,
+        _lastChatPromptUsage: { bytes: 4096, estimatedInputTokens: 1024, exactInputTokens: 900 }
+      },
       redUserDir: '/tmp'
     })
+    expect(overview.contextLimit).to.deep.equal({ provider: 'lmstudio', tokens: 16384, mode: 'fixed' })
+    expect(overview.lastPromptUsage).to.deep.equal({ bytes: 4096, estimatedInputTokens: 1024, exactInputTokens: 900 })
     expect(overview.sources).to.include.members(['knxTraffic', 'adapterHistory'])
+    expect(overview.sources).to.include('cameras')
+    expect(overview.sources).not.to.include('camerasDocs')
     expect(overview.telegramDirectories.map(item => item.id)).to.deep.equal([
       'archiveRoot',
       'nodeArchive',
@@ -1734,10 +1864,13 @@ describe('KNX AI conversational control', () => {
     })).to.throw('TTS Ultimate node not available')
   })
 
-  it('gives chat the full Assistant context unless the local model requires an adaptive compact view', () => {
+  it('gives chat the live Assistant context without packaged docs and adapts it for local models', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('const analysisContext = buildLLMPrompt({')
     expect(runtime).to.include("compact: contextMode === 'full' ? false : contextMode")
+    expect(runtime).to.include('includeDocs: false')
+    expect(runtime).to.include('languageHint: requestLanguage, includeDocs: false')
+    expect(runtime).to.include('ret = await callLLM({ question: q, sessionId })')
     expect(runtime).to.include("if (mode === 'full') return source.slice(0, 600)")
     expect(runtime).to.include('const adapterPromptEvents = selectAdapterEventsForPrompt({')
     expect(runtime).to.include('KNX historical archive summary (JSON):')

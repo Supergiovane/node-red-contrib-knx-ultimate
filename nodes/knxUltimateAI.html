@@ -182,10 +182,16 @@
     #knx-ai-detected-adapters-status,
     #knx-ai-chat-context-status,
     .knx-ai-chat-context-intro,
+    .knx-ai-chat-context-metric,
     .knx-ai-chat-context-description,
     .knx-ai-chat-context-pattern {
         color: var(--red-ui-secondary-text-color, #777);
         font-size: 12px;
+    }
+
+    .knx-ai-chat-context-metric {
+        margin-top: 6px;
+        font-weight: 600;
     }
 
     .knx-ai-chat-context-group-title {
@@ -610,6 +616,8 @@
                 const $sources = $("#knx-ai-chat-context-sources-list").empty();
                 const $files = $("#knx-ai-chat-context-files-list").empty();
                 const $directories = $("#knx-ai-chat-context-directories-list").empty();
+                const $contextLimit = $("#knx-ai-chat-context-limit");
+                const $lastPromptUsage = $("#knx-ai-chat-context-last-prompt");
                 if (!overview || typeof overview !== "object") {
                     $content.hide();
                     $status
@@ -633,12 +641,59 @@
                     $row.appendTo($list);
                 };
 
+                const formatCompactTokens = function (value) {
+                    const tokens = Math.max(0, Number(value) || 0);
+                    if (!tokens) return "?";
+                    if (tokens >= 1024 && tokens % 1024 === 0) return (tokens / 1024) + "K";
+                    return tokens.toLocaleString();
+                };
+                const formatBytes = function (value) {
+                    const bytes = Math.max(0, Number(value) || 0);
+                    if (bytes >= (1024 * 1024)) return (bytes / (1024 * 1024)).toLocaleString(undefined, { maximumFractionDigits: 1 }) + " MB";
+                    if (bytes >= 1024) return (bytes / 1024).toLocaleString(undefined, { maximumFractionDigits: 1 }) + " KB";
+                    return bytes.toLocaleString() + " B";
+                };
+
+                const contextLimit = overview.contextLimit && typeof overview.contextLimit === "object" ? overview.contextLimit : {};
+                const currentProvider = String(contextLimit.provider || $("#node-input-llmProvider").val() || "").toLowerCase();
+                let contextLimitTokens = Math.max(0, Number(contextLimit.tokens) || 0);
+                if (!contextLimitTokens && (currentProvider === "lmstudio" || currentProvider === "ollama")) {
+                    contextLimitTokens = Math.min(Math.max(0, Number($("#node-input-llmContextLength").val()) || 16384), 16384);
+                }
+                const contextLimitValue = contextLimitTokens
+                    ? formatCompactTokens(contextLimitTokens) + " " + t("knxUltimateAI.messages.chatContextTokens", "tokens")
+                    : t("knxUltimateAI.messages.chatContextProviderManaged", "managed by the selected provider/model");
+                $contextLimit
+                    .text(t("knxUltimateAI.messages.chatContextLimitLabel", "Maximum operational context") + ": " + contextLimitValue)
+                    .attr("title", contextLimitTokens ? contextLimitTokens.toLocaleString() + " tokens" : contextLimitValue);
+
+                const promptUsage = overview.lastPromptUsage && typeof overview.lastPromptUsage === "object" ? overview.lastPromptUsage : null;
+                if (promptUsage && Number(promptUsage.bytes) > 0) {
+                    const exactInputTokens = Math.max(0, Number(promptUsage.exactInputTokens) || 0);
+                    const estimatedInputTokens = Math.max(0, Number(promptUsage.estimatedInputTokens) || 0);
+                    const tokenText = exactInputTokens
+                        ? formatCompactTokens(exactInputTokens) + " " + t("knxUltimateAI.messages.chatContextExactInputTokens", "input tokens measured by the provider")
+                        : "~" + formatCompactTokens(estimatedInputTokens) + " " + t("knxUltimateAI.messages.chatContextEstimatedInputTokens", "estimated input tokens");
+                    const imageText = Number(promptUsage.imageCount) > 0
+                        ? " · " + Number(promptUsage.imageCount).toLocaleString() + " " + t("knxUltimateAI.messages.chatContextImages", "images")
+                        : "";
+                    $lastPromptUsage.text(
+                        t("knxUltimateAI.messages.chatContextLastPromptLabel", "Last chat prompt actual size") + ": " +
+                        formatBytes(promptUsage.bytes) + " · " + tokenText + imageText
+                    );
+                } else {
+                    $lastPromptUsage.text(
+                        t("knxUltimateAI.messages.chatContextLastPromptLabel", "Last chat prompt actual size") + ": " +
+                        t("knxUltimateAI.messages.chatContextLastPromptUnavailable", "not available until the first chat request")
+                    );
+                }
+
                 const sourceLabels = {
                     knxTraffic: t("knxUltimateAI.messages.chatContextSourceKnxTraffic", "Live KNX summary, anomalies, topology and selected telegrams."),
                     adapterHistory: t("knxUltimateAI.messages.chatContextSourceAdapterHistory", "Persistent history of automatically detected adapter events."),
                     etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "ETS semantics and the full Node-RED project inventory."),
                     memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education and bounded home memory."),
-                    camerasDocs: t("knxUltimateAI.messages.chatContextSourceCamerasDocs", "Detected cameras and relevant help, README and example snippets."),
+                    cameras: t("knxUltimateAI.messages.chatContextSourceCameras", "Detected cameras and their available capabilities."),
                     ttsUltimate: t("knxUltimateAI.messages.chatContextSourceTtsUltimate", "Selected TTS Ultimate announcement target.")
                 };
                 (Array.isArray(overview.sources) ? overview.sources : []).forEach(function (sourceId) {
@@ -752,17 +807,23 @@
                 let text = t("knxUltimateAI.messages.lmStudioContextAvailable", "Maximum model context") + ": " + maxTokens + " token";
                 let color = "#555";
                 if (state === "loading") {
-                    text = t("knxUltimateAI.messages.lmStudioContextLoading", "Loading the model with its maximum context") + ": " + maxTokens + " token…";
+                    text = t("knxUltimateAI.messages.lmStudioContextLoading", "Checking the active model context") + "…";
                     color = "#1565c0";
+                } else if (state === "inactive") {
+                    text = t("knxUltimateAI.messages.lmStudioContextInactive", "Model inactive; Bionic defaults will be used on the first request");
+                    color = "#555";
                 } else if (state === "configured") {
                     const configuredTokens = formatContextTokens(detail.configuredContextLength || detail.loadedContextLength || detail.maxContextLength);
-                    text = t("knxUltimateAI.messages.lmStudioContextConfigured", "Maximum model context configured") + ": " + configuredTokens + " token";
+                    text = t("knxUltimateAI.messages.lmStudioContextConfigured", "Active model context") + ": " + configuredTokens + " token";
                     color = "#2e7d32";
                 } else if (state === "error") {
                     text = String(errorText || t("knxUltimateAI.messages.lmStudioContextFailed", "Unable to configure the model context"));
                     color = "#c62828";
                 } else if (detail.loadedContextLength > 0) {
                     text += " · " + t("knxUltimateAI.messages.lmStudioContextCurrentlyLoaded", "currently loaded") + ": " + loadedTokens + " token";
+                }
+                if (provider === "lmstudio" || provider === "ollama") {
+                    text += " · " + t("knxUltimateAI.messages.localContextBudget", "KNX AI context budget") + ": 16K";
                 }
                 $status.text(text).css("color", color).show();
             };
@@ -824,9 +885,13 @@
                 }
 
                 const requestVersion = ++localContextRequestVersion;
-                $("#node-input-llmContextLength").val(Number(detail.maxContextLength));
+                const activeContextLength = Number(detail.loadedContextLength) > 0
+                    ? Number(detail.loadedContextLength)
+                    : Number(detail.maxContextLength);
+                $("#node-input-llmContextLength").val(activeContextLength);
                 if (provider === "ollama") {
-                    detail.configuredContextLength = Number(detail.maxContextLength);
+                    detail.configuredContextLength = Math.min(Number(detail.maxContextLength), 16384);
+                    $("#node-input-llmContextLength").val(detail.configuredContextLength);
                     setLocalModelContextStatus(detail, "configured");
                     return;
                 }
@@ -848,13 +913,14 @@
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(payload)
-                })
+                    })
                     .done(function (data) {
                         if (requestVersion !== localContextRequestVersion) return;
-                        detail.loadedContextLength = Math.max(0, Number(data && data.contextLength) || Number(detail.maxContextLength));
-                        detail.configuredContextLength = detail.loadedContextLength;
-                        $("#node-input-llmContextLength").val(detail.loadedContextLength);
-                        setLocalModelContextStatus(detail, "configured");
+                        const resolvedContextLength = Math.max(0, Number(data && data.contextLength) || 0);
+                        detail.loadedContextLength = data && data.active === true ? resolvedContextLength : 0;
+                        detail.configuredContextLength = resolvedContextLength;
+                        $("#node-input-llmContextLength").val(resolvedContextLength);
+                        setLocalModelContextStatus(detail, data && data.active === true ? "configured" : "inactive");
                     })
                     .fail(function (xhr) {
                         if (requestVersion !== localContextRequestVersion) return;
@@ -1120,6 +1186,8 @@
                 <div id="knx-ai-chat-context-status" data-i18n="knxUltimateAI.messages.chatContextLoading"></div>
                 <div id="knx-ai-chat-context-content" style="display:none;">
                     <div class="knx-ai-chat-context-intro" data-i18n="knxUltimateAI.messages.chatContextIntro"></div>
+                    <div id="knx-ai-chat-context-limit" class="knx-ai-chat-context-metric"></div>
+                    <div id="knx-ai-chat-context-last-prompt" class="knx-ai-chat-context-metric"></div>
                     <div class="knx-ai-chat-context-group-title" data-i18n="knxUltimateAI.messages.chatContextSourcesTitle"></div>
                     <div id="knx-ai-chat-context-sources-list"></div>
                     <div class="knx-ai-chat-context-group-title" data-i18n="knxUltimateAI.messages.chatContextFilesTitle"></div>

@@ -78,6 +78,8 @@ const KNX_AI_CLOUD_LLM_TIMEOUT_MIN_MS = 120000
 const KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS = 10 * 60 * 1000
 const KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS = 16 * 1024
 const KNX_AI_COMPACT_CONTEXT_MAX_TOKENS = 64 * 1024
+const KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS = 16 * 1024
+const KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS = 16 * 1024
 const KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS = 4000
 const KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS = Math.max(1, KNX_AI_TRAFFIC_DEFAULTS.historyStoreRetentionDays)
 
@@ -91,11 +93,75 @@ const resolveKnxAiLlmTimeoutMs = ({ provider, configuredTimeoutMs } = {}) => {
 
 const resolveKnxAiPromptContextMode = ({ provider, contextLength } = {}) => {
   if (provider !== 'ollama' && provider !== 'lmstudio') return 'full'
-  const tokens = Math.max(0, Number(contextLength) || 0)
+  const reportedTokens = Math.max(0, Number(contextLength) || 0)
+  // Local providers may advertise a 131K model capability even when that is a
+  // poor operational choice. Never let the advertised maximum promote KNX AI
+  // to the huge "full" prompt. The 16K semantic view retains every action type
+  // while selecting only question-relevant KNX/history/project context.
+  const localPromptCap = provider === 'lmstudio'
+    ? KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS
+    : KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS
+  const tokens = Math.min(reportedTokens || localPromptCap, localPromptCap)
   if (!tokens) return 'full'
   if (tokens <= KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS) return 'minimal'
   if (tokens <= KNX_AI_COMPACT_CONTEXT_MAX_TOKENS) return 'compact'
   return 'full'
+}
+
+const resolveKnxAiOperationalContextLimit = ({ provider, contextLength } = {}) => {
+  const normalizedProvider = String(provider || '').trim().toLowerCase()
+  const localPromptCap = normalizedProvider === 'lmstudio'
+    ? KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS
+    : normalizedProvider === 'ollama'
+      ? KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS
+      : 0
+  if (!localPromptCap) {
+    return {
+      provider: normalizedProvider,
+      tokens: 0,
+      mode: 'provider-managed'
+    }
+  }
+  const activeContextLength = Math.max(0, Number(contextLength) || 0)
+  return {
+    provider: normalizedProvider,
+    tokens: Math.min(activeContextLength || localPromptCap, localPromptCap),
+    mode: 'fixed'
+  }
+}
+
+const measureKnxAiPromptContext = ({ body, provider, model } = {}) => {
+  const requestBody = body && typeof body === 'object' ? body : {}
+  const textParts = []
+  let imageCount = 0
+  const appendContent = (content) => {
+    if (typeof content === 'string') {
+      textParts.push(content)
+      return
+    }
+    if (!Array.isArray(content)) return
+    content.forEach(part => {
+      if (!part || typeof part !== 'object') return
+      if (part.type === 'text' && typeof part.text === 'string') textParts.push(part.text)
+      if (part.type === 'image' || part.type === 'image_url') imageCount += 1
+    })
+  }
+  appendContent(requestBody.system)
+  ;(Array.isArray(requestBody.messages) ? requestBody.messages : []).forEach(message => {
+    if (!message || typeof message !== 'object') return
+    appendContent(message.content)
+    if (Array.isArray(message.images)) imageCount += message.images.length
+  })
+  const promptText = textParts.join('\n')
+  const bytes = Buffer.byteLength(promptText, 'utf8')
+  return {
+    provider: String(provider || '').trim().toLowerCase(),
+    model: String(model || requestBody.model || '').trim(),
+    bytes,
+    characters: promptText.length,
+    estimatedInputTokens: bytes > 0 ? Math.max(1, Math.ceil(bytes / 4)) : 0,
+    imageCount
+  }
 }
 
 const selectKnxAiCatalogForPrompt = ({ catalog, question, mode = 'full' } = {}) => {
@@ -356,7 +422,14 @@ const summarizeKnxAiChatContext = ({ node, nodeId, redUserDir } = {}) => {
   }
 
   return {
-    sources: ['knxTraffic', 'adapterHistory', 'etsProject', 'memoryEducation', 'camerasDocs', 'ttsUltimate'],
+    contextLimit: resolveKnxAiOperationalContextLimit({
+      provider: node && node.llmProvider,
+      contextLength: node && node.llmContextLength
+    }),
+    lastPromptUsage: node && node._lastChatPromptUsage
+      ? Object.assign({}, node._lastChatPromptUsage)
+      : null,
+    sources: ['knxTraffic', 'adapterHistory', 'etsProject', 'memoryEducation', 'cameras', 'ttsUltimate'],
     files: files.map(item => Object.assign({}, item, { exists: fs.existsSync(item.path) })),
     telegramDirectories: [
       { id: 'archiveRoot', path: telegramArchiveRoot, exists: fs.existsSync(telegramArchiveRoot) },
@@ -1831,7 +1904,26 @@ const coerceKnxAiCommandPayload = (value, { dpt } = {}) => {
 const resolveKnxAiOperationEvent = (candidate) => {
   const item = candidate && typeof candidate === 'object' ? candidate : {}
   const raw = String(item.event || item.operation || item.action || '').trim().toLowerCase()
-  if (['groupvalue_read', 'read', 'query', 'request_status'].includes(raw)) return 'GroupValue_Read'
+  const normalized = raw.replace(/[\s-]+/g, '_')
+  const compact = normalized.replace(/[^a-z]/g, '')
+  const readNames = new Set([
+    'groupvalue_read', 'groupvalue_response', 'read', 'query', 'get',
+    'get_state', 'read_state', 'read_status', 'request_status', 'status'
+  ])
+  if (readNames.has(normalized) || ['groupvalueread', 'groupvalueresponse', 'getstate', 'readstate', 'readstatus', 'requeststatus'].includes(compact)) {
+    return 'GroupValue_Read'
+  }
+  const writeNames = new Set(['groupvalue_write', 'write', 'set', 'set_state', 'command'])
+  if (writeNames.has(normalized) || ['groupvaluewrite', 'setstate'].includes(compact)) return 'GroupValue_Write'
+
+  // Small local models sometimes omit the operation discriminator on a state
+  // query even though they correctly return exact ETS destinations. An item
+  // without a payload cannot be an actuator write, so treat it as a safe read.
+  // Legacy write proposals that contain a payload remain writes and still pass
+  // through command-role, DPT, payload and confirmation validation.
+  const hasPayload = Object.prototype.hasOwnProperty.call(item, 'payload') || Object.prototype.hasOwnProperty.call(item, 'value')
+  const payload = Object.prototype.hasOwnProperty.call(item, 'payload') ? item.payload : item.value
+  if (!hasPayload || payload === null || payload === undefined) return 'GroupValue_Read'
   return 'GroupValue_Write'
 }
 
@@ -4113,12 +4205,11 @@ const findLmStudioModel = ({ catalog, model }) => {
   }) || null
 }
 
-const ensureLmStudioModelMaxContext = async ({
+const resolveLmStudioModelContext = async ({
   baseUrl,
   apiKey,
   model,
-  get = getJson,
-  post = postJson
+  get = getJson
 } = {}) => {
   const selectedModel = String(model || '').trim()
   if (!selectedModel) throw new Error('No Bionic LM Studio model selected')
@@ -4132,74 +4223,40 @@ const ensureLmStudioModelMaxContext = async ({
     model: selectedModel
   })
   if (!descriptor) throw new Error(`Bionic LM Studio model not found: ${selectedModel}`)
-  const targetContextLength = Math.max(0, Number(descriptor.maxContextLength) || 0)
-  if (!targetContextLength) {
+  const maxContextLength = Math.max(0, Number(descriptor.maxContextLength) || 0)
+  if (!maxContextLength) {
     throw new Error(`Bionic LM Studio did not report max_context_length for model "${descriptor.id}"`)
   }
-  const readyInstance = descriptor.loadedInstances.find(instance => instance.contextLength === targetContextLength)
+  // A loaded instance reflects the context explicitly chosen in Bionic LM
+  // Studio. Preserve it instead of treating max_context_length (a capability)
+  // as the desired runtime configuration and silently reloading the model.
+  const readyInstance = descriptor.loadedInstances.find(instance => {
+    return instance.id === selectedModel && instance.contextLength > 0
+  }) || descriptor.loadedInstances.find(instance => instance.contextLength > 0)
   if (readyInstance) {
     return {
       model: descriptor.id,
       displayName: descriptor.displayName,
       instanceId: readyInstance.id,
-      contextLength: targetContextLength,
-      maxContextLength: targetContextLength,
+      contextLength: readyInstance.contextLength,
+      maxContextLength,
+      active: true,
       changed: false
     }
   }
 
-  const unloadUrl = deriveLmStudioNativeApiUrl(baseUrl, '/api/v1/models/unload')
-  const loadUrl = deriveLmStudioNativeApiUrl(baseUrl, '/api/v1/models/load')
-  for (const instance of descriptor.loadedInstances) {
-    // eslint-disable-next-line no-await-in-loop
-    await post({
-      url: unloadUrl,
-      headers,
-      body: { instance_id: instance.id },
-      timeoutMs: KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS
-    })
-  }
-
-  try {
-    const loaded = await post({
-      url: loadUrl,
-      headers,
-      body: {
-        model: descriptor.id,
-        context_length: targetContextLength,
-        echo_load_config: true
-      },
-      timeoutMs: KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS
-    })
-    const appliedContextLength = Math.max(0, Number(loaded && loaded.load_config && loaded.load_config.context_length) || targetContextLength)
-    return {
-      model: descriptor.id,
-      displayName: descriptor.displayName,
-      instanceId: String(loaded && loaded.instance_id || descriptor.id),
-      contextLength: appliedContextLength,
-      maxContextLength: targetContextLength,
-      changed: true
-    }
-  } catch (error) {
-    const previousContextLength = descriptor.loadedInstances.reduce((max, instance) => Math.max(max, instance.contextLength), 0)
-    if (previousContextLength > 0) {
-      try {
-        await post({
-          url: loadUrl,
-          headers,
-          body: {
-            model: descriptor.id,
-            context_length: previousContextLength,
-            echo_load_config: true
-          },
-          timeoutMs: KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS
-        })
-      } catch (restoreError) { /* best-effort restoration of the previous instance */ }
-    }
-    const detail = String(error && error.message ? error.message : error)
-    const loadError = new Error(`Bionic LM Studio could not load "${descriptor.displayName}" with its maximum context (${targetContextLength} tokens). ${detail}`)
-    if (error && error.status !== undefined) loadError.status = error.status
-    throw loadError
+  // Do not load an inactive model through the management API. Bionic LM
+  // Studio's JIT loader must remain free to apply the user's saved per-model
+  // defaults (including context length) when the first chat request arrives.
+  // Until that happens, build a conservative prompt that fits within 16K.
+  return {
+    model: descriptor.id,
+    displayName: descriptor.displayName,
+    instanceId: '',
+    contextLength: Math.min(maxContextLength, KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS),
+    maxContextLength,
+    active: false,
+    changed: false
   }
 }
 
@@ -4292,7 +4349,7 @@ const resolveOllamaModelMaxContext = async ({ baseUrl, model, post = postJson } 
   return {
     model: selectedModel,
     maxContextLength,
-    contextLength: maxContextLength
+    contextLength: Math.min(maxContextLength, KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS)
   }
 }
 
@@ -5796,7 +5853,7 @@ module.exports = function (RED) {
         if (!apiKey && deployedNode && deployedNode.credentials && deployedNode.credentials.llmApiKey) {
           apiKey = sanitizeApiKey(deployedNode.credentials.llmApiKey)
         }
-        const result = await ensureLmStudioModelMaxContext({
+        const result = await resolveLmStudioModelContext({
           baseUrl,
           apiKey,
           model: body.model
@@ -7287,7 +7344,7 @@ module.exports = function (RED) {
       }, 90)
     }
 
-    const buildLLMPrompt = ({ question, summary, compact = false, languageHint = '' } = {}) => {
+    const buildLLMPrompt = ({ question, summary, compact = false, languageHint = '', includeDocs = true } = {}) => {
       const promptMode = compact === 'minimal' ? 'minimal' : compact === true || compact === 'compact' ? 'compact' : 'full'
       const compactMode = promptMode !== 'full'
       const minimalMode = promptMode === 'minimal'
@@ -7366,7 +7423,7 @@ module.exports = function (RED) {
       }
 
       let docsContext = ''
-      if (node.llmIncludeDocsSnippets) {
+      if (includeDocs && node.llmIncludeDocsSnippets) {
         const docsMaxCharsConfigured = Math.max(500, Math.min(5000, Number(node.llmDocsMaxChars) || 500))
         const docsMaxChars = minimalMode
           ? Math.min(docsMaxCharsConfigured, 500)
@@ -9818,14 +9875,19 @@ module.exports = function (RED) {
       if (node._lmStudioContextPromise && node._lmStudioContextPromise.key === key) {
         return node._lmStudioContextPromise.promise
       }
-      const promise = ensureLmStudioModelMaxContext({
+      const promise = resolveLmStudioModelContext({
         baseUrl: node.llmBaseUrl,
         apiKey: node.llmApiKey,
         model: node.llmModel
       }).then(result => {
         node.llmContextLength = Math.max(0, Number(result && result.contextLength) || node.llmContextLength)
-        node._lmStudioContextReadyKey = `${node.llmBaseUrl}\u0000${node.llmModel}\u0000${node.llmContextLength}`
-        node._lmStudioContextReadyResult = result
+        if (result && result.active === true) {
+          node._lmStudioContextReadyKey = `${node.llmBaseUrl}\u0000${node.llmModel}\u0000${node.llmContextLength}`
+          node._lmStudioContextReadyResult = result
+        } else {
+          node._lmStudioContextReadyKey = ''
+          node._lmStudioContextReadyResult = null
+        }
         return result
       }).finally(() => {
         if (node._lmStudioContextPromise && node._lmStudioContextPromise.key === key) {
@@ -9842,7 +9904,11 @@ module.exports = function (RED) {
       const model = node.llmModel || 'llama3.1'
       const key = `${url}\u0000${model}`
       if (!force && node._ollamaContextReadyKey === key && node.llmContextLength > 0) {
-        return { model, maxContextLength: node.llmContextLength, contextLength: node.llmContextLength }
+        return {
+          model,
+          maxContextLength: Math.max(node.llmContextLength, Number(node._ollamaModelMaxContextLength) || 0),
+          contextLength: node.llmContextLength
+        }
       }
       const resolveContext = () => resolveOllamaModelMaxContext({ baseUrl: url, model })
       let result
@@ -9853,7 +9919,8 @@ module.exports = function (RED) {
         await ensureOllamaServerRunning({ baseUrl: url, autoStart: true, timeoutMs: 22000 })
         result = await resolveContext()
       }
-      node.llmContextLength = Math.max(0, Number(result && result.maxContextLength) || 0)
+      node._ollamaModelMaxContextLength = Math.max(0, Number(result && result.maxContextLength) || 0)
+      node.llmContextLength = Math.max(0, Number(result && result.contextLength) || 0)
       node._ollamaContextReadyKey = key
       return result
     }
@@ -9864,7 +9931,24 @@ module.exports = function (RED) {
       return null
     }
 
-    const callLLMChat = async ({ systemPrompt, userContent, images = [], jsonSchema = null, maxTokensOverride = null }) => {
+    const recordChatPromptUsage = ({ body, provider, model } = {}) => {
+      const sequence = Math.max(0, Number(node._chatPromptUsageSequence) || 0) + 1
+      node._chatPromptUsageSequence = sequence
+      node._lastChatPromptUsageSequence = sequence
+      node._lastChatPromptUsage = Object.assign(
+        { at: new Date().toISOString(), exactInputTokens: 0 },
+        measureKnxAiPromptContext({ body, provider, model })
+      )
+      return sequence
+    }
+
+    const recordExactChatPromptTokens = ({ sequence, inputTokens } = {}) => {
+      const tokens = Math.max(0, Number(inputTokens) || 0)
+      if (!tokens || sequence !== node._lastChatPromptUsageSequence || !node._lastChatPromptUsage) return
+      node._lastChatPromptUsage = Object.assign({}, node._lastChatPromptUsage, { exactInputTokens: Math.round(tokens) })
+    }
+
+    const callLLMChat = async ({ systemPrompt, userContent, images = [], jsonSchema = null, maxTokensOverride = null, trackChatContextUsage = false }) => {
       if (!node.llmEnabled) throw new Error('LLM is disabled in node config')
       if (node.llmProvider === 'lmstudio' && !String(node.llmModel || '').trim()) {
         throw new Error('No Bionic LM Studio model selected. Start the LM Studio API server, refresh the model list and select a model.')
@@ -9910,10 +9994,16 @@ module.exports = function (RED) {
           )
         }
         let json
+        let promptUsageSequence = 0
         const requestOllamaChat = requestBody => postLocalLlmWithContextFallbacks({
           body: requestBody,
           enabled: true,
-          request: compactBody => postJson({ url, body: compactBody, timeoutMs: effectiveTimeoutMs })
+          request: compactBody => {
+            if (trackChatContextUsage) {
+              promptUsageSequence = recordChatPromptUsage({ body: compactBody, provider: 'ollama', model: compactBody.model })
+            }
+            return postJson({ url, body: compactBody, timeoutMs: effectiveTimeoutMs })
+          }
         })
         try {
           json = await requestOllamaChat(body)
@@ -9927,6 +10017,7 @@ module.exports = function (RED) {
             throw decorateOllamaConnectionError({ error, url, action: 'chat with the model' })
           }
         }
+        recordExactChatPromptTokens({ sequence: promptUsageSequence, inputTokens: json && json.prompt_eval_count })
         const content = json && json.message && typeof json.message.content === 'string' ? json.message.content : safeStringify(json)
         return { provider: 'ollama', model: body.model, content, finishReason: String(json && json.done_reason ? json.done_reason : '') }
       }
@@ -9957,7 +10048,11 @@ module.exports = function (RED) {
           }]
         }
         if (sys) body.system = sys
+        const promptUsageSequence = trackChatContextUsage
+          ? recordChatPromptUsage({ body, provider: 'anthropic', model: body.model })
+          : 0
         const json = await postJson({ url, headers, body, timeoutMs: effectiveTimeoutMs })
+        recordExactChatPromptTokens({ sequence: promptUsageSequence, inputTokens: json && json.usage && json.usage.input_tokens })
         const content = extractAnthropicText(json)
         const finishReason = String(json && json.stop_reason ? json.stop_reason : '')
         return { provider: 'anthropic', model: body.model, content, finishReason }
@@ -10011,17 +10106,27 @@ module.exports = function (RED) {
         ? (localOutputTokenLimit > 0 ? { max_tokens: Math.min(resolvedMaxTokens, localOutputTokenLimit) } : {})
         : { max_tokens: resolvedMaxTokens }
       let json
+      let promptUsageSequence = 0
       try {
         json = await postLocalLlmWithContextFallbacks({
           body: Object.assign(tokenLimitBody, schemaBody),
           enabled: node.llmProvider === 'lmstudio',
-          request: requestBody => postOpenAiCompatibleChatWithFallbacks({
-            url,
-            headers,
-            body: requestBody,
-            timeoutMs: effectiveTimeoutMs,
-            model: baseBody.model
-          })
+          request: requestBody => {
+            if (trackChatContextUsage) {
+              promptUsageSequence = recordChatPromptUsage({
+                body: requestBody,
+                provider: node.llmProvider === 'lmstudio' ? 'lmstudio' : 'openai_compat',
+                model: baseBody.model
+              })
+            }
+            return postOpenAiCompatibleChatWithFallbacks({
+              url,
+              headers,
+              body: requestBody,
+              timeoutMs: effectiveTimeoutMs,
+              model: baseBody.model
+            })
+          }
         })
       } catch (error) {
         if (node.llmProvider === 'lmstudio' && isLikelyConnectionFailure(error)) {
@@ -10031,6 +10136,7 @@ module.exports = function (RED) {
         }
         throw error
       }
+      recordExactChatPromptTokens({ sequence: promptUsageSequence, inputTokens: json && json.usage && json.usage.prompt_tokens })
       const content = extractOpenAICompatText(json) || buildOpenAICompatFallbackText(json)
       const finishReason = String(json && json.choices && json.choices[0] && json.choices[0].finish_reason ? json.choices[0].finish_reason : '')
       return { provider: node.llmProvider === 'lmstudio' ? 'lmstudio' : 'openai_compat', model: baseBody.model, content, finishReason }
@@ -10203,7 +10309,7 @@ module.exports = function (RED) {
       }
     }
 
-    const callLLM = async ({ question, sessionId = 'default', languageHint = '' }) => {
+    const callLLM = async ({ question, sessionId = 'default', languageHint = '', includeDocs = true }) => {
       await ensureSelectedLocalModelContext({ autoStartOllama: true })
       const contextMode = resolveKnxAiPromptContextMode({
         provider: node.llmProvider,
@@ -10220,14 +10326,16 @@ module.exports = function (RED) {
         question,
         summary,
         compact: contextMode === 'full' ? false : contextMode,
-        languageHint
+        languageHint,
+        includeDocs
       })
       const userContent = chatContext ? `${chatContext}\n\n${prompt}` : prompt
       const configuredMaxTokens = Math.max(10000, Number(node.llmMaxTokens) || 0)
       let ret = await callLLMChat({
         systemPrompt: node.llmSystemPrompt || '',
         userContent,
-        maxTokensOverride: configuredMaxTokens
+        maxTokensOverride: configuredMaxTokens,
+        trackChatContextUsage: includeDocs === false
       })
       const finishReason = String(ret && ret.finishReason ? ret.finishReason : '').trim().toLowerCase()
       const lengthLimited = finishReason === 'length' || isOpenAICompatLengthFallbackText(ret && ret.content)
@@ -10238,14 +10346,15 @@ module.exports = function (RED) {
           sessionId,
           maxChars: retryMode === 'minimal' ? 600 : 3000
         })
-        const compactBasePrompt = buildLLMPrompt({ question, summary, compact: retryMode, languageHint })
+        const compactBasePrompt = buildLLMPrompt({ question, summary, compact: retryMode, languageHint, includeDocs })
         const compactPrompt = compactChatContext ? `${compactChatContext}\n\n${compactBasePrompt}` : compactBasePrompt
         const retryMaxTokens = Math.min(16000, Math.max(10000, Math.round(configuredMaxTokens * 1.25)))
         try {
           ret = await callLLMChat({
             systemPrompt: node.llmSystemPrompt || '',
             userContent: compactPrompt,
-            maxTokensOverride: retryMaxTokens
+            maxTokensOverride: retryMaxTokens,
+            trackChatContextUsage: includeDocs === false
           })
         } catch (retryError) {
           // Keep the first provider answer if retry fails.
@@ -10317,14 +10426,14 @@ module.exports = function (RED) {
       if (contextMode !== 'full') {
         gaLines = takeFirstItemsByCharBudget(gaLines, contextMode === 'minimal' ? 5000 : 18000)
       }
-      // Keep conversational channels (Telegram, RedBot, custom adapters, etc.)
-      // aligned with the web Assistant: the chat adds its control/camera context
-      // below, but starts from the same complete KNX analysis prompt.
+      // Conversational channels keep the live KNX analysis context used by the web
+      // Assistant, but deliberately omit packaged help/README/wiki/example snippets.
       const analysisContext = buildLLMPrompt({
         question,
         summary,
         compact: contextMode === 'full' ? false : contextMode,
-        languageHint
+        languageHint,
+        includeDocs: false
       })
       const fullCameraCatalog = Array.from(node._cameraCatalog.values())
       const cameraSearch = normalizeSearchText(question)
@@ -10366,7 +10475,8 @@ module.exports = function (RED) {
         node.llmSystemPrompt || 'You are a KNX building automation assistant.',
         '',
         'KNX CHAT AND CONTROL CONTRACT:',
-        '- Return only one JSON object with exactly this shape: {"reply":"text for the user","language":"it","routine":{"active":false,"name":"","phase":"none|inspect|plan"},"commands":[{"event":"GroupValue_Read|GroupValue_Write","destination":"1/2/3","dpt":"1.001","payload":null,"reason":"short reason"}],"cameraActions":[{"type":"snapshot|analyze|watch|unwatch|list_watches","camera":"exact camera name or id","eventType":"smartDetect|smartDetectLine|smartDetectZone|smartDetectLoiterZone|motion|ring|smartAudioDetect","scopeName":"exact zone or line when supplied by the user","objectTypes":["person"],"cooldownSeconds":60,"sendSnapshot":true,"reason":"short reason"}],"speechActions":[{"type":"announce","text":"exact words to speak","reason":"short reason"}]}.',
+        '- Return only one JSON object with exactly this top-level shape: {"reply":"text for the user","language":"it","routine":{"active":false,"name":"","phase":"none"},"commands":[],"cameraActions":[],"speechActions":[]}.',
+        '- Begin with every action array empty. Add an item only when the current user request actually needs that action; never copy placeholder addresses, DPTs, cameras, events, or payloads from these instructions.',
         '- Use the same language as the user for reply and reason.',
         '- Set language to the ISO code matching the current user request: en, it, de, fr, es, or zh.',
         '- For an explicit request to refresh, read, query, or retrieve a current KNX state, create GroupValue_Read operations for the exact relevant objects. Use payload null for reads.',
@@ -10506,7 +10616,8 @@ module.exports = function (RED) {
             required: ['reply', 'language', 'routine', 'commands', 'cameraActions', 'speechActions']
           }
         },
-        maxTokensOverride: configuredMaxTokens
+        maxTokensOverride: configuredMaxTokens,
+        trackChatContextUsage: true
       })
 
       let envelope
@@ -11988,7 +12099,7 @@ module.exports = function (RED) {
                   allowKnxCommands: node.llmAllowKnxCommands,
                   languageHint: requestLanguage
                 })
-                : await callLLM({ question, sessionId, languageHint: requestLanguage })
+                : await callLLM({ question, sessionId, languageHint: requestLanguage, includeDocs: false })
               const initialRoutine = normalizeKnxAiRoutineDescriptor(ret && ret.routine)
               const inspectionCommands = (Array.isArray(ret && ret.commands) ? ret.commands : [])
                 .filter(command => command && command.event === 'GroupValue_Read')
@@ -12562,7 +12673,9 @@ module.exports.__test = {
   KNX_AI_COMPACT_CONTEXT_MAX_TOKENS,
   KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
   KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS,
+  KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS,
   KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS,
+  KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS,
   KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS,
   KNX_AI_THINKING_DELAY_MS,
   KNX_AI_TRAFFIC_DEFAULTS,
@@ -12581,7 +12694,7 @@ module.exports.__test = {
   detectKnxAiLanguageFromText,
   deriveLmStudioNativeApiUrl,
   dispatchKnxAiTtsUltimateAnnouncement,
-  ensureLmStudioModelMaxContext,
+  resolveLmStudioModelContext,
   executeKnxAiChatAdapter,
   extractLlmHttpErrorDetail,
   extractOllamaModelMaxContextLength,
@@ -12601,12 +12714,14 @@ module.exports.__test = {
   normalizeKnxAiCommandCandidates,
   normalizeKnxAiRoutineDescriptor,
   normalizeLmStudioModelCatalog,
+  measureKnxAiPromptContext,
   parseQuestionTimeRange,
   parseKnxAiConversationResponse,
   postLocalLlmWithContextFallbacks,
   postOpenAiCompatibleChatWithFallbacks,
   resolveKnxAiLanguage,
   resolveKnxAiLlmTimeoutMs,
+  resolveKnxAiOperationalContextLimit,
   resolveKnxAiPromptContextMode,
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,

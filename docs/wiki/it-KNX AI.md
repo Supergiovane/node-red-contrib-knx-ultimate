@@ -36,7 +36,7 @@ Ogni sessione Ask/chat conserva gli ultimi 8 turni e fino a 20 istruzioni esplic
 Per le scritture DPT 1.xxx, gli equivalenti sicuri prodotti dall'AI `true`/`false`, `1`/`0` e `on`/`off` vengono normalizzati in un vero booleano prima della validazione locale e dell'uscita.
 
 ### Letture KNX aggiornate
-Quando l'utente chiede esplicitamente uno stato attuale o aggiornato, l'AI può interrogare gli oggetti esatti del catalogo ETS importato, compresi gli oggetti di stato e di sola lettura. L'uscita 4 emette `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"` e `msg.readstatus = true`. Il nodo attende fino a 6 secondi ogni `GroupValue_Response` o scrittura fresca, poi restituisce i valori decodificati sull'uscita 3 e i dettagli in `msg.knxAi.readResults`. Le letture non richiedono mai conferma e non vengono mai trasformate in scritture.
+Quando l'utente chiede esplicitamente uno stato attuale o aggiornato, l'AI può interrogare gli oggetti esatti del catalogo ETS importato, compresi gli oggetti di stato e di sola lettura. L'uscita 4 emette `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"` e `msg.readstatus = true`. Il nodo attende fino a 6 secondi ogni `GroupValue_Response` o scrittura fresca, poi restituisce i valori decodificati sull'uscita 3 e i dettagli in `msg.knxAi.readResults`. Le letture non richiedono mai conferma e non vengono mai trasformate in scritture. Se un piccolo modello locale omette il tipo di operazione e il payload, gli oggetti ETS esatti vengono normalizzati in modo sicuro come letture; un elemento con payload resta una scrittura validata.
 
 ### Routine conversazionali multi-step
 Richieste come «Sto uscendo», «Buonanotte» o «Modalità cinema» possono coordinare una routine basata sullo stato corrente senza aggiungere opzioni all'editor. Nel primo passaggio LLM vengono accettate soltanto letture ETS esatte (massimo 20); KNX AI le invia e passa i risultati aggiornati GA/DPT/valore a un secondo passaggio di pianificazione isolato. Quest'ultimo può preparare fino a 12 scritture validate, ma non può avviare un altro ciclo di letture. Con la conferma attiva, l'intero piano richiede una sola conferma localizzata e nessuna scrittura o annuncio TTS richiesto viene emesso prima. Dopo la conferma ogni scrittura viene rivalidata, inoltrata in ordine e osservata fino a 4 secondi per un feedback immediato corrispondente sul bus. La risposta finale distingue il feedback osservato dalle operazioni senza feedback immediato, senza considerare queste ultime come dispositivi guasti. I dettagli sono disponibili in `msg.knxAi.routine`, `readResults`, `verifiedCount` e `unverifiedCount`.
@@ -64,7 +64,7 @@ Quando è installato il pacchetto opzionale `node-red-contrib-tts-ultimate`, que
 Solo una richiesta esplicita nel messaggio corrente della chat può creare un annuncio. KNX AI invia il testo esatto direttamente al nodo scelto come `msg.payload`, con `msg.topic = "knx_ai_announcement"`; non servono collegamenti intermedi nel flow. TTS Ultimate gestisce poi il player Sonos configurato, voce, volume, hailing e coda. Contesto persistente, Educazione AI, contenuto delle telecamere ed eventi dedotti non attivano mai autonomamente la voce.
 
 ### Riepilogo del contesto della chat
-L'editor del nodo mostra una scheda compatta con le fonti disponibili alla chat: traffico KNX corrente e archiviato, eventi persistenti degli adapter, semantica ETS e progetto Node-RED, memoria di sessione e domestica, Educazione AI, telecamere rilevate e documentazione pertinente. Elenca anche le directory assolute degli archivi KNX e degli eventi adapter e il formato giornaliero `YYYY-MM-DD.jsonl`.
+L'editor del nodo mostra una scheda compatta con le fonti disponibili alla chat: traffico KNX corrente e archiviato, eventi persistenti degli adapter, semantica ETS e progetto Node-RED, memoria di sessione e domestica, Educazione AI e telecamere rilevate. Mostra anche il contesto operativo massimo e il peso UTF-8 effettivo dell'ultimo prompt della chat; quando il provider comunica i token di input viene usato il valore esatto, altrimenti il conteggio è indicato come stima. La scheda elenca le directory assolute degli archivi KNX e degli eventi adapter e il formato giornaliero `YYYY-MM-DD.jsonl`.
 
 ## Intelligenza domestica proattiva guidata dall'Educazione e memoria limitata
 Da gerarchia ETS, nomi, ruoli e DPT, il nodo crea un modello semantico deterministico per persiane, finestre, porte, luci, temperatura, clima, presenza e allarmi usando termini italiani, inglesi, tedeschi, francesi, spagnoli e cinesi. Il rilevatore proattivo osserva soltanto stati non di comando di persiane, finestre e porte riconosciuti con sufficiente affidabilità.
@@ -125,7 +125,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - **Chiedi conferma prima di inviare comandi KNX**: attivo per default. Mostra prima le modifiche validate e non emette comandi KNX finché la stessa sessione chat non le conferma. Quando ci sono comandi in attesa, la risposta aggiunge sempre le istruzioni esatte per confermare o annullare nella lingua della richiesta corrente. I comandi vengono validati nuovamente subito prima dell'uscita.
 - **Preset adattatore**: parte da **Nessun adattatore**. La selezione carica la coppia predefinita di mappature ingresso/uscita; entrambe restano nascoste nell'editor.
 - **Educazione AI**: istruzioni autorevoli gestite soltanto dall'utente, lette dall'AI e mai modificate. È anche l'unico punto in cui richiedere notifiche proattive e definirne condizioni, durata, ore silenziose e ripetizione.
-- Gli estratti pertinenti di help, README ed esempi vengono sempre inclusi automaticamente; la lingua viene ricavata dalla richiesta dell'utente, con fallback automatici fra tutte le lingue supportate.
+- Gli estratti inclusi nel pacchetto da help, README, changelog, wiki ed esempi non vengono inviati nei prompt di Telegram, RedBot o CHAT personalizzate. Restano disponibili soltanto all'Assistente web per le domande tecniche sul pacchetto.
 - Pulsante **Aggiorna**: interroga il provider e popola i modelli disponibili. Durante il caricamento l'icona ruota; il completamento corretto non mostra messaggi.
 
 ### Setup rapido Ollama (locale)
@@ -136,6 +136,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
   - **2) Installalo**: scarica e installa localmente il modello (esempio `llama3.1`).
 - Durante refresh/installazione, KNX AI prova anche ad avviare automaticamente il server Ollama quando possibile.
 - Se l'installazione fallisce per errore di connessione, verifica che Ollama sia avviato (app desktop o `ollama serve`).
+- Il contesto massimo dichiarato da `/api/show` resta informativo. KNX AI invia sempre `num_ctx = 16384` (oppure il massimo del modello se inferiore) e usa la stessa vista semantica di 16K selezionata per pertinenza, evitando una KV cache sovradimensionata senza rimuovere capacità dell'agente.
 - Se Node-RED gira in Docker, usa `host.docker.internal` al posto di `localhost` nell'endpoint.
 
 ### Setup rapido Bionic LM Studio (locale)
@@ -143,6 +144,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - Avvia il server API di LM Studio dalla pagina **Developer** oppure con `lms server start`.
 - Endpoint predefinito: `http://localhost:1234/v1/chat/completions`.
 - Premi **Aggiorna** per caricare tutti i modelli esposti da `/v1/models`; se non è configurato un modello viene selezionato il primo.
+- Se un modello è già caricato, KNX AI conserva la lunghezza del contesto attiva. KNX AI non carica mai un modello Bionic inattivo tramite l'API di gestione: la prima richiesta chat lascia che Bionic lo carichi JIT con i valori predefiniti salvati per il modello. Indipendentemente dal contesto dichiarato da Bionic, KNX AI limita sempre il proprio prompt a una vista semantica di 16K selezionata per pertinenza; evita così di inviare l'intero insieme di dati da 131K senza rimuovere capacità di ragionamento, KNX, routine, telecamere o TTS.
 - La API key è opzionale, salvo autenticazione attiva nelle impostazioni del server LM Studio. In Docker sostituisci `localhost` con `host.docker.internal`.
 
 ## Nota sicurezza

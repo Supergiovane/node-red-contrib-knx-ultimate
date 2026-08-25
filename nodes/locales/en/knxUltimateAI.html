@@ -31,7 +31,7 @@ Every Ask/chat session keeps its last 8 turns and up to 20 explicit long-term in
 For DPT 1.xxx writes, safe AI equivalents `true`/`false`, `1`/`0`, and `on`/`off` are normalized to a real boolean before local validation and output.
 
 ### Fresh KNX reads
-When the user explicitly asks for a fresh/current state, the AI may query exact objects from the imported ETS catalog, including status and other read-only objects. Output 4 emits `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"`, and `msg.readstatus = true`. The node waits up to 6 seconds for each `GroupValue_Response` or fresh write, then returns the decoded values on output 3 and exposes details in `msg.knxAi.readResults`. Reads never require confirmation and never become writes.
+When the user explicitly asks for a fresh/current state, the AI may query exact objects from the imported ETS catalog, including status and other read-only objects. Output 4 emits `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"`, and `msg.readstatus = true`. The node waits up to 6 seconds for each `GroupValue_Response` or fresh write, then returns the decoded values on output 3 and exposes details in `msg.knxAi.readResults`. Reads never require confirmation and never become writes. If a small local model omits the operation discriminator and payload, exact ETS items are safely normalized as reads; an item containing a payload remains a validated write.
 
 ### Conversational multi-step routines
 Requests such as “I’m leaving”, “Good night”, or “Cinema mode” can coordinate a state-aware routine without a new editor option. In the first LLM pass, only exact ETS reads are accepted (up to 20); KNX AI sends them and supplies the fresh GA/DPT/value results to a second isolated planning pass. That pass may prepare up to 12 validated writes, but cannot request another read cycle. With confirmation enabled, the complete plan has one localized confirmation and no write or requested TTS announcement is emitted beforehand. After confirmation every write is revalidated, forwarded in order, and observed for up to 4 seconds for matching immediate bus feedback. The final reply distinguishes observed feedback from operations without immediate feedback—absence of feedback is not reported as device failure. Routine details are exposed in `msg.knxAi.routine`, `readResults`, `verifiedCount`, and `unverifiedCount`.
@@ -59,7 +59,7 @@ When the optional `node-red-contrib-tts-ultimate` package is installed, it appea
 Only an explicit request in the current chat message can create an announcement. KNX AI sends the exact text directly to the selected node as `msg.payload`, with `msg.topic = "knx_ai_announcement"`; no intermediate flow wiring is required. TTS Ultimate then handles the configured Sonos player, voice, volume, hailing and queue. Persistent context, AI Education, camera content and inferred events never trigger speech by themselves.
 
 ### Chat context overview
-The node editor shows a compact card summarizing the sources available to the chat: live and archived KNX traffic, persistent adapter events, ETS semantics and the Node-RED project, session and home memory, AI Education, detected cameras and relevant documentation. It also lists the absolute KNX telegram and adapter-event archive directories and the `YYYY-MM-DD.jsonl` daily-file pattern.
+The node editor shows a compact card summarizing the sources available to the chat: live and archived KNX traffic, persistent adapter events, ETS semantics and the Node-RED project, session and home memory, AI Education and detected cameras. It also shows the maximum operational context and the actual UTF-8 size of the last chat prompt; exact provider input tokens are used when reported, otherwise the token count is marked as estimated. The card lists the absolute KNX telegram and adapter-event archive directories and the `YYYY-MM-DD.jsonl` daily-file pattern.
 
 ## Education-driven proactive home intelligence and bounded memory
 From ETS hierarchy, names, roles and DPTs, the node builds a deterministic semantic model for covers, windows, doors, lights, temperature, climate, occupancy and alarms using Italian, English, German, French, Spanish and Chinese terms. Its proactive detector watches only reliably recognized non-command cover/window/door states.
@@ -120,7 +120,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Ask for confirmation before sending KNX commands**: Enabled by default. Shows the validated changes first and emits no KNX command until the same chat session confirms them. Whenever commands are awaiting confirmation, the response always appends the exact confirmation/cancellation instructions in the language of the current request. Commands are validated again immediately before output.
 - **Adapter preset**: Defaults to **No adapter**. Selecting a preset loads its predefined input/output mapping pair; both mappings remain hidden in the editor.
 - **AI Education**: User-only, authoritative guidance read by the AI and never modified by it. It is also the sole place to request proactive notifications and define their conditions, duration, quiet hours and repetition.
-- Relevant help, README, and example snippets are always included automatically; their language is selected from the user request, with automatic fallbacks across all supported languages.
+- Packaged help, README, changelog, wiki and example snippets are not included in Telegram, RedBot or custom CHAT prompts. They remain available only to the web Assistant for package-support questions.
 - **Refresh** button: Queries the provider and loads available model IDs. Its icon spins while loading; successful completion is intentionally silent.
 
 ### Ollama quick setup (local)
@@ -131,6 +131,7 @@ All fields exposed in the KNX AI editor are listed below.
   - **2) Install it**: downloads and installs the model locally (for example `llama3.1`).
 - During model refresh/install, KNX AI also tries to auto-start the Ollama server when possible.
 - If install fails with connection errors, ensure Ollama is running (desktop app or `ollama serve`).
+- The maximum context reported by `/api/show` is informational. KNX AI always sends `num_ctx = 16384` (or the model maximum when it is smaller) and uses the same relevance-selected 16K semantic prompt, avoiding oversized KV-cache allocation without removing agent capabilities.
 - If Node-RED runs in Docker, use `host.docker.internal` instead of `localhost` in the endpoint URL.
 
 ### Bionic LM Studio quick setup (local)
@@ -138,6 +139,7 @@ All fields exposed in the KNX AI editor are listed below.
 - Start the LM Studio API server from the **Developer** page or with `lms server start`.
 - Default endpoint: `http://localhost:1234/v1/chat/completions`.
 - Click **Refresh** to load all models exposed by `/v1/models`; the first model is selected when none is configured.
+- When a model is already loaded, KNX AI preserves its active context length. KNX AI never loads an inactive Bionic model through the management API: the first chat request lets Bionic JIT-load it with its saved per-model defaults. Independently of the context reported by Bionic, KNX AI always limits its own prompt to a relevance-selected 16K semantic view; this avoids sending the full 131K data set without removing reasoning, KNX, routine, camera or TTS capabilities.
 - An API key is optional unless authentication is enabled in the LM Studio server settings. In Docker, replace `localhost` with `host.docker.internal`.
 
 ## Security note
