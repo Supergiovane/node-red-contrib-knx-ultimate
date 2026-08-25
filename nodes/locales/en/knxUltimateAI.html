@@ -33,6 +33,9 @@ For DPT 1.xxx writes, safe AI equivalents `true`/`false`, `1`/`0`, and `on`/`off
 ### Fresh KNX reads
 When the user explicitly asks for a fresh/current state, the AI may query exact objects from the imported ETS catalog, including status and other read-only objects. Output 4 emits `msg.destination`, `msg.dpt`, `msg.event = "GroupValue_Read"`, and `msg.readstatus = true`. The node waits up to 6 seconds for each `GroupValue_Response` or fresh write, then returns the decoded values on output 3 and exposes details in `msg.knxAi.readResults`. Reads never require confirmation and never become writes.
 
+### Conversational multi-step routines
+Requests such as “I’m leaving”, “Good night”, or “Cinema mode” can coordinate a state-aware routine without a new editor option. In the first LLM pass, only exact ETS reads are accepted (up to 20); KNX AI sends them and supplies the fresh GA/DPT/value results to a second isolated planning pass. That pass may prepare up to 12 validated writes, but cannot request another read cycle. With confirmation enabled, the complete plan has one localized confirmation and no write or requested TTS announcement is emitted beforehand. After confirmation every write is revalidated, forwarded in order, and observed for up to 4 seconds for matching immediate bus feedback. The final reply distinguishes observed feedback from operations without immediate feedback—absence of feedback is not reported as device failure. Routine details are exposed in `msg.knxAi.routine`, `readResults`, `verifiedCount`, and `unverifiedCount`.
+
 ### Confirmation request for chat buttons
 While a plan is pending, output 3 contains `msg.knxAi.confirmationRequest`. The object includes `required`, `status`, `sessionId`, `expiresAt`, `commandCount`, and two entries in `actions`. Use `action.label` as the Telegram button text, `action.callbackData` as its callback, and send `action.message` back to KNX AI to confirm or cancel without typed text.
 

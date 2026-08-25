@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.3.19** - August 2026<br/>
+
+- **KNX AI — conversational multi-step routines**: added coordinated routines such as leaving home, bedtime and cinema mode. KNX AI can now perform a first pass with up to 20 fresh KNX state reads, use the authoritative bus results to prepare an ordered plan of up to 12 validated writes, request one confirmation and then execute the complete routine. After confirmation it waits up to four seconds for immediate matching bus feedback, reports verified and unverified operations without treating missing immediate feedback as a device failure, and dispatches any explicitly requested TTS Ultimate announcement only after execution. Routine details, preliminary readings and execution results are exposed as structured chat metadata. The importable confirmation example, editor help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
+- **KNX AI — localized output labels**: corrected the four output-pin labels to use the node-scoped Node-RED translation catalog, so Summary, Anomalies, Assistant and KNX Commands follow the active editor language.<br/>
+
 **Version 6.3.18** - August 2026<br/>
 
 - **KNX AI — focused configuration with fixed defaults**: aligned the hidden traffic-analysis defaults to a 600-second history, disk archival enabled for 10 days, automatic summaries disabled, a 120-second analysis window, 5,000 in-memory events and a Top-12 list. The Node-RED project inventory is now always included, while traffic analysis, chat input/output mappings and their obsolete editor controls remain hidden. Documentation language selection was removed because the AI now chooses the appropriate language. Proactive-home switches and advanced proactive settings were removed without legacy-value migration: user-managed AI Education is now the sole configuration surface for this behaviour. Editor help, examples and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>

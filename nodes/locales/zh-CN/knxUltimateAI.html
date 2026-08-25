@@ -33,6 +33,9 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 ### 最新 KNX 读取
 当用户明确要求当前或最新状态时，AI 可以查询已导入 ETS 目录中的精确对象，包括状态对象和其他只读对象。输出 4 会发送 `msg.destination`、`msg.dpt`、`msg.event = "GroupValue_Read"` 和 `msg.readstatus = true`。节点会为每个 `GroupValue_Response` 或最新写入等待最多 6 秒，然后在输出 3 返回解码值，并在 `msg.knxAi.readResults` 中提供详细信息。读取从不需要确认，也绝不会转换为写入。
 
+### 多步骤对话例行程序
+“我要离家”“晚安”或“影院模式”等请求可以在不增加编辑器选项的情况下，根据当前状态协调例行程序。第一次 LLM 处理仅接受精确的 ETS 读取（最多 20 个）；KNX AI 发送读取，并把最新的 GA/DPT/值结果交给隔离的第二次规划处理。第二次处理最多可准备 12 个已验证写入，但不能再次发起读取循环。启用确认时，整个计划只需一次本地化确认；确认前不会发送任何写入或所请求的 TTS 播报。确认后，每个写入都会重新验证、按顺序转发，并在最多 4 秒内观察总线上匹配的即时反馈。最终回复会区分已观察到反馈的操作与没有即时反馈的操作，但不会把后者报告为设备故障。详细信息位于 `msg.knxAi.routine`、`readResults`、`verifiedCount` 和 `unverifiedCount`。
+
 ### 用于聊天按钮的确认请求
 计划等待确认时，输出 3 包含 `msg.knxAi.confirmationRequest`。该对象包括 `required`、`status`、`sessionId`、`expiresAt`、`commandCount`，以及 `actions` 中的两个项目。使用 `action.label` 作为 Telegram 按钮文本，使用 `action.callbackData` 作为回调，并将 `action.message` 发送回 KNX AI，即可在无需输入文本的情况下确认或取消。
 

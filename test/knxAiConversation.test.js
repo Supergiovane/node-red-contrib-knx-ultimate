@@ -9,11 +9,14 @@ const {
   KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
   KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS,
   KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS,
+  KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS,
   KNX_AI_THINKING_DELAY_MS,
   KNX_AI_TRAFFIC_DEFAULTS,
   applyKnxAiChatMediaPresetFallback,
   bindSharedKnxAiState,
   buildKnxAiConfirmationRequest,
+  buildKnxAiReadResultMetadata,
+  buildKnxAiRoutineInspectionContext,
   buildKnxAiUniversalMessage,
   classifyKnxAiConfirmation,
   cloneKnxAiInputMessage,
@@ -30,14 +33,17 @@ const {
   extractKnxAiQuestion,
   formatKnxAiCommandPreview,
   formatKnxAiReadResults,
+  formatKnxAiRoutineExecutionReport,
   getKnxAiConfirmationCopy,
   getKnxAiRequestStatusLabel,
   getKnxAiThinkingCopy,
   isChatCompletionsModelError,
   isLlmContextLengthError,
+  isLikelyKnxAiRoutineRequest,
   isProbablyChatModelId,
   isUnsupportedTemperatureError,
   normalizeKnxAiCommandCandidates,
+  normalizeKnxAiRoutineDescriptor,
   normalizeLmStudioModelCatalog,
   parseKnxAiConversationResponse,
   postLocalLlmWithContextFallbacks,
@@ -51,6 +57,7 @@ const {
   releaseSharedKnxAiState,
   safeKnxAiSend,
   selectKnxAiCatalogForPrompt,
+  selectKnxAiRoutineCatalogForPrompt,
   summarizeDetectedKnxAiCameraAdapters,
   summarizeDetectedKnxAiTtsAdapter
 } = require('../nodes/knxUltimateAI').__test
@@ -105,6 +112,26 @@ describe('KNX AI conversational control', () => {
     expect(parsed.commands).to.have.length(1)
     expect(parsed.cameraActions).to.deep.equal([{ type: 'snapshot', camera: 'Ingresso' }])
     expect(parsed.speechActions).to.deep.equal([{ type: 'announce', text: 'La cena è pronta', reason: 'richiesto' }])
+    expect(parsed.routine).to.deep.equal({ active: false, name: '', phase: 'none' })
+  })
+
+  it('parses and normalizes a conversational multi-step routine', () => {
+    const parsed = parseKnxAiConversationResponse(JSON.stringify({
+      reply: 'Controllo lo stato della casa.',
+      language: 'it',
+      routine: { active: true, name: 'Uscita di casa', phase: 'inspect' },
+      commands: [{ event: 'GroupValue_Read', destination: '1/2/4', dpt: '1.001', payload: null, reason: 'Stato luce' }],
+      cameraActions: [],
+      speechActions: []
+    }))
+
+    expect(parsed.routine).to.deep.equal({ active: true, name: 'Uscita di casa', phase: 'inspect' })
+    expect(normalizeKnxAiRoutineDescriptor({ active: false, name: 'ignored', phase: 'plan' })).to.deep.equal({
+      active: true,
+      name: 'ignored',
+      phase: 'plan'
+    })
+    expect(normalizeKnxAiRoutineDescriptor(null)).to.deep.equal({ active: false, name: '', phase: 'none' })
   })
 
   it('extracts text and a session id from common Telegram message shapes', () => {
@@ -665,6 +692,57 @@ describe('KNX AI conversational control', () => {
     expect(preview).to.include('ANNULLA')
   })
 
+  it('builds a localized routine plan from fresh KNX inspection results', () => {
+    const operations = [
+      { destination: '1/2/4', dpt: '1.001', label: 'Stato luce soggiorno' },
+      { destination: '2/2/4', dpt: '1.019', label: 'Finestra soggiorno' }
+    ]
+    const results = [
+      { status: 'fulfilled', value: { event: 'GroupValue_Response', payload: true, payloadmeasureunit: '' } },
+      { status: 'rejected', reason: new Error('timeout') }
+    ]
+    const readResults = buildKnxAiReadResultMetadata({ operations, results })
+    const routine = { active: true, name: 'Uscita di casa', phase: 'plan' }
+    const context = buildKnxAiRoutineInspectionContext({ routine, readResults })
+    const preview = formatKnxAiCommandPreview({
+      commands: [{ destination: '1/2/3', dpt: '1.001', payload: false, label: 'Luce soggiorno' }],
+      copy: getKnxAiConfirmationCopy('it'),
+      routine,
+      readResults
+    })
+
+    expect(context).to.include('FRESH ROUTINE INSPECTION RESULTS')
+    expect(context).to.include('1/2/4 | dpt 1.001 | Stato luce soggiorno | GroupValue_Response | value true')
+    expect(context).to.include('2/2/4 | dpt 1.019 | Finestra soggiorno | NO_RESPONSE')
+    expect(preview).to.include('Routine “Uscita di casa” in attesa di conferma')
+    expect(preview).to.include('1/2 stati KNX preliminari ricevuti')
+    expect(preview).to.include('1/2/3 / DPT 1.001 → false')
+
+    const report = formatKnxAiRoutineExecutionReport({
+      routine,
+      commands: [
+        { destination: '1/2/3', label: 'Luce soggiorno' },
+        { destination: '3/2/3', label: 'Clima soggiorno' }
+      ],
+      results,
+      language: 'it'
+    })
+    expect(report.verifiedCount).to.equal(1)
+    expect(report.unverifiedCount).to.equal(1)
+    expect(report.text).to.include('Esito della routine “Uscita di casa”')
+    expect(report.text).to.include('Feedback KNX immediato ricevuto per 1/2')
+    expect(report.text).to.include('Clima soggiorno')
+
+    const confirmationRequest = buildKnxAiConfirmationRequest({
+      sessionId: 'routine-chat',
+      expiresAt: Date.UTC(2026, 7, 25, 12, 0, 0),
+      commandCount: 1,
+      copy: getKnxAiConfirmationCopy('it'),
+      routine
+    })
+    expect(confirmationRequest.routine).to.deep.equal(routine)
+  })
+
   it('adds a localized machine-readable confirmation request for chat buttons', () => {
     const confirmationRequest = buildKnxAiConfirmationRequest({
       sessionId: 'telegram-123',
@@ -801,6 +879,24 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('node.setNodeStatus = ({ text } = {}) => {')
     expect(runtime).not.to.include("text: GA + payload")
     expect(runtime).not.to.include("node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' })")
+  })
+
+  it('localizes every output pin through the node-scoped translation catalog', () => {
+    const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.html'), 'utf8')
+    const outputKeys = ['summary', 'anomalies', 'assistant', 'knxCommands']
+
+    outputKeys.forEach(key => {
+      expect(editor).to.include(`this._('knxUltimateAI.outputs.${key}')`)
+      expect(editor).not.to.include(`RED._('knxUltimateAI.outputs.${key}')`)
+    })
+
+    ;['en', 'it', 'de', 'fr', 'es', 'zh-CN'].forEach(language => {
+      const catalogPath = path.join(__dirname, '..', 'nodes', 'locales', language, 'knxUltimateAI.json')
+      const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'))
+      outputKeys.forEach(key => {
+        expect(catalog.knxUltimateAI.outputs[key]).to.be.a('string').and.not.equal('')
+      })
+    })
   })
 
   it('gives local LLM providers a ten-minute minimum request timeout', () => {
@@ -1097,6 +1193,38 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('selectKnxAiCatalogForPrompt({ catalog, question, mode: contextMode })')
   })
 
+  it('recognizes routine language and broadens limited local context with home capabilities', () => {
+    expect(isLikelyKnxAiRoutineRequest('Sto uscendo di casa')).to.equal(true)
+    expect(isLikelyKnxAiRoutineRequest('Good night, prepare the house')).to.equal(true)
+    expect(isLikelyKnxAiRoutineRequest('Accendi la luce del tavolo')).to.equal(false)
+
+    const routineCatalog = Array.from({ length: 35 }, (_, index) => ({
+      ga: `0/0/${index + 1}`,
+      dpt: '9.001',
+      role: 'neutral',
+      label: `Unrelated sensor ${index + 1}`,
+      semantic: { kind: 'unknown' }
+    })).concat([
+      { ga: '1/1/1', dpt: '1.001', role: 'command', label: 'Luce cucina comando', semantic: { kind: 'light', area: 'cucina' } },
+      { ga: '1/1/2', dpt: '1.001', role: 'status', label: 'Luce cucina stato', semantic: { kind: 'light', area: 'cucina' } },
+      { ga: '2/1/2', dpt: '1.019', role: 'status', label: 'Finestra cucina', semantic: { kind: 'window', area: 'cucina' } }
+    ])
+    const selected = selectKnxAiRoutineCatalogForPrompt({
+      catalog: routineCatalog,
+      question: 'Sto uscendo di casa',
+      mode: 'minimal'
+    })
+    expect(selected.map(item => item.ga)).to.include.members(['1/1/1', '1/1/2', '2/1/2'])
+    expect(selected).to.have.length.at.most(48)
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('initialRoutine.active && inspectionCommands.length > 0')
+    expect(runtime).to.include('routineInspectionResults = inspection.metadata')
+    expect(runtime).to.include("phase: 'plan'")
+    expect(runtime).to.include('deferRoutineSpeech = awaitingConfirmation && routine.active')
+    expect(KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS).to.equal(4000)
+  })
+
   it('keeps the Education-only proactive policy, fourth output, help, and docs aligned in every locale', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
@@ -1109,7 +1237,7 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('maxlength="16000"')
     expect(editor).to.include('KNXAIChatAdapterMappings.js')
     expect(editor).to.include('outputs: 4')
-    expect(editor).to.include("case 3: return RED._('knxUltimateAI.outputs.knxCommands')")
+    expect(editor).to.include("case 3: return this._('knxUltimateAI.outputs.knxCommands')")
     const runtime = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('replyMessage.inputMessage = cloneInputMessage(inputMessage)')
     expect(runtime).to.include('inputMessage: cloneInputMessage(inputMessage)')
@@ -1200,6 +1328,9 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('msg.event = "GroupValue_Read"')
       expect(helpBody).to.include('msg.readstatus = true')
       expect(helpBody).to.include('msg.knxAi.readResults')
+      expect(helpBody).to.include('msg.knxAi.routine')
+      expect(helpBody).to.include('verifiedCount')
+      expect(helpBody).to.include('unverifiedCount')
       expect(helpBody).to.include('KNXAIChatAdapterMappings.js')
       expect(helpBody).to.include('node-red-contrib-tts-ultimate')
       expect(helpBody).to.include('msg.topic = "knx_ai_announcement"')
@@ -1231,12 +1362,16 @@ describe('KNX AI conversational control', () => {
     )
     const flow = JSON.parse(fs.readFileSync(examplePath, 'utf8'))
     const readInject = flow.find(node => node.id === 'inj_knx_ai_control_read')
+    const routineInject = flow.find(node => node.id === 'inj_knx_ai_control_routine')
     const aiNode = flow.find(node => node.id === 'node_knx_ai_control')
     const universalNode = flow.find(node => node.id === 'node_knx_ai_control_universal')
 
     expect(readInject).to.be.an('object')
     expect(readInject.props.find(prop => prop.p === 'payload').v).to.include('temperatura attuale')
     expect(readInject.wires).to.deep.equal([['node_knx_ai_control']])
+    expect(routineInject).to.be.an('object')
+    expect(routineInject.props.find(prop => prop.p === 'payload').v).to.include('Sto uscendo')
+    expect(routineInject.wires).to.deep.equal([['node_knx_ai_control']])
     expect(aiNode.llmAllowKnxCommands).to.equal(true)
     expect(aiNode.llmRequireCommandConfirmation).to.equal(true)
     expect(aiNode.wires[3]).to.include('node_knx_ai_control_universal')
