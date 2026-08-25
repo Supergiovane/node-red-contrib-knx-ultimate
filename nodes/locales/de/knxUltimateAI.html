@@ -51,6 +51,8 @@ Installierte Kamerapakete können KNX AI zur Laufzeit einen Kamera-Adapter berei
 
 Der Benutzer kann einen aktuellen Snapshot anfordern oder das Vision-Modell nach dem sichtbaren Inhalt fragen. Die Telegram- und RedBot-Vorlagen senden das Bild als natives Foto mit Bildunterschrift. Außerdem lassen sich dauerhafte Benachrichtigungen für Bewegung, das Überqueren einer intelligenten Linie oder das Betreten einer Einbruchs-/Verweilzone erstellen, optional auf erkannte Personen und eine genau benannte Linie oder Zone begrenzt. Diese Regeln werden in derselben Datei `knxai-chat-context.md` gespeichert und nach einem Neustart von Node-RED wiederhergestellt. UniFi-Ereignisse und Snapshot-Anfragen laufen direkt über den erkannten Anbieter; Ausgang 4 von KNX AI und zusätzliche Flow-Verkabelung sind nicht erforderlich.
 
+Jedes von einem automatisch erkannten Adapter veröffentlichte Ereignis wird normalisiert und in eine tägliche Datei `YYYY-MM-DD.jsonl` unter `knxultimatestorage/knxai/adapter-history/<node-id>/` geschrieben. Das Archiv bewahrt 10 Tage auf, garantiert mehr als 24 Stunden Historie und speichert Ereignismetadaten, jedoch keine Snapshot-Bilder. Web-Assistent und alle CHAT-Kanäle fragen es zusammen mit dem täglichen KNX-Telegrammarchiv ab. Summen umfassen alle gespeicherten Zeilen; ausgewählte Details sind nur eine relevante Stichprobe.
+
 ### Ansagen mit TTS Ultimate
 Wenn das optionale Paket `node-red-contrib-tts-ultimate` installiert ist, erscheint es unter den automatisch erkannten Adaptern. Die Auswahl listet alle `ttsultimate`-Nodes in sämtlichen Projekt-Flows mit Flow, Node-Name und konfiguriertem Player auf. Wählen Sie den Node für Chat-Ansagen aus und deployen Sie den Flow.
 

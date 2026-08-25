@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.3.21** - August 2026<br/>
+
+- **KNX AI — persistent adapter-event history**: every event published by an automatically detected adapter is now normalized into vendor-neutral metadata and appended to a node-specific daily JSONL archive. The archive follows the 10-day KNX retention, guaranteeing at least 24 hours of camera and future adapter events across Node-RED restarts without storing snapshot image data. The editor context card exposes the actual adapter-history directories.<br/>
+- **KNX AI — authoritative historical queries**: web Assistant, Telegram, RedBot and custom CHAT channels now query both the adapter-event archive and the existing KNX daily telegram files. Historical prompts include totals calculated across every stored row in the requested interval plus relevance-selected detail samples, preventing sample size from being reported as the total. Natural-language ranges now include multilingual “last N hours” requests and are bounded by available retention.<br/>
+
 **Version 6.3.19** - August 2026<br/>
 
 - **KNX AI — conversational multi-step routines**: added coordinated routines such as leaving home, bedtime and cinema mode. KNX AI can now perform a first pass with up to 20 fresh KNX state reads, use the authoritative bus results to prepare an ordered plan of up to 12 validated writes, request one confirmation and then execute the complete routine. After confirmation it waits up to four seconds for immediate matching bus feedback, reports verified and unverified operations without treating missing immediate feedback as a device failure, and dispatches any explicitly requested TTS Ultimate announcement only after execution. Routine details, preliminary readings and execution results are exposed as structured chat metadata. The importable confirmation example, editor help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>

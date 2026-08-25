@@ -56,6 +56,8 @@ Les paquets de caméra installés peuvent publier à l’exécution un adaptateu
 
 L’utilisateur peut demander une capture actuelle ou demander au modèle de vision ce qui est visible. Les préréglages Telegram et RedBot envoient l’image comme photo native avec une légende. L’utilisateur peut aussi créer des notifications persistantes pour un mouvement, le franchissement d’une ligne intelligente ou l’entrée dans une zone d’intrusion/de stationnement, avec une limitation facultative aux personnes détectées et à une ligne ou zone nommée précise. Ces règles sont stockées dans le même fichier `knxai-chat-context.md` et restaurées après les redémarrages de Node-RED. Les abonnements aux événements UniFi et les demandes de capture passent directement par le fournisseur détecté ; la sortie 4 de KNX AI et un câblage intermédiaire ne sont pas nécessaires.
 
+Chaque événement publié par un adaptateur détecté automatiquement est normalisé puis ajouté à un fichier quotidien `YYYY-MM-DD.jsonl` sous `knxultimatestorage/knxai/adapter-history/<id-nœud>/`. L’archive conserve 10 jours, garantit plus de 24 heures d’historique et stocke les métadonnées, mais pas les images. L’Assistant web et tous les canaux CHAT l’interrogent avec l’archive quotidienne KNX. Les totaux couvrent toutes les lignes stockées ; les détails sélectionnés ne sont qu’un échantillon pertinent.
+
 ### Annonces avec TTS Ultimate
 Lorsque le paquet facultatif `node-red-contrib-tts-ultimate` est installé, il apparaît parmi les adaptateurs détectés automatiquement. Le sélecteur recense tous les nœuds `ttsultimate` de tous les flows du projet, avec le flow, le nom du nœud et le lecteur configuré. Sélectionnez le nœud chargé des annonces du chat, puis déployez le flow.
 

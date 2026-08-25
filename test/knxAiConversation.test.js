@@ -5,6 +5,7 @@ const vm = require('vm')
 
 const {
   KNX_AI_CLOUD_LLM_TIMEOUT_MIN_MS,
+  KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS,
   KNX_AI_COMPACT_CONTEXT_MAX_TOKENS,
   KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
   KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS,
@@ -45,6 +46,7 @@ const {
   normalizeKnxAiCommandCandidates,
   normalizeKnxAiRoutineDescriptor,
   normalizeLmStudioModelCatalog,
+  parseQuestionTimeRange,
   parseKnxAiConversationResponse,
   postLocalLlmWithContextFallbacks,
   postOpenAiCompatibleChatWithFallbacks,
@@ -59,7 +61,8 @@ const {
   selectKnxAiCatalogForPrompt,
   selectKnxAiRoutineCatalogForPrompt,
   summarizeDetectedKnxAiCameraAdapters,
-  summarizeDetectedKnxAiTtsAdapter
+  summarizeDetectedKnxAiTtsAdapter,
+  summarizeKnxAiChatContext
 } = require('../nodes/knxUltimateAI').__test
 const chatAdapterMappings = require('../resources/KNXAIChatAdapterMappings')
 const {
@@ -88,6 +91,13 @@ const {
   normalizeKnxAiCameraImage,
   resolveKnxAiCamera
 } = require('../nodes/utils/knxAiCamera')
+const {
+  KNX_AI_ADAPTER_HISTORY_MIN_HOURS,
+  buildKnxAiHistoryEventKey,
+  createKnxAiHistoryAccumulator,
+  formatKnxAiAdapterHistoryEventForPrompt,
+  normalizeKnxAiAdapterHistoryEvent
+} = require('../nodes/utils/knxAiEventHistory')
 
 describe('KNX AI conversational control', () => {
   const catalog = [
@@ -1639,6 +1649,23 @@ describe('KNX AI conversational control', () => {
     ])
   })
 
+  it('shows both KNX and adapter daily archives in the context overview', () => {
+    const overview = summarizeKnxAiChatContext({
+      node: { id: 'ai-node-1', serverKNX: { userDir: path.join('/tmp', 'knx-ai-history-test') } },
+      redUserDir: '/tmp'
+    })
+    expect(overview.sources).to.include.members(['knxTraffic', 'adapterHistory'])
+    expect(overview.telegramDirectories.map(item => item.id)).to.deep.equal([
+      'archiveRoot',
+      'nodeArchive',
+      'adapterArchiveRoot',
+      'adapterNodeArchive'
+    ])
+    expect(overview.telegramDirectories.find(item => item.id === 'adapterNodeArchive').path)
+      .to.include(path.join('knxai', 'adapter-history', 'ai-node-1'))
+    expect(overview.telegramFilePattern).to.equal('YYYY-MM-DD.jsonl')
+  })
+
   it('detects every TTS Ultimate node across flows for the editor selector', () => {
     const configuredNodes = [
       { id: 'flow-upstairs', type: 'tab', label: 'Upstairs' },
@@ -1712,6 +1739,10 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('const analysisContext = buildLLMPrompt({')
     expect(runtime).to.include("compact: contextMode === 'full' ? false : contextMode")
     expect(runtime).to.include("if (mode === 'full') return source.slice(0, 600)")
+    expect(runtime).to.include('const adapterPromptEvents = selectAdapterEventsForPrompt({')
+    expect(runtime).to.include('KNX historical archive summary (JSON):')
+    expect(runtime).to.include('Adapter historical archive summary (JSON):')
+    expect(runtime).to.include('persistAdapterEventToDisk({ event: Object.assign({}, providerEvent, event), adapter, provider })')
     expect(runtime).not.to.include('const analysisContext = buildLLMPrompt({ question, summary, compact: true })')
   })
 
@@ -2079,5 +2110,80 @@ describe('KNX AI camera adapters', () => {
       .to.include({ mediaType: 'image/jpeg', bytes: 3 })
     expect(() => normalizeKnxAiCameraImage({ data: Buffer.alloc(KNX_AI_CAMERA_IMAGE_MAX_BYTES + 1), mediaType: 'image/jpeg' }))
       .to.throw('exceeds')
+  })
+})
+
+describe('KNX AI persistent historical context', () => {
+  it('normalizes adapter events into bounded vendor-neutral archive rows', () => {
+    const event = normalizeKnxAiAdapterHistoryEvent({
+      nowTs: Date.parse('2026-08-25T10:00:00.000Z'),
+      adapter: { id: 'unifi-ultimate', title: 'UniFi Ultimate' },
+      provider: { id: 'protect-main', adapterId: 'unifi-ultimate', controllerName: 'Casa' },
+      event: {
+        cameraId: 'front',
+        cameraName: 'Ingresso',
+        eventType: 'smartDetectLine',
+        scopeName: 'Vialetto',
+        objectTypes: ['person'],
+        active: true,
+        raw: { score: 91, image: Buffer.alloc(32), nested: { label: 'visitor' } }
+      }
+    })
+    expect(event).to.deep.include({
+      adapterId: 'unifi-ultimate',
+      adapterTitle: 'UniFi Ultimate',
+      providerId: 'protect-main',
+      controllerName: 'Casa',
+      resourceType: 'camera',
+      resourceId: 'front',
+      resourceName: 'Ingresso',
+      eventType: 'smartDetectLine',
+      scopeName: 'Vialetto',
+      active: true
+    })
+    expect(event.objectTypes).to.deep.equal(['person'])
+    expect(event.details).to.deep.equal({ score: 91, nested: { label: 'visitor' } })
+    expect(buildKnxAiHistoryEventKey(event, 'adapter')).to.include('unifi-ultimate')
+    expect(formatKnxAiAdapterHistoryEventForPrompt(event)).to.include('Ingresso | smartDetectLine | active')
+  })
+
+  it('calculates totals from every archived row while selecting question-relevant details', () => {
+    const accumulator = createKnxAiHistoryAccumulator({
+      kind: 'adapter',
+      question: 'Quante persone ha rilevato la telecamera ingresso?',
+      limit: 2
+    })
+    ;[
+      { ts: 1, adapterId: 'unifi', resourceName: 'Giardino', eventType: 'motion', active: true, objectTypes: [] },
+      { ts: 2, adapterId: 'unifi', resourceName: 'Ingresso', eventType: 'smartDetect', active: true, objectTypes: ['person'] },
+      { ts: 3, adapterId: 'unifi', resourceName: 'Ingresso', eventType: 'smartDetectLine', active: true, objectTypes: ['person'] },
+      { ts: 4, adapterId: 'unifi', resourceName: 'Garage', eventType: 'motion', active: false, objectTypes: [] }
+    ].forEach(event => accumulator.add(event))
+    const result = accumulator.finish()
+    expect(result.summary).to.include({ totalEvents: 4, activeEvents: 3, inactiveEvents: 1, selection: 'question-relevant' })
+    expect(result.summary.byObjectType[0]).to.deep.equal({ key: 'person', count: 2 })
+    expect(result.events).to.have.length(2)
+    expect(result.events.every(event => event.resourceName === 'Ingresso')).to.equal(true)
+  })
+
+  it('recognizes hour ranges and keeps adapter retention above 24 hours', () => {
+    const now = Date.parse('2026-08-25T12:00:00.000Z')
+    const range = parseQuestionTimeRange('Cosa è successo nelle ultime 24 ore?', now)
+    expect(range).to.include({ label: 'last 24 hours', explicit: true })
+    expect(range.toTs - range.fromTs).to.equal(24 * 60 * 60 * 1000)
+    expect(KNX_AI_ADAPTER_HISTORY_MIN_HOURS).to.equal(24)
+    expect(KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS * 24).to.be.at.least(KNX_AI_ADAPTER_HISTORY_MIN_HOURS)
+  })
+
+  it('aggregates all KNX archive rows instead of counting only the prompt sample', () => {
+    const accumulator = createKnxAiHistoryAccumulator({ kind: 'knx', question: 'luce cucina', limit: 1 })
+    accumulator.add({ ts: 1, event: 'GroupValue_Write', source: '1.1.1', destination: '1/2/3', devicename: 'Luce cucina', payload: true })
+    accumulator.add({ ts: 2, event: 'GroupValue_Write', source: '1.1.1', destination: '1/2/3', devicename: 'Luce cucina', payload: false })
+    accumulator.add({ ts: 3, event: 'GroupValue_Response', source: '1.1.2', destination: '4/5/6', devicename: 'Temperatura', payload: 22 })
+    const result = accumulator.finish()
+    expect(result.summary.totalEvents).to.equal(3)
+    expect(result.summary.byResource.find(item => item.key.includes('Luce cucina')).count).to.equal(2)
+    expect(result.events).to.have.length(1)
+    expect(result.events[0].destination).to.equal('1/2/3')
   })
 })

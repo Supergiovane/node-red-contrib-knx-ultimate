@@ -635,6 +635,7 @@
 
                 const sourceLabels = {
                     knxTraffic: t("knxUltimateAI.messages.chatContextSourceKnxTraffic", "Live KNX summary, anomalies, topology and selected telegrams."),
+                    adapterHistory: t("knxUltimateAI.messages.chatContextSourceAdapterHistory", "Persistent history of automatically detected adapter events."),
                     etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "ETS semantics and the full Node-RED project inventory."),
                     memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education and bounded home memory."),
                     camerasDocs: t("knxUltimateAI.messages.chatContextSourceCamerasDocs", "Detected cameras and relevant help, README and example snippets."),
@@ -668,7 +669,9 @@
 
                 const directoryLabels = {
                     archiveRoot: t("knxUltimateAI.messages.chatContextDirectoryRoot", "Telegram archive root"),
-                    nodeArchive: t("knxUltimateAI.messages.chatContextDirectoryNode", "This node's telegram archive")
+                    nodeArchive: t("knxUltimateAI.messages.chatContextDirectoryNode", "This node's telegram archive"),
+                    adapterArchiveRoot: t("knxUltimateAI.messages.chatContextDirectoryAdapterRoot", "Adapter event archive root"),
+                    adapterNodeArchive: t("knxUltimateAI.messages.chatContextDirectoryAdapterNode", "This node's adapter event archive")
                 };
                 (Array.isArray(overview.telegramDirectories) ? overview.telegramDirectories : []).forEach(function (item) {
                     if (!item || !item.path) return;
@@ -677,7 +680,9 @@
                         directoryLabels[item.id] || String(item.id || ""),
                         "",
                         item.path,
-                        t("knxUltimateAI.messages.chatContextDirectoryBadge", "KNX")
+                        /^adapter/.test(String(item.id || ""))
+                            ? t("knxUltimateAI.messages.chatContextDirectoryAdapterBadge", "Adapter")
+                            : t("knxUltimateAI.messages.chatContextDirectoryBadge", "KNX")
                     );
                 });
 

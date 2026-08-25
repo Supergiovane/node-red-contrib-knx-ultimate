@@ -46,6 +46,13 @@ const {
   normalizeSearchText,
   resolveKnxAiCamera
 } = require('./utils/knxAiCamera')
+const {
+  KNX_AI_ADAPTER_HISTORY_MIN_HOURS,
+  buildKnxAiHistoryEventKey,
+  createKnxAiHistoryAccumulator,
+  formatKnxAiAdapterHistoryEventForPrompt,
+  normalizeKnxAiAdapterHistoryEvent
+} = require('./utils/knxAiEventHistory')
 let googleTranslateTTS = null
 try {
   googleTranslateTTS = require('google-translate-tts')
@@ -72,6 +79,7 @@ const KNX_AI_LOCAL_LLM_TIMEOUT_MIN_MS = 10 * 60 * 1000
 const KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS = 16 * 1024
 const KNX_AI_COMPACT_CONTEXT_MAX_TOKENS = 64 * 1024
 const KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS = 4000
+const KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS = Math.max(1, KNX_AI_TRAFFIC_DEFAULTS.historyStoreRetentionDays)
 
 const resolveKnxAiLlmTimeoutMs = ({ provider, configuredTimeoutMs } = {}) => {
   const configured = Number(configuredTimeoutMs)
@@ -324,6 +332,8 @@ const summarizeKnxAiChatContext = ({ node, nodeId, redUserDir } = {}) => {
   const configDir = path.join(knxAiDir, 'config')
   const telegramArchiveRoot = path.join(knxAiDir, 'history')
   const telegramNodeDir = safeNodeId ? path.join(telegramArchiveRoot, safeNodeId) : ''
+  const adapterArchiveRoot = path.join(knxAiDir, 'adapter-history')
+  const adapterNodeDir = safeNodeId ? path.join(adapterArchiveRoot, safeNodeId) : ''
 
   const files = [
     {
@@ -346,11 +356,13 @@ const summarizeKnxAiChatContext = ({ node, nodeId, redUserDir } = {}) => {
   }
 
   return {
-    sources: ['knxTraffic', 'etsProject', 'memoryEducation', 'camerasDocs', 'ttsUltimate'],
+    sources: ['knxTraffic', 'adapterHistory', 'etsProject', 'memoryEducation', 'camerasDocs', 'ttsUltimate'],
     files: files.map(item => Object.assign({}, item, { exists: fs.existsSync(item.path) })),
     telegramDirectories: [
       { id: 'archiveRoot', path: telegramArchiveRoot, exists: fs.existsSync(telegramArchiveRoot) },
-      ...(telegramNodeDir ? [{ id: 'nodeArchive', path: telegramNodeDir, exists: fs.existsSync(telegramNodeDir) }] : [])
+      ...(telegramNodeDir ? [{ id: 'nodeArchive', path: telegramNodeDir, exists: fs.existsSync(telegramNodeDir) }] : []),
+      { id: 'adapterArchiveRoot', path: adapterArchiveRoot, exists: fs.existsSync(adapterArchiveRoot) },
+      ...(adapterNodeDir ? [{ id: 'adapterNodeArchive', path: adapterNodeDir, exists: fs.existsSync(adapterNodeDir) }] : [])
     ],
     telegramFilePattern: 'YYYY-MM-DD.jsonl'
   }
@@ -2505,7 +2517,18 @@ const parseQuestionTimeRange = (question, nowTs = Date.now()) => {
     return { fromTs: yesterdayStart, toTs: yesterdayEnd, label: 'yesterday', explicit: true }
   }
 
-  const lastDaysMatch = text.match(/\b(?:last|ultimi)\s+(\d{1,3})\s+(?:day|days|giorno|giorni)\b/)
+  const lastHoursMatch = text.match(/\b(?:last|ultime|ultimi|letzte[n]?|derni[eè]res?|[uú]ltimas?)\s+(\d{1,3})\s+(?:hour|hours|ora|ore|stunde|stunden|heure|heures|hora|horas)\b/)
+  if (lastHoursMatch) {
+    const hours = Math.max(1, Number(lastHoursMatch[1] || 1))
+    return {
+      fromTs: nowTs - (hours * 60 * 60 * 1000),
+      toTs: nowTs,
+      label: `last ${hours} hours`,
+      explicit: true
+    }
+  }
+
+  const lastDaysMatch = text.match(/\b(?:last|ultimi|ultime|letzte[n]?|derni[eè]res?|[uú]ltimos?|[uú]ltimas?)\s+(\d{1,3})\s+(?:day|days|giorno|giorni|tag|tage|tagen|jour|jours|d[ií]a|d[ií]as)\b/)
   if (lastDaysMatch) {
     const days = Math.max(1, Number(lastDaysMatch[1] || 1))
     return {
@@ -6148,6 +6171,9 @@ module.exports = function (RED) {
     node._gaLabelCsvCache = { ref: null, map: {} }
     node._busConnectionWatchTimer = null
     node._historyDiskLastPruneAt = 0
+    node._historyDiskPending = new Map()
+    node._adapterHistoryDiskLastPruneAt = 0
+    node._adapterHistoryDiskPending = new Map()
     node._homeMemory = createEmptyKnxAiHomeMemory()
     node._homeMemoryWriteTimer = null
     node._homeMemoryPeriodicTimer = null
@@ -7269,6 +7295,12 @@ module.exports = function (RED) {
       const maxEvents = Math.min(minimalMode ? 20 : compactMode ? 50 : 240, maxEventsRequested)
       const promptEvents = selectTelegramsForPrompt({ question, maxEvents })
       const recent = Array.isArray(promptEvents.events) ? promptEvents.events : []
+      const adapterPromptEvents = selectAdapterEventsForPrompt({
+        question,
+        maxEvents: minimalMode ? 12 : compactMode ? 30 : 160,
+        range: promptEvents.range
+      })
+      const recentAdapterEvents = Array.isArray(adapterPromptEvents.events) ? adapterPromptEvents.events : []
       const wantsSvgChart = shouldGenerateSvgChart(question)
       const wantsFunctionNodeSourceContext = shouldIncludeFunctionNodeSourceContext(question)
       const areasSnapshot = buildAreasSnapshot({ summary })
@@ -7286,7 +7318,14 @@ module.exports = function (RED) {
         return `${new Date(t.ts).toISOString()} ${t.event} ${t.source} -> ${t.destination}${devName} dpt=${t.dpt} payload=${payloadStr}${rawStr}`
       })
       const recentLines = takeLastItemsByCharBudget(lines, minimalMode ? 1000 : compactMode ? 2200 : 7000)
-      const archiveScopeLine = `Prompt event source: ${promptEvents.source}. Time range: ${promptEvents.range && promptEvents.range.label ? promptEvents.range.label : 'recent events'}. Events selected: ${recent.length}.`
+      const archiveScopeLine = `Prompt event source: ${promptEvents.source}. Time range: ${promptEvents.range && promptEvents.range.label ? promptEvents.range.label : 'recent events'}${promptEvents.range && promptEvents.range.clampedToRetention ? ` (clamped to ${promptEvents.range.retentionDays} available day(s))` : ''}. Events selected: ${recent.length}.`
+      const knxArchiveSummary = truncatePromptText(safeStringify(promptEvents.summary || {}), minimalMode ? 1200 : compactMode ? 3000 : 9000)
+      const adapterArchiveSummary = truncatePromptText(safeStringify(adapterPromptEvents.summary || {}), minimalMode ? 1000 : compactMode ? 2600 : 8000)
+      const adapterLines = takeLastItemsByCharBudget(
+        recentAdapterEvents.map(formatKnxAiAdapterHistoryEventForPrompt).filter(Boolean),
+        minimalMode ? 700 : compactMode ? 1800 : 6000
+      )
+      const adapterArchiveScopeLine = `Adapter event source: ${adapterPromptEvents.source}. Time range: ${adapterPromptEvents.range && adapterPromptEvents.range.label ? adapterPromptEvents.range.label : 'last 24 hours'}${adapterPromptEvents.range && adapterPromptEvents.range.clampedToRetention ? ` (clamped to ${adapterPromptEvents.range.retentionDays} available day(s))` : ''}. Events selected: ${recentAdapterEvents.length}.`
 
       let flowContext = ''
       const flowMaxChars = minimalMode ? 600 : compactMode ? 1200 : 5000
@@ -7388,9 +7427,21 @@ module.exports = function (RED) {
         wantsSvgChart ? '- Prefer width via viewBox and include labels + legend when useful.' : '',
         wantsSvgChart ? '' : '',
         archiveScopeLine,
+        'The KNX archive summary below is calculated from every stored telegram in the requested interval. Use its totals for counts; the selected telegrams are only a relevant/recent sample.',
+        'KNX historical archive summary (JSON):',
+        knxArchiveSummary,
         '',
         'Selected KNX telegrams:',
         recentLines.join('\n'),
+        '',
+        adapterArchiveScopeLine,
+        `Adapter history retention: ${KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS} day(s), with a guaranteed minimum query window of ${KNX_AI_ADAPTER_HISTORY_MIN_HOURS} hours.`,
+        'The adapter archive summary below is calculated from every stored event in the requested interval. Use its totals for counts; the selected events are only a relevant/recent sample.',
+        'Adapter historical archive summary (JSON):',
+        adapterArchiveSummary,
+        '',
+        'Selected adapter events:',
+        adapterLines.length ? adapterLines.join('\n') : '(no stored adapter events in this interval)',
         '',
         'User request:',
         question || ''
@@ -7444,6 +7495,15 @@ module.exports = function (RED) {
     }
 
     const getHistoryArchiveFile = (dayKey) => path.join(getHistoryArchiveDir(), `${String(dayKey || '').trim() || formatArchiveDayKey(Date.now())}.jsonl`)
+
+    const getAdapterHistoryArchiveDir = () => {
+      const baseDir = (node.serverKNX && node.serverKNX.userDir)
+        ? node.serverKNX.userDir
+        : path.join(RED.settings.userDir, 'knxultimatestorage')
+      return path.join(baseDir, 'knxai', 'adapter-history', node.id)
+    }
+
+    const getAdapterHistoryArchiveFile = dayKey => path.join(getAdapterHistoryArchiveDir(), `${String(dayKey || '').trim() || formatArchiveDayKey(Date.now())}.jsonl`)
 
     const getHomeMemoryFile = () => {
       const baseDir = (node.serverKNX && node.serverKNX.userDir)
@@ -7752,7 +7812,7 @@ module.exports = function (RED) {
       try {
         if (!fs.existsSync(dirPath)) return
         const entries = fs.readdirSync(dirPath, { withFileTypes: true })
-        const cutoffTs = now - ((retentionDays - 1) * 24 * 60 * 60 * 1000)
+        const cutoffTs = now - (retentionDays * 24 * 60 * 60 * 1000)
         const cutoffDayKey = formatArchiveDayKey(cutoffTs)
         for (let i = 0; i < entries.length; i++) {
           const entry = entries[i]
@@ -7776,7 +7836,10 @@ module.exports = function (RED) {
       const dayKey = formatArchiveDayKey(telegram.ts || Date.now())
       const filePath = getHistoryArchiveFile(dayKey)
       const line = JSON.stringify(telegram) + '\n'
+      const pendingKey = buildKnxAiHistoryEventKey(telegram, 'knx')
+      if (pendingKey) node._historyDiskPending.set(pendingKey, telegram)
       fs.appendFile(filePath, line, 'utf8', (error) => {
+        if (pendingKey && node._historyDiskPending.get(pendingKey) === telegram) node._historyDiskPending.delete(pendingKey)
         if (error) node.sysLogger?.warn(`KNX AI history append error: ${error.message || error}`)
       })
       pruneHistoryArchiveFiles()
@@ -7820,43 +7883,66 @@ module.exports = function (RED) {
       }
     }
 
-    const loadHistorySliceFromDisk = ({ fromTs, toTs, limit = 240 } = {}) => {
-      if (node.historyStoreToDisk !== true) return []
+    const loadHistoryQueryFromDisk = ({ fromTs, toTs, limit = 240, question = '' } = {}) => {
+      const emptyAccumulator = () => createKnxAiHistoryAccumulator({ kind: 'knx', question, limit }).finish()
+      if (node.historyStoreToDisk !== true) return emptyAccumulator()
       const archiveDir = getHistoryArchiveDir()
       try {
-        if (!fs.existsSync(archiveDir)) return []
         const from = Number(fromTs || 0)
         const to = Number(toTs || 0)
-        if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) return []
+        if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) return emptyAccumulator()
+        const accumulator = createKnxAiHistoryAccumulator({ kind: 'knx', question, limit })
+        const pending = node._historyDiskPending instanceof Map ? node._historyDiskPending : new Map()
         const dayKeys = collectArchiveDayKeysBetween({ fromTs: from, toTs: to })
-        if (!dayKeys.length) return []
-        const items = []
-        for (let i = 0; i < dayKeys.length; i++) {
-          const filePath = getHistoryArchiveFile(dayKeys[i])
-          if (!fs.existsSync(filePath)) continue
-          const raw = fs.readFileSync(filePath, 'utf8')
-          if (!raw || String(raw).trim() === '') continue
-          const lines = raw.split(/\r?\n/)
-          for (let j = 0; j < lines.length; j++) {
-            const line = lines[j]
-            if (!line) continue
-            try {
-              const telegram = JSON.parse(line)
-              const ts = Number(telegram && telegram.ts ? telegram.ts : 0)
-              if (!Number.isFinite(ts) || ts < from || ts > to) continue
-              items.push(telegram)
-            } catch (error) {
-              // Ignore malformed archive rows.
+        if (fs.existsSync(archiveDir)) {
+          for (let i = 0; i < dayKeys.length; i++) {
+            const filePath = getHistoryArchiveFile(dayKeys[i])
+            if (!fs.existsSync(filePath)) continue
+            const raw = fs.readFileSync(filePath, 'utf8')
+            if (!raw || String(raw).trim() === '') continue
+            const lines = raw.split(/\r?\n/)
+            for (let j = 0; j < lines.length; j++) {
+              const line = lines[j]
+              if (!line) continue
+              try {
+                const telegram = JSON.parse(line)
+                const ts = Number(telegram && telegram.ts ? telegram.ts : 0)
+                if (!Number.isFinite(ts) || ts < from || ts > to) continue
+                const key = buildKnxAiHistoryEventKey(telegram, 'knx')
+                if (key && pending.has(key)) continue
+                accumulator.add(telegram)
+              } catch (error) {
+                // Ignore malformed archive rows.
+              }
             }
           }
         }
-        if (!items.length) return []
-        items.sort((a, b) => Number(a.ts || 0) - Number(b.ts || 0))
-        return items.slice(-Math.max(1, Number(limit || 1)))
+        pending.forEach(telegram => {
+          const ts = Number(telegram && telegram.ts ? telegram.ts : 0)
+          if (Number.isFinite(ts) && ts >= from && ts <= to) accumulator.add(telegram)
+        })
+        return accumulator.finish()
       } catch (error) {
         node.sysLogger?.warn(`KNX AI history load slice error: ${error.message || error}`)
-        return []
+        return emptyAccumulator()
       }
+    }
+
+    const clampArchiveRangeToRetention = ({ range, retentionDays }) => {
+      const now = nowMs()
+      const days = Math.max(1, Number(retentionDays) || 1)
+      const earliest = now - (days * 24 * 60 * 60 * 1000)
+      const source = range && typeof range === 'object'
+        ? range
+        : { fromTs: now - (24 * 60 * 60 * 1000), toTs: now, label: 'last 24 hours', explicit: false }
+      const fromTs = Math.max(earliest, Number(source.fromTs || earliest))
+      const toTs = Math.min(now, Number(source.toTs || now))
+      return Object.assign({}, source, {
+        fromTs,
+        toTs: Math.max(fromTs, toTs),
+        retentionDays: days,
+        clampedToRetention: Number(source.fromTs || 0) < earliest
+      })
     }
 
     const selectTelegramsForPrompt = ({ question, maxEvents }) => {
@@ -7866,36 +7952,132 @@ module.exports = function (RED) {
       const fallbackRange = node.historyStoreToDisk === true
         ? { fromTs: now - (24 * 60 * 60 * 1000), toTs: now, label: 'last 24 hours', explicit: false }
         : { fromTs: now - (Math.max(5, Number(node.historyWindowSec || 5)) * 1000), toTs: now, label: 'memory window', explicit: false }
-      const range = explicitRange || fallbackRange
+      const range = clampArchiveRangeToRetention({
+        range: explicitRange || fallbackRange,
+        retentionDays: node.historyStoreRetentionDays
+      })
 
       let selected = []
       let source = 'memory'
+      let archiveSummary = null
       if (node.historyStoreToDisk === true) {
-        const diskItems = loadHistorySliceFromDisk({ fromTs: range.fromTs, toTs: range.toTs, limit: maxItems * 3 })
-        const memoryItems = node._history.filter(t => Number(t && t.ts ? t.ts : 0) >= range.fromTs && Number(t && t.ts ? t.ts : 0) <= range.toTs)
-        const dedupe = new Map()
-        diskItems.concat(memoryItems).forEach((telegram) => {
-          if (!telegram || typeof telegram !== 'object') return
-          const key = [
-            Number(telegram.ts || 0),
-            String(telegram.event || ''),
-            String(telegram.source || ''),
-            String(telegram.destination || ''),
-            normalizeValueForCompare(telegram.payload),
-            String(telegram.rawHex || '')
-          ].join('|')
-          dedupe.set(key, telegram)
-        })
-        selected = Array.from(dedupe.values()).sort((a, b) => Number(a.ts || 0) - Number(b.ts || 0)).slice(-maxItems)
-        source = 'archive+memory'
+        const query = loadHistoryQueryFromDisk({ fromTs: range.fromTs, toTs: range.toTs, limit: maxItems, question })
+        selected = query.events
+        archiveSummary = query.summary
+        source = 'daily JSONL archive'
       } else {
         selected = node._history.slice(-maxItems)
+        const accumulator = createKnxAiHistoryAccumulator({ kind: 'knx', question, limit: maxItems })
+        selected.forEach(telegram => accumulator.add(telegram))
+        const memoryQuery = accumulator.finish()
+        selected = memoryQuery.events
+        archiveSummary = memoryQuery.summary
       }
 
       return {
         events: selected,
         source,
-        range
+        range,
+        summary: archiveSummary
+      }
+    }
+
+    const pruneAdapterHistoryArchiveFiles = ({ force = false } = {}) => {
+      const now = nowMs()
+      if (!force && (now - Number(node._adapterHistoryDiskLastPruneAt || 0)) < (60 * 60 * 1000)) return
+      node._adapterHistoryDiskLastPruneAt = now
+      const dirPath = getAdapterHistoryArchiveDir()
+      try {
+        if (!fs.existsSync(dirPath)) return
+        const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+        const retentionDays = Math.max(1, KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS)
+        const cutoffDayKey = formatArchiveDayKey(now - (retentionDays * 24 * 60 * 60 * 1000))
+        entries.forEach(entry => {
+          if (!entry || !entry.isFile()) return
+          const match = String(entry.name || '').match(/^(\d{4}-\d{2}-\d{2})\.jsonl$/)
+          if (!match || match[1] >= cutoffDayKey) return
+          try { fs.unlinkSync(path.join(dirPath, entry.name)) } catch (error) { /* ignore */ }
+        })
+      } catch (error) {
+        node.sysLogger?.warn(`KNX AI adapter history prune error: ${error.message || error}`)
+      }
+    }
+
+    const persistAdapterEventToDisk = ({ event, adapter, provider } = {}) => {
+      const normalized = normalizeKnxAiAdapterHistoryEvent({ event, adapter, provider, nowTs: nowMs() })
+      if (!normalized) return null
+      const archiveDir = getAdapterHistoryArchiveDir()
+      if (!ensureDirectorySync(archiveDir)) return normalized
+      const filePath = getAdapterHistoryArchiveFile(formatArchiveDayKey(normalized.ts))
+      const pendingKey = buildKnxAiHistoryEventKey(normalized, 'adapter')
+      if (pendingKey) node._adapterHistoryDiskPending.set(pendingKey, normalized)
+      fs.appendFile(filePath, `${JSON.stringify(normalized)}\n`, 'utf8', error => {
+        if (pendingKey && node._adapterHistoryDiskPending.get(pendingKey) === normalized) node._adapterHistoryDiskPending.delete(pendingKey)
+        if (error) node.sysLogger?.warn(`KNX AI adapter history append error: ${error.message || error}`)
+      })
+      pruneAdapterHistoryArchiveFiles()
+      return normalized
+    }
+
+    const loadAdapterHistoryQueryFromDisk = ({ fromTs, toTs, limit = 160, question = '' } = {}) => {
+      const accumulator = createKnxAiHistoryAccumulator({ kind: 'adapter', question, limit })
+      const from = Number(fromTs || 0)
+      const to = Number(toTs || 0)
+      if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) return accumulator.finish()
+      const pending = node._adapterHistoryDiskPending instanceof Map ? node._adapterHistoryDiskPending : new Map()
+      try {
+        const archiveDir = getAdapterHistoryArchiveDir()
+        const dayKeys = collectArchiveDayKeysBetween({ fromTs: from, toTs: to })
+        if (fs.existsSync(archiveDir)) {
+          dayKeys.forEach(dayKey => {
+            const filePath = getAdapterHistoryArchiveFile(dayKey)
+            if (!fs.existsSync(filePath)) return
+            const raw = fs.readFileSync(filePath, 'utf8')
+            if (!raw || String(raw).trim() === '') return
+            raw.split(/\r?\n/).forEach(line => {
+              if (!line) return
+              try {
+                const item = JSON.parse(line)
+                const ts = Number(item && item.ts ? item.ts : 0)
+                if (!Number.isFinite(ts) || ts < from || ts > to) return
+                const key = buildKnxAiHistoryEventKey(item, 'adapter')
+                if (key && pending.has(key)) return
+                accumulator.add(item)
+              } catch (error) { /* ignore malformed archive rows */ }
+            })
+          })
+        }
+        pending.forEach(item => {
+          const ts = Number(item && item.ts ? item.ts : 0)
+          if (Number.isFinite(ts) && ts >= from && ts <= to) accumulator.add(item)
+        })
+      } catch (error) {
+        node.sysLogger?.warn(`KNX AI adapter history load error: ${error.message || error}`)
+      }
+      return accumulator.finish()
+    }
+
+    const selectAdapterEventsForPrompt = ({ question, maxEvents, range } = {}) => {
+      const effectiveRange = clampArchiveRangeToRetention({
+        range: range || parseQuestionTimeRange(question, nowMs()) || {
+          fromTs: nowMs() - (KNX_AI_ADAPTER_HISTORY_MIN_HOURS * 60 * 60 * 1000),
+          toTs: nowMs(),
+          label: `last ${KNX_AI_ADAPTER_HISTORY_MIN_HOURS} hours`,
+          explicit: false
+        },
+        retentionDays: KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS
+      })
+      const query = loadAdapterHistoryQueryFromDisk({
+        fromTs: effectiveRange.fromTs,
+        toTs: effectiveRange.toTs,
+        limit: Math.max(1, Number(maxEvents) || 160),
+        question
+      })
+      return {
+        events: query.events,
+        summary: query.summary,
+        source: 'daily JSONL adapter archive',
+        range: effectiveRange
       }
     }
 
@@ -10190,6 +10372,8 @@ module.exports = function (RED) {
         '- For an explicit request to refresh, read, query, or retrieve a current KNX state, create GroupValue_Read operations for the exact relevant objects. Use payload null for reads.',
         '- GroupValue_Read is allowed for exact status, neutral, or command objects in AVAILABLE KNX OBJECTS because it does not modify the bus state.',
         '- For a question that can be answered from recent data, return commands as an empty array. If current data is missing or the user explicitly asks for a fresh read, request it instead of claiming that read-only objects cannot be queried.',
+        '- Historical questions must use the KNX and adapter archive summaries in the supplied analysis context. Totals describe every stored row in the requested interval; selected rows are samples for detail and must not be used as the total count.',
+        '- Adapter history includes automatically detected provider events such as camera motion and smart detections. Do not claim that the absence of an archived event proves physical absence; report only what the adapters recorded.',
         '- Create a GroupValue_Write only when the user clearly asks to control an actuator now.',
         '- Never invent, guess, transform, or substitute a group address or DPT.',
         '- A GroupValue_Write destination must appear in AVAILABLE KNX OBJECTS with role command. Status and neutral objects must never receive GroupValue_Write.',
@@ -10901,9 +11085,14 @@ module.exports = function (RED) {
       }
     }
 
-    const handleCameraAdapterEvent = (providerEvent) => {
+    const handleCameraAdapterEvent = (providerEvent, provider = null) => {
       const event = normalizeKnxAiCameraEvent(providerEvent)
-      if (!event || event.active === false) return false
+      if (!event) return false
+      const adapter = provider && node._cameraAdapters instanceof Map
+        ? node._cameraAdapters.get(String(provider.adapterId || ''))
+        : null
+      persistAdapterEventToDisk({ event: Object.assign({}, providerEvent, event), adapter, provider })
+      if (event.active === false) return true
       const now = nowMs()
       listAllKnxAiCameraWatches(node._chatContext).filter(watch => cameraWatchMatchesEvent(watch, event)).forEach((watch) => {
         const lastAt = Number(node._cameraWatchLastTriggered.get(watch.id) || 0)
@@ -10958,7 +11147,7 @@ module.exports = function (RED) {
           if (previousProvider === provider && node._cameraProviderUnsubscribers.has(providerId)) return
           if (typeof provider.subscribe === 'function') {
             const unsubscribe = provider.subscribe(event => {
-              try { handleCameraAdapterEvent(event) } catch (error) {
+              try { handleCameraAdapterEvent(event, provider) } catch (error) {
                 try { node.sysLogger?.warn(`KNX AI camera event error: ${error.message || error}`) } catch (logError) { /* ignore */ }
               }
             })
@@ -12312,6 +12501,7 @@ module.exports = function (RED) {
 
     try {
       pruneHistoryArchiveFiles({ force: true })
+      pruneAdapterHistoryArchiveFiles({ force: true })
       loadRecentHistoryFromDisk()
       loadHomeMemoryFromDisk()
       loadChatContextFromDisk()
@@ -12367,6 +12557,7 @@ module.exports = function (RED) {
 }
 
 module.exports.__test = {
+  KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS,
   KNX_AI_CLOUD_LLM_TIMEOUT_MIN_MS,
   KNX_AI_COMPACT_CONTEXT_MAX_TOKENS,
   KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
@@ -12410,6 +12601,7 @@ module.exports.__test = {
   normalizeKnxAiCommandCandidates,
   normalizeKnxAiRoutineDescriptor,
   normalizeLmStudioModelCatalog,
+  parseQuestionTimeRange,
   parseKnxAiConversationResponse,
   postLocalLlmWithContextFallbacks,
   postOpenAiCompatibleChatWithFallbacks,
