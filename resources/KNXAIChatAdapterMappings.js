@@ -4,8 +4,8 @@
       id: 'windkh-telegrambot',
       title: 'windkh/node-red-contrib-telegrambot',
       inputCode: `// Receiver/Event -> KNX AI
-// Supports "telegram receiver" text messages and "telegram event"
-// callback_query messages produced by inline confirmation buttons.
+// Supports normal "telegram receiver" messages, including the one-time
+// reply-keyboard confirmation buttons, plus legacy callback_query events.
 const telegram = msg.payload;
 if (!telegram || typeof telegram !== 'object') return;
 
@@ -33,8 +33,9 @@ msg.topic = 'ask';
 msg.prompt = content;
 return msg;`,
       outputCode: `// KNX AI chat output -> Telegram sender
-// Converts the text reply and, when required, adds inline
-// confirmation/cancellation buttons.
+// Converts the text reply and, when required, adds a one-time reply keyboard.
+// A button click returns through the normal Telegram receiver, so no separate
+// callback event node is required.
 const source = msg.inputMessage && typeof msg.inputMessage === 'object'
     ? msg.inputMessage
     : inputMessage;
@@ -78,15 +79,16 @@ const confirmation = msg.knxAi && msg.knxAi.confirmationRequest;
 if (confirmation && confirmation.required === true && Array.isArray(confirmation.actions)) {
     telegramPayload.options = {
         reply_markup: JSON.stringify({
-            inline_keyboard: [
-                confirmation.actions.map(function (action) {
-                    return {
-                        text: action.label,
-                        callback_data: action.callbackData
-                    };
-                })
-            ]
+            keyboard: [confirmation.actions.map(function (action) {
+                return { text: action.label };
+            })],
+            resize_keyboard: true,
+            one_time_keyboard: true
         })
+    };
+} else if (msg.knxAi && (/^knx_confirmation_/.test(String(msg.knxAi.type || '')) || /^knx_routine_/.test(String(msg.knxAi.type || '')))) {
+    telegramPayload.options = {
+        reply_markup: JSON.stringify({ remove_keyboard: true })
     };
 }
 

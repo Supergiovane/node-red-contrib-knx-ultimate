@@ -66,6 +66,22 @@ const queryNodeId = (() => {
   }
 })()
 
+const queryActiveTab = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get('tab') === 'settings' ? 'settings' : 'overview'
+  } catch (error) {
+    return 'overview'
+  }
+})()
+
+const querySettingsTab = (() => {
+  try {
+    return new URLSearchParams(window.location.search).get('settingsTab') === 'learning' ? 'learning' : ''
+  } catch (error) {
+    return ''
+  }
+})()
+
 const queryAccessToken = (() => {
   try {
     return new URLSearchParams(window.location.search).get('access_token') || ''
@@ -505,8 +521,8 @@ function startUiTranslationObserver () {
 const state = reactive({
   nodes: [],
   selectedNodeId: '',
-  activeTab: 'overview',
-  settingsTab: loadString(settingsTabKey, 'config'),
+  activeTab: queryActiveTab,
+  settingsTab: querySettingsTab || loadString(settingsTabKey, 'config'),
   autoRefresh: loadBoolean(autoKey, true),
   voiceEnabled: loadBoolean(voiceKey, true),
   flowMaxNodes: loadFlowPrefs().maxNodes,
@@ -605,12 +621,28 @@ const state = reactive({
   flowBuilderResult: null,
   flowBuilderError: '',
   flowBuilderCopied: false,
+  chatLearningContent: '',
+  chatLearningBaseline: '',
+  chatLearningRevision: '',
+  chatLearningName: '',
+  chatLearningPath: '',
+  chatLearningBytes: 0,
+  chatLearningMaxBytes: 512 * 1024,
+  chatLearningModifiedAt: '',
+  chatLearningSessionCount: 0,
+  chatLearningLoadedNodeId: '',
+  chatLearningLoading: false,
+  chatLearningSaving: false,
+  chatLearningResetting: false,
+  chatLearningCopied: false,
+  chatLearningError: '',
   pollStateHandle: null,
   pollNodesHandle: null
 })
 const flowCardRef = ref(null)
 const isFlowFullscreen = ref(false)
 const configImportRef = ref(null)
+const chatLearningImportRef = ref(null)
 const testPlanReportRef = ref(null)
 const desktopSidebarExpanded = ref(loadBoolean(sidebarKey, true))
 const mobileSidebarOpen = ref(false)
@@ -619,6 +651,7 @@ const isSidebarExpanded = computed(() => (isCompactViewport.value ? mobileSideba
 let activeStepAudio = null
 let testPlanBaselineData = null
 let pendingTestPlanAction = null
+let chatLearningOperationGeneration = 0
 
 function stopActiveStepAudio () {
   if (!activeStepAudio) return
@@ -1154,6 +1187,13 @@ function formatDateTime (value) {
   }
 }
 
+function formatByteSize (value) {
+  const bytes = Math.max(0, Number(value) || 0)
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < (1024 * 1024)) return `${(bytes / 1024).toFixed(bytes < 10240 ? 1 : 0)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 function normalizeAnomalyPayload (entry) {
   return entry && entry.payload && typeof entry.payload === 'object' ? entry.payload : {}
 }
@@ -1519,6 +1559,9 @@ function buildVisibleFlowGraph (source) {
 }
 
 const selectedNode = computed(() => state.nodes.find(node => node.id === state.selectedNodeId) || null)
+const chatLearningDirty = computed(() => state.chatLearningContent !== state.chatLearningBaseline)
+const chatLearningEditorBytes = computed(() => new Blob([String(state.chatLearningContent || '')]).size)
+const chatLearningTooLarge = computed(() => chatLearningEditorBytes.value > state.chatLearningMaxBytes)
 const summary = computed(() => state.stateData && state.stateData.summary ? state.stateData.summary : {})
 const nodeInfo = computed(() => state.stateData && state.stateData.node ? state.stateData.node : {})
 const areasState = computed(() => state.stateData && state.stateData.areas ? state.stateData.areas : { suggested: [], totals: {} })
@@ -1802,6 +1845,7 @@ watch(() => state.selectedNodeId, (value) => {
   saveString(storageKey, value || '')
   state.areaSelectedId = ''
   state.testAreaSelectedId = loadSelectedTestAreaIdForNode(value || '')
+  resetChatLearningEditor()
 })
 
 watch(() => state.autoRefresh, (value) => {
@@ -2694,6 +2738,7 @@ async function onNodeChange () {
   state.testAreaSelectedId = loadSelectedTestAreaIdForNode(state.selectedNodeId)
   await fetchState({ fresh: true })
   await fetchGaCatalog()
+  if (state.activeTab === 'settings' && state.settingsTab === 'learning') await loadChatLearningFile()
 }
 
 function resetTestsWorkspaceView () {
@@ -2781,8 +2826,9 @@ function closeTestPlanEditor () {
 
 function activateSettingsTab (tabId) {
   const target = String(tabId || '').trim()
-  if (target !== 'node' && target !== 'config') return
+  if (target !== 'node' && target !== 'config' && target !== 'learning') return
   state.settingsTab = target
+  if (target === 'learning') loadChatLearningFile()
 }
 
 function activateSidebarTab (tabId) {
@@ -2803,6 +2849,7 @@ function activateSidebarTab (tabId) {
     const hasDraft = !!state.testPlanDraft
     if (!hasSelectedPlan && !hasSelectedResult && !hasDraft) resetTestsWorkspaceView()
   }
+  if (target === 'settings' && state.settingsTab === 'learning') loadChatLearningFile()
   if (state.activeTab !== target) {
     state.activeTab = target
   } else {
@@ -2972,22 +3019,27 @@ async function generateFlow () {
   }
 }
 
+async function copyTextToClipboard (text) {
+  const value = String(text || '')
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(value)
+    return
+  }
+  const area = document.createElement('textarea')
+  area.value = value
+  area.style.position = 'fixed'
+  area.style.opacity = '0'
+  document.body.appendChild(area)
+  area.select()
+  document.execCommand('copy')
+  document.body.removeChild(area)
+}
+
 async function copyFlowJson () {
   const json = state.flowBuilderResult && state.flowBuilderResult.flowJson ? state.flowBuilderResult.flowJson : ''
   if (!json) return
   try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(json)
-    } else {
-      const area = document.createElement('textarea')
-      area.value = json
-      area.style.position = 'fixed'
-      area.style.opacity = '0'
-      document.body.appendChild(area)
-      area.select()
-      document.execCommand('copy')
-      document.body.removeChild(area)
-    }
+    await copyTextToClipboard(json)
     state.flowBuilderCopied = true
     setStatus('Flow JSON copied to clipboard')
     setTimeout(() => { state.flowBuilderCopied = false }, 2500)
@@ -4472,6 +4524,170 @@ async function importFullConfig (event) {
   }
 }
 
+function resetChatLearningEditor () {
+  chatLearningOperationGeneration += 1
+  state.chatLearningContent = ''
+  state.chatLearningBaseline = ''
+  state.chatLearningRevision = ''
+  state.chatLearningName = ''
+  state.chatLearningPath = ''
+  state.chatLearningBytes = 0
+  state.chatLearningModifiedAt = ''
+  state.chatLearningSessionCount = 0
+  state.chatLearningLoadedNodeId = ''
+  state.chatLearningLoading = false
+  state.chatLearningSaving = false
+  state.chatLearningResetting = false
+  state.chatLearningCopied = false
+  state.chatLearningError = ''
+}
+
+function applyChatLearningSnapshot (data = {}, nodeId = state.selectedNodeId) {
+  const content = String(data.content || '')
+  state.chatLearningContent = content
+  state.chatLearningBaseline = content
+  state.chatLearningRevision = String(data.revision || '')
+  state.chatLearningName = String(data.name || 'knxai-chat-context.knxctx')
+  state.chatLearningPath = String(data.path || '')
+  state.chatLearningBytes = Math.max(0, Number(data.bytes) || new Blob([content]).size)
+  state.chatLearningMaxBytes = Math.max(1, Number(data.maxBytes) || (512 * 1024))
+  state.chatLearningModifiedAt = String(data.modifiedAt || data.updatedAt || '')
+  state.chatLearningSessionCount = Math.max(0, Number(data.sessionCount) || 0)
+  state.chatLearningLoadedNodeId = nodeId
+  state.chatLearningError = ''
+}
+
+async function loadChatLearningFile ({ force = false } = {}) {
+  if (!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting) return
+  if (chatLearningDirty.value && !force) return
+  if (chatLearningDirty.value && force && !window.confirm(localizeUiText('Discard unsaved chat-learning changes and reload?'))) return
+  const nodeId = state.selectedNodeId
+  const operationGeneration = ++chatLearningOperationGeneration
+  state.chatLearningLoading = true
+  state.chatLearningError = ''
+  setStatus('Loading chat learning...')
+  try {
+    const data = await requestJson(apiUrl(`chat-learning?nodeId=${encodeURIComponent(nodeId)}`))
+    if (operationGeneration !== chatLearningOperationGeneration || state.selectedNodeId !== nodeId) return
+    applyChatLearningSnapshot(data, nodeId)
+    setStatus('Chat learning loaded')
+  } catch (error) {
+    if (operationGeneration !== chatLearningOperationGeneration || state.selectedNodeId !== nodeId) return
+    state.chatLearningError = error.message || 'Failed to load chat learning'
+    setStatus(state.chatLearningError)
+  } finally {
+    if (operationGeneration === chatLearningOperationGeneration) state.chatLearningLoading = false
+  }
+}
+
+async function saveChatLearningFile () {
+  if (!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting || !chatLearningDirty.value || chatLearningTooLarge.value) return
+  const nodeId = state.selectedNodeId
+  const operationGeneration = ++chatLearningOperationGeneration
+  state.chatLearningSaving = true
+  state.chatLearningError = ''
+  setStatus('Saving chat learning...')
+  try {
+    const data = await requestJson(apiUrl('chat-learning/save'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId,
+        content: state.chatLearningContent,
+        revision: state.chatLearningRevision
+      })
+    })
+    if (operationGeneration !== chatLearningOperationGeneration || state.selectedNodeId !== nodeId) return
+    applyChatLearningSnapshot(data, nodeId)
+    setStatus('Chat learning saved')
+  } catch (error) {
+    if (operationGeneration !== chatLearningOperationGeneration || state.selectedNodeId !== nodeId) return
+    state.chatLearningError = error.message || 'Failed to save chat learning'
+    setStatus(state.chatLearningError)
+  } finally {
+    if (operationGeneration === chatLearningOperationGeneration) state.chatLearningSaving = false
+  }
+}
+
+async function reinitializeChatLearningMemory () {
+  if (!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting) return
+  const confirmed = window.confirm(localizeUiText('This permanently deletes all saved AI Chat Learning sessions, instructions and camera watches, and discards unsaved editor changes. Reinitialize memory from zero?'))
+  if (!confirmed) return
+  const nodeId = state.selectedNodeId
+  const operationGeneration = ++chatLearningOperationGeneration
+  state.chatLearningResetting = true
+  state.chatLearningError = ''
+  setStatus('Reinitializing chat learning...')
+  try {
+    const data = await requestJson(apiUrl('chat-learning/reset'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId,
+        revision: state.chatLearningRevision
+      })
+    })
+    if (operationGeneration !== chatLearningOperationGeneration || state.selectedNodeId !== nodeId) return
+    applyChatLearningSnapshot(data, nodeId)
+    setStatus('Chat learning reinitialized')
+  } catch (error) {
+    if (operationGeneration !== chatLearningOperationGeneration || state.selectedNodeId !== nodeId) return
+    state.chatLearningError = error.message || 'Failed to reinitialize chat learning'
+    setStatus(state.chatLearningError)
+  } finally {
+    if (operationGeneration === chatLearningOperationGeneration) state.chatLearningResetting = false
+  }
+}
+
+async function copyChatLearningFile () {
+  if (!state.chatLearningContent) return
+  try {
+    await copyTextToClipboard(state.chatLearningContent)
+    state.chatLearningCopied = true
+    state.chatLearningError = ''
+    setStatus('Chat-learning file copied to clipboard')
+    setTimeout(() => { state.chatLearningCopied = false }, 2500)
+  } catch (error) {
+    state.chatLearningError = error.message || 'Could not copy to clipboard'
+    setStatus(state.chatLearningError)
+  }
+}
+
+function downloadChatLearningBackup () {
+  if (!state.chatLearningContent) return
+  const blob = new Blob([state.chatLearningContent], { type: 'text/plain;charset=utf-8' })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = state.chatLearningName || 'knxai-chat-context.knxctx'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+  setStatus('Chat-learning backup downloaded')
+}
+
+function triggerChatLearningImport () {
+  if (chatLearningImportRef.value) chatLearningImportRef.value.click()
+}
+
+async function importChatLearningBackup (event) {
+  const file = event && event.target && event.target.files && event.target.files[0] ? event.target.files[0] : null
+  if (!file) return
+  try {
+    const content = await file.text()
+    if (new Blob([content]).size > state.chatLearningMaxBytes) throw new Error('Chat-learning backup exceeds the file-size limit')
+    state.chatLearningContent = content
+    state.chatLearningError = ''
+    setStatus('Chat-learning backup loaded; review it and save to apply it.')
+  } catch (error) {
+    state.chatLearningError = error.message || 'Failed to load chat-learning backup'
+    setStatus(state.chatLearningError)
+  } finally {
+    if (event && event.target) event.target.value = ''
+  }
+}
+
 function startTimers () {
   if (!state.pollStateHandle) {
     state.pollStateHandle = window.setInterval(() => {
@@ -4506,6 +4722,7 @@ onMounted(async () => {
   await fetchNodes({ preserveSelection: false })
   await fetchState({ fresh: true })
   await fetchGaCatalog()
+  if (state.settingsTab === 'learning') await loadChatLearningFile()
   startTimers()
   startUiTranslationObserver()
 })
@@ -5783,7 +6000,7 @@ onBeforeUnmount(() => {
         <div class="card-head">
           <div>
             <h2>Settings</h2>
-            <p class="area-detail-subhead">Manage node options and full configuration import/export.</p>
+            <p class="area-detail-subhead">Manage node options, shared CHAT learning and full configuration import/export.</p>
           </div>
         </div>
         <div class="settings-tab-strip">
@@ -5792,6 +6009,9 @@ onBeforeUnmount(() => {
           </button>
           <button class="settings-tab-button" :class="{ active: state.settingsTab === 'config' }" type="button" @click="activateSettingsTab('config')">
             Import / Export
+          </button>
+          <button class="settings-tab-button" :class="{ active: state.settingsTab === 'learning' }" type="button" @click="activateSettingsTab('learning')">
+            AI Chat Learning
           </button>
         </div>
         <article v-if="state.settingsTab === 'node'" class="area-detail settings-panel">
@@ -5815,7 +6035,7 @@ onBeforeUnmount(() => {
             </label>
           </div>
         </article>
-        <article v-else class="area-detail settings-panel">
+        <article v-else-if="state.settingsTab === 'config'" class="area-detail settings-panel">
           <div class="card-head settings-panel-head">
             <h3>Import / Export</h3>
             <span class="meta-chip">Full configuration</span>
@@ -5830,7 +6050,64 @@ onBeforeUnmount(() => {
             </button>
           </div>
         </article>
+        <article v-else class="area-detail settings-panel chat-learning-panel">
+          <div class="card-head settings-panel-head">
+            <div>
+              <h3>AI Chat Learning</h3>
+              <p class="area-detail-subhead">View, edit and back up the shared learning file used by every KNX AI node on this storage.</p>
+            </div>
+            <div class="chat-learning-meta">
+              <span class="meta-chip">{{ state.chatLearningSessionCount }} <span>sessions</span></span>
+              <span class="meta-chip" :class="{ 'chat-learning-size-over': chatLearningTooLarge }">
+                {{ formatByteSize(chatLearningEditorBytes) }} / {{ formatByteSize(state.chatLearningMaxBytes) }}
+              </span>
+              <span v-if="chatLearningDirty" class="meta-chip chat-learning-dirty">Unsaved changes</span>
+            </div>
+          </div>
+          <p class="chat-learning-note">
+            The native KNX AI records are authoritative and editable. Saving validates and replaces the live shared CHAT context immediately.
+          </p>
+          <p class="chat-learning-note">
+            Only the current KNXAI_CHAT_CONTEXT 3 format is accepted. Previous Markdown/JSON and Base64 files are not read, imported or migrated.
+          </p>
+          <label class="flow-field chat-learning-path-field">
+            <span>File path</span>
+            <code>{{ state.chatLearningPath || 'Loading chat learning...' }}</code>
+          </label>
+          <textarea
+            v-model="state.chatLearningContent"
+            class="chat-learning-editor"
+            :disabled="state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting || !state.selectedNodeId"
+            spellcheck="false"
+            aria-label="AI Chat Learning file"
+          />
+          <p v-if="state.chatLearningError" class="error-banner chat-learning-error" role="alert">{{ state.chatLearningError }}</p>
+          <div class="card-head-actions action-cluster chat-learning-actions">
+            <button class="secondary-button" type="button" :disabled="!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="loadChatLearningFile({ force: true })">
+              {{ state.chatLearningLoading ? 'Loading...' : 'Reload from disk' }}
+            </button>
+            <button class="secondary-button" type="button" :disabled="!state.chatLearningContent || state.chatLearningResetting" @click="copyChatLearningFile">
+              {{ state.chatLearningCopied ? 'Copied!' : 'Copy' }}
+            </button>
+            <button class="secondary-button" type="button" :disabled="!state.chatLearningContent || state.chatLearningResetting" @click="downloadChatLearningBackup">
+              Download Backup
+            </button>
+            <button class="secondary-button" type="button" :disabled="!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="triggerChatLearningImport">
+              Restore Backup
+            </button>
+            <button class="primary-button" type="button" :disabled="!state.selectedNodeId || !chatLearningDirty || chatLearningTooLarge || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="saveChatLearningFile">
+              {{ state.chatLearningSaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+            <button class="danger-button" type="button" :disabled="!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="reinitializeChatLearningMemory">
+              {{ state.chatLearningResetting ? 'Reinitializing...' : 'Reinitialize Memory' }}
+            </button>
+          </div>
+          <p v-if="state.chatLearningModifiedAt" class="area-detail-subhead chat-learning-modified">
+            Last saved: {{ formatDateTime(state.chatLearningModifiedAt) }}
+          </p>
+        </article>
         <input ref="configImportRef" type="file" accept="application/json,.json" class="hidden-file-input" @change="importFullConfig">
+        <input ref="chatLearningImportRef" type="file" accept="text/plain,.knxctx" class="hidden-file-input" @change="importChatLearningBackup">
       </section>
 
     </main>
@@ -6878,6 +7155,92 @@ onBeforeUnmount(() => {
   margin-top: 12px;
 }
 
+.chat-learning-panel {
+  min-height: 520px;
+}
+
+.chat-learning-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chat-learning-dirty {
+  border-color: rgba(239, 108, 0, 0.36);
+  background: rgba(255, 239, 213, 0.92);
+  color: #8e4f00;
+}
+
+.chat-learning-size-over {
+  border-color: rgba(196, 57, 57, 0.42) !important;
+  background: rgba(255, 227, 227, 0.94) !important;
+  color: #a42828 !important;
+}
+
+.chat-learning-note {
+  margin: 6px 0;
+  color: #566174;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.chat-learning-path-field {
+  margin-top: 14px;
+}
+
+.chat-learning-path-field code {
+  display: block;
+  padding: 9px 11px;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(116, 128, 149, 0.3);
+  border-radius: var(--soft-radius);
+  background: rgba(236, 241, 247, 0.86);
+  color: #344054;
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+  font-size: 11px;
+}
+
+.chat-learning-editor {
+  width: 100%;
+  min-height: 430px;
+  margin-top: 12px;
+  padding: 14px;
+  resize: vertical;
+  border: 1px solid rgba(95, 108, 130, 0.44);
+  border-radius: var(--soft-radius);
+  background: #fbfcfe;
+  color: #273142;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  tab-size: 2;
+  box-sizing: border-box;
+}
+
+.chat-learning-editor:focus {
+  outline: 2px solid rgba(239, 108, 0, 0.23);
+  border-color: rgba(239, 108, 0, 0.64);
+}
+
+.chat-learning-editor:disabled {
+  opacity: 0.68;
+  cursor: wait;
+}
+
+.chat-learning-error {
+  margin-top: 10px;
+}
+
+.chat-learning-actions {
+  margin-top: 12px;
+}
+
+.chat-learning-modified {
+  margin: 12px 0 0;
+}
+
 @media (max-width: 900px) {
   .settings-node-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -6886,6 +7249,14 @@ onBeforeUnmount(() => {
 
   .settings-node-checkbox {
     width: 100%;
+  }
+
+  .chat-learning-meta {
+    justify-content: flex-start;
+  }
+
+  .chat-learning-editor {
+    min-height: 360px;
   }
 }
 

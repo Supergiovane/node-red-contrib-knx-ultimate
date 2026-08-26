@@ -25,9 +25,13 @@
 
 Ollama 和 Bionic LM Studio 请求会自动使用至少 10 分钟的超时时间；云端提供商仍使用至少 2 分钟。编辑器中无需维护超时字段。即使达到本地模型限制，KNX AI 也会说明模型未完成响应，并建议重试或缩减提示上下文。
 
+对于本地提供商，**聊天上下文量**可明确选择 4K、8K 或 16K；默认仍为 16K。该选择会按比例限制发送给模型的 KNX、记忆、Node-RED 项目和适配器数据，同时保留完整的代理工具协议。任何能力都不会因措辞、关键词或语言 intent 而被启用或禁用。
+
 Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM 运行期间本地化的“我正在思考…”状态。KNX 报文、网关更新、流量速率、ready 消息和技术结果绝不会覆盖该状态；这些信息仍可通过节点输出、日志和助手数据查看。
 
-每个 Ask/聊天会话都会保留最近 8 轮对话和最多 20 条由模型选择的长期指令，并按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 隔离。模型通过结构化记忆工具，按语义判断一段对话的含义应被记住还是遗忘；系统不使用语言关键词或 intent 列表。使用相同存储的所有 KNX AI 节点实时共享此上下文，并在 Node-RED 重启后从 `knxultimatestorage/knxai/memory/knxai-chat-context.md` 重新加载。该文件采用原子写入，最多保存 50 个会话且不超过 512 KB。启用 KNX 控制后，将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
+每个 Ask/聊天会话都会保留最近 8 轮对话和最多 20 条由模型选择的长期指令，并按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 隔离。模型通过结构化记忆工具，按语义判断一段对话的含义应被记住还是遗忘；系统不使用语言关键词或 intent 列表。使用相同存储的所有 KNX AI 节点实时共享此上下文，并在 Node-RED 重启后从 `knxultimatestorage/knxai/memory/knxai-chat-context.knxctx` 重新加载。该文件采用原子写入，最多保存 50 个会话且不超过 512 KB。启用 KNX 控制后，将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
+最近的会话记忆会紧邻当前请求放置，使本地模型即使面对很大的 KNX 提示，也能保留用户提供的事实，例如首选姓名或语言。模型可以通过 `memoryActions` 持久保存耐久的事实、偏好和指令；这仍是没有短语分类器或 intent 路由的语义工具选择。凭据、安全代码和 API 密钥绝不能被学习。
+
 对于 DPT 1.xxx 写入，AI 生成的安全等价值 `true`/`false`、`1`/`0` 和 `on`/`off` 会在本地校验和输出前统一转换为真正的布尔值。
 
 ### 最新 KNX 读取
@@ -42,16 +46,16 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 ### 聊天适配器预设
 **聊天适配器**选项卡从 `resources/KNXAIChatAdapterMappings.js` 加载可选映射。选择预设会在内部安装两段预定义的同步 JavaScript 映射：一段在 KNX AI 处理输入前运行，另一段在输出 3 发出消息前运行。这些映射在编辑器中始终保持隐藏。语法和执行错误会被捕获并报告，不会停止 Node-RED。
 
-随附的 **windkh/node-red-contrib-telegrambot** 预设遵循该包的 receiver/sender 消息约定。把 `telegram receiver` 直接连接到 KNX AI，并把输出 3 直接连接到 `telegram sender`。如需内联确认按钮，还要把配置为 `callback_query` 的 `telegram event` 连接到同一个 KNX AI 输入。输入映射会提取 `msg.payload.content`、`msg.payload.chatId` 和 Telegram 语言；输出映射会创建所需的 `msg.payload.chatId`、`type` 和 `content`，并在写入等待确认时从 `msg.knxAi.confirmationRequest` 添加 `options.reply_markup`。Telegram 包仍是独立的可选依赖项。
+随附的 **windkh/node-red-contrib-telegrambot** 预设遵循该包的 receiver/sender 消息约定。把 `telegram receiver` 直接连接到 KNX AI，并把输出 3 直接连接到 `telegram sender`。确认操作使用一次性 Telegram 回复键盘：点击**确认**或**取消**后，会通过同一个 receiver 返回普通的本地化消息，因此不需要 `telegram event` 或 callback 连线。旧的 `callback_query` 消息仍可接受。输入映射会提取 `msg.payload.content`、`msg.payload.chatId` 和 Telegram 语言；输出映射会创建所需的 `msg.payload.chatId`、`type` 和 `content`，并在写入等待确认时从 `msg.knxAi.confirmationRequest` 添加 `options.reply_markup`。Telegram 包仍是独立的可选依赖项。
 
 随附的 **RedBot / node-red-contrib-chatbot (Telegram)** 预设遵循 RedBot 的通用消息格式。将 `chatbot-telegram-receive` 直接连接到 KNX AI，并将输出 3 直接连接到 `chatbot-telegram-send`；无需单独的 callback 节点，因为 RedBot 会把内联按钮的 postback 转换成普通入站消息。输入映射读取 `transport`、`chatId`、`type`、`content` 和 Telegram 语言。输出映射保留 RedBot 的 `originalMessage`、`chat`、`api` 和 `client` 跟踪数据，然后发送 `message` payload，或发送带有确认 `postback` 操作的 `inline-buttons` payload。RedBot 仍是独立的可选依赖项。
 
 ### 自动检测的摄像机适配器
 已安装的摄像机软件包可以在运行时向 KNX AI 发布适配器。无需选择器，也无需将摄像机节点连接到 KNX AI：可用的适配器、控制器和摄像机会被自动检测并加入聊天上下文。`node-red-contrib-unifi-ultimate` 是首个受支持的提供方；`hikvision-ultimate` 等其他软件包可通过同一套厂商无关协议注册。
 
-用户可以请求当前快照，或询问视觉模型画面中可见的内容。Telegram 和 RedBot 预设会把图像作为带说明文字的原生照片发送。用户还可以为移动、智能越线或进入入侵/徘徊区域创建持久通知，并可按检测到的人员以及指定名称的线或区域进行限制。这些规则保存在同一个 `knxai-chat-context.md` 文件中，并在 Node-RED 重启后恢复。UniFi 事件订阅和快照请求直接通过检测到的提供方完成；不会使用 KNX AI 输出 4，也不需要中间 Flow 连线。
+用户可以请求当前快照，或询问视觉模型画面中可见的内容。Telegram 和 RedBot 预设会把图像作为带说明文字的原生照片发送。用户还可以为移动、智能越线或进入入侵/徘徊区域创建持久通知，并可按检测到的人员以及指定名称的线或区域进行限制。这些规则保存在同一个 `knxai-chat-context.knxctx` 文件中，并在 Node-RED 重启后恢复。UniFi 事件订阅和快照请求直接通过检测到的提供方完成；不会使用 KNX AI 输出 4，也不需要中间 Flow 连线。
 
-自动检测到的适配器发布的每个事件都会被标准化，并追加到 `knxultimatestorage/knxai/adapter-history/<节点ID>/` 下的每日 `YYYY-MM-DD.jsonl` 文件。存档保留 10 天，保证超过 24 小时的历史，只保存事件元数据，不保存图像。Web 助手和所有 CHAT 渠道会同时查询它与每日 KNX 报文存档。总数涵盖所请求区间内的全部存档行；选出的详情仅是相关样本。
+自动检测到的适配器发布的每个事件都会被标准化，并以 KNX AI 原生紧凑行格式直接追加到 `knxultimatestorage/knxai/adapter-history/<节点ID>/` 下的每日 `YYYY-MM-DD.knxctx` 文件。KNX 报文存档使用相同的紧凑格式，不经过中间 JSON 序列化。存档保留 10 天，保证超过 24 小时的历史，只保存事件元数据，不保存图像。现有 JSONL 存档不会被读取或迁移。总数涵盖所请求区间内的全部存档行；选出的详情仅是相关样本。
 
 ### 使用 TTS Ultimate 播报
 安装可选软件包 `node-red-contrib-tts-ultimate` 后，它会显示在自动检测的适配器中。选择器会列出项目所有 Flow 中的全部 `ttsultimate` 节点，并显示 Flow、节点名称和已配置的播放器。请选择负责聊天播报的节点，然后部署 Flow。
@@ -59,9 +63,16 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 模型会根据当前请求、持久聊天指令和用户管理的 AI 教育自行判断是否使用此适配器；系统没有播报 intent，也没有触发短语列表。KNX 数值、适配器事件、图像和存档始终是数据而不是指令，但可信的用户指导可以教会模型如何处理这些数据。KNX AI 会将选定文本作为 `msg.payload` 直接发送到所选节点，并设置 `msg.topic = "knx_ai_announcement"`；之后由 TTS Ultimate 处理 Sonos 播放器、语音、音量、提示音和队列。
 
 ### 聊天上下文概览
-节点编辑器会显示一张紧凑卡片，汇总聊天可用的来源：当前 KNX 流量、ETS 语义与 Node-RED 项目、会话和家庭记忆、AI 教育及检测到的摄像机。卡片还会显示最大运行上下文和上次聊天提示词的实际 UTF-8 大小；提供商返回输入令牌数时使用精确值，否则明确标为估算值。卡片还会列出 `knxai-chat-context.md`、`knxai-home-memory.md` 和 `knxai-config-<节点-id>.json`，以及 KNX 报文归档的绝对根目录、该节点专用目录和每日文件模式 `YYYY-MM-DD.jsonl`。这些路径会在运行时根据已配置网关实际使用的数据目录解析。
+节点编辑器会显示一张紧凑卡片，汇总聊天可用的来源：当前 KNX 流量、ETS 语义与 Node-RED 项目、会话和家庭记忆、AI 教育及检测到的摄像机。卡片还会显示用户选择的最大运行上下文和上次聊天提示词的实际 UTF-8 大小；提供商返回输入令牌数时使用精确值，否则明确标为估算值。卡片还会列出 `knxai-chat-context.knxctx`、`knxai-home-memory.md` 和 `knxai-config-<节点-id>.json`，以及 KNX 报文归档的绝对根目录、该节点专用目录和每日文件模式 `YYYY-MM-DD.knxctx`。这些路径会在运行时根据已配置网关实际使用的数据目录解析。
 
 模型会把 KNX 读写、摄像机适配器、TTS 播报和持久记忆作为结构化工具。它可以依据当前请求和可信的已学习指导进行语义选择与组合，而不经过语言 intent 路由。运行时只验证工具参数、适配器可用性和安全边界；KNX 写入仍保留本地 ETS/DPT 校验和已配置的确认步骤。
+
+### 编辑和备份聊天学习
+Node-RED 的 KNX AI 配置中，**对话与家庭**选项卡包含**打开 AI 聊天学习**按钮；它会为当前节点直接打开 Vue Web UI 中的此编辑器。
+
+在 Vue Web UI 中打开**设置 → AI 聊天学习**，即可查看和编辑准确的共享文件 `knxai-chat-context.knxctx` 及其绝对路径。可复制该文件、下载备份，或从另一个 `.knxctx` 文件恢复。**重新初始化记忆**操作受明确确认保护；它会用新的空白上下文替换该文件，并清除使用同一存储的所有 KNX AI 节点中的已保存会话、指令、摄像机监视和待处理聊天确认。以制表符分隔的原生 `KNXAI_CHAT_CONTEXT 3` 记录是权威数据，并可直接编辑：`SESSION` 包含 `INSTRUCTION`、`TURN` 和 `CAMERA_WATCH` 记录，直至 `END_SESSION`。保存时会验证并限制这些记录、以原子方式重写文件，并立即更新所有相关节点的活动上下文。修订检查会拒绝覆盖或重置编辑器加载后又发生变化的学习内容。
+
+仅支持原生 V3 格式。旧版 Markdown/JSON V2 和 Base64 V1 文件不会被读取、导入或迁移；旧的 `.md` 文件保持不变，KNX AI 会启动新的 `.knxctx` 上下文。仍保留 50 个会话和 512 KB 的限制。
 
 ### 学习到的 KNX 组地址角色
 `neutral` 角色表示初始不确定性，而不是永久禁止控制。模型可以使用结构化工具 `gaRoleActions`，根据可信的用户教学、持久聊天指导、AI 教育或明确无歧义的 ETS 项目语义，学习某个准确的 ETS 组地址属于命令、状态或中性对象。无需固定关键词或角色 intent；如果证据不明确，模型会先询问澄清，而不会擅自学习。
@@ -132,7 +143,7 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
   - **2) Install it**：在本机下载并安装模型（例如 `llama3.1`）。
 - 在刷新/安装模型时，KNX AI 也会在可能情况下尝试自动启动 Ollama 服务。
 - 若安装因连接错误失败，请确认 Ollama 已运行（桌面应用或 `ollama serve`）。
-- `/api/show` 报告的最大上下文仅用于显示。KNX AI 始终发送 `num_ctx = 16384`（若模型最大值更小则使用该值），并使用同一个按相关性选择的 16K 语义视图，从而避免分配过大的 KV 缓存，同时保留代理能力。
+- `/api/show` 报告的最大上下文仅用于显示。KNX AI 会将所选的 4K、8K 或 16K 预算作为 `num_ctx` 发送（若模型最大值更小则使用该值），并按比例限制每个上下文来源，同时保留代理能力。
 - 若 Node-RED 运行在 Docker 中，endpoint 请使用 `host.docker.internal` 替代 `localhost`。
 
 ### Bionic LM Studio 快速配置（本地）
@@ -140,7 +151,7 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 - 在 LM Studio 的 **Developer** 页面启动 API 服务，或运行 `lms server start`。
 - 默认 endpoint：`http://localhost:1234/v1/chat/completions`。
 - 点击 **Refresh** 加载 `/v1/models` 提供的全部模型；未配置模型时会自动选择第一个。
-- 如果模型已加载，KNX AI 会保留其当前上下文长度。KNX AI 不会通过管理 API 加载未运行的 Bionic 模型：首次聊天请求会让 Bionic 根据该模型已保存的默认值进行 JIT 加载。无论 Bionic 报告的上下文是多少，KNX AI 都会将自己的提示词限制为按相关性选择的 16K 语义视图；这样可避免发送完整的 131K 数据集，同时保留推理、KNX、例程、摄像头和 TTS 能力。
+- 如果模型已加载，KNX AI 会保留其当前上下文长度。KNX AI 不会通过管理 API 加载未运行的 Bionic 模型：首次聊天请求会让 Bionic 根据该模型已保存的默认值进行 JIT 加载。无论 Bionic 报告的上下文是多少，KNX AI 都会使用所选的 4K、8K 或 16K 提示预算，并保留推理、KNX、例程、摄像头和 TTS 能力。
 - 除非在 LM Studio 服务设置中启用了身份验证，否则 API Key 可留空。在 Docker 中请将 `localhost` 替换为 `host.docker.internal`。
 
 ## 安全说明

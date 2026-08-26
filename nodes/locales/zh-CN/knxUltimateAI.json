@@ -6,6 +6,7 @@
       "groupChatHome": "对话与家庭",
       "detectedAdapters": "自动检测到的适配器",
       "chatContextOverview": "聊天上下文概览",
+      "chatLearning": "AI 聊天学习",
       "quickSetup": "助手配置",
       "llmConnection": "AI 助手连接",
       "chatAdapter": "聊天渠道",
@@ -21,6 +22,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmPromptContextTokens": "聊天上下文量",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "允许 AI 读取 KNX 状态并控制执行器",
@@ -45,6 +47,11 @@
         "ollama": "Ollama（本地）",
         "lmstudio": "Bionic LM Studio"
       },
+      "promptContext": {
+        "small": "精简（4K，更快）",
+        "medium": "中等（8K）",
+        "full": "完整（16K）"
+      },
       "chatAdapter": {
         "none": "无适配器"
       },
@@ -61,6 +68,7 @@
       "lmStudioContextFailed": "无法配置模型上下文",
       "lmStudioContextCurrentlyLoaded": "当前已加载",
       "localContextBudget": "KNX AI 上下文预算",
+      "promptContextHint": "控制发送给本地模型的 KNX、记忆、项目和适配器上下文量。它不会启用或禁用工具，也不使用 intent 路由。",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -80,6 +88,7 @@
       "ttsUltimateHint": "聊天中的明确播报请求会直接发送到所选节点，无需在 Flow 中额外连线。",
       "chatContextLoading": "正在加载聊天上下文摘要…",
       "chatContextUnavailable": "聊天上下文摘要暂时不可用。",
+      "chatLearningOpenHint": "直接在 Web UI 中打开共享 CHAT 学习编辑器，以查看、编辑、复制或备份其持久文件。",
       "chatContextIntro": "聊天会自动接收这些来源。以下路径是此 Node-RED 安装实际使用的路径。",
       "chatContextLimitLabel": "最大运行上下文",
       "chatContextProviderManaged": "由所选提供商/模型管理",
@@ -172,7 +181,8 @@
     "buttons": {
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
-      "downloadOllamaModel": "1) Download model"
+      "downloadOllamaModel": "1) Download model",
+      "openChatLearning": "打开 AI 聊天学习"
     }
   }
 }

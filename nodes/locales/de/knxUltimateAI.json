@@ -6,6 +6,7 @@
       "groupChatHome": "Gespräche & Zuhause",
       "detectedAdapters": "Automatisch erkannte Adapter",
       "chatContextOverview": "Übersicht des Chat-Kontexts",
+      "chatLearning": "KI-Chat-Lernen",
       "quickSetup": "Assistent einrichten",
       "llmConnection": "KI-Assistent-Verbindung",
       "chatAdapter": "Chat-Kanäle",
@@ -21,6 +22,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmPromptContextTokens": "Chat-Kontextmenge",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "KI darf KNX-Zustände lesen und Aktoren steuern",
@@ -45,6 +47,11 @@
         "ollama": "Ollama (lokal)",
         "lmstudio": "Bionic LM Studio"
       },
+      "promptContext": {
+        "small": "Klein (4K, schneller)",
+        "medium": "Mittel (8K)",
+        "full": "Vollständig (16K)"
+      },
       "chatAdapter": {
         "none": "Kein Adapter"
       },
@@ -68,6 +75,7 @@
       "lmStudioContextFailed": "Der Modellkontext konnte nicht konfiguriert werden",
       "lmStudioContextCurrentlyLoaded": "derzeit geladen",
       "localContextBudget": "KNX-AI-Kontextbudget",
+      "promptContextHint": "Steuert die Menge an KNX-, Speicher-, Projekt- und Adapterkontext für lokale Modelle. Werkzeuge werden dadurch weder aktiviert noch deaktiviert; es gibt kein Intent-Routing.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -87,6 +95,7 @@
       "ttsUltimateHint": "Explizite Ansagen aus dem Chat werden direkt an den ausgewählten Node gesendet; eine Flow-Verkabelung ist nicht erforderlich.",
       "chatContextLoading": "Zusammenfassung des Chat-Kontexts wird geladen…",
       "chatContextUnavailable": "Die Zusammenfassung des Chat-Kontexts ist vorübergehend nicht verfügbar.",
+      "chatLearningOpenHint": "Öffnet die Weboberfläche direkt im gemeinsamen CHAT-Lerneditor, um die persistente Datei anzuzeigen, zu bearbeiten, zu kopieren oder zu sichern.",
       "chatContextIntro": "Der Chat erhält diese Quellen automatisch. Die folgenden Pfade werden von dieser Node-RED-Installation tatsächlich verwendet.",
       "chatContextLimitLabel": "Maximaler operativer Kontext",
       "chatContextProviderManaged": "vom ausgewählten Anbieter/Modell verwaltet",
@@ -172,7 +181,8 @@
     "buttons": {
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
-      "downloadOllamaModel": "1) Download model"
+      "downloadOllamaModel": "1) Download model",
+      "openChatLearning": "KI-Chat-Lernen öffnen"
     }
   }
 }

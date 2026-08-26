@@ -34,7 +34,13 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 - **Ask**：用自然语言提问。
   如果节点中启用了磁盘归档，Ask 默认会查询该归档；若没有明确日期，则默认查看最近 24 小时。
 - **Flow Builder**（测试版）：用一句话描述自动化，即可得到可粘贴到编辑器的 Node-RED 流程（JSON）。
-- **Settings**：节点选择与导入/导出。
+- **Settings**：节点选择、完整配置导入/导出，以及可编辑的共享 AI 聊天学习文件。
+
+## AI 聊天学习
+
+打开**设置 → AI 聊天学习**可查看绝对路径并编辑共享的 `knxai-chat-context.knxctx`；同一存储中的所有 KNX AI 节点都会实时使用它。可以复制文件、下载备份，或恢复另一个 `.knxctx` 文件。请编辑权威的原生 V3 制表符分隔记录（`SESSION`、`INSTRUCTION`、`TURN`、`CAMERA_WATCH`、`END_SESSION`）；保存时会检查 512 KB 限制并以原子方式写入规范文件。**重新初始化记忆**会在明确确认后将其替换为空白上下文。修订检查可防止并发更改被覆盖。旧版 Markdown/JSON V2 和 Base64 V1 文件不会被读取、导入或迁移。
+
+Node-RED 节点配置中**对话与家庭**下的**打开 AI 聊天学习**按钮，会为当前节点直接打开此页面和选项卡。
 
 ## Flow Builder（测试版）
 

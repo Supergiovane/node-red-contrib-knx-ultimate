@@ -1,4 +1,4 @@
-const CHAT_CONTEXT_VERSION = 1
+const CHAT_CONTEXT_VERSION = 3
 const CHAT_CONTEXT_MAX_BYTES = 512 * 1024
 const CHAT_CONTEXT_MAX_SESSIONS = 50
 const CHAT_CONTEXT_MAX_TURNS_PER_SESSION = 8
@@ -7,6 +7,7 @@ const CHAT_CONTEXT_MAX_CAMERA_WATCHES_PER_SESSION = 20
 const CHAT_CONTEXT_MAX_QUESTION_CHARS = 4000
 const CHAT_CONTEXT_MAX_REPLY_CHARS = 8000
 const CHAT_CONTEXT_MAX_INSTRUCTION_CHARS = 2000
+const CHAT_CONTEXT_NATIVE_HEADER = 'KNXAI_CHAT_CONTEXT'
 
 const clampText = (value, maxChars) => String(value === undefined || value === null ? '' : value)
   .trim()
@@ -208,7 +209,7 @@ const buildKnxAiChatPromptContext = ({ context, sessionId, maxChars = 16000 } = 
   if (!session.instructions.length && !session.turns.length && !session.cameraWatches.length) return ''
   const lines = []
   if (session.instructions.length) {
-    lines.push('PERSISTENT CHAT INSTRUCTIONS AND PREFERENCES (explicitly supplied by this user; follow them unless they conflict with safety or the KNX contract; newer entries override older conflicting entries):')
+    lines.push('PERSISTENT USER-PROVIDED FACTS, PREFERENCES, AND INSTRUCTIONS (follow relevant entries unless they conflict with safety or the KNX contract; newer entries override older conflicting entries):')
     session.instructions.forEach(item => lines.push(`- ${item.text.replace(/\r?\n/g, ' ')}`))
   }
   if (session.turns.length) {
@@ -232,56 +233,75 @@ const buildKnxAiChatPromptContext = ({ context, sessionId, maxChars = 16000 } = 
   return lines.join('\n').slice(0, Math.max(1000, Number(maxChars) || 16000))
 }
 
-const escapeMarkdownText = value => clampText(value, CHAT_CONTEXT_MAX_REPLY_CHARS)
-  .replace(/\r?\n/g, ' ')
-  .replace(/</g, '&lt;')
-  .replace(/>/g, '&gt;')
+const escapeKnxAiChatContextField = value => String(value === undefined || value === null ? '' : value)
+  .replace(/\\/g, '\\\\')
+  .replace(/\t/g, '\\t')
+  .replace(/\r/g, '\\r')
+  .replace(/\n/g, '\\n')
 
-const renderKnxAiChatContext = (context) => {
-  const target = normalizeKnxAiChatContext(context)
-  target.updatedAt = new Date().toISOString()
-  const metadata = Buffer.from(JSON.stringify(target), 'utf8').toString('base64')
-  const lines = [
-    '<!-- KNX_AI_CHAT_CONTEXT_V1_BASE64',
-    metadata,
-    'KNX_AI_CHAT_CONTEXT_END -->',
-    '',
-    '# KNX AI Chat Context',
-    '',
-    `Updated: ${target.updatedAt}`,
-    '',
-    'This bounded file stores recent chat turns and explicit long-term instructions separately for each chat session.',
-    ''
-  ]
-  target.sessions.forEach((session) => {
-    lines.push(`## Session ${escapeMarkdownText(session.id)}`, '')
-    lines.push('### Persistent instructions', '')
-    if (!session.instructions.length) lines.push('_None._')
-    session.instructions.forEach(item => lines.push(`- ${escapeMarkdownText(item.at)} — ${escapeMarkdownText(item.text)}`))
-    lines.push('', '### Camera watches', '')
-    if (!session.cameraWatches.length) lines.push('_None._')
-    session.cameraWatches.forEach((watch) => {
-      const camera = watch.cameraName || watch.cameraId
-      const scope = watch.scopeName || watch.scopeId
-      const objects = watch.objectTypes.length ? `; objects ${watch.objectTypes.join(', ')}` : ''
-      lines.push(`- ${escapeMarkdownText(watch.id)} — ${escapeMarkdownText(camera)}; event ${escapeMarkdownText(watch.eventType)}${scope ? `; scope ${escapeMarkdownText(scope)}` : ''}${objects}; cooldown ${watch.cooldownSeconds}s`)
-    })
-    lines.push('', '### Recent turns', '')
-    if (!session.turns.length) lines.push('_None._')
-    session.turns.forEach((turn) => {
-      lines.push(`- ${escapeMarkdownText(turn.at)} — **User:** ${escapeMarkdownText(turn.question)}`)
-      lines.push(`  **Assistant:** ${escapeMarkdownText(turn.reply)}`)
-    })
-    lines.push('')
-  })
-  return { markdown: lines.join('\n'), context: target }
+const unescapeKnxAiChatContextField = (value) => {
+  const source = String(value === undefined || value === null ? '' : value)
+  let result = ''
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index]
+    if (char !== '\\' || index + 1 >= source.length) {
+      result += char
+      continue
+    }
+    const next = source[index + 1]
+    if (next === '\\') result += '\\'
+    else if (next === 't') result += '\t'
+    else if (next === 'r') result += '\r'
+    else if (next === 'n') result += '\n'
+    else result += `\\${next}`
+    index += 1
+  }
+  return result
 }
 
-const buildKnxAiChatContextMarkdown = ({ context, maxBytes = CHAT_CONTEXT_MAX_BYTES } = {}) => {
+const buildKnxAiChatContextRecord = (type, fields = []) => [type]
+  .concat(fields.map(escapeKnxAiChatContextField))
+  .join('\t')
+
+const renderKnxAiChatContextFile = (context) => {
+  const target = normalizeKnxAiChatContext(context)
+  target.updatedAt = new Date().toISOString()
+  const lines = [
+    '# KNX AI native chat-learning context',
+    '# Tab-separated records. Escapes: \\\\ (backslash), \\t (tab), \\n (newline), \\r (carriage return).',
+    '# Records: SESSION, INSTRUCTION, TURN, CAMERA_WATCH, END_SESSION.',
+    buildKnxAiChatContextRecord(CHAT_CONTEXT_NATIVE_HEADER, [CHAT_CONTEXT_VERSION]),
+    buildKnxAiChatContextRecord('CREATED_AT', [target.createdAt]),
+    buildKnxAiChatContextRecord('UPDATED_AT', [target.updatedAt])
+  ]
+  target.sessions.forEach((session) => {
+    lines.push(buildKnxAiChatContextRecord('SESSION', [session.id, session.updatedAt]))
+    session.instructions.forEach(item => lines.push(buildKnxAiChatContextRecord('INSTRUCTION', [item.at, item.text])))
+    session.turns.forEach(turn => lines.push(buildKnxAiChatContextRecord('TURN', [turn.at, turn.question, turn.reply])))
+    session.cameraWatches.forEach((watch) => {
+      lines.push(buildKnxAiChatContextRecord('CAMERA_WATCH', [
+        watch.id,
+        watch.createdAt,
+        watch.cameraId,
+        watch.cameraName,
+        watch.eventType,
+        watch.scopeId,
+        watch.scopeName,
+        watch.cooldownSeconds,
+        watch.sendSnapshot ? 'true' : 'false',
+        watch.language
+      ].concat(watch.objectTypes)))
+    })
+    lines.push('END_SESSION')
+  })
+  return { content: `${lines.join('\n')}\n`, context: target }
+}
+
+const buildKnxAiChatContextFile = ({ context, maxBytes = CHAT_CONTEXT_MAX_BYTES } = {}) => {
   const targetBytes = Math.max(64 * 1024, Math.min(CHAT_CONTEXT_MAX_BYTES, Number(maxBytes) || CHAT_CONTEXT_MAX_BYTES))
   let bounded = normalizeKnxAiChatContext(context)
-  let rendered = renderKnxAiChatContext(bounded)
-  while (Buffer.byteLength(rendered.markdown, 'utf8') > targetBytes) {
+  let rendered = renderKnxAiChatContextFile(bounded)
+  while (Buffer.byteLength(rendered.content, 'utf8') > targetBytes) {
     const sessionWithTurns = bounded.sessions.find(session => session.turns.length > 0)
     if (sessionWithTurns) sessionWithTurns.turns.shift()
     else if (bounded.sessions.length > 1) bounded.sessions.shift()
@@ -290,24 +310,108 @@ const buildKnxAiChatContextMarkdown = ({ context, maxBytes = CHAT_CONTEXT_MAX_BY
       if (!sessionWithInstructions) break
       sessionWithInstructions.instructions.shift()
     }
-    rendered = renderKnxAiChatContext(bounded)
+    rendered = renderKnxAiChatContextFile(bounded)
     bounded = rendered.context
   }
   return {
-    markdown: rendered.markdown,
+    content: rendered.content,
     context: rendered.context,
-    bytes: Buffer.byteLength(rendered.markdown, 'utf8'),
+    bytes: Buffer.byteLength(rendered.content, 'utf8'),
     maxBytes: targetBytes
   }
 }
 
-const parseKnxAiChatContextMarkdown = (markdown) => {
-  const text = String(markdown || '')
-  const match = text.match(/<!-- KNX_AI_CHAT_CONTEXT_V1_BASE64\s*\n([A-Za-z0-9+/=\r\n]+?)\nKNX_AI_CHAT_CONTEXT_END -->/)
-  if (!match) return createEmptyKnxAiChatContext()
+const parseKnxAiChatContextFileStrict = (content) => {
+  const source = String(content || '')
+  const context = { version: CHAT_CONTEXT_VERSION, createdAt: '', updatedAt: '', sessions: [] }
+  let headerSeen = false
+  let currentSession = null
+
+  source.split(/\r?\n/).forEach((line, lineIndex) => {
+    if (!line.trim() || line.trimStart().startsWith('#')) return
+    const fields = line.split('\t').map(unescapeKnxAiChatContextField)
+    const record = fields.shift()
+    const fail = message => { throw new Error(`Invalid KNX AI native chat-learning context at line ${lineIndex + 1}: ${message}`) }
+
+    if (!headerSeen) {
+      if (record !== CHAT_CONTEXT_NATIVE_HEADER || String(fields[0] || '') !== String(CHAT_CONTEXT_VERSION)) {
+        fail(`expected ${CHAT_CONTEXT_NATIVE_HEADER} ${CHAT_CONTEXT_VERSION} header`)
+      }
+      headerSeen = true
+      return
+    }
+
+    if (record === 'CREATED_AT') {
+      if (currentSession) fail('CREATED_AT is not allowed inside a session')
+      context.createdAt = fields[0] || ''
+      return
+    }
+    if (record === 'UPDATED_AT') {
+      if (currentSession) fail('UPDATED_AT is not allowed inside a session')
+      context.updatedAt = fields[0] || ''
+      return
+    }
+    if (record === 'SESSION') {
+      if (currentSession) fail('nested SESSION record')
+      if (!String(fields[0] || '').trim()) fail('SESSION id is required')
+      currentSession = {
+        id: fields[0],
+        updatedAt: fields[1] || '',
+        turns: [],
+        instructions: [],
+        cameraWatches: []
+      }
+      return
+    }
+    if (record === 'END_SESSION') {
+      if (!currentSession) fail('END_SESSION without SESSION')
+      context.sessions.push(currentSession)
+      currentSession = null
+      return
+    }
+    if (!currentSession) fail(`${record || 'empty record'} is not allowed outside a session`)
+    if (record === 'INSTRUCTION') {
+      if (fields.length < 2 || !String(fields[1] || '').trim()) fail('INSTRUCTION requires timestamp and text')
+      currentSession.instructions.push({ at: fields[0], text: fields[1] })
+      return
+    }
+    if (record === 'TURN') {
+      if (fields.length < 3 || (!String(fields[1] || '').trim() && !String(fields[2] || '').trim())) {
+        fail('TURN requires timestamp, question and reply')
+      }
+      currentSession.turns.push({ at: fields[0], question: fields[1], reply: fields[2] })
+      return
+    }
+    if (record === 'CAMERA_WATCH') {
+      if (fields.length < 10) fail('CAMERA_WATCH has missing fields')
+      if (fields[8] !== 'true' && fields[8] !== 'false') fail('CAMERA_WATCH sendSnapshot must be true or false')
+      currentSession.cameraWatches.push({
+        id: fields[0],
+        createdAt: fields[1],
+        cameraId: fields[2],
+        cameraName: fields[3],
+        eventType: fields[4],
+        scopeId: fields[5],
+        scopeName: fields[6],
+        cooldownSeconds: Number(fields[7]),
+        sendSnapshot: fields[8] === 'true',
+        language: fields[9],
+        objectTypes: fields.slice(10)
+      })
+      return
+    }
+    fail(`unknown ${record || 'empty'} record`)
+  })
+
+  if (!headerSeen) throw new Error(`The file does not contain a ${CHAT_CONTEXT_NATIVE_HEADER} ${CHAT_CONTEXT_VERSION} header`)
+  if (currentSession) throw new Error('Invalid KNX AI native chat-learning context: SESSION without END_SESSION')
+  if (!context.createdAt || !context.updatedAt) throw new Error('Invalid KNX AI native chat-learning context: CREATED_AT and UPDATED_AT are required')
+  return normalizeKnxAiChatContext(context)
+}
+
+const parseKnxAiChatContextFile = (content) => {
   try {
-    const metadata = Buffer.from(match[1].replace(/\s+/g, ''), 'base64').toString('utf8')
-    return normalizeKnxAiChatContext(JSON.parse(metadata))
+    return parseKnxAiChatContextFileStrict(content)
   } catch (error) {
     return createEmptyKnxAiChatContext()
   }
@@ -333,7 +437,7 @@ module.exports = {
   addKnxAiCameraWatch,
   addKnxAiChatInstruction,
   addKnxAiChatTurn,
-  buildKnxAiChatContextMarkdown,
+  buildKnxAiChatContextFile,
   buildKnxAiChatPromptContext,
   clearKnxAiChatSession,
   conversationMapFromKnxAiChatContext,
@@ -343,7 +447,8 @@ module.exports = {
   listKnxAiCameraWatches,
   normalizeKnxAiChatContext,
   normalizeCameraWatch,
-  parseKnxAiChatContextMarkdown,
+  parseKnxAiChatContextFile,
+  parseKnxAiChatContextFileStrict,
   removeKnxAiCameraWatches,
   removeKnxAiChatInstructions
 }

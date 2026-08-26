@@ -34,7 +34,13 @@ Questa pagina mantiene il nome storico `KNX-AI-Sidebar` per compatibilita'.
 - **Ask**: scrivi domande in linguaggio naturale.
   Se nel nodo e' attivo l'archivio su disco, Ask interroga quell'archivio di default e, senza date esplicite, usa le ultime 24 ore.
 - **Flow Builder** (BETA): descrivi un'automazione a parole e ottieni un flow Node-RED (JSON) da incollare nell'editor.
-- **Settings**: selezione nodo e import/export.
+- **Settings**: selezione nodo, import/export della configurazione completa e file condiviso modificabile per l'apprendimento AI Chat.
+
+## Apprendimento AI Chat
+
+Apri **Impostazioni → Apprendimento AI Chat** per vedere il percorso assoluto e modificare il file condiviso `knxai-chat-context.knxctx`, usato in tempo reale da tutti i nodi KNX AI sullo stesso archivio. Puoi copiarlo, scaricarlo come backup o ripristinare un altro file `.knxctx`. Modifica i record nativi V3 separati da tabulazioni (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`); Salva controlla il limite di 512 KB e scrive atomicamente il file canonico. **Re-inizializza memoria** lo sostituisce con un contesto vuoto dopo una conferma esplicita. Un controllo di revisione protegge dalle modifiche concorrenti. I precedenti file Markdown/JSON V2 e Base64 V1 non vengono volutamente letti, importati né migrati.
+
+Il pulsante **Apri Apprendimento AI Chat** nella configurazione del nodo Node-RED, sotto **Conversazioni e casa**, apre direttamente questa pagina e scheda per il nodo corrente.
 
 ## Flow Builder (BETA)
 

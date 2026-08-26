@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "KNX AI - Telegrambot direct chat",
     "disabled": false,
-    "info": "Direct chat wiring for windkh/node-red-contrib-telegrambot using the KNX AI chat-adapter preset."
+    "info": "Direct chat wiring for windkh/node-red-contrib-telegrambot using the KNX AI chat-adapter preset. Confirmation buttons return through the same receiver; no callback event node is required."
   },
   {
     "id": "comment_knx_ai_telegram_setup",
@@ -51,22 +51,6 @@
         "node_knx_ai_telegram"
       ],
       []
-    ]
-  },
-  {
-    "id": "telegram_callback_knx_ai",
-    "type": "telegram event",
-    "z": "tab_knx_ai_telegram",
-    "name": "Confirm / Cancel buttons",
-    "bot": "telegram_bot_knx_ai",
-    "event": "callback_query",
-    "autoanswer": true,
-    "x": 190,
-    "y": 240,
-    "wires": [
-      [
-        "node_knx_ai_telegram"
-      ]
     ]
   },
   {

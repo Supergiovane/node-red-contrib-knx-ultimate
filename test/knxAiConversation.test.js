@@ -12,12 +12,16 @@ const {
   KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS,
   KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS,
   KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS,
+  KNX_AI_PROMPT_CONTEXT_TOKEN_OPTIONS,
   KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS,
   KNX_AI_THINKING_DELAY_MS,
   KNX_AI_TRAFFIC_DEFAULTS,
+  applyKnxAiChatConfirmationPresetFallback,
   applyKnxAiChatMediaPresetFallback,
   applyKnxAiGaRoleActionsToCatalog,
   bindSharedKnxAiState,
+  buildKnxAiConversationMemoryAnchor,
+  buildKnxAiChatLearningRevision,
   buildKnxAiConfirmationRequest,
   buildKnxAiReadResultMetadata,
   buildKnxAiRoutineInspectionContext,
@@ -50,6 +54,7 @@ const {
   normalizeKnxAiGaRoleActions,
   normalizeKnxAiGaRoleExperience,
   normalizeKnxAiMemoryActions,
+  normalizeKnxAiPromptContextTokens,
   normalizeKnxAiRoutineDescriptor,
   normalizeKnxAiSpeechActionCandidate,
   normalizeLmStudioModelCatalog,
@@ -66,6 +71,7 @@ const {
   resolveOllamaModelMaxContext,
   releaseSharedKnxAiState,
   safeKnxAiSend,
+  scaleKnxAiPromptLimit,
   selectKnxAiCatalogForPrompt,
   selectKnxAiToolCatalogForPrompt,
   summarizeDetectedKnxAiCameraAdapters,
@@ -79,14 +85,15 @@ const {
   addKnxAiCameraWatch,
   addKnxAiChatInstruction,
   addKnxAiChatTurn,
-  buildKnxAiChatContextMarkdown,
+  buildKnxAiChatContextFile,
   buildKnxAiChatPromptContext,
   clearKnxAiChatSession,
   conversationMapFromKnxAiChatContext,
   createEmptyKnxAiChatContext,
   getKnxAiChatSession,
   listAllKnxAiCameraWatches,
-  parseKnxAiChatContextMarkdown,
+  parseKnxAiChatContextFile,
+  parseKnxAiChatContextFileStrict,
   removeKnxAiChatInstructions
 } = require('../nodes/utils/knxAiChatContext')
 const {
@@ -102,10 +109,15 @@ const {
 } = require('../nodes/utils/knxAiCamera')
 const {
   KNX_AI_ADAPTER_HISTORY_MIN_HOURS,
+  KNX_AI_COMPACT_ARCHIVE_EXTENSION,
   buildKnxAiHistoryEventKey,
   createKnxAiHistoryAccumulator,
   formatKnxAiAdapterHistoryEventForPrompt,
-  normalizeKnxAiAdapterHistoryEvent
+  formatKnxAiCompactContextForPrompt,
+  formatKnxAiHistorySummaryForPrompt,
+  normalizeKnxAiAdapterHistoryEvent,
+  parseKnxAiCompactHistoryRecord,
+  serializeKnxAiCompactHistoryRecord
 } = require('../nodes/utils/knxAiEventHistory')
 
 describe('KNX AI conversational control', () => {
@@ -346,6 +358,27 @@ describe('KNX AI conversational control', () => {
       sessionId: '12345',
       confirm: true
     })
+
+    const replyKeyboardClick = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: {
+          chatId: 12345,
+          type: 'message',
+          content: 'Conferma'
+        }
+      }
+    })
+    expect(replyKeyboardClick).to.include({
+      topic: 'ask',
+      prompt: 'Conferma',
+      sessionId: '12345'
+    })
+    expect(classifyKnxAiConfirmation({
+      msg: replyKeyboardClick,
+      question: replyKeyboardClick.prompt,
+      topic: replyKeyboardClick.topic
+    })).to.equal('confirm')
   })
 
   it('maps KNX AI replies and confirmation actions directly into telegrambot sender messages', () => {
@@ -383,10 +416,54 @@ describe('KNX AI conversational control', () => {
       content: 'Confermi l’accensione?'
     })
     const replyMarkup = JSON.parse(message.payload.options.reply_markup)
-    expect(replyMarkup.inline_keyboard[0]).to.deep.equal([
-      { text: 'Conferma', callback_data: 'confirm' },
-      { text: 'Annulla', callback_data: 'cancel' }
-    ])
+    expect(replyMarkup).to.deep.equal({
+      keyboard: [[{ text: 'Conferma' }, { text: 'Annulla' }]],
+      resize_keyboard: true,
+      one_time_keyboard: true
+    })
+  })
+
+  it('upgrades a saved telegrambot inline keyboard to receiver-native confirmation buttons', () => {
+    const message = applyKnxAiChatConfirmationPresetFallback({
+      preset: 'windkh-telegrambot',
+      message: {
+        payload: {
+          chatId: 12345,
+          type: 'message',
+          content: 'Confermi?',
+          options: {
+            reply_markup: JSON.stringify({
+              inline_keyboard: [[{ text: 'Conferma', callback_data: 'confirm' }]]
+            })
+          }
+        },
+        knxAi: {
+          confirmationRequest: {
+            required: true,
+            actions: [
+              { label: 'Conferma', callbackData: 'confirm' },
+              { label: 'Annulla', callbackData: 'cancel' }
+            ]
+          }
+        }
+      }
+    })
+    expect(JSON.parse(message.payload.options.reply_markup)).to.deep.equal({
+      keyboard: [[{ text: 'Conferma' }, { text: 'Annulla' }]],
+      resize_keyboard: true,
+      one_time_keyboard: true
+    })
+  })
+
+  it('removes the telegram reply keyboard after confirmation is handled', () => {
+    const message = applyKnxAiChatConfirmationPresetFallback({
+      preset: 'windkh-telegrambot',
+      message: {
+        payload: { chatId: 12345, type: 'message', content: 'Confermato.' },
+        knxAi: { type: 'knx_confirmation_accepted' }
+      }
+    })
+    expect(JSON.parse(message.payload.options.reply_markup)).to.deep.equal({ remove_keyboard: true })
   })
 
   it('maps a camera snapshot into a telegrambot photo message', () => {
@@ -1388,21 +1465,29 @@ describe('KNX AI conversational control', () => {
     })
 
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
-    expect(runtime).to.include('{ num_ctx: Math.round(node.llmContextLength) }')
+    expect(runtime).to.include('{ num_ctx: Math.round(ollamaContextTokens) }')
     expect(runtime).to.include("deriveOllamaApiUrl(tagsUrl, '/api/show')")
   })
 
-  it('forces local prompts into a relevant 16K semantic view independently of advertised context', () => {
+  it('keeps local prompts within the user-selected 4K, 8K or 16K budget', () => {
     expect(KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS).to.equal(16384)
     expect(KNX_AI_COMPACT_CONTEXT_MAX_TOKENS).to.equal(65536)
     expect(KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS).to.equal(16384)
     expect(KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS).to.equal(16384)
+    expect(KNX_AI_PROMPT_CONTEXT_TOKEN_OPTIONS).to.deep.equal([4096, 8192, 16384])
+    expect(normalizeKnxAiPromptContextTokens()).to.equal(16384)
+    expect(normalizeKnxAiPromptContextTokens(4096)).to.equal(4096)
+    expect(normalizeKnxAiPromptContextTokens(7000)).to.equal(8192)
+    expect(scaleKnxAiPromptLimit(1200, 4096, 200)).to.equal(300)
+    expect(scaleKnxAiPromptLimit(1200, 8192, 200)).to.equal(600)
+    expect(scaleKnxAiPromptLimit(1200, 16384, 200)).to.equal(1200)
     expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 8192 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 32768 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 131072 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 0 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 32768 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072 })).to.equal('minimal')
+    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072, promptContextTokens: 4096 })).to.equal('minimal')
     expect(resolveKnxAiPromptContextMode({ provider: 'openai_compat', contextLength: 8192 })).to.equal('full')
     expect(resolveKnxAiPromptContextMode({ provider: 'anthropic', contextLength: 8192 })).to.equal('full')
 
@@ -1423,6 +1508,7 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include("promptContextMode === 'minimal'")
     expect(runtime).to.include('{ num_predict: localOutputTokenLimit }')
     expect(runtime).to.include('selectKnxAiToolCatalogForPrompt({ catalog, question, mode: contextMode })')
+    expect(runtime).to.include('scaleKnxAiPromptLimit(5000, contextBudgetTokens, 1200)')
   })
 
   it('reports the operational limit and measures the real chat prompt payload', () => {
@@ -1432,6 +1518,8 @@ describe('KNX AI conversational control', () => {
       mode: 'fixed'
     })
     expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 8192 }).tokens).to.equal(8192)
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 131072, promptContextTokens: 4096 }).tokens).to.equal(4096)
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 16384, promptContextTokens: 8192 }).tokens).to.equal(8192)
     expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 0 }).tokens).to.equal(16384)
     expect(resolveKnxAiOperationalContextLimit({ provider: 'anthropic', contextLength: 200000 })).to.deep.equal({
       provider: 'anthropic',
@@ -1534,12 +1622,40 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('if (includeDocs && node.llmIncludeDocsSnippets)')
     expect(runtime).to.include('ret = await callConversationalLLM({')
     expect(runtime).to.include('languageHint: requestLanguage')
-    expect(runtime).to.include('includeDocs: false\n      })')
+    expect(runtime).to.include('includeDocs: false,\n        contextBudgetTokens')
     expect(runtime).to.include('ret = await callLLM({ question: q, sessionId })')
     expect(runtime).not.to.include("'camerasDocs'")
     expect(runtime).to.include('maxKb: HOME_MEMORY_DEFAULT_KB')
     expect(runtime).not.to.include('config.homeMemoryMaxKb')
     expect(runtime).not.to.include('highQuality: true')
+
+    const webUi = fs.readFileSync(path.join(root, 'ui', 'knxUltimateAI-vue', 'src', 'App.vue'), 'utf8')
+    expect(webUi).to.include("activateSettingsTab('learning')")
+    expect(webUi).to.include("activeTab: queryActiveTab")
+    expect(webUi).to.include("settingsTab: querySettingsTab || loadString(settingsTabKey, 'config')")
+    expect(webUi).to.include("get('tab') === 'settings'")
+    expect(webUi).to.include("get('settingsTab') === 'learning'")
+    expect(webUi).to.include('v-model="state.chatLearningContent"')
+    expect(webUi).to.include('loadChatLearningFile({ force: true })')
+    expect(webUi).to.include('@click="copyChatLearningFile"')
+    expect(webUi).to.include('@click="downloadChatLearningBackup"')
+    expect(webUi).to.include('@click="triggerChatLearningImport"')
+    expect(webUi).to.include('@click="saveChatLearningFile"')
+    expect(webUi).to.include('@click="reinitializeChatLearningMemory"')
+    expect(webUi).to.include("apiUrl('chat-learning/reset')")
+    expect(webUi).to.include('Reinitialize Memory')
+    expect(webUi).to.include('This permanently deletes all saved AI Chat Learning sessions, instructions and camera watches')
+    expect(webUi).to.include('revision: state.chatLearningRevision')
+    expect(webUi).to.include('Only the current KNXAI_CHAT_CONTEXT 3 format is accepted. Previous Markdown/JSON and Base64 files are not read, imported or migrated.')
+    expect(webUi).to.include('accept="text/plain,.knxctx"')
+    expect(webUi).to.include("'knxai-chat-context.knxctx'")
+
+    const webI18n = fs.readFileSync(path.join(root, 'ui', 'knxUltimateAI-vue', 'src', 'knxAiWebI18n.js'), 'utf8')
+    expect(webI18n.match(/'AI Chat Learning':/g)).to.have.length(5)
+    expect(webI18n.match(/'Download Backup':/g)).to.have.length(5)
+    expect(webI18n.match(/'Restore Backup':/g)).to.have.length(5)
+    expect(webI18n.match(/'Reinitialize Memory':/g)).to.have.length(5)
+    expect(webI18n.match(/'Chat learning reinitialized':/g)).to.have.length(5)
 
     const locales = [
       ['en', 'KNX AI.md'],
@@ -1556,10 +1672,16 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.sections.groupAssistant).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupChatHome).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.detectedAdapters).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.chatLearning).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections).not.to.have.property('groupKnxAnalysis')
       expect(messages.knxUltimateAI.sections).not.to.have.property('storage')
       expect(messages.knxUltimateAI.properties.llmAllowKnxCommands).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmRequireCommandConfirmation).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties.llmPromptContextTokens).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.selectlists.promptContext.small).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.selectlists.promptContext.medium).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.selectlists.promptContext.full).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.promptContextHint).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties).not.to.have.property('llmIncludeFlowContext')
       expect(messages.knxUltimateAI.sections.chatAdapter).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.chatAdapterPreset).to.be.a('string').and.not.equal('')
@@ -1600,6 +1722,8 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.messages).not.to.have.property('chatContextSourceCamerasDocs')
       expect(messages.knxUltimateAI.messages.chatContextLimitLabel).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.messages.chatContextLastPromptLabel).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.messages.chatLearningOpenHint).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.buttons.openChatLearning).to.be.a('string').and.not.equal('')
 
       const helpHtml = fs.readFileSync(path.join(localeRoot, 'knxUltimateAI.html'), 'utf8')
       const helpMatch = helpHtml.match(/<script[^>]*data-help-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)
@@ -1624,6 +1748,13 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('home-memory')
       expect(helpBody).to.include('gaRoleActions')
       expect(helpBody).to.include('knxai-config-')
+      expect(helpBody).to.include('knxai-chat-context.knxctx')
+      expect(helpBody).to.include('KNXAI_CHAT_CONTEXT')
+      expect(helpBody).to.include('SESSION')
+      expect(helpBody).not.to.include('KNX_AI_CHAT_CONTEXT_V2_JSON')
+      expect(helpBody).not.to.include('```json')
+      expect(helpBody).to.include('Base64')
+      expect(helpBody).to.include('V2')
       expect(helpBody).not.to.include('proactiveOpenMinutes')
       expect(helpBody).not.to.include('proactiveCooldownMinutes')
       expect(helpBody).not.to.include('homeMemoryMaxKb')
@@ -1662,7 +1793,7 @@ describe('KNX AI conversational control', () => {
     expect(universalNode.setTopicType).to.equal('listenAllGA')
   })
 
-  it('ships a direct telegrambot receiver/event to KNX AI to sender example', () => {
+  it('ships a direct telegrambot receiver to KNX AI to sender example', () => {
     const examplePath = path.join(
       __dirname,
       '..',
@@ -1671,16 +1802,12 @@ describe('KNX AI conversational control', () => {
     )
     const flow = JSON.parse(fs.readFileSync(examplePath, 'utf8'))
     const receiver = flow.find(node => node.id === 'telegram_receiver_knx_ai')
-    const callbackEvent = flow.find(node => node.id === 'telegram_callback_knx_ai')
     const aiNode = flow.find(node => node.id === 'node_knx_ai_telegram')
     const sender = flow.find(node => node.id === 'telegram_sender_knx_ai')
 
     expect(receiver.type).to.equal('telegram receiver')
     expect(receiver.wires[0]).to.deep.equal(['node_knx_ai_telegram'])
-    expect(callbackEvent.type).to.equal('telegram event')
-    expect(callbackEvent.event).to.equal('callback_query')
-    expect(callbackEvent.autoanswer).to.equal(true)
-    expect(callbackEvent.wires[0]).to.deep.equal(['node_knx_ai_telegram'])
+    expect(flow.find(node => node.id === 'telegram_callback_knx_ai')).to.equal(undefined)
     expect(aiNode.wires[2]).to.include('telegram_sender_knx_ai')
     expect(aiNode.wires[3]).to.include('node_knx_ai_telegram_universal')
     expect(aiNode).not.to.have.property('proactiveEnabled')
@@ -1696,6 +1823,10 @@ describe('KNX AI conversational control', () => {
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('id="knx-ai-tabs"')
     expect(editor).to.include('id="knx-ai-detected-adapters-panel"')
+    expect(editor).to.include('id="knx-ai-open-chat-learning"')
+    expect(editor).to.include('openKnxAiWebPage("chat-learning")')
+    expect(editor).to.include('params.set("tab", "settings")')
+    expect(editor).to.include('params.set("settingsTab", "learning")')
     expect(editor).to.include('url: "knxUltimateAI/adapters"')
     expect(editor).to.include('$("#knx-ai-tabs").tabs({ active: 0 })')
     expect(editor).to.include('.knx-ai-accordion-subsection')
@@ -1718,6 +1849,8 @@ describe('KNX AI conversational control', () => {
     const template = editor.match(/<script[^>]*data-template-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)[1]
     const tabs = template.match(/<div id="knx-ai-tabs">([\s\S]*?)<div id="knx-ai-accordion-source"/i)[1]
     const chatHomeTab = tabs.match(/<div id="knx-ai-tabs-chat-home">([\s\S]*)$/i)[1]
+    expect(chatHomeTab.indexOf('id="knx-ai-chat-learning-link-panel"'))
+      .to.be.lessThan(chatHomeTab.indexOf('id="knx-ai-detected-adapters-panel"'))
     expect(chatHomeTab.indexOf('id="knx-ai-chat-context-panel"'))
       .to.be.greaterThan(chatHomeTab.indexOf('id="knx-ai-detected-adapters-panel"'))
     const orderedGroups = [
@@ -1751,6 +1884,7 @@ describe('KNX AI conversational control', () => {
       'node-input-llmApiKey',
       'node-input-llmModel',
       'node-input-llmContextLength',
+      'node-input-llmPromptContextTokens',
       'node-input-llmAllowKnxCommands',
       'node-input-llmRequireCommandConfirmation'
     ]
@@ -1788,6 +1922,7 @@ describe('KNX AI conversational control', () => {
     const uniqueFieldIds = [
       'node-input-llmBaseUrl',
       'node-input-llmContextLength',
+      'node-input-llmPromptContextTokens',
       'node-input-chatAdapterPreset',
       'node-input-chatInputCode',
       'node-input-chatOutputCode',
@@ -1843,6 +1978,27 @@ describe('KNX AI conversational control', () => {
       'topN'
     ].forEach(property => expect(defaultsBlock).not.to.include(`${property}:`))
     expect(defaultsBlock).not.to.include('llmIncludeFlowContext:')
+  })
+
+  it('opens the complete model list regardless of the current field value', () => {
+    const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.html'), 'utf8')
+    expect(editor).to.include('let modelPickerMouseDown = false')
+    expect(editor).to.include('mousedown.knxUltimateAiModelPicker')
+    expect(editor).to.include('focus.knxUltimateAiModelPicker')
+    expect(editor).to.include('click.knxUltimateAiModelPicker')
+    expect(editor).to.include('if (!modelPickerMouseDown) $(this).autocomplete("search", "")')
+    expect(editor).to.include('$(input).autocomplete("search", "")')
+    expect(editor).to.include('response(availableModelItems.slice())')
+    expect(editor).not.to.include('id="node-input-llmModel" list="knx-ai-llmModels"')
+  })
+
+  it('keeps the local-context hint from widening the KNX AI editor', () => {
+    const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.html'), 'utf8')
+    expect(editor).to.include('#knx-ai-llm-connection-settings')
+    expect(editor).to.include('max-width: 720px')
+    expect(editor).to.include('class="knx-ai-prompt-context-hint"')
+    expect(editor).not.to.include('margin:6px 0 0 290px')
+    expect(editor).not.to.include('margin:-8px 0 12px 290px')
   })
 
   it('uses the hidden traffic-analysis defaults and ignores legacy flow values', () => {
@@ -1929,11 +2085,12 @@ describe('KNX AI conversational control', () => {
         serverKNX: { userDir: path.join('/tmp', 'knx-ai-history-test') },
         llmProvider: 'lmstudio',
         llmContextLength: 131072,
+        llmPromptContextTokens: 8192,
         _lastChatPromptUsage: { bytes: 4096, estimatedInputTokens: 1024, exactInputTokens: 900 }
       },
       redUserDir: '/tmp'
     })
-    expect(overview.contextLimit).to.deep.equal({ provider: 'lmstudio', tokens: 16384, mode: 'fixed' })
+    expect(overview.contextLimit).to.deep.equal({ provider: 'lmstudio', tokens: 8192, mode: 'fixed' })
     expect(overview.lastPromptUsage).to.deep.equal({ bytes: 4096, estimatedInputTokens: 1024, exactInputTokens: 900 })
     expect(overview.sources).to.include.members(['knxTraffic', 'adapterHistory'])
     expect(overview.sources).to.include('cameras')
@@ -1946,7 +2103,7 @@ describe('KNX AI conversational control', () => {
     ])
     expect(overview.telegramDirectories.find(item => item.id === 'adapterNodeArchive').path)
       .to.include(path.join('knxai', 'adapter-history', 'ai-node-1'))
-    expect(overview.telegramFilePattern).to.equal('YYYY-MM-DD.jsonl')
+    expect(overview.telegramFilePattern).to.equal('YYYY-MM-DD.knxctx')
   })
 
   it('detects every TTS Ultimate node across flows for the editor selector', () => {
@@ -2027,8 +2184,8 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('ret = await callLLM({ question: q, sessionId })')
     expect(runtime).to.include("if (mode === 'full') return source.slice(0, 600)")
     expect(runtime).to.include('const adapterPromptEvents = selectAdapterEventsForPrompt({')
-    expect(runtime).to.include('KNX historical archive summary (JSON):')
-    expect(runtime).to.include('Adapter historical archive summary (JSON):')
+    expect(runtime).to.include('KNX historical archive summary (compact context):')
+    expect(runtime).to.include('Adapter historical archive summary (compact context):')
     expect(runtime).to.include('persistAdapterEventToDisk({ event: Object.assign({}, providerEvent, event), adapter, provider })')
     expect(runtime).not.to.include('const analysisContext = buildLLMPrompt({ question, summary, compact: true })')
   })
@@ -2170,14 +2327,14 @@ describe('KNX AI persistent chat context', () => {
     const secondNode = {}
     bindSharedKnxAiState({
       registry,
-      filePath: '/memory/knxai-chat-context.md',
+      filePath: '/memory/knxai-chat-context.knxctx',
       node: firstNode,
       property: '_memory',
       initialValue: { value: 'first' }
     })
     bindSharedKnxAiState({
       registry,
-      filePath: '/memory/knxai-chat-context.md',
+      filePath: '/memory/knxai-chat-context.knxctx',
       node: secondNode,
       property: '_memory',
       initialValue: { value: 'ignored' }
@@ -2185,16 +2342,17 @@ describe('KNX AI persistent chat context', () => {
 
     secondNode._memory = { value: 'shared' }
     expect(firstNode._memory).to.deep.equal({ value: 'shared' })
-    releaseSharedKnxAiState({ registry, filePath: '/memory/knxai-chat-context.md', node: firstNode })
+    releaseSharedKnxAiState({ registry, filePath: '/memory/knxai-chat-context.knxctx', node: firstNode })
     expect(registry.size).to.equal(1)
-    releaseSharedKnxAiState({ registry, filePath: '/memory/knxai-chat-context.md', node: secondNode })
+    releaseSharedKnxAiState({ registry, filePath: '/memory/knxai-chat-context.knxctx', node: secondNode })
     expect(registry.size).to.equal(0)
   })
 
   it('uses global memory filenames without a node id', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include("path.join(baseDir, 'knxai', 'memory', 'knxai-home-memory.md')")
-    expect(runtime).to.include("path.join(baseDir, 'knxai', 'memory', 'knxai-chat-context.md')")
+    expect(runtime).to.include("path.join(baseDir, 'knxai', 'memory', 'knxai-chat-context.knxctx')")
+    expect(runtime).not.to.include("path.join(baseDir, 'knxai', 'memory', 'knxai-chat-context.md')")
     expect(runtime).not.to.match(/knxai-(?:home-memory|chat-context)-\$\{node\.id\}/)
   })
 
@@ -2222,7 +2380,7 @@ describe('KNX AI persistent chat context', () => {
     expect(getKnxAiChatSession(context, 'semantic-memory').instructions).to.deep.equal([])
   })
 
-  it('round-trips each session through the persistent Markdown context', () => {
+  it('round-trips each session through the native KNX AI context', () => {
     let context = createEmptyKnxAiChatContext()
     context = addKnxAiChatTurn(context, {
       sessionId: 'telegram-123',
@@ -2231,24 +2389,105 @@ describe('KNX AI persistent chat context', () => {
     })
     context = addKnxAiChatInstruction(context, {
       sessionId: 'telegram-123',
-      text: 'Non usare il termine unknown nelle risposte.'
+      text: 'Non usare il termine unknown nelle risposte. Percorso C:\\KNX\tCasa.'
     })
     context = addKnxAiChatTurn(context, {
       sessionId: 'telegram-123',
       question: 'Come sta la casa?',
       reply: 'Tutto regolare.'
     })
-    const rendered = buildKnxAiChatContextMarkdown({ context })
-    const restored = parseKnxAiChatContextMarkdown(rendered.markdown)
+    const rendered = buildKnxAiChatContextFile({ context })
+    const restored = parseKnxAiChatContextFile(rendered.content)
     const session = getKnxAiChatSession(restored, 'telegram-123')
 
     expect(session.turns).to.have.length(2)
-    expect(session.instructions[0].text).to.equal('Non usare il termine unknown nelle risposte.')
+    expect(restored.version).to.equal(3)
+    expect(rendered.content).to.include('KNXAI_CHAT_CONTEXT\t3')
+    expect(rendered.content).to.include('SESSION\ttelegram-123')
+    expect(rendered.content).to.include('INSTRUCTION\t')
+    expect(rendered.content).to.include('TURN\t')
+    expect(rendered.content).not.to.include('```json')
+    expect(rendered.content).not.to.include('{"version"')
+    expect(session.instructions[0].text).to.equal('Non usare il termine unknown nelle risposte. Percorso C:\\KNX\tCasa.')
     const prompt = buildKnxAiChatPromptContext({ context: restored, sessionId: 'telegram-123' })
-    expect(prompt).to.include('PERSISTENT CHAT INSTRUCTIONS AND PREFERENCES')
+    expect(prompt).to.include('PERSISTENT USER-PROVIDED FACTS, PREFERENCES, AND INSTRUCTIONS')
     expect(prompt).to.include('non usare il termine unknown')
     expect(prompt).to.include('RECENT CONVERSATION')
     expect(conversationMapFromKnxAiChatContext(restored).get('telegram-123')).to.have.length(2)
+  })
+
+  it('accepts only editable native V3 records and rejects JSON and Base64 formats', () => {
+    const nativeContext = [
+      'KNXAI_CHAT_CONTEXT\t3',
+      'CREATED_AT\t2026-08-26T13:00:00.000Z',
+      'UPDATED_AT\t2026-08-26T13:01:00.000Z',
+      'SESSION\tportable\t2026-08-26T13:01:00.000Z',
+      'INSTRUCTION\t2026-08-26T13:01:00.000Z\tAnswer briefly.',
+      'END_SESSION'
+    ].join('\n')
+    expect(getKnxAiChatSession(parseKnxAiChatContextFileStrict(nativeContext), 'portable').instructions[0].text)
+      .to.equal('Answer briefly.')
+
+    const pureJson = JSON.stringify({ version: 2, sessions: [] })
+    expect(() => parseKnxAiChatContextFileStrict(pureJson)).to.throw('expected KNXAI_CHAT_CONTEXT 3 header')
+    const legacy = '# KNX AI Chat Context\n\n<!-- KNX_AI_CHAT_CONTEXT_V1_BASE64 eyJ2ZXJzaW9uIjoxLCJzZXNzaW9ucyI6W119 -->'
+    expect(() => parseKnxAiChatContextFileStrict(legacy)).to.throw('KNXAI_CHAT_CONTEXT 3 header')
+    expect(parseKnxAiChatContextFile(legacy).sessions).to.deep.equal([])
+  })
+
+  it('anchors recent user facts immediately beside the current request for local models', () => {
+    let context = createEmptyKnxAiChatContext()
+    context = addKnxAiChatTurn(context, {
+      sessionId: '564702280',
+      question: 'Mi chiamo Massimo',
+      reply: 'Piacere, Massimo.'
+    })
+    context = addKnxAiChatTurn(context, {
+      sessionId: '564702280',
+      question: 'Sono italiano.',
+      reply: 'Capito, Massimo.'
+    })
+    const chatContext = buildKnxAiChatPromptContext({
+      context,
+      sessionId: '564702280',
+      maxChars: 1200
+    })
+    const anchor = buildKnxAiConversationMemoryAnchor({
+      chatContext,
+      question: 'Come mi chiamo?'
+    })
+
+    expect(anchor).to.include('CURRENT SESSION CHAT MEMORY')
+    expect(anchor).to.include('User: Mi chiamo Massimo')
+    expect(anchor).to.include('User: Sono italiano.')
+    expect(anchor).to.include('CURRENT USER REQUEST:\nCome mi chiamo?')
+    expect(anchor.indexOf('User: Mi chiamo Massimo')).to.be.lessThan(anchor.indexOf('CURRENT USER REQUEST:'))
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('buildKnxAiConversationMemoryAnchor({ chatContext, question })')
+    expect(runtime).to.include('Never say that you lack access to a personal fact when that fact is present there')
+    expect(runtime).to.include('preferred name, language, preferences or household conventions')
+  })
+
+  it('uses content revisions to protect concurrent CHAT learning edits', () => {
+    let context = createEmptyKnxAiChatContext()
+    const firstRevision = buildKnxAiChatLearningRevision(context)
+    context.updatedAt = new Date(Date.now() + 1000).toISOString()
+    expect(buildKnxAiChatLearningRevision(context)).to.equal(firstRevision)
+    context = addKnxAiChatInstruction(context, { sessionId: 'portable', text: 'Prefer concise answers.' })
+    expect(buildKnxAiChatLearningRevision(context)).to.not.equal(firstRevision)
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include("RED.httpAdmin.get('/knxUltimateAI/sidebar/chat-learning'")
+    expect(runtime).to.include("RED.httpAdmin.post('/knxUltimateAI/sidebar/chat-learning/save'")
+    expect(runtime).to.include("RED.httpAdmin.post('/knxUltimateAI/sidebar/chat-learning/reset'")
+    expect(runtime).to.include("needsPermission('knxUltimate-config.read')")
+    expect(runtime).to.include("needsPermission('knxUltimate-config.write')")
+    expect(runtime).to.include('expectedRevision !== currentRevision')
+    expect(runtime).to.include('scheduleChatContextPersist({ immediate: true })')
+    expect(runtime).to.include('node._chatContext = createEmptyKnxAiChatContext()')
+    expect(runtime).to.include('Array.from(sharedStore.nodes)')
+    expect(runtime).to.include('node.resetChatLearningFile = async')
   })
 
   it('keeps sessions isolated and clears only the selected chat', () => {
@@ -2285,8 +2524,8 @@ describe('KNX AI persistent chat context', () => {
         })
       }
     }
-    const rendered = buildKnxAiChatContextMarkdown({ context, maxBytes: 64 * 1024 })
-    const restored = parseKnxAiChatContextMarkdown(rendered.markdown)
+    const rendered = buildKnxAiChatContextFile({ context, maxBytes: 64 * 1024 })
+    const restored = parseKnxAiChatContextFile(rendered.content)
 
     expect(rendered.bytes).to.be.at.most(64 * 1024)
     expect(restored.sessions.length).to.be.at.most(CHAT_CONTEXT_MAX_SESSIONS)
@@ -2401,8 +2640,8 @@ describe('KNX AI camera adapters', () => {
         language: 'it'
       }
     })
-    const rendered = buildKnxAiChatContextMarkdown({ context })
-    const restored = parseKnxAiChatContextMarkdown(rendered.markdown)
+    const rendered = buildKnxAiChatContextFile({ context })
+    const restored = parseKnxAiChatContextFile(rendered.content)
     const watches = listAllKnxAiCameraWatches(restored)
     expect(watches).to.have.length(1)
     expect(watches[0]).to.include({ sessionId: 'telegram-123', cameraName: 'Ingresso principale', eventType: 'smartDetectZone', scopeName: 'Zona porta', cooldownSeconds: 90, sendSnapshot: true })
@@ -2418,6 +2657,54 @@ describe('KNX AI camera adapters', () => {
 })
 
 describe('KNX AI persistent historical context', () => {
+  it('stores KNX and adapter history directly in the compact native context format', () => {
+    const telegram = {
+      ts: Date.parse('2026-08-25T10:00:00.000Z'),
+      event: 'GroupValue_Write',
+      source: '1.1.20',
+      destination: '0/0/10',
+      dpt: '1.001',
+      devicename: 'Plafoniera soggiorno',
+      payload: { value: true, note: 'riga\tcon tab\ne altra riga' },
+      payloadmeasureunit: '',
+      echoed: false,
+      repeated: true,
+      rawHex: '01',
+      dptdesc: 'Switch'
+    }
+    const line = serializeKnxAiCompactHistoryRecord(telegram, 'knx')
+    expect(KNX_AI_COMPACT_ARCHIVE_EXTENSION).to.equal('knxctx')
+    expect(line).not.to.include('{"')
+    expect(line.length).to.be.lessThan(JSON.stringify(telegram).length)
+    expect(parseKnxAiCompactHistoryRecord(line, 'knx')).to.deep.equal(telegram)
+
+    const adapter = normalizeKnxAiAdapterHistoryEvent({
+      nowTs: telegram.ts,
+      adapter: { id: 'unifi-ultimate', title: 'UniFi Ultimate' },
+      provider: { id: 'protect-main', adapterId: 'unifi-ultimate', controllerName: 'Casa' },
+      event: {
+        cameraId: 'front',
+        cameraName: 'Ingresso',
+        eventType: 'smartDetectLine',
+        objectTypes: ['person'],
+        raw: { score: 91 }
+      }
+    })
+    const adapterLine = serializeKnxAiCompactHistoryRecord(adapter, 'adapter')
+    expect(parseKnxAiCompactHistoryRecord(adapterLine, 'adapter')).to.deep.equal(adapter)
+
+    const compactSummary = formatKnxAiHistorySummaryForPrompt({
+      kind: 'knx',
+      totalEvents: 3,
+      activeEvents: 3,
+      byEvent: [{ key: 'GroupValue_Write', count: 3 }]
+    })
+    expect(compactSummary).to.include('kind=knx | total=3')
+    expect(compactSummary).to.include('events: GroupValue_Write=3')
+    expect(formatKnxAiCompactContextForPrompt({ meta: { total: 3 }, names: ['a', 'b'] }))
+      .to.equal('meta.total=3\nnames=a,b')
+  })
+
   it('normalizes adapter events into bounded vendor-neutral archive rows', () => {
     const event = normalizeKnxAiAdapterHistoryEvent({
       nowTs: Date.parse('2026-08-25T10:00:00.000Z'),

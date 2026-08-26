@@ -34,7 +34,13 @@ Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 - **Ask** : poser une question en langage naturel.
   Si l'archive disque est activée dans le nœud, Ask consulte cette archive par défaut et, sans date explicite, utilise les dernières 24 heures.
 - **Flow Builder** (BETA) : decrivez une automatisation avec des mots et obtenez un flux Node-RED (JSON) a coller dans l'editeur.
-- **Settings** : selection du nœud et import/export.
+- **Settings** : sélection du nœud, import/export de la configuration complète et fichier partagé modifiable d'apprentissage du chat IA.
+
+## Apprentissage du chat IA
+
+Ouvrez **Paramètres → Apprentissage du chat IA** pour afficher le chemin absolu et modifier le fichier partagé `knxai-chat-context.knxctx`, utilisé en direct par tous les nœuds KNX AI du même stockage. Vous pouvez le copier, le télécharger comme sauvegarde ou restaurer un autre fichier `.knxctx`. Modifiez les enregistrements natifs V3 séparés par tabulations qui font autorité (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`) ; Enregistrer vérifie la limite de 512 Ko et écrit atomiquement le fichier canonique. **Réinitialiser la mémoire** le remplace par un contexte vide après confirmation explicite. Un contrôle de révision protège contre les modifications concurrentes. Les anciens fichiers Markdown/JSON V2 et Base64 V1 ne sont volontairement ni lus, ni importés, ni migrés.
+
+Le bouton **Ouvrir l'apprentissage du chat IA** de la configuration du nœud Node-RED, sous **Conversations et maison**, ouvre directement cette page et cet onglet pour le nœud actuel.
 
 ## Flow Builder (BETA)
 

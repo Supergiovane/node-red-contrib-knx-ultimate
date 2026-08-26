@@ -6,6 +6,7 @@
       "groupChatHome": "Conversations & home",
       "detectedAdapters": "Automatically detected adapters",
       "chatContextOverview": "Chat context overview",
+      "chatLearning": "AI Chat Learning",
       "quickSetup": "Assistant setup",
       "llmConnection": "AI Assistant Connection",
       "chatAdapter": "Chat channels",
@@ -21,6 +22,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmPromptContextTokens": "Chat context amount",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "Allow AI to read KNX states and control actuators",
@@ -45,6 +47,11 @@
         "ollama": "Ollama (local)",
         "lmstudio": "Bionic LM Studio"
       },
+      "promptContext": {
+        "small": "Small (4K, faster)",
+        "medium": "Medium (8K)",
+        "full": "Full (16K)"
+      },
       "chatAdapter": {
         "none": "No adapter"
       },
@@ -57,7 +64,8 @@
       "refreshModels": "Refresh",
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
-      "downloadOllamaModel": "1) Download model"
+      "downloadOllamaModel": "1) Download model",
+      "openChatLearning": "Open AI Chat Learning"
     },
     "messages": {
       "loadingModels": "Loading models…",
@@ -69,6 +77,7 @@
       "lmStudioContextFailed": "Unable to configure the model context",
       "lmStudioContextCurrentlyLoaded": "currently loaded",
       "localContextBudget": "KNX AI context budget",
+      "promptContextHint": "Controls how much KNX, memory, project and adapter context is sent to local models. It does not enable or disable tools and does not use intent routing.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -88,6 +97,7 @@
       "ttsUltimateHint": "Explicit chat announcement requests are sent directly to the selected node; no flow wiring is required.",
       "chatContextLoading": "Loading chat context summary…",
       "chatContextUnavailable": "The chat context summary is temporarily unavailable.",
+      "chatLearningOpenHint": "Open the Web UI directly on the shared CHAT learning editor to view, edit, copy or back up its persistent file.",
       "chatContextIntro": "The chat automatically receives these sources. The paths below are the actual paths used by this Node-RED installation.",
       "chatContextLimitLabel": "Maximum operational context",
       "chatContextProviderManaged": "managed by the selected provider/model",

@@ -34,7 +34,13 @@ Diese Seite behält den historischen Namen `KNX-AI-Sidebar` aus Kompatibilitäts
 - **Ask**: Fragen in natürlicher Sprache stellen.
   Wenn das Festplattenarchiv im Node aktiv ist, durchsucht Ask standardmäßig das Archiv und fällt ohne explizites Datum auf die letzten 24 Stunden zurück.
 - **Flow Builder** (BETA): eine Automatisierung in Worten beschreiben und einen Node-RED-Flow (JSON) zum Einfügen im Editor erhalten.
-- **Settings**: Node-Auswahl und Import/Export.
+- **Settings**: Node-Auswahl, Import/Export der vollständigen Konfiguration und die bearbeitbare gemeinsame KI-Chat-Lerndatei.
+
+## KI-Chat-Lernen
+
+Öffnen Sie **Einstellungen → KI-Chat-Lernen**, um den absoluten Pfad anzuzeigen und die gemeinsame Datei `knxai-chat-context.knxctx` zu bearbeiten, die alle KNX-AI-Nodes im selben Speicher live verwenden. Sie können sie kopieren, als Sicherung herunterladen oder eine andere `.knxctx`-Datei wiederherstellen. Bearbeiten Sie die maßgeblichen nativen, tabulatorgetrennten V3-Datensätze (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`); Speichern prüft die 512-KB-Grenze und schreibt die kanonische Datei atomar. **Speicher neu initialisieren** ersetzt sie nach ausdrücklicher Bestätigung durch einen leeren Kontext. Eine Revisionsprüfung schützt vor gleichzeitigen Änderungen. Frühere Markdown/JSON-V2- und Base64-V1-Dateien werden absichtlich weder gelesen noch importiert oder migriert.
+
+Die Schaltfläche **KI-Chat-Lernen öffnen** in der Node-RED-Node-Konfiguration unter **Gespräche & Zuhause** öffnet diese Seite und Registerkarte direkt für den aktuellen Node.
 
 ## Flow Builder (BETA)
 

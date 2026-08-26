@@ -56,6 +56,8 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 - Select the target `knxUltimateAI` node and manage runtime options.
 - Configure node-level options exposed by the backend settings APIs.
 - Import/export configuration bundles for backup and migration workflows.
+- Open **AI Chat Learning** to view the absolute path and edit, copy, download, restore or reinitialize the shared `knxai-chat-context.knxctx` file. Its native V3 tab-separated records are authoritative; saving updates every KNX AI node on the same storage immediately. Previous Markdown/JSON V2 and Base64 V1 files are not read, imported or migrated.
+- The **Open AI Chat Learning** shortcut under **Conversations & home** in the Node-RED node configuration opens this Settings tab directly for the current node.
 
 ## 8) UI behavior
 

@@ -34,7 +34,13 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - **Ask**: type a question in natural language.
   If disk archive is enabled in the node, Ask searches archived telegrams by default and falls back to the last 24 hours when no explicit date is provided.
 - **Flow Builder** (BETA): describe an automation in plain words and get a Node-RED flow (JSON) to paste into the editor.
-- **Settings**: node selection and import/export.
+- **Settings**: node selection, full configuration import/export and the editable shared AI Chat Learning file.
+
+## AI Chat Learning
+
+Open **Settings → AI Chat Learning** to inspect the absolute path and edit the shared `knxai-chat-context.knxctx` used live by all KNX AI nodes on the same storage. You can copy it, download it as a backup or restore another `.knxctx` file. Edit the authoritative native V3 tab-separated records (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`); Save validates the 512 KB bound and atomically writes the canonical file. **Reinitialize Memory** replaces it with an empty context after explicit confirmation. Concurrent changes are protected by a revision check. Previous Markdown/JSON V2 and Base64 V1 files are deliberately not read, imported or migrated.
+
+The **Open AI Chat Learning** button in the Node-RED node configuration, under **Conversations & home**, opens this page and tab directly for the current node.
 
 ## Flow Builder (BETA)
 
