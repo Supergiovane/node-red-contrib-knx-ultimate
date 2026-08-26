@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.3.23** - August 2026<br/>
+
+- **KNX AI — intent-free agentic chat tools**: removed hard-coded semantic phrase classifiers from conversational routing. Every Ask/CHAT request now lets the model reason directly over the current goal, persistent user guidance, AI Education and the available structured KNX, camera, TTS Ultimate and memory tools. Routine planning no longer depends on a multilingual keyword list, TTS announcements no longer require an action alias, and durable chat instructions are remembered or forgotten through model-selected structured actions instead of regular-expression intent detection. Runtime argument validation, adapter availability checks, ETS/DPT safeguards and command confirmation remain unchanged.<br/>
+- **KNX AI — learned KNX group-address roles**: a `neutral` GA is now treated as unresolved rather than permanently uncontrollable. The conversational model can learn or forget the exact `command`, `status` or `neutral` role from trusted user teaching, persistent chat guidance, AI Education or unequivocal ETS semantics through the structured `gaRoleActions` tool. Learned role, reason and evidence are persisted per node in `knxai-config-<node-id>.json`, synchronized into bounded semantic home memory and reused after restart. A command role learned in the current answer can validate a write in that same turn, while exact ETS membership, immutable DPT, payload validation and configured confirmation still apply. Help and wiki documentation were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>
+
 **Version 6.3.22** - August 2026<br/>
 
 - **KNX AI — visible context size and real prompt weight**: the “Chat context overview” card now shows the current operational context limit and the actual UTF-8 size of the last operational chat prompt. Ollama, Bionic, OpenAI-compatible and Claude token-usage fields are captured when returned by the provider; otherwise the UI clearly labels the token count as an estimate. Local limits reflect the active context without exceeding KNX AI's 16K cap.<br/>

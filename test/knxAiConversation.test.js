@@ -16,6 +16,7 @@ const {
   KNX_AI_THINKING_DELAY_MS,
   KNX_AI_TRAFFIC_DEFAULTS,
   applyKnxAiChatMediaPresetFallback,
+  applyKnxAiGaRoleActionsToCatalog,
   bindSharedKnxAiState,
   buildKnxAiConfirmationRequest,
   buildKnxAiReadResultMetadata,
@@ -42,12 +43,15 @@ const {
   getKnxAiThinkingCopy,
   isChatCompletionsModelError,
   isLlmContextLengthError,
-  isLikelyKnxAiRoutineRequest,
   isProbablyChatModelId,
   isUnsupportedTemperatureError,
   measureKnxAiPromptContext,
   normalizeKnxAiCommandCandidates,
+  normalizeKnxAiGaRoleActions,
+  normalizeKnxAiGaRoleExperience,
+  normalizeKnxAiMemoryActions,
   normalizeKnxAiRoutineDescriptor,
+  normalizeKnxAiSpeechActionCandidate,
   normalizeLmStudioModelCatalog,
   parseQuestionTimeRange,
   parseKnxAiConversationResponse,
@@ -63,7 +67,7 @@ const {
   releaseSharedKnxAiState,
   safeKnxAiSend,
   selectKnxAiCatalogForPrompt,
-  selectKnxAiRoutineCatalogForPrompt,
+  selectKnxAiToolCatalogForPrompt,
   summarizeDetectedKnxAiCameraAdapters,
   summarizeDetectedKnxAiTtsAdapter,
   summarizeKnxAiChatContext
@@ -73,16 +77,17 @@ const {
   CHAT_CONTEXT_MAX_SESSIONS,
   CHAT_CONTEXT_MAX_TURNS_PER_SESSION,
   addKnxAiCameraWatch,
+  addKnxAiChatInstruction,
   addKnxAiChatTurn,
   buildKnxAiChatContextMarkdown,
   buildKnxAiChatPromptContext,
   clearKnxAiChatSession,
   conversationMapFromKnxAiChatContext,
   createEmptyKnxAiChatContext,
-  extractExplicitKnxAiChatInstruction,
   getKnxAiChatSession,
   listAllKnxAiCameraWatches,
-  parseKnxAiChatContextMarkdown
+  parseKnxAiChatContextMarkdown,
+  removeKnxAiChatInstructions
 } = require('../nodes/utils/knxAiChatContext')
 const {
   KNX_AI_CAMERA_IMAGE_MAX_BYTES,
@@ -126,6 +131,8 @@ describe('KNX AI conversational control', () => {
     expect(parsed.commands).to.have.length(1)
     expect(parsed.cameraActions).to.deep.equal([{ type: 'snapshot', camera: 'Ingresso' }])
     expect(parsed.speechActions).to.deep.equal([{ type: 'announce', text: 'La cena è pronta', reason: 'richiesto' }])
+    expect(parsed.memoryActions).to.deep.equal([])
+    expect(parsed.gaRoleActions).to.deep.equal([])
     expect(parsed.routine).to.deep.equal({ active: false, name: '', phase: 'none' })
   })
 
@@ -146,6 +153,144 @@ describe('KNX AI conversational control', () => {
       phase: 'plan'
     })
     expect(normalizeKnxAiRoutineDescriptor(null)).to.deep.equal({ active: false, name: '', phase: 'none' })
+  })
+
+  it('treats each speechActions item as a TTS tool call without language intents', () => {
+    expect(normalizeKnxAiSpeechActionCandidate({
+      type: 'announcement',
+      text: 'La cena è pronta.',
+      reason: 'Richiesto dall’utente'
+    })).to.deep.equal({
+      type: 'announce',
+      text: 'La cena è pronta.',
+      reason: 'Richiesto dall’utente'
+    })
+    expect(normalizeKnxAiSpeechActionCandidate('Chiudete le finestre.')).to.deep.equal({
+      type: 'announce',
+      text: 'Chiudete le finestre.',
+      reason: ''
+    })
+    expect(normalizeKnxAiSpeechActionCandidate({
+      action: 'anything',
+      message: 'È arrivato un ospite.',
+      description: 'Scelto semanticamente dal modello'
+    })).to.deep.equal({
+      type: 'announce',
+      text: 'È arrivato un ospite.',
+      reason: 'Scelto semanticamente dal modello'
+    })
+
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('{"text":"exact words to speak","reason":"short reason"}')
+    expect(runtime).not.to.include('announceAliases')
+    expect(runtime).not.to.include('unsupported speech action')
+  })
+
+  it('validates model-selected persistent-memory tool calls structurally', () => {
+    const normalized = normalizeKnxAiMemoryActions([
+      { operation: 'remember', text: 'Annuncia su Sonos quando preparo la cena.', all: false, reason: 'Preferenza durevole' },
+      { operation: 'forget', text: '', all: true, reason: 'Richiesta di azzeramento' },
+      { operation: 'guess_intent', text: 'ignored', all: false, reason: '' }
+    ])
+
+    expect(normalized.accepted).to.deep.equal([
+      { operation: 'remember', text: 'Annuncia su Sonos quando preparo la cena.', all: false, reason: 'Preferenza durevole' },
+      { operation: 'forget', text: '', all: true, reason: 'Richiesta di azzeramento' }
+    ])
+    expect(normalized.rejected).to.deep.equal([
+      { sourceIndex: 2, reason: 'unsupported memory operation' }
+    ])
+  })
+
+  it('learns an exact neutral GA role and uses it for a write in the same turn', () => {
+    const neutralCatalog = [{
+      ga: '1/2/9',
+      dpt: '1.001',
+      label: 'Luce tavolo',
+      baseRole: 'neutral',
+      baseRoleSource: 'unknown_rule',
+      role: 'neutral',
+      roleOverride: 'auto',
+      semantic: { kind: 'light', role: 'neutral' }
+    }]
+    const learned = normalizeKnxAiGaRoleActions({
+      actions: [{
+        operation: 'learn',
+        destination: '1/2/9',
+        role: 'command',
+        reason: 'L’utente ha insegnato che controlla la luce del tavolo.',
+        evidence: 'Indicazione diretta dell’utente.'
+      }],
+      catalog: neutralCatalog
+    })
+    expect(learned.rejected).to.deep.equal([])
+    expect(learned.accepted).to.have.length(1)
+
+    const provisionalCatalog = applyKnxAiGaRoleActionsToCatalog({
+      catalog: neutralCatalog,
+      actions: learned.accepted
+    })
+    expect(provisionalCatalog[0].role).to.equal('command')
+    expect(provisionalCatalog[0].roleSource).to.equal('chat_learning')
+    expect(provisionalCatalog[0].semantic.role).to.equal('command')
+
+    const normalizedCommand = normalizeKnxAiCommandCandidates({
+      commands: [{ event: 'GroupValue_Write', destination: '1/2/9', dpt: '1.001', payload: true }],
+      catalog: provisionalCatalog,
+      coercePayload
+    })
+    expect(normalizedCommand.rejected).to.deep.equal([])
+    expect(normalizedCommand.accepted).to.have.length(1)
+  })
+
+  it('rejects invented GA-role experience and restores automatic classification when forgotten', () => {
+    const learnedCatalog = [{
+      ga: '1/2/9',
+      dpt: '1.001',
+      label: 'Luce tavolo',
+      baseRole: 'neutral',
+      baseRoleSource: 'unknown_rule',
+      role: 'command',
+      roleOverride: 'command'
+    }]
+    const normalized = normalizeKnxAiGaRoleActions({
+      actions: [
+        { operation: 'learn', destination: '9/9/9', role: 'command', reason: '', evidence: '' },
+        { operation: 'learn', destination: '1/2/9', role: 'auto', reason: '', evidence: '' },
+        { operation: 'forget', destination: '1/2/9', role: 'auto', reason: 'Correzione', evidence: 'Utente' }
+      ],
+      catalog: learnedCatalog
+    })
+    expect(normalized.rejected.map(item => item.reason)).to.deep.equal([
+      'GA role learning destination is not present in the imported ETS catalog',
+      'learned GA role must be command, status, or neutral'
+    ])
+    expect(normalized.accepted).to.have.length(1)
+    const restored = applyKnxAiGaRoleActionsToCatalog({ catalog: learnedCatalog, actions: normalized.accepted })
+    expect(restored[0].role).to.equal('neutral')
+    expect(restored[0].roleOverride).to.equal('auto')
+  })
+
+  it('bounds and normalizes persisted GA-role experience', () => {
+    expect(normalizeKnxAiGaRoleExperience({
+      '1/2/9': {
+        role: 'command',
+        learnedAt: '2026-08-26T08:00:00.000Z',
+        reason: 'Insegnato dall’utente',
+        evidence: 'Conversazione',
+        source: 'untrusted-value'
+      },
+      '': { role: 'status' },
+      '1/2/10': { role: 'auto' }
+    })).to.deep.equal({
+      '1/2/9': {
+        role: 'command',
+        learnedAt: '2026-08-26T08:00:00.000Z',
+        reason: 'Insegnato dall’utente',
+        evidence: 'Conversazione',
+        source: 'chat_learning'
+      }
+    })
   })
 
   it('extracts text and a session id from common Telegram message shapes', () => {
@@ -895,9 +1040,15 @@ describe('KNX AI conversational control', () => {
 
   it('does not prime small models with fabricated operations in the response example', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
-    expect(runtime).to.include('"commands":[],"cameraActions":[],"speechActions":[]')
+    expect(runtime).to.include('"commands":[],"cameraActions":[],"speechActions":[],"memoryActions":[],"gaRoleActions":[]')
     expect(runtime).not.to.include('"commands":[{"event":"GroupValue_Read|GroupValue_Write"')
     expect(runtime).to.include('Begin with every action array empty')
+    expect(runtime).to.include('trusted user goal actually needs that tool')
+    expect(runtime).to.include('Tool mapping: commands invokes KNX read/write')
+    expect(runtime).to.include('A neutral role is initial uncertainty, not a permanent restriction')
+    expect(runtime).to.include('applyKnxAiGaRoleActionsToCatalog')
+    expect(runtime).to.include('gaRoleExperience: nextConfig.gaRoleExperience')
+    expect(runtime).not.to.include('const conversationalChatAvailable =')
   })
 
   it('provides delayed localized thinking feedback without adding it to the conversation', () => {
@@ -1271,7 +1422,7 @@ describe('KNX AI conversational control', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include("promptContextMode === 'minimal'")
     expect(runtime).to.include('{ num_predict: localOutputTokenLimit }')
-    expect(runtime).to.include('selectKnxAiCatalogForPrompt({ catalog, question, mode: contextMode })')
+    expect(runtime).to.include('selectKnxAiToolCatalogForPrompt({ catalog, question, mode: contextMode })')
   })
 
   it('reports the operational limit and measures the real chat prompt payload', () => {
@@ -1308,11 +1459,7 @@ describe('KNX AI conversational control', () => {
     expect(measured.imageCount).to.equal(2)
   })
 
-  it('recognizes routine language and broadens limited local context with home capabilities', () => {
-    expect(isLikelyKnxAiRoutineRequest('Sto uscendo di casa')).to.equal(true)
-    expect(isLikelyKnxAiRoutineRequest('Good night, prepare the house')).to.equal(true)
-    expect(isLikelyKnxAiRoutineRequest('Accendi la luce del tavolo')).to.equal(false)
-
+  it('exposes home tool capabilities without routing through language intents', () => {
     const routineCatalog = Array.from({ length: 35 }, (_, index) => ({
       ga: `0/0/${index + 1}`,
       dpt: '9.001',
@@ -1324,9 +1471,9 @@ describe('KNX AI conversational control', () => {
       { ga: '1/1/2', dpt: '1.001', role: 'status', label: 'Luce cucina stato', semantic: { kind: 'light', area: 'cucina' } },
       { ga: '2/1/2', dpt: '1.019', role: 'status', label: 'Finestra cucina', semantic: { kind: 'window', area: 'cucina' } }
     ])
-    const selected = selectKnxAiRoutineCatalogForPrompt({
+    const selected = selectKnxAiToolCatalogForPrompt({
       catalog: routineCatalog,
-      question: 'Sto uscendo di casa',
+      question: 'Organizza autonomamente la casa usando ciò che sai.',
       mode: 'minimal'
     })
     expect(selected.map(item => item.ga)).to.include.members(['1/1/1', '1/1/2', '2/1/2'])
@@ -1337,6 +1484,9 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('routineInspectionResults = inspection.metadata')
     expect(runtime).to.include("phase: 'plan'")
     expect(runtime).to.include('deferRoutineSpeech = awaitingConfirmation && routine.active')
+    expect(runtime).to.include('selectKnxAiToolCatalogForPrompt({ catalog, question, mode: contextMode })')
+    expect(runtime).not.to.include('isLikelyKnxAiRoutineRequest')
+    expect(runtime).not.to.include('routineCandidate')
     expect(KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS).to.equal(4000)
   })
 
@@ -1382,7 +1532,8 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('node.llmIncludeDocsSnippets = true')
     expect(runtime).to.include("languageHint = '', includeDocs = true")
     expect(runtime).to.include('if (includeDocs && node.llmIncludeDocsSnippets)')
-    expect(runtime).to.include('languageHint: requestLanguage, includeDocs: false')
+    expect(runtime).to.include('ret = await callConversationalLLM({')
+    expect(runtime).to.include('languageHint: requestLanguage')
     expect(runtime).to.include('includeDocs: false\n      })')
     expect(runtime).to.include('ret = await callLLM({ question: q, sessionId })')
     expect(runtime).not.to.include("'camerasDocs'")
@@ -1471,6 +1622,8 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('options.reply_markup')
       expect(helpBody).to.include('proactive_notification')
       expect(helpBody).to.include('home-memory')
+      expect(helpBody).to.include('gaRoleActions')
+      expect(helpBody).to.include('knxai-config-')
       expect(helpBody).not.to.include('proactiveOpenMinutes')
       expect(helpBody).not.to.include('proactiveCooldownMinutes')
       expect(helpBody).not.to.include('homeMemoryMaxKb')
@@ -1869,7 +2022,8 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('const analysisContext = buildLLMPrompt({')
     expect(runtime).to.include("compact: contextMode === 'full' ? false : contextMode")
     expect(runtime).to.include('includeDocs: false')
-    expect(runtime).to.include('languageHint: requestLanguage, includeDocs: false')
+    expect(runtime).to.include('ret = await callConversationalLLM({')
+    expect(runtime).to.include('languageHint: requestLanguage')
     expect(runtime).to.include('ret = await callLLM({ question: q, sessionId })')
     expect(runtime).to.include("if (mode === 'full') return source.slice(0, 600)")
     expect(runtime).to.include('const adapterPromptEvents = selectAdapterEventsForPrompt({')
@@ -2044,19 +2198,28 @@ describe('KNX AI persistent chat context', () => {
     expect(runtime).not.to.match(/knxai-(?:home-memory|chat-context)-\$\{node\.id\}/)
   })
 
-  it('recognizes explicit durable instructions in every supported language', () => {
-    const instructions = [
-      'Remember not to use the term unknown in replies.',
-      'Ricordati di non usare il termine unknown nelle risposte.',
-      'Merk dir, in Antworten nie den Begriff unknown zu verwenden.',
-      'Souviens-toi de ne pas employer le terme unknown dans tes réponses.',
-      'Recuerda no usar el término unknown en las respuestas.',
-      '请记住不要在回答中使用 unknown 这个词。'
-    ]
-    instructions.forEach(instruction => {
-      expect(extractExplicitKnxAiChatInstruction(instruction)).to.equal(instruction)
+  it('stores and forgets model-selected durable instructions without phrase patterns', () => {
+    let context = createEmptyKnxAiChatContext()
+    context = addKnxAiChatTurn(context, {
+      sessionId: 'semantic-memory',
+      question: 'Qualunque formulazione può contenere una preferenza.',
+      reply: 'Capito.'
     })
-    expect(extractExplicitKnxAiChatInstruction('Do you remember yesterday?')).to.equal('')
+    expect(getKnxAiChatSession(context, 'semantic-memory').instructions).to.deep.equal([])
+
+    context = addKnxAiChatInstruction(context, {
+      sessionId: 'semantic-memory',
+      text: 'Usa un tono conciso e annuncia su Sonos gli avvisi importanti.'
+    })
+    expect(getKnxAiChatSession(context, 'semantic-memory').instructions.map(item => item.text)).to.deep.equal([
+      'Usa un tono conciso e annuncia su Sonos gli avvisi importanti.'
+    ])
+
+    context = removeKnxAiChatInstructions(context, {
+      sessionId: 'semantic-memory',
+      text: 'Usa un tono conciso e annuncia su Sonos gli avvisi importanti.'
+    })
+    expect(getKnxAiChatSession(context, 'semantic-memory').instructions).to.deep.equal([])
   })
 
   it('round-trips each session through the persistent Markdown context', () => {
@@ -2065,6 +2228,10 @@ describe('KNX AI persistent chat context', () => {
       sessionId: 'telegram-123',
       question: 'Ricordati di non usare il termine unknown nelle risposte.',
       reply: 'Va bene.'
+    })
+    context = addKnxAiChatInstruction(context, {
+      sessionId: 'telegram-123',
+      text: 'Non usare il termine unknown nelle risposte.'
     })
     context = addKnxAiChatTurn(context, {
       sessionId: 'telegram-123',
@@ -2076,7 +2243,7 @@ describe('KNX AI persistent chat context', () => {
     const session = getKnxAiChatSession(restored, 'telegram-123')
 
     expect(session.turns).to.have.length(2)
-    expect(session.instructions[0].text).to.equal('Ricordati di non usare il termine unknown nelle risposte.')
+    expect(session.instructions[0].text).to.equal('Non usare il termine unknown nelle risposte.')
     const prompt = buildKnxAiChatPromptContext({ context: restored, sessionId: 'telegram-123' })
     expect(prompt).to.include('PERSISTENT CHAT INSTRUCTIONS AND PREFERENCES')
     expect(prompt).to.include('non usare il termine unknown')
@@ -2095,6 +2262,10 @@ describe('KNX AI persistent chat context', () => {
       sessionId: 'two',
       question: 'Remember to answer in Italian.',
       reply: 'Va bene.'
+    })
+    context = addKnxAiChatInstruction(context, {
+      sessionId: 'two',
+      text: 'Answer in Italian.'
     })
     context = clearKnxAiChatSession(context, 'one')
 

@@ -126,45 +126,36 @@ const touchSession = (context, sessionId) => {
   return { target, session }
 }
 
-const explicitInstructionPatterns = [
-  /^\s*(?:please[\s,]+)?remember\b/i,
-  /^\s*from now on\b/i,
-  /^\s*(?:please[\s,]+)?(?:always|never)\b/i,
-  /^\s*(?:per favore[\s,]+)?(?:ricordati|ricorda|ricordarsi|memorizza)\b/i,
-  /^\s*(?:d['’]ora in poi|da ora in poi)\b/i,
-  /^\s*(?:usa sempre|non usare mai|evita sempre)\b/i,
-  /^\s*(?:bitte[\s,]+)?(?:merk dir|erinnere dich)\b/i,
-  /^\s*(?:ab jetzt|von jetzt an)\b/i,
-  /^\s*(?:s['’]il te pla[iî]t[\s,]+)?(?:souviens-toi|rappelle-toi|m[eé]morise)\b/i,
-  /^\s*(?:dor[eé]navant|[àa] partir de maintenant)\b/i,
-  /^\s*(?:por favor[\s,]+)?(?:recuerda|memoriza)\b/i,
-  /^\s*(?:a partir de ahora|de ahora en adelante)\b/i,
-  /^\s*(?:请)?记住/,
-  /^\s*从现在开始/
-]
-
-const extractExplicitKnxAiChatInstruction = (question) => {
-  const text = clampText(question, CHAT_CONTEXT_MAX_INSTRUCTION_CHARS)
-  if (!text) return ''
-  return explicitInstructionPatterns.some(pattern => pattern.test(text)) ? text : ''
-}
-
 const addKnxAiChatTurn = (context, { sessionId, question, reply, at } = {}) => {
   const { target, session } = touchSession(context, sessionId)
   const turn = normalizeTurn({ at, question, reply })
   if (turn) session.turns.push(turn)
   session.turns = session.turns.slice(-CHAT_CONTEXT_MAX_TURNS_PER_SESSION)
+  return target
+}
 
-  const explicitInstruction = extractExplicitKnxAiChatInstruction(question)
-  if (explicitInstruction) {
-    const normalized = explicitInstruction.toLocaleLowerCase()
-    session.instructions = session.instructions.filter(item => item.text.toLocaleLowerCase() !== normalized)
-    session.instructions.push({
-      at: clampText(at || new Date().toISOString(), 64),
-      text: explicitInstruction
-    })
-    session.instructions = session.instructions.slice(-CHAT_CONTEXT_MAX_INSTRUCTIONS_PER_SESSION)
+const addKnxAiChatInstruction = (context, { sessionId, text, at } = {}) => {
+  const instruction = normalizeInstruction({ text, at })
+  if (!instruction) return normalizeKnxAiChatContext(context)
+  const { target, session } = touchSession(context, sessionId)
+  const normalizedText = instruction.text.toLocaleLowerCase()
+  session.instructions = session.instructions
+    .filter(item => item.text.toLocaleLowerCase() !== normalizedText)
+  session.instructions.push(instruction)
+  session.instructions = session.instructions.slice(-CHAT_CONTEXT_MAX_INSTRUCTIONS_PER_SESSION)
+  return target
+}
+
+const removeKnxAiChatInstructions = (context, { sessionId, text, all = false } = {}) => {
+  const { target, session } = touchSession(context, sessionId)
+  if (all === true) {
+    session.instructions = []
+    return target
   }
+  const normalizedText = clampText(text, CHAT_CONTEXT_MAX_INSTRUCTION_CHARS).toLocaleLowerCase()
+  if (!normalizedText) return target
+  session.instructions = session.instructions
+    .filter(item => item.text.toLocaleLowerCase() !== normalizedText)
   return target
 }
 
@@ -340,18 +331,19 @@ module.exports = {
   CHAT_CONTEXT_MAX_SESSIONS,
   CHAT_CONTEXT_MAX_TURNS_PER_SESSION,
   addKnxAiCameraWatch,
+  addKnxAiChatInstruction,
   addKnxAiChatTurn,
   buildKnxAiChatContextMarkdown,
   buildKnxAiChatPromptContext,
   clearKnxAiChatSession,
   conversationMapFromKnxAiChatContext,
   createEmptyKnxAiChatContext,
-  extractExplicitKnxAiChatInstruction,
   getKnxAiChatSession,
   listAllKnxAiCameraWatches,
   listKnxAiCameraWatches,
   normalizeKnxAiChatContext,
   normalizeCameraWatch,
   parseKnxAiChatContextMarkdown,
-  removeKnxAiCameraWatches
+  removeKnxAiCameraWatches,
+  removeKnxAiChatInstructions
 }

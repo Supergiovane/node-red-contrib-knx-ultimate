@@ -27,7 +27,7 @@ Ollama 和 Bionic LM Studio 请求会自动使用至少 10 分钟的超时时间
 
 Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM 运行期间本地化的“我正在思考…”状态。KNX 报文、网关更新、流量速率、ready 消息和技术结果绝不会覆盖该状态；这些信息仍可通过节点输出、日志和助手数据查看。
 
-每个 Ask/聊天会话都会保留最近 8 轮对话和最多 20 条明确的长期指令，并按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 隔离。像“请记住不要在回答中使用 unknown 这个词”这样的请求会成为持久指令。使用相同存储的所有 KNX AI 节点实时共享此上下文，并在 Node-RED 重启后从 `knxultimatestorage/knxai/memory/knxai-chat-context.md` 重新加载。该文件采用原子写入，最多保存 50 个会话且不超过 512 KB。启用 KNX 控制后，将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
+每个 Ask/聊天会话都会保留最近 8 轮对话和最多 20 条由模型选择的长期指令，并按 `msg.knxAi.sessionId`、`msg.sessionId` 或检测到的 Telegram 聊天 ID 隔离。模型通过结构化记忆工具，按语义判断一段对话的含义应被记住还是遗忘；系统不使用语言关键词或 intent 列表。使用相同存储的所有 KNX AI 节点实时共享此上下文，并在 Node-RED 重启后从 `knxultimatestorage/knxai/memory/knxai-chat-context.md` 重新加载。该文件采用原子写入，最多保存 50 个会话且不超过 512 KB。启用 KNX 控制后，将输出 3 连接到聊天发送节点，将输出 4 连接到配置为**通用模式**的 KNX Ultimate 节点。启用确认后，第一条回复会显示 GA、DPT 和 payload，但不会发送写入；同一会话必须在 5 分钟内回复“确认”或“取消”。新请求会替换旧的待处理计划。每条已确认命令都包含 `msg.destination`、`msg.dpt`、`msg.payload` 和 `msg.event = "GroupValue_Write"`。
 对于 DPT 1.xxx 写入，AI 生成的安全等价值 `true`/`false`、`1`/`0` 和 `on`/`off` 会在本地校验和输出前统一转换为真正的布尔值。
 
 ### 最新 KNX 读取
@@ -56,10 +56,17 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 ### 使用 TTS Ultimate 播报
 安装可选软件包 `node-red-contrib-tts-ultimate` 后，它会显示在自动检测的适配器中。选择器会列出项目所有 Flow 中的全部 `ttsultimate` 节点，并显示 Flow、节点名称和已配置的播放器。请选择负责聊天播报的节点，然后部署 Flow。
 
-只有当前聊天消息中的明确请求才能创建播报。KNX AI 会将准确文本作为 `msg.payload` 直接发送到所选节点，并设置 `msg.topic = "knx_ai_announcement"`；无需在 Flow 中增加中间连线。之后由 TTS Ultimate 处理已配置的 Sonos 播放器、语音、音量、提示音和队列。持久上下文、AI 教育、摄像机内容和推断事件绝不会自行触发语音。
+模型会根据当前请求、持久聊天指令和用户管理的 AI 教育自行判断是否使用此适配器；系统没有播报 intent，也没有触发短语列表。KNX 数值、适配器事件、图像和存档始终是数据而不是指令，但可信的用户指导可以教会模型如何处理这些数据。KNX AI 会将选定文本作为 `msg.payload` 直接发送到所选节点，并设置 `msg.topic = "knx_ai_announcement"`；之后由 TTS Ultimate 处理 Sonos 播放器、语音、音量、提示音和队列。
 
 ### 聊天上下文概览
 节点编辑器会显示一张紧凑卡片，汇总聊天可用的来源：当前 KNX 流量、ETS 语义与 Node-RED 项目、会话和家庭记忆、AI 教育及检测到的摄像机。卡片还会显示最大运行上下文和上次聊天提示词的实际 UTF-8 大小；提供商返回输入令牌数时使用精确值，否则明确标为估算值。卡片还会列出 `knxai-chat-context.md`、`knxai-home-memory.md` 和 `knxai-config-<节点-id>.json`，以及 KNX 报文归档的绝对根目录、该节点专用目录和每日文件模式 `YYYY-MM-DD.jsonl`。这些路径会在运行时根据已配置网关实际使用的数据目录解析。
+
+模型会把 KNX 读写、摄像机适配器、TTS 播报和持久记忆作为结构化工具。它可以依据当前请求和可信的已学习指导进行语义选择与组合，而不经过语言 intent 路由。运行时只验证工具参数、适配器可用性和安全边界；KNX 写入仍保留本地 ETS/DPT 校验和已配置的确认步骤。
+
+### 学习到的 KNX 组地址角色
+`neutral` 角色表示初始不确定性，而不是永久禁止控制。模型可以使用结构化工具 `gaRoleActions`，根据可信的用户教学、持久聊天指导、AI 教育或明确无歧义的 ETS 项目语义，学习某个准确的 ETS 组地址属于命令、状态或中性对象。无需固定关键词或角色 intent；如果证据不明确，模型会先询问澄清，而不会擅自学习。
+
+学习到的角色、原因和证据会按节点保存到 `<userDir>/knxai/config/knxai-config-<节点-id>.json`，并同步到受限的家庭语义记忆。学习为 `command` 的角色可以在同一条回复中使写入通过验证，并在重启后继续可用；模型也可以忘记它并恢复自动分类。学习过程不能虚构 GA、修改其 ETS DPT、绕过 payload 校验或跳过已配置的写入确认。
 
 ## 由 AI 教育驱动的主动家庭智能与有限记忆
 节点会根据 ETS 层级、名称、角色和 DPT 建立确定性的语义模型。不再提供单独的开关或高级主动通知设置。只有启用 LLM 且 **AI 教育**明确要求时，系统才会评估通知。条件、持续时间、静默时段和重复频率完全由 AI 教育定义。没有明确规则或 LLM 无法评估时，不会发送任何消息。
