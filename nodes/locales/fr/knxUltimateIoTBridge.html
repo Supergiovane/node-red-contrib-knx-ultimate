@@ -45,7 +45,8 @@ Le reste de cette aide décrit le mode classique **Passerelle IoT**.
 ## Champs de correspondance
 
 - **Direction** — choisir KNX→IoT, IoT→KNX ou bidirectionnel.
-- **Type de canal** — MQTT utilise la cible comme topic, REST comme URL de base, Modbus comme identifiant de registre.
+- **Type de canal** — MQTT utilise la cible comme topic, REST comme URL de base ; pour Modbus, **Target** est l'adresse de protocole à base zéro (0–65535).
+- **Format Modbus / Unit ID / Zone / Type de donnée** — pour les nouvelles correspondances, choisissez **Compatible avec Flex Write**, puis l'unité, la zone mémoire et `bool`, `uint16` ou `int16`. En l'absence de format, l'ancien contrat scalaire reste actif afin de préserver les flows existants.
 - **Échelle & offset** — appliqués pour KNX→IoT ; IoT→KNX applique la transformation inverse.
 - **Template** — chaîne optionnelle remplaçant `{{value}}`, `{{ga}}`, `{{label}}`, `{{target}}`, `{{type}}`, `{{isoTimestamp}}`.
 - **Timeout / Tentatives** — informations exposées sur le message pour aider les nœuds en aval à gérer les reprises.
@@ -88,7 +89,32 @@ Le reste de cette aide décrit le mode classique **Passerelle IoT**.
 
 ### Synchronisation de registre Modbus
 
-- Associez la passerelle aux nœuds `modbus-flex-write` du paquet `node-red-contrib-modbus`. La sortie&nbsp;1 transporte l’adresse Modbus dans `msg.address` et la valeur dans `msg.payload`.
+La passerelle est un adaptateur de messages pour `node-red-contrib-modbus` ; elle n'ouvre pas de connexion TCP/série et n'interroge pas elle-même un appareil. Installez une version du paquet compatible avec votre runtime Node-RED, puis utilisez ses nœuds client et transport.
+
+|Zone|Lecture|Écriture|Direction autorisée|
+|--|--|--|--|
+| Coil | FC1 | FC5 | Les deux directions |
+| Discrete input | FC2 | — | Modbus → KNX uniquement |
+| Holding register | FC3 | FC6 | Les deux directions |
+| Input register | FC4 | — | Modbus → KNX uniquement |
+
+Pour une nouvelle correspondance, sélectionnez `Format = Compatible avec Flex Write`. De KNX vers Modbus, la sortie&nbsp;1 se raccorde directement à un nœud `modbus-flex-write` et émet :
+
+```
+msg.payload = {
+  value: 215,
+  fc: 6,
+  unitid: 1,
+  address: 9,
+  quantity: 1
+}
+```
+
+`address` est toujours à base zéro : si le manuel de l'appareil désigne un holding register par `40010`, son adresse de protocole est généralement `9` ; vérifiez la convention du manuel. La passerelle prend en charge un bit ou un seul registre 16 bits par correspondance. Elle ne combine pas encore plusieurs mots, ne décode pas les valeurs 32 bits/float et ne gère pas l'ordre des octets/mots.
+
+De Modbus vers KNX, reliez la sortie de données d'un nœud `modbus-flex-getter` ou `modbus-read` à l'entrée de la passerelle. Flex Getter fournit la requête (`fc`, `unitid`, `address`, `quantity`) dans `msg.modbusRequest` ; Modbus Read la conserve dans `msg.input.payload`. Le tableau de valeurs retourné peut se trouver dans `msg.payload` ou `msg.values`. La passerelle accepte les deux formes de message, associe toutes les correspondances Flex couvertes par la réponse et utilise le bon élément du tableau. Activez **Keep Msg Properties** sur Flex Getter. L'échelle et le décalage suivent `raw = KNX × échelle + décalage` ; le chemin entrant applique la transformation inverse.
+
+`Lire les valeurs KNX au déploiement` lit uniquement KNX ; planifiez les lectures Modbus dans le flow Modbus externe. Les correspondances historiques (y compris celles sans `modbusMessageFormat`) continuent d'émettre l'ancien payload scalaire avec les métadonnées `msg.address`/`msg.modbusFunction` au premier niveau.
 
 ## Flow d’exemple
 

@@ -6,6 +6,7 @@
 const fs = require('fs')
 const path = require('path')
 const net = require('net')
+const dns = require('dns/promises')
 const os = require('os')
 const _ = require('lodash')
 const knx = require('knxultimate')
@@ -193,6 +194,11 @@ const findAutoEthernetInterface = (targetIP) => {
   })
 
   return bestMatch
+}
+
+const resolveHostAddress = async (hostname, lookup = dns.lookup) => {
+  const { address } = await lookup(hostname, { order: 'verbatim' })
+  return address
 }
 
 module.exports = (RED) => {
@@ -1142,7 +1148,7 @@ module.exports = (RED) => {
       }
     }
 
-    node.setKnxConnectionProperties = () => {
+    node.setKnxConnectionProperties = async () => {
       // 25/08/2021 Moved out of node.initKNXConnection
       node.knxConnectionProperties = {
         ipAddr: node.host,
@@ -1183,10 +1189,9 @@ module.exports = (RED) => {
         switch (net.isIP(node.host)) {
           case 0:
             // Invalid IP, resolve the DNS name.
-            const dns = require('dns-sync')
             let resolvedIP = null
             try {
-              resolvedIP = dns.resolve(node.host)
+              resolvedIP = await resolveHostAddress(node.host)
             } catch (error) {
               throw new Error('net.isIP: INVALID IP OR DNS NAME. Error checking the Gateway Host in Config node. ' + error.message)
             }
@@ -1258,7 +1263,7 @@ module.exports = (RED) => {
 
     node.initKNXConnection = async () => {
       try {
-        node.setKnxConnectionProperties() // 28/12/2021 Added
+        await node.setKnxConnectionProperties() // 28/12/2021 Added
       } catch (error) {
         node.sysLogger?.error('setKnxConnectionProperties: ' + error.message)
         if (node.linkStatus !== 'disconnected') await node.Disconnect()
@@ -2763,4 +2768,8 @@ module.exports = (RED) => {
       keyringFilePassword: { type: 'password' }
     }
   })
+}
+
+module.exports.__test = {
+  resolveHostAddress
 }

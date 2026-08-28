@@ -45,7 +45,8 @@ Der Rest dieser Hilfe beschreibt den klassischen **IoT-Bridge**-Modus.
 ## Zuordnungsfelder
 
 - **Richtung** — wählen Sie KNX→IoT, IoT→KNX oder bidirektional.
-- **Kanaltyp** — MQTT verwendet das Target als Topic, REST als Basis-URL, Modbus als Registerkennung.
+- **Kanaltyp** — MQTT verwendet das Target als Topic, REST als Basis-URL; bei Modbus ist **Target** die nullbasierte Protokolladresse (0–65535).
+- **Modbus-Format / Unit-ID / Bereich / Datentyp** — wählen Sie für neue Zuordnungen **Mit Flex Write kompatibel** und danach Einheit, Speicherbereich sowie `bool`, `uint16` oder `int16`. Fehlt das Format, bleibt der alte Skalarvertrag aktiv, damit bestehende Flows weiter funktionieren.
 - **Skalierung & Offset** — werden für KNX→IoT angewandt; IoT→KNX nutzt die inverse Transformation.
 - **Template** — optionale Zeichenkette mit Platzhaltern `{{value}}`, `{{ga}}`, `{{label}}`, `{{target}}`, `{{type}}`, `{{isoTimestamp}}`.
 - **Timeout / Wiederholungen** — Informationsfelder im Output zur Steuerung von Retries und Zeitfenstern in nachfolgenden Nodes.
@@ -88,7 +89,32 @@ Der Rest dieser Hilfe beschreibt den klassischen **IoT-Bridge**-Modus.
 
 ### Modbus-Register-Sync
 
-- Kombinieren Sie den Bridge mit `modbus-flex-write`-Nodes aus `node-red-contrib-modbus`. Ausgang&nbsp;1 enthält die Modbus-Adresse in `msg.address` und den Wert in `msg.payload`.
+Die Bridge ist ein Nachrichtenadapter für `node-red-contrib-modbus`; sie öffnet selbst keine TCP-/serielle Verbindung und fragt kein Gerät ab. Installieren Sie eine mit Ihrer Node-RED-Laufzeit kompatible Paketversion und verwenden Sie dann dessen Client- und Transport-Nodes.
+
+|Bereich|Lesen|Schreiben|Zulässige Richtung|
+|--|--|--|--|
+| Coil | FC1 | FC5 | Beide Richtungen |
+| Discrete Input | FC2 | — | Nur Modbus → KNX |
+| Holding Register | FC3 | FC6 | Beide Richtungen |
+| Input Register | FC4 | — | Nur Modbus → KNX |
+
+Wählen Sie bei einer neuen Zuordnung `Format = Mit Flex Write kompatibel`. Für KNX → Modbus kann Ausgang&nbsp;1 direkt mit einem `modbus-flex-write`-Node verbunden werden und gibt Folgendes aus:
+
+```
+msg.payload = {
+  value: 215,
+  fc: 6,
+  unitid: 1,
+  address: 9,
+  quantity: 1
+}
+```
+
+`address` ist immer nullbasiert: bezeichnet ein Gerätehandbuch ein Holding Register als `40010`, lautet seine Protokolladresse üblicherweise `9`; prüfen Sie die Konvention des Handbuchs. Die Bridge unterstützt pro Zuordnung ein Bit oder ein einzelnes 16-Bit-Register. Mehrere Wörter, 32-Bit-/Float-Werte und Byte-/Wortreihenfolge werden derzeit nicht verarbeitet.
+
+Für Modbus → KNX verbinden Sie den Datenausgang eines `modbus-flex-getter`- oder `modbus-read`-Nodes mit dem Eingang der Bridge. Flex Getter stellt die Anfrage (`fc`, `unitid`, `address`, `quantity`) in `msg.modbusRequest` bereit; Modbus Read behält sie in `msg.input.payload`. Das zurückgegebene Werte-Array kann in `msg.payload` oder `msg.values` liegen. Die Bridge unterstützt beide Nachrichtenformen, ordnet alle von der Antwort abgedeckten Flex-Zuordnungen zu und verwendet das passende Array-Element. Aktivieren Sie **Keep Msg Properties** am Flex Getter. Skalierung und Offset folgen `raw = KNX × Skalierung + Offset`; eingehend wird die inverse Umrechnung angewendet.
+
+`KNX-Werte beim Deploy lesen` liest nur KNX; planen Sie Modbus-Lesevorgänge im externen Modbus-Flow. Legacy-Zuordnungen (einschließlich solcher ohne `modbusMessageFormat`) geben weiterhin den bisherigen skalaren Payload mit `msg.address`/`msg.modbusFunction` auf oberster Ebene aus.
 
 ## Beispiel-Flow
 

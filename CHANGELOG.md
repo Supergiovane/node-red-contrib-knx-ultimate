@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 6.3.25** - August 2026<br/>
+
+- **IoT Bridge — direct Modbus Flex adapter without a bundled Modbus client**: Modbus mappings can now emit the exact `modbus-flex-write` request consumed by `node-red-contrib-modbus` and decode `modbus-read` / `modbus-flex-getter` responses back to KNX. The protocol-specific editor asks only for Unit ID, zero-based address, Modbus area and Boolean/unsigned 16-bit/signed 16-bit format; FC1–FC6 and quantity are derived automatically. TCP/RTU connections, polling, queues and reconnects remain in the external Modbus nodes. KNX responses never become Modbus commands, write acknowledgements never become KNX state, unchanged polls can be suppressed with **Emit on change only**, and local KNX echoes are loop-protected. Existing scalar Modbus mappings remain on the legacy contract until explicitly switched to Flex. A safe manual example and the six localized help/wiki sets document the wiring and host-version compatibility.<br/>
+- **Dependency cleanup — native asynchronous gateway DNS resolution**: replaced `dns-sync` and its obsolete `shelljs` → `glob@7` → `inflight` production chain with Node's built-in promise-based OS resolver. KNX gateway hostnames and `/etc/hosts` resolution remain supported in verbatim address order, while connection startup no longer launches a blocking child process.<br/>
+
 **Version 6.3.24** - August 2026<br/>
 
 - **KNX AI — working Telegram confirmation buttons**: changed the `windkh/node-red-contrib-telegrambot` preset from inline callbacks to a one-time Telegram reply keyboard. **Confirm** and **Cancel** now return as normal localized messages through the already connected `telegram receiver`, eliminating the silent no-op caused by a missing `callback_query` event node. Existing saved preset output mappings are upgraded at runtime, the keyboard is removed after the decision, and legacy callback events remain accepted. The importable direct-chat example no longer requires extra callback wiring; help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>

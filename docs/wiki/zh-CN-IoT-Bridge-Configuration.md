@@ -57,7 +57,8 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 | **GA / DPT** | 组地址与数据点 | 可手动填写或使用 ETS 自动补全。 |
 | **Direction** | KNX→IoT / IoT→KNX / 双向 | 决定启用的输出。 |
 | **Channel type** | MQTT / REST / Modbus | 改变 `Target` 的意义。 |
-| **Target** | 主题、基础 URL 或寄存器 | 留空时使用节点的 `outputtopic`。 |
+| **Target** | 主题、基础 URL 或从零开始的 Modbus 地址 | Modbus 必须填写 0 到 65535 的协议地址，而不是 4xxxx 引用编号。 |
+| **Modbus 格式 / Unit ID / 区域 / 数据类型** | Flex 或旧版消息协议及寄存器定义 | 新映射应使用 Flex；缺少格式字段时仍按旧版处理，以保持兼容。 |
 | **Template** | 字符串模板 | 支持 `{{value}}`, `{{ga}}`, `{{type}}`, `{{target}}`, `{{label}}`, `{{isoTimestamp}}`。 |
 | **Scale / Offset** | 数值转换 | 用于 KNX→IoT；IoT→KNX 使用逆变换。 |
 | **Timeout / Retry** | 重试提示 | 下游节点可据此控制重新发送。 |
@@ -76,8 +77,32 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 
 ### Modbus 寄存器
 
-- 搭配 [`node-red-contrib-modbus`](https://flows.nodered.org/node/node-red-contrib-modbus) 使用（`modbus-flex-write` 等）。
-- `Target` 表示寄存器；`msg.payload` 带有转换后的值。
+IoT Bridge 是 [`node-red-contrib-modbus`](https://flows.nodered.org/node/node-red-contrib-modbus) 的消息适配器。它不会创建 TCP/串行客户端，也不会自行轮询设备；请安装与你的 Node-RED 运行环境兼容的软件包版本，并在外部 Modbus 节点中配置这些功能。
+
+| 区域 | 读取 FC | 写入 FC | 方向 |
+| -- | -- | -- | -- |
+| 线圈 | 1 | 5 | KNX ↔ Modbus |
+| 离散输入 | 2 | — | 仅 Modbus → KNX |
+| 保持寄存器 | 3 | 6 | KNX ↔ Modbus |
+| 输入寄存器 | 4 | — | 仅 Modbus → KNX |
+
+新行请选择**兼容 Flex Write**，设置 **Unit ID**、**区域**和**数据类型**，并在 **Target** 中输入从零开始的协议地址。KNX 值发送到线圈时生成 FC5，发送到保持寄存器时生成 FC6。输出 1 可直接连接 `modbus-flex-write`：
+
+```js
+msg.payload = {
+  value: 215,
+  fc: 6,
+  unitid: 1,
+  address: 9,
+  quantity: 1
+}
+```
+
+如需将数据传回 KNX，请把 `modbus-flex-getter` 或 `modbus-read` 的数据输出连接到桥接输入。Flex Getter 在 `msg.modbusRequest` 中提供请求（`fc`、`unitid`、`address`、`quantity`）；Modbus Read 则将请求保留在 `msg.input.payload` 中。返回的值数组可以位于 `msg.payload` 或 `msg.values`。桥接节点支持这两种消息形式。请在 Flex Getter 上启用 **Keep Msg Properties**。一次读取响应可覆盖多个已配置地址，桥接会为每条匹配行选择正确的数组元素。
+
+每条映射仅支持一个位或一个 16 位寄存器：`bool`、`uint16` 或 `int16`。多字值、32 位/浮点解码以及字节/字顺序转换不属于此适配器。缩放和偏移遵循 `raw = KNX × 缩放 + 偏移`；Modbus → KNX 使用逆变换。**部署时读取 KNX 数值**不会轮询 Modbus。
+
+没有 `modbusMessageFormat` 的映射继续使用旧版标量输出，并在顶层提供 `msg.address` 和 `msg.modbusFunction`，因此已保存的 Flow 不会被静默迁移。
 
 ## Flow 示例
 
@@ -192,16 +217,17 @@ Bridge 节点将 KNX 电报标准化为适用于 IoT 传输（MQTT、REST、Modb
 
 ### Modbus 写入
 
-1. 设置 `Target = 40010`、`Channel type = Modbus`、`Direction = Bidirectional`。
-2. 将输出 1 连接到 `modbus-flex-write`，把 `msg.payload` 提供给其值输入。
-3. 通过第 2 输出确认 KNX 是否已在寄存器更新后同步。
+1. 设置 `Target = 9`、`Channel type = Modbus`、`Format = 兼容 Flex Write`、`Unit ID = 1`、`Area = 保持寄存器`、`Data type = uint16`。
+2. 将输出 1 直接连接到 `modbus-flex-write`；无需 Function 节点。
+3. 将 `modbus-read` 或 `modbus-flex-getter` 的响应连接到桥接输入，以实现 Modbus → KNX。
+4. 导入 `examples/IoT Bridge - Modbus Flex Adapter.json`，获得仅手动触发、无轮询的起始 Flow。
 
 ## 提示
 
-- `Target` 留空时，多个映射可共享 `outputtopic`。
+- 仅当 MQTT/REST 映射需要继承 `outputtopic` 时才将 `Target` 留空；Modbus Flex 必须填写地址。
 - `emitOnChangeOnly` 可降低高频传感器噪声；如需全部电报，可关闭。
-- 第 2 输出始终带有 IoT 原始 payload 和 `bridge` 元数据，便于调试缩放。
-- 若设备需要特定 Modbus 浮点格式，可插入 `function` 节点生成所需字节序。
+- 第 2 输出确认实际发送到 KNX 的值；它不是物理 Modbus 读写确认。
+- 手册中的 `40010` 等引用通常对应地址 `9`，但请始终核对设备文档。
 
 祝你桥接顺利！
 {% endraw %}

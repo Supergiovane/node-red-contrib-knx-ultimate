@@ -1,5 +1,7 @@
 const { expect } = require('chai')
+const net = require('net')
 const { ToBoolean, fetchFromObject } = require('../nodes/utils/utils')
+const { resolveHostAddress } = require('../nodes/knxUltimate-config').__test
 const {
   cookieHeaderFromResponse,
   defaultDistTag,
@@ -97,6 +99,41 @@ describe('utils – fetchFromObject', () => {
   it('handles three levels of nesting', () => {
     const msg = { a: { b: { c: 99 } } }
     expect(fetchFromObject(msg, 'a.b.c')).to.equal(99)
+  })
+})
+
+describe('KNX Ultimate config DNS lookup', () => {
+  it('resolves localhost through the native implementation', async () => {
+    const address = await resolveHostAddress('localhost')
+
+    expect(net.isIP(address)).to.be.oneOf([4, 6])
+  })
+
+  it('uses the OS resolver in verbatim order and returns its first address', async () => {
+    const calls = []
+    const address = await resolveHostAddress('gateway.example', async (hostname, options) => {
+      calls.push({ hostname, options })
+      return { address: '192.0.2.10', family: 4 }
+    })
+
+    expect(address).to.equal('192.0.2.10')
+    expect(calls).to.deep.equal([
+      {
+        hostname: 'gateway.example',
+        options: { order: 'verbatim' }
+      }
+    ])
+  })
+
+  it('propagates lookup failures to the config-node connection guard', async () => {
+    const lookupError = new Error('host not found')
+
+    try {
+      await resolveHostAddress('missing.example', async () => { throw lookupError })
+      throw new Error('Expected DNS lookup to fail')
+    } catch (error) {
+      expect(error).to.equal(lookupError)
+    }
   })
 })
 

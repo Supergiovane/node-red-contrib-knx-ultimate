@@ -79,6 +79,10 @@
       "target": "Target",
       "method": "HTTP method",
       "modbusFunction": "Modbus function",
+      "modbusMessageFormat": "Modbus message format",
+      "modbusUnitId": "Unit ID",
+      "modbusArea": "Modbus area",
+      "modbusDataType": "Data type",
       "scale": "Scale",
       "offset": "Offset",
       "timeout": "Timeout (ms)",
@@ -103,7 +107,7 @@
       "target": "Topic, URL or register",
       "target_mqtt": "Topic, e.g. knx/light/living",
       "target_rest": "https://example/api/endpoint",
-      "target_modbus": "Register (e.g. 40001)",
+      "target_modbus": "Zero-based address (e.g. 0)",
       "template": "{\"value\":{{value}}}",
       "property": "Optional property/path",
       "method": "POST",
@@ -114,7 +118,7 @@
         "default": "Target",
         "mqtt": "MQTT topic",
         "rest": "REST URL",
-        "modbus": "Modbus register"
+        "modbus": "Modbus address (zero-based)"
       },
       "method": {
         "default": "HTTP method",
@@ -124,6 +128,20 @@
         "default": "Modbus function",
         "modbus": "Modbus function"
       }
+    },
+    "modbus": {
+      "formatLegacy": "Legacy scalar message",
+      "formatFlex": "Flex Write compatible",
+      "areaCoil": "Coil (FC1 read / FC5 write)",
+      "areaDiscreteInput": "Discrete input (FC2 read only)",
+      "areaHoldingRegister": "Holding register (FC3 read / FC6 write)",
+      "areaInputRegister": "Input register (FC4 read only)",
+      "dataTypeBool": "Boolean",
+      "dataTypeUint16": "Unsigned 16-bit",
+      "dataTypeInt16": "Signed 16-bit",
+      "zeroBasedHint": "Use the zero-based protocol address (0–65535), not the 4xxxx reference printed by some manuals.",
+      "flexHint": "Flex emits msg.payload = {value,fc,unitid,address,quantity} for direct wiring to modbus-flex-write.",
+      "readOnlyHint": "Discrete inputs and input registers are read-only and can only use Modbus → KNX."
     },
     "labels": {
       "outputKnxToIoT": "KNX → IoT stream",

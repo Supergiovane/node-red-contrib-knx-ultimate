@@ -1,0 +1,361 @@
+[
+  {
+    "id": "mb_flex_tab",
+    "type": "tab",
+    "label": "IoT Bridge - Modbus Flex Adapter",
+    "disabled": true,
+    "info": "Safe starter flow for the IoT Bridge and node-red-contrib-modbus. The tab is disabled on import and every Inject node is manual. Configure the KNX gateway, group addresses and Modbus client before enabling it."
+  },
+  {
+    "id": "mb_knx_cfg",
+    "type": "knxUltimate-config",
+    "z": "",
+    "host": "224.0.23.12",
+    "port": "3671",
+    "physAddr": "15.15.215",
+    "suppressACKRequest": false,
+    "csv": "",
+    "KNXEthInterface": "Auto",
+    "KNXEthInterfaceManuallyInput": "",
+    "autoReconnect": "no"
+  },
+  {
+    "id": "mb_client",
+    "type": "modbus-client",
+    "name": "LOCALHOST placeholder - configure me",
+    "clienttype": "tcp",
+    "bufferCommands": true,
+    "stateLogEnabled": false,
+    "queueLogEnabled": false,
+    "failureLogEnabled": true,
+    "tcpHost": "127.0.0.1",
+    "tcpPort": "1502",
+    "tcpType": "DEFAULT",
+    "serialPort": "/dev/ttyUSB",
+    "serialType": "RTU-BUFFERD",
+    "serialBaudrate": "9600",
+    "serialDatabits": "8",
+    "serialStopbits": "1",
+    "serialParity": "none",
+    "serialConnectionDelay": "100",
+    "serialAsciiResponseStartDelimiter": "0x3A",
+    "unit_id": "1",
+    "commandDelay": "1",
+    "clientTimeout": "1000",
+    "reconnectOnTimeout": false,
+    "reconnectTimeout": "2000",
+    "parallelUnitIdsAllowed": true,
+    "showWarnings": true,
+    "showLogs": false
+  },
+  {
+    "id": "mb_intro",
+    "type": "comment",
+    "z": "mb_flex_tab",
+    "name": "START HERE - disabled and manual-only",
+    "info": "1. Install a node-red-contrib-modbus version compatible with your Node-RED runtime.\n2. Configure the KNX gateway and replace the LOCALHOST Modbus client placeholder.\n3. Adapt every GA, Unit ID and zero-based address.\n4. Enable this tab only after reviewing the mappings.\n\nThere is no automatic Inject or polling in this example.",
+    "x": 300,
+    "y": 40,
+    "wires": []
+  },
+  {
+    "id": "mb_address_note",
+    "type": "comment",
+    "z": "mb_flex_tab",
+    "name": "Target is zero-based: manual reference 40010 is commonly address 9",
+    "info": "Always verify the addressing convention in the device manual. The bridge supports one bit or one 16-bit register per mapping.",
+    "x": 390,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "mb_bridge",
+    "type": "knxUltimateIoTBridge",
+    "z": "mb_flex_tab",
+    "server": "mb_knx_cfg",
+    "name": "KNX ↔ Modbus Flex adapter",
+    "outputtopic": "",
+    "emitOnChangeOnly": true,
+    "readOnDeploy": false,
+    "acceptFlowInput": true,
+    "nodeMode": "iot",
+    "haBusMode": "standalone",
+    "inputs": 1,
+    "outputs": 2,
+    "mappings": [
+      {
+        "id": "mb_map_coil",
+        "enabled": true,
+        "label": "Light command coil",
+        "ga": "3/1/1",
+        "dpt": "1.001",
+        "direction": "bidirectional",
+        "iotType": "modbus",
+        "target": "0",
+        "method": "POST",
+        "modbusFunction": "writeCoil",
+        "modbusMessageFormat": "flex",
+        "modbusUnitId": 1,
+        "modbusAddress": 0,
+        "modbusArea": "coil",
+        "modbusDataType": "bool",
+        "scale": 1,
+        "offset": 0,
+        "template": "",
+        "property": "",
+        "timeout": 0,
+        "retry": 0
+      },
+      {
+        "id": "mb_map_temperature",
+        "enabled": true,
+        "label": "Temperature x10 holding register",
+        "ga": "3/1/2",
+        "dpt": "9.001",
+        "direction": "bidirectional",
+        "iotType": "modbus",
+        "target": "9",
+        "method": "POST",
+        "modbusFunction": "writeHoldingRegister",
+        "modbusMessageFormat": "flex",
+        "modbusUnitId": 1,
+        "modbusAddress": 9,
+        "modbusArea": "holding-register",
+        "modbusDataType": "uint16",
+        "scale": 10,
+        "offset": 0,
+        "template": "",
+        "property": "",
+        "timeout": 0,
+        "retry": 0
+      },
+      {
+        "id": "mb_map_contact",
+        "enabled": true,
+        "label": "Read-only contact",
+        "ga": "3/1/3",
+        "dpt": "1.001",
+        "direction": "iot-to-knx",
+        "iotType": "modbus",
+        "target": "4",
+        "method": "POST",
+        "modbusFunction": "readDiscreteInputs",
+        "modbusMessageFormat": "flex",
+        "modbusUnitId": 1,
+        "modbusAddress": 4,
+        "modbusArea": "discrete-input",
+        "modbusDataType": "bool",
+        "scale": 1,
+        "offset": 0,
+        "template": "",
+        "property": "",
+        "timeout": 0,
+        "retry": 0
+      }
+    ],
+    "x": 650,
+    "y": 260,
+    "wires": [
+      [
+        "mb_flex_write",
+        "mb_debug_flex_payload"
+      ],
+      [
+        "mb_debug_knx_ack"
+      ]
+    ]
+  },
+  {
+    "id": "mb_manual_read",
+    "type": "inject",
+    "z": "mb_flex_tab",
+    "name": "MANUAL read holding register 9",
+    "props": [
+      {
+        "p": "payload",
+        "v": "{\"fc\":3,\"unitid\":1,\"address\":9,\"quantity\":1}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 230,
+    "y": 180,
+    "wires": [
+      [
+        "mb_flex_getter"
+      ]
+    ]
+  },
+  {
+    "id": "mb_flex_getter",
+    "type": "modbus-flex-getter",
+    "z": "mb_flex_tab",
+    "name": "Flex Getter (manual request)",
+    "showStatusActivities": false,
+    "showErrors": true,
+    "showWarnings": true,
+    "logIOActivities": false,
+    "server": "mb_client",
+    "useIOFile": false,
+    "ioFile": "",
+    "useIOForPayload": false,
+    "emptyMsgOnFail": false,
+    "keepMsgProperties": true,
+    "delayOnStart": false,
+    "enableDeformedMessages": false,
+    "startDelayTime": "",
+    "x": 490,
+    "y": 180,
+    "wires": [
+      [
+        "mb_bridge",
+        "mb_debug_read"
+      ],
+      [
+        "mb_debug_modbus_error"
+      ]
+    ]
+  },
+  {
+    "id": "mb_simulated_read",
+    "type": "inject",
+    "z": "mb_flex_tab",
+    "name": "MANUAL simulate raw 215 → KNX 21.5 °C",
+    "props": [
+      {
+        "p": "payload",
+        "v": "[215]",
+        "vt": "json"
+      },
+      {
+        "p": "modbusRequest",
+        "v": "{\"fc\":3,\"unitid\":1,\"address\":9,\"quantity\":1}",
+        "vt": "json"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "x": 270,
+    "y": 300,
+    "wires": [
+      [
+        "mb_bridge"
+      ]
+    ]
+  },
+  {
+    "id": "mb_flex_write",
+    "type": "modbus-flex-write",
+    "z": "mb_flex_tab",
+    "name": "Direct Flex Write",
+    "showStatusActivities": false,
+    "showErrors": true,
+    "showWarnings": true,
+    "logIOActivities": false,
+    "server": "mb_client",
+    "emptyMsgOnFail": false,
+    "keepMsgProperties": true,
+    "delayOnStart": false,
+    "startDelayTime": "",
+    "x": 930,
+    "y": 220,
+    "wires": [
+      [
+        "mb_debug_write"
+      ],
+      [
+        "mb_debug_modbus_error"
+      ]
+    ]
+  },
+  {
+    "id": "mb_debug_flex_payload",
+    "type": "debug",
+    "z": "mb_flex_tab",
+    "name": "Flex payload from bridge",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 960,
+    "y": 280,
+    "wires": []
+  },
+  {
+    "id": "mb_debug_knx_ack",
+    "type": "debug",
+    "z": "mb_flex_tab",
+    "name": "Modbus → KNX ack",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 950,
+    "y": 340,
+    "wires": []
+  },
+  {
+    "id": "mb_debug_read",
+    "type": "debug",
+    "z": "mb_flex_tab",
+    "name": "Raw Modbus read response",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 780,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "mb_debug_write",
+    "type": "debug",
+    "z": "mb_flex_tab",
+    "name": "Modbus write response",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1190,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "mb_debug_modbus_error",
+    "type": "debug",
+    "z": "mb_flex_tab",
+    "name": "Modbus response / error",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1190,
+    "y": 260,
+    "wires": []
+  }
+]

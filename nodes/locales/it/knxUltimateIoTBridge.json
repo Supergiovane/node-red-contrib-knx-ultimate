@@ -79,6 +79,10 @@
       "target": "Target",
       "method": "Metodo HTTP",
       "modbusFunction": "Funzione Modbus",
+      "modbusMessageFormat": "Formato messaggio Modbus",
+      "modbusUnitId": "Unit ID",
+      "modbusArea": "Area Modbus",
+      "modbusDataType": "Tipo di dato",
       "scale": "Scala",
       "offset": "Offset",
       "timeout": "Timeout (ms)",
@@ -103,7 +107,7 @@
       "target": "Topic, URL o registro",
       "target_mqtt": "Topic, es. knx/light/soggiorno",
       "target_rest": "https://example/api/endpoint",
-      "target_modbus": "Registro (es. 40001)",
+      "target_modbus": "Indirizzo zero-based (es. 0)",
       "template": "{\"value\":{{value}}}",
       "property": "Proprietà/percorso opzionale",
       "method": "POST",
@@ -114,7 +118,7 @@
         "default": "Target",
         "mqtt": "Topic MQTT",
         "rest": "URL REST",
-        "modbus": "Registro Modbus"
+        "modbus": "Indirizzo Modbus (zero-based)"
       },
       "method": {
         "default": "Metodo HTTP",
@@ -124,6 +128,20 @@
         "default": "Funzione Modbus",
         "modbus": "Funzione Modbus"
       }
+    },
+    "modbus": {
+      "formatLegacy": "Messaggio scalare legacy",
+      "formatFlex": "Compatibile con Flex Write",
+      "areaCoil": "Coil (lettura FC1 / scrittura FC5)",
+      "areaDiscreteInput": "Discrete input (lettura FC2, sola lettura)",
+      "areaHoldingRegister": "Holding register (lettura FC3 / scrittura FC6)",
+      "areaInputRegister": "Input register (lettura FC4, sola lettura)",
+      "dataTypeBool": "Booleano",
+      "dataTypeUint16": "16 bit senza segno",
+      "dataTypeInt16": "16 bit con segno",
+      "zeroBasedHint": "Usa l’indirizzo di protocollo zero-based (0–65535), non il riferimento 4xxxx riportato da alcuni manuali.",
+      "flexHint": "Flex emette msg.payload = {value,fc,unitid,address,quantity}, collegabile direttamente a modbus-flex-write.",
+      "readOnlyHint": "Discrete input e input register sono di sola lettura e possono usare solo Modbus → KNX."
     },
     "labels": {
       "outputKnxToIoT": "Flusso KNX → IoT",

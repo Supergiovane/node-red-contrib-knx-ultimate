@@ -32,3 +32,4 @@ test/*
 !test/hueController.test.js
 !test/docsNavigation.test.js
 !test/knxUltimateWatchDog.test.js
+!test/knxUltimateIoTBridge.test.js

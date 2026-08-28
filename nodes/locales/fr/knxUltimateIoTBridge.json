@@ -79,6 +79,10 @@
       "target": "Cible",
       "method": "Méthode HTTP",
       "modbusFunction": "Fonction Modbus",
+      "modbusMessageFormat": "Format du message Modbus",
+      "modbusUnitId": "Unit ID",
+      "modbusArea": "Zone Modbus",
+      "modbusDataType": "Type de donnée",
       "scale": "Échelle",
       "offset": "Décalage",
       "timeout": "Délai (ms)",
@@ -103,7 +107,7 @@
       "target": "Topic, URL ou registre",
       "target_mqtt": "Topic, ex. knx/light/salon",
       "target_rest": "https://example/api/endpoint",
-      "target_modbus": "Registre (ex. 40001)",
+      "target_modbus": "Adresse à base zéro (ex. 0)",
       "template": "{\"value\":{{value}}}",
       "property": "Propriété/chemin optionnel",
       "method": "POST",
@@ -114,7 +118,7 @@
         "default": "Cible",
         "mqtt": "Topic MQTT",
         "rest": "URL REST",
-        "modbus": "Registre Modbus"
+        "modbus": "Adresse Modbus (base zéro)"
       },
       "method": {
         "default": "Méthode HTTP",
@@ -124,6 +128,20 @@
         "default": "Fonction Modbus",
         "modbus": "Fonction Modbus"
       }
+    },
+    "modbus": {
+      "formatLegacy": "Message scalaire historique",
+      "formatFlex": "Compatible avec Flex Write",
+      "areaCoil": "Coil (lecture FC1 / écriture FC5)",
+      "areaDiscreteInput": "Discrete input (lecture FC2 uniquement)",
+      "areaHoldingRegister": "Holding register (lecture FC3 / écriture FC6)",
+      "areaInputRegister": "Input register (lecture FC4 uniquement)",
+      "dataTypeBool": "Booléen",
+      "dataTypeUint16": "16 bits non signé",
+      "dataTypeInt16": "16 bits signé",
+      "zeroBasedHint": "Utilisez l’adresse de protocole à base zéro (0–65535), et non la référence 4xxxx indiquée dans certains manuels.",
+      "flexHint": "Flex émet msg.payload = {value,fc,unitid,address,quantity}, directement raccordable à modbus-flex-write.",
+      "readOnlyHint": "Les discrete inputs et input registers sont en lecture seule et acceptent uniquement Modbus → KNX."
     },
     "labels": {
       "outputKnxToIoT": "Flux KNX → IoT",

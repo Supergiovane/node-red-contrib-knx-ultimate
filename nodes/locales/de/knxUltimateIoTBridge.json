@@ -79,6 +79,10 @@
       "target": "Ziel",
       "method": "HTTP-Methode",
       "modbusFunction": "Modbus-Funktion",
+      "modbusMessageFormat": "Modbus-Nachrichtenformat",
+      "modbusUnitId": "Unit-ID",
+      "modbusArea": "Modbus-Bereich",
+      "modbusDataType": "Datentyp",
       "scale": "Skalierung",
       "offset": "Offset",
       "timeout": "Zeitüberschreitung (ms)",
@@ -103,7 +107,7 @@
       "target": "Topic, URL oder Register",
       "target_mqtt": "Topic, z. B. knx/light/living",
       "target_rest": "https://example/api/endpoint",
-      "target_modbus": "Register (z. B. 40001)",
+      "target_modbus": "Nullbasierte Adresse (z. B. 0)",
       "template": "{\"value\":{{value}}}",
       "property": "Optionale Eigenschaft/Pfad",
       "method": "POST",
@@ -114,7 +118,7 @@
         "default": "Ziel",
         "mqtt": "MQTT-Topic",
         "rest": "REST-URL",
-        "modbus": "Modbus-Register"
+        "modbus": "Modbus-Adresse (nullbasiert)"
       },
       "method": {
         "default": "HTTP-Methode",
@@ -124,6 +128,20 @@
         "default": "Modbus-Funktion",
         "modbus": "Modbus-Funktion"
       }
+    },
+    "modbus": {
+      "formatLegacy": "Legacy-Skalar-Nachricht",
+      "formatFlex": "Mit Flex Write kompatibel",
+      "areaCoil": "Coil (FC1 lesen / FC5 schreiben)",
+      "areaDiscreteInput": "Discrete Input (FC2 lesen, schreibgeschützt)",
+      "areaHoldingRegister": "Holding Register (FC3 lesen / FC6 schreiben)",
+      "areaInputRegister": "Input Register (FC4 lesen, schreibgeschützt)",
+      "dataTypeBool": "Boolesch",
+      "dataTypeUint16": "16 Bit ohne Vorzeichen",
+      "dataTypeInt16": "16 Bit mit Vorzeichen",
+      "zeroBasedHint": "Verwende die nullbasierte Protokolladresse (0–65535), nicht die in manchen Handbüchern angegebene 4xxxx-Referenz.",
+      "flexHint": "Flex gibt msg.payload = {value,fc,unitid,address,quantity} zur direkten Verbindung mit modbus-flex-write aus.",
+      "readOnlyHint": "Discrete Inputs und Input Register sind schreibgeschützt und können nur Modbus → KNX verwenden."
     },
     "labels": {
       "outputKnxToIoT": "Strom KNX → IoT",

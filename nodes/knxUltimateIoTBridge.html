@@ -1,6 +1,52 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
+    function knxUltimateIoTBridgeHasValue(value) {
+        return value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '');
+    }
+
+    function knxUltimateIoTBridgeFiniteNumber(value) {
+        if (!knxUltimateIoTBridgeHasValue(value) || typeof value === 'boolean') return null;
+        const parsed = typeof value === 'number' ? value : Number(String(value).trim());
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function knxUltimateIoTBridgeFlexMappingsValid(mappings) {
+        if (!Array.isArray(mappings)) return false;
+
+        return mappings.every(function (mapping) {
+            if (!mapping || typeof mapping !== 'object') return false;
+            if (mapping.enabled === false || mapping.iotType !== 'modbus' || mapping.modbusMessageFormat !== 'flex') return true;
+
+            const unitId = knxUltimateIoTBridgeFiniteNumber(
+                knxUltimateIoTBridgeHasValue(mapping.modbusUnitId) ? mapping.modbusUnitId : 1
+            );
+            const address = knxUltimateIoTBridgeFiniteNumber(
+                knxUltimateIoTBridgeHasValue(mapping.modbusAddress) ? mapping.modbusAddress : mapping.target
+            );
+            const scale = knxUltimateIoTBridgeFiniteNumber(
+                knxUltimateIoTBridgeHasValue(mapping.scale) ? mapping.scale : 1
+            );
+            const offset = knxUltimateIoTBridgeFiniteNumber(
+                knxUltimateIoTBridgeHasValue(mapping.offset) ? mapping.offset : 0
+            );
+
+            return Number.isInteger(unitId) && unitId >= 0 && unitId <= 255 &&
+                Number.isInteger(address) && address >= 0 && address <= 65535 &&
+                scale !== null && scale !== 0 && offset !== null;
+        });
+    }
+
+    function knxUltimateIoTBridgeSavedFlexField(originalMapping, key, preserveOriginal, currentValue) {
+        if (preserveOriginal) {
+            if (originalMapping && Object.prototype.hasOwnProperty.call(originalMapping, key)) {
+                return { present: true, value: originalMapping[key] };
+            }
+            return { present: false };
+        }
+        return { present: true, value: currentValue };
+    }
+
     RED.nodes.registerType('knxUltimateIoTBridge', {
         category: 'KNX Ultimate',
         color: '#C7E9C0',
@@ -11,7 +57,13 @@
             emitOnChangeOnly: { value: true },
             readOnDeploy: { value: true },
             acceptFlowInput: { value: true },
-            mappings: { value: [] },
+            mappings: {
+                value: [],
+                validate: function (value) {
+                    if (this.nodeMode === 'homeassistant') return true;
+                    return knxUltimateIoTBridgeFlexMappingsValid(value);
+                }
+            },
             nodeMode: { value: 'homeassistant' },
             haBusMode: { value: 'standalone' },
             inputs: { value: 1 },
@@ -81,6 +133,24 @@
                 { value: 'modbus', label: node._('knxUltimateIoTBridge.type.modbus') }
             ];
 
+            const modbusMessageFormats = [
+                { value: 'flex', label: node._('knxUltimateIoTBridge.modbus.formatFlex') },
+                { value: 'legacy', label: node._('knxUltimateIoTBridge.modbus.formatLegacy') }
+            ];
+
+            const modbusAreas = [
+                { value: 'coil', label: node._('knxUltimateIoTBridge.modbus.areaCoil') },
+                { value: 'discrete-input', label: node._('knxUltimateIoTBridge.modbus.areaDiscreteInput') },
+                { value: 'holding-register', label: node._('knxUltimateIoTBridge.modbus.areaHoldingRegister') },
+                { value: 'input-register', label: node._('knxUltimateIoTBridge.modbus.areaInputRegister') }
+            ];
+
+            const modbusDataTypes = [
+                { value: 'bool', label: node._('knxUltimateIoTBridge.modbus.dataTypeBool') },
+                { value: 'uint16', label: node._('knxUltimateIoTBridge.modbus.dataTypeUint16') },
+                { value: 'int16', label: node._('knxUltimateIoTBridge.modbus.dataTypeInt16') }
+            ];
+
             function createLabeledField(row, key, element, options = {}) {
                 const wrapper = $('<div/>', {
                     class: 'bridge-field-wrapper',
@@ -111,10 +181,34 @@
             };
 
             const container = $('#node-input-mapping-container');
+            const validateAllFlexRows = () => {
+                let valid = true;
+                try {
+                    if ($('#node-input-nodeMode').val() === 'homeassistant') {
+                        container.editableList('items').each(function () {
+                            const validateRow = $(this).data('validate-flex');
+                            if (typeof validateRow === 'function') validateRow();
+                        });
+                    } else {
+                        container.editableList('items').each(function () {
+                            const validateRow = $(this).data('validate-flex');
+                            if (typeof validateRow === 'function' && !validateRow()) valid = false;
+                        });
+                    }
+                } catch (error) { }
+                $('#node-dialog-ok').prop('disabled', !valid).toggleClass('disabled', !valid);
+                return valid;
+            };
+            const scheduleFlexValidation = () => setTimeout(validateAllFlexRows, 0);
+
             container.css('min-height', '320px').css('min-width', '640px').editableList({
                 sortable: true,
                 removable: true,
+                removeItem: scheduleFlexValidation,
                 addItem: function (row, index, data) {
+                    const originalMapping = data && data.mapping && typeof data.mapping === 'object'
+                        ? $.extend(true, {}, data.mapping)
+                        : null;
                     const mapping = $.extend(true, {
                         id: '',
                         enabled: true,
@@ -126,13 +220,26 @@
                         target: '',
                         method: 'POST',
                         modbusFunction: 'writeHoldingRegister',
+                        modbusMessageFormat: 'flex',
+                        modbusUnitId: 1,
+                        modbusArea: 'holding-register',
+                        modbusDataType: 'uint16',
                         scale: 1,
                         offset: 0,
                         template: '',
                         property: '',
                         timeout: 0,
                         retry: 0
-                    }, data.mapping);
+                    }, originalMapping || {});
+
+                    // A missing format identifies the scalar contract used by older saved flows.
+                    // Do not migrate it merely because the editor was opened and saved untouched.
+                    if (originalMapping && originalMapping.iotType === 'modbus' && !Object.prototype.hasOwnProperty.call(originalMapping, 'modbusMessageFormat')) {
+                        mapping.modbusMessageFormat = 'legacy';
+                    }
+                    if (!knxUltimateIoTBridgeHasValue(mapping.modbusAddress) && knxUltimateIoTBridgeHasValue(mapping.target)) {
+                        mapping.modbusAddress = mapping.target;
+                    }
 
                     if (!mapping.id || mapping.id === '') {
                         try {
@@ -206,7 +313,12 @@
                     const targetInput = createLabeledField(midRow, 'target', $('<input/>', {
                         type: 'text',
                         class: 'form-control bridge-target'
-                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.target')).val(mapping.target), { flex: '1 1 280px' });
+                    }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.target')).val(
+                        mapping.iotType === 'modbus' && mapping.modbusMessageFormat === 'flex'
+                            ? mapping.modbusAddress
+                            : mapping.target
+                    ), { flex: '1 1 280px' });
+                    targetInput.on('input change', function () { row.data('target-edited', true); });
 
                     const methodInput = createLabeledField(midRow, 'method', $('<input/>', {
                         type: 'text',
@@ -217,6 +329,20 @@
                         type: 'text',
                         class: 'form-control bridge-modbus'
                     }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.modbusFunction')).val(mapping.modbusFunction), { width: '180px' });
+
+                    const modbusFormatSelect = createLabeledField(midRow, 'modbusMessageFormat', buildSelect(modbusMessageFormats, mapping.modbusMessageFormat).addClass('bridge-modbus-format'), { width: '230px' });
+
+                    const modbusUnitIdInput = createLabeledField(midRow, 'modbusUnitId', $('<input/>', {
+                        type: 'number',
+                        class: 'form-control bridge-modbus-unitid',
+                        min: 0,
+                        max: 255,
+                        step: 1
+                    }).val(mapping.modbusUnitId), { width: '110px' });
+
+                    const modbusAreaSelect = createLabeledField(midRow, 'modbusArea', buildSelect(modbusAreas, mapping.modbusArea).addClass('bridge-modbus-area'), { width: '190px' });
+
+                    const modbusDataTypeSelect = createLabeledField(midRow, 'modbusDataType', buildSelect(modbusDataTypes, mapping.modbusDataType).addClass('bridge-modbus-datatype'), { width: '170px' });
 
                     const scaleInput = createLabeledField(midRow, 'scale', $('<input/>', {
                         type: 'number',
@@ -248,9 +374,63 @@
                         class: 'form-control bridge-property'
                     }).attr('placeholder', node._('knxUltimateIoTBridge.placeholders.property')).val(mapping.property), { flex: '1 1 260px' });
 
+                    const modbusHint = $('<div/>', {
+                        class: 'bridge-modbus-hint',
+                        style: 'display:none; width:100%; margin-top:4px; padding:7px 9px; border-left:3px solid #5b8def; background:rgba(91,141,239,0.08); font-size:11px; line-height:1.4;'
+                    }).appendTo(bottomRow);
+
+                    const validateFlexInputs = () => {
+                        const isFlexModbus = $('#node-input-nodeMode').val() !== 'homeassistant' && enabled.is(':checked') && typeSelect.val() === 'modbus' && modbusFormatSelect.val() === 'flex';
+                        const validations = [
+                            {
+                                element: modbusUnitIdInput,
+                                valid: (value) => {
+                                    const parsed = knxUltimateIoTBridgeFiniteNumber(value);
+                                    return Number.isInteger(parsed) && parsed >= 0 && parsed <= 255;
+                                }
+                            },
+                            {
+                                element: targetInput,
+                                valid: (value) => {
+                                    const parsed = knxUltimateIoTBridgeFiniteNumber(value);
+                                    return Number.isInteger(parsed) && parsed >= 0 && parsed <= 65535;
+                                }
+                            },
+                            {
+                                element: scaleInput,
+                                valid: (value) => {
+                                    const parsed = knxUltimateIoTBridgeFiniteNumber(value);
+                                    return parsed !== null && parsed !== 0;
+                                }
+                            },
+                            {
+                                element: offsetInput,
+                                valid: (value) => knxUltimateIoTBridgeFiniteNumber(value) !== null
+                            }
+                        ];
+
+                        let valid = true;
+                        validations.forEach(function (validation) {
+                            const fieldValid = !isFlexModbus || validation.valid(validation.element.val());
+                            validation.element.toggleClass('input-error', !fieldValid);
+                            validation.element.attr('aria-invalid', fieldValid ? 'false' : 'true');
+                            valid = valid && fieldValid;
+                        });
+                        return valid;
+                    };
+
                     const updateChannelPresentation = (channel) => {
+                        const targetWrapper = targetInput.data('bridgeWrapper');
                         const methodWrapper = methodInput.data('bridgeWrapper');
                         const modbusWrapper = modbusInput.data('bridgeWrapper');
+                        const modbusFormatWrapper = modbusFormatSelect.data('bridgeWrapper');
+                        const modbusUnitIdWrapper = modbusUnitIdInput.data('bridgeWrapper');
+                        const modbusAreaWrapper = modbusAreaSelect.data('bridgeWrapper');
+                        const modbusDataTypeWrapper = modbusDataTypeSelect.data('bridgeWrapper');
+                        const timeoutWrapper = timeoutInput.data('bridgeWrapper');
+                        const retryWrapper = retryInput.data('bridgeWrapper');
+                        const templateWrapper = templateInput.data('bridgeWrapper');
+                        const propertyWrapper = propertyInput.data('bridgeWrapper');
                         const targetLabel = targetInput.data('bridgeLabel');
                         const methodLabel = methodInput.data('bridgeLabel');
                         const modbusLabel = modbusInput.data('bridgeLabel');
@@ -274,16 +454,40 @@
                             return placeholder;
                         };
 
-                        if (channel === 'rest') {
-                            methodWrapper.show();
-                        } else {
-                            methodWrapper.hide();
-                        }
+                        const isRest = channel === 'rest';
+                        const isModbus = channel === 'modbus';
+                        const isFlexModbus = isModbus && modbusFormatSelect.val() === 'flex';
+                        const isBitArea = ['coil', 'discrete-input'].includes(modbusAreaSelect.val());
+                        const isReadOnlyArea = ['discrete-input', 'input-register'].includes(modbusAreaSelect.val());
 
-                        if (channel === 'modbus') {
-                            modbusWrapper.show();
+                        targetWrapper.show();
+                        methodWrapper.toggle(isRest);
+                        modbusWrapper.toggle(isModbus && !isFlexModbus);
+                        modbusFormatWrapper.toggle(isModbus);
+                        modbusUnitIdWrapper.toggle(isFlexModbus);
+                        modbusAreaWrapper.toggle(isFlexModbus);
+                        modbusDataTypeWrapper.toggle(isFlexModbus);
+                        timeoutWrapper.toggle(isRest || (isModbus && !isFlexModbus));
+                        retryWrapper.toggle(isRest || (isModbus && !isFlexModbus));
+                        templateWrapper.toggle(!isFlexModbus);
+                        propertyWrapper.toggle(!isFlexModbus);
+                        if (isFlexModbus && isReadOnlyArea) directionSelect.val('iot-to-knx');
+                        directionSelect.prop('disabled', isFlexModbus && isReadOnlyArea);
+
+                        if (isFlexModbus) {
+                            targetInput.attr({ type: 'number', min: 0, max: 65535, step: 1 });
+                            if (isBitArea) modbusDataTypeSelect.val('bool');
+                            modbusDataTypeSelect.prop('disabled', isBitArea);
+                            const hints = [
+                                node._('knxUltimateIoTBridge.modbus.zeroBasedHint'),
+                                node._('knxUltimateIoTBridge.modbus.flexHint')
+                            ];
+                            if (isReadOnlyArea) hints.push(node._('knxUltimateIoTBridge.modbus.readOnlyHint'));
+                            modbusHint.text(hints.join(' ')).show();
                         } else {
-                            modbusWrapper.hide();
+                            targetInput.attr('type', 'text').removeAttr('min max step');
+                            modbusDataTypeSelect.prop('disabled', false);
+                            modbusHint.hide();
                         }
 
                         targetLabel.text(translateVariant('target', channel, 'target'));
@@ -291,15 +495,56 @@
 
                         methodLabel.text(translateVariant('method', channel, 'method'));
                         modbusLabel.text(translateVariant('modbusFunction', channel, 'modbusFunction'));
+                        scheduleFlexValidation();
                     };
 
+                    let previousChannel = typeSelect.val();
                     typeSelect.on('change', function () {
-                        updateChannelPresentation($(this).val());
+                        row.data('channel-edited', true);
+                        const channel = $(this).val();
+                        if (channel === 'modbus' && previousChannel !== 'modbus') modbusFormatSelect.val('flex');
+                        previousChannel = channel;
+                        updateChannelPresentation(channel);
                     });
 
-                    updateChannelPresentation(typeSelect.val());
+                    modbusFormatSelect.on('change', function () {
+                        row.data('modbus-format-edited', true);
+                        updateChannelPresentation(typeSelect.val());
+                    });
+
+                    modbusAreaSelect.on('change', function () {
+                        row.data('modbus-area-edited', true);
+                        if (['discrete-input', 'input-register'].includes($(this).val())) directionSelect.val('iot-to-knx');
+                        updateChannelPresentation(typeSelect.val());
+                    });
+
+                    modbusDataTypeSelect.on('change', function () {
+                        row.data('modbus-datatype-edited', true);
+                    });
+
+                    modbusUnitIdInput.on('input change', function () {
+                        row.data('modbus-unitid-edited', true);
+                        scheduleFlexValidation();
+                    });
+
+                    targetInput.on('input change', scheduleFlexValidation);
+
+                    enabled.on('change', scheduleFlexValidation);
+
+                    scaleInput.on('input change', function () {
+                        row.data('scale-edited', true);
+                        scheduleFlexValidation();
+                    });
+
+                    offsetInput.on('input change', function () {
+                        row.data('offset-edited', true);
+                        scheduleFlexValidation();
+                    });
 
                     row.data('mapping-id', mapping.id || '');
+                    row.data('original-mapping', originalMapping);
+                    row.data('validate-flex', validateFlexInputs);
+                    updateChannelPresentation(typeSelect.val());
                 }
             });
 
@@ -316,6 +561,7 @@
                     $('.iot-mode-row').toggle(!ha);
                     // The flow-mode hint is only relevant while the "flow msg" bus mode is picked.
                     $('.ha-flow-hint').toggle(ha && $('#node-input-haBusMode').val() === 'flow');
+                    scheduleFlexValidation();
                 }
                 $('#node-input-nodeMode').on('change', refreshMode);
                 $('#node-input-haBusMode').on('change', refreshMode);
@@ -542,20 +788,34 @@
             } catch (error) { }
         },
         oneditsave: function () {
+            $('#node-dialog-ok').prop('disabled', false).removeClass('disabled');
             const node = this;
             const items = $('#node-input-mapping-container').editableList('items');
             node.mappings = [];
             items.each(function () {
                 const row = $(this);
-                node.mappings.push({
+                const originalMapping = row.data('original-mapping');
+                const channel = row.find('.bridge-type').val();
+                const target = row.find('.bridge-target').val();
+                const modbusFormat = row.find('.bridge-modbus-format').val() || 'legacy';
+                const modbusArea = row.find('.bridge-modbus-area').val() || 'holding-register';
+                const hasOriginalField = (key) => originalMapping && Object.prototype.hasOwnProperty.call(originalMapping, key);
+                const parseEditorNumber = (value) => {
+                    if (!knxUltimateIoTBridgeHasValue(value)) return '';
+                    const parsed = knxUltimateIoTBridgeFiniteNumber(value);
+                    return parsed === null ? value : parsed;
+                };
+                const savedMapping = {
                     id: row.data('mapping-id') || '',
                     enabled: row.find('.bridge-enabled').is(':checked'),
                     label: row.find('.bridge-label').val(),
                     ga: row.find('.bridge-ga').val(),
                     dpt: row.find('.bridge-dpt').val(),
                     direction: row.find('.bridge-direction').val(),
-                    iotType: row.find('.bridge-type').val(),
-                    target: row.find('.bridge-target').val(),
+                    iotType: channel,
+                    target: originalMapping && originalMapping.iotType === 'modbus' && originalMapping.modbusMessageFormat === 'flex' && channel === 'modbus' && modbusFormat === 'flex' && !row.data('target-edited')
+                        ? originalMapping.target
+                        : target,
                     method: row.find('.bridge-method').val(),
                     modbusFunction: row.find('.bridge-modbus').val(),
                     scale: row.find('.bridge-scale').val(),
@@ -564,7 +824,63 @@
                     retry: row.find('.bridge-retry').val(),
                     template: row.find('.bridge-template').val(),
                     property: row.find('.bridge-property').val()
-                });
+                };
+
+                if (channel === 'modbus') {
+                    const originalHadFormat = hasOriginalField('modbusMessageFormat');
+                    if (!originalMapping || originalHadFormat || modbusFormat === 'flex') savedMapping.modbusMessageFormat = modbusFormat;
+
+                    if (modbusFormat === 'flex') {
+                        const sameOriginalFlexMapping = originalMapping &&
+                            originalMapping.iotType === 'modbus' &&
+                            originalMapping.modbusMessageFormat === 'flex' &&
+                            !row.data('channel-edited') &&
+                            !row.data('modbus-format-edited');
+                        const saveFlexField = (key, editedDataKey, currentValue, parser, relatedFieldEdited) => {
+                            const parsedValue = parser ? parser(currentValue) : currentValue;
+                            const field = knxUltimateIoTBridgeSavedFlexField(
+                                originalMapping,
+                                key,
+                                sameOriginalFlexMapping && !row.data(editedDataKey) && !relatedFieldEdited,
+                                parsedValue
+                            );
+                            if (field.present) savedMapping[key] = field.value;
+                            else delete savedMapping[key];
+                        };
+
+                        saveFlexField('modbusUnitId', 'modbus-unitid-edited', row.find('.bridge-modbus-unitid').val(), parseEditorNumber);
+                        saveFlexField('modbusAddress', 'target-edited', target, parseEditorNumber);
+                        saveFlexField('modbusArea', 'modbus-area-edited', modbusArea);
+                        saveFlexField(
+                            'modbusDataType',
+                            'modbus-datatype-edited',
+                            row.find('.bridge-modbus-datatype').val(),
+                            null,
+                            row.data('modbus-area-edited')
+                        );
+                        saveFlexField('scale', 'scale-edited', row.find('.bridge-scale').val(), parseEditorNumber);
+                        saveFlexField('offset', 'offset-edited', row.find('.bridge-offset').val(), parseEditorNumber);
+
+                        if (!sameOriginalFlexMapping || row.data('modbus-area-edited')) {
+                            savedMapping.modbusFunction = {
+                                coil: 'writeCoil',
+                                'discrete-input': 'readDiscreteInputs',
+                                'holding-register': 'writeHoldingRegister',
+                                'input-register': 'readInputRegisters'
+                            }[modbusArea];
+                        }
+                    } else if (originalMapping) {
+                        ['modbusUnitId', 'modbusAddress', 'modbusArea', 'modbusDataType'].forEach(function (key) {
+                            if (Object.prototype.hasOwnProperty.call(originalMapping, key)) savedMapping[key] = originalMapping[key];
+                        });
+                    }
+                } else if (originalMapping) {
+                    ['modbusMessageFormat', 'modbusUnitId', 'modbusAddress', 'modbusArea', 'modbusDataType'].forEach(function (key) {
+                        if (Object.prototype.hasOwnProperty.call(originalMapping, key)) savedMapping[key] = originalMapping[key];
+                    });
+                }
+
+                node.mappings.push(savedMapping);
             });
             // Serialize Home Assistant composite entities (cover / climate).
             try {
@@ -623,6 +939,9 @@
             try {
                 RED.sidebar.show('info');
             } catch (error) { }
+        },
+        oneditcancel: function () {
+            $('#node-dialog-ok').prop('disabled', false).removeClass('disabled');
         },
         oneditresize: function (size) {
             const rows = $('#dialog-form>div:not(.node-input-mapping-container-row)');
@@ -764,10 +1083,20 @@ Configure bidirectional maps between KNX group addresses and IoT backends such a
 
 ### Mapping options
 - **Direction**: choose between KNX→IoT, IoT→KNX or bidirectional.
-- **Channel type**: pick MQTT, REST or Modbus. The `target` field adapts: topic name, URL or register address.
+- **Channel type**: pick MQTT, REST or Modbus. The editor shows only the fields used by that protocol.
 - **Template**: optional string; placeholders `{{value}}`, `{{ga}}`, `{{target}}`, `{{label}}`, `{{type}}`, `{{isoTimestamp}}` are replaced at runtime.
 - **Scale & Offset**: numeric transformation applied on KNX→IoT. For IoT→KNX the inverse is used.
 - **Timeout/Retries**: retained for flow logic; the node does not execute external requests but exposes the desired values to downstream nodes.
+
+### Modbus adapter
+
+The bridge does not open a Modbus connection. Install a version of `node-red-contrib-modbus` compatible with your Node.js/Node-RED host and let its nodes own TCP/RTU, polling, queues and reconnection.
+
+- Choose **node-red-contrib-modbus (Flex)** for new mappings. Existing mappings without this setting retain their legacy scalar message unchanged.
+- Configure Unit ID, area, zero-based protocol address and Boolean/unsigned 16-bit/signed 16-bit data format. Vendor references such as `40001` are not converted automatically because their notation is ambiguous.
+- A KNX `GroupValue_Write` produces the exact `modbus-flex-write` input: `msg.payload = {value, fc, unitid, address, quantity}`. KNX read responses never become Modbus writes.
+- Wire the data output of `modbus-read` or `modbus-flex-getter` to this node. It reads the request from `msg.input.payload` (Modbus Read) or `msg.modbusRequest` (Flex Getter), accepts values from `msg.payload`/`msg.values`, and writes only changed values to KNX. Flex Write acknowledgements are ignored as state.
+- Coil and Holding Register support writes (FC5/FC6). Discrete Input and Input Register are read-only (FC2/FC4). This first adapter intentionally maps one bit or one 16-bit register; use Scale/Offset for fixed-point values.
 
 ### Tips
 - Place HTTP or MQTT nodes after the bridge outputs to perform the actual transport.

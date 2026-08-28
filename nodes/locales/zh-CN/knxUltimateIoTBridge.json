@@ -79,6 +79,10 @@
       "target": "目标",
       "method": "HTTP 方法",
       "modbusFunction": "Modbus 功能",
+      "modbusMessageFormat": "Modbus 消息格式",
+      "modbusUnitId": "Unit ID",
+      "modbusArea": "Modbus 区域",
+      "modbusDataType": "数据类型",
       "scale": "缩放",
       "offset": "偏移",
       "timeout": "超时 (ms)",
@@ -103,7 +107,7 @@
       "target": "主题、URL 或寄存器",
       "target_mqtt": "主题，例如 knx/light/living",
       "target_rest": "https://example/api/endpoint",
-      "target_modbus": "寄存器（如 40001）",
+      "target_modbus": "从零开始的地址（如 0）",
       "template": "{\"value\":{{value}}}",
       "property": "可选属性/路径",
       "method": "POST",
@@ -114,7 +118,7 @@
         "default": "目标",
         "mqtt": "MQTT 主题",
         "rest": "REST URL",
-        "modbus": "Modbus 寄存器"
+        "modbus": "Modbus 地址（从零开始）"
       },
       "method": {
         "default": "HTTP 方法",
@@ -124,6 +128,20 @@
         "default": "Modbus 功能",
         "modbus": "Modbus 功能"
       }
+    },
+    "modbus": {
+      "formatLegacy": "旧版标量消息",
+      "formatFlex": "兼容 Flex Write",
+      "areaCoil": "线圈（FC1 读取 / FC5 写入）",
+      "areaDiscreteInput": "离散输入（FC2 读取，只读）",
+      "areaHoldingRegister": "保持寄存器（FC3 读取 / FC6 写入）",
+      "areaInputRegister": "输入寄存器（FC4 读取，只读）",
+      "dataTypeBool": "布尔值",
+      "dataTypeUint16": "16 位无符号整数",
+      "dataTypeInt16": "16 位有符号整数",
+      "zeroBasedHint": "请使用从零开始的协议地址（0–65535），不要使用某些手册中标注的 4xxxx 引用编号。",
+      "flexHint": "Flex 输出 msg.payload = {value,fc,unitid,address,quantity}，可直接连接到 modbus-flex-write。",
+      "readOnlyHint": "离散输入和输入寄存器为只读，只能使用 Modbus → KNX。"
     },
     "labels": {
       "outputKnxToIoT": "KNX → IoT 流",

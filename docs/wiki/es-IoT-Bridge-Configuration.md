@@ -51,7 +51,8 @@ Los tipos de datapoint se leen de la importación ETS cuando están disponibles;
 | **GA / DPT** | Dirección de grupo y datapoint | Configúralos manualmente o usando el autocompletado ETS. |
 | **Dirección** | KNX→IoT, IoT→KNX, Bidireccional | Determina qué salidas se utilizan. |
 | **Tipo de canal** | MQTT / REST / Modbus | Cambia el significado de `Target`. |
-| **Target** | Topic, URL base o registro | Vacío = usa `outputtopic` del nodo. |
+| **Target** | Topic, URL base o dirección Modbus desde cero | Modbus requiere una dirección de protocolo entre 0 y 65535, no una referencia 4xxxx. |
+| **Formato Modbus / Unit ID / Área / Tipo de dato** | Contrato de mensaje Flex o heredado y definición del registro | Usa Flex para mapeos nuevos; si falta el formato se mantiene el heredado por compatibilidad. |
 | **Template** | Formato de cadena | Placeholders `{{value}}`, `{{ga}}`, `{{type}}`, `{{target}}`, `{{label}}`, `{{isoTimestamp}}`. |
 | **Escala / Offset** | Conversión numérica | Se aplica en KNX→IoT; el sentido inverso se usa para IoT→KNX. |
 | **Timeout / Reintentos** | Hints de reintento | Los nodos posteriores pueden usarlos para controlar reenvíos. |
@@ -64,8 +65,34 @@ Los tipos de datapoint se leen de la importación ETS cuando están disponibles;
 - Envía la salida 1 al nodo core `http request` (o contrib como [`node-red-contrib-http-request`](https://flows.nodered.org/node/node-red-contrib-http-request)).
 - El bridge copia `bridge.method` a `msg.method` y el template al payload, ideal para webhooks JSON.
 ### Registros Modbus
-- Úsalo con [`node-red-contrib-modbus`](https://flows.nodered.org/node/node-red-contrib-modbus) (`modbus-flex-write`, `modbus-write`).
-- El `Target` marca el registro; `msg.payload` contiene el valor ya transformado.
+
+El IoT Bridge es un adaptador de mensajes para [`node-red-contrib-modbus`](https://flows.nodered.org/node/node-red-contrib-modbus). No crea un cliente TCP/serie ni consulta dispositivos por sí mismo: instala una versión del paquete compatible con tu runtime Node-RED y configura esas funciones en los nodos Modbus externos.
+
+| Área | FC lectura | FC escritura | Dirección |
+| -- | -- | -- | -- |
+| Coil | 1 | 5 | KNX ↔ Modbus |
+| Discrete input | 2 | — | Solo Modbus → KNX |
+| Holding register | 3 | 6 | KNX ↔ Modbus |
+| Input register | 4 | — | Solo Modbus → KNX |
+
+Para las filas nuevas elige **Compatible con Flex Write**, configura **Unit ID**, **Área** y **Tipo de dato**, y escribe en **Target** la dirección de protocolo desde cero. Un valor KNX enviado a un coil genera FC5; a un holding register genera FC6. La salida 1 es directamente compatible con `modbus-flex-write`:
+
+```js
+msg.payload = {
+  value: 215,
+  fc: 6,
+  unitid: 1,
+  address: 9,
+  quantity: 1
+}
+```
+
+Para llevar datos a KNX, conecta la salida de datos de `modbus-flex-getter` o `modbus-read` a la entrada del bridge. Flex Getter proporciona la petición (`fc`, `unitid`, `address`, `quantity`) en `msg.modbusRequest`; Modbus Read la conserva en `msg.input.payload`. El array de valores devuelto puede estar en `msg.payload` o `msg.values`. El bridge admite ambas formas de mensaje. Activa **Keep Msg Properties** en Flex Getter. Una respuesta de lectura puede cubrir varias direcciones configuradas y el bridge selecciona el elemento correcto del array para cada fila coincidente.
+
+Cada mapeo admite un bit o un único registro de 16 bits: `bool`, `uint16` o `int16`. Los valores multipalabra, la decodificación de 32 bits/float y la conversión del orden de bytes/palabras quedan fuera de este adaptador. Escala y offset siguen `raw = KNX × escala + offset`; Modbus → KNX aplica la inversa. **Leer valores KNX al desplegar** no realiza polling Modbus.
+
+Los mapeos sin `modbusMessageFormat` conservan la salida escalar heredada con `msg.address` y `msg.modbusFunction` en el nivel superior, así que los flows guardados no se migran silenciosamente.
+
 ## Flujos de ejemplo
 ### Estado KNX → MQTT
 ```json
@@ -172,13 +199,14 @@ Combina ambos fragmentos para tener ida y vuelta KNX ↔ MQTT con confirmaciones
 
 Dirige la salida 1 a `http request` y usa la respuesta junto con `bridge.retry` para decidir reintentos.
 ### Escritura Modbus
-1. Configura `Target = 40010`, `Tipo = Modbus`, `Dirección = Bidireccional`.
-2. Conecta la salida 1 a `modbus-flex-write` y asigna `msg.payload` al valor del nodo Modbus.
-3. Usa el ack para confirmar cuándo KNX se sincroniza tras la actualización del registro.
+1. Configura `Target = 9`, `Tipo = Modbus`, `Formato = Compatible con Flex Write`, `Unit ID = 1`, `Área = Holding register`, `Tipo de dato = uint16`.
+2. Conecta la salida 1 directamente a `modbus-flex-write`; no se necesita un nodo Function.
+3. Conecta la respuesta de `modbus-read` o `modbus-flex-getter` a la entrada del bridge para Modbus → KNX.
+4. Importa `examples/IoT Bridge - Modbus Flex Adapter.json` como flow inicial manual y sin polling.
 ## Consejos
-- Deja `Target` vacío si quieres reutilizar `outputtopic` para varios mapeos.
+- Deja `Target` vacío solo en mapeos MQTT/REST que deban heredar `outputtopic`; Modbus Flex necesita una dirección.
 - `emitOnChangeOnly` reduce el ruido de sensores; desactívalo si necesitas todos los telegramas.
-- El pin 2 replica el payload IoT original y facilita el debug de escalados.
-- Para float Modbus específicos, añade un `function` que prepare el formato (16/32 bits, orden de bytes, etc.).
+- El pin 2 confirma el valor enviado realmente a KNX; no es una confirmación física de lectura/escritura Modbus.
+- Una referencia de manual como `40010` suele corresponder a la dirección `9`, pero comprueba siempre la documentación del dispositivo.
 ¡Feliz bridge!
 {% endraw %}
