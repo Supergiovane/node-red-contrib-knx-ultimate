@@ -4,12 +4,14 @@
     "sections": {
       "groupAssistant": "AI assistant",
       "groupChatHome": "Conversations & home",
-      "detectedAdapters": "Automatically detected adapters",
+      "setupDoctor": "Setup Doctor",
+      "webIntelligence": "Web intelligence",
+      "detectedAdapters": "Compatible nodes detected and used in chat",
       "chatContextOverview": "Chat context overview",
       "chatLearning": "AI Chat Learning",
       "quickSetup": "Assistant setup",
       "llmConnection": "AI Assistant Connection",
-      "chatAdapter": "Chat channels",
+      "chatAdapter": "Chat input and output pins",
       "homeIntelligence": "AI Education & memory",
       "advanced": "Provider & limits"
     },
@@ -27,10 +29,13 @@
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "Allow AI to read KNX states and control actuators",
       "llmRequireCommandConfirmation": "Ask for confirmation before sending KNX commands",
-      "chatAdapterPreset": "Adapter preset",
+      "webAccessEnabled": "Allow the AI to use the Web",
+      "webProactiveEnabled": "Allow proactive Web checks",
+      "webProactiveIntervalMinutes": "Minimum proactive interval",
+      "webMaxCallsPerHour": "Maximum Web calls per hour",
+      "chatAdapterPreset": "Input/output message adapter",
       "chatInputCode": "Input mapping (chat → KNX AI)",
       "chatOutputCode": "Output mapping (KNX AI → chat)",
-      "ttsUltimateNodeId": "TTS Ultimate announcement node",
       "aiEducation": "AI Education (user managed)",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)"
     },
@@ -38,7 +43,8 @@
       "summary": "Summary/Stats",
       "anomalies": "Anomalies",
       "assistant": "AI Assistant",
-      "knxCommands": "KNX operations"
+      "knxCommands": "KNX operations",
+      "ttsUltimate": "TTS Ultimate announcements"
     },
     "selectlists": {
       "llmProvider": {
@@ -55,12 +61,17 @@
       "chatAdapter": {
         "none": "No adapter"
       },
-      "ttsUltimate": {
-        "select": "Select a TTS Ultimate node",
-        "none": "No TTS Ultimate node found"
+      "webProactiveInterval": {
+        "5": "5 minutes",
+        "10": "10 minutes",
+        "15": "15 minutes",
+        "30": "30 minutes",
+        "60": "1 hour",
+        "180": "3 hours"
       }
     },
     "buttons": {
+      "refreshSetupDoctor": "Check again",
       "refreshModels": "Refresh",
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
@@ -68,6 +79,18 @@
       "openChatLearning": "Open AI Chat Learning"
     },
     "messages": {
+      "setupDoctorLoading": "Analyzing this installation…",
+      "setupDoctorUnavailable": "Setup Doctor is temporarily unavailable.",
+      "setupDoctorPromptsTitle": "Try your installation",
+      "setupDoctorPromptsHint": "Each suggestion opens the Web Assistant with a personalized, safe prompt. Nothing is executed automatically.",
+      "setupDoctorDeployHint": "Setup Doctor reads the last deployed flow. Deploy editor changes, then check again.",
+      "setupDoctorPass": "OK",
+      "setupDoctorWarn": "Check",
+      "setupDoctorFail": "Fix",
+      "setupDoctorInfo": "Optional",
+      "webAccessHint": "The model chooses this general Web tool semantically; no keywords or intent classifiers are used. External sites and the search service receive the query and this server’s public IP. Private KNX, camera, chat, memory and credential data are never added automatically.",
+      "webProactiveHint": "This separate opt-in also requires explicit instructions in AI Education and a destination learned from one normal chat request. The model decides what to check; existing tool permissions and KNX confirmation rules still apply.",
+      "webBudgetHint": "The rolling budget counts real outbound calls from chat and proactive checks.",
       "loadingModels": "Loading models…",
       "loadedModels": "Models loaded",
       "lmStudioContextAvailable": "Maximum model context",
@@ -85,16 +108,13 @@
       "installOllamaModelFailed": "Failed to install Ollama model",
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
       "ollamaStartedAuto": "Ollama server started automatically.",
-      "detectedAdaptersLoading": "Detecting installed adapters…",
-      "detectedAdaptersNone": "No automatic adapter detected.",
-      "detectedAdaptersUnavailable": "Automatic adapter detection is temporarily unavailable.",
+      "detectedAdaptersLoading": "Detecting installed compatible nodes…",
+      "detectedAdaptersNone": "No compatible node detected.",
+      "detectedAdaptersUnavailable": "Compatible-node detection is temporarily unavailable.",
       "detectedAdapterDetected": "Detected",
       "detectedAdapterControllers": "Controllers",
       "detectedAdapterCameras": "Cameras",
       "detectedAdapterNodes": "Nodes",
-      "ttsUltimateUnknownFlow": "Flow without name",
-      "ttsUltimateUnavailable": "Unavailable TTS Ultimate node",
-      "ttsUltimateHint": "Explicit chat announcement requests are sent directly to the selected node; no flow wiring is required.",
       "chatContextLoading": "Loading chat context summary…",
       "chatContextUnavailable": "The chat context summary is temporarily unavailable.",
       "chatLearningOpenHint": "Open the Web UI directly on the shared CHAT learning editor to view, edit, copy or back up its persistent file.",
@@ -115,7 +135,6 @@
       "chatContextSourceEtsProject": "ETS semantics and the full Node-RED project inventory.",
       "chatContextSourceMemoryEducation": "Session context, AI Education and bounded home memory.",
       "chatContextSourceCameras": "Detected cameras and their available capabilities.",
-      "chatContextSourceTtsUltimate": "Selected TTS Ultimate announcement target.",
       "chatContextSourceBadge": "Source",
       "chatContextFileChatContext": "Persistent conversation turns, instructions and camera notification rules.",
       "chatContextFileHomeMemory": "AI Education and bounded learned home memory.",

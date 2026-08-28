@@ -4,12 +4,14 @@
     "sections": {
       "groupAssistant": "AI 助手",
       "groupChatHome": "对话与家庭",
-      "detectedAdapters": "自动检测到的适配器",
+      "setupDoctor": "Setup Doctor",
+      "webIntelligence": "Web 智能",
+      "detectedAdapters": "已检测并用于聊天的兼容节点",
       "chatContextOverview": "聊天上下文概览",
       "chatLearning": "AI 聊天学习",
       "quickSetup": "助手配置",
       "llmConnection": "AI 助手连接",
-      "chatAdapter": "聊天渠道",
+      "chatAdapter": "聊天输入/输出端口",
       "homeIntelligence": "AI 教育与记忆",
       "advanced": "提供商与限制"
     },
@@ -27,10 +29,13 @@
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "允许 AI 读取 KNX 状态并控制执行器",
       "llmRequireCommandConfirmation": "发送 KNX 命令前请求确认",
-      "chatAdapterPreset": "适配器预设",
+      "webAccessEnabled": "允许 AI 使用 Web",
+      "webProactiveEnabled": "允许主动 Web 检查",
+      "webProactiveIntervalMinutes": "主动检查的最短间隔",
+      "webMaxCallsPerHour": "每小时最多 Web 调用次数",
+      "chatAdapterPreset": "输入/输出消息适配器",
       "chatInputCode": "输入映射（聊天 → KNX AI）",
       "chatOutputCode": "输出映射（KNX AI → 聊天）",
-      "ttsUltimateNodeId": "用于播报的 TTS Ultimate 节点",
       "aiEducation": "AI 教育（由用户管理）",
       "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)"
     },
@@ -38,7 +43,8 @@
       "summary": "摘要/统计",
       "anomalies": "异常",
       "assistant": "AI 助手",
-      "knxCommands": "KNX 操作"
+      "knxCommands": "KNX 操作",
+      "ttsUltimate": "TTS Ultimate 播报"
     },
     "selectlists": {
       "llmProvider": {
@@ -55,12 +61,28 @@
       "chatAdapter": {
         "none": "无适配器"
       },
-      "ttsUltimate": {
-        "select": "选择 TTS Ultimate 节点",
-        "none": "未找到 TTS Ultimate 节点"
+      "webProactiveInterval": {
+        "5": "5 分钟",
+        "10": "10 分钟",
+        "15": "15 分钟",
+        "30": "30 分钟",
+        "60": "1 小时",
+        "180": "3 小时"
       }
     },
     "messages": {
+      "setupDoctorLoading": "正在分析此安装…",
+      "setupDoctorUnavailable": "Setup Doctor 暂时不可用。",
+      "setupDoctorPromptsTitle": "试用你的安装",
+      "setupDoctorPromptsHint": "每条建议都会使用个性化且安全的问题打开 Web 助手。不会自动执行任何操作。",
+      "setupDoctorDeployHint": "Setup Doctor 读取最近一次部署的流程。请先部署编辑器更改，再重新检查。",
+      "setupDoctorPass": "正常",
+      "setupDoctorWarn": "检查",
+      "setupDoctorFail": "修复",
+      "setupDoctorInfo": "可选",
+      "webAccessHint": "模型按语义选择这个通用 Web 工具；不使用关键词或意图分类器。外部网站和搜索服务会收到查询及本服务器的公网 IP；私有 KNX、摄像头、聊天、记忆和凭据数据绝不会被自动加入。",
+      "webProactiveHint": "此独立授权还需要 AI 教育中的明确指令，以及从一次普通聊天请求中记住的接收方。模型决定检查什么；其他工具权限和 KNX 确认规则仍然适用。",
+      "webBudgetHint": "滚动预算统计聊天和主动检查产生的真实外部调用。",
       "lmStudioContextAvailable": "模型最大上下文",
       "lmStudioContextLoading": "正在检查模型的当前上下文",
       "lmStudioContextInactive": "模型未运行；首次请求时将使用 Bionic 默认值",
@@ -76,16 +98,13 @@
       "installOllamaModelFailed": "Failed to install Ollama model",
       "ollamaInstallSteps": "1) Open the model library and copy the model name (for example llama3.1). 2) Put the name in the Model field and click Install it.",
       "ollamaStartedAuto": "Ollama server started automatically.",
-      "detectedAdaptersLoading": "正在检测已安装的适配器…",
-      "detectedAdaptersNone": "未检测到自动适配器。",
-      "detectedAdaptersUnavailable": "自动适配器检测暂时不可用。",
+      "detectedAdaptersLoading": "正在检测已安装的兼容节点…",
+      "detectedAdaptersNone": "未检测到兼容节点。",
+      "detectedAdaptersUnavailable": "兼容节点检测暂时不可用。",
       "detectedAdapterDetected": "已检测",
       "detectedAdapterControllers": "控制器",
       "detectedAdapterCameras": "摄像机",
       "detectedAdapterNodes": "节点",
-      "ttsUltimateUnknownFlow": "未命名 Flow",
-      "ttsUltimateUnavailable": "TTS Ultimate 节点不可用",
-      "ttsUltimateHint": "聊天中的明确播报请求会直接发送到所选节点，无需在 Flow 中额外连线。",
       "chatContextLoading": "正在加载聊天上下文摘要…",
       "chatContextUnavailable": "聊天上下文摘要暂时不可用。",
       "chatLearningOpenHint": "直接在 Web UI 中打开共享 CHAT 学习编辑器，以查看、编辑、复制或备份其持久文件。",
@@ -106,7 +125,6 @@
       "chatContextSourceEtsProject": "ETS 语义和完整的 Node-RED 项目清单。",
       "chatContextSourceMemoryEducation": "会话上下文、AI 教育和有界家庭记忆。",
       "chatContextSourceCameras": "检测到的摄像机及其可用功能。",
-      "chatContextSourceTtsUltimate": "已选择用于播报的 TTS Ultimate 节点。",
       "chatContextSourceBadge": "来源",
       "chatContextFileChatContext": "持久化对话轮次、指令和摄像机通知规则。",
       "chatContextFileHomeMemory": "AI 教育和有界的家庭学习记忆。",
@@ -179,6 +197,7 @@
       }
     },
     "buttons": {
+      "refreshSetupDoctor": "重新检查",
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
       "downloadOllamaModel": "1) Download model",

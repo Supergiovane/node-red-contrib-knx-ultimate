@@ -1,15 +1,32 @@
 <script type="text/markdown" data-help-name="knxUltimateAI">
 此节点会监听所选 KNX Ultimate 网关上的**所有 KNX 电报**，生成流量统计、检测异常，并可选调用 LLM。
 
-编辑器使用两个水平标签页：**AI 助手**包含配置、知识/上下文以及提供商限制；**对话与家庭**包含聊天渠道、主动家庭和受限记忆。
+编辑器使用两个水平标签页：**AI 助手**包含配置、知识/上下文以及提供商限制；**对话与家庭**包含聊天输入/输出端口、主动家庭和受限记忆。
 
 ## 输出
 1. **摘要/统计**（`msg.payload` 为 JSON）
 2. **异常**（`msg.payload` 为 JSON）
 3. **AI 助手**（`msg.payload` 为文本，包含 `msg.summary`）
 4. **KNX 操作**（每个通过验证的读取或写入输出一条 Universal Mode 消息）
+5. **TTS Ultimate**（模型每选择一段语音播报，就输出一条播报消息）
 
 输出 3 和输出 4 发出的每条消息还会在 `msg.inputMessage` 中包含原始输入消息的副本。因此，原始 payload、topic、聊天元数据及其他输入属性都可供后续节点使用。克隆或输出错误会被捕获并报告，不会传播到 Node-RED 运行时。
+
+### Setup Doctor 与安全首次使用
+自动 **Setup Doctor** 会检查所选网关和 ETS 导入、AI 是否启用、提供商、模型和 API 密钥、提供商连通性、Flow 连线、已检测摄像头以及可选的 TTS Ultimate 连接。它的免费提供商预检仅调用模型列表端点：绝不发送聊天请求，也不消耗推理 token。摄像头和 TTS 均为可选项，不使用它们不会降低核心就绪度。
+
+设备清单会显示唯一 KNX 组地址信号的精确数量、ETS 区域/组以及逻辑功能的估算数量。它不会声称物理设备数量，因为无法从 ETS CSV 中可靠推导该数量。Setup Doctor 读取最近一次已部署的 Flow；因此，更改提供商、模型、预设、网关或连线后，必须先部署，再点击**刷新**重新检查。
+
+从聊天发送 `/start` 或 `/help`，即可在聊天输出（输出 3）收到确定性且已本地化的欢迎消息，其中包含个性化的安装统计和最多三条安全建议。此引导过程不调用 LLM，不读写 KNX，也不生成 TTS。使用 Telegram 预设时，建议会显示为回复键盘按钮，仅在用户明确选择或发送其中一条后才会执行。在用户明确选择后，初始建议可在需要时执行精确的 KNX 读取；KNX 写入和例程、摄像头操作、TTS、持久记忆更改以及 GA 角色学习仍会被禁止。
+
+### Web 智能
+Web 访问默认关闭。启用**允许 AI 使用 Web**后，对话模型可直接根据当前请求选择结构化 Web 工具；不使用关键词、特定主题逻辑或意图分类器。每个用户回合或主动检查周期最多执行三次 Web 操作。所有真实外部 Web 操作共享已配置的滚动小时预算。
+
+**允许主动 Web 检查**是独立授权。它还要求用户在 **AI 教育**中编写明确指令，遵守已配置的最短间隔，并且只有在 KNX AI 从至少一次普通聊天请求中记住接收方后才会启动。缺少任一授权时，都不会在后台执行 Web 操作。
+
+每条基于 Web 的回答都包含由运行时验证的引用，其中包括已清理的来源 URL 和检索时间，并在可用时提供发布时间。外部内容是不受信任的数据，绝不是指令，也不能取代助手规则或权限。仅接受大小受限的公开 HTTPS 资源；私有、本地、链路本地及云元数据目标、不安全重定向、已认证浏览和 Cookie 都会被阻止。如果无法验证任何来源，KNX AI 会说明此限制，而不会生成无来源的回答。
+
+获得已验证的 Web 结果后，如果当前聊天或 AI 教育已授权，模型可组合其他已启用工具。Web 访问绝不会扩大权限：摄像头、TTS 和记忆的可用性，以及 KNX 读写、本地 ETS/DPT 验证和已配置的 KNX 写入确认机制都保持不变。Web 请求会向外部网站或搜索服务公开查询内容及本服务器的公网 IP；KNX/ETS 数据、摄像头内容、聊天标识符、已学习记忆和凭据绝不会被自动加入。
 
 ## 命令（输入）
 发送 `msg.topic`：
@@ -43,10 +60,14 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 ### 用于聊天按钮的确认请求
 计划等待确认时，输出 3 包含 `msg.knxAi.confirmationRequest`。该对象包括 `required`、`status`、`sessionId`、`expiresAt`、`commandCount`，以及 `actions` 中的两个项目。使用 `action.label` 作为 Telegram 按钮文本，使用 `action.callbackData` 作为回调，并将 `action.message` 发送回 KNX AI，即可在无需输入文本的情况下确认或取消。
 
-### 聊天适配器预设
-**聊天适配器**选项卡从 `resources/KNXAIChatAdapterMappings.js` 加载可选映射。选择预设会在内部安装两段预定义的同步 JavaScript 映射：一段在 KNX AI 处理输入前运行，另一段在输出 3 发出消息前运行。这些映射在编辑器中始终保持隐藏。语法和执行错误会被捕获并报告，不会停止 Node-RED。
+### 输入/输出消息适配器
+**聊天输入/输出端口**部分从 `resources/KNXAIChatAdapterMappings.js` 加载可选映射。选择适配器会在内部安装两段预定义的同步 JavaScript 映射：一段在 KNX AI 处理输入前运行，另一段在输出 3 发出消息前运行。这些映射在编辑器中始终保持隐藏。语法和执行错误会被捕获并报告，不会停止 Node-RED。
 
 随附的 **windkh/node-red-contrib-telegrambot** 预设遵循该包的 receiver/sender 消息约定。把 `telegram receiver` 直接连接到 KNX AI，并把输出 3 直接连接到 `telegram sender`。确认操作使用一次性 Telegram 回复键盘：点击**确认**或**取消**后，会通过同一个 receiver 返回普通的本地化消息，因此不需要 `telegram event` 或 callback 连线。旧的 `callback_query` 消息仍可接受。输入映射会提取 `msg.payload.content`、`msg.payload.chatId` 和 Telegram 语言；输出映射会创建所需的 `msg.payload.chatId`、`type` 和 `content`，并在写入等待确认时从 `msg.knxAi.confirmationRequest` 添加 `options.reply_markup`。Telegram 包仍是独立的可选依赖项。
+
+使用此预设时，只有将 **Provider** 设置为 **OpenAI-compatible**，Telegram 语音消息（`msg.payload.type = "voice"`）才会被自动处理。KNX AI 会在下载任何内容前验证提供商，直接复用其 **Endpoint URL** 和 **API key**，并从同一连接派生 `/audio/transcriptions` 与 `/audio/speech`。包含令牌的 `msg.payload.weblink` 仅用于受限下载，并会在消息到达输出或 LLM 之前删除。OGG/Opus 输入使用内置默认值 `gpt-4o-mini-transcribe` 转录；成功请求会收到由 `gpt-4o-mini-tts` 和 `alloy` 生成的原生 Telegram OGG/Opus 回复，同时保留文字说明和确认键盘。如果选择了其他提供商，用户会收到本地化提示，要求改选 OpenAI-compatible 或发送文字。如果语音合成不可用、失败或超过语音限制，则发送完整文字回复。下载的音频和生成的回复文本都会发送到同一个所选提供商。文字消息、照片以及较早保存的 Telegram 映射仍保持兼容。
+
+每条原生语音回复的文字说明都会以本地化的 **AI 生成的语音** 提示开头，Telegram 收件人可以看到该提示。
 
 随附的 **RedBot / node-red-contrib-chatbot (Telegram)** 预设遵循 RedBot 的通用消息格式。将 `chatbot-telegram-receive` 直接连接到 KNX AI，并将输出 3 直接连接到 `chatbot-telegram-send`；无需单独的 callback 节点，因为 RedBot 会把内联按钮的 postback 转换成普通入站消息。输入映射读取 `transport`、`chatId`、`type`、`content` 和 Telegram 语言。输出映射保留 RedBot 的 `originalMessage`、`chat`、`api` 和 `client` 跟踪数据，然后发送 `message` payload，或发送带有确认 `postback` 操作的 `inline-buttons` payload。RedBot 仍是独立的可选依赖项。
 
@@ -58,14 +79,14 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 自动检测到的适配器发布的每个事件都会被标准化，并以 KNX AI 原生紧凑行格式直接追加到 `knxultimatestorage/knxai/adapter-history/<节点ID>/` 下的每日 `YYYY-MM-DD.knxctx` 文件。KNX 报文存档使用相同的紧凑格式，不经过中间 JSON 序列化。存档保留 10 天，保证超过 24 小时的历史，只保存事件元数据，不保存图像。现有 JSONL 存档不会被读取或迁移。总数涵盖所请求区间内的全部存档行；选出的详情仅是相关样本。
 
 ### 使用 TTS Ultimate 播报
-安装可选软件包 `node-red-contrib-tts-ultimate` 后，它会显示在自动检测的适配器中。选择器会列出项目所有 Flow 中的全部 `ttsultimate` 节点，并显示 Flow、节点名称和已配置的播放器。请选择负责聊天播报的节点，然后部署 Flow。
+将输出 5 连接到可选软件包 `node-red-contrib-tts-ultimate` 中的一个或多个 `ttsultimate` 节点。目标和分发由普通 Node-RED 连线决定；如果 TTS 节点位于另一个 Flow 标签页，请使用 Link Out/Link In。原有的 TTS 节点选择器和内部注入已被移除。输出 1–4 的位置保持不变，但升级后的 Flow 必须实际连接输出 5，语音播报才能到达 TTS Ultimate。
 
-模型会根据当前请求、持久聊天指令和用户管理的 AI 教育自行判断是否使用此适配器；系统没有播报 intent，也没有触发短语列表。KNX 数值、适配器事件、图像和存档始终是数据而不是指令，但可信的用户指导可以教会模型如何处理这些数据。KNX AI 会将选定文本作为 `msg.payload` 直接发送到所选节点，并设置 `msg.topic = "knx_ai_announcement"`；之后由 TTS Ultimate 处理 Sonos 播放器、语音、音量、提示音和队列。
+模型会根据当前请求、持久聊天指令和用户管理的 AI 教育自行判断是否准备播报；系统没有播报 intent，也没有触发短语列表。KNX 数值、适配器事件、图像和存档始终是数据而不是指令，但可信的用户指导可以教会模型如何处理这些数据。输出 5 在 `msg.payload` 中发送需要朗读的准确文本，设置 `msg.topic = "knx_ai_announcement"`，并添加 `msg.knxAi.type = "tts_announcement"`、`msg.knxAi.sourceNodeId`、`msg.knxAi.sessionId` 和 `msg.knxAi.reason`。之后由 TTS Ultimate 处理播放器、语音、音量、提示音和队列。
 
 ### 聊天上下文概览
 节点编辑器会显示一张紧凑卡片，汇总聊天可用的来源：当前 KNX 流量、ETS 语义与 Node-RED 项目、会话和家庭记忆、AI 教育及检测到的摄像机。卡片还会显示用户选择的最大运行上下文和上次聊天提示词的实际 UTF-8 大小；提供商返回输入令牌数时使用精确值，否则明确标为估算值。卡片还会列出 `knxai-chat-context.knxctx`、`knxai-home-memory.md` 和 `knxai-config-<节点-id>.json`，以及 KNX 报文归档的绝对根目录、该节点专用目录和每日文件模式 `YYYY-MM-DD.knxctx`。这些路径会在运行时根据已配置网关实际使用的数据目录解析。
 
-模型会把 KNX 读写、摄像机适配器、TTS 播报和持久记忆作为结构化工具。它可以依据当前请求和可信的已学习指导进行语义选择与组合，而不经过语言 intent 路由。运行时只验证工具参数、适配器可用性和安全边界；KNX 写入仍保留本地 ETS/DPT 校验和已配置的确认步骤。
+模型会把 KNX 读写、摄像机适配器、TTS 播报和持久记忆作为结构化工具。它可以依据当前请求和可信的已学习指导进行语义选择与组合，而不经过语言 intent 路由。运行时只验证工具参数、摄像机适配器可用性和安全边界；KNX 写入仍保留本地 ETS/DPT 校验和已配置的确认步骤。
 
 ### 编辑和备份聊天学习
 Node-RED 的 KNX AI 配置中，**对话与家庭**选项卡包含**打开 AI 聊天学习**按钮；它会为当前节点直接打开 Vue Web UI 中的此编辑器。
@@ -127,10 +148,15 @@ Node-RED 的 KNX AI 配置中，**对话与家庭**选项卡包含**打开 AI �
 - **Endpoint URL**：chat/completions 接口 URL。
 - **API key**：API Key（本地 Ollama 可不填；Bionic LM Studio 在未启用服务器身份验证时也可不填）。
 - **Model**：模型 ID/名称。
+- **允许 AI 使用 Web**：默认关闭。允许模型按语义选择通用 Web 工具，并返回已验证、已引用的来源。
+- **允许主动 Web 检查**：用于后台检查的独立授权；还需要用户在 **AI 教育**中编写明确指令。
+- **主动检查的最短间隔**：主动检查周期之间的最短时间；不会延迟用户活动回合中请求的 Web 操作。
+- **每小时最多 Web 调用次数**：互动和主动 Web 操作共享的滚动预算。每个回合或周期最多使用三次操作。
+- **Telegram 语音**：仅在选择 **OpenAI-compatible** 提供商时可用。它会自动复用该提供商的端点和 API 密钥，并使用内置默认值 `gpt-4o-mini-transcribe`、`gpt-4o-mini-tts` 和 `alloy`；不再提供单独的语音设置。
 - **聊天模型兼容性**：所选模型必须支持已配置的 Chat Completions 端点。刷新模型列表时，会排除仅支持旧版 completions 的模型，例如 `gpt-3.5-turbo-instruct`。如果提供商拒绝自定义 temperature 值或令牌限制参数，KNX AI 会仅移除或替换不兼容字段后重试。
 - **允许 AI 读取 KNX 状态并控制执行器**：启用输出 4，默认关闭。可以读取 ETS 目录中的精确对象；仅接受写入明确标记为 `command` 的对象。未知、DPT 不匹配、无效或数量过多的操作，以及向状态或中性对象的写入，都会在本地被拒绝。
 - **发送 KNX 命令前请求确认**：默认启用。先显示已验证的修改，在同一聊天会话确认前不会发送任何 KNX 命令。有命令等待确认时，回复始终会使用当前请求的语言附加准确的确认或取消说明。命令会在输出前再次验证。
-- **适配器预设**：默认为**无适配器**。选择后会加载预定义的输入和输出映射；两者在编辑器中始终保持隐藏。
+- **输入/输出消息适配器**：默认为**无适配器**。选择后会加载预定义的输入和输出映射；两者在编辑器中始终保持隐藏。
 - **AI 教育**：仅由用户管理的权威指导，AI 可以读取但永远不能修改。主动通知及其条件、持续时间、静默时段和重复频率只能在这里定义。
 - 软件包附带的帮助、README、更新日志、Wiki 和示例片段不会加入 Telegram、RedBot 或自定义 CHAT 的提示词；仅网页助手在回答软件包技术问题时仍可使用这些内容。
 - **Refresh** 按钮：请求 provider 并加载可用模型 ID。加载期间图标会旋转；成功完成时不会显示额外消息。

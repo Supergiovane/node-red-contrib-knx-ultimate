@@ -10,14 +10,52 @@ const telegram = msg.payload;
 if (!telegram || typeof telegram !== 'object') return;
 
 const chatId = telegram.chatId;
-const content = typeof telegram.content === 'string' ? telegram.content.trim() : '';
-if (chatId === undefined || chatId === null || content === '') return;
+if (chatId === undefined || chatId === null) return;
 
 msg.sessionId = String(chatId);
 msg.language =
     (msg.originalMessage && msg.originalMessage.from && msg.originalMessage.from.language_code) ||
     msg.language ||
     '';
+
+if (telegram.type === 'voice') {
+    const original = msg.originalMessage && typeof msg.originalMessage === 'object'
+        ? msg.originalMessage
+        : {};
+    const voice = original.voice && typeof original.voice === 'object'
+        ? original.voice
+        : original.message && original.message.voice && typeof original.message.voice === 'object'
+            ? original.message.voice
+            : {};
+    const fileId = String(telegram.content || voice.file_id || '').trim();
+    const weblink = String(telegram.weblink || msg.weblink || '').trim();
+    const botDetails = msg.telegramBot && typeof msg.telegramBot === 'object' ? msg.telegramBot : {};
+    const botApiBase = String(botDetails.baseApiUrl || botDetails.baseapiurl || botDetails.baseApiURL || '').trim();
+    let allowedOrigin = 'https://api.telegram.org';
+    if (botApiBase) {
+        try { allowedOrigin = new URL(botApiBase).origin; } catch (error) { /* use Telegram default */ }
+    }
+    if (!fileId && !weblink) return;
+    msg.topic = 'ask';
+    msg.knxAi = Object.assign({}, msg.knxAi, {
+        sessionId: String(chatId),
+        voiceInput: {
+            source: 'telegram',
+            originalType: 'voice',
+            fileId: fileId,
+            weblink: weblink,
+            allowedOrigin: allowedOrigin,
+            mediaType: String(voice.mime_type || telegram.contentType || telegram.mimeType || 'audio/ogg'),
+            filename: String(voice.file_name || telegram.filename || 'telegram-voice.ogg'),
+            durationSeconds: Math.max(0, Number(voice.duration || telegram.duration) || 0),
+            fileSize: Math.max(0, Number(voice.file_size || telegram.fileSize) || 0)
+        }
+    });
+    return msg;
+}
+
+const content = typeof telegram.content === 'string' ? telegram.content.trim() : '';
+if (content === '') return;
 
 if (telegram.type === 'callback_query' && (content === 'confirm' || content === 'cancel')) {
     msg.topic = content;
@@ -70,6 +108,52 @@ if (image && Buffer.isBuffer(image.data)) {
     return msg;
 }
 
+const audio = msg.knxAi && msg.knxAi.audio;
+if (audio && Buffer.isBuffer(audio.data)) {
+    const voiceLanguage = String(msg.knxAi.language || (source && source.language) || '').trim().toLowerCase().split(/[-_]/)[0];
+    const disclosureLabels = {
+        de: 'KI-generierte Stimme',
+        en: 'AI-generated voice',
+        es: 'Voz generada por IA',
+        fr: 'Voix générée par l’IA',
+        it: 'Voce generata dall’IA',
+        zh: 'AI 生成的语音'
+    };
+    const disclosure = disclosureLabels[voiceLanguage] || disclosureLabels.en;
+    const voiceOptions = { caption: [disclosure, content].filter(Boolean).join('\\n').slice(0, 1024) };
+    const confirmation = msg.knxAi && msg.knxAi.confirmationRequest;
+    if (confirmation && confirmation.required === true && Array.isArray(confirmation.actions)) {
+        voiceOptions.reply_markup = JSON.stringify({
+            keyboard: [confirmation.actions.map(function (action) {
+                return { text: action.label };
+            })],
+            resize_keyboard: true,
+            one_time_keyboard: true
+        });
+    } else if (msg.knxAi && Array.isArray(msg.knxAi.suggestions) && msg.knxAi.suggestions.length) {
+        voiceOptions.reply_markup = JSON.stringify({
+            keyboard: msg.knxAi.suggestions.slice(0, 3).map(function (suggestion) {
+                return [{ text: Array.from(String(suggestion.text || suggestion.label || '').trim()).slice(0, 64).join('') }];
+            }).filter(function (row) { return row[0].text; }),
+            resize_keyboard: true,
+            one_time_keyboard: true
+        });
+    } else if (/^knx_confirmation_/.test(String(msg.knxAi.type || '')) || /^knx_routine_/.test(String(msg.knxAi.type || ''))) {
+        voiceOptions.reply_markup = JSON.stringify({ remove_keyboard: true });
+    }
+    msg.payload = {
+        chatId: chatId,
+        type: 'voice',
+        content: audio.data,
+        options: voiceOptions,
+        fileOptions: {
+            filename: audio.filename || 'knx-ai-reply.ogg',
+            contentType: audio.mediaType || 'audio/ogg'
+        }
+    };
+    return msg;
+}
+
 const telegramPayload = {
     chatId: chatId,
     type: 'message',
@@ -82,6 +166,16 @@ if (confirmation && confirmation.required === true && Array.isArray(confirmation
             keyboard: [confirmation.actions.map(function (action) {
                 return { text: action.label };
             })],
+            resize_keyboard: true,
+            one_time_keyboard: true
+        })
+    };
+} else if (msg.knxAi && Array.isArray(msg.knxAi.suggestions) && msg.knxAi.suggestions.length) {
+    telegramPayload.options = {
+        reply_markup: JSON.stringify({
+            keyboard: msg.knxAi.suggestions.slice(0, 3).map(function (suggestion) {
+                return [{ text: Array.from(String(suggestion.text || suggestion.label || '').trim()).slice(0, 64).join('') }];
+            }).filter(function (row) { return row[0].text; }),
             resize_keyboard: true,
             one_time_keyboard: true
         })

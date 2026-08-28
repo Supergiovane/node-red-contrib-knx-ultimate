@@ -4,6 +4,7 @@
 export const KNX_AI_WEB_I18N = {
   en: {},
   it: {
+    'Setup Doctor': 'Diagnosi configurazione',
     'AI Chat Learning': 'Apprendimento AI Chat',
     'Manage node options, shared CHAT learning and full configuration import/export.': 'Gestisci le opzioni del nodo, l’apprendimento CHAT condiviso e l’import/export della configurazione completa.',
     'View, edit and back up the shared learning file used by every KNX AI node on this storage.': 'Visualizza, modifica e salva una copia del file di apprendimento condiviso usato da ogni nodo KNX AI in questo archivio.',
@@ -284,6 +285,7 @@ export const KNX_AI_WEB_I18N = {
     'Write timeout': 'Scrivi timeout'
   },
   de: {
+    'Setup Doctor': 'Einrichtungsdiagnose',
     'AI Chat Learning': 'KI-Chat-Lernen',
     'Manage node options, shared CHAT learning and full configuration import/export.': 'Verwalten Sie Node-Optionen, gemeinsames CHAT-Lernen und den Import/Export der vollständigen Konfiguration.',
     'View, edit and back up the shared learning file used by every KNX AI node on this storage.': 'Zeigen, bearbeiten und sichern Sie die gemeinsame Lerndatei, die von allen KNX-AI-Knoten in diesem Speicher verwendet wird.',
@@ -564,6 +566,7 @@ export const KNX_AI_WEB_I18N = {
     'Write timeout': 'Timeout schreiben'
   },
   fr: {
+    'Setup Doctor': 'Diagnostic de configuration',
     'AI Chat Learning': 'Apprentissage du chat IA',
     'Manage node options, shared CHAT learning and full configuration import/export.': 'Gérez les options du nœud, l’apprentissage CHAT partagé et l’import/export de la configuration complète.',
     'View, edit and back up the shared learning file used by every KNX AI node on this storage.': 'Affichez, modifiez et sauvegardez le fichier d’apprentissage partagé utilisé par tous les nœuds KNX AI de ce stockage.',
@@ -844,6 +847,7 @@ export const KNX_AI_WEB_I18N = {
     'Write timeout': "Délai d'écriture"
   },
   es: {
+    'Setup Doctor': 'Diagnóstico de configuración',
     'AI Chat Learning': 'Aprendizaje del chat IA',
     'Manage node options, shared CHAT learning and full configuration import/export.': 'Gestiona las opciones del nodo, el aprendizaje CHAT compartido y la importación/exportación de la configuración completa.',
     'View, edit and back up the shared learning file used by every KNX AI node on this storage.': 'Consulta, edita y guarda una copia del archivo de aprendizaje compartido que usan todos los nodos KNX AI de este almacenamiento.',
@@ -1124,6 +1128,7 @@ export const KNX_AI_WEB_I18N = {
     'Write timeout': 'Escribir tiempo de espera'
   },
   'zh-CN': {
+    'Setup Doctor': '配置诊断',
     'AI Chat Learning': 'AI 聊天学习',
     'Manage node options, shared CHAT learning and full configuration import/export.': '管理节点选项、共享 CHAT 学习以及完整配置的导入/导出。',
     'View, edit and back up the shared learning file used by every KNX AI node on this storage.': '查看、编辑并备份此存储中所有 KNX AI 节点共用的学习文件。',

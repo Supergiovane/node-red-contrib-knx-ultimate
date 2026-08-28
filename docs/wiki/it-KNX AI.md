@@ -1,20 +1,31 @@
----
-layout: wiki
-title: "KNX AI"
-lang: it
-permalink: /wiki/it-KNX%20AI
----
 Questo nodo ascolta **tutti i telegrammi KNX** dal gateway KNX Ultimate selezionato, costruisce statistiche di traffico, rileva anomalie e può interrogare opzionalmente un LLM.
 
-L'editor usa due schede orizzontali: **Assistente AI** contiene configurazione, conoscenza/contesto, provider e limiti; **Conversazioni e casa** contiene canali chat, casa proattiva e memoria limitata.
+L'editor usa due schede orizzontali: **Assistente AI** contiene configurazione, conoscenza/contesto, provider e limiti; **Conversazioni e casa** contiene i PIN di input e output della chat, casa proattiva e memoria limitata.
 
 ## Output
 1. **Summary/Statistiche** (`msg.payload` JSON)
 2. **Anomalie** (`msg.payload` JSON)
 3. **Assistente AI** (`msg.payload` testo, con `msg.summary`)
 4. **Operazioni KNX** (un messaggio Universal Mode per ogni lettura o scrittura validata)
+5. **TTS Ultimate** (un messaggio di annuncio per ogni testo parlato scelto dal modello)
 
 Ogni messaggio emesso dalle uscite 3 e 4 contiene anche una copia del messaggio originale in ingresso in `msg.inputMessage`. In questo modo payload, topic, metadati della chat e qualsiasi altra proprietà di ingresso restano disponibili per i nodi successivi. Gli errori di clonazione o di invio vengono intercettati e segnalati senza propagarsi al runtime di Node-RED.
+
+### Setup Doctor e primo avvio sicuro
+Il **Setup Doctor** automatico controlla gateway selezionato e importazione ETS, attivazione AI, provider, modello e chiave API, raggiungibilità del provider, collegamenti del flow, telecamere rilevate e collegamento TTS Ultimate opzionale. Il preflight del provider, senza costi, chiama soltanto l'endpoint che elenca i modelli: non invia mai una richiesta chat e non consuma token di inferenza. Telecamere e TTS sono opzionali, quindi non usarli non riduce la prontezza di base.
+
+L'inventario mostra il numero esatto di segnali KNX con indirizzo di gruppo univoco, le aree/i gruppi ETS e una stima delle funzioni logiche. Non dichiara volutamente il numero di dispositivi fisici, perché non è ricavabile in modo affidabile dal CSV ETS. Il Setup Doctor legge l'ultimo flow di cui è stato eseguito il deploy: dopo modifiche a provider, modello, preset, gateway o collegamenti, esegui quindi il deploy prima di fare clic su **Aggiorna** per ripetere i controlli.
+
+Invia `/start` o `/help` da una chat per ricevere sull'uscita chat (uscita 3) un benvenuto deterministico e localizzato, con statistiche personalizzate dell'impianto e fino a tre suggerimenti sicuri. Questo onboarding non chiama l'LLM, non legge o scrive KNX e non genera TTS. Con il preset Telegram, i suggerimenti appaiono come pulsanti della tastiera di risposta e vengono eseguiti solo dopo che l'utente ne seleziona o invia uno esplicitamente. Dopo questa selezione esplicita, un suggerimento iniziale può eseguire letture KNX esatte quando necessarie; restano invece inibiti scritture e routine KNX, azioni sulle telecamere, TTS, modifiche alla memoria persistente e apprendimento dei ruoli GA.
+
+### Intelligenza Web
+L'accesso Web è disattivato per impostazione predefinita. Quando **Consenti all'AI di usare il Web** è attivo, il modello conversazionale può scegliere il tool Web strutturato direttamente dalla richiesta corrente; non vengono usate parole chiave, logiche specifiche per argomento o classificatori d'intento. Ogni turno utente o ciclo proattivo può eseguire al massimo tre operazioni Web complessive. Tutte le operazioni Web esterne reali condividono il budget orario scorrevole configurato.
+
+**Consenti controlli Web proattivi** è un opt-in separato. Richiede anche istruzioni esplicite scritte dall'utente in **Educazione AI**, rispetta l'intervallo minimo configurato e parte solo dopo che KNX AI ha appreso una chat destinataria da almeno una normale richiesta in chat. Senza entrambe le autorizzazioni non avviene alcuna operazione Web in background.
+
+Ogni risposta basata sul Web contiene citazioni validate dal runtime con URL della fonte sanificato e ora di consultazione, oltre all'ora di pubblicazione quando disponibile. Il contenuto esterno è un dato non attendibile, mai un'istruzione, e non può sostituire le regole o i permessi dell'assistente. Sono accettate soltanto risorse HTTPS pubbliche e limitate; destinazioni private, locali, link-local e di metadata cloud, redirect non sicuri, navigazione autenticata e cookie vengono bloccati. Se nessuna fonte può essere verificata, KNX AI segnala il limite invece di generare una risposta priva di fonti.
+
+Dopo che sono disponibili risultati Web verificati, il modello può comporre gli altri tool abilitati quando la chat corrente o Educazione AI lo autorizzano. L'accesso Web non amplia mai i permessi: disponibilità di telecamere, TTS e memoria, così come letture e scritture KNX, validazione locale ETS/DPT e conferma configurata per le scritture KNX, restano invariate. Le richieste Web espongono la query e l'IP pubblico del server ai siti esterni o al servizio di ricerca; dati KNX/ETS, contenuti delle telecamere, identificativi chat, memoria appresa e credenziali non vengono mai aggiunti automaticamente.
 
 ## Comandi (input)
 Invia `msg.topic`:
@@ -48,10 +59,14 @@ Richieste come «Sto uscendo», «Buonanotte» o «Modalità cinema» possono co
 ### Richiesta di conferma per pulsanti chat
 Quando un piano è in attesa, l'uscita 3 contiene `msg.knxAi.confirmationRequest`. L'oggetto include `required`, `status`, `sessionId`, `expiresAt`, `commandCount` e due elementi in `actions`. Usa `action.label` per il testo del pulsante Telegram, `action.callbackData` per il callback e reinvia `action.message` al nodo KNX AI per confermare o annullare senza digitare testo.
 
-### Preset adattatori chat
-La tab **Adattatori chat** carica le mappature selezionabili da `resources/KNXAIChatAdapterMappings.js`. Scegliendo un preset vengono installate internamente due mappature JavaScript sincrone predefinite: una eseguita prima che KNX AI elabori l'ingresso e una prima dell'emissione sull'uscita 3. Le mappature restano nascoste nell'editor. Errori di sintassi o esecuzione vengono intercettati e segnalati senza arrestare Node-RED.
+### Adattatori messaggi ingresso/uscita
+La sezione **Chat PIN Input e Output** carica le mappature selezionabili da `resources/KNXAIChatAdapterMappings.js`. Scegliendo un adattatore vengono installate internamente due mappature JavaScript sincrone predefinite: una eseguita prima che KNX AI elabori l'ingresso e una prima dell'emissione sull'uscita 3. Le mappature restano nascoste nell'editor. Errori di sintassi o esecuzione vengono intercettati e segnalati senza arrestare Node-RED.
 
 Il preset incluso **windkh/node-red-contrib-telegrambot** segue il contratto receiver/sender del pacchetto. Collega direttamente un `telegram receiver` a KNX AI e l'uscita 3 direttamente a un `telegram sender`. La conferma usa una tastiera Telegram temporanea: premendo **Conferma** o **Annulla** viene inviato un normale messaggio localizzato attraverso lo stesso receiver, quindi non servono `telegram event` né collegamenti callback. I vecchi messaggi `callback_query` restano accettati. La mappatura d'ingresso estrae `msg.payload.content`, `msg.payload.chatId` e la lingua Telegram. Quella d'uscita crea i campi richiesti `msg.payload.chatId`, `type` e `content`, aggiungendo `options.reply_markup` da `msg.knxAi.confirmationRequest` quando una scrittura attende conferma. Il pacchetto Telegram resta una dipendenza opzionale separata.
+
+Con questo preset, un messaggio vocale Telegram (`msg.payload.type = "voice"`) viene gestito automaticamente solo quando **Provider** è impostato su **OpenAI-compatible**. Prima di scaricare qualsiasi dato, KNX AI verifica il provider, riutilizza **URL endpoint** e **API key** già configurati e deriva `/audio/transcriptions` e `/audio/speech` dalla stessa connessione. Il collegamento `msg.payload.weblink`, che contiene il token, viene usato soltanto per il download limitato e rimosso prima che il messaggio raggiunga gli output o l'LLM. L'audio OGG/Opus viene trascritto con il default integrato `gpt-4o-mini-transcribe`; a una richiesta elaborata correttamente risponde con un vocale Telegram OGG/Opus generato con `gpt-4o-mini-tts` e `alloy`, conservando la didascalia testuale e l'eventuale tastiera di conferma. Se è selezionato un altro provider, l'utente riceve un'indicazione localizzata per scegliere OpenAI-compatible oppure inviare testo. Se la sintesi non è disponibile, fallisce o supera il limite vocale, viene inviato come fallback il testo completo. L'audio scaricato e il testo della risposta vengono inviati allo stesso provider selezionato. Messaggi di testo, foto e vecchie mappature Telegram salvate restano compatibili.
+
+La didascalia di ogni vocale nativo inizia con l'indicazione localizzata **Voce generata dall’IA**, visibile al destinatario Telegram.
 
 Il preset incluso **RedBot / node-red-contrib-chatbot (Telegram)** segue il formato comune dei messaggi RedBot. Collega direttamente `chatbot-telegram-receive` a KNX AI e l'uscita 3 direttamente a `chatbot-telegram-send`; non serve un nodo callback separato perché RedBot converte i postback dei pulsanti inline in normali messaggi in ingresso. La mappatura d'ingresso legge `transport`, `chatId`, `type`, `content` e la lingua Telegram. Quella d'uscita conserva i dati di tracciamento RedBot `originalMessage`, `chat`, `api` e `client`, quindi emette un payload `message` oppure un payload `inline-buttons` con azioni `postback` per la conferma. RedBot resta una dipendenza opzionale separata.
 
@@ -63,14 +78,14 @@ L'utente può chiedere uno snapshot aggiornato oppure domandare al modello visio
 Ogni evento pubblicato da un adapter rilevato automaticamente viene normalizzato e aggiunto direttamente nel formato nativo compatto a righe di KNX AI a un file giornaliero `YYYY-MM-DD.knxctx` sotto `knxultimatestorage/knxai/adapter-history/<id-nodo>/`. L'archivio dei telegrammi KNX usa lo stesso formato compatto, senza serializzazione JSON intermedia. L'archivio conserva 10 giorni, garantisce più di 24 ore di storico e salva i metadati degli eventi, non le immagini. Gli archivi JSONL esistenti non vengono letti né migrati. I totali comprendono tutte le righe memorizzate nell'intervallo richiesto; i dettagli selezionati sono soltanto un campione pertinente.
 
 ### Annunci con TTS Ultimate
-Quando è installato il pacchetto opzionale `node-red-contrib-tts-ultimate`, questo compare tra gli adapter rilevati automaticamente. Il selettore elenca tutti i nodi `ttsultimate` presenti in tutti i flow del progetto, indicando flow, nome del nodo e player configurato. Scegli il nodo che deve gestire gli annunci della chat e fai il deploy del flow.
+Collega l'uscita 5 a uno o più nodi `ttsultimate` del pacchetto opzionale `node-red-contrib-tts-ultimate`. I normali collegamenti di Node-RED determinano destinazione e fan-out; usa Link Out/Link In quando il nodo TTS si trova in un'altra scheda del flow. Il precedente selettore del nodo TTS e l'iniezione interna sono stati rimossi. Le posizioni delle uscite 1–4 restano invariate, ma nei flow aggiornati occorre collegare fisicamente l'uscita 5 prima che gli annunci vocali possano raggiungere TTS Ultimate.
 
-Il modello decide se usare questo adapter ragionando sulla richiesta corrente, sulle istruzioni persistenti della chat e sull'Educazione AI gestita dall'utente: non esistono intent per gli annunci né liste di frasi di attivazione. Valori KNX, eventi degli adapter, immagini e archivi restano dati e non diventano istruzioni, ma le indicazioni autorevoli dell'utente possono insegnare al modello come agire su quei dati. KNX AI invia il testo scelto direttamente al nodo come `msg.payload`, con `msg.topic = "knx_ai_announcement"`; non servono collegamenti intermedi nel flow. TTS Ultimate gestisce poi player Sonos, voce, volume, hailing e coda.
+Il modello decide se preparare un annuncio ragionando sulla richiesta corrente, sulle istruzioni persistenti della chat e sull'Educazione AI gestita dall'utente: non esistono intent per gli annunci né liste di frasi di attivazione. Valori KNX, eventi degli adapter, immagini e archivi restano dati e non diventano istruzioni, ma le indicazioni autorevoli dell'utente possono insegnare al modello come agire su quei dati. L'uscita 5 emette il testo esatto da pronunciare in `msg.payload`, imposta `msg.topic = "knx_ai_announcement"` e aggiunge `msg.knxAi.type = "tts_announcement"` insieme a `msg.knxAi.sourceNodeId`, `msg.knxAi.sessionId` e `msg.knxAi.reason`. TTS Ultimate gestisce poi player, voce, volume, hailing e coda.
 
 ### Riepilogo del contesto della chat
 L'editor del nodo mostra una scheda compatta con le fonti disponibili alla chat: traffico KNX corrente e archiviato, eventi persistenti degli adapter, semantica ETS e progetto Node-RED, memoria di sessione e domestica, Educazione AI e telecamere rilevate. Mostra anche il contesto operativo massimo scelto dall'utente e il peso UTF-8 effettivo dell'ultimo prompt della chat; quando il provider comunica i token di input viene usato il valore esatto, altrimenti il conteggio è indicato come stima. La scheda elenca le directory assolute degli archivi KNX e degli eventi adapter e il formato giornaliero `YYYY-MM-DD.knxctx`.
 
-Il modello riceve letture e scritture KNX, adapter telecamera, annunci TTS e memoria persistente come strumenti strutturati. Può sceglierli e combinarli semanticamente partendo dalla richiesta corrente e dalle indicazioni autorevoli apprese, senza routing per intent linguistici. Il runtime valida soltanto argomenti, disponibilità degli adapter e confini di sicurezza; le scritture KNX conservano validazione ETS/DPT locale e conferma configurata.
+Il modello riceve letture e scritture KNX, adapter telecamera, annunci TTS e memoria persistente come strumenti strutturati. Può sceglierli e combinarli semanticamente partendo dalla richiesta corrente e dalle indicazioni autorevoli apprese, senza routing per intent linguistici. Il runtime valida soltanto argomenti, disponibilità degli adapter telecamera e confini di sicurezza; le scritture KNX conservano validazione ETS/DPT locale e conferma configurata.
 
 ### Modifica e backup dell'apprendimento CHAT
 La scheda **Conversazioni e casa** nella configurazione Node-RED di KNX AI include il pulsante **Apri Apprendimento AI Chat**, che apre la Web UI Vue direttamente su questo editor per il nodo corrente.
@@ -138,10 +153,15 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - **URL endpoint**: URL endpoint chat/completions.
 - **API key**: chiave API (non necessaria con Ollama locale; opzionale per Bionic LM Studio, salvo autenticazione attiva sul server).
 - **Modello**: ID/nome modello.
+- **Consenti all'AI di usare il Web**: disattivato per impostazione predefinita. Permette al modello di scegliere semanticamente il tool Web generale e restituire fonti verificate e citate.
+- **Consenti controlli Web proattivi**: opt-in separato per i controlli in background; richiede anche istruzioni esplicite scritte dall'utente in **Educazione AI**.
+- **Intervallo minimo dei controlli proattivi**: tempo minimo tra i cicli proattivi; non ritarda le operazioni Web richieste durante un turno utente attivo.
+- **Numero massimo di chiamate Web all'ora**: budget scorrevole condiviso dalle operazioni Web interattive e proattive. Ogni turno o ciclo può usare al massimo tre operazioni complessive.
+- **Voce Telegram**: disponibile soltanto con il provider **OpenAI-compatible**. Riutilizza automaticamente endpoint e API key di quel provider con i default integrati `gpt-4o-mini-transcribe`, `gpt-4o-mini-tts` e `alloy`; non esistono impostazioni vocali separate.
 - **Compatibilità modello chat**: il modello selezionato deve supportare l'endpoint Chat Completions configurato. I modelli legacy disponibili solo tramite completions, come `gpt-3.5-turbo-instruct`, vengono esclusi quando si aggiorna la lista. Se il provider rifiuta un valore personalizzato di temperature o il parametro del limite token, KNX AI riprova rimuovendo o sostituendo soltanto il campo incompatibile.
 - **Consenti all'AI di leggere stati KNX e comandare attuatori**: abilita l'uscita 4 ed è disattivato per default. Gli oggetti esatti del catalogo ETS possono essere letti; le scritture sono accettate solo per gli oggetti classificati come `command`. Operazioni sconosciute, con DPT discordante, non valide o eccessive e scritture verso oggetti di stato/neutrali vengono rifiutate localmente.
 - **Chiedi conferma prima di inviare comandi KNX**: attivo per default. Mostra prima le modifiche validate e non emette comandi KNX finché la stessa sessione chat non le conferma. Quando ci sono comandi in attesa, la risposta aggiunge sempre le istruzioni esatte per confermare o annullare nella lingua della richiesta corrente. I comandi vengono validati nuovamente subito prima dell'uscita.
-- **Preset adattatore**: parte da **Nessun adattatore**. La selezione carica la coppia predefinita di mappature ingresso/uscita; entrambe restano nascoste nell'editor.
+- **Adattatore messaggi ingresso/uscita**: parte da **Nessun adattatore**. La selezione carica la coppia predefinita di mappature ingresso/uscita; entrambe restano nascoste nell'editor.
 - **Educazione AI**: istruzioni autorevoli gestite soltanto dall'utente, lette dall'AI e mai modificate. È anche l'unico punto in cui richiedere notifiche proattive e definirne condizioni, durata, ore silenziose e ripetizione.
 - Gli estratti inclusi nel pacchetto da help, README, changelog, wiki ed esempi non vengono inviati nei prompt di Telegram, RedBot o CHAT personalizzate. Restano disponibili soltanto all'Assistente web per le domande tecniche sul pacchetto.
 - Pulsante **Aggiorna**: interroga il provider e popola i modelli disponibili. Durante il caricamento l'icona ruota; il completamento corretto non mostra messaggi.

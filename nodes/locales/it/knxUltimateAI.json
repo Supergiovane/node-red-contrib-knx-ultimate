@@ -4,12 +4,14 @@
     "sections": {
       "groupAssistant": "Assistente AI",
       "groupChatHome": "Conversazioni e casa",
-      "detectedAdapters": "Adapter rilevati automaticamente",
+      "setupDoctor": "Setup Doctor",
+      "webIntelligence": "Intelligenza Web",
+      "detectedAdapters": "Nodi compatibili rilevati ed usati in chat",
       "chatContextOverview": "Contesto disponibile alla chat",
       "chatLearning": "Apprendimento AI Chat",
       "quickSetup": "Configurazione assistente",
       "llmConnection": "Connessione Assistente AI",
-      "chatAdapter": "Canali chat",
+      "chatAdapter": "Chat PIN Input e Output",
       "homeIntelligence": "Educazione AI e memoria",
       "advanced": "Provider e limiti"
     },
@@ -27,10 +29,13 @@
       "llmIncludeRaw": "Includi payload raw in hex",
       "llmAllowKnxCommands": "Consenti all'AI di leggere stati KNX e comandare attuatori",
       "llmRequireCommandConfirmation": "Chiedi conferma prima di inviare comandi KNX",
-      "chatAdapterPreset": "Preset adattatore",
+      "webAccessEnabled": "Consenti all’AI di usare il Web",
+      "webProactiveEnabled": "Consenti controlli Web proattivi",
+      "webProactiveIntervalMinutes": "Intervallo minimo dei controlli proattivi",
+      "webMaxCallsPerHour": "Numero massimo di chiamate Web all’ora",
+      "chatAdapterPreset": "Adattatore messaggi ingresso/uscita",
       "chatInputCode": "Mappatura ingresso (chat → KNX AI)",
       "chatOutputCode": "Mappatura uscita (KNX AI → chat)",
-      "ttsUltimateNodeId": "Nodo TTS Ultimate per gli annunci",
       "aiEducation": "Educazione AI (gestita dall'utente)",
       "llmIncludeDocsSnippets": "Includi estratti documentazione (help/README/esempi)"
     },
@@ -38,7 +43,8 @@
       "summary": "Summary/Statistiche",
       "anomalies": "Anomalie",
       "assistant": "Assistente AI",
-      "knxCommands": "Operazioni KNX"
+      "knxCommands": "Operazioni KNX",
+      "ttsUltimate": "Annunci TTS Ultimate"
     },
     "selectlists": {
       "llmProvider": {
@@ -55,12 +61,17 @@
       "chatAdapter": {
         "none": "Nessun adattatore"
       },
-      "ttsUltimate": {
-        "select": "Seleziona un nodo TTS Ultimate",
-        "none": "Nessun nodo TTS Ultimate trovato"
+      "webProactiveInterval": {
+        "5": "5 minuti",
+        "10": "10 minuti",
+        "15": "15 minuti",
+        "30": "30 minuti",
+        "60": "1 ora",
+        "180": "3 ore"
       }
     },
     "buttons": {
+      "refreshSetupDoctor": "Ricontrolla",
       "refreshModels": "Aggiorna",
       "installOllamaModel": "2) Installalo",
       "ollamaLibrary": "Libreria modelli",
@@ -68,6 +79,18 @@
       "openChatLearning": "Apri Apprendimento AI Chat"
     },
     "messages": {
+      "setupDoctorLoading": "Sto analizzando questo impianto…",
+      "setupDoctorUnavailable": "Setup Doctor non è temporaneamente disponibile.",
+      "setupDoctorPromptsTitle": "Prova il tuo impianto",
+      "setupDoctorPromptsHint": "Ogni suggerimento apre l’Assistant Web con una richiesta personalizzata e sicura. Nulla viene eseguito automaticamente.",
+      "setupDoctorDeployHint": "Setup Doctor legge l’ultimo flow distribuito. Fai Deploy delle modifiche e poi ricontrolla.",
+      "setupDoctorPass": "OK",
+      "setupDoctorWarn": "Controlla",
+      "setupDoctorFail": "Correggi",
+      "setupDoctorInfo": "Opzionale",
+      "webAccessHint": "Il modello sceglie semanticamente questo tool Web generale; non vengono usate parole chiave né classificatori d’intento. I siti esterni e il servizio di ricerca ricevono la query e l’IP pubblico del server. Dati privati KNX, telecamere, chat, memoria e credenziali non vengono mai aggiunti automaticamente.",
+      "webProactiveHint": "Questo opt-in separato richiede anche istruzioni esplicite in Educazione AI e una chat destinataria appresa da una normale richiesta. Il modello decide cosa controllare; restano valide le autorizzazioni degli altri strumenti e le conferme KNX.",
+      "webBudgetHint": "Il budget scorrevole conteggia le chiamate esterne reali della chat e dei controlli proattivi.",
       "loadingModels": "Carico i modelli…",
       "loadedModels": "Modelli caricati",
       "lmStudioContextAvailable": "Contesto massimo del modello",
@@ -85,16 +108,13 @@
       "installOllamaModelFailed": "Installazione modello Ollama non riuscita",
       "ollamaInstallSteps": "1) Apri la libreria, scegli un modello e copiane il nome (es. llama3.1). 2) Inserisci il nome nel campo Modello e clicca Installalo.",
       "ollamaStartedAuto": "Server Ollama avviato automaticamente.",
-      "detectedAdaptersLoading": "Rilevamento degli adapter installati…",
-      "detectedAdaptersNone": "Nessun adapter automatico rilevato.",
-      "detectedAdaptersUnavailable": "Il rilevamento automatico degli adapter non è momentaneamente disponibile.",
+      "detectedAdaptersLoading": "Rilevamento dei nodi compatibili installati…",
+      "detectedAdaptersNone": "Nessun nodo compatibile rilevato.",
+      "detectedAdaptersUnavailable": "Il rilevamento dei nodi compatibili non è momentaneamente disponibile.",
       "detectedAdapterDetected": "Rilevato",
       "detectedAdapterControllers": "Controller",
       "detectedAdapterCameras": "Telecamere",
       "detectedAdapterNodes": "Nodi",
-      "ttsUltimateUnknownFlow": "Flow senza nome",
-      "ttsUltimateUnavailable": "Nodo TTS Ultimate non disponibile",
-      "ttsUltimateHint": "Le richieste esplicite di annuncio della chat vengono inviate direttamente al nodo scelto; non servono collegamenti nel flow.",
       "chatContextLoading": "Caricamento del riepilogo del contesto…",
       "chatContextUnavailable": "Il riepilogo del contesto della chat non è momentaneamente disponibile.",
       "chatLearningOpenHint": "Apri la Web UI direttamente nell’editor dell’apprendimento CHAT condiviso per visualizzare, modificare, copiare o salvare il suo file persistente.",
@@ -115,7 +135,6 @@
       "chatContextSourceEtsProject": "Semantica ETS e inventario completo del progetto Node-RED.",
       "chatContextSourceMemoryEducation": "Contesto di sessione, Educazione AI e memoria domestica limitata.",
       "chatContextSourceCameras": "Telecamere rilevate e relative funzionalità disponibili.",
-      "chatContextSourceTtsUltimate": "Nodo TTS Ultimate selezionato per gli annunci.",
       "chatContextSourceBadge": "Fonte",
       "chatContextFileChatContext": "Turni persistenti, istruzioni e regole di notifica delle telecamere.",
       "chatContextFileHomeMemory": "Educazione AI e memoria domestica appresa e limitata.",

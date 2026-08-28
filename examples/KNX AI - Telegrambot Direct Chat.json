@@ -4,14 +4,14 @@
     "type": "tab",
     "label": "KNX AI - Telegrambot direct chat",
     "disabled": false,
-    "info": "Direct chat wiring for windkh/node-red-contrib-telegrambot using the KNX AI chat-adapter preset. Confirmation buttons return through the same receiver; no callback event node is required."
+    "info": "Direct text and voice chat wiring for windkh/node-red-contrib-telegrambot using the KNX AI chat-adapter preset. After deploying, review the automatic Setup Doctor and send /start to the bot for a deterministic, localized introduction with personalized safe suggestions. A voice request is transcribed and receives an Opus voice reply; confirmation buttons return through the same receiver, so no callback event node is required. Voice processing requires the selected OpenAI-compatible chat provider and reuses its endpoint and API key."
   },
   {
     "id": "comment_knx_ai_telegram_setup",
     "type": "comment",
     "z": "tab_knx_ai_telegram",
-    "name": "1. Open KNX AI → Chat adapters → select windkh/node-red-contrib-telegrambot",
-    "info": "Selecting the preset inserts the editable input and output mappings. Then configure the KNX gateway, import the ETS CSV, set the LLM credentials and configure the Telegram bot token.",
+    "name": "1. Configure, check Setup Doctor, then send /start",
+    "info": "The windkh/node-red-contrib-telegrambot preset is already selected. Configure the KNX gateway, import the ETS CSV, select the OpenAI-compatible chat provider with an endpoint that supports /audio/transcriptions and /audio/speech, enter its API key when required, and configure the Telegram bot token. Deploy, review the automatic Setup Doctor, then send /start or /help to receive the safe personalized welcome and Telegram suggestion keyboard; this onboarding does not call the LLM, read or write KNX, or generate TTS. Text requests receive text; voice requests receive voice, with text fallback if speech synthesis fails. Anthropic, Ollama and Bionic LM Studio remain available for text chat but do not process Telegram voice. Output 5 is left unwired: connect it to one or more ttsultimate nodes, or use Link Out/Link In across flow tabs, for model-selected home announcements.",
     "x": 500,
     "y": 40,
     "wires": []
@@ -40,7 +40,7 @@
     "id": "telegram_receiver_knx_ai",
     "type": "telegram receiver",
     "z": "tab_knx_ai_telegram",
-    "name": "Telegram text",
+    "name": "Telegram text + voice",
     "bot": "telegram_bot_knx_ai",
     "saveDataDir": "",
     "filterCommands": false,
@@ -69,7 +69,7 @@
     "llmIncludeDocsSnippets": true,
     "llmAllowKnxCommands": true,
     "llmRequireCommandConfirmation": true,
-    "chatAdapterPreset": "none",
+    "chatAdapterPreset": "windkh-telegrambot",
     "chatInputCode": "",
     "chatOutputCode": "",
     "aiEducation": "Avvisa la mia ultima chat se una persiana, una finestra o una porta rimane aperta per almeno 120 minuti. Non inviare notifiche tra le 23:00 e le 07:00 e non ripetere lo stesso avviso prima di 6 ore.",
@@ -84,6 +84,8 @@
       ],
       [
         "node_knx_ai_telegram_universal"
+      ],
+      [
       ]
     ]
   },

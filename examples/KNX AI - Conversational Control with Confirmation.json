@@ -262,6 +262,8 @@
       [
         "dbg_knx_ai_control_command",
         "node_knx_ai_control_universal"
+      ],
+      [
       ]
     ]
   },
@@ -371,8 +373,8 @@
     "id": "cmt_knx_ai_control_output",
     "type": "comment",
     "z": "tab_knx_ai_control",
-    "name": "Replace Debug 3 with your Telegram sender node",
-    "info": "The third output carries the text in msg.payload. Fresh reads are returned after KNX feedback and detailed in msg.knxAi.readResults. When a write confirmation is pending, msg.knxAi.confirmationRequest contains localized button labels, callbackData values and ready-to-send confirm/cancel messages. Every message on outputs 3 and 4 also preserves the triggering input in msg.inputMessage.",
+    "name": "Replace Debug 3 with Telegram; optionally wire output 5 to TTS Ultimate",
+    "info": "The third output carries the text in msg.payload. Fresh reads are returned after KNX feedback and detailed in msg.knxAi.readResults. When a write confirmation is pending, msg.knxAi.confirmationRequest contains localized button labels, callbackData values and ready-to-send confirm/cancel messages. Every message on outputs 3 and 4 also preserves the triggering input in msg.inputMessage. Output 5 is deliberately unwired in this example: connect it to one or more ttsultimate nodes (or use Link Out/Link In across tabs) to receive model-selected announcements with msg.topic=knx_ai_announcement.",
     "x": 850,
     "y": 100,
     "wires": []

@@ -168,6 +168,7 @@
         display: block;
     }
 
+    #knx-ai-setup-doctor-panel,
     #knx-ai-detected-adapters-panel,
     #knx-ai-chat-context-panel,
     #knx-ai-chat-learning-link-panel {
@@ -186,12 +187,155 @@
         margin: 18px 0 0;
     }
 
+    #knx-ai-setup-doctor-panel>h4,
     #knx-ai-detected-adapters-panel>h4,
     #knx-ai-chat-context-panel>h4,
     #knx-ai-chat-learning-link-panel>h4 {
         margin: 0 0 9px;
         font-size: 14px;
         font-weight: 600;
+    }
+
+    #knx-ai-setup-doctor-panel {
+        margin: 16px 0 18px;
+        border-color: rgba(255, 152, 0, 0.55);
+        background: linear-gradient(135deg, rgba(255, 152, 0, 0.10), var(--red-ui-secondary-background, #f7f7f7));
+    }
+
+    #knx-ai-setup-doctor-panel.status-ready {
+        border-color: rgba(46, 125, 50, 0.55);
+        background: linear-gradient(135deg, rgba(46, 125, 50, 0.10), var(--red-ui-secondary-background, #f7f7f7));
+    }
+
+    #knx-ai-setup-doctor-panel.status-blocked {
+        border-color: rgba(198, 40, 40, 0.52);
+        background: linear-gradient(135deg, rgba(198, 40, 40, 0.09), var(--red-ui-secondary-background, #f7f7f7));
+    }
+
+    .knx-ai-setup-doctor-hero {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .knx-ai-setup-doctor-summary {
+        flex: 1 1 auto;
+        min-width: 0;
+        line-height: 1.45;
+    }
+
+    .knx-ai-setup-doctor-score {
+        flex: 0 0 auto;
+        min-width: 48px;
+        padding: 6px 8px;
+        border-radius: 16px;
+        color: #7a4200;
+        background: rgba(255, 152, 0, 0.18);
+        text-align: center;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    #knx-ai-setup-doctor-panel.status-ready .knx-ai-setup-doctor-score {
+        color: #256029;
+        background: rgba(46, 125, 50, 0.16);
+    }
+
+    #knx-ai-setup-doctor-panel.status-blocked .knx-ai-setup-doctor-score {
+        color: #842029;
+        background: rgba(198, 40, 40, 0.14);
+    }
+
+    .knx-ai-setup-doctor-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 7px 0;
+    }
+
+    .knx-ai-setup-doctor-check+.knx-ai-setup-doctor-check {
+        border-top: 1px solid var(--red-ui-form-input-border-color, #ddd);
+    }
+
+    .knx-ai-setup-doctor-check-copy {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .knx-ai-setup-doctor-check-detail,
+    #knx-ai-setup-doctor-status,
+    .knx-ai-setup-doctor-prompts-hint {
+        color: var(--red-ui-secondary-text-color, #777);
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .knx-ai-setup-doctor-badge {
+        flex: 0 0 auto;
+        min-width: 48px;
+        padding: 2px 7px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .knx-ai-setup-doctor-badge.pass {
+        color: #256029;
+        background: #dff0d8;
+    }
+
+    .knx-ai-setup-doctor-badge.warn {
+        color: #7a5200;
+        background: #fff3cd;
+    }
+
+    .knx-ai-setup-doctor-badge.fail {
+        color: #842029;
+        background: #f8d7da;
+    }
+
+    .knx-ai-setup-doctor-badge.info {
+        color: #245269;
+        background: #d9edf7;
+    }
+
+    .knx-ai-setup-doctor-prompts {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px dashed var(--red-ui-form-input-border-color, #ccc);
+    }
+
+    .knx-ai-setup-doctor-prompt-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .knx-ai-setup-doctor-prompt {
+        width: 100%;
+        margin: 0 !important;
+        text-align: left;
+        white-space: normal;
+    }
+
+    .knx-ai-setup-doctor-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .knx-ai-setup-doctor-deploy-hint {
+        color: var(--red-ui-secondary-text-color, #777);
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    #knx-ai-setup-doctor-refresh {
+        flex: 0 0 auto;
     }
 
     .knx-ai-detected-adapter {
@@ -266,29 +410,6 @@
         font-weight: 600;
     }
 
-    #knx-ai-tts-ultimate-picker {
-        margin-top: 8px;
-        padding-top: 12px;
-        border-top: 1px solid var(--red-ui-form-input-border-color, #ddd);
-    }
-
-    #knx-ai-tts-ultimate-picker label {
-        display: block;
-        width: 100%;
-        margin-bottom: 6px;
-        font-weight: 600;
-    }
-
-    #node-input-ttsUltimateNodeId {
-        width: 100%;
-    }
-
-    .knx-ai-tts-ultimate-hint {
-        margin-top: 6px;
-        color: var(--red-ui-secondary-text-color, #777);
-        font-size: 12px;
-    }
-
     @media (max-width: 900px) {
         #knx-ai-ollama-install-row>label {
             width: 100% !important;
@@ -320,23 +441,27 @@
             llmPromptContextTokens: { value: 16384 },
             llmAllowKnxCommands: { value: false },
             llmRequireCommandConfirmation: { value: true },
+            webAccessEnabled: { value: false },
+            webProactiveEnabled: { value: false },
+            webProactiveIntervalMinutes: { value: 30 },
+            webMaxCallsPerHour: { value: 12 },
             chatAdapterPreset: { value: "none" },
             chatInputCode: { value: "" },
             chatOutputCode: { value: "" },
-            ttsUltimateNodeId: { value: "" },
             aiEducation: { value: "" }
         },
         credentials: {
             llmApiKey: { type: "password" }
         },
         inputs: 1,
-        outputs: 4,
+        outputs: 5,
         outputLabels: function (i) {
             switch (i) {
                 case 0: return this._('knxUltimateAI.outputs.summary');
                 case 1: return this._('knxUltimateAI.outputs.anomalies');
                 case 2: return this._('knxUltimateAI.outputs.assistant');
                 case 3: return this._('knxUltimateAI.outputs.knxCommands');
+                case 4: return this._('knxUltimateAI.outputs.ttsUltimate');
             }
         },
         icon: "node-eye-icon.svg",
@@ -550,81 +675,6 @@
             };
             configureChatAdapterPicker.call(node);
 
-            const collectEditorTtsUltimateNodes = () => {
-                const tabById = new Map();
-                const entries = [];
-                try {
-                    RED.nodes.eachNode(function (candidate) {
-                        if (!candidate || String(candidate.type || "") !== "tab") return;
-                        tabById.set(String(candidate.id || ""), String(candidate.label || candidate.name || ""));
-                    });
-                    RED.nodes.eachNode(function (candidate) {
-                        if (!candidate || String(candidate.type || "") !== "ttsultimate") return;
-                        const id = String(candidate.id || "").trim();
-                        if (!id) return;
-                        entries.push({
-                            id: id,
-                            name: String(candidate.name || "TTS Ultimate"),
-                            flowId: String(candidate.z || ""),
-                            flowName: tabById.get(String(candidate.z || "")) || "",
-                            playerType: String(candidate.playertype || "sonos")
-                        });
-                    });
-                } catch (error) { }
-                return entries;
-            };
-
-            const populateTtsUltimatePicker = (runtimeSummary) => {
-                const $pickerContainer = $("#knx-ai-tts-ultimate-picker");
-                const $picker = $("#node-input-ttsUltimateNodeId");
-                if (!$picker.length) return;
-                const byId = new Map();
-                const runtimeNodes = runtimeSummary && Array.isArray(runtimeSummary.nodes) ? runtimeSummary.nodes : [];
-                runtimeNodes.forEach(function (item) {
-                    if (item && item.id) byId.set(String(item.id), item);
-                });
-                collectEditorTtsUltimateNodes().forEach(function (item) {
-                    byId.set(String(item.id), item);
-                });
-                const entries = Array.from(byId.values()).sort(function (left, right) {
-                    return String((left.flowName || "") + "\u0000" + (left.name || "") + "\u0000" + left.id)
-                        .localeCompare(String((right.flowName || "") + "\u0000" + (right.name || "") + "\u0000" + right.id));
-                });
-                const configuredId = String(node.ttsUltimateNodeId || "").trim();
-                $picker.empty();
-                $("<option></option>")
-                    .attr("value", "")
-                    .text(entries.length
-                        ? t("knxUltimateAI.selectlists.ttsUltimate.select", "Select a TTS Ultimate node")
-                        : t("knxUltimateAI.selectlists.ttsUltimate.none", "No TTS Ultimate node found"))
-                    .appendTo($picker);
-                entries.forEach(function (item) {
-                    const flowName = String(item.flowName || t("knxUltimateAI.messages.ttsUltimateUnknownFlow", "Flow without name"));
-                    const playerType = String(item.playerType || "sonos");
-                    $("<option></option>")
-                        .attr("value", item.id)
-                        .text(flowName + " · " + String(item.name || "TTS Ultimate") + " · " + playerType)
-                        .appendTo($picker);
-                });
-                if (configuredId && !byId.has(configuredId)) {
-                    $("<option></option>")
-                        .attr("value", configuredId)
-                        .text(t("knxUltimateAI.messages.ttsUltimateUnavailable", "Unavailable TTS Ultimate node") + " · " + configuredId)
-                        .appendTo($picker);
-                }
-                if (configuredId) {
-                    $picker.val(configuredId);
-                } else if (entries.length === 1) {
-                    $picker.val(entries[0].id);
-                } else {
-                    $picker.val("");
-                }
-                const detected = entries.length > 0 || !!(runtimeSummary && runtimeSummary.detected);
-                $picker.prop("disabled", entries.length === 0 && !configuredId);
-                $pickerContainer.toggle(detected || !!configuredId);
-            };
-            populateTtsUltimatePicker(null);
-
             const renderDetectedAdapters = (adapters) => {
                 const $list = $("#knx-ai-detected-adapters-list");
                 const $status = $("#knx-ai-detected-adapters-status");
@@ -632,7 +682,7 @@
                 $list.empty();
                 const entries = Array.isArray(adapters) ? adapters : [];
                 if (!entries.length) {
-                    $status.text(t("knxUltimateAI.messages.detectedAdaptersNone", "No automatic adapter detected.")).show();
+                    $status.text(t("knxUltimateAI.messages.detectedAdaptersNone", "No compatible node detected.")).show();
                     return;
                 }
                 $status.hide();
@@ -660,6 +710,60 @@
                         .appendTo($row);
                     $row.appendTo($list);
                 });
+            };
+
+            const renderSetupDoctor = (snapshot) => {
+                const $panel = $("#knx-ai-setup-doctor-panel");
+                const $status = $("#knx-ai-setup-doctor-status");
+                const $content = $("#knx-ai-setup-doctor-content");
+                const $checks = $("#knx-ai-setup-doctor-checks").empty();
+                const $prompts = $("#knx-ai-setup-doctor-prompt-list").empty();
+                if (!snapshot || typeof snapshot !== "object") {
+                    $panel.removeClass("status-ready status-attention status-blocked");
+                    $content.hide();
+                    $status.text(t("knxUltimateAI.messages.setupDoctorUnavailable", "Setup Doctor is temporarily unavailable.")).show();
+                    return;
+                }
+                const badgeLabels = {
+                    pass: t("knxUltimateAI.messages.setupDoctorPass", "OK"),
+                    warn: t("knxUltimateAI.messages.setupDoctorWarn", "Check"),
+                    fail: t("knxUltimateAI.messages.setupDoctorFail", "Fix"),
+                    info: t("knxUltimateAI.messages.setupDoctorInfo", "Optional")
+                };
+                const snapshotStatus = ["ready", "attention", "blocked"].includes(String(snapshot.status)) ? String(snapshot.status) : "attention";
+                $panel.removeClass("status-ready status-attention status-blocked").addClass("status-" + snapshotStatus);
+                $("#knx-ai-setup-doctor-state").text(String(snapshot.statusLabel || snapshot.status || ""));
+                $("#knx-ai-setup-doctor-summary").text(String(snapshot.summary || ""));
+                $("#knx-ai-setup-doctor-score").text(String(Math.max(0, Number(snapshot.score) || 0)) + "%");
+                (Array.isArray(snapshot.checks) ? snapshot.checks : []).forEach(function (check) {
+                    if (!check || !check.id) return;
+                    const statusName = ["pass", "warn", "fail", "info"].includes(String(check.status)) ? String(check.status) : "info";
+                    const $row = $("<div></div>").addClass("knx-ai-setup-doctor-check");
+                    const $copy = $("<div></div>").addClass("knx-ai-setup-doctor-check-copy");
+                    $("<strong></strong>").text(String(check.title || check.id)).appendTo($copy);
+                    $("<div></div>").addClass("knx-ai-setup-doctor-check-detail").text(String(check.detail || "")).appendTo($copy);
+                    $copy.appendTo($row);
+                    $("<span></span>")
+                        .addClass("knx-ai-setup-doctor-badge " + statusName)
+                        .text(badgeLabels[statusName])
+                        .appendTo($row);
+                    $row.appendTo($checks);
+                });
+                const promptItems = snapshot.firstRun && Array.isArray(snapshot.firstRun.prompts) ? snapshot.firstRun.prompts : [];
+                promptItems.forEach(function (prompt) {
+                    if (!prompt || !prompt.text) return;
+                    $("<button type=\"button\"></button>")
+                        .addClass("red-ui-button knx-ai-setup-doctor-prompt")
+                        .text(String(prompt.text))
+                        .on("click", function (evt) {
+                            evt.preventDefault();
+                            openKnxAiWebPage("assistant", String(prompt.text));
+                        })
+                        .appendTo($prompts);
+                });
+                $(".knx-ai-setup-doctor-prompts").toggle(promptItems.length > 0);
+                $status.hide();
+                $content.show();
             };
 
             const renderChatContextOverview = (overview) => {
@@ -749,8 +853,7 @@
                     adapterHistory: t("knxUltimateAI.messages.chatContextSourceAdapterHistory", "Persistent history of automatically detected adapter events."),
                     etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "ETS semantics and the full Node-RED project inventory."),
                     memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education and bounded home memory."),
-                    cameras: t("knxUltimateAI.messages.chatContextSourceCameras", "Detected cameras and their available capabilities."),
-                    ttsUltimate: t("knxUltimateAI.messages.chatContextSourceTtsUltimate", "Selected TTS Ultimate announcement target.")
+                    cameras: t("knxUltimateAI.messages.chatContextSourceCameras", "Detected cameras and their available capabilities.")
                 };
                 (Array.isArray(overview.sources) ? overview.sources : []).forEach(function (sourceId) {
                     addRow(
@@ -802,24 +905,41 @@
                 $status.hide();
                 $content.show();
             };
-            $.ajax({
-                url: "knxUltimateAI/adapters",
-                type: "GET",
-                data: nodeId ? { nodeId: nodeId } : {}
-            })
-                .done(function (data) {
-                    renderDetectedAdapters(data && data.adapters);
-                    populateTtsUltimatePicker(data && data.ttsUltimate);
-                    renderChatContextOverview(data && data.chatContext);
+            const editorLanguage = String((RED.settings && RED.settings.lang) || (window.navigator && window.navigator.language) || "en");
+            const loadKnxAiOverview = function (refreshSetup) {
+                const $refresh = $("#knx-ai-setup-doctor-refresh");
+                $refresh.prop("disabled", true).find("i.fa-refresh").addClass("fa-spin");
+                const requestData = { language: editorLanguage };
+                if (nodeId) requestData.nodeId = nodeId;
+                if (refreshSetup) requestData.refreshSetup = "1";
+                $.ajax({
+                    url: "knxUltimateAI/adapters",
+                    type: "GET",
+                    data: requestData
                 })
-                .fail(function () {
-                    $("#knx-ai-detected-adapters-status")
-                        .text(t("knxUltimateAI.messages.detectedAdaptersUnavailable", "Automatic adapter detection is temporarily unavailable."))
-                        .show();
-                    renderChatContextOverview(null);
-                });
+                    .done(function (data) {
+                        renderSetupDoctor(data && data.setupDoctor);
+                        renderDetectedAdapters(data && data.adapters);
+                        renderChatContextOverview(data && data.chatContext);
+                    })
+                    .fail(function () {
+                        renderSetupDoctor(null);
+                        $("#knx-ai-detected-adapters-status")
+                            .text(t("knxUltimateAI.messages.detectedAdaptersUnavailable", "Compatible-node detection is temporarily unavailable."))
+                            .show();
+                        renderChatContextOverview(null);
+                    })
+                    .always(function () {
+                        $refresh.prop("disabled", false).find("i.fa-refresh").removeClass("fa-spin");
+                    });
+            };
+            loadKnxAiOverview(false);
+            $("#knx-ai-setup-doctor-refresh").on("click", function (evt) {
+                evt.preventDefault();
+                loadKnxAiOverview(true);
+            });
 
-            const openKnxAiWebPage = function (view) {
+            const openKnxAiWebPage = function (view, prompt) {
                 const adminRoot = resolveAdminRoot();
                 const targetBase = adminRoot + "/knxUltimateAI/sidebar/page";
                 const params = new URLSearchParams();
@@ -827,6 +947,9 @@
                 if (view === "chat-learning") {
                     params.set("tab", "settings");
                     params.set("settingsTab", "learning");
+                } else if (view === "assistant") {
+                    params.set("tab", "assistant");
+                    if (prompt) params.set("prompt", String(prompt));
                 }
                 const accessToken = resolveAccessToken();
                 if (accessToken) params.set("access_token", accessToken);
@@ -1167,6 +1290,14 @@
                     }
                 }
             };
+            const toggleWebAccess = () => {
+                const enabled = $("#node-input-webAccessEnabled").prop("checked") === true;
+                const proactive = enabled && $("#node-input-webProactiveEnabled").prop("checked") === true;
+                $("#knx-ai-web-access-settings").toggle(enabled);
+                $("#knx-ai-web-proactive-interval-row").toggle(proactive);
+            };
+            $("#node-input-webAccessEnabled, #node-input-webProactiveEnabled").on("change", toggleWebAccess);
+            toggleWebAccess();
             $("#node-input-llmProvider").on("change", function () {
                 toggleProvider({ applyDefaults: true, autoLoadModels: true });
             });
@@ -1258,6 +1389,34 @@
         </div>
     </div>
 
+    <div id="knx-ai-setup-doctor-panel">
+        <h4><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.setupDoctor"></span></h4>
+        <div id="knx-ai-setup-doctor-status" data-i18n="knxUltimateAI.messages.setupDoctorLoading"></div>
+        <div id="knx-ai-setup-doctor-content" style="display:none;">
+            <div class="knx-ai-setup-doctor-hero">
+                <div class="knx-ai-setup-doctor-summary">
+                    <strong id="knx-ai-setup-doctor-state"></strong>
+                    <div id="knx-ai-setup-doctor-summary"></div>
+                </div>
+                <div id="knx-ai-setup-doctor-score" class="knx-ai-setup-doctor-score"></div>
+            </div>
+            <div id="knx-ai-setup-doctor-checks"></div>
+            <div class="knx-ai-setup-doctor-prompts">
+                <strong data-i18n="knxUltimateAI.messages.setupDoctorPromptsTitle"></strong>
+                <div class="knx-ai-setup-doctor-prompts-hint" data-i18n="knxUltimateAI.messages.setupDoctorPromptsHint"></div>
+                <div id="knx-ai-setup-doctor-prompt-list" class="knx-ai-setup-doctor-prompt-list"></div>
+            </div>
+            <div class="knx-ai-setup-doctor-footer">
+                <div class="knx-ai-setup-doctor-deploy-hint">
+                    <i class="fa fa-info-circle"></i> <span data-i18n="knxUltimateAI.messages.setupDoctorDeployHint"></span>
+                </div>
+                <button type="button" class="red-ui-button" id="knx-ai-setup-doctor-refresh">
+                    <i class="fa fa-refresh"></i> <span data-i18n="knxUltimateAI.buttons.refreshSetupDoctor"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="knx-ai-tabs">
         <ul>
             <li><a href="#knx-ai-tabs-assistant"><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.groupAssistant"></span></a></li>
@@ -1294,11 +1453,6 @@
                 <h4><i class="fa fa-puzzle-piece"></i> <span data-i18n="knxUltimateAI.sections.detectedAdapters"></span></h4>
                 <div id="knx-ai-detected-adapters-status" data-i18n="knxUltimateAI.messages.detectedAdaptersLoading"></div>
                 <div id="knx-ai-detected-adapters-list"></div>
-                <div id="knx-ai-tts-ultimate-picker" style="display:none;">
-                    <label for="node-input-ttsUltimateNodeId"><i class="fa fa-volume-up"></i> <span data-i18n="knxUltimateAI.properties.ttsUltimateNodeId"></span></label>
-                    <select id="node-input-ttsUltimateNodeId"></select>
-                    <div class="knx-ai-tts-ultimate-hint" data-i18n="knxUltimateAI.messages.ttsUltimateHint"></div>
-                </div>
             </div>
             <div id="knx-ai-chat-context-panel">
                 <h4><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.chatContextOverview"></span></h4>
@@ -1394,6 +1548,38 @@
         </div>
 
         <div id="knx-ai-tab-home-intelligence">
+            <div class="form-row">
+                <strong><i class="fa fa-globe"></i> <span data-i18n="knxUltimateAI.sections.webIntelligence"></span></strong>
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-input-webAccessEnabled" style="display:inline-block; width:auto; vertical-align:top;">
+                <label style="width:auto" for="node-input-webAccessEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.webAccessEnabled"></span></label>
+                <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webAccessHint"></div>
+            </div>
+            <div id="knx-ai-web-access-settings">
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-webMaxCallsPerHour"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimateAI.properties.webMaxCallsPerHour"></span></label>
+                    <input type="number" id="node-input-webMaxCallsPerHour" min="1" max="60" step="1" style="width:100%;">
+                    <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webBudgetHint"></div>
+                </div>
+                <div class="form-row">
+                    <input type="checkbox" id="node-input-webProactiveEnabled" style="display:inline-block; width:auto; vertical-align:top;">
+                    <label style="width:auto" for="node-input-webProactiveEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.webProactiveEnabled"></span></label>
+                    <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webProactiveHint"></div>
+                </div>
+                <div class="form-row" id="knx-ai-web-proactive-interval-row">
+                    <label style="width:290px" for="node-input-webProactiveIntervalMinutes"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.webProactiveIntervalMinutes"></span></label>
+                    <select style="width:100%" id="node-input-webProactiveIntervalMinutes">
+                        <option value="5" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.5"></option>
+                        <option value="10" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.10"></option>
+                        <option value="15" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.15"></option>
+                        <option value="30" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.30"></option>
+                        <option value="60" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.60"></option>
+                        <option value="180" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.180"></option>
+                    </select>
+                </div>
+            </div>
+            <hr>
             <div class="form-row">
                 <label style="width:100%" for="node-input-aiEducation"><i class="fa fa-graduation-cap"></i> <span data-i18n="knxUltimateAI.properties.aiEducation"></span></label>
                 <textarea id="node-input-aiEducation" maxlength="16000" style="width:100%; min-height:180px; box-sizing:border-box;" data-i18n="[placeholder]knxUltimateAI.placeholder.aiEducation"></textarea>

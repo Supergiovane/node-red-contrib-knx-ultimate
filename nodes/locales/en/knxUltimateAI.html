@@ -1,15 +1,32 @@
 <script type="text/markdown" data-help-name="knxUltimateAI">
 This node listens to **all KNX telegrams** from the selected KNX Ultimate gateway, builds traffic statistics, detects anomalies, and can optionally query an LLM.
 
-The editor uses two horizontal tabs: **AI assistant** contains setup, knowledge/context and provider limits; **Conversations & home** contains chat channels, proactive home and bounded memory.
+The editor uses two horizontal tabs: **AI assistant** contains setup, knowledge/context and provider limits; **Conversations & home** contains chat input/output pins, proactive home and bounded memory.
 
 ## Outputs
 1. **Summary/Stats** (`msg.payload` JSON)
 2. **Anomalies** (`msg.payload` JSON)
 3. **AI Assistant** (`msg.payload` text, with `msg.summary`)
 4. **KNX operations** (one Universal Mode message per validated read or write)
+5. **TTS Ultimate** (one announcement message per model-selected spoken message)
 
 Every message emitted by outputs 3 and 4 also contains a clone of the original input message in `msg.inputMessage`. This preserves the original payload, topic, chat metadata, and any other input properties for downstream nodes. Cloning and output errors are contained and reported instead of escaping into the Node-RED runtime.
+
+### Setup Doctor and safe first run
+The automatic **Setup Doctor** checks the selected gateway and ETS import, AI enablement, provider, model and API key, provider reachability, flow wiring, detected cameras and the optional TTS Ultimate connection. Its no-cost provider preflight calls only the provider's model-list endpoint: it never sends a chat request or consumes inference tokens. Cameras and TTS are optional, so leaving them unused does not reduce core readiness.
+
+The inventory reports the exact number of unique KNX group-address signals, the ETS areas/groups and an approximate number of logical functions. It deliberately does not claim a physical-device count, because that cannot be derived reliably from the ETS CSV. Setup Doctor reads the last deployed flow, so deploy provider, model, preset, gateway or wiring changes before clicking **Refresh** to repeat the checks.
+
+Send `/start` or `/help` from a chat to receive a deterministic, localized welcome on the chat output (output 3), with personalized installation statistics and up to three safe suggestions. This onboarding does not call the LLM, read or write KNX, or generate TTS. With the Telegram preset, suggestions appear as reply-keyboard buttons and run only after the user explicitly selects or sends one. After that explicit selection, a starter suggestion may perform exact KNX reads when needed; KNX writes and routines, camera actions, TTS, persistent-memory changes and GA-role learning remain suppressed.
+
+### Web Intelligence
+Web access is disabled by default. When **Allow the AI to use the Web** is enabled, the conversational model may choose the structured Web tool directly from the current request; no keywords, topic-specific logic or intent classifiers are used. Each user turn or proactive cycle can execute at most three Web operations in total. All real outbound Web operations share the configured rolling hourly budget.
+
+**Allow proactive Web checks** is a separate opt-in. It also requires explicit user-authored instructions in **AI Education**, observes the configured minimum interval and starts only after KNX AI has learned a destination from at least one normal chat request. Without both permissions, no background Web operation occurs.
+
+Every Web-backed answer contains runtime-validated citations with a sanitized source URL and retrieval time, plus publication time when available. External content is untrusted data, never instructions, and cannot override the assistant rules or permissions. Only bounded public HTTPS resources are accepted; private, local, link-local and cloud-metadata targets, unsafe redirects, authenticated browsing and cookies are blocked. If no source can be verified, KNX AI reports that limitation instead of generating an unsourced answer.
+
+After verified Web results are available, the model may compose other enabled tools when authorized by the current chat or AI Education. Web access never expands permissions: camera, TTS and memory availability, as well as KNX reads and writes, local ETS/DPT validation and the configured KNX write confirmation, remain unchanged. Web requests expose the query and this server's public IP to external sites or the search service; KNX/ETS data, camera content, chat identifiers, learned memory and credentials are never added automatically.
 
 ## Commands (input)
 Send `msg.topic`:
@@ -43,10 +60,14 @@ Requests such as “I’m leaving”, “Good night”, or “Cinema mode” can
 ### Confirmation request for chat buttons
 While a plan is pending, output 3 contains `msg.knxAi.confirmationRequest`. The object includes `required`, `status`, `sessionId`, `expiresAt`, `commandCount`, and two entries in `actions`. Use `action.label` as the Telegram button text, `action.callbackData` as its callback, and send `action.message` back to KNX AI to confirm or cancel without typed text.
 
-### Chat adapter presets
-The **Chat adapters** tab loads its selectable mappings from `resources/KNXAIChatAdapterMappings.js`. Selecting a preset installs two predefined synchronous JavaScript mappings internally: one before KNX AI processes an input and one before output 3 is emitted. The mappings remain hidden in the editor. Syntax and execution failures are caught and reported without stopping Node-RED.
+### Input/output message adapters
+The **Chat input and output pins** section loads its selectable mappings from `resources/KNXAIChatAdapterMappings.js`. Selecting an adapter installs two predefined synchronous JavaScript mappings internally: one before KNX AI processes an input and one before output 3 is emitted. The mappings remain hidden in the editor. Syntax and execution failures are caught and reported without stopping Node-RED.
 
 The included **windkh/node-red-contrib-telegrambot** preset follows the package's receiver/sender contract. Connect a `telegram receiver` directly to KNX AI and output 3 directly to a `telegram sender`. Confirmation uses a one-time Telegram reply keyboard: clicking **Confirm** or **Cancel** returns a normal localized message through the same receiver, so no `telegram event` or callback wiring is required. Legacy `callback_query` messages remain accepted. The input mapping extracts `msg.payload.content`, `msg.payload.chatId`, and the Telegram language. The output mapping creates the required `msg.payload.chatId`, `type`, and `content`, adding `options.reply_markup` from `msg.knxAi.confirmationRequest` when writes await confirmation. The Telegram package remains a separate optional dependency.
+
+With this preset, a Telegram voice message (`msg.payload.type = "voice"`) is handled automatically only when **Provider** is set to **OpenAI-compatible**. KNX AI verifies the provider before downloading anything, reuses its configured **Endpoint URL** and **API key**, and derives `/audio/transcriptions` and `/audio/speech` from that same connection. The token-bearing `msg.payload.weblink` is used only for the bounded download and is removed before the message reaches outputs or the LLM. OGG/Opus input is transcribed with the built-in `gpt-4o-mini-transcribe` default; a successful request receives a native Telegram OGG/Opus reply generated with `gpt-4o-mini-tts` and `alloy`, while the text caption and any confirmation keyboard are preserved. If another provider is selected, the user receives a localized instruction to select OpenAI-compatible or send text. If synthesis is unavailable, fails, or exceeds the speech limit, the complete answer is sent as text. The downloaded audio and generated reply text are sent to the same selected provider. Text messages, photos, and older saved Telegram mappings remain compatible.
+
+Every native voice caption begins with a localized **AI-generated voice** disclosure for the Telegram recipient.
 
 The included **RedBot / node-red-contrib-chatbot (Telegram)** preset follows RedBot's common message contract. Connect `chatbot-telegram-receive` directly to KNX AI and output 3 directly to `chatbot-telegram-send`; no separate callback node is needed because RedBot converts inline-button postbacks into normal inbound messages. The input mapping reads `transport`, `chatId`, `type`, `content`, and the Telegram language. The output mapping preserves RedBot's `originalMessage`, `chat`, `api`, and `client` tracking data, then emits either a `message` payload or an `inline-buttons` payload containing `postback` actions for confirmation. RedBot remains a separate optional dependency.
 
@@ -58,14 +79,14 @@ The user can ask for a current snapshot or ask the vision model what is visible.
 Every event published by an automatically detected adapter is normalized and appended directly in KNX AI's compact native row format to a daily `YYYY-MM-DD.knxctx` file under `knxultimatestorage/knxai/adapter-history/<node-id>/`. The KNX telegram archive uses the same compact format, without intermediate JSON serialization. The archive keeps 10 days, guarantees more than 24 hours of history and stores event metadata rather than snapshot images. Existing JSONL archives are neither read nor migrated. Totals cover every stored row in the requested interval; selected details are only a relevant sample.
 
 ### TTS Ultimate announcements
-When the optional `node-red-contrib-tts-ultimate` package is installed, it appears among the automatically detected adapters. The selector lists every `ttsultimate` node in all project flows, with its flow, node name and configured player. Choose the node that must handle chat announcements and deploy the flow.
+Wire output 5 to one or more `ttsultimate` nodes from the optional `node-red-contrib-tts-ultimate` package. Normal Node-RED wiring controls the destination and fan-out; use Link Out/Link In when the TTS node is on another flow tab. The previous TTS-node selector and internal injection have been removed. Existing output positions 1–4 are unchanged, but upgraded flows must physically connect output 5 before spoken announcements can reach TTS Ultimate.
 
-The model decides whether to use this adapter by reasoning over the current request, persistent chat instructions and user-managed AI Education; there is no announcement intent or trigger-phrase list. KNX values, adapter events, camera content and archives remain data rather than instructions, but trusted user guidance may tell the model how to act on them. KNX AI sends the chosen text directly to the selected node as `msg.payload`, with `msg.topic = "knx_ai_announcement"`; no intermediate flow wiring is required. TTS Ultimate then handles the configured Sonos player, voice, volume, hailing and queue.
+The model decides whether to prepare an announcement by reasoning over the current request, persistent chat instructions and user-managed AI Education; there is no announcement intent or trigger-phrase list. KNX values, adapter events, camera content and archives remain data rather than instructions, but trusted user guidance may tell the model how to act on them. Output 5 emits the exact spoken text in `msg.payload`, sets `msg.topic = "knx_ai_announcement"`, and adds `msg.knxAi.type = "tts_announcement"` together with `msg.knxAi.sourceNodeId`, `msg.knxAi.sessionId`, and `msg.knxAi.reason`. TTS Ultimate then handles the configured player, voice, volume, hailing and queue.
 
 ### Chat context overview
 The node editor shows a compact card summarizing the sources available to the chat: live and archived KNX traffic, persistent adapter events, ETS semantics and the Node-RED project, session and home memory, AI Education and detected cameras. It also shows the user-selected maximum operational context and the actual UTF-8 size of the last chat prompt; exact provider input tokens are used when reported, otherwise the token count is marked as estimated. The card lists the absolute KNX telegram and adapter-event archive directories and the `YYYY-MM-DD.knxctx` daily-file pattern.
 
-The model receives KNX read/write operations, camera adapters, TTS announcements and persistent memory as structured tools. It can select and combine them semantically from the current request and trusted learned guidance, without linguistic intent routing. The runtime only validates tool arguments, adapter availability and safety boundaries; KNX writes still use local ETS/DPT validation and the configured confirmation step.
+The model receives KNX read/write operations, camera adapters, TTS announcements and persistent memory as structured tools. It can select and combine them semantically from the current request and trusted learned guidance, without linguistic intent routing. The runtime only validates tool arguments, camera-adapter availability and safety boundaries; KNX writes still use local ETS/DPT validation and the configured confirmation step.
 
 ### Editing and backing up CHAT learning
 The **Conversations & home** tab in the Node-RED KNX AI configuration includes an **Open AI Chat Learning** button that opens the Vue Web UI directly on this editor for the current node.
@@ -133,10 +154,15 @@ All fields exposed in the KNX AI editor are listed below.
 - **Endpoint URL**: Chat/completions endpoint URL.
 - **API key**: API key (not required for local Ollama; optional for Bionic LM Studio unless server authentication is enabled).
 - **Model**: Model ID/name.
+- **Allow the AI to use the Web**: Off by default. Lets the model choose the general Web tool semantically and return verified, cited sources.
+- **Allow proactive Web checks**: Separate opt-in for background checks; it also requires explicit user-authored instructions in **AI Education**.
+- **Minimum proactive interval**: Minimum time between proactive cycles; it does not delay Web operations requested in an active user turn.
+- **Maximum Web calls per hour**: Rolling budget shared by interactive and proactive Web operations. Each turn or cycle can use at most three operations in total.
+- **Telegram voice**: Available only with the **OpenAI-compatible** provider. It automatically reuses that provider's endpoint and API key with the built-in `gpt-4o-mini-transcribe`, `gpt-4o-mini-tts`, and `alloy` defaults; there are no separate voice settings.
 - **Chat model compatibility**: The selected model must support the configured Chat Completions endpoint. Legacy completion-only models such as `gpt-3.5-turbo-instruct` are excluded when the model list is refreshed. If the provider rejects a custom temperature or token-limit parameter, KNX AI retries after removing or replacing only that incompatible field.
 - **Allow AI to read KNX states and control actuators**: Enables output 4 and is off by default. Exact ETS catalog objects may be read; writes are accepted only for objects classified as `command`. Unknown, DPT-mismatched, invalid, or excessive operations and writes to status/neutral objects are rejected locally.
 - **Ask for confirmation before sending KNX commands**: Enabled by default. Shows the validated changes first and emits no KNX command until the same chat session confirms them. Whenever commands are awaiting confirmation, the response always appends the exact confirmation/cancellation instructions in the language of the current request. Commands are validated again immediately before output.
-- **Adapter preset**: Defaults to **No adapter**. Selecting a preset loads its predefined input/output mapping pair; both mappings remain hidden in the editor.
+- **Input/output message adapter**: Defaults to **No adapter**. Selecting an adapter loads its predefined input/output mapping pair; both mappings remain hidden in the editor.
 - **AI Education**: User-only, authoritative guidance read by the AI and never modified by it. It is also the sole place to request proactive notifications and define their conditions, duration, quiet hours and repetition.
 - Packaged help, README, changelog, wiki and example snippets are not included in Telegram, RedBot or custom CHAT prompts. They remain available only to the web Assistant for package-support questions.
 - **Refresh** button: Queries the provider and loads available model IDs. Its icon spins while loading; successful completion is intentionally silent.

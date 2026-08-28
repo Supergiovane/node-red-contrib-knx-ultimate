@@ -68,9 +68,18 @@ const queryNodeId = (() => {
 
 const queryActiveTab = (() => {
   try {
-    return new URLSearchParams(window.location.search).get('tab') === 'settings' ? 'settings' : 'overview'
+    const requested = String(new URLSearchParams(window.location.search).get('tab') || '')
+    return ['assistant', 'settings'].includes(requested) ? requested : 'overview'
   } catch (error) {
     return 'overview'
+  }
+})()
+
+const queryPrompt = (() => {
+  try {
+    return String(new URLSearchParams(window.location.search).get('prompt') || '').trim().slice(0, 1200)
+  } catch (error) {
+    return ''
   }
 })()
 
@@ -615,7 +624,7 @@ const state = reactive({
   stateData: null,
   lastError: '',
   chatMessages: [],
-  chatDraft: '',
+  chatDraft: queryPrompt,
   flowBuilderPrompt: '',
   flowBuilderGenerating: false,
   flowBuilderResult: null,
@@ -1564,6 +1573,7 @@ const chatLearningEditorBytes = computed(() => new Blob([String(state.chatLearni
 const chatLearningTooLarge = computed(() => chatLearningEditorBytes.value > state.chatLearningMaxBytes)
 const summary = computed(() => state.stateData && state.stateData.summary ? state.stateData.summary : {})
 const nodeInfo = computed(() => state.stateData && state.stateData.node ? state.stateData.node : {})
+const setupDoctor = computed(() => state.stateData && state.stateData.setupDoctor ? state.stateData.setupDoctor : null)
 const areasState = computed(() => state.stateData && state.stateData.areas ? state.stateData.areas : { suggested: [], totals: {} })
 const suggestedAreas = computed(() => Array.isArray(areasState.value && areasState.value.suggested) ? areasState.value.suggested : [])
 const aiGeneratedAreas = computed(() => suggestedAreas.value.filter(area => String(area && area.id ? area.id : '').startsWith('llm:')))
@@ -1618,14 +1628,20 @@ const isViewingTestResultOnly = computed(() => {
   return state.activeTab === 'tests' && state.testResultFocusMode === true && !!selectedTestResult.value
 })
 const localizedPresetQuestions = computed(() => {
-  return PRESET_QUESTIONS.map((question) => {
-    const raw = String(question || '').trim()
+  const dynamicPrompts = setupDoctor.value && setupDoctor.value.firstRun && Array.isArray(setupDoctor.value.firstRun.prompts)
+    ? setupDoctor.value.firstRun.prompts
+    : []
+  const source = dynamicPrompts.length
+    ? dynamicPrompts.map(prompt => ({ key: String(prompt.id || prompt.text || ''), text: String(prompt.text || '') }))
+    : PRESET_QUESTIONS.map(question => ({ key: String(question || ''), text: String(question || '') }))
+  return source.map((question) => {
+    const raw = String(question.text || '').trim()
     const localized = String(localizeUiText(raw) || '').trim()
     return {
-      key: raw,
+      key: String(question.key || raw),
       text: localized || raw
     }
-  })
+  }).filter(item => item.text)
 })
 const filteredAreas = computed(() => {
   const search = String(state.areaSearch || '').trim().toLowerCase()
@@ -2701,7 +2717,7 @@ async function fetchState ({ fresh = false } = {}) {
     const localLiveReport = state.testPlanRunning === true && state.liveTestResultId
       ? cloneJson(state.stateData && state.stateData.testPlanReport ? state.stateData.testPlanReport : null, null)
       : null
-    const data = await requestJson(apiUrl(`state?nodeId=${encodeURIComponent(state.selectedNodeId)}&fresh=${fresh ? 1 : 0}`))
+    const data = await requestJson(apiUrl(`state?nodeId=${encodeURIComponent(state.selectedNodeId)}&fresh=${fresh ? 1 : 0}&language=${encodeURIComponent(uiLanguage.value)}`))
     if (localLiveReport && localLiveReport.id === state.liveTestResultId) {
       data.testPlanReport = localLiveReport
     }
@@ -2993,6 +3009,14 @@ async function sendAsk (questionOverride = '') {
   } finally {
     state.asking = false
   }
+}
+
+async function startSetupDoctorDemo (prompt) {
+  const question = String(prompt || '').trim()
+  if (!question || !nodeInfo.value.llmEnabled || state.asking) return
+  activateSidebarTab('assistant')
+  await nextTick()
+  await sendAsk(question)
 }
 
 async function generateFlow () {
@@ -4877,6 +4901,37 @@ onBeforeUnmount(() => {
 
     <section class="workspace-shell">
     <main class="content-grid workspace-main">
+      <section v-if="state.activeTab === 'overview' && setupDoctor" class="card card-setup-doctor" :class="`setup-doctor-${setupDoctor.status || 'attention'}`">
+        <div class="card-head">
+          <h2>Setup Doctor</h2>
+          <span class="meta-chip setup-doctor-score">{{ setupDoctor.statusLabel || setupDoctor.status }} · {{ Number(setupDoctor.score || 0) }}%</span>
+        </div>
+        <p class="setup-doctor-summary">{{ setupDoctor.summary }}</p>
+        <div class="setup-doctor-check-list">
+          <article v-for="check in setupDoctor.checks || []" :key="check.id" class="setup-doctor-check">
+            <div>
+              <strong>{{ check.title }}</strong>
+              <p>{{ check.detail }}</p>
+            </div>
+            <span class="setup-doctor-check-badge" :class="`check-${check.status || 'info'}`">{{ check.status === 'pass' ? '✓' : check.status === 'fail' ? '×' : check.status === 'warn' ? '!' : 'i' }}</span>
+          </article>
+        </div>
+        <div v-if="setupDoctor.firstRun && setupDoctor.firstRun.prompts && setupDoctor.firstRun.prompts.length" class="setup-doctor-demo">
+          <strong>✨ {{ setupDoctor.statusLabel }}</strong>
+          <div class="preset-row">
+            <button
+              v-for="prompt in setupDoctor.firstRun.prompts"
+              :key="prompt.id"
+              class="preset-button setup-doctor-demo-button"
+              type="button"
+              :disabled="state.asking || !nodeInfo.llmEnabled"
+              @click="startSetupDoctorDemo(prompt.text)"
+            >
+              {{ prompt.text }}
+            </button>
+          </div>
+        </div>
+      </section>
       <section v-if="state.activeTab === 'overview'" class="card card-summary">
         <div class="card-head">
           <h2>Summary</h2>
@@ -7044,12 +7099,109 @@ onBeforeUnmount(() => {
 }
 
 .card-summary,
+.card-setup-doctor,
 .card-bus,
 .card-chat,
 .card-flow,
 .card-areas,
 .card-profiles {
   grid-column: span 6;
+}
+
+.card-setup-doctor {
+  border-color: rgba(239, 108, 0, 0.4);
+  background: linear-gradient(145deg, rgba(255, 248, 237, 0.98) 0%, rgba(255, 255, 255, 0.98) 72%);
+}
+
+.card-setup-doctor.setup-doctor-ready {
+  border-color: rgba(46, 125, 50, 0.42);
+  background: linear-gradient(145deg, rgba(239, 250, 240, 0.98) 0%, rgba(255, 255, 255, 0.98) 72%);
+}
+
+.card-setup-doctor.setup-doctor-blocked {
+  border-color: rgba(198, 40, 40, 0.42);
+  background: linear-gradient(145deg, rgba(255, 240, 240, 0.98) 0%, rgba(255, 255, 255, 0.98) 72%);
+}
+
+.setup-doctor-score {
+  font-weight: 800;
+}
+
+.setup-doctor-summary {
+  margin: 0 0 12px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.setup-doctor-check-list {
+  display: grid;
+  gap: 0;
+}
+
+.setup-doctor-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(120, 120, 120, 0.14);
+}
+
+.setup-doctor-check > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.setup-doctor-check p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.setup-doctor-check-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e7edf4;
+  color: #496174;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.setup-doctor-check-badge.check-pass {
+  background: #dff0d8;
+  color: #256029;
+}
+
+.setup-doctor-check-badge.check-warn {
+  background: #fff3cd;
+  color: #7a5200;
+}
+
+.setup-doctor-check-badge.check-fail {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.setup-doctor-demo {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(120, 120, 120, 0.24);
+}
+
+.setup-doctor-demo .preset-row {
+  align-items: stretch;
+  margin-top: 9px;
+}
+
+.setup-doctor-demo-button {
+  flex: 1 1 180px;
+  white-space: normal;
+  text-align: left;
 }
 
 .card-flow,
