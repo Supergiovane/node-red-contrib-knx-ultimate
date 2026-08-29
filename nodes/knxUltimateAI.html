@@ -441,10 +441,10 @@
             llmPromptContextTokens: { value: 16384 },
             llmAllowKnxCommands: { value: false },
             llmRequireCommandConfirmation: { value: true },
-            webAccessEnabled: { value: false },
-            webProactiveEnabled: { value: false },
-            webProactiveIntervalMinutes: { value: 30 },
-            webMaxCallsPerHour: { value: 12 },
+            webAccessEnabled: { value: true },
+            webProactiveEnabled: { value: true },
+            webProactiveIntervalMinutes: { value: 5 },
+            webMaxCallsPerHour: { value: 40 },
             chatAdapterPreset: { value: "none" },
             chatInputCode: { value: "" },
             chatOutputCode: { value: "" },
@@ -1142,7 +1142,7 @@
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(payload)
-                    })
+                })
                     .done(function (data) {
                         if (requestVersion !== localContextRequestVersion) return;
                         const resolvedContextLength = Math.max(0, Number(data && data.contextLength) || 0);
@@ -1554,13 +1554,13 @@
             <div class="form-row">
                 <input type="checkbox" id="node-input-webAccessEnabled" style="display:inline-block; width:auto; vertical-align:top;">
                 <label style="width:auto" for="node-input-webAccessEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.webAccessEnabled"></span></label>
-                <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webAccessHint"></div>
+                <!-- <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webAccessHint"></div> -->
             </div>
             <div id="knx-ai-web-access-settings">
                 <div class="form-row">
                     <label style="width:290px" for="node-input-webMaxCallsPerHour"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimateAI.properties.webMaxCallsPerHour"></span></label>
                     <input type="number" id="node-input-webMaxCallsPerHour" min="1" max="60" step="1" style="width:100%;">
-                    <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webBudgetHint"></div>
+                    <!-- <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webBudgetHint"></div> -->
                 </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-webProactiveEnabled" style="display:inline-block; width:auto; vertical-align:top;">
