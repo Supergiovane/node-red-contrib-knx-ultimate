@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 6.3.28** - August 2026<br/>
+**Version 6.3.29** - August 2026<br/>
 
 - **KNX AI — patient provider-neutral model requests**: every LLM chat request now receives the same 30-minute minimum deadline, regardless of provider, model or model manager, while longer legacy configured values remain honored. The model transport carries that deadline through both streaming and non-streaming responses instead of inheriting a shorter HTTP-library header timeout; fast responses are returned immediately, model-response timeouts remain distinct from unreachable-server errors, and Telegram audio operations retain their separate two-minute safeguard.<br/>
 - **KNX AI — provider-neutral reasoning control and responsive chat**: added a localized **Reasoning effort** selector with provider/model default, `none`, `minimal`, `low`, `medium`, `high`, `xhigh` and `max` choices. The default sends no preference; explicit supported values are mapped by request protocol to Chat Completions `reasoning_effort`, Anthropic `output_config.effort` or Ollama `think`, without model-name allowlists, and a rejected preference is removed while preserving the rest of the request. OpenAI-compatible and Ollama chats now stream responses for every configured endpoint, keep reasoning traces separate from the structured user reply and retry without streaming when an endpoint rejects it. Abort and HTTP transport timeouts are reported as model-response timeouts instead of as false connection failures; genuine unreachable-server errors retain their provider-specific setup guidance. Context-error compaction remains in force. Editor help and wiki documentation were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>

@@ -6132,12 +6132,6 @@ onBeforeUnmount(() => {
               <span v-if="chatLearningDirty" class="meta-chip chat-learning-dirty">Unsaved changes</span>
             </div>
           </div>
-          <p class="chat-learning-note">
-            The native KNX AI records are authoritative and editable. Saving validates and replaces the live shared CHAT context immediately.
-          </p>
-          <p class="chat-learning-note">
-            Only the current KNXAI_CHAT_CONTEXT 3 format is accepted. Previous Markdown/JSON and Base64 files are not read, imported or migrated.
-          </p>
           <label class="flow-field chat-learning-path-field">
             <span>File path</span>
             <code>{{ state.chatLearningPath || 'Loading chat learning...' }}</code>
@@ -7342,13 +7336,6 @@ onBeforeUnmount(() => {
   border-color: rgba(196, 57, 57, 0.42) !important;
   background: rgba(255, 227, 227, 0.94) !important;
   color: #a42828 !important;
-}
-
-.chat-learning-note {
-  margin: 6px 0;
-  color: #566174;
-  font-size: 12px;
-  line-height: 1.5;
 }
 
 .chat-learning-path-field {
