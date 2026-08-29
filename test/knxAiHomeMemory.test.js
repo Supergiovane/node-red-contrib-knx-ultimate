@@ -46,7 +46,7 @@ describe('KNX AI bounded home intelligence memory', () => {
     })
   })
 
-  it('keeps the Markdown file below the configured hard limit and preserves education', () => {
+  it('keeps the Markdown file below the configured hard limit without mixing in configured Education', () => {
     let memory = createEmptyKnxAiHomeMemory()
     for (let index = 0; index < 500; index++) {
       memory = addBoundedKnxAiObservation(memory, {
@@ -79,15 +79,16 @@ describe('KNX AI bounded home intelligence memory', () => {
     })
 
     expect(rendered.bytes).to.be.at.most(64 * 1024)
-    expect(rendered.markdown).to.include(education)
-    expect(rendered.markdown).to.include('AI Education — user managed, read only for AI')
+    expect(rendered.markdown).not.to.include(education)
+    expect(rendered.markdown).to.include('AI Education — configured on the KNX AI node')
+    expect(rendered.markdown).to.include('not stored in learned memory')
     const restored = parseKnxAiHomeMemoryMarkdown(rendered.markdown)
     expect(restored.observations.length).to.be.at.most(120)
     expect(restored.notifications.length).to.be.at.most(80)
     expect(restored.semanticObjects.length).to.be.at.most(300)
   })
 
-  it('enforces the byte limit even when user education contains multibyte text', () => {
+  it('does not let multibyte Education consume the learned-memory byte budget', () => {
     const education = '🏠'.repeat(16000)
     const rendered = buildKnxAiHomeMemoryMarkdown({
       memory: createEmptyKnxAiHomeMemory(),
@@ -96,7 +97,8 @@ describe('KNX AI bounded home intelligence memory', () => {
     })
 
     expect(rendered.bytes).to.be.at.most(64 * 1024)
-    expect(rendered.education.length).to.be.greaterThan(0)
+    expect(rendered.markdown).not.to.include('🏠')
+    expect(rendered).not.to.have.property('education')
     expect(education).to.have.length(32000)
   })
 

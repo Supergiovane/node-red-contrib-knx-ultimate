@@ -28,21 +28,30 @@ Every Web-backed answer contains runtime-validated citations with a sanitized so
 
 After verified Web results are available, the model may compose other enabled tools when authorized by the current chat or AI Education. Web access never expands permissions: camera, TTS and memory availability, as well as KNX reads and writes, local ETS/DPT validation and the configured KNX write confirmation, remain unchanged. Web requests expose the query and this server's public IP to external sites or the search service; KNX/ETS data, camera content, chat identifiers, learned memory and credentials are never added automatically.
 
+### Natural-language plans and reminders
+In normal chat language, the user can ask KNX AI to create, list or cancel a one-time or recurring reminder, monitor or future home command. The model chooses the structured `scheduleActions` planning tool semantically from the complete request and stores the complete goal and conditions as a human-language instruction. There are no schedule keywords, trigger-phrase lists or rigid intent classifiers, so wording and language do not restrict the feature.
+
+Schedules belong to the chat session and persist per KNX AI node across Node-RED restarts. Their authoritative runtime state is `<userDir>/knxai/schedules/knxai-schedules-<node-id>.json`; KNX AI also generates `<userDir>/knxai/schedules/knxai-schedules-<node-id>.md` as a readable view. A plan can run once, repeat at intervals of at least five minutes and optionally expire. The model can list or cancel only the active schedules owned by the current chat unless the user explicitly asks to cancel all of that chat's schedules.
+
+When a task is due, KNX AI starts a separate model pass with the stored human-language instruction as trusted user authority. A monitor stays silent when its condition is not satisfied. Existing permissions still apply at execution time: a weather monitor needs **Allow the AI to use the Web** and uses the same Web budget, a spoken result leaves output 5 and therefore needs a wired TTS Ultimate node, and camera tools remain limited to detected adapters. A scheduled KNX write still uses the exact ETS/DPT checks and, when enabled, produces a preview for the same chat session and waits for confirmation before output 4 emits anything.
+
+For example, the user can write: “For the next five days, check the forecast for Cortemaggiore every 30 minutes and use TTS Ultimate only if thunderstorms are forecast.” KNX AI can preserve this complete condition and duration as one recurring monitor; the Web and TTS requirements above remain in force.
+
 ## Commands (input)
 Send `msg.topic`:
 - `summary` (or empty): emit summary immediately
-- `reset`: clear internal history, counters, learned home memory, and every persisted chat context; AI Education remains unchanged
+- `reset`: clear internal history, counters, learned home memory, every persisted chat context, and every schedule for this node; the AI Education configured on the node remains unchanged
 - `ask`: send a question to the configured LLM
 - `confirm` / `cancel`: confirm or cancel pending KNX commands without calling the LLM
-- `clear_chat`: clear recent turns, persistent instructions, and pending commands for the current session
+- `clear_chat`: clear recent turns, persistent instructions and pending commands for the current session, and cancel that session's active schedules; other sessions and AI Education remain unchanged
 
 For `ask`, provide the question in `msg.prompt` (preferred), `msg.payload` (string), or the common Telegram fields `msg.payload.content` / `msg.payload.text`.
 
 If processing takes longer than 1.2 seconds, output 3 emits the localized intermediate message “I’m thinking…” with `msg.knxAi.type = "thinking"` and `msg.knxAi.transient = true`. The chat adapter sends it immediately to the same user, while the final answer follows normally. This progress message is never stored in conversation context or learned memory.
 
-Ollama and Bionic LM Studio requests automatically use a minimum timeout of 10 minutes; cloud providers retain a 2-minute minimum. There is no timeout field to maintain in the editor. If even the local limit is reached, KNX AI reports that the model did not finish and suggests retrying or reducing the prompt context.
+Every LLM chat request uses a provider-independent minimum timeout of 30 minutes. There is no timeout field to maintain in the editor. This is a maximum wait, not an artificial delay: faster models still finish as soon as their response is ready. If even this limit is reached, KNX AI reports that the model did not finish and suggests retrying or reducing the prompt context.
 
-For local providers, **Chat context amount** explicitly selects 4K, 8K or 16K; 16K remains the default. The choice proportionally bounds the KNX, memory, Node-RED project and adapter data supplied to the model while retaining the complete agent tool contract. It never enables or disables a capability from wording, keywords or linguistic intents.
+For local providers, **Chat context amount** explicitly selects 4K, 8K, 16K or no KNX AI limit; 16K remains the default. With no KNX AI limit, KNX AI uses the model's declared or active context window without exceeding the model's physical maximum. The choice proportionally bounds the KNX, memory, Node-RED project and adapter data supplied to the model while retaining the complete agent tool contract. It never enables or disables a capability from wording, keywords or linguistic intents.
 
 The node's canvas status is deliberately reserved for the latest incoming request and the localized “I’m thinking…” state while the LLM is running. KNX telegrams, gateway updates, traffic rates, ready messages and technical results never overwrite it; they remain available through the node outputs, logs and Assistant data.
 
@@ -84,9 +93,9 @@ Wire output 5 to one or more `ttsultimate` nodes from the optional `node-red-con
 The model decides whether to prepare an announcement by reasoning over the current request, persistent chat instructions and user-managed AI Education; there is no announcement intent or trigger-phrase list. KNX values, adapter events, camera content and archives remain data rather than instructions, but trusted user guidance may tell the model how to act on them. Output 5 emits the exact spoken text in `msg.payload`, sets `msg.topic = "knx_ai_announcement"`, and adds `msg.knxAi.type = "tts_announcement"` together with `msg.knxAi.sourceNodeId`, `msg.knxAi.sessionId`, and `msg.knxAi.reason`. TTS Ultimate then handles the configured player, voice, volume, hailing and queue.
 
 ### Chat context overview
-The node editor shows a compact card summarizing the sources available to the chat: live and archived KNX traffic, persistent adapter events, ETS semantics and the Node-RED project, session and home memory, AI Education and detected cameras. It also shows the user-selected maximum operational context and the actual UTF-8 size of the last chat prompt; exact provider input tokens are used when reported, otherwise the token count is marked as estimated. The card lists the absolute KNX telegram and adapter-event archive directories and the `YYYY-MM-DD.knxctx` daily-file pattern.
+The node editor shows a compact card summarizing the sources available to the chat: live and archived KNX traffic, persistent adapter events, ETS semantics and the Node-RED project, session and home memory, AI Education, active plans and detected cameras. It also shows the user-selected maximum operational context and the actual UTF-8 size of the last chat prompt; exact provider input tokens are used when reported, otherwise the token count is marked as estimated. The card lists the absolute paths of the authoritative JSON/readable Markdown schedule files, plus the KNX telegram and adapter-event archive directories and the `YYYY-MM-DD.knxctx` daily-file pattern. AI Education is stored in the node configuration and therefore has no separate runtime file.
 
-The model receives KNX read/write operations, camera adapters, TTS announcements and persistent memory as structured tools. It can select and combine them semantically from the current request and trusted learned guidance, without linguistic intent routing. The runtime only validates tool arguments, camera-adapter availability and safety boundaries; KNX writes still use local ETS/DPT validation and the configured confirmation step.
+The model receives KNX read/write operations, camera adapters, TTS announcements, persistent memory, Web access and plans/reminders as structured tools. It can select and combine them semantically from the current request and trusted learned guidance, without linguistic intent routing. The runtime only validates tool arguments, camera-adapter availability and safety boundaries; KNX writes still use local ETS/DPT validation and the configured confirmation step.
 
 ### Editing and backing up CHAT learning
 The **Conversations & home** tab in the Node-RED KNX AI configuration includes an **Open AI Chat Learning** button that opens the Vue Web UI directly on this editor for the current node.
@@ -107,7 +116,9 @@ There is no separate switch or advanced proactive configuration. A candidate is 
 
 The most recent chat session is remembered as the owner and receives spontaneous messages. Output 3 emits a localized message with `msg.knxAi.type = "proactive_notification"`; a synthetic `msg.inputMessage` preserves the session for the chat adapter. A hard safety limit of three proactive messages per hour prevents flooding. The node never emits output 4 or changes KNX autonomously; a subsequent user request still uses the normal validation and confirmation workflow.
 
-The shared learned reference is loaded at startup from `<userDir>/knxai/memory/knxai-home-memory.md`, rewritten atomically every 15 minutes and always hard-capped at 5 MB. It stores at most 120 significant observations, 80 aggregate habits, 80 notifications and 300 semantic ETS objects—never a raw unlimited telegram stream. Older low-priority entries are removed first. **AI Education** is limited to 16,000 characters and always comes from the node configuration: the AI can read it as authoritative guidance but cannot modify or overwrite it.
+The shared learned reference is loaded at startup from `<userDir>/knxai/memory/knxai-home-memory.md`, rewritten atomically every 15 minutes and always hard-capped at 5 MB. It stores at most 120 significant observations, 80 aggregate habits, 80 notifications and 300 semantic ETS objects—never a raw unlimited telegram stream. Older low-priority entries are removed first.
+
+**AI Education** is limited to 16,000 characters and is a fixed property saved with the node in the Node-RED flow. Only the user changes it in the editor and applies it with Deploy. The model reads it as authoritative guidance but can never write or overwrite it. Facts and preferences requested in chat belong to learned chat memory, while one-time or recurring plans, reminders, monitoring and future commands belong to the semantic scheduler. The learned-memory file intentionally does not contain the Education text.
 
 ## Practical configuration example
 Put the complete notification policy in **AI Education** (`aiEducation`):
@@ -154,6 +165,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Endpoint URL**: Chat/completions endpoint URL.
 - **API key**: API key (not required for local Ollama; optional for Bionic LM Studio unless server authentication is enabled).
 - **Model**: Model ID/name.
+- **Reasoning effort**: Provider-agnostic preference for models that expose reasoning-effort control. **Automatic** sends no preference and preserves the model/provider default. Explicit choices are `none`, `minimal`, `low`, `medium`, `high`, `xhigh` and `max`; support depends on the request protocol and model, and KNX AI retries without the preference if it is rejected.
 - **Allow the AI to use the Web**: Off by default. Lets the model choose the general Web tool semantically and return verified, cited sources.
 - **Allow proactive Web checks**: Separate opt-in for background checks; it also requires explicit user-authored instructions in **AI Education**.
 - **Minimum proactive interval**: Minimum time between proactive cycles; it does not delay Web operations requested in an active user turn.
@@ -163,7 +175,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Allow AI to read KNX states and control actuators**: Enables output 4 and is off by default. Exact ETS catalog objects may be read; writes are accepted only for objects classified as `command`. Unknown, DPT-mismatched, invalid, or excessive operations and writes to status/neutral objects are rejected locally.
 - **Ask for confirmation before sending KNX commands**: Enabled by default. Shows the validated changes first and emits no KNX command until the same chat session confirms them. Whenever commands are awaiting confirmation, the response always appends the exact confirmation/cancellation instructions in the language of the current request. Commands are validated again immediately before output.
 - **Input/output message adapter**: Defaults to **No adapter**. Selecting an adapter loads its predefined input/output mapping pair; both mappings remain hidden in the editor.
-- **AI Education**: User-only, authoritative guidance read by the AI and never modified by it. It is also the sole place to request proactive notifications and define their conditions, duration, quiet hours and repetition.
+- **AI Education**: Fixed, authoritative node guidance edited only by the user and applied with Deploy. The model reads it but never writes it. Standing proactive-home policies belong here; facts and preferences requested in chat go to learned memory, while one-time or recurring plans, reminders, monitors and future commands go to the semantic scheduler without trigger phrases or intent routing.
 - Packaged help, README, changelog, wiki and example snippets are not included in Telegram, RedBot or custom CHAT prompts. They remain available only to the web Assistant for package-support questions.
 - **Refresh** button: Queries the provider and loads available model IDs. Its icon spins while loading; successful completion is intentionally silent.
 
@@ -175,7 +187,7 @@ All fields exposed in the KNX AI editor are listed below.
   - **2) Install it**: downloads and installs the model locally (for example `llama3.1`).
 - During model refresh/install, KNX AI also tries to auto-start the Ollama server when possible.
 - If install fails with connection errors, ensure Ollama is running (desktop app or `ollama serve`).
-- The maximum context reported by `/api/show` is informational. KNX AI sends the selected 4K, 8K or 16K budget as `num_ctx` (or the model maximum when it is smaller) and proportionally bounds every supplied context source without removing agent capabilities.
+- The maximum context reported by `/api/show` is informational. KNX AI sends the selected 4K, 8K or 16K budget as `num_ctx`; with no KNX AI limit it uses the context declared by the model, never beyond its physical maximum. Every supplied context source is bounded proportionally without removing agent capabilities.
 - If Node-RED runs in Docker, use `host.docker.internal` instead of `localhost` in the endpoint URL.
 
 ### Bionic LM Studio quick setup (local)
@@ -183,7 +195,7 @@ All fields exposed in the KNX AI editor are listed below.
 - Start the LM Studio API server from the **Developer** page or with `lms server start`.
 - Default endpoint: `http://localhost:1234/v1/chat/completions`.
 - Click **Refresh** to load all models exposed by `/v1/models`; the first model is selected when none is configured.
-- When a model is already loaded, KNX AI preserves its active context length. KNX AI never loads an inactive Bionic model through the management API: the first chat request lets Bionic JIT-load it with its saved per-model defaults. Independently of the context reported by Bionic, KNX AI uses the selected 4K, 8K or 16K prompt budget and keeps reasoning, KNX, routine, camera and TTS capabilities available.
+- When a model is already loaded, KNX AI preserves its active context length. KNX AI never loads an inactive Bionic model through the management API: the first chat request lets Bionic JIT-load it with its saved per-model defaults. KNX AI uses the selected 4K, 8K or 16K prompt budget, or the declared/active model window when no KNX AI limit is selected, without exceeding the model's physical maximum; reasoning, KNX, routine, camera and TTS capabilities remain available.
 - An API key is optional unless authentication is enabled in the LM Studio server settings. In Docker, replace `localhost` with `host.docker.internal`.
 
 ## Security note

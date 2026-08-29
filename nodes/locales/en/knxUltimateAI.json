@@ -24,6 +24,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmReasoningEffort": "Reasoning effort",
       "llmPromptContextTokens": "Chat context amount",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
@@ -56,7 +57,18 @@
       "promptContext": {
         "small": "Small (4K, faster)",
         "medium": "Medium (8K)",
-        "full": "Full (16K)"
+        "full": "Full (16K)",
+        "unlimited": "No KNX AI limit (use model context)"
+      },
+      "reasoningEffort": {
+        "default": "Automatic (model/provider default)",
+        "none": "None",
+        "minimal": "Minimal",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "xhigh": "Extra high",
+        "max": "Maximum"
       },
       "chatAdapter": {
         "none": "No adapter"
@@ -100,7 +112,8 @@
       "lmStudioContextFailed": "Unable to configure the model context",
       "lmStudioContextCurrentlyLoaded": "currently loaded",
       "localContextBudget": "KNX AI context budget",
-      "promptContextHint": "Controls how much KNX, memory, project and adapter context is sent to local models. It does not enable or disable tools and does not use intent routing.",
+      "promptContextHint": "Controls how much KNX, memory, project and adapter context is sent to local models. Choose ‘No KNX AI limit’ to use the model's declared or active context window. It does not enable or disable tools and does not use intent routing.",
+      "reasoningEffortHint": "Optional preference for models that support reasoning effort. Automatic sends no preference; if a provider or model rejects the selected value, KNX AI retries without it.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -133,11 +146,13 @@
       "chatContextSourceKnxTraffic": "Live KNX summary, anomalies, topology and selected telegrams.",
       "chatContextSourceAdapterHistory": "Persistent daily history of automatically detected adapter events, including camera detections.",
       "chatContextSourceEtsProject": "ETS semantics and the full Node-RED project inventory.",
-      "chatContextSourceMemoryEducation": "Session context, AI Education and bounded home memory.",
+      "chatContextSourceMemoryEducation": "Session context, AI Education, bounded home memory and active plans.",
       "chatContextSourceCameras": "Detected cameras and their available capabilities.",
       "chatContextSourceBadge": "Source",
       "chatContextFileChatContext": "Persistent conversation turns, instructions and camera notification rules.",
-      "chatContextFileHomeMemory": "AI Education and bounded learned home memory.",
+      "chatContextFileHomeMemory": "Bounded learned home memory only; AI Education remains in the node property.",
+      "chatContextFileSchedules": "Authoritative persistent runtime state for this node's plans and reminders.",
+      "chatContextFileSchedulesReadable": "Generated human-readable view of this node's plans and reminders.",
       "chatContextFileAssistantConfig": "Persistent web Assistant configuration and semantic areas for this node.",
       "chatContextFileBadge": "File",
       "chatContextDirectoryRoot": "Telegram archive root",
@@ -150,14 +165,14 @@
       "chatAdapterIntro": "Choose a mapping preset to insert its input and output code. The list is loaded from the packaged chat-adapter mappings file; the generated code remains editable.",
       "chatAdapterCodeHelp": "Mappings run synchronously. Return msg to continue or return no value to discard it. Errors are caught and reported without stopping Node-RED.",
       "homeIntelligenceIntro": "The node builds a multilingual semantic ETS model. Proactive notifications are considered only when AI Education explicitly requests them; it never sends a KNX command proactively.",
-      "aiEducationHelp": "Only the user can edit this section. Use it to define any proactive notification policy, including conditions, duration, quiet hours and repetition. The AI reads it as authoritative guidance and learned memory can never overwrite it. Maximum 16,000 characters."
+      "aiEducationHelp": "Only the user can edit this node property. Use it for durable guidance and proactive notification policies, including conditions, duration, quiet hours and repetition. The model reads it as authoritative guidance but never writes it. Facts and preferences requested in chat are stored in learned chat memory; one-time or recurring plans, reminders, monitoring and future commands are stored by the semantic scheduler. No trigger phrases or intent routing are required. Maximum 16,000 characters."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default.",
-      "aiEducation": "Example: Notify my most recent chat if a window stays open for 30 minutes. Do not notify me between 23:00 and 07:00."
+      "aiEducation": "Example: Keep replies short. Notify my most recent chat if a window stays open for 30 minutes; stay quiet between 23:00 and 07:00."
     },
     "sidebar": {
       "ui": {

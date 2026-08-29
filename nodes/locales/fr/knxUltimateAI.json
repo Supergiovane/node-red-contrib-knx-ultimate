@@ -24,6 +24,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmReasoningEffort": "Effort de raisonnement",
       "llmPromptContextTokens": "Quantité de contexte du chat",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
@@ -56,7 +57,18 @@
       "promptContext": {
         "small": "Réduit (4K, plus rapide)",
         "medium": "Moyen (8K)",
-        "full": "Complet (16K)"
+        "full": "Complet (16K)",
+        "unlimited": "Aucune limite KNX AI (utiliser le contexte du modèle)"
+      },
+      "reasoningEffort": {
+        "default": "Automatique (valeur du modèle/fournisseur)",
+        "none": "Aucun",
+        "minimal": "Minimal",
+        "low": "Faible",
+        "medium": "Moyen",
+        "high": "Élevé",
+        "xhigh": "Très élevé",
+        "max": "Maximum"
       },
       "chatAdapter": {
         "none": "Aucun adaptateur"
@@ -90,7 +102,8 @@
       "lmStudioContextFailed": "Impossible de configurer le contexte du modèle",
       "lmStudioContextCurrentlyLoaded": "actuellement chargé",
       "localContextBudget": "Budget de contexte KNX AI",
-      "promptContextHint": "Contrôle la quantité de contexte KNX, mémoire, projet et adaptateurs envoyée aux modèles locaux. Cela n’active ni ne désactive les outils et n’utilise aucun routage par intent.",
+      "promptContextHint": "Contrôle la quantité de contexte KNX, mémoire, projet et adaptateurs envoyée aux modèles locaux. Choisissez « Aucune limite KNX AI » pour utiliser la fenêtre déclarée ou active du modèle. Cela n’active ni ne désactive les outils et n’utilise aucun routage par intent.",
+      "reasoningEffortHint": "Préférence facultative pour les modèles prenant en charge l'effort de raisonnement. Automatique n'envoie aucune préférence ; si le fournisseur ou le modèle refuse la valeur choisie, KNX AI réessaie sans elle.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -123,11 +136,13 @@
       "chatContextSourceKnxTraffic": "Résumé KNX actuel, anomalies, topologie et télégrammes sélectionnés.",
       "chatContextSourceAdapterHistory": "Historique quotidien persistant des événements des adaptateurs détectés, y compris les détections des caméras.",
       "chatContextSourceEtsProject": "Sémantique ETS et inventaire complet du projet Node-RED.",
-      "chatContextSourceMemoryEducation": "Contexte de session, Éducation IA et mémoire domestique limitée.",
+      "chatContextSourceMemoryEducation": "Contexte de session, Éducation IA, mémoire domestique limitée et planifications actives.",
       "chatContextSourceCameras": "Caméras détectées et leurs fonctionnalités disponibles.",
       "chatContextSourceBadge": "Source",
       "chatContextFileChatContext": "Tours de conversation persistants, instructions et règles de notification des caméras.",
-      "chatContextFileHomeMemory": "Éducation IA et mémoire domestique apprise et limitée.",
+      "chatContextFileHomeMemory": "Mémoire domestique apprise et limitée uniquement ; l’Éducation IA reste dans la propriété du nœud.",
+      "chatContextFileSchedules": "État d’exécution persistant faisant autorité pour les planifications et rappels de ce nœud.",
+      "chatContextFileSchedulesReadable": "Vue lisible générée des planifications et rappels de ce nœud.",
       "chatContextFileAssistantConfig": "Configuration persistante de l'Assistant web et zones sémantiques de ce nœud.",
       "chatContextFileBadge": "Fichier",
       "chatContextDirectoryRoot": "Racine de l'archive des télégrammes",
@@ -140,14 +155,14 @@
       "chatAdapterIntro": "Choisissez un préréglage pour insérer son code de mappage d’entrée et de sortie. La liste est chargée depuis le fichier d’adaptateurs de chat fourni ; le code généré reste modifiable.",
       "chatAdapterCodeHelp": "Les mappages s’exécutent de façon synchrone. Renvoyez msg pour continuer ou aucune valeur pour l’écarter. Les erreurs sont interceptées et signalées sans arrêter Node-RED.",
       "homeIntelligenceIntro": "Le nœud crée un modèle ETS sémantique multilingue. Les notifications proactives ne sont envisagées que si l'Éducation IA les demande explicitement ; il n'envoie jamais de commande KNX de manière autonome.",
-      "aiEducationHelp": "Seul l'utilisateur peut modifier cette section. Utilisez-la pour définir toute règle de notification proactive, notamment les conditions, la durée, les heures silencieuses et la répétition. L'IA la lit comme une consigne faisant autorité et la mémoire apprise ne peut jamais l'écraser. Maximum 16 000 caractères."
+      "aiEducationHelp": "Seul l’utilisateur peut modifier cette propriété du nœud. Utilisez-la pour les consignes durables et les règles de notification proactive, notamment les conditions, la durée, les heures silencieuses et la répétition. Le modèle la lit comme une consigne faisant autorité, mais ne l’écrit jamais. Les faits et préférences demandés dans le chat sont conservés dans la mémoire apprise du chat ; les planifications, rappels, surveillances et commandes futures, ponctuels ou récurrents, sont conservés par le planificateur sémantique. Aucune phrase déclencheuse ni aucun routage par intent n’est requis. Maximum 16 000 caractères."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default.",
-      "aiEducation": "Exemple : notifier mon dernier chat si une fenêtre reste ouverte 30 minutes. Ne pas me notifier entre 23:00 et 07:00."
+      "aiEducation": "Exemple : répondre brièvement. Notifier mon dernier chat si une fenêtre reste ouverte 30 minutes ; ne pas me notifier entre 23:00 et 07:00."
     },
     "sidebar": {
       "ui": {

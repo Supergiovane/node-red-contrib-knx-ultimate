@@ -187,7 +187,6 @@
         margin: 18px 0 0;
     }
 
-    #knx-ai-setup-doctor-panel>h4,
     #knx-ai-detected-adapters-panel>h4,
     #knx-ai-chat-context-panel>h4,
     #knx-ai-chat-learning-link-panel>h4 {
@@ -197,9 +196,51 @@
     }
 
     #knx-ai-setup-doctor-panel {
-        margin: 16px 0 18px;
+        margin: 24px 0 0;
         border-color: rgba(255, 152, 0, 0.55);
         background: linear-gradient(135deg, rgba(255, 152, 0, 0.10), var(--red-ui-secondary-background, #f7f7f7));
+    }
+
+    .knx-ai-setup-doctor-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0;
+        color: var(--red-ui-primary-text-color, #555);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        user-select: none;
+    }
+
+    .knx-ai-setup-doctor-toggle::-webkit-details-marker {
+        display: none;
+    }
+
+    .knx-ai-setup-doctor-toggle>span>i {
+        width: 18px;
+        text-align: center;
+    }
+
+    .knx-ai-setup-doctor-toggle:focus-visible {
+        outline: 2px solid var(--red-ui-primary-color, #377e00);
+        outline-offset: 3px;
+        border-radius: 2px;
+    }
+
+    .knx-ai-setup-doctor-chevron {
+        flex: 0 0 auto;
+        transition: transform 0.16s ease;
+    }
+
+    #knx-ai-setup-doctor-panel[open] .knx-ai-setup-doctor-chevron {
+        transform: rotate(90deg);
+    }
+
+    .knx-ai-setup-doctor-body {
+        margin-top: 11px;
     }
 
     #knx-ai-setup-doctor-panel.status-ready {
@@ -437,6 +478,7 @@
             llmProvider: { value: "openai_compat" },
             llmBaseUrl: { value: "https://api.openai.com/v1/chat/completions" },
             llmModel: { value: "gpt-5.4" },
+            llmReasoningEffort: { value: "default" },
             llmContextLength: { value: 0 },
             llmPromptContextTokens: { value: 16384 },
             llmAllowKnxCommands: { value: false },
@@ -813,12 +855,16 @@
                 const contextLimit = overview.contextLimit && typeof overview.contextLimit === "object" ? overview.contextLimit : {};
                 const currentProvider = String(contextLimit.provider || $("#node-input-llmProvider").val() || "").toLowerCase();
                 let contextLimitTokens = Math.max(0, Number(contextLimit.tokens) || 0);
-                if (!contextLimitTokens && (currentProvider === "lmstudio" || currentProvider === "ollama")) {
-                    contextLimitTokens = Math.min(
-                        Math.max(0, Number($("#node-input-llmContextLength").val()) || 16384),
-                        Math.max(0, Number($("#node-input-llmPromptContextTokens").val()) || 16384),
-                        16384
-                    );
+                const contextIsProviderManaged = String(contextLimit.mode || "") === "provider-managed";
+                if (!contextLimitTokens && !contextIsProviderManaged && (currentProvider === "lmstudio" || currentProvider === "ollama")) {
+                    const modelContextTokens = Math.max(0, Number($("#node-input-llmContextLength").val()) || 16384);
+                    const selectedContextValue = String($("#node-input-llmPromptContextTokens").val() || "16384");
+                    const selectedContextTokens = selectedContextValue === "0"
+                        ? 0
+                        : Math.min(16384, Math.max(4096, Number(selectedContextValue) || 16384));
+                    contextLimitTokens = selectedContextTokens === 0
+                        ? modelContextTokens
+                        : Math.min(modelContextTokens, selectedContextTokens);
                 }
                 const contextLimitValue = contextLimitTokens
                     ? formatCompactTokens(contextLimitTokens) + " " + t("knxUltimateAI.messages.chatContextTokens", "tokens")
@@ -852,7 +898,7 @@
                     knxTraffic: t("knxUltimateAI.messages.chatContextSourceKnxTraffic", "Live KNX summary, anomalies, topology and selected telegrams."),
                     adapterHistory: t("knxUltimateAI.messages.chatContextSourceAdapterHistory", "Persistent history of automatically detected adapter events."),
                     etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "ETS semantics and the full Node-RED project inventory."),
-                    memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education and bounded home memory."),
+                    memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education, bounded home memory and active plans."),
                     cameras: t("knxUltimateAI.messages.chatContextSourceCameras", "Detected cameras and their available capabilities.")
                 };
                 (Array.isArray(overview.sources) ? overview.sources : []).forEach(function (sourceId) {
@@ -867,7 +913,9 @@
 
                 const fileDescriptions = {
                     chatContext: t("knxUltimateAI.messages.chatContextFileChatContext", "Persistent conversation turns, instructions and camera notification rules."),
-                    homeMemory: t("knxUltimateAI.messages.chatContextFileHomeMemory", "AI Education and bounded learned home memory."),
+                    homeMemory: t("knxUltimateAI.messages.chatContextFileHomeMemory", "Bounded learned home memory only; AI Education remains in the node property."),
+                    schedules: t("knxUltimateAI.messages.chatContextFileSchedules", "Authoritative structured plans and reminders for this node."),
+                    schedulesReadable: t("knxUltimateAI.messages.chatContextFileSchedulesReadable", "Human-readable plans and reminders generated from the scheduler state."),
                     assistantConfig: t("knxUltimateAI.messages.chatContextFileAssistantConfig", "Persistent web Assistant configuration and semantic areas for this node.")
                 };
                 (Array.isArray(overview.files) ? overview.files : []).forEach(function (item) {
@@ -1017,8 +1065,11 @@
                     text += " · " + t("knxUltimateAI.messages.lmStudioContextCurrentlyLoaded", "currently loaded") + ": " + loadedTokens + " token";
                 }
                 if (provider === "lmstudio" || provider === "ollama") {
-                    const selectedBudget = Math.max(4096, Number($("#node-input-llmPromptContextTokens").val()) || 16384);
-                    text += " · " + t("knxUltimateAI.messages.localContextBudget", "KNX AI context budget") + ": " + (selectedBudget / 1024) + "K";
+                    const selectedContextValue = String($("#node-input-llmPromptContextTokens").val() || "16384");
+                    const selectedBudget = selectedContextValue === "0"
+                        ? t("knxUltimateAI.selectlists.promptContext.unlimited", "No KNX AI limit (model context)")
+                        : (Math.max(4096, Number(selectedContextValue) || 16384) / 1024) + "K";
+                    text += " · " + t("knxUltimateAI.messages.localContextBudget", "KNX AI context budget") + ": " + selectedBudget;
                 }
                 $status.text(text).css("color", color).show();
             };
@@ -1119,9 +1170,13 @@
                     : Number(detail.maxContextLength);
                 $("#node-input-llmContextLength").val(activeContextLength);
                 if (provider === "ollama") {
-                    detail.configuredContextLength = Math.min(Number(detail.maxContextLength), 16384);
+                    const selectedContextValue = String($("#node-input-llmPromptContextTokens").val() || "16384");
+                    const selectedContextTokens = selectedContextValue === "0"
+                        ? Number(detail.maxContextLength)
+                        : Math.min(16384, Math.max(4096, Number(selectedContextValue) || 16384));
+                    detail.configuredContextLength = Math.min(Number(detail.maxContextLength), selectedContextTokens);
                     $("#node-input-llmContextLength").val(detail.configuredContextLength);
-                    setLocalModelContextStatus(detail, "configured");
+                    setLocalModelContextStatus(detail);
                     return;
                 }
 
@@ -1312,7 +1367,12 @@
             });
             $("#node-input-llmPromptContextTokens").on("change", function () {
                 const detail = localModelDetailsById.get(String($("#node-input-llmModel").val() || "").trim());
-                if (detail) setLocalModelContextStatus(detail, detail.loadedContextLength > 0 ? "configured" : "inactive");
+                if (!detail) return;
+                if ($("#node-input-llmProvider").val() === "ollama") {
+                    configureSelectedLocalModel();
+                    return;
+                }
+                setLocalModelContextStatus(detail, detail.loadedContextLength > 0 ? "configured" : "inactive");
             });
             $("#knx-ai-downloadOllamaModel").on("click", function (evt) {
                 evt.preventDefault();
@@ -1389,34 +1449,6 @@
         </div>
     </div>
 
-    <div id="knx-ai-setup-doctor-panel">
-        <h4><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.setupDoctor"></span></h4>
-        <div id="knx-ai-setup-doctor-status" data-i18n="knxUltimateAI.messages.setupDoctorLoading"></div>
-        <div id="knx-ai-setup-doctor-content" style="display:none;">
-            <div class="knx-ai-setup-doctor-hero">
-                <div class="knx-ai-setup-doctor-summary">
-                    <strong id="knx-ai-setup-doctor-state"></strong>
-                    <div id="knx-ai-setup-doctor-summary"></div>
-                </div>
-                <div id="knx-ai-setup-doctor-score" class="knx-ai-setup-doctor-score"></div>
-            </div>
-            <div id="knx-ai-setup-doctor-checks"></div>
-            <div class="knx-ai-setup-doctor-prompts">
-                <strong data-i18n="knxUltimateAI.messages.setupDoctorPromptsTitle"></strong>
-                <div class="knx-ai-setup-doctor-prompts-hint" data-i18n="knxUltimateAI.messages.setupDoctorPromptsHint"></div>
-                <div id="knx-ai-setup-doctor-prompt-list" class="knx-ai-setup-doctor-prompt-list"></div>
-            </div>
-            <div class="knx-ai-setup-doctor-footer">
-                <div class="knx-ai-setup-doctor-deploy-hint">
-                    <i class="fa fa-info-circle"></i> <span data-i18n="knxUltimateAI.messages.setupDoctorDeployHint"></span>
-                </div>
-                <button type="button" class="red-ui-button" id="knx-ai-setup-doctor-refresh">
-                    <i class="fa fa-refresh"></i> <span data-i18n="knxUltimateAI.buttons.refreshSetupDoctor"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <div id="knx-ai-tabs">
         <ul>
             <li><a href="#knx-ai-tabs-assistant"><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.groupAssistant"></span></a></li>
@@ -1470,6 +1502,38 @@
                     <div id="knx-ai-chat-context-pattern" class="knx-ai-chat-context-pattern"></div>
                 </div>
             </div>
+            <details id="knx-ai-setup-doctor-panel">
+                <summary class="knx-ai-setup-doctor-toggle">
+                    <span><i class="fa fa-magic"></i> <span data-i18n="knxUltimateAI.sections.setupDoctor"></span></span>
+                    <i class="fa fa-chevron-right knx-ai-setup-doctor-chevron" aria-hidden="true"></i>
+                </summary>
+                <div class="knx-ai-setup-doctor-body">
+                    <div id="knx-ai-setup-doctor-status" data-i18n="knxUltimateAI.messages.setupDoctorLoading"></div>
+                    <div id="knx-ai-setup-doctor-content" style="display:none;">
+                        <div class="knx-ai-setup-doctor-hero">
+                            <div class="knx-ai-setup-doctor-summary">
+                                <strong id="knx-ai-setup-doctor-state"></strong>
+                                <div id="knx-ai-setup-doctor-summary"></div>
+                            </div>
+                            <div id="knx-ai-setup-doctor-score" class="knx-ai-setup-doctor-score"></div>
+                        </div>
+                        <div id="knx-ai-setup-doctor-checks"></div>
+                        <div class="knx-ai-setup-doctor-prompts">
+                            <strong data-i18n="knxUltimateAI.messages.setupDoctorPromptsTitle"></strong>
+                            <div class="knx-ai-setup-doctor-prompts-hint" data-i18n="knxUltimateAI.messages.setupDoctorPromptsHint"></div>
+                            <div id="knx-ai-setup-doctor-prompt-list" class="knx-ai-setup-doctor-prompt-list"></div>
+                        </div>
+                        <div class="knx-ai-setup-doctor-footer">
+                            <div class="knx-ai-setup-doctor-deploy-hint">
+                                <i class="fa fa-info-circle"></i> <span data-i18n="knxUltimateAI.messages.setupDoctorDeployHint"></span>
+                            </div>
+                            <button type="button" class="red-ui-button" id="knx-ai-setup-doctor-refresh">
+                                <i class="fa fa-refresh"></i> <span data-i18n="knxUltimateAI.buttons.refreshSetupDoctor"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </details>
         </div>
 
     </div>
@@ -1504,6 +1568,20 @@
                         <i class="fa fa-refresh"></i> <span data-i18n="knxUltimateAI.buttons.refreshModels"></span>
                     </button>
                 </div>
+                <div class="form-row">
+                    <label style="width:290px" for="node-input-llmReasoningEffort"><i class="fa fa-tachometer"></i> <span data-i18n="knxUltimateAI.properties.llmReasoningEffort"></span></label>
+                    <select style="width:100%" id="node-input-llmReasoningEffort">
+                        <option value="default" data-i18n="knxUltimateAI.selectlists.reasoningEffort.default"></option>
+                        <option value="none" data-i18n="knxUltimateAI.selectlists.reasoningEffort.none"></option>
+                        <option value="minimal" data-i18n="knxUltimateAI.selectlists.reasoningEffort.minimal"></option>
+                        <option value="low" data-i18n="knxUltimateAI.selectlists.reasoningEffort.low"></option>
+                        <option value="medium" data-i18n="knxUltimateAI.selectlists.reasoningEffort.medium"></option>
+                        <option value="high" data-i18n="knxUltimateAI.selectlists.reasoningEffort.high"></option>
+                        <option value="xhigh" data-i18n="knxUltimateAI.selectlists.reasoningEffort.xhigh"></option>
+                        <option value="max" data-i18n="knxUltimateAI.selectlists.reasoningEffort.max"></option>
+                    </select>
+                    <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.reasoningEffortHint"></div>
+                </div>
                 <input type="hidden" id="node-input-llmContextLength">
                 <div id="knx-ai-local-context-status" style="display:none;"></div>
                 <div class="form-row" id="knx-ai-prompt-context-row" style="display:none;">
@@ -1512,6 +1590,7 @@
                         <option value="4096" data-i18n="knxUltimateAI.selectlists.promptContext.small"></option>
                         <option value="8192" data-i18n="knxUltimateAI.selectlists.promptContext.medium"></option>
                         <option value="16384" data-i18n="knxUltimateAI.selectlists.promptContext.full"></option>
+                        <option value="0" data-i18n="knxUltimateAI.selectlists.promptContext.unlimited"></option>
                     </select>
                     <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.promptContextHint"></div>
                 </div>

@@ -28,21 +28,30 @@ Ogni risposta basata sul Web contiene citazioni validate dal runtime con URL del
 
 Dopo che sono disponibili risultati Web verificati, il modello può comporre gli altri tool abilitati quando la chat corrente o Educazione AI lo autorizzano. L'accesso Web non amplia mai i permessi: disponibilità di telecamere, TTS e memoria, così come letture e scritture KNX, validazione locale ETS/DPT e conferma configurata per le scritture KNX, restano invariate. Le richieste Web espongono la query e l'IP pubblico del server ai siti esterni o al servizio di ricerca; dati KNX/ETS, contenuti delle telecamere, identificativi chat, memoria appresa e credenziali non vengono mai aggiunti automaticamente.
 
+### Pianificazioni e promemoria in linguaggio naturale
+Nel normale linguaggio della chat, l'utente può chiedere a KNX AI di creare, elencare o annullare un promemoria, un monitoraggio o un futuro comando domestico, una sola volta oppure con ripetizione. Il modello sceglie semanticamente lo strumento strutturato di pianificazione `scheduleActions` partendo dalla richiesta completa e conserva l'obiettivo e tutte le condizioni come istruzione in linguaggio umano. Non esistono parole chiave per le pianificazioni, liste di frasi trigger o classificatori di intent rigidi: la formulazione e la lingua non limitano la funzione.
+
+Le pianificazioni appartengono alla sessione chat e persistono per singolo nodo KNX AI anche dopo il riavvio di Node-RED. Lo stato di runtime autorevole è `<userDir>/knxai/schedules/knxai-schedules-<node-id>.json`; KNX AI genera anche `<userDir>/knxai/schedules/knxai-schedules-<node-id>.md` come vista leggibile. Un piano può essere eseguito una volta, ripetersi a intervalli di almeno cinque minuti e avere una scadenza facoltativa. Il modello può elencare o annullare solo le pianificazioni attive appartenenti alla chat corrente, salvo richiesta esplicita dell'utente di annullarle tutte per quella chat.
+
+Quando arriva il momento di eseguire un'attività, KNX AI avvia un passaggio separato del modello usando l'istruzione in linguaggio umano salvata come autorizzazione attendibile dell'utente. Un monitoraggio resta silenzioso se la condizione non è soddisfatta. Al momento dell'esecuzione valgono ancora i permessi esistenti: un monitoraggio meteo richiede **Consenti all'AI di usare il Web** e usa lo stesso budget Web, un risultato parlato esce dall'uscita 5 e richiede quindi un nodo TTS Ultimate collegato, mentre gli strumenti telecamera restano limitati agli adapter rilevati. Una scrittura KNX pianificata conserva tutti i controlli ETS/DPT e, se abilitata, mostra l'anteprima alla stessa sessione chat e attende la conferma prima di emettere qualsiasi messaggio dall'uscita 4.
+
+Per esempio, l'utente può scrivere: «Per i prossimi cinque giorni, controlla ogni 30 minuti le previsioni per Cortemaggiore e usa TTS Ultimate solo se sono previsti temporali». KNX AI può conservare l'intera condizione e la durata in un unico monitoraggio ricorrente; restano necessari i permessi Web e il collegamento TTS descritti sopra.
+
 ## Comandi (input)
 Invia `msg.topic`:
 - `summary` (o vuoto): emette subito la summary
-- `reset`: azzera storico, contatori, memoria domestica appresa e tutti i context CHAT persistenti; Educazione AI resta invariata
+- `reset`: azzera storico, contatori, memoria domestica appresa, tutti i context CHAT persistenti e ogni pianificazione di questo nodo; l'Educazione AI configurata nel nodo resta invariata
 - `ask`: invia una domanda all'LLM configurato
 - `confirm` / `cancel`: conferma o annulla i comandi KNX in attesa senza richiamare l'LLM
-- `clear_chat`: azzera turni recenti, istruzioni persistenti e comandi in attesa per la sessione corrente
+- `clear_chat`: azzera turni recenti, istruzioni persistenti e comandi in attesa della sessione corrente e annulla le sue pianificazioni attive; le altre sessioni ed Educazione AI restano invariate
 
 Per `ask`, passa la domanda in `msg.prompt` (consigliato), in `msg.payload` (stringa), oppure nei comuni campi Telegram `msg.payload.content` / `msg.payload.text`.
 
 Se l'elaborazione dura più di 1,2 secondi, l'uscita 3 emette subito il messaggio intermedio localizzato «Sto pensando…», con `msg.knxAi.type = "thinking"` e `msg.knxAi.transient = true`. L'adattatore chat lo invia allo stesso utente, mentre la risposta finale arriva normalmente appena pronta. Questo messaggio di avanzamento non viene mai salvato nel contesto della conversazione né nella memoria appresa.
 
-Le richieste Ollama e Bionic LM Studio usano automaticamente un timeout minimo di 10 minuti; i provider cloud mantengono un minimo di 2 minuti. Non esiste un campo timeout da gestire nell'editor. Se viene raggiunto anche il limite locale, KNX AI segnala che il modello non ha completato la risposta e suggerisce di riprovare o ridurre il contesto del prompt.
+Ogni richiesta chat LLM usa un timeout minimo di 30 minuti, indipendente dal provider. Non esiste un campo timeout da gestire nell'editor. È un'attesa massima, non un ritardo artificiale: i modelli più veloci terminano comunque appena la risposta è pronta. Se viene raggiunto anche questo limite, KNX AI segnala che il modello non ha completato la risposta e suggerisce di riprovare o ridurre il contesto del prompt.
 
-Per i provider locali, **Quantità contesto chat** permette di scegliere esplicitamente 4K, 8K o 16K; 16K resta il valore predefinito. La scelta limita proporzionalmente i dati KNX, memoria, progetto Node-RED e adapter forniti al modello, mantenendo completo il contratto degli strumenti dell’agente. Nessuna funzione viene abilitata o disabilitata in base a formulazioni, parole chiave o intent linguistici.
+Per i provider locali, **Quantità contesto chat** permette di scegliere esplicitamente 4K, 8K, 16K oppure nessun limite KNX AI; 16K resta il valore predefinito. Con nessun limite KNX AI viene usata la finestra di contesto dichiarata o attiva del modello, senza oltrepassarne il massimo fisico. La scelta limita proporzionalmente i dati KNX, memoria, progetto Node-RED e adapter forniti al modello, mantenendo completo il contratto degli strumenti dell’agente. Nessuna funzione viene abilitata o disabilitata in base a formulazioni, parole chiave o intent linguistici.
 
 Lo stato del nodo sul canvas è riservato intenzionalmente all'ultima richiesta in ingresso e al messaggio localizzato «Sto pensando…» mentre l'LLM è in esecuzione. Telegrammi KNX, aggiornamenti del gateway, frequenze del traffico, messaggi ready e risultati tecnici non lo sovrascrivono mai; restano disponibili tramite uscite, log e dati dell'Assistente.
 
@@ -84,9 +93,9 @@ Collega l'uscita 5 a uno o più nodi `ttsultimate` del pacchetto opzionale `node
 Il modello decide se preparare un annuncio ragionando sulla richiesta corrente, sulle istruzioni persistenti della chat e sull'Educazione AI gestita dall'utente: non esistono intent per gli annunci né liste di frasi di attivazione. Valori KNX, eventi degli adapter, immagini e archivi restano dati e non diventano istruzioni, ma le indicazioni autorevoli dell'utente possono insegnare al modello come agire su quei dati. L'uscita 5 emette il testo esatto da pronunciare in `msg.payload`, imposta `msg.topic = "knx_ai_announcement"` e aggiunge `msg.knxAi.type = "tts_announcement"` insieme a `msg.knxAi.sourceNodeId`, `msg.knxAi.sessionId` e `msg.knxAi.reason`. TTS Ultimate gestisce poi player, voce, volume, hailing e coda.
 
 ### Riepilogo del contesto della chat
-L'editor del nodo mostra una scheda compatta con le fonti disponibili alla chat: traffico KNX corrente e archiviato, eventi persistenti degli adapter, semantica ETS e progetto Node-RED, memoria di sessione e domestica, Educazione AI e telecamere rilevate. Mostra anche il contesto operativo massimo scelto dall'utente e il peso UTF-8 effettivo dell'ultimo prompt della chat; quando il provider comunica i token di input viene usato il valore esatto, altrimenti il conteggio è indicato come stima. La scheda elenca le directory assolute degli archivi KNX e degli eventi adapter e il formato giornaliero `YYYY-MM-DD.knxctx`.
+L'editor del nodo mostra una scheda compatta con le fonti disponibili alla chat: traffico KNX corrente e archiviato, eventi persistenti degli adapter, semantica ETS e progetto Node-RED, memoria di sessione e domestica, Educazione AI, pianificazioni attive e telecamere rilevate. Mostra anche il contesto operativo massimo scelto dall'utente e il peso UTF-8 effettivo dell'ultimo prompt della chat; quando il provider comunica i token di input viene usato il valore esatto, altrimenti il conteggio è indicato come stima. La scheda elenca i percorsi assoluti dei file delle pianificazioni, JSON autorevole e Markdown leggibile, oltre alle directory degli archivi KNX e degli eventi adapter e al formato giornaliero `YYYY-MM-DD.knxctx`. L'Educazione AI è salvata nella configurazione del nodo e quindi non ha un file di runtime separato.
 
-Il modello riceve letture e scritture KNX, adapter telecamera, annunci TTS e memoria persistente come strumenti strutturati. Può sceglierli e combinarli semanticamente partendo dalla richiesta corrente e dalle indicazioni autorevoli apprese, senza routing per intent linguistici. Il runtime valida soltanto argomenti, disponibilità degli adapter telecamera e confini di sicurezza; le scritture KNX conservano validazione ETS/DPT locale e conferma configurata.
+Il modello riceve letture e scritture KNX, adapter telecamera, annunci TTS, memoria persistente, accesso Web e pianificazioni/promemoria come strumenti strutturati. Può sceglierli e combinarli semanticamente partendo dalla richiesta corrente e dalle indicazioni autorevoli apprese, senza routing per intent linguistici. Il runtime valida soltanto argomenti, disponibilità degli adapter telecamera e confini di sicurezza; le scritture KNX conservano validazione ETS/DPT locale e conferma configurata.
 
 ### Modifica e backup dell'apprendimento CHAT
 La scheda **Conversazioni e casa** nella configurazione Node-RED di KNX AI include il pulsante **Apri Apprendimento AI Chat**, che apre la Web UI Vue direttamente su questo editor per il nodo corrente.
@@ -107,7 +116,9 @@ Non esistono un interruttore o impostazioni proattive avanzate separate. Una con
 
 L'ultima sessione chat viene ricordata come proprietario e riceve i messaggi spontanei. L'uscita 3 emette un messaggio localizzato con `msg.knxAi.type = "proactive_notification"`; un `msg.inputMessage` sintetico conserva la sessione per l'adattatore chat. Un limite rigido di tre notifiche proattive all'ora evita abusi. Il nodo non emette mai l'uscita 4 e non modifica autonomamente KNX; un'eventuale richiesta successiva passa sempre dalla normale validazione e conferma.
 
-Il riferimento appreso condiviso viene caricato all'avvio da `<userDir>/knxai/memory/knxai-home-memory.md`, riscritto atomicamente ogni 15 minuti e sempre limitato rigidamente a 5 MB. Conserva al massimo 120 osservazioni significative, 80 abitudini aggregate, 80 notifiche e 300 oggetti ETS semantici, mai un flusso illimitato di telegrammi raw. Gli elementi vecchi e meno importanti vengono eliminati per primi. **Educazione AI** è limitata a 16.000 caratteri e proviene sempre dalla configurazione del nodo: l'AI può leggerla come istruzione autorevole, ma non può modificarla o sovrascriverla.
+Il riferimento appreso condiviso viene caricato all'avvio da `<userDir>/knxai/memory/knxai-home-memory.md`, riscritto atomicamente ogni 15 minuti e sempre limitato rigidamente a 5 MB. Conserva al massimo 120 osservazioni significative, 80 abitudini aggregate, 80 notifiche e 300 oggetti ETS semantici, mai un flusso illimitato di telegrammi raw. Gli elementi vecchi e meno importanti vengono eliminati per primi.
+
+**Educazione AI** è limitata a 16.000 caratteri ed è una proprietà fissa salvata con il nodo nel flow Node-RED. Solo l'utente la modifica nell'editor e la applica con Deploy. Il modello la legge come istruzione autorevole, ma non può mai scriverla o sovrascriverla. Fatti e preferenze richiesti in chat appartengono alla memoria appresa della chat; pianificazioni, promemoria, monitoraggi e comandi futuri, singoli o ricorrenti, appartengono allo scheduler semantico. Il file della memoria appresa non contiene intenzionalmente il testo dell'Educazione.
 
 ## Esempio pratico di configurazione
 Inserisci l'intera policy di notifica in **Educazione AI** (`aiEducation`):
@@ -154,6 +165,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - **URL endpoint**: URL endpoint chat/completions.
 - **API key**: chiave API (non necessaria con Ollama locale; opzionale per Bionic LM Studio, salvo autenticazione attiva sul server).
 - **Modello**: ID/nome modello.
+- **Impegno di ragionamento**: preferenza indipendente dal provider per i modelli che espongono il controllo dell’impegno di ragionamento. **Automatico** non invia alcuna preferenza e conserva il valore predefinito del modello/provider. Le scelte esplicite sono `none`, `minimal`, `low`, `medium`, `high`, `xhigh` e `max`; il supporto dipende dal protocollo di richiesta e dal modello, e KNX AI riprova senza la preferenza se viene rifiutata.
 - **Consenti all'AI di usare il Web**: disattivato per impostazione predefinita. Permette al modello di scegliere semanticamente il tool Web generale e restituire fonti verificate e citate.
 - **Consenti controlli Web proattivi**: opt-in separato per i controlli in background; richiede anche istruzioni esplicite scritte dall'utente in **Educazione AI**.
 - **Intervallo minimo dei controlli proattivi**: tempo minimo tra i cicli proattivi; non ritarda le operazioni Web richieste durante un turno utente attivo.
@@ -163,7 +175,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - **Consenti all'AI di leggere stati KNX e comandare attuatori**: abilita l'uscita 4 ed è disattivato per default. Gli oggetti esatti del catalogo ETS possono essere letti; le scritture sono accettate solo per gli oggetti classificati come `command`. Operazioni sconosciute, con DPT discordante, non valide o eccessive e scritture verso oggetti di stato/neutrali vengono rifiutate localmente.
 - **Chiedi conferma prima di inviare comandi KNX**: attivo per default. Mostra prima le modifiche validate e non emette comandi KNX finché la stessa sessione chat non le conferma. Quando ci sono comandi in attesa, la risposta aggiunge sempre le istruzioni esatte per confermare o annullare nella lingua della richiesta corrente. I comandi vengono validati nuovamente subito prima dell'uscita.
 - **Adattatore messaggi ingresso/uscita**: parte da **Nessun adattatore**. La selezione carica la coppia predefinita di mappature ingresso/uscita; entrambe restano nascoste nell'editor.
-- **Educazione AI**: istruzioni autorevoli gestite soltanto dall'utente, lette dall'AI e mai modificate. È anche l'unico punto in cui richiedere notifiche proattive e definirne condizioni, durata, ore silenziose e ripetizione.
+- **Educazione AI**: istruzioni fisse e autorevoli del nodo, modificate soltanto dall'utente e applicate con Deploy. Il modello le legge ma non le scrive mai. Qui vanno le regole proattive domestiche permanenti; fatti e preferenze richiesti in chat vanno nella memoria appresa, mentre pianificazioni, promemoria, monitoraggi e comandi futuri, singoli o ricorrenti, vanno nello scheduler semantico senza frasi di attivazione né routing per intent.
 - Gli estratti inclusi nel pacchetto da help, README, changelog, wiki ed esempi non vengono inviati nei prompt di Telegram, RedBot o CHAT personalizzate. Restano disponibili soltanto all'Assistente web per le domande tecniche sul pacchetto.
 - Pulsante **Aggiorna**: interroga il provider e popola i modelli disponibili. Durante il caricamento l'icona ruota; il completamento corretto non mostra messaggi.
 
@@ -175,7 +187,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
   - **2) Installalo**: scarica e installa localmente il modello (esempio `llama3.1`).
 - Durante refresh/installazione, KNX AI prova anche ad avviare automaticamente il server Ollama quando possibile.
 - Se l'installazione fallisce per errore di connessione, verifica che Ollama sia avviato (app desktop o `ollama serve`).
-- Il contesto massimo dichiarato da `/api/show` resta informativo. KNX AI invia come `num_ctx` il budget scelto di 4K, 8K o 16K (oppure il massimo del modello se inferiore) e limita proporzionalmente ogni fonte di contesto senza rimuovere capacità dell'agente.
+- Il contesto massimo dichiarato da `/api/show` resta informativo. KNX AI invia come `num_ctx` il budget scelto di 4K, 8K o 16K; con nessun limite KNX AI usa il contesto dichiarato dal modello, senza mai oltrepassarne il massimo fisico. Ogni fonte di contesto viene limitata proporzionalmente senza rimuovere capacità dell'agente.
 - Se Node-RED gira in Docker, usa `host.docker.internal` al posto di `localhost` nell'endpoint.
 
 ### Setup rapido Bionic LM Studio (locale)
@@ -183,7 +195,7 @@ Di seguito sono elencati tutti i campi presenti nell'editor del nodo KNX AI.
 - Avvia il server API di LM Studio dalla pagina **Developer** oppure con `lms server start`.
 - Endpoint predefinito: `http://localhost:1234/v1/chat/completions`.
 - Premi **Aggiorna** per caricare tutti i modelli esposti da `/v1/models`; se non è configurato un modello viene selezionato il primo.
-- Se un modello è già caricato, KNX AI conserva la lunghezza del contesto attiva. KNX AI non carica mai un modello Bionic inattivo tramite l'API di gestione: la prima richiesta chat lascia che Bionic lo carichi JIT con i valori predefiniti salvati per il modello. Indipendentemente dal contesto dichiarato da Bionic, KNX AI usa il budget prompt scelto di 4K, 8K o 16K e mantiene disponibili ragionamento, KNX, routine, telecamere e TTS.
+- Se un modello è già caricato, KNX AI conserva la lunghezza del contesto attiva. KNX AI non carica mai un modello Bionic inattivo tramite l'API di gestione: la prima richiesta chat lascia che Bionic lo carichi JIT con i valori predefiniti salvati per il modello. KNX AI usa il budget prompt scelto di 4K, 8K o 16K, oppure la finestra dichiarata o attiva del modello quando è selezionato nessun limite KNX AI, senza oltrepassarne il massimo fisico; ragionamento, KNX, routine, telecamere e TTS restano disponibili.
 - La API key è opzionale, salvo autenticazione attiva nelle impostazioni del server LM Studio. In Docker sostituisci `localhost` con `host.docker.internal`.
 
 ## Nota sicurezza

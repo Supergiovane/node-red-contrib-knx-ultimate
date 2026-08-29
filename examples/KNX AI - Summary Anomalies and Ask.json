@@ -144,7 +144,7 @@
     "llmSystemPrompt": "You are a KNX building automation assistant. Analyze KNX bus traffic and provide actionable insights.",
     "llmTemperature": "0.2",
     "llmMaxTokens": "600",
-    "llmTimeoutMs": "30000",
+    "llmTimeoutMs": "1800000",
     "llmMaxEventsInPrompt": "600",
     "llmIncludeRaw": false,
     "x": 560,

@@ -27,6 +27,7 @@ test/*
 !test/matterControllerEditor.test.js
 !test/matterQrScanner.test.js
 !test/knxAiConversation.test.js
+!test/knxAiScheduler.test.js
 !test/disabledSidebarPlugins.test.js
 !test/knxAiHomeMemory.test.js
 !test/hueController.test.js

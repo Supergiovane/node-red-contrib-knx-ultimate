@@ -24,6 +24,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmReasoningEffort": "Esfuerzo de razonamiento",
       "llmPromptContextTokens": "Cantidad de contexto del chat",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
@@ -56,7 +57,18 @@
       "promptContext": {
         "small": "Reducido (4K, más rápido)",
         "medium": "Medio (8K)",
-        "full": "Completo (16K)"
+        "full": "Completo (16K)",
+        "unlimited": "Sin límite de KNX AI (usar el contexto del modelo)"
+      },
+      "reasoningEffort": {
+        "default": "Automático (valor del modelo/proveedor)",
+        "none": "Ninguno",
+        "minimal": "Mínimo",
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto",
+        "xhigh": "Muy alto",
+        "max": "Máximo"
       },
       "chatAdapter": {
         "none": "Sin adaptador"
@@ -90,7 +102,8 @@
       "lmStudioContextFailed": "No se pudo configurar el contexto del modelo",
       "lmStudioContextCurrentlyLoaded": "cargado actualmente",
       "localContextBudget": "Presupuesto de contexto de KNX AI",
-      "promptContextHint": "Controla la cantidad de contexto KNX, memoria, proyecto y adaptadores enviada a los modelos locales. No activa ni desactiva herramientas ni usa enrutamiento por intents.",
+      "promptContextHint": "Controla la cantidad de contexto KNX, memoria, proyecto y adaptadores enviada a los modelos locales. Elige «Sin límite de KNX AI» para usar la ventana declarada o activa del modelo. No activa ni desactiva herramientas ni usa enrutamiento por intents.",
+      "reasoningEffortHint": "Preferencia opcional para los modelos que admiten esfuerzo de razonamiento. Automático no envía ninguna preferencia; si el proveedor o el modelo rechaza el valor elegido, KNX AI reintenta sin él.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -123,11 +136,13 @@
       "chatContextSourceKnxTraffic": "Resumen KNX actual, anomalías, topología y telegramas seleccionados.",
       "chatContextSourceAdapterHistory": "Historial diario persistente de eventos de los adaptadores detectados, incluidas las detecciones de cámaras.",
       "chatContextSourceEtsProject": "Semántica ETS e inventario completo del proyecto Node-RED.",
-      "chatContextSourceMemoryEducation": "Contexto de sesión, Educación IA y memoria doméstica limitada.",
+      "chatContextSourceMemoryEducation": "Contexto de sesión, Educación IA, memoria doméstica limitada y planificaciones activas.",
       "chatContextSourceCameras": "Cámaras detectadas y sus capacidades disponibles.",
       "chatContextSourceBadge": "Fuente",
       "chatContextFileChatContext": "Turnos persistentes, instrucciones y reglas de notificación de cámaras.",
-      "chatContextFileHomeMemory": "Educación IA y memoria doméstica aprendida y limitada.",
+      "chatContextFileHomeMemory": "Solo memoria doméstica aprendida y limitada; la Educación IA permanece en la propiedad del nodo.",
+      "chatContextFileSchedules": "Estado de ejecución persistente y autoritativo de las planificaciones y recordatorios de este nodo.",
+      "chatContextFileSchedulesReadable": "Vista legible generada de las planificaciones y recordatorios de este nodo.",
       "chatContextFileAssistantConfig": "Configuración persistente del Asistente web y áreas semánticas de este nodo.",
       "chatContextFileBadge": "Archivo",
       "chatContextDirectoryRoot": "Raíz del archivo de telegramas",
@@ -140,14 +155,14 @@
       "chatAdapterIntro": "Elige un preajuste para insertar su código de mapeo de entrada y salida. La lista se carga desde el archivo de adaptadores de chat incluido; el código generado sigue siendo editable.",
       "chatAdapterCodeHelp": "Los mapeos se ejecutan de forma síncrona. Devuelve msg para continuar o ningún valor para descartarlo. Los errores se capturan y notifican sin detener Node-RED.",
       "homeIntelligenceIntro": "El nodo crea un modelo ETS semántico multilingüe. Las notificaciones proactivas solo se consideran cuando la Educación IA las solicita explícitamente; nunca envía por sí solo un comando KNX.",
-      "aiEducationHelp": "Solo el usuario puede editar esta sección. Úsala para definir cualquier regla de notificación proactiva, incluidas las condiciones, la duración, las horas silenciosas y la repetición. La IA la lee como una instrucción autoritativa y la memoria aprendida nunca puede sobrescribirla. Máximo 16.000 caracteres."
+      "aiEducationHelp": "Solo el usuario puede editar esta propiedad del nodo. Úsala para instrucciones duraderas y reglas de notificación proactiva, incluidas las condiciones, la duración, las horas silenciosas y la repetición. El modelo la lee como una instrucción autoritativa, pero nunca la escribe. Los hechos y preferencias solicitados en el chat se guardan en la memoria aprendida del chat; las planificaciones, recordatorios, monitorizaciones y comandos futuros, únicos o recurrentes, se guardan mediante el planificador semántico. No se requieren frases activadoras ni routing por intents. Máximo 16.000 caracteres."
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default.",
-      "aiEducation": "Ejemplo: avisa a mi último chat si una ventana sigue abierta 30 minutos. No me avises entre las 23:00 y las 07:00."
+      "aiEducation": "Ejemplo: responde de forma breve. Avisa a mi último chat si una ventana sigue abierta 30 minutos; no me avises entre las 23:00 y las 07:00."
     },
     "sidebar": {
       "ui": {

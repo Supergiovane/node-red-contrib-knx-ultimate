@@ -24,6 +24,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmReasoningEffort": "推理强度",
       "llmPromptContextTokens": "聊天上下文量",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
@@ -56,7 +57,18 @@
       "promptContext": {
         "small": "精简（4K，更快）",
         "medium": "中等（8K）",
-        "full": "完整（16K）"
+        "full": "完整（16K）",
+        "unlimited": "无 KNX AI 限制（使用模型上下文）"
+      },
+      "reasoningEffort": {
+        "default": "自动（模型/提供商默认值）",
+        "none": "无",
+        "minimal": "最小",
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "xhigh": "超高",
+        "max": "最大"
       },
       "chatAdapter": {
         "none": "无适配器"
@@ -90,7 +102,8 @@
       "lmStudioContextFailed": "无法配置模型上下文",
       "lmStudioContextCurrentlyLoaded": "当前已加载",
       "localContextBudget": "KNX AI 上下文预算",
-      "promptContextHint": "控制发送给本地模型的 KNX、记忆、项目和适配器上下文量。它不会启用或禁用工具，也不使用 intent 路由。",
+      "promptContextHint": "控制发送给本地模型的 KNX、记忆、项目和适配器上下文量。选择“无 KNX AI 限制”可使用模型声明或当前启用的上下文窗口。它不会启用或禁用工具，也不使用 intent 路由。",
+      "reasoningEffortHint": "适用于支持推理强度的模型。选择“自动”时不发送偏好；如果提供商或模型拒绝所选值，KNX AI 会在不发送该值的情况下重试。",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -123,11 +136,13 @@
       "chatContextSourceKnxTraffic": "当前 KNX 摘要、异常、拓扑和选定报文。",
       "chatContextSourceAdapterHistory": "自动检测到的适配器事件的持久每日历史记录，包括摄像机检测事件。",
       "chatContextSourceEtsProject": "ETS 语义和完整的 Node-RED 项目清单。",
-      "chatContextSourceMemoryEducation": "会话上下文、AI 教育和有界家庭记忆。",
+      "chatContextSourceMemoryEducation": "会话上下文、AI 教育、有界家庭记忆和活动计划。",
       "chatContextSourceCameras": "检测到的摄像机及其可用功能。",
       "chatContextSourceBadge": "来源",
       "chatContextFileChatContext": "持久化对话轮次、指令和摄像机通知规则。",
-      "chatContextFileHomeMemory": "AI 教育和有界的家庭学习记忆。",
+      "chatContextFileHomeMemory": "仅包含有界的家庭学习记忆；AI 教育保留在节点属性中。",
+      "chatContextFileSchedules": "此节点计划和提醒的权威持久运行时状态。",
+      "chatContextFileSchedulesReadable": "此节点计划和提醒自动生成的易读视图。",
       "chatContextFileAssistantConfig": "此节点的持久化 Web 助手配置和语义区域。",
       "chatContextFileBadge": "文件",
       "chatContextDirectoryRoot": "报文归档根目录",
@@ -140,14 +155,14 @@
       "chatAdapterIntro": "选择预设即可插入输入和输出映射代码。列表从随包提供的聊天适配器文件加载；生成的代码仍可编辑。",
       "chatAdapterCodeHelp": "映射同步运行。返回 msg 以继续，或不返回值以丢弃消息。错误会被捕获并报告，不会停止 Node-RED。",
       "homeIntelligenceIntro": "节点会创建多语言 ETS 语义模型。只有 AI 教育明确要求时，才会考虑主动通知；节点绝不会自行发送 KNX 命令。",
-      "aiEducationHelp": "只有用户可以编辑此部分。请在这里定义所有主动通知规则，包括条件、持续时间、静默时段和重复频率。AI 会将其作为权威指导，学习到的记忆绝不能覆盖它。最多 16,000 个字符。"
+      "aiEducationHelp": "只有用户可以编辑此节点属性。请用它设置长期指导和主动通知规则，包括条件、持续时间、静默时段及重复频率。模型会将其作为权威指导读取，但绝不会写入。聊天中要求记住的事实和偏好保存在学习到的聊天记忆中；一次性或周期性的计划、提醒、监测和未来命令由语义调度器保存。无需触发短语或 intent 路由。最多 16,000 个字符。"
     },
     "placeholder": {
       "llmBaseUrl": "https://api.openai.com/v1/chat/completions (or your compatible endpoint)",
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default.",
-      "aiEducation": "示例：窗户保持打开 30 分钟时通知我最近的聊天；23:00 到 07:00 之间不要通知。"
+      "aiEducation": "示例：简洁回复。窗户保持打开 30 分钟时通知我最近的聊天；23:00 到 07:00 之间不要通知。"
     },
     "sidebar": {
       "ui": {

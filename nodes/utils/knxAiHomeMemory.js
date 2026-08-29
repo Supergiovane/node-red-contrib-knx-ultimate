@@ -26,20 +26,6 @@ const clampText = (value, maxChars) => {
   return text.length > maxChars ? text.slice(0, maxChars) : text
 }
 
-const clampUtf8Bytes = (value, maxBytes) => {
-  const text = String(value === undefined || value === null ? '' : value)
-  const limit = Math.max(0, Math.floor(Number(maxBytes) || 0))
-  if (Buffer.byteLength(text, 'utf8') <= limit) return text
-  let low = 0
-  let high = text.length
-  while (low < high) {
-    const midpoint = Math.ceil((low + high) / 2)
-    if (Buffer.byteLength(text.slice(0, midpoint), 'utf8') <= limit) low = midpoint
-    else high = midpoint - 1
-  }
-  return text.slice(0, low).replace(/[\uD800-\uDBFF]$/, '')
-}
-
 const clonePlain = (value, fallback) => {
   try {
     return JSON.parse(JSON.stringify(value))
@@ -315,10 +301,8 @@ const updateKnxAiCoverHabit = (memory, { ga, label, area, durationMinutes, at } 
 
 const escapeMarkdownCell = (value) => clampText(value, 260).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ')
 
-const buildKnxAiHomeMemoryMarkdown = ({ memory, education, maxKb } = {}) => {
+const buildKnxAiHomeMemoryMarkdown = ({ memory, maxKb } = {}) => {
   const targetBytes = clampHomeMemoryKb(maxKb) * 1024
-  const protectedEducation = clampText(education, HOME_MEMORY_MAX_EDUCATION_CHARS)
-  let renderedEducation = protectedEducation
   const bounded = normalizeKnxAiHomeMemory(memory)
 
   const render = () => {
@@ -333,9 +317,9 @@ const buildKnxAiHomeMemoryMarkdown = ({ memory, education, maxKb } = {}) => {
       '',
       `Updated: ${bounded.updatedAt}`,
       '',
-      '## AI Education — user managed, read only for AI',
+      '## AI Education — configured on the KNX AI node',
       '',
-      renderedEducation || '_No user education has been provided._',
+      '_AI Education is intentionally not stored in learned memory and the model cannot modify it._',
       '',
       '## Semantic ETS model',
       '',
@@ -373,23 +357,11 @@ const buildKnxAiHomeMemoryMarkdown = ({ memory, education, maxKb } = {}) => {
     else break
     markdown = render()
   }
-  if (Buffer.byteLength(markdown, 'utf8') > targetBytes && renderedEducation) {
-    renderedEducation = ''
-    const emptyEducationMarkdown = render()
-    const educationBudget = Math.max(0, targetBytes - Buffer.byteLength(emptyEducationMarkdown, 'utf8'))
-    renderedEducation = clampUtf8Bytes(protectedEducation, educationBudget)
-    markdown = render()
-    while (Buffer.byteLength(markdown, 'utf8') > targetBytes && renderedEducation) {
-      renderedEducation = clampUtf8Bytes(renderedEducation, Buffer.byteLength(renderedEducation, 'utf8') - 16)
-      markdown = render()
-    }
-  }
   return {
     markdown,
     memory: bounded,
     bytes: Buffer.byteLength(markdown, 'utf8'),
-    maxBytes: targetBytes,
-    education: renderedEducation
+    maxBytes: targetBytes
   }
 }
 

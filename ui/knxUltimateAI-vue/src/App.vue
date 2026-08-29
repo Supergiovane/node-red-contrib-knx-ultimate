@@ -648,6 +648,7 @@ const state = reactive({
   pollStateHandle: null,
   pollNodesHandle: null
 })
+const seenScheduledChatEntries = new Set()
 const flowCardRef = ref(null)
 const isFlowFullscreen = ref(false)
 const configImportRef = ref(null)
@@ -1859,6 +1860,7 @@ const chatMessages = computed(() => state.chatMessages.map((item, index) => ({
 
 watch(() => state.selectedNodeId, (value) => {
   saveString(storageKey, value || '')
+  seenScheduledChatEntries.clear()
   state.areaSelectedId = ''
   state.testAreaSelectedId = loadSelectedTestAreaIdForNode(value || '')
   resetChatLearningEditor()
@@ -2721,6 +2723,17 @@ async function fetchState ({ fresh = false } = {}) {
     if (localLiveReport && localLiveReport.id === state.liveTestResultId) {
       data.testPlanReport = localLiveReport
     }
+    ;(Array.isArray(data && data.assistant) ? data.assistant : [])
+      .filter(entry => entry && entry.scheduledTaskRun === true && String(entry.sessionId || '') === 'sidebar' && String(entry.content || '').trim())
+      .forEach(entry => {
+        const key = `${state.selectedNodeId}|${String(entry.at || '')}|${String(entry.scheduledTaskId || '')}|${String(entry.content || '')}`
+        if (seenScheduledChatEntries.has(key)) return
+        seenScheduledChatEntries.add(key)
+        while (seenScheduledChatEntries.size > 200) {
+          seenScheduledChatEntries.delete(seenScheduledChatEntries.values().next().value)
+        }
+        appendChat('assistant', entry.content)
+      })
     state.stateData = data
     nextTick(() => {
       if (state.areaDraftIsNew !== true && state.areaSelectedId && !suggestedAreas.value.find(area => area.id === state.areaSelectedId)) {

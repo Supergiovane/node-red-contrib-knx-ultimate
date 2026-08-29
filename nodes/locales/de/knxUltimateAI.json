@@ -24,6 +24,7 @@
       "llmBaseUrl": "Endpoint URL",
       "llmApiKey": "API key",
       "llmModel": "Model",
+      "llmReasoningEffort": "Denkaufwand",
       "llmPromptContextTokens": "Chat-Kontextmenge",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
@@ -56,7 +57,18 @@
       "promptContext": {
         "small": "Klein (4K, schneller)",
         "medium": "Mittel (8K)",
-        "full": "Vollständig (16K)"
+        "full": "Vollständig (16K)",
+        "unlimited": "Kein KNX-AI-Limit (Modellkontext verwenden)"
+      },
+      "reasoningEffort": {
+        "default": "Automatisch (Modell-/Anbieterstandard)",
+        "none": "Keiner",
+        "minimal": "Minimal",
+        "low": "Niedrig",
+        "medium": "Mittel",
+        "high": "Hoch",
+        "xhigh": "Sehr hoch",
+        "max": "Maximal"
       },
       "chatAdapter": {
         "none": "Kein Adapter"
@@ -75,7 +87,7 @@
       "llmApiKey": "Paste API key (starts with sk-)",
       "llmModel": "e.g. gpt-4o-mini",
       "llmSystemPrompt": "Optional. Leave empty for default.",
-      "aiEducation": "Beispiel: Benachrichtige meinen letzten Chat, wenn ein Fenster 30 Minuten offen bleibt. Zwischen 23:00 und 07:00 keine Meldungen."
+      "aiEducation": "Beispiel: Antworte knapp. Benachrichtige meinen letzten Chat, wenn ein Fenster 30 Minuten offen bleibt; zwischen 23:00 und 07:00 keine Meldungen."
     },
     "messages": {
       "setupDoctorLoading": "Diese Installation wird analysiert…",
@@ -97,7 +109,8 @@
       "lmStudioContextFailed": "Der Modellkontext konnte nicht konfiguriert werden",
       "lmStudioContextCurrentlyLoaded": "derzeit geladen",
       "localContextBudget": "KNX-AI-Kontextbudget",
-      "promptContextHint": "Steuert die Menge an KNX-, Speicher-, Projekt- und Adapterkontext für lokale Modelle. Werkzeuge werden dadurch weder aktiviert noch deaktiviert; es gibt kein Intent-Routing.",
+      "promptContextHint": "Steuert die Menge an KNX-, Speicher-, Projekt- und Adapterkontext für lokale Modelle. Mit „Kein KNX-AI-Limit“ wird das gemeldete oder aktive Kontextfenster des Modells verwendet. Werkzeuge werden dadurch weder aktiviert noch deaktiviert; es gibt kein Intent-Routing.",
+      "reasoningEffortHint": "Optionale Vorgabe für Modelle, die einen Denkaufwand unterstützen. Automatisch sendet keine Vorgabe; lehnt der Anbieter oder das Modell den gewählten Wert ab, versucht KNX AI es ohne diesen erneut.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -130,11 +143,13 @@
       "chatContextSourceKnxTraffic": "Aktuelle KNX-Zusammenfassung, Anomalien, Topologie und ausgewählte Telegramme.",
       "chatContextSourceAdapterHistory": "Dauerhaftes Tagesarchiv automatisch erkannter Adapterereignisse einschließlich Kameraerkennungen.",
       "chatContextSourceEtsProject": "ETS-Semantik und vollständiges Inventar des Node-RED-Projekts.",
-      "chatContextSourceMemoryEducation": "Sitzungskontext, KI-Erziehung und begrenztes Hausgedächtnis.",
+      "chatContextSourceMemoryEducation": "Sitzungskontext, KI-Erziehung, begrenztes Hausgedächtnis und aktive Pläne.",
       "chatContextSourceCameras": "Erkannte Kameras und ihre verfügbaren Funktionen.",
       "chatContextSourceBadge": "Quelle",
       "chatContextFileChatContext": "Dauerhafte Gesprächsverläufe, Anweisungen und Regeln für Kamerabenachrichtigungen.",
-      "chatContextFileHomeMemory": "KI-Erziehung und begrenztes gelerntes Hausgedächtnis.",
+      "chatContextFileHomeMemory": "Nur begrenztes gelerntes Hausgedächtnis; die KI-Erziehung bleibt in der Node-Eigenschaft.",
+      "chatContextFileSchedules": "Verbindlicher dauerhafter Laufzeitstatus der Pläne und Erinnerungen dieses Nodes.",
+      "chatContextFileSchedulesReadable": "Erzeugte menschenlesbare Ansicht der Pläne und Erinnerungen dieses Nodes.",
       "chatContextFileAssistantConfig": "Dauerhafte Konfiguration des Web-Assistenten und semantische Bereiche dieses Nodes.",
       "chatContextFileBadge": "Datei",
       "chatContextDirectoryRoot": "Stammverzeichnis des Telegrammarchivs",
@@ -147,7 +162,7 @@
       "chatAdapterIntro": "Wählen Sie eine Vorlage, um den Code für Ein- und Ausgang einzufügen. Die Liste wird aus der mitgelieferten Chat-Adapter-Datei geladen; der erzeugte Code bleibt bearbeitbar.",
       "chatAdapterCodeHelp": "Zuordnungen laufen synchron. Geben Sie msg zurück, um fortzufahren, oder keinen Wert, um die Nachricht zu verwerfen. Fehler werden abgefangen und gemeldet, ohne Node-RED anzuhalten.",
       "homeIntelligenceIntro": "Der Node erstellt ein mehrsprachiges semantisches ETS-Modell. Proaktive Benachrichtigungen werden nur berücksichtigt, wenn die KI-Erziehung sie ausdrücklich verlangt; der Node sendet niemals selbstständig einen KNX-Befehl.",
-      "aiEducationHelp": "Nur der Benutzer kann diesen Abschnitt bearbeiten. Definieren Sie hier alle Regeln für proaktive Benachrichtigungen, einschließlich Bedingungen, Dauer, Ruhezeiten und Wiederholung. Die KI liest sie als verbindliche Vorgabe und das gelernte Gedächtnis kann sie niemals überschreiben. Maximal 16.000 Zeichen."
+      "aiEducationHelp": "Nur der Benutzer kann diese Node-Eigenschaft bearbeiten. Verwenden Sie sie für dauerhafte Vorgaben und Regeln für proaktive Benachrichtigungen, einschließlich Bedingungen, Dauer, Ruhezeiten und Wiederholung. Das Modell liest sie als verbindliche Vorgabe, schreibt sie aber niemals. Im Chat angeforderte Fakten und Präferenzen werden im gelernten Chat-Gedächtnis gespeichert; einmalige oder wiederkehrende Pläne, Erinnerungen, Überwachungen und zukünftige Befehle speichert der semantische Scheduler. Es sind weder Auslösephrasen noch Intent-Routing erforderlich. Maximal 16.000 Zeichen."
     },
     "sidebar": {
       "ui": {
