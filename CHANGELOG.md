@@ -6,7 +6,7 @@
 
 # CHANGELOG
 
-**Version 6.3.26** - August 2026<br/>
+**Version 6.3.27** - August 2026<br/>
 
 - KNX AI: enabled some things by default.
 
