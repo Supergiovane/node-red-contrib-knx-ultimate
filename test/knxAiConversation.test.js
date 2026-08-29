@@ -668,6 +668,48 @@ describe('KNX AI conversational control', () => {
     expect(message.knxAi.voiceInput).not.to.have.any.keys('weblink', 'path')
   })
 
+  it('accepts and redacts an already-downloaded RedBot voice buffer without a second network request', async () => {
+    const sourceBuffer = Buffer.from('OggS')
+    const audio = await fetchKnxAiTelegramVoice({
+      voiceInput: {
+        data: sourceBuffer,
+        transport: 'redbot-buffer',
+        mediaType: 'audio/ogg',
+        filename: 'redbot-voice.ogg',
+        fileSize: sourceBuffer.length,
+        durationSeconds: 2
+      },
+      fetchImpl: async () => { throw new Error('RedBot audio must not be downloaded twice') }
+    })
+
+    expect(audio.data.equals(sourceBuffer)).to.equal(true)
+    expect(audio.data).not.to.equal(sourceBuffer)
+    expect(audio).to.include({
+      mediaType: 'audio/ogg',
+      filename: 'redbot-voice.ogg',
+      source: 'redbot-buffer'
+    })
+
+    const message = {
+      payload: { type: 'audio', content: sourceBuffer },
+      knxAi: { voiceInput: { source: 'telegram', originalType: 'voice', data: sourceBuffer } }
+    }
+    redactKnxAiTelegramVoiceLocations(message)
+    expect(message.payload.content).to.equal('')
+    expect(message.knxAi.voiceInput).not.to.have.property('data')
+
+    let oversizedError
+    try {
+      await fetchKnxAiTelegramVoice({
+        voiceInput: { data: Buffer.alloc(5), fileSize: 1, mediaType: 'audio/ogg' },
+        maxBytes: 4
+      })
+    } catch (error) {
+      oversizedError = error
+    }
+    expect(oversizedError).to.be.an('error').with.property('message').that.includes('exceeds')
+  })
+
   it('rejects oversized or unexpected-origin Telegram voice downloads', async () => {
     let error
     try {
@@ -1121,6 +1163,77 @@ describe('KNX AI conversational control', () => {
     })
   })
 
+  it('maps a RedBot Telegram voice buffer into a bounded KNX AI voice request', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
+    const adapter = compileKnxAiChatAdapter({ code: preset.inputCode, direction: 'chat input' })
+    const voiceBuffer = Buffer.from('OggS')
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: {
+          transport: 'telegram',
+          chatId: 'redbot-chat-voice',
+          userId: 'redbot-user-voice',
+          type: 'audio',
+          inbound: true,
+          content: voiceBuffer,
+          duration: 7
+        },
+        originalMessage: {
+          from: { language_code: 'it' },
+          voice: {
+            file_id: 'redbot-file-id',
+            duration: 7,
+            mime_type: 'audio/ogg',
+            file_size: voiceBuffer.length
+          }
+        }
+      }
+    })
+
+    expect(message).to.include({ topic: 'ask', sessionId: 'redbot-chat-voice', language: 'it' })
+    expect(message).not.to.have.property('prompt')
+    expect(message.knxAi.voiceInput).to.include({
+      source: 'telegram',
+      originalType: 'voice',
+      transport: 'redbot-buffer',
+      fileId: 'redbot-file-id',
+      mediaType: 'audio/ogg',
+      durationSeconds: 7,
+      fileSize: voiceBuffer.length
+    })
+    expect(message.knxAi.voiceInput.data).to.equal(voiceBuffer)
+    expect(isKnxAiTelegramVoiceInput(message)).to.equal(true)
+  })
+
+  it('upgrades a saved RedBot input adapter that predates voice support', () => {
+    const voiceBuffer = Buffer.from('OggS')
+    const message = applyKnxAiTelegramVoiceInputPresetFallback({
+      preset: 'redbot-telegram',
+      message: {
+        payload: {
+          transport: 'telegram',
+          chatId: 'legacy-redbot-chat',
+          type: 'audio',
+          content: voiceBuffer,
+          duration: 3
+        },
+        originalMessage: {
+          from: { language_code: 'it' },
+          voice: { mime_type: 'audio/ogg', duration: 3, file_size: voiceBuffer.length }
+        }
+      }
+    })
+
+    expect(message).to.include({ topic: 'ask', sessionId: 'legacy-redbot-chat', language: 'it' })
+    expect(message.knxAi.voiceInput).to.include({
+      transport: 'redbot-buffer',
+      durationSeconds: 3,
+      fileSize: voiceBuffer.length
+    })
+    expect(message.knxAi.voiceInput.data).to.equal(voiceBuffer)
+  })
+
   it('maps KNX AI replies and confirmation actions into RedBot inline buttons', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
     const adapter = compileKnxAiChatAdapter({
@@ -1147,6 +1260,7 @@ describe('KNX AI conversational control', () => {
           client
         },
         knxAi: {
+          audio: { data: Buffer.from([9, 8, 7]), mediaType: 'audio/ogg', filename: 'ignored-for-confirmation.ogg' },
           confirmationRequest: {
             required: true,
             actions: [
@@ -1171,6 +1285,82 @@ describe('KNX AI conversational control', () => {
         { type: 'postback', label: 'Conferma', value: 'confirm' },
         { type: 'postback', label: 'Annulla', value: 'cancel' }
       ]
+    })
+  })
+
+  it('maps a voice-originated KNX AI reply into a native RedBot Telegram audio message', () => {
+    const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
+    const adapter = compileKnxAiChatAdapter({ code: preset.outputCode, direction: 'chat output' })
+    const audio = Buffer.from([1, 2, 3, 4])
+    const message = executeKnxAiChatAdapter({
+      adapter,
+      msg: {
+        payload: 'La luce è accesa.',
+        inputMessage: {
+          payload: {
+            transport: 'telegram',
+            chatId: 'redbot-chat-voice',
+            userId: 'redbot-user-voice',
+            type: 'audio',
+            inbound: true,
+            content: 'Accendi la luce'
+          },
+          language: 'it'
+        },
+        knxAi: {
+          language: 'it',
+          audio: { data: audio, mediaType: 'audio/ogg', filename: 'reply.ogg' }
+        }
+      }
+    })
+
+    expect(message.payload).to.deep.equal({
+      transport: 'telegram',
+      chatId: 'redbot-chat-voice',
+      userId: 'redbot-user-voice',
+      type: 'audio',
+      inbound: false,
+      content: audio,
+      filename: 'reply.ogg',
+      mimeType: 'audio/ogg',
+      caption: 'Voce generata dall’IA\nLa luce è accesa.'
+    })
+  })
+
+  it('upgrades a saved RedBot output adapter that predates voice replies', () => {
+    const audio = Buffer.from([5, 6, 7])
+    const message = applyKnxAiTelegramVoiceOutputPresetFallback({
+      preset: 'redbot-telegram',
+      inputMessage: {
+        payload: { transport: 'telegram', chatId: 'legacy-redbot-chat', userId: 'legacy-user' },
+        language: 'it'
+      },
+      message: {
+        payload: {
+          transport: 'telegram',
+          chatId: 'legacy-redbot-chat',
+          userId: 'legacy-user',
+          type: 'message',
+          inbound: false,
+          content: 'Operazione completata.'
+        },
+        knxAi: {
+          language: 'it',
+          audio: { data: audio, mediaType: 'audio/ogg', filename: 'saved-redbot-reply.ogg' }
+        }
+      }
+    })
+
+    expect(message.payload).to.deep.equal({
+      transport: 'telegram',
+      chatId: 'legacy-redbot-chat',
+      userId: 'legacy-user',
+      type: 'audio',
+      inbound: false,
+      content: audio,
+      filename: 'saved-redbot-reply.ogg',
+      mimeType: 'audio/ogg',
+      caption: 'Voce generata dall’IA\nOperazione completata.'
     })
   })
 
@@ -2774,6 +2964,7 @@ describe('KNX AI conversational control', () => {
       expect(helpBody).to.include('RedBot / node-red-contrib-chatbot')
       expect(helpBody).to.include('chatbot-telegram-receive')
       expect(helpBody).to.include('chatbot-telegram-send')
+      expect(helpBody).to.include('type = "audio"')
       expect(helpBody).to.include('callback_query')
       expect(helpBody).to.include('options.reply_markup')
       expect(helpBody).to.include('msg.payload.type = "voice"')
@@ -4548,6 +4739,38 @@ describe('KNX AI Setup Doctor and onboarding', () => {
     expect(unverified.checks.find(check => check.id === 'chat')).to.include({ status: 'warn' })
     expect(unverified.checks.find(check => check.id === 'commands')).to.include({ status: 'warn' })
     expect(unverified.checks.filter(check => check.blocking && check.status === 'fail')).to.be.empty
+  })
+
+  it('reports Telegram voice readiness for both supported chat presets', () => {
+    const snapshotFor = chatAdapterPreset => buildKnxAiSetupDoctorSnapshot({
+      language: 'en',
+      gateway: { configured: true, connectionState: 'connected' },
+      llm: {
+        enabled: true,
+        provider: 'openai_compat',
+        baseUrl: 'https://api.openai.com/v1/chat/completions',
+        model: 'gpt-5.4',
+        apiKeyConfigured: true,
+        allowKnxCommands: false,
+        chatAdapterPreset
+      },
+      catalog: [{ ga: '1/1/1', dpt: '1.001', role: 'status', label: 'Light status' }],
+      areasSnapshot: { totals: { mainGroupCount: 1 }, suggested: [] },
+      wiring: summarizeKnxAiFlowWiring({ nodeId: 'ai', wires: [[], [], [], [], []], flowNodes: [] }),
+      providerProbe: { state: 'reachable', modelCount: 1 }
+    })
+
+    ;['windkh-telegrambot', 'redbot-telegram'].forEach(preset => {
+      expect(snapshotFor(preset).checks.find(check => check.id === 'voice')).to.deep.include({
+        status: 'pass',
+        blocking: false,
+        details: { applicable: true, ready: true }
+      })
+    })
+    expect(snapshotFor('none').checks.find(check => check.id === 'voice')).to.deep.include({
+      status: 'info',
+      details: { applicable: false, ready: false }
+    })
   })
 
   it('provides localized Setup Doctor checks, welcome text, and safe prompts in all six shipped languages', () => {

@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.30** - August 2026<br/>
+
+- **KNX AI — two-way RedBot Telegram voice chat**: the `RedBot / node-red-contrib-chatbot (Telegram)` preset now accepts RedBot's native inbound `audio` payload and its already-downloaded OGG/Opus `Buffer`, applies the same 20 MB and five-minute safeguards without downloading the file a second time, and transcribes it through the selected OpenAI-compatible provider. Successful requests receive a native RedBot `audio` reply with the localized AI-generated-voice disclosure and text caption; KNX confirmations deliberately remain RedBot `inline-buttons` text messages because its Telegram voice sender cannot attach that keyboard to `sendVoice`. Existing saved RedBot input/output mappings are upgraded at runtime. The separate `windkh/node-red-contrib-telegrambot` voice contract and its tests remain unchanged.<br/>
+
 **Version 6.3.29** - August 2026<br/>
 
 - **KNX AI — patient provider-neutral model requests**: every LLM chat request now receives the same 30-minute minimum deadline, regardless of provider, model or model manager, while longer legacy configured values remain honored. The model transport carries that deadline through both streaming and non-streaming responses instead of inheriting a shorter HTTP-library header timeout; fast responses are returned immediately, model-response timeouts remain distinct from unreachable-server errors, and Telegram audio operations retain their separate two-minute safeguard.<br/>

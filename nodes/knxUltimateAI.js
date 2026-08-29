@@ -834,6 +834,7 @@ const buildKnxAiSetupDoctorSnapshot = ({
   if (apiKeyRequired && llm.apiKeyConfigured !== true) missing.push('API key')
   const providerReady = missing.length === 0
   const chatPreset = String(llm.chatAdapterPreset || 'none').trim() || 'none'
+  const telegramVoiceApplicable = ['windkh-telegrambot', 'redbot-telegram'].includes(chatPreset)
   const chatPresetLabels = {
     'windkh-telegrambot': 'Telegram Bot',
     'redbot-telegram': 'RedBot Telegram'
@@ -903,7 +904,7 @@ const buildKnxAiSetupDoctorSnapshot = ({
     { id: 'chat', status: chatStatus, blocking: chatPreset !== 'none', weight: chatPreset !== 'none' ? 10 : 0, details: { preset: chatPreset, presetLabel: chatPresetLabels[chatPreset] || chatPreset, ready: chatVerified, wired: chatWired, upstreamCount, outputConnected: assistantOutput.connected === true } },
     { id: 'commands', status: commandStatus, blocking: llm.allowKnxCommands === true, weight: llm.allowKnxCommands === true ? 10 : 0, details: { enabled: llm.allowKnxCommands === true, connected: commandOutput.connected === true, verified: commandTargetVerified } },
     { id: 'tts', status: ttsOutput.connected === true ? 'pass' : 'info', blocking: false, weight: 0, details: { connected: ttsOutput.connected === true, connectionCount: Math.max(0, Number(ttsOutput.connectionCount) || 0) } },
-    { id: 'voice', status: chatPreset !== 'windkh-telegrambot' ? 'info' : provider === 'openai_compat' && providerReady ? 'pass' : 'warn', blocking: false, weight: 0, details: { applicable: chatPreset === 'windkh-telegrambot', ready: chatPreset === 'windkh-telegrambot' && provider === 'openai_compat' && providerReady } },
+    { id: 'voice', status: !telegramVoiceApplicable ? 'info' : provider === 'openai_compat' && providerReady ? 'pass' : 'warn', blocking: false, weight: 0, details: { applicable: telegramVoiceApplicable, ready: telegramVoiceApplicable && provider === 'openai_compat' && providerReady } },
     { id: 'cameras', status: Number(integrations.cameraCount) > 0 ? 'pass' : 'info', blocking: false, weight: 0, details: { cameraCount: Math.max(0, Number(integrations.cameraCount) || 0), adapterCount: Math.max(0, Number(integrations.cameraAdapterCount) || 0) } },
     { id: 'webAccess', status: webDetails.enabled ? 'pass' : 'info', blocking: false, weight: 0, details: webDetails },
     { id: 'proactiveWeb', status: proactiveWebStatus, blocking: false, weight: 0, details: proactiveWebDetails }
@@ -12741,7 +12742,7 @@ module.exports = function (RED) {
 
     const prepareKnxAiTelegramVoiceInput = async (message) => {
       if (!isKnxAiTelegramVoiceInput(message)) return message
-      if (node.chatAdapterPreset !== 'windkh-telegrambot') return message
+      if (!['windkh-telegrambot', 'redbot-telegram'].includes(node.chatAdapterPreset)) return message
       const voiceInput = Object.assign({}, message.knxAi.voiceInput)
       redactKnxAiTelegramVoiceLocations(message)
       if (!node.llmEnabled) {
@@ -12775,14 +12776,16 @@ module.exports = function (RED) {
       })
       delete safeVoiceInput.weblink
       delete safeVoiceInput.path
+      delete safeVoiceInput.data
       message.knxAi = Object.assign({}, message.knxAi, { voiceInput: safeVoiceInput })
       return message
     }
 
     const enrichKnxAiTelegramVoiceReplyMetadata = async ({ inputMessage, content, speechContent, metadata = {} } = {}) => {
       const enriched = Object.assign({}, metadata)
-      if (!isKnxAiTelegramVoiceInput(inputMessage) || node.chatAdapterPreset !== 'windkh-telegrambot') return enriched
+      if (!isKnxAiTelegramVoiceInput(inputMessage) || !['windkh-telegrambot', 'redbot-telegram'].includes(node.chatAdapterPreset)) return enriched
       if (enriched.image && enriched.image.data) return enriched
+      if (node.chatAdapterPreset === 'redbot-telegram' && enriched.confirmationRequest && enriched.confirmationRequest.required === true) return enriched
       let speechText = speechContent === undefined ? content : speechContent
       if (speechText && typeof speechText === 'object') {
         speechText = speechText.error || speechText.message || safeStringify(speechText)

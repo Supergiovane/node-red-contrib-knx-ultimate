@@ -193,15 +193,13 @@ return msg;`
       id: 'redbot-telegram',
       title: 'RedBot / node-red-contrib-chatbot (Telegram)',
       inputCode: `// RedBot Telegram Receiver -> KNX AI
-// RedBot normalizes Telegram text and inline-button postbacks in msg.payload.
+// RedBot normalizes Telegram text, voice audio and inline-button postbacks in msg.payload.
 const redbot = msg.payload;
 if (!redbot || typeof redbot !== 'object') return;
 if (redbot.transport && redbot.transport !== 'telegram') return;
 
 const chatId = redbot.chatId;
-const content = typeof redbot.content === 'string' ? redbot.content.trim() : '';
-if (chatId === undefined || chatId === null || content === '') return;
-if (redbot.type !== 'message') return;
+if (chatId === undefined || chatId === null) return;
 
 msg.sessionId = String(chatId);
 msg.language =
@@ -209,6 +207,37 @@ msg.language =
     redbot.language ||
     msg.language ||
     '';
+
+const redbotType = String(redbot.type || '').trim().toLowerCase();
+if ((redbotType === 'audio' || redbotType === 'voice') && Buffer.isBuffer(redbot.content)) {
+    const original = msg.originalMessage && typeof msg.originalMessage === 'object'
+        ? msg.originalMessage
+        : {};
+    const voice = original.voice && typeof original.voice === 'object'
+        ? original.voice
+        : original.message && original.message.voice && typeof original.message.voice === 'object'
+            ? original.message.voice
+            : {};
+    msg.topic = 'ask';
+    msg.knxAi = Object.assign({}, msg.knxAi, {
+        sessionId: String(chatId),
+        voiceInput: {
+            source: 'telegram',
+            originalType: 'voice',
+            transport: 'redbot-buffer',
+            data: redbot.content,
+            fileId: String(voice.file_id || '').trim(),
+            mediaType: String(voice.mime_type || redbot.mimeType || 'audio/ogg'),
+            filename: String(voice.file_name || redbot.filename || 'telegram-voice.ogg'),
+            durationSeconds: Math.max(0, Number(voice.duration || redbot.duration) || 0),
+            fileSize: Math.max(0, Number(voice.file_size || redbot.fileSize) || redbot.content.length)
+        }
+    });
+    return msg;
+}
+
+const content = typeof redbot.content === 'string' ? redbot.content.trim() : '';
+if (redbotType !== 'message' || content === '') return;
 
 const action = content.toLowerCase();
 if (action === 'confirm' || action === 'cancel') {
@@ -300,6 +329,33 @@ if (image && Buffer.isBuffer(image.data)) {
     return msg;
 }
 
+const confirmation = msg.knxAi && msg.knxAi.confirmationRequest;
+const audio = msg.knxAi && msg.knxAi.audio;
+if (audio && Buffer.isBuffer(audio.data) && !(confirmation && confirmation.required === true)) {
+    const voiceLanguage = String(msg.knxAi.language || (source && source.language) || '').trim().toLowerCase().split(/[-_]/)[0];
+    const disclosureLabels = {
+        de: 'KI-generierte Stimme',
+        en: 'AI-generated voice',
+        es: 'Voz generada por IA',
+        fr: 'Voix générée par l’IA',
+        it: 'Voce generata dall’IA',
+        zh: 'AI 生成的语音'
+    };
+    const disclosure = disclosureLabels[voiceLanguage] || disclosureLabels.en;
+    msg.payload = {
+        transport: sourcePayload.transport || 'telegram',
+        chatId: chatId,
+        type: 'audio',
+        inbound: false,
+        content: audio.data,
+        filename: audio.filename || 'knx-ai-reply.ogg',
+        mimeType: audio.mediaType || 'audio/ogg',
+        caption: [disclosure, content].filter(Boolean).join('\\n').slice(0, 1024)
+    };
+    if (sourcePayload.userId !== undefined) msg.payload.userId = sourcePayload.userId;
+    return msg;
+}
+
 const redbotPayload = {
     transport: sourcePayload.transport || 'telegram',
     chatId: chatId,
@@ -309,7 +365,6 @@ const redbotPayload = {
 };
 if (sourcePayload.userId !== undefined) redbotPayload.userId = sourcePayload.userId;
 
-const confirmation = msg.knxAi && msg.knxAi.confirmationRequest;
 if (confirmation && confirmation.required === true && Array.isArray(confirmation.actions)) {
     redbotPayload.type = 'inline-buttons';
     redbotPayload.buttons = confirmation.actions.map(function (action) {

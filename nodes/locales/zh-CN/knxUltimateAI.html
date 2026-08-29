@@ -78,7 +78,7 @@ Canvas 上的节点状态专门用于显示最近收到的请求，以及 LLM �
 
 每条原生语音回复的文字说明都会以本地化的 **AI 生成的语音** 提示开头，Telegram 收件人可以看到该提示。
 
-随附的 **RedBot / node-red-contrib-chatbot (Telegram)** 预设遵循 RedBot 的通用消息格式。将 `chatbot-telegram-receive` 直接连接到 KNX AI，并将输出 3 直接连接到 `chatbot-telegram-send`；无需单独的 callback 节点，因为 RedBot 会把内联按钮的 postback 转换成普通入站消息。输入映射读取 `transport`、`chatId`、`type`、`content` 和 Telegram 语言。输出映射保留 RedBot 的 `originalMessage`、`chat`、`api` 和 `client` 跟踪数据，然后发送 `message` payload，或发送带有确认 `postback` 操作的 `inline-buttons` payload。RedBot 仍是独立的可选依赖项。
+随附的 **RedBot / node-red-contrib-chatbot (Telegram)** 预设遵循 RedBot 的通用消息格式。将 `chatbot-telegram-receive` 直接连接到 KNX AI，并将输出 3 直接连接到 `chatbot-telegram-send`；无需单独的 callback 节点，因为 RedBot 会把内联按钮的 postback 转换成普通入站消息。文本和 postback 使用 RedBot 的 `message` payload。Telegram 原生语音以 `type = "audio"` 到达，其中包含已由 RedBot 下载的 OGG/Opus `Buffer`；KNX AI 无需再次下载即可执行大小和时长限制，使用上文所述的同一个 OpenAI-compatible 提供商进行转录，并返回带文字说明和本地化 AI 生成语音提示的原生 RedBot `audio` payload。当 KNX 写入需要确认时，回复会有意保留为文本 `inline-buttons` payload，因为 RedBot 无法把这些按钮附加到同一条语音消息。输出映射会保留 RedBot 的 `originalMessage`、`chat`、`api` 和 `client` 跟踪数据；旧的已保存 RedBot 映射也会在运行时升级。RedBot 仍是独立的可选依赖项。
 
 ### 自动检测的摄像机适配器
 已安装的摄像机软件包可以在运行时向 KNX AI 发布适配器。无需选择器，也无需将摄像机节点连接到 KNX AI：可用的适配器、控制器和摄像机会被自动检测并加入聊天上下文。`node-red-contrib-unifi-ultimate` 是首个受支持的提供方；`hikvision-ultimate` 等其他软件包可通过同一套厂商无关协议注册。

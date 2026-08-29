@@ -128,15 +128,47 @@ const resolveTelegramVoiceAllowedOrigin = (message) => {
 }
 
 const applyKnxAiTelegramVoiceInputPresetFallback = ({ preset, message } = {}) => {
-  if (String(preset || '') !== 'windkh-telegrambot' || !message || typeof message !== 'object') return null
+  const normalizedPreset = String(preset || '')
+  if (!['windkh-telegrambot', 'redbot-telegram'].includes(normalizedPreset) || !message || typeof message !== 'object') return null
   const telegram = message.payload && typeof message.payload === 'object' ? message.payload : null
-  if (!telegram || telegram.type !== 'voice') return null
+  if (!telegram) return null
   const chatId = telegram.chatId
   if (chatId === undefined || chatId === null || chatId === '') return null
   const original = message.originalMessage && typeof message.originalMessage === 'object'
     ? message.originalMessage
     : {}
   const voice = findTelegramVoiceMetadata(message)
+
+  if (normalizedPreset === 'redbot-telegram') {
+    const redbotType = String(telegram.type || '').trim().toLowerCase()
+    if ((redbotType !== 'audio' && redbotType !== 'voice') || !Buffer.isBuffer(telegram.content)) return null
+    const mediaType = normalizeVoiceMediaType(voice.mime_type || telegram.mimeType)
+    message.sessionId = String(chatId)
+    message.language = (original.from && original.from.language_code) ||
+      (original.message && original.message.from && original.message.from.language_code) ||
+      telegram.language ||
+      message.language ||
+      ''
+    message.topic = 'ask'
+    delete message.prompt
+    message.knxAi = Object.assign({}, message.knxAi, {
+      sessionId: String(chatId),
+      voiceInput: {
+        source: 'telegram',
+        originalType: 'voice',
+        transport: 'redbot-buffer',
+        data: telegram.content,
+        fileId: String(voice.file_id || '').trim(),
+        mediaType,
+        filename: sanitizeVoiceFilename({ filename: telegram.filename || voice.file_name, mediaType }),
+        durationSeconds: Math.max(0, Number(voice.duration || telegram.duration) || 0),
+        fileSize: Math.max(0, Number(voice.file_size || telegram.fileSize) || telegram.content.length)
+      }
+    })
+    return message
+  }
+
+  if (telegram.type !== 'voice') return null
   const mediaType = normalizeVoiceMediaType(voice.mime_type || telegram.contentType || telegram.mimeType)
   const fileId = String(telegram.content || voice.file_id || '').trim()
   const weblink = String(telegram.weblink || message.weblink || '').trim()
@@ -175,6 +207,7 @@ const redactKnxAiTelegramVoiceLocations = (message) => {
   if (!message || typeof message !== 'object') return message
   if (message.payload && typeof message.payload === 'object') {
     message.payload = Object.assign({}, message.payload)
+    if (Buffer.isBuffer(message.payload.content)) message.payload.content = ''
     delete message.payload.weblink
     delete message.payload.path
   }
@@ -182,6 +215,7 @@ const redactKnxAiTelegramVoiceLocations = (message) => {
   delete message.path
   if (message.knxAi && message.knxAi.voiceInput && typeof message.knxAi.voiceInput === 'object') {
     const voiceInput = Object.assign({}, message.knxAi.voiceInput)
+    delete voiceInput.data
     delete voiceInput.weblink
     delete voiceInput.path
     message.knxAi = Object.assign({}, message.knxAi, { voiceInput })
@@ -258,6 +292,16 @@ const fetchKnxAiTelegramVoice = async ({
   }
   const mediaType = normalizeVoiceMediaType(source.mediaType)
   const filename = sanitizeVoiceFilename({ filename: source.filename, mediaType })
+  if (Buffer.isBuffer(source.data)) {
+    if (!source.data.length) throw new Error('Telegram returned an empty voice message')
+    if (source.data.length > maxBytes) throw new Error(`Voice audio exceeds the ${Math.round(maxBytes / (1024 * 1024))} MB limit`)
+    return {
+      data: Buffer.from(source.data),
+      mediaType,
+      filename,
+      source: String(source.transport || 'telegram-buffer')
+    }
+  }
   const weblink = String(source.weblink || '').trim()
   if (weblink) {
     let parsed
@@ -409,11 +453,15 @@ const postKnxAiVoiceSpeech = async ({
 }
 
 const applyKnxAiTelegramVoiceOutputPresetFallback = ({ preset, message, inputMessage } = {}) => {
-  if (String(preset || '') !== 'windkh-telegrambot' || !message || typeof message !== 'object') return message
+  const normalizedPreset = String(preset || '')
+  if (!['windkh-telegrambot', 'redbot-telegram'].includes(normalizedPreset) || !message || typeof message !== 'object') return message
   const audio = message.knxAi && message.knxAi.audio
   if (!audio || !Buffer.isBuffer(audio.data) || !audio.data.length) return message
   const currentPayload = message.payload && typeof message.payload === 'object' ? message.payload : null
-  if (currentPayload && (currentPayload.type === 'voice' || currentPayload.type === 'photo')) return message
+  if (currentPayload && (currentPayload.type === 'voice' || currentPayload.type === 'audio' || currentPayload.type === 'photo')) return message
+  if (normalizedPreset === 'redbot-telegram' && currentPayload && currentPayload.type === 'inline-buttons') return message
+  const confirmation = message.knxAi && message.knxAi.confirmationRequest
+  if (normalizedPreset === 'redbot-telegram' && confirmation && confirmation.required === true) return message
   const source = inputMessage && typeof inputMessage === 'object'
     ? inputMessage
     : message.inputMessage && typeof message.inputMessage === 'object'
@@ -435,6 +483,28 @@ const applyKnxAiTelegramVoiceOutputPresetFallback = ({ preset, message, inputMes
     .filter(Boolean)
     .join('\n')
     .slice(0, 1024)
+
+  if (normalizedPreset === 'redbot-telegram') {
+    const transport = currentPayload && currentPayload.transport
+      ? currentPayload.transport
+      : sourcePayload.transport || 'telegram'
+    const userId = currentPayload && currentPayload.userId !== undefined
+      ? currentPayload.userId
+      : sourcePayload.userId
+    message.payload = {
+      transport,
+      chatId,
+      type: 'audio',
+      inbound: false,
+      content: audio.data,
+      filename: sanitizeVoiceFilename({ filename: audio.filename, mediaType: audio.mediaType, fallback: 'knx-ai-reply' }),
+      mimeType: normalizeVoiceMediaType(audio.mediaType),
+      caption
+    }
+    if (userId !== undefined) message.payload.userId = userId
+    return message
+  }
+
   const options = Object.assign({}, currentPayload && currentPayload.options ? currentPayload.options : {})
   if (caption) options.caption = caption
   message.payload = {
