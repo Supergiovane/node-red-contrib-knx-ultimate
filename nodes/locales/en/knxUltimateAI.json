@@ -10,6 +10,7 @@
       "chatContextOverview": "Chat context overview",
       "chatLearning": "AI Chat Learning",
       "quickSetup": "Assistant setup",
+      "etsAccess": "ETS object access",
       "llmConnection": "AI Assistant Connection",
       "chatAdapter": "Chat input and output pins",
       "homeIntelligence": "AI Education & memory",
@@ -25,20 +26,16 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmReasoningEffort": "Reasoning effort",
-      "llmPromptContextTokens": "Chat context amount",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "Allow AI to read KNX states and control actuators",
       "llmRequireCommandConfirmation": "Ask for confirmation before sending KNX commands",
       "webAccessEnabled": "Allow the AI to use the Web",
-      "webProactiveEnabled": "Allow proactive Web checks",
-      "webProactiveIntervalMinutes": "Minimum proactive interval",
       "webMaxCallsPerHour": "Maximum Web calls per hour",
       "chatAdapterPreset": "Input/output message adapter",
       "chatInputCode": "Input mapping (chat → KNX AI)",
       "chatOutputCode": "Output mapping (KNX AI → chat)",
-      "aiEducation": "AI Education (user managed)",
-      "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)"
+      "aiEducation": "AI Education (user managed)"
     },
     "outputs": {
       "summary": "Summary/Stats",
@@ -54,12 +51,6 @@
         "ollama": "Ollama (local)",
         "lmstudio": "Bionic LM Studio"
       },
-      "promptContext": {
-        "small": "Small (4K, faster)",
-        "medium": "Medium (8K)",
-        "full": "Full (16K)",
-        "unlimited": "No KNX AI limit (use model context)"
-      },
       "reasoningEffort": {
         "default": "Automatic (model/provider default)",
         "none": "None",
@@ -72,14 +63,6 @@
       },
       "chatAdapter": {
         "none": "No adapter"
-      },
-      "webProactiveInterval": {
-        "5": "5 minutes",
-        "10": "10 minutes",
-        "15": "15 minutes",
-        "30": "30 minutes",
-        "60": "1 hour",
-        "180": "3 hours"
       }
     },
     "buttons": {
@@ -88,7 +71,11 @@
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
       "downloadOllamaModel": "1) Download model",
-      "openChatLearning": "Open AI Chat Learning"
+      "openChatLearning": "Open AI Chat Learning",
+      "etsSelectAll": "Select all",
+      "etsSelectNone": "Select none",
+      "etsReadOnlyAll": "Set read only",
+      "etsReadOnlyNone": "Clear read only"
     },
     "messages": {
       "setupDoctorLoading": "Analyzing this installation…",
@@ -100,9 +87,8 @@
       "setupDoctorWarn": "Check",
       "setupDoctorFail": "Fix",
       "setupDoctorInfo": "Optional",
-      "webAccessHint": "The model chooses this general Web tool semantically; no keywords or intent classifiers are used. External sites and the search service receive the query and this server’s public IP. Private KNX, camera, chat, memory and credential data are never added automatically.",
-      "webProactiveHint": "This separate opt-in also requires explicit instructions in AI Education and a destination learned from one normal chat request. The model decides what to check; existing tool permissions and KNX confirmation rules still apply.",
-      "webBudgetHint": "The rolling budget counts real outbound calls from chat and proactive checks.",
+      "webAccessHint": "The model chooses this general Web tool semantically for each clear chat or scheduled request. If essential scope is ambiguous, it asks the user before searching; no background polling, keywords or intent classifiers are used. External sites and the search service receive the query and this server’s public IP. Private KNX, camera, chat, memory and credential data are never added automatically.",
+      "webBudgetHint": "The rolling budget counts real outbound calls from conversations and user-created scheduled tasks.",
       "loadingModels": "Loading models…",
       "loadedModels": "Models loaded",
       "lmStudioContextAvailable": "Maximum model context",
@@ -111,8 +97,14 @@
       "lmStudioContextConfigured": "Active model context",
       "lmStudioContextFailed": "Unable to configure the model context",
       "lmStudioContextCurrentlyLoaded": "currently loaded",
-      "localContextBudget": "KNX AI context budget",
-      "promptContextHint": "Controls how much KNX, memory, project and adapter context is sent to local models. Choose ‘No KNX AI limit’ to use the model's declared or active context window. It does not enable or disable tools and does not use intent routing.",
+      "etsAccessHint": "Tick the group addresses to make searchable by KNX AI's local ETS retrieval. On first configuration they are all shown selected; save and Deploy to apply the choice. A read-only address remains searchable and readable by the model, but every write is blocked locally.",
+      "etsFilterPlaceholder": "Filter by name, GA or DPT…",
+      "etsSelected": "selected",
+      "etsReadOnly": "Read only",
+      "etsReadOnlyBulk": "Read only for shown addresses",
+      "etsNoGateway": "Select a KNX gateway.",
+      "etsNoGa": "No group addresses found. Import the ETS list in the KNX gateway.",
+      "etsCsvError": "Unable to load the group address list from the gateway.",
       "reasoningEffortHint": "Optional preference for models that support reasoning effort. Automatic sends no preference; if a provider or model rejects the selected value, KNX AI retries without it.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
@@ -143,9 +135,9 @@
       "chatContextSourcesTitle": "Included sources",
       "chatContextFilesTitle": "Persistent context files",
       "chatContextDirectoriesTitle": "KNX telegram archive",
-      "chatContextSourceKnxTraffic": "Live KNX summary, anomalies, topology and selected telegrams.",
-      "chatContextSourceAdapterHistory": "Persistent daily history of automatically detected adapter events, including camera detections.",
-      "chatContextSourceEtsProject": "ETS semantics and the full Node-RED project inventory.",
+      "chatContextSourceKnxTraffic": "Derived KNX analysis plus the latest exact events from the default 20-minute or explicit interval, automatically bounded for the active local-model window.",
+      "chatContextSourceAdapterHistory": "Latest exact adapter events from the same interval, automatically bounded for the active local-model window.",
+      "chatContextSourceEtsProject": "Complete selected ETS catalog searched locally on demand; only retrieved objects enter the prompt. Function source only for explicit code review.",
       "chatContextSourceMemoryEducation": "Session context, AI Education, bounded home memory and active plans.",
       "chatContextSourceCameras": "Detected cameras and their available capabilities.",
       "chatContextSourceBadge": "Source",
@@ -154,6 +146,7 @@
       "chatContextFileSchedules": "Authoritative persistent runtime state for this node's plans and reminders.",
       "chatContextFileSchedulesReadable": "Generated human-readable view of this node's plans and reminders.",
       "chatContextFileAssistantConfig": "Persistent web Assistant configuration and semantic areas for this node.",
+      "chatContextFileLastChatPrompt": "Temporary local copy of the latest system and user messages sent to the chat model; overwritten on every chat request.",
       "chatContextFileBadge": "File",
       "chatContextDirectoryRoot": "Telegram archive root",
       "chatContextDirectoryNode": "This node's telegram archive",

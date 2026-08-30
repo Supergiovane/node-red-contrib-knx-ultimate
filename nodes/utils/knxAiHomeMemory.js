@@ -190,6 +190,7 @@ const inferKnxAiHomeSemantic = (item = {}) => {
     item.hierarchyPath,
     item.label,
     item.etsName,
+    Array.isArray(item.aliases) ? item.aliases.join(' ') : '',
     Array.isArray(item.tags) ? item.tags.join(' ') : ''
   ].filter(Boolean).join(' ')
   const normalized = normalizeText(source)

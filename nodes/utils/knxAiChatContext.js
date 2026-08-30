@@ -207,6 +207,47 @@ const getKnxAiChatSession = (context, sessionId) => {
 const buildKnxAiChatPromptContext = ({ context, sessionId, maxChars = 16000 } = {}) => {
   const session = getKnxAiChatSession(context, sessionId)
   if (!session.instructions.length && !session.turns.length && !session.cameraWatches.length) return ''
+  const boundedChars = Number(maxChars) > 0 ? Math.max(1000, Number(maxChars)) : 0
+  if (boundedChars > 0) {
+    const fixedBlocks = []
+    if (session.instructions.length) {
+      const instructionBudget = Math.min(1200, Math.max(400, Math.floor(boundedChars * 0.3)))
+      const instructionLines = [
+        'PERSISTENT USER FACTS AND INSTRUCTIONS:',
+        ...session.instructions.map(item => `- ${item.text.replace(/\r?\n/g, ' ')}`)
+      ]
+      fixedBlocks.push(instructionLines.join('\n').slice(0, instructionBudget))
+    }
+    if (session.cameraWatches.length) {
+      const watchLines = [
+        'ACTIVE CAMERA WATCHES:',
+        ...session.cameraWatches.map(watch => {
+          const camera = watch.cameraName || watch.cameraId
+          const scope = watch.scopeName || watch.scopeId
+          const objects = watch.objectTypes.length ? `; objects ${watch.objectTypes.join(', ')}` : ''
+          return `- ${watch.id}: ${camera}; event ${watch.eventType}${scope ? `; scope ${scope}` : ''}${objects}; cooldown ${watch.cooldownSeconds}s`
+        })
+      ]
+      fixedBlocks.push(watchLines.join('\n').slice(0, Math.min(800, Math.floor(boundedChars * 0.25))))
+    }
+    const fixedText = fixedBlocks.join('\n\n')
+    const turnBudget = Math.max(0, boundedChars - fixedText.length - (fixedText ? 2 : 0))
+    const selectedTurns = []
+    let used = 0
+    for (let index = session.turns.length - 1; index >= 0; index -= 1) {
+      const turn = session.turns[index]
+      const renderedTurn = `User: ${clampText(turn.question, 700)}\nAssistant: ${clampText(turn.reply, 1400)}`
+      const nextSize = renderedTurn.length + (selectedTurns.length ? 1 : 0)
+      if (used + nextSize > turnBudget) {
+        if (!selectedTurns.length && turnBudget >= 200) selectedTurns.unshift(renderedTurn.slice(0, turnBudget))
+        break
+      }
+      selectedTurns.unshift(renderedTurn)
+      used += nextSize
+    }
+    const conversationBlock = selectedTurns.length ? `RECENT CONVERSATION:\n${selectedTurns.join('\n')}` : ''
+    return [fixedText, conversationBlock].filter(Boolean).join('\n\n').slice(0, boundedChars)
+  }
   const lines = []
   if (session.instructions.length) {
     lines.push('PERSISTENT USER-PROVIDED FACTS, PREFERENCES, AND INSTRUCTIONS (follow relevant entries unless they conflict with safety or the KNX contract; newer entries override older conflicting entries):')
@@ -230,7 +271,8 @@ const buildKnxAiChatPromptContext = ({ context, sessionId, maxChars = 16000 } = 
       lines.push(`- ${watch.id}: ${camera}; event ${watch.eventType}${scope ? `; scope ${scope}` : ''}${objects}; cooldown ${watch.cooldownSeconds}s`)
     })
   }
-  return lines.join('\n').slice(0, Math.max(1000, Number(maxChars) || 16000))
+  const rendered = lines.join('\n')
+  return rendered
 }
 
 const escapeKnxAiChatContextField = value => String(value === undefined || value === null ? '' : value)

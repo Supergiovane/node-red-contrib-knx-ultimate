@@ -32,7 +32,7 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - **Tests**: prepare and run checks.
 - **Test Results**: pass/warn/fail history.
 - **Ask**: type a question in natural language.
-  If disk archive is enabled in the node, Ask searches archived telegrams by default and falls back to the last 24 hours when no explicit date is provided.
+  If disk archive is enabled in the node, Ask searches archived telegrams and defaults to the last 20 minutes when no explicit date is provided.
 - **Flow Builder** (BETA): describe an automation in plain words and get a Node-RED flow (JSON) to paste into the editor.
 - **Settings**: node selection, full configuration import/export and the editable shared AI Chat Learning file.
 

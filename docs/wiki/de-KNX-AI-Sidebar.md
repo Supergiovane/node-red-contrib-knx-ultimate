@@ -32,7 +32,7 @@ Diese Seite behält den historischen Namen `KNX-AI-Sidebar` aus Kompatibilitäts
 - **Tests**: Prüfungen vorbereiten und starten.
 - **Test Results**: Historie mit pass/warn/fail.
 - **Ask**: Fragen in natürlicher Sprache stellen.
-  Wenn das Festplattenarchiv im Node aktiv ist, durchsucht Ask standardmäßig das Archiv und fällt ohne explizites Datum auf die letzten 24 Stunden zurück.
+  Wenn das Festplattenarchiv im Node aktiv ist, durchsucht Ask das Archiv und verwendet ohne explizites Datum die letzten 20 Minuten.
 - **Flow Builder** (BETA): eine Automatisierung in Worten beschreiben und einen Node-RED-Flow (JSON) zum Einfügen im Editor erhalten.
 - **Settings**: Node-Auswahl, Import/Export der vollständigen Konfiguration und die bearbeitbare gemeinsame KI-Chat-Lerndatei.
 

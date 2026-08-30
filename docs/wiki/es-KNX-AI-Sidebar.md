@@ -32,7 +32,7 @@ Esta pagina mantiene el nombre historico `KNX-AI-Sidebar` por compatibilidad.
 - **Tests**: preparar y lanzar comprobaciones.
 - **Test Results**: historial pass/warn/fail.
 - **Ask**: escribir preguntas en lenguaje natural.
-  Si el archivo en disco está activado en el nodo, Ask consulta ese archivo por defecto y, sin fecha explícita, usa las últimas 24 horas.
+  Si el archivo en disco está activado en el nodo, Ask consulta ese archivo y, sin fecha explícita, usa los últimos 20 minutos.
 - **Flow Builder** (BETA): describe una automatizacion con palabras y obten un flujo de Node-RED (JSON) para pegar en el editor.
 - **Settings**: selección de nodo, import/export de la configuración completa y archivo compartido editable de aprendizaje del chat IA.
 

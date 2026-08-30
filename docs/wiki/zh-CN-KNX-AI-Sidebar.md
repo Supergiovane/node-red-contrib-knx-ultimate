@@ -32,7 +32,7 @@ permalink: /wiki/zh-CN-KNX-AI-Sidebar
 - **Tests**：准备并执行检测。
 - **Test Results**：pass/warn/fail 历史。
 - **Ask**：用自然语言提问。
-  如果节点中启用了磁盘归档，Ask 默认会查询该归档；若没有明确日期，则默认查看最近 24 小时。
+  如果节点中启用了磁盘归档，Ask 会查询该归档；若没有明确日期，则默认查看最近 20 分钟。
 - **Flow Builder**（测试版）：用一句话描述自动化，即可得到可粘贴到编辑器的 Node-RED 流程（JSON）。
 - **Settings**：节点选择、完整配置导入/导出，以及可编辑的共享 AI 聊天学习文件。
 

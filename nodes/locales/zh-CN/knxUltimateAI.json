@@ -10,6 +10,7 @@
       "chatContextOverview": "聊天上下文概览",
       "chatLearning": "AI 聊天学习",
       "quickSetup": "助手配置",
+      "etsAccess": "ETS 对象访问",
       "llmConnection": "AI 助手连接",
       "chatAdapter": "聊天输入/输出端口",
       "homeIntelligence": "AI 教育与记忆",
@@ -25,20 +26,16 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmReasoningEffort": "推理强度",
-      "llmPromptContextTokens": "聊天上下文量",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "允许 AI 读取 KNX 状态并控制执行器",
       "llmRequireCommandConfirmation": "发送 KNX 命令前请求确认",
       "webAccessEnabled": "允许 AI 使用 Web",
-      "webProactiveEnabled": "允许主动 Web 检查",
-      "webProactiveIntervalMinutes": "主动检查的最短间隔",
       "webMaxCallsPerHour": "每小时最多 Web 调用次数",
       "chatAdapterPreset": "输入/输出消息适配器",
       "chatInputCode": "输入映射（聊天 → KNX AI）",
       "chatOutputCode": "输出映射（KNX AI → 聊天）",
-      "aiEducation": "AI 教育（由用户管理）",
-      "llmIncludeDocsSnippets": "Include documentation snippets (help/README/examples)"
+      "aiEducation": "AI 教育（由用户管理）"
     },
     "outputs": {
       "summary": "摘要/统计",
@@ -54,12 +51,6 @@
         "ollama": "Ollama（本地）",
         "lmstudio": "Bionic LM Studio"
       },
-      "promptContext": {
-        "small": "精简（4K，更快）",
-        "medium": "中等（8K）",
-        "full": "完整（16K）",
-        "unlimited": "无 KNX AI 限制（使用模型上下文）"
-      },
       "reasoningEffort": {
         "default": "自动（模型/提供商默认值）",
         "none": "无",
@@ -72,14 +63,6 @@
       },
       "chatAdapter": {
         "none": "无适配器"
-      },
-      "webProactiveInterval": {
-        "5": "5 分钟",
-        "10": "10 分钟",
-        "15": "15 分钟",
-        "30": "30 分钟",
-        "60": "1 小时",
-        "180": "3 小时"
       }
     },
     "messages": {
@@ -92,17 +75,22 @@
       "setupDoctorWarn": "检查",
       "setupDoctorFail": "修复",
       "setupDoctorInfo": "可选",
-      "webAccessHint": "模型按语义选择这个通用 Web 工具；不使用关键词或意图分类器。外部网站和搜索服务会收到查询及本服务器的公网 IP；私有 KNX、摄像头、聊天、记忆和凭据数据绝不会被自动加入。",
-      "webProactiveHint": "此独立授权还需要 AI 教育中的明确指令，以及从一次普通聊天请求中记住的接收方。模型决定检查什么；其他工具权限和 KNX 确认规则仍然适用。",
-      "webBudgetHint": "滚动预算统计聊天和主动检查产生的真实外部调用。",
+      "webAccessHint": "模型会根据每个明确的聊天或计划请求，以语义方式选择这个通用 Web 工具。如果关键范围不明确，它会先向用户询问再搜索；不使用后台轮询、关键词或意图分类器。外部网站和搜索服务会收到查询及本服务器的公网 IP；私有 KNX、摄像头、聊天、记忆和凭据数据绝不会被自动加入。",
+      "webBudgetHint": "滚动预算统计对话和用户创建的计划任务产生的真实外部调用。",
       "lmStudioContextAvailable": "模型最大上下文",
       "lmStudioContextLoading": "正在检查模型的当前上下文",
       "lmStudioContextInactive": "模型未运行；首次请求时将使用 Bionic 默认值",
       "lmStudioContextConfigured": "模型当前上下文",
       "lmStudioContextFailed": "无法配置模型上下文",
       "lmStudioContextCurrentlyLoaded": "当前已加载",
-      "localContextBudget": "KNX AI 上下文预算",
-      "promptContextHint": "控制发送给本地模型的 KNX、记忆、项目和适配器上下文量。选择“无 KNX AI 限制”可使用模型声明或当前启用的上下文窗口。它不会启用或禁用工具，也不使用 intent 路由。",
+      "etsAccessHint": "勾选要供 KNX AI 本地 ETS 检索查询的组地址。首次配置时会显示为全部选中；保存并部署后生效。只读地址仍可被模型检索和读取，但所有写入都会在本地被阻止。",
+      "etsFilterPlaceholder": "按名称、组地址或 DPT 筛选…",
+      "etsSelected": "已选择",
+      "etsReadOnly": "只读",
+      "etsReadOnlyBulk": "对显示的地址设为只读",
+      "etsNoGateway": "请选择 KNX 网关。",
+      "etsNoGa": "未找到组地址。请在 KNX 网关中导入 ETS 列表。",
+      "etsCsvError": "无法从网关加载组地址列表。",
       "reasoningEffortHint": "适用于支持推理强度的模型。选择“自动”时不发送偏好；如果提供商或模型拒绝所选值，KNX AI 会在不发送该值的情况下重试。",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
@@ -133,9 +121,9 @@
       "chatContextSourcesTitle": "包含的来源",
       "chatContextFilesTitle": "持久化上下文文件",
       "chatContextDirectoriesTitle": "KNX 报文归档",
-      "chatContextSourceKnxTraffic": "当前 KNX 摘要、异常、拓扑和选定报文。",
-      "chatContextSourceAdapterHistory": "自动检测到的适配器事件的持久每日历史记录，包括摄像机检测事件。",
-      "chatContextSourceEtsProject": "ETS 语义和完整的 Node-RED 项目清单。",
+      "chatContextSourceKnxTraffic": "派生的 KNX 分析，以及默认最近 20 分钟或明确时间范围内的最新精确事件；事件数量会自动适配本地模型的活动窗口。",
+      "chatContextSourceAdapterHistory": "同一时间范围内的最新精确适配器事件；事件数量会自动适配本地模型的活动窗口。",
+      "chatContextSourceEtsProject": "完整的已选 ETS 目录按需在本地检索；只有检索到的对象进入提示词。仅在明确审查代码时加入 Function 源码。",
       "chatContextSourceMemoryEducation": "会话上下文、AI 教育、有界家庭记忆和活动计划。",
       "chatContextSourceCameras": "检测到的摄像机及其可用功能。",
       "chatContextSourceBadge": "来源",
@@ -144,6 +132,7 @@
       "chatContextFileSchedules": "此节点计划和提醒的权威持久运行时状态。",
       "chatContextFileSchedulesReadable": "此节点计划和提醒自动生成的易读视图。",
       "chatContextFileAssistantConfig": "此节点的持久化 Web 助手配置和语义区域。",
+      "chatContextFileLastChatPrompt": "发送给聊天模型的最新 system 和 user 消息的临时本地副本；每次聊天请求都会覆盖。",
       "chatContextFileBadge": "文件",
       "chatContextDirectoryRoot": "报文归档根目录",
       "chatContextDirectoryNode": "此节点的报文归档",
@@ -216,7 +205,11 @@
       "installOllamaModel": "2) Install it",
       "ollamaLibrary": "Model library",
       "downloadOllamaModel": "1) Download model",
-      "openChatLearning": "打开 AI 聊天学习"
+      "openChatLearning": "打开 AI 聊天学习",
+      "etsSelectAll": "全选",
+      "etsSelectNone": "全部取消",
+      "etsReadOnlyAll": "设为只读",
+      "etsReadOnlyNone": "取消只读"
     }
   }
 }

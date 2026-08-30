@@ -480,12 +480,12 @@
             llmModel: { value: "gpt-5.4" },
             llmReasoningEffort: { value: "default" },
             llmContextLength: { value: 0 },
-            llmPromptContextTokens: { value: 16384 },
             llmAllowKnxCommands: { value: false },
             llmRequireCommandConfirmation: { value: true },
+            etsExposedGAs: { value: [] },
+            etsReadOnlyGAs: { value: [] },
+            etsExposeConfigured: { value: false },
             webAccessEnabled: { value: true },
-            webProactiveEnabled: { value: true },
-            webProactiveIntervalMinutes: { value: 5 },
             webMaxCallsPerHour: { value: 40 },
             chatAdapterPreset: { value: "none" },
             chatInputCode: { value: "" },
@@ -529,6 +529,7 @@
                 if ($mount.length && $section.length) $mount.append($section);
             };
             mountTabSection("#knx-ai-mount-assistant-setup", "#knx-ai-tab-llm-connection");
+            mountTabSection("#knx-ai-mount-ets-access", "#knx-ai-tab-ets-access");
             mountTabSection("#knx-ai-mount-assistant-advanced", "#knx-ai-tab-advanced");
             mountTabSection("#knx-ai-mount-chat-adapter", "#knx-ai-tab-chat-adapter");
             mountTabSection("#knx-ai-mount-home-intelligence", "#knx-ai-tab-home-intelligence");
@@ -571,6 +572,78 @@
                 if (!value || value === key) return fallback || "";
                 return value;
             };
+
+            // Same ETS access selector used by the MQTT profile of IoT Bridge.
+            try {
+                const savedSet = new Set(Array.isArray(node.etsExposedGAs) ? node.etsExposedGAs : []);
+                const readOnlySet = new Set(Array.isArray(node.etsReadOnlyGAs) ? node.etsReadOnlyGAs : []);
+                const exposeConfigured = node.etsExposeConfigured === true;
+
+                const updateEtsCount = () => {
+                    const total = $("#knx-ai-ets-ga-list input.knx-ai-ets-ga-cb").length;
+                    const selected = $("#knx-ai-ets-ga-list input.knx-ai-ets-ga-cb:checked").length;
+                    $("#knx-ai-ets-ga-count").text(selected + " / " + total + " " + t("knxUltimateAI.messages.etsSelected", "selected"));
+                };
+
+                const buildEtsGaList = () => {
+                    const list = $("#knx-ai-ets-ga-list").empty();
+                    const serverId = String($("#node-input-server").val() || "").trim();
+                    if (!serverId) {
+                        list.append($("<div/>").css("color", "#999").text(t("knxUltimateAI.messages.etsNoGateway", "Select a KNX gateway.")));
+                        updateEtsCount();
+                        return;
+                    }
+                    $.getJSON("knxUltimatecsv?nodeID=" + encodeURIComponent(serverId), function (data) {
+                        list.empty();
+                        if (!Array.isArray(data) || data.length === 0) {
+                            list.append($("<div/>").css("color", "#999").text(t("knxUltimateAI.messages.etsNoGa", "No group addresses found. Import the ETS list in the KNX gateway.")));
+                            updateEtsCount();
+                            return;
+                        }
+                        data.forEach(function (item) {
+                            if (!item || !item.ga) return;
+                            const row = $("<div/>").addClass("knx-ai-ets-ga-row").css({
+                                display: "flex", gap: "8px", alignItems: "center", padding: "3px 2px",
+                                width: "100%", whiteSpace: "nowrap", cursor: "pointer", borderBottom: "1px solid #f3f3f3"
+                            }).appendTo(list);
+                            const include = $("<input/>", { type: "checkbox", class: "knx-ai-ets-ga-cb", value: item.ga, style: "width:auto; margin:0; flex:0 0 auto;" }).appendTo(row);
+                            include.prop("checked", exposeConfigured ? savedSet.has(item.ga) : true);
+                            $("<span/>").css({ flex: "0 0 auto", fontFamily: "monospace", minWidth: "64px" }).text(item.ga).appendTo(row);
+                            const name = String(item.devicename || item.ga);
+                            $("<span/>").addClass("knx-ai-ets-ga-name").css({ flex: "1 1 auto", minWidth: "0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#444" }).text(name).attr("title", name).appendTo(row);
+                            $("<span/>").css({ flex: "0 0 auto", color: "#888", fontSize: "11px" }).text("DPT" + (item.dpt || "")).appendTo(row);
+                            const readOnlyLabel = $("<label/>").css({ flex: "0 0 auto", display: "flex", alignItems: "center", gap: "3px", margin: "0", fontSize: "11px", color: "#888", cursor: "pointer" }).appendTo(row);
+                            const readOnly = $("<input/>", { type: "checkbox", class: "knx-ai-ets-ga-ro", value: item.ga, style: "width:auto; margin:0;" }).appendTo(readOnlyLabel);
+                            readOnly.prop("checked", readOnlySet.has(item.ga));
+                            $("<span/>").text(t("knxUltimateAI.messages.etsReadOnly", "Read only")).appendTo(readOnlyLabel);
+                            readOnlyLabel.on("click", function (event) { event.stopPropagation(); });
+                            row.on("click", function (event) {
+                                if (event.target === include[0] || event.target === readOnly[0]) return;
+                                include.prop("checked", !include.prop("checked"));
+                                updateEtsCount();
+                            });
+                        });
+                        $("#knx-ai-ets-ga-list input.knx-ai-ets-ga-cb").on("change", updateEtsCount);
+                        updateEtsCount();
+                    }).fail(function () {
+                        list.empty().append($("<div/>").css("color", "#c0392b").text(t("knxUltimateAI.messages.etsCsvError", "Unable to load the group address list from the gateway.")));
+                        updateEtsCount();
+                    });
+                };
+
+                $("#knx-ai-ets-ga-all").on("click", function (event) { event.preventDefault(); $("#knx-ai-ets-ga-list .knx-ai-ets-ga-row:visible").find("input.knx-ai-ets-ga-cb").prop("checked", true); updateEtsCount(); });
+                $("#knx-ai-ets-ga-none").on("click", function (event) { event.preventDefault(); $("#knx-ai-ets-ga-list .knx-ai-ets-ga-row:visible").find("input.knx-ai-ets-ga-cb").prop("checked", false); updateEtsCount(); });
+                $("#knx-ai-ets-ga-ro-all").on("click", function (event) { event.preventDefault(); $("#knx-ai-ets-ga-list .knx-ai-ets-ga-row:visible").find("input.knx-ai-ets-ga-ro").prop("checked", true); });
+                $("#knx-ai-ets-ga-ro-none").on("click", function (event) { event.preventDefault(); $("#knx-ai-ets-ga-list .knx-ai-ets-ga-row:visible").find("input.knx-ai-ets-ga-ro").prop("checked", false); });
+                $("#knx-ai-ets-ga-filter").on("input", function () {
+                    const term = String($(this).val() || "").toLowerCase();
+                    $("#knx-ai-ets-ga-list .knx-ai-ets-ga-row").each(function () {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(term) !== -1);
+                    });
+                });
+                $("#node-input-server").on("change.knxAiEtsAccess", buildEtsGaList);
+                buildEtsGaList();
+            } catch (error) { }
 
             const applyChatEditorOptions = (editor) => {
                 try {
@@ -857,14 +930,7 @@
                 let contextLimitTokens = Math.max(0, Number(contextLimit.tokens) || 0);
                 const contextIsProviderManaged = String(contextLimit.mode || "") === "provider-managed";
                 if (!contextLimitTokens && !contextIsProviderManaged && (currentProvider === "lmstudio" || currentProvider === "ollama")) {
-                    const modelContextTokens = Math.max(0, Number($("#node-input-llmContextLength").val()) || 16384);
-                    const selectedContextValue = String($("#node-input-llmPromptContextTokens").val() || "16384");
-                    const selectedContextTokens = selectedContextValue === "0"
-                        ? 0
-                        : Math.min(16384, Math.max(4096, Number(selectedContextValue) || 16384));
-                    contextLimitTokens = selectedContextTokens === 0
-                        ? modelContextTokens
-                        : Math.min(modelContextTokens, selectedContextTokens);
+                    contextLimitTokens = Math.max(0, Number($("#node-input-llmContextLength").val()) || 0);
                 }
                 const contextLimitValue = contextLimitTokens
                     ? formatCompactTokens(contextLimitTokens) + " " + t("knxUltimateAI.messages.chatContextTokens", "tokens")
@@ -895,9 +961,9 @@
                 }
 
                 const sourceLabels = {
-                    knxTraffic: t("knxUltimateAI.messages.chatContextSourceKnxTraffic", "Live KNX summary, anomalies, topology and selected telegrams."),
-                    adapterHistory: t("knxUltimateAI.messages.chatContextSourceAdapterHistory", "Persistent history of automatically detected adapter events."),
-                    etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "ETS semantics and the full Node-RED project inventory."),
+                    knxTraffic: t("knxUltimateAI.messages.chatContextSourceKnxTraffic", "Derived KNX analysis plus the latest exact events from the default 20-minute or explicit interval, automatically bounded for the active local-model window."),
+                    adapterHistory: t("knxUltimateAI.messages.chatContextSourceAdapterHistory", "Latest exact adapter events from the same interval, automatically bounded for the active local-model window."),
+                    etsProject: t("knxUltimateAI.messages.chatContextSourceEtsProject", "Complete selected ETS catalog searched locally on demand; only retrieved objects enter the prompt. Function source only for explicit code review."),
                     memoryEducation: t("knxUltimateAI.messages.chatContextSourceMemoryEducation", "Session context, AI Education, bounded home memory and active plans."),
                     cameras: t("knxUltimateAI.messages.chatContextSourceCameras", "Detected cameras and their available capabilities.")
                 };
@@ -916,7 +982,8 @@
                     homeMemory: t("knxUltimateAI.messages.chatContextFileHomeMemory", "Bounded learned home memory only; AI Education remains in the node property."),
                     schedules: t("knxUltimateAI.messages.chatContextFileSchedules", "Authoritative structured plans and reminders for this node."),
                     schedulesReadable: t("knxUltimateAI.messages.chatContextFileSchedulesReadable", "Human-readable plans and reminders generated from the scheduler state."),
-                    assistantConfig: t("knxUltimateAI.messages.chatContextFileAssistantConfig", "Persistent web Assistant configuration and semantic areas for this node.")
+                    assistantConfig: t("knxUltimateAI.messages.chatContextFileAssistantConfig", "Persistent web Assistant configuration and semantic areas for this node."),
+                    lastChatPrompt: t("knxUltimateAI.messages.chatContextFileLastChatPrompt", "Temporary local copy of the latest system and user messages sent to the chat model; overwritten on every chat request.")
                 };
                 (Array.isArray(overview.files) ? overview.files : []).forEach(function (item) {
                     if (!item || !item.name || !item.path) return;
@@ -1064,13 +1131,6 @@
                 } else if (detail.loadedContextLength > 0) {
                     text += " · " + t("knxUltimateAI.messages.lmStudioContextCurrentlyLoaded", "currently loaded") + ": " + loadedTokens + " token";
                 }
-                if (provider === "lmstudio" || provider === "ollama") {
-                    const selectedContextValue = String($("#node-input-llmPromptContextTokens").val() || "16384");
-                    const selectedBudget = selectedContextValue === "0"
-                        ? t("knxUltimateAI.selectlists.promptContext.unlimited", "No KNX AI limit (model context)")
-                        : (Math.max(4096, Number(selectedContextValue) || 16384) / 1024) + "K";
-                    text += " · " + t("knxUltimateAI.messages.localContextBudget", "KNX AI context budget") + ": " + selectedBudget;
-                }
                 $status.text(text).css("color", color).show();
             };
 
@@ -1170,11 +1230,7 @@
                     : Number(detail.maxContextLength);
                 $("#node-input-llmContextLength").val(activeContextLength);
                 if (provider === "ollama") {
-                    const selectedContextValue = String($("#node-input-llmPromptContextTokens").val() || "16384");
-                    const selectedContextTokens = selectedContextValue === "0"
-                        ? Number(detail.maxContextLength)
-                        : Math.min(16384, Math.max(4096, Number(selectedContextValue) || 16384));
-                    detail.configuredContextLength = Math.min(Number(detail.maxContextLength), selectedContextTokens);
+                    detail.configuredContextLength = Number(detail.maxContextLength);
                     $("#node-input-llmContextLength").val(detail.configuredContextLength);
                     setLocalModelContextStatus(detail);
                     return;
@@ -1328,9 +1384,7 @@
 
             const toggleProvider = ({ applyDefaults = false, autoLoadModels = false } = {}) => {
                 const provider = $("#node-input-llmProvider").val();
-                const localProvider = provider === "lmstudio" || provider === "ollama";
                 if (applyDefaults) applyProviderDefaults(provider);
-                $("#knx-ai-prompt-context-row").toggle(localProvider);
                 if (provider === "ollama") {
                     $("#knx-ai-apikey-row").hide();
                     $("#knx-ai-ollama-install-row").show();
@@ -1347,11 +1401,9 @@
             };
             const toggleWebAccess = () => {
                 const enabled = $("#node-input-webAccessEnabled").prop("checked") === true;
-                const proactive = enabled && $("#node-input-webProactiveEnabled").prop("checked") === true;
                 $("#knx-ai-web-access-settings").toggle(enabled);
-                $("#knx-ai-web-proactive-interval-row").toggle(proactive);
             };
-            $("#node-input-webAccessEnabled, #node-input-webProactiveEnabled").on("change", toggleWebAccess);
+            $("#node-input-webAccessEnabled").on("change", toggleWebAccess);
             toggleWebAccess();
             $("#node-input-llmProvider").on("change", function () {
                 toggleProvider({ applyDefaults: true, autoLoadModels: true });
@@ -1365,15 +1417,6 @@
             $("#node-input-llmModel").on("change", function () {
                 configureSelectedLocalModel();
             });
-            $("#node-input-llmPromptContextTokens").on("change", function () {
-                const detail = localModelDetailsById.get(String($("#node-input-llmModel").val() || "").trim());
-                if (!detail) return;
-                if ($("#node-input-llmProvider").val() === "ollama") {
-                    configureSelectedLocalModel();
-                    return;
-                }
-                setLocalModelContextStatus(detail, detail.loadedContextLength > 0 ? "configured" : "inactive");
-            });
             $("#knx-ai-downloadOllamaModel").on("click", function (evt) {
                 evt.preventDefault();
                 openOllamaLibrary();
@@ -1385,6 +1428,18 @@
         },
         oneditsave: function () {
             try { RED.sidebar.show("info"); } catch (error) { }
+            try {
+                const checkboxes = $("#knx-ai-ets-ga-list input.knx-ai-ets-ga-cb");
+                if (checkboxes.length > 0) {
+                    const exposed = [];
+                    const readOnly = [];
+                    checkboxes.each(function () { if ($(this).is(":checked")) exposed.push($(this).val()); });
+                    $("#knx-ai-ets-ga-list input.knx-ai-ets-ga-ro").each(function () { if ($(this).is(":checked")) readOnly.push($(this).val()); });
+                    this.etsExposedGAs = exposed;
+                    this.etsReadOnlyGAs = readOnly;
+                    this.etsExposeConfigured = true;
+                }
+            } catch (error) { }
             try {
                 if (this.chatInputCodeEditor && typeof this.chatInputCodeEditor.getValue === "function") {
                     this.chatInputCode = this.chatInputCodeEditor.getValue();
@@ -1458,6 +1513,10 @@
             <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-cog"></i> <span data-i18n="knxUltimateAI.sections.quickSetup"></span></h4>
                 <div class="knx-ai-accordion-mount" id="knx-ai-mount-assistant-setup"></div>
+            </div>
+            <div class="knx-ai-accordion-subsection">
+                <h4><i class="fa fa-list"></i> <span data-i18n="knxUltimateAI.sections.etsAccess"></span></h4>
+                <div class="knx-ai-accordion-mount" id="knx-ai-mount-ets-access"></div>
             </div>
             <div class="knx-ai-accordion-subsection">
                 <h4><i class="fa fa-sliders"></i> <span data-i18n="knxUltimateAI.sections.advanced"></span></h4>
@@ -1584,16 +1643,6 @@
                 </div>
                 <input type="hidden" id="node-input-llmContextLength">
                 <div id="knx-ai-local-context-status" style="display:none;"></div>
-                <div class="form-row" id="knx-ai-prompt-context-row" style="display:none;">
-                    <label style="width:290px" for="node-input-llmPromptContextTokens"><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.properties.llmPromptContextTokens"></span></label>
-                    <select style="width:100%" id="node-input-llmPromptContextTokens">
-                        <option value="4096" data-i18n="knxUltimateAI.selectlists.promptContext.small"></option>
-                        <option value="8192" data-i18n="knxUltimateAI.selectlists.promptContext.medium"></option>
-                        <option value="16384" data-i18n="knxUltimateAI.selectlists.promptContext.full"></option>
-                        <option value="0" data-i18n="knxUltimateAI.selectlists.promptContext.unlimited"></option>
-                    </select>
-                    <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.promptContextHint"></div>
-                </div>
                 <div class="form-row">
                     <input type="checkbox" id="node-input-llmAllowKnxCommands" style="display:inline-block; width:auto; vertical-align:top;">
                     <label style="width:auto" for="node-input-llmAllowKnxCommands">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.llmAllowKnxCommands"></span></label>
@@ -1641,27 +1690,27 @@
                     <input type="number" id="node-input-webMaxCallsPerHour" min="1" max="60" step="1" style="width:100%;">
                     <!-- <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webBudgetHint"></div> -->
                 </div>
-                <div class="form-row">
-                    <input type="checkbox" id="node-input-webProactiveEnabled" style="display:inline-block; width:auto; vertical-align:top;">
-                    <label style="width:auto" for="node-input-webProactiveEnabled">&nbsp;&nbsp;<span data-i18n="knxUltimateAI.properties.webProactiveEnabled"></span></label>
-                    <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.webProactiveHint"></div>
-                </div>
-                <div class="form-row" id="knx-ai-web-proactive-interval-row">
-                    <label style="width:290px" for="node-input-webProactiveIntervalMinutes"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateAI.properties.webProactiveIntervalMinutes"></span></label>
-                    <select style="width:100%" id="node-input-webProactiveIntervalMinutes">
-                        <option value="5" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.5"></option>
-                        <option value="10" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.10"></option>
-                        <option value="15" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.15"></option>
-                        <option value="30" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.30"></option>
-                        <option value="60" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.60"></option>
-                        <option value="180" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.180"></option>
-                    </select>
-                </div>
             </div>
             <hr>
             <div class="form-row">
                 <label style="width:100%" for="node-input-aiEducation"><i class="fa fa-graduation-cap"></i> <span data-i18n="knxUltimateAI.properties.aiEducation"></span></label>
                 <textarea id="node-input-aiEducation" maxlength="16000" style="width:100%; min-height:180px; box-sizing:border-box;" data-i18n="[placeholder]knxUltimateAI.placeholder.aiEducation"></textarea>
+            </div>
+        </div>
+
+        <div id="knx-ai-tab-ets-access">
+            <div class="form-row">
+                <div class="knx-ai-prompt-context-hint" data-i18n="knxUltimateAI.messages.etsAccessHint"></div>
+                <div style="margin:8px 0 4px; display:flex; gap:6px; align-items:center;">
+                    <input type="text" id="knx-ai-ets-ga-filter" data-i18n="[placeholder]knxUltimateAI.messages.etsFilterPlaceholder" style="flex:1 1 auto;">
+                    <button type="button" id="knx-ai-ets-ga-all" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="knxUltimateAI.buttons.etsSelectAll"></button>
+                    <button type="button" id="knx-ai-ets-ga-none" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="knxUltimateAI.buttons.etsSelectNone"></button>
+                    <span style="border-left:1px solid #ccc; align-self:stretch;"></span>
+                    <button type="button" id="knx-ai-ets-ga-ro-all" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="[title]knxUltimateAI.messages.etsReadOnlyBulk;knxUltimateAI.buttons.etsReadOnlyAll"></button>
+                    <button type="button" id="knx-ai-ets-ga-ro-none" class="ui-button ui-corner-all ui-widget" style="width:auto;" data-i18n="[title]knxUltimateAI.messages.etsReadOnlyBulk;knxUltimateAI.buttons.etsReadOnlyNone"></button>
+                </div>
+                <div id="knx-ai-ets-ga-count" style="font-size:11px; color:#666; margin:2px 0;"></div>
+                <div id="knx-ai-ets-ga-list" style="max-height:220px; overflow:auto; border:1px solid #ccc; padding:6px; border-radius:4px; background:#fff;"></div>
             </div>
         </div>
 

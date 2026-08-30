@@ -10,6 +10,7 @@
       "chatContextOverview": "Contesto disponibile alla chat",
       "chatLearning": "Apprendimento AI Chat",
       "quickSetup": "Configurazione assistente",
+      "etsAccess": "Accesso agli oggetti ETS",
       "llmConnection": "Connessione Assistente AI",
       "chatAdapter": "Chat PIN Input e Output",
       "homeIntelligence": "Educazione AI e memoria",
@@ -25,20 +26,16 @@
       "llmApiKey": "API key",
       "llmModel": "Modello",
       "llmReasoningEffort": "Impegno di ragionamento",
-      "llmPromptContextTokens": "Quantità contesto chat",
       "llmSystemPrompt": "Prompt di sistema",
       "llmIncludeRaw": "Includi payload raw in hex",
       "llmAllowKnxCommands": "Consenti all'AI di leggere stati KNX e comandare attuatori",
       "llmRequireCommandConfirmation": "Chiedi conferma prima di inviare comandi KNX",
       "webAccessEnabled": "Consenti all’AI di usare il Web",
-      "webProactiveEnabled": "Consenti controlli Web proattivi",
-      "webProactiveIntervalMinutes": "Intervallo minimo dei controlli proattivi",
       "webMaxCallsPerHour": "Numero massimo di chiamate Web all’ora",
       "chatAdapterPreset": "Adattatore messaggi ingresso/uscita",
       "chatInputCode": "Mappatura ingresso (chat → KNX AI)",
       "chatOutputCode": "Mappatura uscita (KNX AI → chat)",
-      "aiEducation": "Educazione AI (gestita dall'utente)",
-      "llmIncludeDocsSnippets": "Includi estratti documentazione (help/README/esempi)"
+      "aiEducation": "Educazione AI (gestita dall'utente)"
     },
     "outputs": {
       "summary": "Summary/Statistiche",
@@ -54,12 +51,6 @@
         "ollama": "Ollama (locale)",
         "lmstudio": "Bionic LM Studio"
       },
-      "promptContext": {
-        "small": "Ridotto (4K, più veloce)",
-        "medium": "Medio (8K)",
-        "full": "Completo (16K)",
-        "unlimited": "Nessun limite KNX AI (usa il contesto del modello)"
-      },
       "reasoningEffort": {
         "default": "Automatico (predefinito del modello/provider)",
         "none": "Nessuno",
@@ -72,14 +63,6 @@
       },
       "chatAdapter": {
         "none": "Nessun adattatore"
-      },
-      "webProactiveInterval": {
-        "5": "5 minuti",
-        "10": "10 minuti",
-        "15": "15 minuti",
-        "30": "30 minuti",
-        "60": "1 ora",
-        "180": "3 ore"
       }
     },
     "buttons": {
@@ -88,7 +71,11 @@
       "installOllamaModel": "2) Installalo",
       "ollamaLibrary": "Libreria modelli",
       "downloadOllamaModel": "1) Scarica il modello",
-      "openChatLearning": "Apri Apprendimento AI Chat"
+      "openChatLearning": "Apri Apprendimento AI Chat",
+      "etsSelectAll": "Seleziona tutti",
+      "etsSelectNone": "Deseleziona tutti",
+      "etsReadOnlyAll": "Imposta sola lettura",
+      "etsReadOnlyNone": "Togli sola lettura"
     },
     "messages": {
       "setupDoctorLoading": "Sto analizzando questo impianto…",
@@ -100,9 +87,8 @@
       "setupDoctorWarn": "Controlla",
       "setupDoctorFail": "Correggi",
       "setupDoctorInfo": "Opzionale",
-      "webAccessHint": "Il modello sceglie semanticamente questo tool Web generale; non vengono usate parole chiave né classificatori d’intento. I siti esterni e il servizio di ricerca ricevono la query e l’IP pubblico del server. Dati privati KNX, telecamere, chat, memoria e credenziali non vengono mai aggiunti automaticamente.",
-      "webProactiveHint": "Questo opt-in separato richiede anche istruzioni esplicite in Educazione AI e una chat destinataria appresa da una normale richiesta. Il modello decide cosa controllare; restano valide le autorizzazioni degli altri strumenti e le conferme KNX.",
-      "webBudgetHint": "Il budget scorrevole conteggia le chiamate esterne reali della chat e dei controlli proattivi.",
+      "webAccessHint": "Il modello sceglie semanticamente questo tool Web generale per ogni richiesta chiara della chat o pianificata. Se manca un dettaglio essenziale, chiede chiarimenti all’utente prima della ricerca; non vengono usati polling in background, parole chiave o classificatori d’intento. I siti esterni e il servizio di ricerca ricevono la query e l’IP pubblico del server. Dati privati KNX, telecamere, chat, memoria e credenziali non vengono mai aggiunti automaticamente.",
+      "webBudgetHint": "Il budget scorrevole conteggia le chiamate esterne reali delle conversazioni e delle pianificazioni create dall’utente.",
       "loadingModels": "Carico i modelli…",
       "loadedModels": "Modelli caricati",
       "lmStudioContextAvailable": "Contesto massimo del modello",
@@ -111,8 +97,14 @@
       "lmStudioContextConfigured": "Contesto attivo del modello",
       "lmStudioContextFailed": "Impossibile configurare il contesto del modello",
       "lmStudioContextCurrentlyLoaded": "attualmente caricato",
-      "localContextBudget": "Budget contesto KNX AI",
-      "promptContextHint": "Controlla la quantità di contesto KNX, memoria, progetto e adapter inviata ai modelli locali. Scegli “Nessun limite KNX AI” per usare la finestra dichiarata o attiva del modello. Non abilita o disabilita strumenti e non usa intent linguistici.",
+      "etsAccessHint": "Spunta gli indirizzi di gruppo che vuoi rendere ricercabili dal retrieval ETS locale di KNX AI. Alla prima configurazione sono mostrati tutti selezionati; salva e fai Deploy per applicare la scelta. Un indirizzo in sola lettura resta ricercabile e interrogabile dal modello, ma ogni scrittura viene bloccata localmente.",
+      "etsFilterPlaceholder": "Filtra per nome, GA o DPT…",
+      "etsSelected": "selezionati",
+      "etsReadOnly": "Sola lettura",
+      "etsReadOnlyBulk": "Sola lettura per gli indirizzi mostrati",
+      "etsNoGateway": "Seleziona un gateway KNX.",
+      "etsNoGa": "Nessun indirizzo di gruppo trovato. Importa la lista ETS nel gateway KNX.",
+      "etsCsvError": "Impossibile caricare la lista degli indirizzi di gruppo dal gateway.",
       "reasoningEffortHint": "Preferenza facoltativa per i modelli che supportano l'impegno di ragionamento. Automatico non invia alcuna preferenza; se il provider o il modello rifiuta il valore scelto, KNX AI riprova senza di esso.",
       "ollamaNotSupported": "Modalita locale Ollama: API key non richiesta. Endpoint predefinito: http://localhost:11434/api/chat.",
       "ollamaNoModels": "Nessun modello Ollama locale trovato. Installa un modello o scegli dalla libreria.",
@@ -143,9 +135,9 @@
       "chatContextSourcesTitle": "Fonti incluse",
       "chatContextFilesTitle": "File persistenti di contesto",
       "chatContextDirectoriesTitle": "Archivio telegrammi KNX",
-      "chatContextSourceKnxTraffic": "Riepilogo KNX corrente, anomalie, topologia e telegrammi selezionati.",
-      "chatContextSourceAdapterHistory": "Storico giornaliero persistente degli eventi degli adapter rilevati, comprese le rilevazioni delle telecamere.",
-      "chatContextSourceEtsProject": "Semantica ETS e inventario completo del progetto Node-RED.",
+      "chatContextSourceKnxTraffic": "Analisi KNX derivata più gli eventi esatti più recenti dell’intervallo predefinito di 20 minuti o di quello esplicito, limitati automaticamente alla finestra attiva del modello locale.",
+      "chatContextSourceAdapterHistory": "Eventi adapter esatti più recenti dello stesso intervallo, limitati automaticamente alla finestra attiva del modello locale.",
+      "chatContextSourceEtsProject": "Catalogo ETS selezionato completo ricercato localmente su richiesta; nel prompt entrano solo gli oggetti recuperati. Sorgenti Function solo per revisioni esplicite del codice.",
       "chatContextSourceMemoryEducation": "Contesto di sessione, Educazione AI, memoria domestica limitata e pianificazioni attive.",
       "chatContextSourceCameras": "Telecamere rilevate e relative funzionalità disponibili.",
       "chatContextSourceBadge": "Fonte",
@@ -154,6 +146,7 @@
       "chatContextFileSchedules": "Stato di runtime persistente e autorevole delle pianificazioni e dei promemoria di questo nodo.",
       "chatContextFileSchedulesReadable": "Vista leggibile generata delle pianificazioni e dei promemoria di questo nodo.",
       "chatContextFileAssistantConfig": "Configurazione persistente dell'Assistente web e aree semantiche di questo nodo.",
+      "chatContextFileLastChatPrompt": "Copia locale temporanea degli ultimi messaggi system e user inviati al modello chat; viene sovrascritta a ogni richiesta.",
       "chatContextFileBadge": "File",
       "chatContextDirectoryRoot": "Radice archivio telegrammi",
       "chatContextDirectoryNode": "Archivio telegrammi di questo nodo",

@@ -385,7 +385,10 @@ const buildKnxAiSchedulePromptContext = (store, { sessionId, maxChars = 12000, n
   const lines = tasks.map(task => {
     return `${task.id} | kind ${task.kind} | ${task.title} | instruction ${JSON.stringify(task.instruction)} | next ${task.nextRunAt || '-'} | every ${task.intervalMinutes || 0} minute(s) | expires ${task.expiresAt || 'never'}`
   })
-  return clampText(lines.join('\n'), Math.max(200, Number(maxChars) || 12000))
+  const rendered = lines.join('\n')
+  return Number(maxChars) > 0
+    ? clampText(rendered, Math.max(200, Number(maxChars)))
+    : rendered
 }
 
 const buildKnxAiScheduleMarkdown = (store, { now = Date.now() } = {}) => {

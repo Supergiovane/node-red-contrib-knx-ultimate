@@ -32,7 +32,7 @@ Cette page conserve le nom historique `KNX-AI-Sidebar` pour compatibilité.
 - **Tests** : preparer et executer des controles.
 - **Test Results** : historique pass/warn/fail.
 - **Ask** : poser une question en langage naturel.
-  Si l'archive disque est activée dans le nœud, Ask consulte cette archive par défaut et, sans date explicite, utilise les dernières 24 heures.
+  Si l'archive disque est activée dans le nœud, Ask consulte cette archive et, sans date explicite, utilise les 20 dernières minutes.
 - **Flow Builder** (BETA) : decrivez une automatisation avec des mots et obtenez un flux Node-RED (JSON) a coller dans l'editeur.
 - **Settings** : sélection du nœud, import/export de la configuration complète et fichier partagé modifiable d'apprentissage du chat IA.
 

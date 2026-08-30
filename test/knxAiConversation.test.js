@@ -5,15 +5,7 @@ const vm = require('vm')
 
 const {
   KNX_AI_ADAPTER_HISTORY_RETENTION_DAYS,
-  KNX_AI_COMPACT_CONTEXT_MAX_TOKENS,
   KNX_AI_LLM_TIMEOUT_MIN_MS,
-  KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS,
-  KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS,
-  KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS,
-  KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS,
-  KNX_AI_PROMPT_CONTEXT_DEFAULT_TOKENS,
-  KNX_AI_PROMPT_CONTEXT_UNLIMITED_TOKENS,
-  KNX_AI_PROMPT_CONTEXT_TOKEN_OPTIONS,
   KNX_AI_REASONING_EFFORT_OPTIONS,
   KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS,
   KNX_AI_SETUP_DOCTOR_VERSION,
@@ -28,14 +20,15 @@ const {
   KNX_AI_WEB_MAX_ACTIONS_PER_ROUND,
   KNX_AI_WEB_MAX_RESEARCH_ROUNDS,
   KNX_AI_WEB_MAX_SOURCES,
-  KNX_AI_WEB_PROACTIVE_INTERVAL_OPTIONS,
   appendKnxAiWebSources,
+  applyKnxAiCatalogAccessConfiguration,
   applyKnxAiChatConfirmationPresetFallback,
   applyKnxAiChatMediaPresetFallback,
   applyKnxAiTelegramVoiceInputPresetFallback,
   applyKnxAiTelegramVoiceOutputPresetFallback,
   applyKnxAiGaRoleActionsToCatalog,
   bindSharedKnxAiState,
+  buildGaCatalogFromCsv,
   buildKnxAiTtsUltimateAnnouncementMessage,
   buildKnxAiConversationMemoryAnchor,
   buildKnxAiFirstRunExperience,
@@ -51,7 +44,6 @@ const {
   cloneKnxAiInputMessage,
   compileKnxAiChatAdapter,
   collectKnxAiWebSources,
-  compactLlmMessagesForContextRetry,
   coerceKnxAiCommandPayload,
   detectKnxAiLanguageFromText,
   deriveOpenAiCompatibleAudioUrl,
@@ -75,7 +67,6 @@ const {
   isKnxAiOpenAiCompatibleChatProvider,
   isKnxAiTelegramVoiceInput,
   isOfficialOpenAiVoiceUrl,
-  isLlmContextLengthError,
   isLlmRequestTimeoutError,
   isLikelyConnectionFailure,
   isProbablyChatModelId,
@@ -89,16 +80,13 @@ const {
   normalizeKnxAiLlmProvider,
   normalizeKnxAiMemoryActions,
   normalizeKnxAiReasoningEffort,
-  normalizeKnxAiPromptContextTokens,
   normalizeKnxAiRoutineDescriptor,
   normalizeKnxAiSpeechActionCandidate,
-  normalizeKnxAiWebProactiveIntervalMinutes,
   normalizeLmStudioModelCatalog,
   parseQuestionTimeRange,
   parseOpenAiCompatibleEventStream,
   parseOllamaEventStream,
   parseKnxAiConversationResponse,
-  postLocalLlmWithContextFallbacks,
   postJson,
   postAnthropicMessagesWithFallbacks,
   postKnxAiVoiceSpeech,
@@ -110,7 +98,6 @@ const {
   resolveKnxAiLanguage,
   resolveKnxAiLlmTimeoutMs,
   resolveKnxAiOperationalContextLimit,
-  resolveKnxAiPromptContextMode,
   resolveKnxAiReasoningRequestFields,
   resolveKnxAiOperationEvent,
   resolveKnxAiSessionId,
@@ -118,7 +105,6 @@ const {
   resolveOllamaModelMaxContext,
   releaseSharedKnxAiState,
   safeKnxAiSend,
-  scaleKnxAiPromptLimit,
   selectKnxAiCatalogForPrompt,
   selectKnxAiToolCatalogForPrompt,
   summarizeDetectedKnxAiCameraAdapters,
@@ -198,6 +184,7 @@ describe('KNX AI conversational control', () => {
     expect(parsed.speechActions).to.deep.equal([{ type: 'announce', text: 'La cena è pronta', reason: 'richiesto' }])
     expect(parsed.memoryActions).to.deep.equal([])
     expect(parsed.gaRoleActions).to.deep.equal([])
+    expect(parsed.catalogActions).to.deep.equal([])
     expect(parsed.scheduleActions).to.deep.equal([])
     expect(parsed.routine).to.deep.equal({ active: false, name: '', phase: 'none' })
   })
@@ -1870,11 +1857,11 @@ describe('KNX AI conversational control', () => {
 
   it('does not prime small models with fabricated operations in the response example', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
-    expect(runtime).to.include('"commands":[],"cameraActions":[],"speechActions":[],"memoryActions":[],"gaRoleActions":[],"webActions":[],"scheduleActions":[]')
+    expect(runtime).to.include('"commands":[],"cameraActions":[],"speechActions":[],"memoryActions":[],"gaRoleActions":[],"catalogActions":[],"webActions":[],"scheduleActions":[]')
     expect(runtime).not.to.include('"commands":[{"event":"GroupValue_Read|GroupValue_Write"')
     expect(runtime).to.include('Begin with every action array empty')
     expect(runtime).to.include('trusted user goal actually needs that tool')
-    expect(runtime).to.include('Tool mapping: commands invokes KNX read/write')
+    expect(runtime).to.include('Tool mapping: catalogActions searches the complete local ETS catalog')
     expect(runtime).to.include('A neutral role is initial uncertainty, not a permanent restriction')
     expect(runtime).to.include('applyKnxAiGaRoleActionsToCatalog')
     expect(runtime).to.include('gaRoleExperience: nextConfig.gaRoleExperience')
@@ -2341,7 +2328,8 @@ describe('KNX AI conversational control', () => {
     expect(runtime).not.to.include("baseBody.reasoning_effort = 'low'")
     expect(runtime).not.to.include('Bionic can expose reasoning models')
     expect(runtime).not.to.include('LM Studio started the response')
-    expect(runtime).to.include("const localOutputTokenLimit = promptContextMode === 'minimal'\n        ? 2048\n        : promptContextMode === 'compact' ? 4096 : 0")
+    expect(runtime).not.to.include('localOutputTokenLimit')
+    expect(runtime).not.to.include('promptContextMode')
   })
 
   it('preserves LM Studio error strings instead of reducing them to HTTP 400', () => {
@@ -2364,58 +2352,8 @@ describe('KNX AI conversational control', () => {
   it('lets LM Studio apply the loaded model token budget', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include("const tokenLimitBody = node.llmProvider === 'lmstudio'")
-    expect(runtime).to.include('body: Object.assign(tokenLimitBody, schemaBody)')
-  })
-
-  it('retries local context-length failures with progressively compact prompts', async () => {
-    const originalMessages = [
-      { role: 'system', content: `SYSTEM START ${'S'.repeat(10000)} SYSTEM END` },
-      { role: 'user', content: `USER START ${'U'.repeat(20000)} CURRENT USER REQUEST: accendi la cucina` }
-    ]
-    const bodies = []
-    const response = await postLocalLlmWithContextFallbacks({
-      body: { model: 'gemma', messages: originalMessages },
-      enabled: true,
-      request: async body => {
-        bodies.push(body)
-        const chars = body.messages.reduce((total, message) => total + String(message.content || '').length, 0)
-        if (chars > 5200) {
-          throw new Error('HTTP 400: The number of tokens to keep from the initial prompt is greater than the context length.')
-        }
-        return { choices: [{ message: { content: 'ok' } }] }
-      }
-    })
-
-    expect(KNX_AI_LOCAL_CONTEXT_RETRY_CHAR_BUDGETS).to.deep.equal([9000, 5000])
-    expect(isLlmContextLengthError('tokens to keep from the initial prompt is greater than the context length')).to.equal(true)
-    expect(isLlmContextLengthError('HTTP 401: invalid API key')).to.equal(false)
-    expect(bodies).to.have.length(3)
-    expect(bodies[0].messages).to.equal(originalMessages)
-    const compactChars = bodies[2].messages.reduce((total, message) => total + String(message.content || '').length, 0)
-    expect(compactChars).to.be.at.most(5000)
-    expect(bodies[2].messages[0].content).to.include('SYSTEM START')
-    expect(bodies[2].messages[0].content).to.include('SYSTEM END')
-    expect(bodies[2].messages[1].content).to.include('USER START')
-    expect(bodies[2].messages[1].content).to.include('CURRENT USER REQUEST: accendi la cucina')
-    expect(response.choices[0].message.content).to.equal('ok')
-  })
-
-  it('compacts text parts without removing image parts', () => {
-    const imagePart = { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,abc' } }
-    const messages = compactLlmMessagesForContextRetry({
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'text', text: `QUESTION ${'x'.repeat(4000)} QUESTION END` },
-          imagePart
-        ]
-      }],
-      maxChars: 1024
-    })
-    expect(messages[0].content[0].text.length).to.be.at.most(1024)
-    expect(messages[0].content[0].text).to.include('QUESTION')
-    expect(messages[0].content[0].text).to.include('QUESTION END')
-    expect(messages[0].content[1]).to.equal(imagePart)
+    expect(runtime).to.include('const requestBody = Object.assign(tokenLimitBody, schemaBody)')
+    expect(runtime).not.to.include('context compacted by KNX AI')
   })
 
   it('preserves the context of an already loaded LM Studio model', async () => {
@@ -2571,36 +2509,7 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include("deriveOllamaApiUrl(tagsUrl, '/api/show')")
   })
 
-  it('supports finite 4K, 8K and 16K budgets plus the model context without a KNX AI cap', () => {
-    expect(KNX_AI_MINIMAL_CONTEXT_MAX_TOKENS).to.equal(16384)
-    expect(KNX_AI_COMPACT_CONTEXT_MAX_TOKENS).to.equal(65536)
-    expect(KNX_AI_PROMPT_CONTEXT_DEFAULT_TOKENS).to.equal(16384)
-    expect(KNX_AI_PROMPT_CONTEXT_UNLIMITED_TOKENS).to.equal(0)
-    expect(KNX_AI_LMSTUDIO_PROMPT_CONTEXT_MAX_TOKENS).to.equal(16384)
-    expect(KNX_AI_OLLAMA_CONTEXT_MAX_TOKENS).to.equal(16384)
-    expect(KNX_AI_PROMPT_CONTEXT_TOKEN_OPTIONS).to.deep.equal([4096, 8192, 16384])
-    expect(normalizeKnxAiPromptContextTokens()).to.equal(16384)
-    expect(normalizeKnxAiPromptContextTokens(0)).to.equal(0)
-    expect(normalizeKnxAiPromptContextTokens('unlimited')).to.equal(0)
-    expect(normalizeKnxAiPromptContextTokens(4096)).to.equal(4096)
-    expect(normalizeKnxAiPromptContextTokens(7000)).to.equal(8192)
-    expect(scaleKnxAiPromptLimit(1200, 4096, 200)).to.equal(300)
-    expect(scaleKnxAiPromptLimit(1200, 8192, 200)).to.equal(600)
-    expect(scaleKnxAiPromptLimit(1200, 16384, 200)).to.equal(1200)
-    expect(scaleKnxAiPromptLimit(1200, 0, 200)).to.equal(1200)
-    expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 8192 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 32768 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'ollama', contextLength: 131072 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 0 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 32768 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072, promptContextTokens: 4096 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 32768, promptContextTokens: 0 })).to.equal('compact')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 131072, promptContextTokens: 0 })).to.equal('full')
-    expect(resolveKnxAiPromptContextMode({ provider: 'lmstudio', contextLength: 0, promptContextTokens: 0 })).to.equal('minimal')
-    expect(resolveKnxAiPromptContextMode({ provider: 'openai_compat', contextLength: 8192 })).to.equal('full')
-    expect(resolveKnxAiPromptContextMode({ provider: 'anthropic', contextLength: 8192 })).to.equal('full')
-
+  it('always keeps the complete application context without a size mode', () => {
     const catalog = [
       { ga: '1/1/1', dpt: '1.001', label: 'Luce cucina comando', semantic: { area: 'cucina', kind: 'light' } },
       { ga: '1/1/2', dpt: '1.001', label: 'Luce cucina stato', semantic: { area: 'cucina', kind: 'light' } },
@@ -2609,34 +2518,133 @@ describe('KNX AI conversational control', () => {
     const selected = selectKnxAiCatalogForPrompt({
       catalog,
       question: 'Accendi la luce della cucina',
-      mode: 'minimal'
+      mode: 'ignored'
     })
-    expect(selected.map(item => item.ga)).to.deep.equal(['1/1/1', '1/1/2'])
+    expect(selected).to.deep.equal(catalog)
     expect(selectKnxAiCatalogForPrompt({ catalog, question: 'anything', mode: 'full' })).to.deep.equal(catalog)
 
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
-    expect(runtime).to.include("promptContextMode === 'minimal'")
-    expect(runtime).to.include('{ num_predict: localOutputTokenLimit }')
-    expect(runtime).to.include('selectKnxAiToolCatalogForPrompt({ catalog, question, mode: contextMode })')
-    expect(runtime).to.include('scaleKnxAiPromptLimit(5000, contextBudgetTokens, 1200)')
+    expect(runtime).not.to.include('llmPromptContextTokens')
+    expect(runtime).not.to.include('promptContextMode')
+    expect(runtime).not.to.include('contextBudgetTokens')
+    expect(runtime).not.to.include('localOutputTokenLimit')
+    expect(runtime).to.include('collectKnxAiCatalogObjects(catalogResearchResults)')
+    expect(runtime).not.to.include('preserveFullInput')
+    expect(runtime).not.to.include('await postLocalLlmWithContextFallbacks({')
+    expect(runtime).to.include('getHomeMemoryPromptContext({ maxChars: 0 })')
+    expect(runtime).to.include('buildKnxAiChatPromptContext({')
+  })
+
+  it('keeps every configured ETS object in the single complete context', () => {
+    const usefulCatalog = Array.from({ length: 700 }, (_, index) => ({
+      ga: `1/${Math.floor(index / 200)}/${(index % 200) + 1}`,
+      dpt: '1.001',
+      role: 'command',
+      label: `Luce generica ${index + 1}`,
+      semantic: { kind: 'light', area: '' }
+    }))
+    const target = {
+      ga: '2/1/28',
+      dpt: '5.001',
+      role: 'neutral',
+      label: 'Pala camera da letto Speed',
+      etsName: '(Ventilazione -> Camera) Pala camera da letto Speed',
+      semantic: { kind: 'unknown', area: '' }
+    }
+    const catalog = usefulCatalog.concat(target)
+
+    const minimal = selectKnxAiToolCatalogForPrompt({
+      catalog,
+      question: 'Trova gli oggetti ETS che contengono pala nel nome',
+      mode: 'minimal'
+    })
+    expect(minimal).to.deep.equal(catalog)
+
+    const full = selectKnxAiToolCatalogForPrompt({
+      catalog,
+      question: 'Trova gli oggetti ETS che contengono pala nel nome',
+      mode: 'full'
+    })
+    expect(full).to.deep.equal(catalog)
+    expect(selectKnxAiCatalogForPrompt({
+      catalog,
+      question: 'termine sicuramente assente',
+      mode: 'full'
+    })).to.deep.equal(catalog)
+  })
+
+  it('preserves alternate ETS names when duplicate CSV rows share a group address', () => {
+    const catalog = buildGaCatalogFromCsv([
+      {
+        ga: '2/1/28',
+        dpt: '5.001',
+        devicename: '(Ventilazione -> Camera) Velocità ventilatore'
+      },
+      {
+        ga: '2/1/28',
+        dpt: '5.001',
+        devicename: '(Ventilazione -> Camera) Pala camera da letto Speed'
+      }
+    ])
+
+    expect(catalog).to.have.length(1)
+    expect(catalog[0].aliases).to.include.members([
+      'Pala camera da letto Speed',
+      '(Ventilazione -> Camera) Pala camera da letto Speed'
+    ])
+    const selected = selectKnxAiToolCatalogForPrompt({
+      catalog,
+      question: 'Esistono oggetti con pala nel nome?',
+      mode: 'minimal'
+    })
+    expect(selected.map(item => item.ga)).to.deep.equal(['2/1/28'])
+  })
+
+  it('requires an explicit ETS selection and marks configured objects read-only', () => {
+    const catalog = [
+      { ga: '1/1/1', dpt: '1.001', role: 'command', label: 'Luce cucina' },
+      { ga: '1/1/2', dpt: '1.001', role: 'status', label: 'Stato cucina' },
+      { ga: '2/1/28', dpt: '5.001', role: 'command', label: 'Pala camera' }
+    ]
+    expect(applyKnxAiCatalogAccessConfiguration({
+      catalog,
+      exposeConfigured: false,
+      exposedGAs: catalog.map(item => item.ga)
+    })).to.deep.equal([])
+
+    const configured = applyKnxAiCatalogAccessConfiguration({
+      catalog,
+      exposeConfigured: true,
+      exposedGAs: ['1/1/1', '2/1/28'],
+      readOnlyGAs: ['2/1/28']
+    })
+    expect(configured.map(item => item.ga)).to.deep.equal(['1/1/1', '2/1/28'])
+    expect(configured[0].readOnly).to.equal(false)
+    expect(configured[1].readOnly).to.equal(true)
+
+    const write = normalizeKnxAiCommandCandidates({
+      commands: [{ event: 'GroupValue_Write', destination: '2/1/28', dpt: '5.001', payload: 50 }],
+      catalog: configured
+    })
+    expect(write.accepted).to.deep.equal([])
+    expect(write.rejected[0].reason).to.equal('destination is configured as read-only')
   })
 
   it('reports the operational limit and measures the real chat prompt payload', () => {
     expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 131072 })).to.deep.equal({
       provider: 'lmstudio',
-      tokens: 16384,
-      mode: 'fixed'
+      tokens: 131072,
+      mode: 'model-window'
     })
     expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 8192 }).tokens).to.equal(8192)
-    expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 131072, promptContextTokens: 4096 }).tokens).to.equal(4096)
-    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 16384, promptContextTokens: 8192 }).tokens).to.equal(8192)
-    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 0 }).tokens).to.equal(16384)
-    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 131072, promptContextTokens: 0 })).to.deep.equal({
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 16384 }).tokens).to.equal(16384)
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 0 }).tokens).to.equal(0)
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'ollama', contextLength: 131072 })).to.deep.equal({
       provider: 'ollama',
       tokens: 131072,
-      mode: 'fixed'
+      mode: 'model-window'
     })
-    expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 0, promptContextTokens: 0 })).to.deep.equal({
+    expect(resolveKnxAiOperationalContextLimit({ provider: 'lmstudio', contextLength: 0 })).to.deep.equal({
       provider: 'lmstudio',
       tokens: 0,
       mode: 'provider-managed'
@@ -2685,14 +2693,14 @@ describe('KNX AI conversational control', () => {
       mode: 'minimal'
     })
     expect(selected.map(item => item.ga)).to.include.members(['1/1/1', '1/1/2', '2/1/2'])
-    expect(selected).to.have.length.at.most(48)
+    expect(selected).to.deep.equal(routineCatalog)
 
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('initialRoutine.active && inspectionCommands.length > 0')
     expect(runtime).to.include('routineInspectionResults = inspection.metadata')
     expect(runtime).to.include("phase: 'plan'")
     expect(runtime).to.include('deferRoutineSpeech = awaitingConfirmation && routine.active')
-    expect(runtime).to.include('selectKnxAiToolCatalogForPrompt({ catalog, question, mode: contextMode })')
+    expect(runtime).to.include('collectKnxAiCatalogObjects(catalogResearchResults)')
     expect(runtime).not.to.include('isLikelyKnxAiRoutineRequest')
     expect(runtime).not.to.include('routineCandidate')
     expect(KNX_AI_ROUTINE_FEEDBACK_TIMEOUT_MS).to.equal(4000)
@@ -2709,17 +2717,20 @@ describe('KNX AI conversational control', () => {
 
     expect(storage.files.map(item => item.id)).to.include.members([
       'schedules',
-      'schedulesReadable'
+      'schedulesReadable',
+      'lastChatPrompt'
     ])
     expect(storage.files.map(item => item.id)).not.to.include('aiEducation')
     expect(storage.files.find(item => item.id === 'schedules').name)
       .to.equal('knxai-schedules-node_with_unsafe_chars.json')
+    expect(storage.files.find(item => item.id === 'lastChatPrompt').name)
+      .to.equal('knxai-last-chat-prompt-node_with_unsafe_chars.txt')
 
     expect(runtime).to.include('scheduleActions is a semantic planning tool, not an intent classifier')
     expect(runtime).to.include('regardless of wording or language. Do not require trigger phrases')
     expect(runtime).to.include('CURRENT LOCAL DATE, TIME AND TIMEZONE')
     expect(runtime).to.include('A recurring request for a bounded period must have an absolute expiresAt')
-    expect(runtime).to.include('const scheduleToolEnabled = !safeReadOnly && !routinePlanningPass && !scheduledTaskRun && !proactiveWebReview')
+    expect(runtime).to.include('const scheduleToolEnabled = !safeReadOnly && !routinePlanningPass && !scheduledTaskRun')
     expect(runtime).not.to.include('!routinePlanningPass && !webFinalPass && !scheduledTaskRun')
     expect(runtime).to.include('claimDueKnxAiSchedules({ store: storeBeforeClaim, now, limit: 1 })')
     expect(runtime).to.include('if (!scheduleScheduleStorePersist({ immediate: true }))')
@@ -2746,7 +2757,7 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('structuredOutcomeEmpty')
     expect(runtime).not.to.include('No response text was returned.')
     expect(runtime).to.include("knxAi: { type: 'sidebar_request', sessionId, sidebarRequestId: requestId }")
-    expect(runtime).to.include('includePackagedDocs: sidebarRequest')
+    expect(runtime).not.to.include('includePackagedDocs')
 
     expect(editor).to.include('aiEducation: { value: "" }')
     expect(editor).to.include('id="node-input-aiEducation"')
@@ -2767,6 +2778,9 @@ describe('KNX AI conversational control', () => {
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('llmAllowKnxCommands: { value: false }')
     expect(editor).to.include('llmRequireCommandConfirmation: { value: true }')
+    expect(editor).to.include('etsExposeConfigured: { value: false }')
+    expect(editor).to.include('etsExposedGAs: { value: [] }')
+    expect(editor).to.include('etsReadOnlyGAs: { value: [] }')
     expect(editor).to.include('chatAdapterPreset: { value: "none" }')
     expect(editor).not.to.include('proactiveEnabled:')
     expect(editor).not.to.include('proactiveOpenMinutes:')
@@ -2803,12 +2817,11 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include('node.patternMaxLagMs = 1500')
     expect(runtime).to.include('node.patternMinCount = 8')
     expect(runtime).to.include('node.llmIncludeRaw = false')
-    expect(runtime).to.include('node.llmIncludeDocsSnippets = true')
-    expect(runtime).to.include("languageHint = '', includeDocs = true")
-    expect(runtime).to.include('if (includeDocs && node.llmIncludeDocsSnippets)')
+    expect(runtime).not.to.include('llmIncludeDocsSnippets')
+    expect(runtime).not.to.include('buildRelevantDocsContext')
     expect(runtime).to.include('ret = await callConversationalLLM({')
     expect(runtime).to.include('languageHint: requestLanguage')
-    expect(runtime).to.include('includeDocs: includePackagedDocs,\n        contextBudgetTokens')
+    expect(runtime).not.to.include('includePackagedDocs')
     expect(runtime).to.include("knxAi: { type: 'sidebar_request', sessionId, sidebarRequestId: requestId }")
     expect(runtime).not.to.include("'camerasDocs'")
     expect(runtime).to.include('maxKb: HOME_MEMORY_DEFAULT_KB')
@@ -2866,6 +2879,7 @@ describe('KNX AI conversational control', () => {
       const localeRoot = path.join(root, 'nodes', 'locales', locale)
       const messages = JSON.parse(fs.readFileSync(path.join(localeRoot, 'knxUltimateAI.json'), 'utf8'))
       expect(messages.knxUltimateAI.sections.quickSetup).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.sections.etsAccess).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupAssistant).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.groupChatHome).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.sections.detectedAdapters).to.be.a('string').and.not.equal('')
@@ -2874,13 +2888,14 @@ describe('KNX AI conversational control', () => {
       expect(messages.knxUltimateAI.sections).not.to.have.property('storage')
       expect(messages.knxUltimateAI.properties.llmAllowKnxCommands).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmRequireCommandConfirmation).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.properties.llmPromptContextTokens).to.be.a('string').and.not.equal('')
       expect(messages.knxUltimateAI.properties.llmReasoningEffort).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.selectlists.promptContext.small).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.selectlists.promptContext.medium).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.selectlists.promptContext.full).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.selectlists.promptContext.unlimited).to.be.a('string').and.not.equal('')
-      expect(messages.knxUltimateAI.messages.promptContextHint).to.be.a('string').and.not.equal('')
+      expect(messages.knxUltimateAI.properties).not.to.have.property('llmPromptContextTokens')
+      expect(messages.knxUltimateAI.selectlists).not.to.have.property('promptContext')
+      expect(messages.knxUltimateAI.messages).not.to.have.property('promptContextHint')
+      ;['etsAccessHint', 'etsFilterPlaceholder', 'etsSelected', 'etsReadOnly', 'etsReadOnlyBulk', 'etsNoGateway', 'etsNoGa', 'etsCsvError']
+        .forEach(key => expect(messages.knxUltimateAI.messages[key]).to.be.a('string').and.not.equal(''))
+      ;['etsSelectAll', 'etsSelectNone', 'etsReadOnlyAll', 'etsReadOnlyNone']
+        .forEach(key => expect(messages.knxUltimateAI.buttons[key]).to.be.a('string').and.not.equal(''))
       ;['default', ...KNX_AI_REASONING_EFFORT_OPTIONS].forEach(level => {
         expect(messages.knxUltimateAI.selectlists.reasoningEffort[level]).to.be.a('string').and.not.equal('')
       })
@@ -3116,6 +3131,8 @@ describe('KNX AI conversational control', () => {
       'node-input-llmRequireCommandConfirmation'
     ]
     preservedFieldIds.forEach(id => expect(editor).to.include(`id="${id}"`))
+    ;['knx-ai-ets-ga-filter', 'knx-ai-ets-ga-all', 'knx-ai-ets-ga-none', 'knx-ai-ets-ga-ro-all', 'knx-ai-ets-ga-ro-none', 'knx-ai-ets-ga-list']
+      .forEach(id => expect(editor).to.include(`id="${id}"`))
     expect(editor).not.to.include('id="node-input-ttsUltimateNodeId"')
 
     const template = editor.match(/<script[^>]*data-template-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)[1]
@@ -3137,9 +3154,10 @@ describe('KNX AI conversational control', () => {
       return currentIndex
     }, -1)
     expect((tabs.match(/href="#knx-ai-tabs-/g) || [])).to.have.length(2)
-    expect((tabs.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(4)
+    expect((tabs.match(/class="knx-ai-accordion-subsection"/g) || [])).to.have.length(5)
     const mountPairs = [
       ['knx-ai-mount-assistant-setup', 'knx-ai-tab-llm-connection'],
+      ['knx-ai-mount-ets-access', 'knx-ai-tab-ets-access'],
       ['knx-ai-mount-assistant-advanced', 'knx-ai-tab-advanced'],
       ['knx-ai-mount-chat-adapter', 'knx-ai-tab-chat-adapter'],
       ['knx-ai-mount-home-intelligence', 'knx-ai-tab-home-intelligence']
@@ -3149,7 +3167,8 @@ describe('KNX AI conversational control', () => {
     })
     const quickSetup = template.match(/<div id="knx-ai-tab-llm-connection">([\s\S]*?)<div id="knx-ai-tab-chat-adapter">/i)[1]
     const chatAdapter = template.match(/<div id="knx-ai-tab-chat-adapter">([\s\S]*?)<div id="knx-ai-tab-home-intelligence">/i)[1]
-    const homeIntelligence = template.match(/<div id="knx-ai-tab-home-intelligence">([\s\S]*?)<div id="knx-ai-tab-advanced">/i)[1]
+    const homeIntelligence = template.match(/<div id="knx-ai-tab-home-intelligence">([\s\S]*?)<div id="knx-ai-tab-ets-access">/i)[1]
+    const etsAccess = template.match(/<div id="knx-ai-tab-ets-access">([\s\S]*?)<div id="knx-ai-tab-advanced">/i)[1]
     const advancedAi = template.match(/<div id="knx-ai-tab-advanced">([\s\S]*?)<\/div>\s*<\/div>\s*$/i)[1]
 
     const quickSetupFieldIds = [
@@ -3159,13 +3178,12 @@ describe('KNX AI conversational control', () => {
       'node-input-llmModel',
       'node-input-llmReasoningEffort',
       'node-input-llmContextLength',
-      'node-input-llmPromptContextTokens',
       'node-input-llmAllowKnxCommands',
       'node-input-llmRequireCommandConfirmation'
     ]
     quickSetupFieldIds.forEach(id => expect(quickSetup).to.include(`id="${id}"`))
     expect(quickSetup).to.include('option value="lmstudio"')
-    expect(quickSetup).to.include('option value="0" data-i18n="knxUltimateAI.selectlists.promptContext.unlimited"')
+    expect(quickSetup).not.to.include('node-input-llmPromptContextTokens')
     ;['default', ...KNX_AI_REASONING_EFFORT_OPTIONS].forEach(level => {
       expect(quickSetup).to.include(`option value="${level}" data-i18n="knxUltimateAI.selectlists.reasoningEffort.${level}"`)
     })
@@ -3183,6 +3201,10 @@ describe('KNX AI conversational control', () => {
     expect(chatAdapter).to.include('id="node-input-chatOutputCode"')
     expect(homeIntelligence).not.to.include('id="node-input-homeMemoryMaxKb"')
     expect(homeIntelligence).to.include('id="node-input-aiEducation"')
+    expect(etsAccess).to.include('id="knx-ai-ets-ga-filter"')
+    expect(etsAccess).to.include('id="knx-ai-ets-ga-list"')
+    expect(etsAccess).to.include('id="knx-ai-ets-ga-ro-all"')
+    expect(etsAccess).to.include('id="knx-ai-ets-ga-ro-none"')
     expect(chatAdapter).to.include('id="node-input-chatInputCode-editor"')
     expect(chatAdapter).to.include('id="node-input-chatOutputCode-editor"')
     expect(editor).to.include('RED.editor.createEditor({')
@@ -3204,7 +3226,6 @@ describe('KNX AI conversational control', () => {
       'node-input-llmBaseUrl',
       'node-input-llmReasoningEffort',
       'node-input-llmContextLength',
-      'node-input-llmPromptContextTokens',
       'node-input-chatAdapterPreset',
       'node-input-chatInputCode',
       'node-input-chatOutputCode',
@@ -3304,11 +3325,11 @@ describe('KNX AI conversational control', () => {
     ].forEach(property => expect(runtime).not.to.include(`config.${property}`))
   })
 
-  it('always includes the Node-RED project inventory without a legacy toggle', () => {
+  it('omits the duplicate Node-RED project inventory and includes Function source only on demand', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).not.to.include('config.llmIncludeFlowContext')
     expect(runtime).not.to.include('node.llmIncludeFlowContext')
-    expect(runtime).to.include('flowContext = buildKnxUltimateProjectInventory()')
+    expect(runtime).not.to.include('buildKnxUltimateProjectInventory')
     expect(runtime).to.include('const wantsFunctionNodeSourceContext = shouldIncludeFunctionNodeSourceContext(question)')
   })
 
@@ -3366,17 +3387,18 @@ describe('KNX AI conversational control', () => {
         serverKNX: { userDir: path.join('/tmp', 'knx-ai-history-test') },
         llmProvider: 'lmstudio',
         llmContextLength: 131072,
-        llmPromptContextTokens: 8192,
         _lastChatPromptUsage: { bytes: 4096, estimatedInputTokens: 1024, exactInputTokens: 900 }
       },
       redUserDir: '/tmp'
     })
-    expect(overview.contextLimit).to.deep.equal({ provider: 'lmstudio', tokens: 8192, mode: 'fixed' })
+    expect(overview.contextLimit).to.deep.equal({ provider: 'lmstudio', tokens: 131072, mode: 'model-window' })
     expect(overview.lastPromptUsage).to.deep.equal({ bytes: 4096, estimatedInputTokens: 1024, exactInputTokens: 900 })
     expect(overview.sources).to.include.members(['knxTraffic', 'adapterHistory'])
     expect(overview.sources).to.include('cameras')
     expect(overview.sources).not.to.include('camerasDocs')
     expect(overview.sources).not.to.include('ttsUltimate')
+    expect(overview.files.find(item => item.id === 'lastChatPrompt').path)
+      .to.include(path.join('knxai', 'debug', 'knxai-last-chat-prompt-ai-node-1.txt'))
     expect(overview.telegramDirectories.map(item => item.id)).to.deep.equal([
       'archiveRoot',
       'nodeArchive',
@@ -3386,6 +3408,9 @@ describe('KNX AI conversational control', () => {
     expect(overview.telegramDirectories.find(item => item.id === 'adapterNodeArchive').path)
       .to.include(path.join('knxai', 'adapter-history', 'ai-node-1'))
     expect(overview.telegramFilePattern).to.equal('YYYY-MM-DD.knxctx')
+    const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(runtime).to.include('persistLastChatPromptDebug({ systemPrompt, userContent })')
+    expect(runtime).to.include('This file contains prompt text only. API keys and HTTP headers are not included.')
   })
 
   it('builds an isolated message for the dedicated TTS Ultimate output', () => {
@@ -3425,20 +3450,22 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include("mode: 'output',\n            output: 5")
   })
 
-  it('gives every chat live context, omits packaged docs from adapters, and keeps them in the sidebar', () => {
+  it('uses a deduplicated 20-minute live context and never embeds packaged documentation', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('const analysisContext = buildLLMPrompt({')
-    expect(runtime).to.include("compact: contextMode === 'full' ? false : contextMode")
-    expect(runtime).to.include('includeDocs: includePackagedDocs')
-    expect(runtime).to.include('includePackagedDocs: sidebarRequest')
+    expect(runtime).not.to.include('contextMode')
+    expect(runtime).not.to.include('includePackagedDocs')
+    expect(runtime).not.to.include('buildRelevantDocsContext')
     expect(runtime).to.include('ret = await callConversationalLLM({')
     expect(runtime).to.include('languageHint: requestLanguage')
     expect(runtime).to.include('node._sidebarAskCaptures.set(requestId, capture)')
     expect(runtime).to.include("knxAi: { type: 'sidebar_request', sessionId, sidebarRequestId: requestId }")
-    expect(runtime).to.include("if (mode === 'full') return source.slice(0, 600)")
+    expect(runtime).to.include('const selectKnxAiCatalogForPrompt = ({ catalog } = {}) => Array.isArray(catalog) ? catalog.slice() : []')
     expect(runtime).to.include('const adapterPromptEvents = selectAdapterEventsForPrompt({')
-    expect(runtime).to.include('KNX historical archive summary (compact context):')
-    expect(runtime).to.include('Adapter historical archive summary (compact context):')
+    expect(runtime).to.include('KNX_AI_DEFAULT_PROMPT_HISTORY_MINUTES = 20')
+    expect(runtime).not.to.include('KNX historical archive summary:')
+    expect(runtime).not.to.include('Adapter historical archive summary:')
+    expect(runtime).not.to.include("'User request:'")
     expect(runtime).to.include('persistAdapterEventToDisk({ event: Object.assign({}, providerEvent, event), adapter, provider })')
     expect(runtime).not.to.include('const analysisContext = buildLLMPrompt({ question, summary, compact: true })')
   })
@@ -3723,40 +3750,30 @@ describe('KNX AI provider-independent web access', () => {
     expect(runtime).not.to.match(/classifyKnxAiWeb|detectKnxAiWebIntent|weatherIntent|meteoIntent/)
   })
 
-  it('keeps proactive Web reviews behind both opt-ins and evaluates configured Education at run time', () => {
+  it('removes fixed proactive Web polling and requires clarification before ambiguous tool use', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
-    const schedulerStart = runtime.lastIndexOf('    if (node._webProactiveTimer) clearInterval(node._webProactiveTimer)')
-    const schedulerEnd = runtime.indexOf('    if (node._busConnectionWatchTimer)', schedulerStart)
-    expect(schedulerStart).to.be.greaterThan(-1)
-    expect(schedulerEnd).to.be.greaterThan(schedulerStart)
-    const scheduler = runtime.slice(schedulerStart, schedulerEnd)
+    const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.html'), 'utf8')
 
-    expect(scheduler).to.include('node.webAccessEnabled === true')
-    expect(scheduler).to.include('node.webProactiveEnabled === true')
-    expect(scheduler).to.include("String(node.aiEducation || '').trim()")
-    expect(scheduler).to.include('node._webProactiveTimer = setInterval(runScheduledWebReview, intervalMs)')
-    expect(scheduler).to.include('node._webProactiveStartupTimer = setTimeout(() => {')
-
-    const runnerStart = runtime.indexOf('    const runProactiveWebEducationReview = async () => {')
-    const runnerEnd = runtime.indexOf('    node.refreshSetupDoctorProviderProbe =', runnerStart)
-    expect(runnerStart).to.be.greaterThan(-1)
-    expect(runnerEnd).to.be.greaterThan(runnerStart)
-    const runner = runtime.slice(runnerStart, runnerEnd)
-    expect(runner).to.include("const education = String(node.aiEducation || '').trim()")
-    expect(runner).not.to.include('getAiEducation()')
-    expect(runner).to.include('node.webAccessEnabled !== true')
-    expect(runner).to.include('node.webProactiveEnabled !== true')
-    expect(runner).to.include('!education')
-    expect(runner).to.include('!sessionId')
-    expect(runner).to.include('getKnxAiWebBudgetSnapshot().remaining <= 0')
-    expect(runner).to.include('handleCommand(buildProactiveWebSyntheticInput({')
-    expect(runtime).to.include('proactiveWebReview: true')
-    expect(KNX_AI_WEB_PROACTIVE_INTERVAL_OPTIONS).to.deep.equal([5, 10, 15, 30, 60, 180])
-    expect(normalizeKnxAiWebProactiveIntervalMinutes(5)).to.equal(5)
-    expect(normalizeKnxAiWebProactiveIntervalMinutes(10)).to.equal(10)
+    ;[
+      'webProactiveEnabled',
+      'webProactiveIntervalMinutes',
+      '_webProactiveTimer',
+      '_webProactiveStartupTimer',
+      'runProactiveWebEducationReview',
+      'buildProactiveWebSyntheticInput',
+      'proactiveWebReview',
+      'proactive_web_notification'
+    ].forEach(value => expect(runtime, value).not.to.include(value))
+    expect(editor).not.to.include('webProactive')
+    expect(runtime).to.include('Before using any tool, decide whether the trusted user request states a sufficiently clear goal')
+    expect(runtime).to.include('ask one concise clarification in reply and return every action array empty')
+    expect(runtime).to.include('Never guess the user’s intent or run exploratory tools merely to discover what the user meant')
+    expect(runtime).to.include('AI Education alone never starts a Web operation')
+    expect(runtime).to.include('Use webActions only when the current trusted request, or an explicit scheduled task being executed, is clear enough')
+    expect(runtime).to.include('ask the user one concise clarification before requesting Web access')
   })
 
-  it('keeps Web optional in Setup Doctor and flags only incomplete proactive opt-in', () => {
+  it('keeps request-driven Web access optional in Setup Doctor', () => {
     const snapshot = overrides => buildKnxAiSetupDoctorSnapshot({
       language: 'it',
       gateway: { configured: true, connectionState: 'connected', name: 'Gateway' },
@@ -3775,55 +3792,24 @@ describe('KNX AI provider-independent web access', () => {
       providerProbe: { state: 'reachable', modelCount: 1, selectedModelAvailable: true }
     })
 
-    const disabled = snapshot({ webAccessEnabled: false, webProactiveEnabled: false })
+    const disabled = snapshot({ webAccessEnabled: false })
     expect(disabled.status).to.equal('ready')
     expect(disabled.checks.find(check => check.id === 'webAccess')).to.include({ status: 'info', blocking: false })
-    expect(disabled.checks.find(check => check.id === 'proactiveWeb')).to.include({ status: 'info', blocking: false })
+    expect(disabled.checks.some(check => check.id === 'proactiveWeb')).to.equal(false)
 
     const enabled = snapshot({ webAccessEnabled: true, webMaxCallsPerHour: 12 })
     expect(enabled.status).to.equal('ready')
     expect(enabled.checks.find(check => check.id === 'webAccess')).to.include({ status: 'pass', blocking: false })
     expect(enabled.integrations.web).to.include({ enabled: true, maxCallsPerHour: 12, remainingCallsThisHour: 12 })
-
-    const missingEducation = snapshot({
-      webAccessEnabled: true,
-      webProactiveEnabled: true,
-      webProactiveIntervalMinutes: 5,
-      aiEducation: ''
-    })
-    expect(missingEducation.status).to.equal('attention')
-    expect(missingEducation.checks.find(check => check.id === 'proactiveWeb')).to.include({ status: 'warn', blocking: false })
-
-    const missingRecipient = snapshot({
-      webAccessEnabled: true,
-      webProactiveEnabled: true,
-      webProactiveIntervalMinutes: 5,
-      webProactiveRecipientKnown: false,
-      aiEducation: 'Controlla il Web in modo proattivo.'
-    })
-    expect(missingRecipient.status).to.equal('attention')
-    expect(missingRecipient.checks.find(check => check.id === 'proactiveWeb')).to.include({ status: 'warn', blocking: false })
-    expect(missingRecipient.checks.find(check => check.id === 'proactiveWeb').detail).to.include('chat destinataria')
-
-    const proactiveReady = snapshot({
-      webAccessEnabled: true,
-      webProactiveEnabled: true,
-      webProactiveIntervalMinutes: 5,
-      aiEducation: 'Controlla periodicamente sul Web ciò che ritieni rilevante secondo queste regole.'
-    })
-    expect(proactiveReady.status).to.equal('ready')
-    expect(proactiveReady.checks.find(check => check.id === 'proactiveWeb')).to.include({ status: 'pass', blocking: false })
-    expect(proactiveReady.integrations.web.proactiveIntervalMinutes).to.equal(5)
+    expect(enabled.integrations.web).not.to.have.any.keys('proactiveEnabled', 'proactiveRecipientKnown', 'proactiveIntervalMinutes')
   })
 
-  it('ships the Web editor controls, 5/10-minute choices, and localized guidance in every language', () => {
+  it('ships only request-driven Web controls and localized clarification guidance', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
-    ;['webAccessEnabled', 'webProactiveEnabled', 'webProactiveIntervalMinutes', 'webMaxCallsPerHour']
+    ;['webAccessEnabled', 'webMaxCallsPerHour']
       .forEach(field => expect(editor).to.include(`id="node-input-${field}"`))
-    ;[5, 10, 15, 30, 60, 180].forEach(value => {
-      expect(editor).to.include(`<option value="${value}" data-i18n="knxUltimateAI.selectlists.webProactiveInterval.${value}"></option>`)
-    })
+    expect(editor).not.to.include('webProactive')
 
     const locales = [
       ['en', 'KNX AI.md'],
@@ -3837,11 +3823,8 @@ describe('KNX AI provider-independent web access', () => {
       const catalog = JSON.parse(fs.readFileSync(path.join(root, 'nodes', 'locales', locale, 'knxUltimateAI.json'), 'utf8')).knxUltimateAI
       expect(catalog.sections.webIntelligence, locale).to.be.a('string').and.not.equal('')
       expect(catalog.properties.webAccessEnabled, locale).to.be.a('string').and.not.equal('')
-      expect(catalog.properties.webProactiveEnabled, locale).to.be.a('string').and.not.equal('')
       expect(catalog.messages.webAccessHint, locale).to.be.a('string').and.not.equal('')
-      expect(catalog.messages.webProactiveHint, locale).to.be.a('string').and.not.equal('')
-      expect(catalog.selectlists.webProactiveInterval['5'], locale).to.be.a('string').and.not.equal('')
-      expect(catalog.selectlists.webProactiveInterval['10'], locale).to.be.a('string').and.not.equal('')
+      expect(JSON.stringify(catalog), locale).not.to.include('webProactive')
       const helpHtml = fs.readFileSync(path.join(root, 'nodes', 'locales', locale, 'knxUltimateAI.html'), 'utf8')
       const helpMatch = helpHtml.match(/<script[^>]*data-help-name="knxUltimateAI"[^>]*>([\s\S]*?)<\/script>/i)
       expect(helpMatch, locale).to.not.equal(null)
@@ -4790,7 +4773,7 @@ describe('KNX AI Setup Doctor and onboarding', () => {
       })
       expect(snapshot.statusLabel, language).to.be.a('string').and.not.equal('')
       expect(snapshot.summary, language).to.be.a('string').and.not.equal('')
-      expect(snapshot.checks, language).to.have.length(12)
+      expect(snapshot.checks, language).to.have.length(11)
       snapshot.checks.forEach(check => {
         expect(check.title, `${language}:${check.id}:title`).to.be.a('string').and.not.equal('')
         expect(check.detail, `${language}:${check.id}:detail`).to.be.a('string').and.not.equal('')
