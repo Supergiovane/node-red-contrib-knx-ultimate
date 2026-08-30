@@ -26,6 +26,7 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmReasoningEffort": "推理强度",
+      "llmLocalContextTokens": "本地上下文窗口",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "允许 AI 读取 KNX 状态并控制执行器",
@@ -46,7 +47,7 @@
     },
     "selectlists": {
       "llmProvider": {
-        "openai_compat": "OpenAI-compatible (chat/completions)",
+        "openai_compat": "OpenAI / OpenAI 兼容",
         "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama（本地）",
         "lmstudio": "Bionic LM Studio"
@@ -60,6 +61,16 @@
         "high": "高",
         "xhigh": "超高",
         "max": "最大"
+      },
+      "localContext": {
+        "maximum": "最大值",
+        "k4": "4K",
+        "k8": "8K",
+        "k16": "16K",
+        "k32": "32K",
+        "k64": "64K",
+        "k128": "128K",
+        "k256": "256K"
       },
       "chatAdapter": {
         "none": "无适配器"
@@ -83,7 +94,7 @@
       "lmStudioContextConfigured": "模型当前上下文",
       "lmStudioContextFailed": "无法配置模型上下文",
       "lmStudioContextCurrentlyLoaded": "当前已加载",
-      "etsAccessHint": "勾选要供 KNX AI 本地 ETS 检索查询的组地址。首次配置时会显示为全部选中；保存并部署后生效。只读地址仍可被模型检索和读取，但所有写入都会在本地被阻止。",
+      "etsAccessHint": "选择 KNX AI 可用的组地址。每个选中的地址都处于活动状态且可读取；每个未标记为只读的选中地址都可写入。云端提供商会收到完整的已选语义 ETS 目录；本地模型会接收所选上下文窗口能够容纳的内容，并可在本地检索缺失的详细信息。",
       "etsFilterPlaceholder": "按名称、组地址或 DPT 筛选…",
       "etsSelected": "已选择",
       "etsReadOnly": "只读",
@@ -92,6 +103,8 @@
       "etsNoGa": "未找到组地址。请在 KNX 网关中导入 ETS 列表。",
       "etsCsvError": "无法从网关加载组地址列表。",
       "reasoningEffortHint": "适用于支持推理强度的模型。选择“自动”时不发送偏好；如果提供商或模型拒绝所选值，KNX AI 会在不发送该值的情况下重试。",
+      "localContextBudget": "本地上下文窗口",
+      "localContextHint": "仅设置本地模型的最大上下文。选择“最大值”时使用所选模型的已知上下文窗口，并隐藏不可用的大小。云端提供商会忽略此选项并接收完整的已选语义 ETS 目录。",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -123,7 +136,7 @@
       "chatContextDirectoriesTitle": "KNX 报文归档",
       "chatContextSourceKnxTraffic": "派生的 KNX 分析，以及默认最近 20 分钟或明确时间范围内的最新精确事件；事件数量会自动适配本地模型的活动窗口。",
       "chatContextSourceAdapterHistory": "同一时间范围内的最新精确适配器事件；事件数量会自动适配本地模型的活动窗口。",
-      "chatContextSourceEtsProject": "完整的已选 ETS 目录按需在本地检索；只有检索到的对象进入提示词。仅在明确审查代码时加入 Function 源码。",
+      "chatContextSourceEtsProject": "云端模型接收完整的已选语义 ETS 目录。本地模型在窗口容纳时接收完整目录，否则接收适配窗口的索引以及模型请求的精确详情。仅在明确审查代码时加入 Function 源码。",
       "chatContextSourceMemoryEducation": "会话上下文、AI 教育、有界家庭记忆和活动计划。",
       "chatContextSourceCameras": "检测到的摄像机及其可用功能。",
       "chatContextSourceBadge": "来源",

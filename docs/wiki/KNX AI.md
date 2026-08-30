@@ -55,7 +55,7 @@ KNX AI no longer exposes an application context-size selector. The complete sele
 Before each request to a local model, KNX AI reserves answer space from the active 8K/16K window. It automatically bounds the newest conversation turns, exact archive rows, learned home memory, Web results, schedules, requested Function source, retrieved ETS objects and camera metadata. This is proactive prompt construction, not an oversized-request retry, and the complete selected ETS catalog remains available locally through retrieval.
 
 ### ETS object access
-The **ETS object access** section reproduces the group-address selector used by IoT Bridge's MQTT profile. Filter the imported list, select all or none, and mark the currently shown addresses read-only in bulk or one row at a time. Only selected addresses are available to the model. Read-only addresses remain visible and can receive `GroupValue_Read`, but local validation rejects every `GroupValue_Write` even when the address has a command role. There is no migration or legacy fallback: after upgrading, open each existing KNX AI node, save its explicit selection and Deploy; until then its AI catalog is empty.
+The **ETS object access** section reproduces the group-address selector used by IoT Bridge's MQTT profile. Filter the imported list, select all or none, and mark the currently shown addresses read-only in bulk or one row at a time. Only selected addresses are available to the model. Every selected address is active and readable; read-only addresses remain visible but local validation rejects every `GroupValue_Write` to them. There is no migration or legacy fallback: after upgrading, open each existing KNX AI node, save its explicit selection and Deploy; until then its AI catalog is empty.
 
 The node's canvas status is deliberately reserved for the latest incoming request and the localized “I’m thinking…” state while the LLM is running. KNX telegrams, gateway updates, traffic rates, ready messages and technical results never overwrite it; they remain available through the node outputs, logs and Assistant data.
 
@@ -108,13 +108,11 @@ In the Vue web UI, open **Settings → AI Chat Learning** to view and edit the e
 
 Only the native V3 format is supported. Previous Markdown/JSON V2 and Base64 V1 files are deliberately not read, imported or migrated; the old `.md` file is left untouched and KNX AI starts a new `.knxctx` context. The 50-session and 512 KB limits still apply.
 
-### Learned KNX group-address roles
-The `neutral` role means initial uncertainty, not a permanent control ban. The model can use the structured `gaRoleActions` tool to learn that an exact ETS group address is a command, status or neutral object from trusted user teaching, persistent chat guidance, AI Education or unequivocal ETS project semantics. There is no required keyword or role intent; if the evidence is ambiguous, the model asks for clarification instead of learning.
-
-The learned role, reason and evidence are stored per node in `<userDir>/knxai/config/knxai-config-<node-id>.json` and synchronized into the bounded semantic home memory. A role learned as `command` can validate a write in the same answer and remains available after restart; the model can also forget it and restore automatic classification. Learning never invents a GA, changes its ETS DPT, bypasses payload validation or skips the configured write confirmation.
+### ETS object access
+ETS object access is the only operational authority. Every address selected in **ETS object access** is active and readable; a selected address is writable unless it is marked **Read only**. No inferred role classification is sent to the chat model or used to authorize a write.
 
 ## Education-driven proactive home intelligence and bounded memory
-From ETS hierarchy, names, roles and DPTs, the node builds a deterministic semantic model for covers, windows, doors, lights, temperature, climate, occupancy and alarms using Italian, English, German, French, Spanish and Chinese terms. Its proactive detector watches only reliably recognized non-command cover/window/door states.
+From ETS hierarchy, names and DPTs, the node builds a deterministic semantic model for covers, windows, doors, lights, temperature, climate, occupancy and alarms using Italian, English, German, French, Spanish and Chinese terms. Its proactive detector watches only reliably recognized read-only cover/window/door states.
 
 There is no separate switch or advanced proactive configuration. A candidate is evaluated only when the LLM is enabled and **AI Education** explicitly requests that notification. Education is the sole policy for conditions, open duration, quiet hours and repetition. The AI receives the current duration, local date/time and recent notification history; it decides whether to notify and when to reconsider the same open condition. Without an explicit Education rule, or when the LLM cannot evaluate it, no notification is sent.
 
@@ -143,7 +141,7 @@ With this Education:
 2. If the office cover remains open, the LLM reads Education and suppresses that candidate notification.
 3. If Alex later asks to close the living-room cover, KNX AI prepares the exact ETS command and still follows normal validation and confirmation before output 4.
 
-Use descriptive ETS hierarchy/object names and correct status/command roles. Education can personalize decisions and wording, but it cannot authorize an invented group address, change a DPT, or bypass KNX validation.
+Use descriptive ETS hierarchy/object names and mark feedback objects read-only when appropriate. Education can personalize decisions and wording, but it cannot authorize an invented group address, change a DPT, or bypass KNX validation.
 
 ## Quick workflow: KNX control
 1. Import the ETS CSV into the gateway and configure the LLM provider, model, and credentials.
@@ -174,7 +172,7 @@ All fields exposed in the KNX AI editor are listed below.
 - **Maximum Web calls per hour**: Rolling budget shared by conversations and user-created scheduled tasks. Each turn or scheduled run can use at most three operations in total.
 - **Telegram voice**: Available only with the **OpenAI-compatible** provider. It automatically reuses that provider's endpoint and API key with the built-in `gpt-4o-mini-transcribe`, `gpt-4o-mini-tts`, and `alloy` defaults; there are no separate voice settings.
 - **Chat model compatibility**: The selected model must support the configured Chat Completions endpoint. Legacy completion-only models such as `gpt-3.5-turbo-instruct` are excluded when the model list is refreshed. If the provider rejects a custom temperature or token-limit parameter, KNX AI retries after removing or replacing only that incompatible field.
-- **Allow AI to read KNX states and control actuators**: Enables output 4 and is off by default. Exact ETS catalog objects may be read; writes are accepted only for objects classified as `command`. Unknown, DPT-mismatched, invalid, or excessive operations and writes to status/neutral objects are rejected locally.
+- **Allow AI to read KNX states and control actuators**: Enables output 4 and is off by default. Every selected ETS object may be read; every selected object not marked **Read only** may be written. Unknown, DPT-mismatched, invalid or excessive operations and writes to read-only objects are rejected locally.
 - **Ask for confirmation before sending KNX commands**: Enabled by default. Shows the validated changes first and emits no KNX command until the same chat session confirms them. Whenever commands are awaiting confirmation, the response always appends the exact confirmation/cancellation instructions in the language of the current request. Commands are validated again immediately before output.
 - **Input/output message adapter**: Defaults to **No adapter**. Selecting an adapter loads its predefined input/output mapping pair; both mappings remain hidden in the editor.
 - **AI Education**: Fixed, authoritative node guidance edited only by the user and applied with Deploy. The model reads it but never writes it. Standing proactive-home policies belong here; facts and preferences requested in chat go to learned memory, while one-time or recurring plans, reminders, monitors and future commands go to the semantic scheduler without trigger phrases or intent routing.

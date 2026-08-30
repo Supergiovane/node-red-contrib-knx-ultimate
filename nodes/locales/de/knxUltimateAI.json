@@ -26,6 +26,7 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmReasoningEffort": "Denkaufwand",
+      "llmLocalContextTokens": "Lokales Kontextfenster",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "KI darf KNX-Zustände lesen und Aktoren steuern",
@@ -46,7 +47,7 @@
     },
     "selectlists": {
       "llmProvider": {
-        "openai_compat": "OpenAI-compatible (chat/completions)",
+        "openai_compat": "OpenAI / OpenAI-kompatibel",
         "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama (lokal)",
         "lmstudio": "Bionic LM Studio"
@@ -60,6 +61,16 @@
         "high": "Hoch",
         "xhigh": "Sehr hoch",
         "max": "Maximal"
+      },
+      "localContext": {
+        "maximum": "Maximum",
+        "k4": "4K",
+        "k8": "8K",
+        "k16": "16K",
+        "k32": "32K",
+        "k64": "64K",
+        "k128": "128K",
+        "k256": "256K"
       },
       "chatAdapter": {
         "none": "Kein Adapter"
@@ -90,7 +101,7 @@
       "lmStudioContextConfigured": "Aktiver Modellkontext",
       "lmStudioContextFailed": "Der Modellkontext konnte nicht konfiguriert werden",
       "lmStudioContextCurrentlyLoaded": "derzeit geladen",
-      "etsAccessHint": "Wähle die Gruppenadressen aus, die über die lokale ETS-Suche von KNX AI durchsuchbar sein sollen. Bei der ersten Konfiguration werden alle als ausgewählt angezeigt; speichere und führe Deploy aus. Eine schreibgeschützte Adresse bleibt durchsuchbar und lesbar, aber jeder Schreibzugriff wird lokal blockiert.",
+      "etsAccessHint": "Wähle die für KNX AI verfügbaren Gruppenadressen. Jede ausgewählte Adresse ist aktiv und lesbar; jede ausgewählte Adresse ohne Markierung Nur Lesen ist schreibbar. Cloud-Anbieter erhalten den vollständigen ausgewählten semantischen ETS-Katalog; lokale Modelle erhalten so viel, wie in das gewählte Kontextfenster passt, und können fehlende Details lokal abrufen.",
       "etsFilterPlaceholder": "Nach Name, GA oder DPT filtern…",
       "etsSelected": "ausgewählt",
       "etsReadOnly": "Nur lesen",
@@ -99,6 +110,8 @@
       "etsNoGa": "Keine Gruppenadressen gefunden. Importiere die ETS-Liste im KNX-Gateway.",
       "etsCsvError": "Die Gruppenadressliste konnte nicht vom Gateway geladen werden.",
       "reasoningEffortHint": "Optionale Vorgabe für Modelle, die einen Denkaufwand unterstützen. Automatisch sendet keine Vorgabe; lehnt der Anbieter oder das Modell den gewählten Wert ab, versucht KNX AI es ohne diesen erneut.",
+      "localContextBudget": "Lokales Kontextfenster",
+      "localContextHint": "Legt den maximalen Kontext nur für lokale Modelle fest. Maximum verwendet das bekannte Kontextfenster des ausgewählten Modells; nicht verfügbare Größen werden ausgeblendet. Cloud-Anbieter ignorieren diese Auswahl und erhalten den vollständigen ausgewählten semantischen ETS-Katalog.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -130,7 +143,7 @@
       "chatContextDirectoriesTitle": "KNX-Telegrammarchiv",
       "chatContextSourceKnxTraffic": "Abgeleitete KNX-Analyse plus die neuesten exakten Ereignisse aus dem standardmäßigen 20-Minuten- oder expliziten Zeitraum, automatisch an das aktive lokale Modellfenster angepasst.",
       "chatContextSourceAdapterHistory": "Neueste exakte Adapterereignisse aus demselben Zeitraum, automatisch an das aktive lokale Modellfenster angepasst.",
-      "chatContextSourceEtsProject": "Vollständiger ausgewählter ETS-Katalog wird bei Bedarf lokal durchsucht; nur gefundene Objekte gelangen in den Prompt. Function-Quelltext nur bei ausdrücklicher Codeprüfung.",
+      "chatContextSourceEtsProject": "Vollständiger ausgewählter semantischer ETS-Katalog für Cloud-Modelle. Lokale Modelle erhalten den vollständigen Katalog, wenn er in das Fenster passt, andernfalls einen fenstergroßen Index und die vom Modell angeforderten exakten Details. Function-Quelltext nur bei ausdrücklicher Codeprüfung.",
       "chatContextSourceMemoryEducation": "Sitzungskontext, KI-Erziehung, begrenztes Hausgedächtnis und aktive Pläne.",
       "chatContextSourceCameras": "Erkannte Kameras und ihre verfügbaren Funktionen.",
       "chatContextSourceBadge": "Quelle",

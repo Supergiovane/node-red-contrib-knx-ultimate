@@ -42,11 +42,6 @@ const TEST_PROMPT_PRESETS = [
     description: 'Targets supported HVAC command GA in the selected area.'
   }
 ]
-const AREA_GA_ROLE_OPTIONS = [
-  { value: 'command', label: 'Command' },
-  { value: 'status', label: 'Status' },
-  { value: 'neutral', label: "Don't use in tests" }
-]
 const FLOW_EVENT_COLORS = {
   write: '#ff9800',
   response: '#46b86d',
@@ -556,7 +551,6 @@ const state = reactive({
   gaCatalog: [],
   gaCatalogSearch: '',
   gaCatalogLoading: false,
-  areaGaRoleSavingGa: '',
   areaSaving: false,
   profileSelectedId: '',
   profileDraftMode: false,
@@ -3241,14 +3235,6 @@ function addGaToAreaDraft (ga) {
   state.areaDraftGaList = [...(state.areaDraftGaList || []), value]
 }
 
-function formatGaRoleLabel (value) {
-  const role = String(value || '').trim().toLowerCase()
-  const option = AREA_GA_ROLE_OPTIONS.find(item => item.value === role)
-  if (option) return option.label
-  if (role === 'auto') return 'Auto'
-  return 'Command'
-}
-
 function formatAreaListOptionLabel (area) {
   const item = area && typeof area === 'object' ? area : {}
   const name = String(item.path || item.name || 'Area').trim()
@@ -3307,37 +3293,6 @@ function removeGaFromAreaDraft (ga) {
   const value = String(ga || '').trim()
   if (!value) return
   state.areaDraftGaList = (state.areaDraftGaList || []).filter(item => item !== value)
-}
-
-async function saveAreaGaRole (ga, role) {
-  const targetGa = String(ga || '').trim()
-  if (!state.selectedNodeId || !targetGa || state.areaGaRoleSavingGa === targetGa) return
-  state.areaGaRoleSavingGa = targetGa
-  setStatus(`Saving role for ${targetGa}...`)
-  try {
-    const data = await requestJson(apiUrl('areas/ga-role/save'), {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        nodeId: state.selectedNodeId,
-        ga: targetGa,
-        role
-      })
-    })
-    if (Array.isArray(data && data.gaCatalog)) state.gaCatalog = data.gaCatalog
-    if (data && data.areas) {
-      state.stateData = Object.assign({}, state.stateData || {}, { areas: data.areas })
-    }
-    if (plannerCatalogArea.value && Array.isArray(plannerCatalogArea.value.gaList) && plannerCatalogArea.value.gaList.includes(targetGa)) {
-      await fetchAreaSignalCatalog()
-    }
-    setStatus(`Role saved for ${targetGa}`)
-  } catch (error) {
-    state.lastError = error.message || 'Failed to save GA role'
-    setStatus(state.lastError)
-  } finally {
-    state.areaGaRoleSavingGa = ''
-  }
 }
 
 function startNewAreaDraft () {
@@ -4999,10 +4954,10 @@ onBeforeUnmount(() => {
         </p>
         <div class="areas-toolbar">
           <div class="pill-row">
-            <span class="pill neutral">GA {{ Number(areaTotals.gaCount || 0) }}</span>
-            <span class="pill neutral">Hierarchical {{ Number(areaTotals.hierarchicalGaCount || 0) }}</span>
-            <span class="pill neutral">Secondary {{ Number(areaTotals.secondaryGroupCount || 0) }}</span>
-            <span class="pill neutral">Active {{ Number(areaTotals.activeAreaCount || 0) }}</span>
+            <span class="pill muted">GA {{ Number(areaTotals.gaCount || 0) }}</span>
+            <span class="pill muted">Hierarchical {{ Number(areaTotals.hierarchicalGaCount || 0) }}</span>
+            <span class="pill muted">Secondary {{ Number(areaTotals.secondaryGroupCount || 0) }}</span>
+            <span class="pill muted">Active {{ Number(areaTotals.activeAreaCount || 0) }}</span>
           </div>
         </div>
         <div v-if="filteredAreas.length || state.areaDraftIsNew" class="areas-layout">
@@ -5117,21 +5072,9 @@ onBeforeUnmount(() => {
                       <div class="area-ga-main">
                         <strong>{{ item.ga }}</strong>
                         <span>{{ item.label || 'Unlabeled GA' }}<span v-if="item.dpt"> | DPT {{ item.dpt }}</span></span>
-                        <span>Role {{ formatGaRoleLabel(item.role) }}<span v-if="item.roleSource"> | source {{ item.roleSource }}</span></span>
+                        <span>Access: {{ item.readOnly === true ? 'Read only' : 'Read/write' }}</span>
                       </div>
                       <div class="area-ga-actions">
-                        <label class="flow-field area-ga-role-field">
-                          <span>Role</span>
-                          <select
-                            :value="(item.roleOverride && item.roleOverride !== 'auto') ? item.roleOverride : (item.role || 'neutral')"
-                            :disabled="state.areaGaRoleSavingGa === item.ga"
-                            @change="saveAreaGaRole(item.ga, $event.target.value)"
-                          >
-                            <option v-for="option in AREA_GA_ROLE_OPTIONS" :key="option.value" :value="option.value">
-                              {{ option.label }}
-                            </option>
-                          </select>
-                        </label>
                         <button class="secondary-button" type="button" @click="removeGaFromAreaDraft(item.ga)">
                           Remove
                         </button>
@@ -5158,7 +5101,7 @@ onBeforeUnmount(() => {
                     >
                       <span class="area-list-title">{{ item.ga }}</span>
                       <span class="area-list-meta">{{ item.label || 'Unlabeled GA' }}</span>
-                      <span class="area-list-tags">{{ item.hierarchyPath || item.dpt || '' }}<span v-if="item.role"> | {{ formatGaRoleLabel(item.role) }}</span></span>
+                      <span class="area-list-tags">{{ item.hierarchyPath || item.dpt || '' }} | Access: {{ item.readOnly === true ? 'Read only' : 'Read/write' }}</span>
                     </button>
                   </div>
                 </div>
@@ -5829,7 +5772,7 @@ onBeforeUnmount(() => {
           <div class="pill-row">
             <span class="pill success">Connected {{ formatDurationCompact(busConnection.connectedSec || 0) }}</span>
             <span class="pill danger">Disconnected {{ formatDurationCompact(busConnection.disconnectedSec || 0) }}</span>
-            <span class="pill neutral">Coverage {{ Number(busConnection.knownCoveragePct || 0) }}%</span>
+            <span class="pill muted">Coverage {{ Number(busConnection.knownCoveragePct || 0) }}%</span>
           </div>
           <div class="bus-track">
             <span
@@ -7057,7 +7000,7 @@ onBeforeUnmount(() => {
 
 .status-pill,
 .meta-chip,
-.pill.neutral {
+.pill.muted {
   color: var(--text);
 }
 
@@ -7670,7 +7613,7 @@ onBeforeUnmount(() => {
 }
 
 .card-profiles .meta-chip,
-.card-profiles .pill.neutral {
+.card-profiles .pill.muted {
   border: 0;
   background: transparent;
   color: #1c2430;
@@ -8040,10 +7983,6 @@ onBeforeUnmount(() => {
   align-items: end;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.area-ga-role-field {
-  min-width: 148px;
 }
 
 .area-ga-item strong,

@@ -196,12 +196,10 @@ const inferKnxAiHomeSemantic = (item = {}) => {
   const normalized = normalizeText(source)
   const concept = CONCEPT_PATTERNS.find(entry => matches(normalized, entry.patterns))
   const areaMatch = AREA_PATTERNS.find(entry => matches(normalized, entry.patterns))
-  const role = String(item.role || 'neutral').trim().toLowerCase()
   const dpt = String(item.dpt || '').trim()
   const semantic = {
     kind: concept ? concept.kind : 'unknown',
     area: areaMatch ? areaMatch.area : '',
-    role,
     confidence: concept ? concept.confidence : 0,
     sourceLanguage: /[\u3400-\u9fff]/.test(source) ? 'zh-CN' : 'auto',
     originalLabel: clampText(item.label || item.etsName || item.ga || '', 240),
@@ -240,6 +238,16 @@ const normalizeArray = (value, maxItems) => {
     .map(item => clonePlain(item, {}))
 }
 
+const normalizeSemanticObjects = (value) => normalizeArray(value, HOME_MEMORY_MAX_SEMANTIC_OBJECTS)
+  .map(item => ({
+    ga: clampText(item.ga, 32),
+    dpt: clampText(item.dpt, 32),
+    label: clampText(item.label, 240),
+    kind: clampText(item.kind, 80),
+    area: clampText(item.area, 80),
+    confidence: Number.isFinite(Number(item.confidence)) ? Number(item.confidence) : 0
+  }))
+
 const normalizeKnxAiHomeMemory = (value = {}) => {
   const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
   return {
@@ -251,7 +259,7 @@ const normalizeKnxAiHomeMemory = (value = {}) => {
     observations: normalizeArray(source.observations, HOME_MEMORY_MAX_OBSERVATIONS),
     habits: normalizeArray(source.habits, HOME_MEMORY_MAX_HABITS),
     notifications: normalizeArray(source.notifications, HOME_MEMORY_MAX_NOTIFICATIONS),
-    semanticObjects: normalizeArray(source.semanticObjects, HOME_MEMORY_MAX_SEMANTIC_OBJECTS)
+    semanticObjects: normalizeSemanticObjects(source.semanticObjects)
   }
 }
 
@@ -324,11 +332,11 @@ const buildKnxAiHomeMemoryMarkdown = ({ memory, maxKb } = {}) => {
       '',
       '## Semantic ETS model',
       '',
-      '| GA | DPT | Kind | Area | Role | Confidence | ETS label |',
-      '|---|---|---|---|---|---:|---|'
+      '| GA | DPT | Kind | Area | Confidence | ETS label |',
+      '|---|---|---|---|---:|---|'
     ]
     bounded.semanticObjects.forEach(item => {
-      lines.push(`| ${escapeMarkdownCell(item.ga)} | ${escapeMarkdownCell(item.dpt)} | ${escapeMarkdownCell(item.kind)} | ${escapeMarkdownCell(item.area)} | ${escapeMarkdownCell(item.role)} | ${Number(item.confidence || 0).toFixed(2)} | ${escapeMarkdownCell(item.label)} |`)
+      lines.push(`| ${escapeMarkdownCell(item.ga)} | ${escapeMarkdownCell(item.dpt)} | ${escapeMarkdownCell(item.kind)} | ${escapeMarkdownCell(item.area)} | ${Number(item.confidence || 0).toFixed(2)} | ${escapeMarkdownCell(item.label)} |`)
     })
     lines.push('', '## Learned habits', '')
     if (!bounded.habits.length) lines.push('_No stable habit has been learned yet._')
@@ -383,7 +391,6 @@ const CLOSED_RE = /\b(closed|close|down|chiuso|chiusa|chiusi|chiuse|geschlossen|
 const classifyKnxAiOpenState = ({ semantic, dpt, payload, valueOptions } = {}) => {
   const safeSemantic = semantic && typeof semantic === 'object' ? semantic : {}
   if (!['cover', 'window', 'door'].includes(safeSemantic.kind)) return null
-  if (String(safeSemantic.role || '').toLowerCase() === 'command') return null
   const dptId = String(dpt || safeSemantic.dpt || '').trim()
   const main = dptId.split('.')[0]
   if (main === '5' && safeSemantic.kind === 'cover') {

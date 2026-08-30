@@ -26,6 +26,7 @@
       "llmApiKey": "API key",
       "llmModel": "Model",
       "llmReasoningEffort": "Reasoning effort",
+      "llmLocalContextTokens": "Local context window",
       "llmSystemPrompt": "System prompt",
       "llmIncludeRaw": "Include raw payload hex",
       "llmAllowKnxCommands": "Allow AI to read KNX states and control actuators",
@@ -46,7 +47,7 @@
     },
     "selectlists": {
       "llmProvider": {
-        "openai_compat": "OpenAI-compatible (chat/completions)",
+        "openai_compat": "OpenAI / OpenAI-compatible",
         "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama (local)",
         "lmstudio": "Bionic LM Studio"
@@ -60,6 +61,16 @@
         "high": "High",
         "xhigh": "Extra high",
         "max": "Maximum"
+      },
+      "localContext": {
+        "maximum": "Maximum",
+        "k4": "4K",
+        "k8": "8K",
+        "k16": "16K",
+        "k32": "32K",
+        "k64": "64K",
+        "k128": "128K",
+        "k256": "256K"
       },
       "chatAdapter": {
         "none": "No adapter"
@@ -97,7 +108,7 @@
       "lmStudioContextConfigured": "Active model context",
       "lmStudioContextFailed": "Unable to configure the model context",
       "lmStudioContextCurrentlyLoaded": "currently loaded",
-      "etsAccessHint": "Tick the group addresses to make searchable by KNX AI's local ETS retrieval. On first configuration they are all shown selected; save and Deploy to apply the choice. A read-only address remains searchable and readable by the model, but every write is blocked locally.",
+      "etsAccessHint": "Select the group addresses available to KNX AI. Every selected address is active and readable; every selected address not marked Read only is writable. Cloud providers receive the complete selected semantic ETS catalog; local models receive as much as fits their selected context window and can retrieve missing details locally.",
       "etsFilterPlaceholder": "Filter by name, GA or DPT…",
       "etsSelected": "selected",
       "etsReadOnly": "Read only",
@@ -106,6 +117,8 @@
       "etsNoGa": "No group addresses found. Import the ETS list in the KNX gateway.",
       "etsCsvError": "Unable to load the group address list from the gateway.",
       "reasoningEffortHint": "Optional preference for models that support reasoning effort. Automatic sends no preference; if a provider or model rejects the selected value, KNX AI retries without it.",
+      "localContextBudget": "Local context window",
+      "localContextHint": "Sets the maximum context sent to local models only. Maximum uses the selected model's known context window; unavailable sizes are hidden when the model limit is known. Cloud providers ignore this selector and receive the complete selected semantic ETS catalog.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
       "ollamaNoModels": "No local Ollama model found. Install one or pick one from the library.",
       "installingOllamaModel": "Starting Ollama and installing model…",
@@ -137,7 +150,7 @@
       "chatContextDirectoriesTitle": "KNX telegram archive",
       "chatContextSourceKnxTraffic": "Derived KNX analysis plus the latest exact events from the default 20-minute or explicit interval, automatically bounded for the active local-model window.",
       "chatContextSourceAdapterHistory": "Latest exact adapter events from the same interval, automatically bounded for the active local-model window.",
-      "chatContextSourceEtsProject": "Complete selected ETS catalog searched locally on demand; only retrieved objects enter the prompt. Function source only for explicit code review.",
+      "chatContextSourceEtsProject": "Complete selected semantic ETS catalog for cloud models. Local models receive the full catalog when it fits; otherwise they receive a window-sized manifest and exact model-requested details. Function source only for explicit code review.",
       "chatContextSourceMemoryEducation": "Session context, AI Education, bounded home memory and active plans.",
       "chatContextSourceCameras": "Detected cameras and their available capabilities.",
       "chatContextSourceBadge": "Source",

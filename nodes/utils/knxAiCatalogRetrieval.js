@@ -1,4 +1,4 @@
-const KNX_AI_CATALOG_MAX_RESEARCH_ROUNDS = 3
+const KNX_AI_CATALOG_MAX_RESEARCH_ROUNDS = 1
 const KNX_AI_CATALOG_MAX_ACTIONS_PER_ROUND = 4
 const KNX_AI_CATALOG_MAX_RESULTS_PER_ACTION = 12
 const KNX_AI_CATALOG_MAX_ACCUMULATED_OBJECTS = 24
@@ -27,7 +27,6 @@ const normalizeStringList = (value, maxItems = 12) => Array.from(new Set(
 const normalizeKnxAiCatalogActions = (value, { maxActions = KNX_AI_CATALOG_MAX_ACTIONS_PER_ROUND } = {}) => {
   const accepted = []
   const allowedOperations = new Set(['search', 'get', 'list_areas', 'browse_area', 'related'])
-  const allowedRoles = new Set(['command', 'status', 'neutral'])
   const allowedAccess = new Set(['any', 'read-only', 'read-write'])
   const allowedPurposes = new Set(['any', 'read', 'write', 'inspect'])
   ;(Array.isArray(value) ? value : []).slice(0, Math.max(1, Number(maxActions) || 1)).forEach(candidate => {
@@ -40,9 +39,6 @@ const normalizeKnxAiCatalogActions = (value, { maxActions = KNX_AI_CATALOG_MAX_A
     if (operation === 'search' && !query) return
     if ((operation === 'get' || operation === 'related') && !destinations.length) return
     if (operation === 'browse_area' && !area) return
-    const roles = normalizeStringList(source.roles, 3)
-      .map(role => role.toLowerCase())
-      .filter(role => allowedRoles.has(role))
     const semanticKinds = normalizeStringList(source.semanticKinds, 12)
       .map(kind => normalizeText(kind))
       .filter(Boolean)
@@ -53,7 +49,6 @@ const normalizeKnxAiCatalogActions = (value, { maxActions = KNX_AI_CATALOG_MAX_A
       query,
       destinations,
       area,
-      roles,
       semanticKinds,
       access: allowedAccess.has(requestedAccess) ? requestedAccess : 'any',
       purpose: allowedPurposes.has(requestedPurpose) ? requestedPurpose : 'any',
@@ -113,8 +108,6 @@ const buildSearchDocument = (item) => {
 }
 
 const itemPassesFilters = (item, action) => {
-  const role = String(item && item.role || 'neutral').trim().toLowerCase()
-  if (action.roles.length && !action.roles.includes(role)) return false
   if (action.access === 'read-only' && item && item.readOnly !== true) return false
   if (action.access === 'read-write' && item && item.readOnly === true) return false
   if (action.purpose === 'write' && item && item.readOnly === true) return false
@@ -124,10 +117,10 @@ const itemPassesFilters = (item, action) => {
 }
 
 const purposeScore = (item, purpose) => {
-  const role = String(item && item.role || 'neutral').trim().toLowerCase()
-  if (purpose === 'write') return role === 'command' ? 130 : role === 'neutral' ? 15 : -80
-  if (purpose === 'read') return role === 'status' ? 90 : role === 'neutral' ? 35 : 10
-  if (purpose === 'inspect') return role === 'status' ? 70 : role === 'neutral' ? 45 : 15
+  const readOnly = item && item.readOnly === true
+  if (purpose === 'write') return readOnly ? -1000 : 130
+  if (purpose === 'read') return readOnly ? 90 : 50
+  if (purpose === 'inspect') return readOnly ? 70 : 55
   return 0
 }
 
@@ -146,16 +139,27 @@ const scoreSearchMatch = (item, action) => {
   if (document.combined.includes(query)) score += 360
   const queryTokens = query.split(' ').filter(Boolean)
   let qualityTotal = 0
+  let matchedTokens = 0
+  let strongMatches = 0
   for (const queryToken of queryTokens) {
     let best = 0
     for (const candidateToken of document.tokens) {
       best = Math.max(best, tokenQuality(queryToken, candidateToken))
       if (best === 1) break
     }
-    if (best < 0.5) return 0
-    qualityTotal += best
+    if (best >= 0.5) {
+      matchedTokens += 1
+      qualityTotal += best
+      if (best >= 0.68) strongMatches += 1
+    }
   }
+  if (strongMatches === 0) return 0
+  const missingTokens = Math.max(0, queryTokens.length - matchedTokens)
+  const coverage = queryTokens.length > 0 ? matchedTokens / queryTokens.length : 0
   score += qualityTotal * 120
+  score += coverage * 200
+  score += Math.max(0, matchedTokens - 1) * 50
+  score -= missingTokens * 18
   score += purposeScore(item, action.purpose)
   if (action.area) {
     const area = normalizeText(action.area)
@@ -224,15 +228,16 @@ const findRelatedItems = (catalog, action) => {
       if (seed === item) return
       const seedSemantic = seed && seed.semantic && typeof seed.semantic === 'object' ? seed.semantic : {}
       const itemSemantic = item && item.semantic && typeof item.semantic === 'object' ? item.semantic : {}
-      let score = purposeScore(item, action.purpose)
-      if (normalizeText(seed.hierarchyPath) && normalizeText(seed.hierarchyPath) === normalizeText(item.hierarchyPath)) score += 260
-      if (normalizeText(seedSemantic.area) && normalizeText(seedSemantic.area) === normalizeText(itemSemantic.area)) score += 180
-      if (normalizeText(seed.middleGroup) && normalizeText(seed.middleGroup) === normalizeText(item.middleGroup)) score += 100
-      if (normalizeText(seed.mainGroup) && normalizeText(seed.mainGroup) === normalizeText(item.mainGroup)) score += 45
-      if (normalizeText(seedSemantic.kind) && normalizeText(seedSemantic.kind) === normalizeText(itemSemantic.kind)) score += 65
-      if (String(seed.role || '') !== String(item.role || '') && ['command', 'status'].includes(String(item.role || ''))) score += 140
+      let relationScore = 0
+      if (normalizeText(seed.hierarchyPath) && normalizeText(seed.hierarchyPath) === normalizeText(item.hierarchyPath)) relationScore += 260
+      if (normalizeText(seedSemantic.area) && normalizeText(seedSemantic.area) === normalizeText(itemSemantic.area)) relationScore += 180
+      if (normalizeText(seed.middleGroup) && normalizeText(seed.middleGroup) === normalizeText(item.middleGroup)) relationScore += 100
+      if (normalizeText(seed.mainGroup) && normalizeText(seed.mainGroup) === normalizeText(item.mainGroup)) relationScore += 45
+      if (normalizeText(seedSemantic.kind) && normalizeText(seedSemantic.kind) === normalizeText(itemSemantic.kind)) relationScore += 65
       const overlap = itemTokens.filter(token => token.length >= 4 && seedTokens.has(token)).length
-      score += Math.min(100, overlap * 20)
+      relationScore += Math.min(100, overlap * 20)
+      if (relationScore <= 0) return
+      const score = relationScore + purposeScore(item, action.purpose)
       best = Math.max(best, score)
     })
     return { item, score: best }
@@ -245,7 +250,6 @@ const actionFingerprint = (action) => JSON.stringify({
   query: normalizeText(action.query),
   destinations: action.destinations.map(normalizeGa).sort(),
   area: normalizeText(action.area),
-  roles: action.roles.slice().sort(),
   semanticKinds: action.semanticKinds.slice().sort(),
   access: action.access,
   purpose: action.purpose,
@@ -311,18 +315,6 @@ const collectKnxAiCatalogObjects = (results, maxItems = KNX_AI_CATALOG_MAX_ACCUM
   return Array.from(byGa.values())
 }
 
-const buildKnxAiCatalogOverview = (catalog) => {
-  const source = Array.isArray(catalog) ? catalog : []
-  const counts = { command: 0, status: 0, neutral: 0, readOnly: 0, readWrite: 0 }
-  source.forEach(item => {
-    const role = String(item && item.role || 'neutral').trim().toLowerCase()
-    if (Object.prototype.hasOwnProperty.call(counts, role)) counts[role] += 1
-    if (item && item.readOnly === true) counts.readOnly += 1
-    else counts.readWrite += 1
-  })
-  return `LOCAL ETS CATALOG OVERVIEW: ${source.length} selected objects are searchable locally; roles command=${counts.command}, status=${counts.status}, neutral=${counts.neutral}; access read-only=${counts.readOnly}, read-write=${counts.readWrite}. The complete catalog stays inside KNX AI and is not embedded in this prompt.`
-}
-
 const buildKnxAiCatalogResearchContext = (results) => {
   const source = Array.isArray(results) ? results : []
   if (!source.length) return ''
@@ -350,7 +342,6 @@ module.exports = {
   KNX_AI_CATALOG_MAX_ACTIONS_PER_ROUND,
   KNX_AI_CATALOG_MAX_RESEARCH_ROUNDS,
   KNX_AI_CATALOG_MAX_RESULTS_PER_ACTION,
-  buildKnxAiCatalogOverview,
   buildKnxAiCatalogResearchContext,
   collectKnxAiCatalogObjects,
   executeKnxAiCatalogActions,

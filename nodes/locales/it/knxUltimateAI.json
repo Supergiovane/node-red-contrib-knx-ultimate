@@ -26,6 +26,7 @@
       "llmApiKey": "API key",
       "llmModel": "Modello",
       "llmReasoningEffort": "Impegno di ragionamento",
+      "llmLocalContextTokens": "Finestra contesto locale",
       "llmSystemPrompt": "Prompt di sistema",
       "llmIncludeRaw": "Includi payload raw in hex",
       "llmAllowKnxCommands": "Consenti all'AI di leggere stati KNX e comandare attuatori",
@@ -46,7 +47,7 @@
     },
     "selectlists": {
       "llmProvider": {
-        "openai_compat": "Compatibile OpenAI (chat/completions)",
+        "openai_compat": "OpenAI / compatibile OpenAI",
         "anthropic": "Anthropic (Claude)",
         "ollama": "Ollama (locale)",
         "lmstudio": "Bionic LM Studio"
@@ -60,6 +61,16 @@
         "high": "Alto",
         "xhigh": "Molto alto",
         "max": "Massimo"
+      },
+      "localContext": {
+        "maximum": "Massimo",
+        "k4": "4K",
+        "k8": "8K",
+        "k16": "16K",
+        "k32": "32K",
+        "k64": "64K",
+        "k128": "128K",
+        "k256": "256K"
       },
       "chatAdapter": {
         "none": "Nessun adattatore"
@@ -97,7 +108,7 @@
       "lmStudioContextConfigured": "Contesto attivo del modello",
       "lmStudioContextFailed": "Impossibile configurare il contesto del modello",
       "lmStudioContextCurrentlyLoaded": "attualmente caricato",
-      "etsAccessHint": "Spunta gli indirizzi di gruppo che vuoi rendere ricercabili dal retrieval ETS locale di KNX AI. Alla prima configurazione sono mostrati tutti selezionati; salva e fai Deploy per applicare la scelta. Un indirizzo in sola lettura resta ricercabile e interrogabile dal modello, ma ogni scrittura viene bloccata localmente.",
+      "etsAccessHint": "Seleziona gli indirizzi di gruppo disponibili a KNX AI. Ogni indirizzo selezionato è attivo e leggibile; ogni indirizzo selezionato non marcato Sola lettura è scrivibile. I provider cloud ricevono l'intero catalogo ETS semantico selezionato; i modelli locali ricevono ciò che entra nella finestra di contesto scelta e possono recuperare localmente i dettagli mancanti.",
       "etsFilterPlaceholder": "Filtra per nome, GA o DPT…",
       "etsSelected": "selezionati",
       "etsReadOnly": "Sola lettura",
@@ -106,6 +117,8 @@
       "etsNoGa": "Nessun indirizzo di gruppo trovato. Importa la lista ETS nel gateway KNX.",
       "etsCsvError": "Impossibile caricare la lista degli indirizzi di gruppo dal gateway.",
       "reasoningEffortHint": "Preferenza facoltativa per i modelli che supportano l'impegno di ragionamento. Automatico non invia alcuna preferenza; se il provider o il modello rifiuta il valore scelto, KNX AI riprova senza di esso.",
+      "localContextBudget": "Finestra contesto locale",
+      "localContextHint": "Imposta il contesto massimo inviato soltanto ai modelli locali. Massimo usa la finestra nota del modello selezionato; le dimensioni non disponibili vengono nascoste quando il limite del modello è noto. I provider cloud ignorano questa selezione e ricevono l'intero catalogo ETS semantico selezionato.",
       "ollamaNotSupported": "Modalita locale Ollama: API key non richiesta. Endpoint predefinito: http://localhost:11434/api/chat.",
       "ollamaNoModels": "Nessun modello Ollama locale trovato. Installa un modello o scegli dalla libreria.",
       "installingOllamaModel": "Avvio Ollama e installo il modello…",
@@ -137,7 +150,7 @@
       "chatContextDirectoriesTitle": "Archivio telegrammi KNX",
       "chatContextSourceKnxTraffic": "Analisi KNX derivata più gli eventi esatti più recenti dell’intervallo predefinito di 20 minuti o di quello esplicito, limitati automaticamente alla finestra attiva del modello locale.",
       "chatContextSourceAdapterHistory": "Eventi adapter esatti più recenti dello stesso intervallo, limitati automaticamente alla finestra attiva del modello locale.",
-      "chatContextSourceEtsProject": "Catalogo ETS selezionato completo ricercato localmente su richiesta; nel prompt entrano solo gli oggetti recuperati. Sorgenti Function solo per revisioni esplicite del codice.",
+      "chatContextSourceEtsProject": "Catalogo ETS semantico selezionato completo per i modelli cloud. I modelli locali ricevono il catalogo completo quando entra nella finestra; altrimenti ricevono un manifest dimensionato e i dettagli esatti richiesti dal modello. Sorgenti Function solo per revisioni esplicite del codice.",
       "chatContextSourceMemoryEducation": "Contesto di sessione, Educazione AI, memoria domestica limitata e pianificazioni attive.",
       "chatContextSourceCameras": "Telecamere rilevate e relative funzionalità disponibili.",
       "chatContextSourceBadge": "Fonte",

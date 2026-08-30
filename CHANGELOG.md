@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 6.3.32** - August 2026<br/>
+
+- **KNX AI**: AI-first chat with complete cloud ETS context, selectable local windows and guided retrieval; selected ETS access is now the sole read/write authority, with no neutral role.<br/>
+
 **Version 6.3.31** - August 2026<br/>
 
 - **KNX AI — adaptive prompts for 8K local models**: the conversational prompt now reserves response space from the active model window before every request. For an 8K model it uses a compact tool contract and automatically bounds the newest conversation turns, KNX/adapter events, home memory, Web results, schedules, Function source, retrieved ETS objects and camera metadata. The complete selected ETS catalog remains local and available through deterministic retrieval; it is not copied wholesale into the prompt. The prompt-debug file records the final bounded system/user text actually sent to the model.<br/>
