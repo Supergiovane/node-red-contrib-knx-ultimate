@@ -10,7 +10,7 @@
 
     RED.nodes.registerType("knxUltimateMatterControllerDevice", {
       category: "KNX Ultimate Matter",
-      color: "#F3FFFF",
+      color: "#8FB1FA",
       defaults: {
         //buttonState: {value: true},
         server: { type: "knxUltimate-config", required: false },
@@ -295,9 +295,9 @@
           const normalizeConfigSelection = selectionApi && typeof selectionApi.normalizeSelection === 'function'
             ? selectionApi.normalizeSelection
             : (value, emptyValues) => {
-                const normalized = value === undefined || value === null ? '' : String(value).trim();
-                return emptyValues.has(normalized.toLowerCase()) ? '' : normalized;
-              };
+              const normalized = value === undefined || value === null ? '' : String(value).trim();
+              return emptyValues.has(normalized.toLowerCase()) ? '' : normalized;
+            };
           const resolveSelectedOrStoredSelection = selectionApi && typeof selectionApi.resolveSelectedOrStoredSelection === 'function'
             ? selectionApi.resolveSelectedOrStoredSelection
             : (selectedValue, storedValue, emptyValues) => normalizeConfigSelection(selectedValue, emptyValues) || normalizeConfigSelection(storedValue, emptyValues);
@@ -662,19 +662,19 @@
               hasColorFeatureMap
                 ? (colorFeatureMap & 0x10) !== 0
                 : (
-                    hasColorTemperatureType ||
-                    hasMatterAttribute(colorCluster, ['colorTemperatureMireds', 'colorTempPhysicalMinMireds', 'colorTempPhysicalMaxMireds']) ||
-                    hasMatterCommand(colorCluster, ['moveToColorTemperature'])
-                  )
+                  hasColorTemperatureType ||
+                  hasMatterAttribute(colorCluster, ['colorTemperatureMireds', 'colorTempPhysicalMinMireds', 'colorTempPhysicalMaxMireds']) ||
+                  hasMatterCommand(colorCluster, ['moveToColorTemperature'])
+                )
             );
             const hasColor = !!colorCluster && (
               !isTunableWhiteOnly && (
                 hasColorFeatureMap
                   ? (colorFeatureMap & 0x09) !== 0
                   : (
-                      hasColorType ||
-                      hasMatterCommand(colorCluster, ['moveToColor', 'moveToHue', 'moveToSaturation', 'moveToHueAndSaturation'])
-                    )
+                    hasColorType ||
+                    hasMatterCommand(colorCluster, ['moveToColor', 'moveToHue', 'moveToSaturation', 'moveToHueAndSaturation'])
+                  )
               )
             );
             return {
