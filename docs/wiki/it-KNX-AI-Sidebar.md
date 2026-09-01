@@ -34,13 +34,22 @@ Questa pagina mantiene il nome storico `KNX-AI-Sidebar` per compatibilita'.
 - **Ask**: scrivi domande in linguaggio naturale.
   Se nel nodo e' attivo l'archivio su disco, Ask interroga quell'archivio e, senza date esplicite, usa gli ultimi 20 minuti.
 - **Flow Builder** (BETA): descrivi un'automazione a parole e ottieni un flow Node-RED (JSON) da incollare nell'editor.
-- **Settings**: selezione nodo, import/export della configurazione completa e file condiviso modificabile per l'apprendimento AI Chat.
+- **Cerebrum (BETA)**: Conversazione, Apprendimento AI Chat modificabile e Memoria Cerebrum condivisa sono organizzati in sottomenu.
+- **Impostazioni**: soltanto import/export del backup completo KNX AI e Cerebrum. La pagina usa il nodo KNX AI che l’ha aperta e non presenta un secondo selettore del nodo.
 
 ## Apprendimento AI Chat
 
-Apri **Impostazioni → Apprendimento AI Chat** per vedere il percorso assoluto e modificare il file condiviso `knxai-chat-context.knxctx`, usato in tempo reale da tutti i nodi KNX AI sullo stesso archivio. Puoi copiarlo, scaricarlo come backup o ripristinare un altro file `.knxctx`. Modifica i record nativi V3 separati da tabulazioni (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`); Salva controlla il limite di 512 KB e scrive atomicamente il file canonico. **Re-inizializza memoria** lo sostituisce con un contesto vuoto dopo una conferma esplicita. Un controllo di revisione protegge dalle modifiche concorrenti. I precedenti file Markdown/JSON V2 e Base64 V1 non vengono volutamente letti, importati né migrati.
+Apri **Cerebrum → Apprendimento AI Chat** per esaminare il file condiviso `knxai-chat-context.knxctx`, usato in tempo reale da tutti i nodi KNX AI sullo stesso archivio. **File nativo** è la sorgente modificabile; **Testo semplificato** è una vista localizzata di sola lettura di conversazioni, istruzioni apprese e sorveglianze telecamera. La copia segue la vista corrente, mentre download e ripristino operano sempre sul backup `.knxctx` completo. Salva controlla il limite di 512 KB e scrive atomicamente i record nativi V3 canonici (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`). **Re-inizializza memoria** sostituisce il file con un contesto vuoto dopo una conferma esplicita. Un controllo di revisione protegge dalle modifiche concorrenti. I precedenti file Markdown/JSON V2 e Base64 V1 non vengono volutamente letti, importati né migrati.
 
-Il pulsante **Apri Apprendimento AI Chat** nella configurazione del nodo Node-RED, sotto **Conversazioni e casa**, apre direttamente questa pagina e scheda per il nodo corrente.
+Il pulsante **Apri Apprendimento AI Chat** nella configurazione del nodo Node-RED, sotto **Cerebrum (BETA)**, apre direttamente questa pagina e scheda per il nodo corrente.
+
+## Memoria Cerebrum
+
+Apri **Cerebrum → Memoria Cerebrum** per esaminare e modificare `knxai-home-memory.md`. Il blocco JSON autorevole contiene abitudini apprese, conferme/correzioni/rifiuti degli occupanti, cache adattiva degli stati e diagnostica del riconciliatore; il Markdown leggibile viene rigenerato dopo la validazione. Sono disponibili copia, download, ripristino e reset esplicito, con limiti di dimensione e controllo delle revisioni concorrenti.
+
+Il backup rigoroso versione 1 in **Impostazioni → Import / Export** contiene la configurazione persistente KNX AI e i file autorevoli di Apprendimento AI Chat, memoria della casa e pianificazioni, compresa la copia leggibile delle pianificazioni. Le vecchie esportazioni di configurazione vengono rifiutate intenzionalmente.
+
+La pagina rende visibile il confine del consenso: un pattern maturo può essere **in apprendimento**, **in attesa di risposta**, **confermato**, **rifiutato** o **in pausa**. Solo un'abitudine confermata può essere anticipata in seguito. La configurazione Node-RED include il pulsante diretto **Apri memoria Cerebrum**.
 
 ## Flow Builder (BETA)
 

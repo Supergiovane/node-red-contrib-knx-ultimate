@@ -30,6 +30,8 @@ test/*
 !test/knxAiScheduler.test.js
 !test/disabledSidebarPlugins.test.js
 !test/knxAiHomeMemory.test.js
+!test/knxAiCerebrum.test.js
+!test/knxAiBootNotification.test.js
 !test/hueController.test.js
 !test/docsNavigation.test.js
 !test/knxUltimateWatchDog.test.js

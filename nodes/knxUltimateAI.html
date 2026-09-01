@@ -873,7 +873,7 @@
                         .text(String(prompt.text))
                         .on("click", function (evt) {
                             evt.preventDefault();
-                            openKnxAiWebPage("assistant", String(prompt.text));
+                            openKnxAiWebPage("cerebrum", String(prompt.text));
                         })
                         .appendTo($prompts);
                 });
@@ -1004,7 +1004,7 @@
                     homeMemory: t("knxUltimateAI.messages.chatContextFileHomeMemory", "Bounded learned home memory only; AI Education remains in the node property."),
                     schedules: t("knxUltimateAI.messages.chatContextFileSchedules", "Authoritative structured plans and reminders for this node."),
                     schedulesReadable: t("knxUltimateAI.messages.chatContextFileSchedulesReadable", "Human-readable plans and reminders generated from the scheduler state."),
-                    assistantConfig: t("knxUltimateAI.messages.chatContextFileAssistantConfig", "Persistent web Assistant configuration and semantic areas for this node."),
+                    assistantConfig: t("knxUltimateAI.messages.chatContextFileAssistantConfig", "Persistent Cerebrum configuration and semantic areas for this node."),
                     lastChatPrompt: t("knxUltimateAI.messages.chatContextFileLastChatPrompt", "Temporary local copy of the latest system and user messages sent to the chat model; overwritten on every chat request.")
                 };
                 (Array.isArray(overview.files) ? overview.files : []).forEach(function (item) {
@@ -1082,10 +1082,14 @@
                 const params = new URLSearchParams();
                 if (nodeId) params.set("nodeId", nodeId);
                 if (view === "chat-learning") {
-                    params.set("tab", "settings");
-                    params.set("settingsTab", "learning");
-                } else if (view === "assistant") {
-                    params.set("tab", "assistant");
+                    params.set("tab", "cerebrum");
+                    params.set("cerebrumTab", "learning");
+                } else if (view === "cerebrum-memory") {
+                    params.set("tab", "cerebrum");
+                    params.set("cerebrumTab", "memory");
+                } else if (view === "cerebrum") {
+                    params.set("tab", "cerebrum");
+                    params.set("cerebrumTab", "conversation");
                     if (prompt) params.set("prompt", String(prompt));
                 }
                 const accessToken = resolveAccessToken();
@@ -1103,6 +1107,11 @@
             $("#knx-ai-open-chat-learning").on("click", function (evt) {
                 evt.preventDefault();
                 openKnxAiWebPage("chat-learning");
+            });
+
+            $("#knx-ai-open-cerebrum-memory").on("click", function (evt) {
+                evt.preventDefault();
+                openKnxAiWebPage("cerebrum-memory");
             });
 
             const setRefreshModelsBusy = (busy) => {
@@ -1589,6 +1598,11 @@
                 <p class="knx-ai-chat-learning-link-copy" data-i18n="knxUltimateAI.messages.chatLearningOpenHint"></p>
                 <button type="button" class="red-ui-button" id="knx-ai-open-chat-learning">
                     <i class="fa fa-external-link"></i> <span data-i18n="knxUltimateAI.buttons.openChatLearning"></span>
+                </button>
+                <h4 style="margin-top:14px;"><i class="fa fa-database"></i> <span data-i18n="knxUltimateAI.sections.cerebrumMemory"></span></h4>
+                <p class="knx-ai-chat-learning-link-copy" data-i18n="knxUltimateAI.messages.cerebrumMemoryOpenHint"></p>
+                <button type="button" class="red-ui-button" id="knx-ai-open-cerebrum-memory">
+                    <i class="fa fa-external-link"></i> <span data-i18n="knxUltimateAI.buttons.openCerebrumMemory"></span>
                 </button>
             </div>
             <div id="knx-ai-detected-adapters-panel">

@@ -37,7 +37,7 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 - Open source test plan from a result and iterate quickly.
 - Keep historical reports for installer documentation and troubleshooting.
 
-## 5) Assistant (chat)
+## 5) Cerebrum (BETA)
 
 - Ask questions about current traffic and anomalies in natural language.
 - Rendered responses support Markdown for clear explanations and action points.
@@ -51,18 +51,23 @@ It is the modern web UI for live KNX traffic analysis, AI-assisted diagnostics, 
 - Copy the JSON and paste it in Node-RED via **Menu > Import**. Review the result before deploying (it is BETA).
 - Works with any configured LLM provider: OpenAI-compatible, Anthropic (Claude), Ollama, or Bionic LM Studio.
 
+The Cerebrum page groups **Conversation**, **AI Chat Learning** and **Cerebrum Memory** in dedicated submenus.
+
 ## 7) Settings and operations
 
 - Select the target `knxUltimateAI` node and manage runtime options.
 - Configure node-level options exposed by the backend settings APIs.
-- Import/export configuration bundles for backup and migration workflows.
-- Open **AI Chat Learning** to view the absolute path and edit, copy, download, restore or reinitialize the shared `knxai-chat-context.knxctx` file. Its native V3 tab-separated records are authoritative; saving updates every KNX AI node on the same storage immediately. Previous Markdown/JSON V2 and Base64 V1 files are not read, imported or migrated.
-- The **Open AI Chat Learning** shortcut under **Conversations & home** in the Node-RED node configuration opens this Settings tab directly for the current node.
+- Settings contains only **Import / Export**. Its strict version-1 backup includes the persisted KNX AI configuration plus AI Chat Learning, home memory, schedules and their readable mirror; older exports are rejected.
+- The Web UI is bound to the deployed KNX AI node that opened it. It has no separate node selector and does not fall back to another instance.
+- Open **Cerebrum → AI Chat Learning** to switch between the editable authoritative **Native file** and a localized read-only **Simplified text** view of conversations, learned instructions and camera watches. Copy follows the selected view; download and restore always preserve the complete shared `knxai-chat-context.knxctx`. Saving updates every KNX AI node on the same storage immediately. Previous Markdown/JSON V2 and Base64 V1 files are not read, imported or migrated.
+- The **Open AI Chat Learning** shortcut under **Cerebrum (BETA)** in the Node-RED node configuration opens this Cerebrum submenu directly for the current node.
+- Open **Cerebrum → Cerebrum Memory** to inspect and edit the authoritative JSON plus readable Markdown in `knxai-home-memory.md`: learned/pending/confirmed habits, occupant decisions, current-state cache and reconciler diagnostics. Save validates the file; copy, backup, restore and explicit reset are available with concurrent-revision protection.
+- The **Open Cerebrum memory** shortcut under **Cerebrum (BETA)** opens this Cerebrum submenu directly.
 
 ## 8) UI behavior
 
 - Responsive sidebar layout (desktop + mobile).
-- Persistent local preferences (selected node, active tab, refresh mode, panel state).
+- Persistent local preferences (active Cerebrum submenu and panel state). The node identity always comes from the KNX AI node that opened the page.
 - Served directly by Node-RED and aligned with its authentication model.
 
 ## Typical use cases

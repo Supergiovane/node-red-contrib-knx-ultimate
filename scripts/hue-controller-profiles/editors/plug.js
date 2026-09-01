@@ -1,28 +1,28 @@
 // Canonical private editor profile for HUE Controller: plug.
 // This source is captured into a private definition; it never registers a palette node.
 (function () {
-    let $serverInput = null;
-    let $enablePinsSelect = null;
-    let $tabs = null;
-    let $requiresBridgeElems = null;
-    let $knxSections = null;
-    let $readStatusRow = null;
-    let cachedDevices = [];
-    let previousPins = 'no';
+  let $serverInput = null
+  let $enablePinsSelect = null
+  let $tabs = null
+  let $requiresBridgeElems = null
+  let $knxSections = null
+  let $readStatusRow = null
+  let cachedDevices = []
+  let previousPins = 'no'
 
-    const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__']);
+  const KNX_EMPTY_VALUES = new Set(['', 'none', '_ADD_', '__NONE__'])
 
-    const detachHandlers = () => {
-      if ($serverInput) {
-        $serverInput.off('.knxUltimateHuePlug');
-      }
-      $('#node-input-serverHue').off('.knxUltimateHuePlug');
-      $('.hue-refresh-devices').off('.knxUltimateHuePlug');
-    };
+  const detachHandlers = () => {
+    if ($serverInput) {
+      $serverInput.off('.knxUltimateHuePlug')
+    }
+    $('#node-input-serverHue').off('.knxUltimateHuePlug')
+    $('.hue-refresh-devices').off('.knxUltimateHuePlug')
+  }
 
-    const ensureVerticalTabsStyle = () => {
-      if ($('#knxUltimateHueLightVerticalTabs').length) return;
-      const style = `
+  const ensureVerticalTabsStyle = () => {
+    if ($('#knxUltimateHueLightVerticalTabs').length) return
+    const style = `
         <style id="knxUltimateHueLightVerticalTabs">
           .hue-vertical-tabs.ui-tabs.ui-widget.ui-widget-content.ui-corner-all {
             display: flex;
@@ -105,322 +105,322 @@
             min-width: 0;
             white-space: normal;
           }
-        </style>`;
-      $('head').append(style);
-    };
+        </style>`
+    $('head').append(style)
+  }
 
-    const normalizePinsValue = (value) => {
-      if (value === undefined || value === null || value === '') return 'no';
-      if (value === true || value === 'true') return 'yes';
-      if (value === false || value === 'false') return 'no';
-      return value;
-    };
+  const normalizePinsValue = (value) => {
+    if (value === undefined || value === null || value === '') return 'no'
+    if (value === true || value === 'true') return 'yes'
+    if (value === false || value === 'false') return 'no'
+    return value
+  }
 
-    RED.nodes.registerType('knxUltimateHuePlug', {
-      category: 'KNX Ultimate HUE (Legacy)',
-      color: '#E7E9F6',
-      defaults: {
-        server: { type: 'knxUltimate-config', required: false },
-        serverHue: { type: 'hue-config', required: true },
-        name: { value: '' },
+  RED.nodes.registerType('knxUltimateHuePlug', {
+    category: 'KNX Ultimate HUE (Legacy)',
+    color: '#E7E9F6',
+    defaults: {
+      server: { type: 'knxUltimate-config', required: false },
+      serverHue: { type: 'hue-config', required: true },
+      name: { value: '' },
 
-        namePlugSwitch: { value: '' },
-        GAPlugSwitch: { value: '' },
-        dptPlugSwitch: { value: '' },
+      namePlugSwitch: { value: '' },
+      GAPlugSwitch: { value: '' },
+      dptPlugSwitch: { value: '' },
 
-        namePlugState: { value: '' },
-        GAPlugState: { value: '' },
-        dptPlugState: { value: '' },
+      namePlugState: { value: '' },
+      GAPlugState: { value: '' },
+      dptPlugState: { value: '' },
 
-        namePlugPowerState: { value: '' },
-        GAPlugPowerState: { value: '' },
-        dptPlugPowerState: { value: '' },
+      namePlugPowerState: { value: '' },
+      GAPlugPowerState: { value: '' },
+      dptPlugPowerState: { value: '' },
 
-        readStatusAtStartup: { value: 'yes' },
-        enableNodePINS: { value: 'no' },
+      readStatusAtStartup: { value: 'yes' },
+      enableNodePINS: { value: 'no' },
 
-        outputs: { value: 0 },
-        inputs: { value: 0 },
+      outputs: { value: 0 },
+      inputs: { value: 0 },
 
-        hueDevice: { value: '' },
-        hueDeviceObject: { value: {} },
-      },
-      inputs: 0,
-      outputs: 0,
-      icon: 'node-hue-icon.svg',
-      label() {
-        return `${this.name || 'Hue Plug/Outlet'} (deprecated)`;
-      },
-      paletteLabel: 'Hue Plug/Outlet (deprecated)',
-      oneditprepare() {
-        try { RED.sidebar.show('help'); } catch (error) { /* empty */ }
-        const node = this;
+      hueDevice: { value: '' },
+      hueDeviceObject: { value: {} }
+    },
+    inputs: 0,
+    outputs: 0,
+    icon: 'node-hue-icon.svg',
+    label () {
+      return `${this.name || 'Hue Plug/Outlet'} (deprecated)`
+    },
+    paletteLabel: 'Hue Plug/Outlet (deprecated)',
+    oneditprepare () {
+      try { RED.sidebar.show('help') } catch (error) { /* empty */ }
+      const node = this
 
-        const ensureConfigSelection = (selector) => {
-          if ($(selector).val() !== '_ADD_') return;
-          try { $(selector).prop('selectedIndex', 0); } catch (error) { /* empty */ }
-        };
-        ['#node-input-serverHue'].forEach(ensureConfigSelection);
-        ensureVerticalTabsStyle();
+      const ensureConfigSelection = (selector) => {
+        if ($(selector).val() !== '_ADD_') return
+        try { $(selector).prop('selectedIndex', 0) } catch (error) { /* empty */ }
+      };
+      ['#node-input-serverHue'].forEach(ensureConfigSelection)
+      ensureVerticalTabsStyle()
 
-        $tabs = $('#tabs');
-        $requiresBridgeElems = $('.hue-requires-bridge');
-        $knxSections = $('.hue-knx-section');
-        $serverInput = $('#node-input-server');
-        $enablePinsSelect = $('#node-input-enableNodePINS');
-        $readStatusRow = $('#node-input-readStatusAtStartup').closest('.form-row');
+      $tabs = $('#tabs')
+      $requiresBridgeElems = $('.hue-requires-bridge')
+      $knxSections = $('.hue-knx-section')
+      $serverInput = $('#node-input-server')
+      $enablePinsSelect = $('#node-input-enableNodePINS')
+      $readStatusRow = $('#node-input-readStatusAtStartup').closest('.form-row')
 
-        cachedDevices = [];
-        previousPins = normalizePinsValue(node.enableNodePINS);
+      cachedDevices = []
+      previousPins = normalizePinsValue(node.enableNodePINS)
 
-        $tabs.addClass('hue-vertical-tabs');
-        $tabs.tabs();
-        $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left');
+      $tabs.addClass('hue-vertical-tabs')
+      $tabs.tabs()
+      $tabs.find('li').removeClass('ui-corner-top').addClass('ui-corner-left')
 
-        const hasHueBridgeSelected = () => {
-          const val = $('#node-input-serverHue').val();
-          return val && val !== '_ADD_';
-        };
-        const updateTabsVisibility = () => {
-          if (hasHueBridgeSelected()) {
-            $tabs.show();
-            $tabs.tabs('refresh');
-            $requiresBridgeElems.show();
-          } else {
-            $tabs.hide();
-            $requiresBridgeElems.hide();
-          }
-        };
-        updateTabsVisibility();
-
-        const resolveKNXServerValue = () => {
-          const domValue = $serverInput ? $serverInput.val() : undefined;
-          if (domValue !== undefined && domValue !== null) return domValue;
-          return node.server;
-        };
-
-        const hasKNXServerSelected = () => {
-          const val = resolveKNXServerValue();
-          if (val === undefined || val === null) return false;
-          if (typeof val === 'string' && KNX_EMPTY_VALUES.has(val)) return false;
-          if (val === false) return false;
-          return Boolean(val);
-        };
-
-        $enablePinsSelect.val(previousPins);
-
-        const updateKNXVisibility = () => {
-        if (hasKNXServerSelected()) {
-          $knxSections.show();
-          $readStatusRow.show();
-          $enablePinsSelect.prop('disabled', false);
-          const desiredPins = 'no';
-          if ($enablePinsSelect.val() !== desiredPins) {
-            $enablePinsSelect.val(desiredPins).trigger('change');
-          }
-          previousPins = desiredPins;
-            getDPT('1.', '#node-input-dptPlugSwitch');
-            getDPT('1.', '#node-input-dptPlugState');
-            getDPT('1.', '#node-input-dptPlugPowerState');
+      const hasHueBridgeSelected = () => {
+        const val = $('#node-input-serverHue').val()
+        return val && val !== '_ADD_'
+      }
+      const updateTabsVisibility = () => {
+        if (hasHueBridgeSelected()) {
+          $tabs.show()
+          $tabs.tabs('refresh')
+          $requiresBridgeElems.show()
         } else {
-          $knxSections.hide();
-          $readStatusRow.hide();
-          previousPins = normalizePinsValue(node.enableNodePINS);
-          $enablePinsSelect.val('yes');
-            $enablePinsSelect.prop('disabled', true);
-            $enablePinsSelect.trigger('change');
-          }
-        };
-
-        $('#node-input-enableNodePINS').on('change', function () {
-          const val = $(this).val();
-          node.enableNodePINS = val;
-          node.outputs = val === 'yes' ? 1 : 0;
-          node.inputs = val === 'yes' ? 1 : 0;
-          if (hasKNXServerSelected()) {
-            previousPins = val;
-          }
-          if (val === 'yes') {
-            $('#node-input-enableNodePINS').closest('.form-row').find('.form-tips').show();
-          } else {
-            $('#node-input-enableNodePINS').closest('.form-row').find('.form-tips').hide();
-          }
-        });
-
-        updateKNXVisibility();
-        $serverInput.on('change.knxUltimateHuePlug', () => {
-          updateKNXVisibility();
-        });
-
-        const oNodeServer = () => RED.nodes.node($('#node-input-server').val());
-        const oNodeServerHue = () => RED.nodes.node($('#node-input-serverHue').val());
-
-        function getDPT(prefix, destinationSelector) {
-          const $destination = $(destinationSelector);
-          $destination.empty();
-          const serverId = $('#node-input-server').val();
-          if (!serverId || serverId === '_ADD_') {
-            return;
-          }
-          $.getJSON(`knxUltimateDpts?serverId=${serverId}`, (data) => {
-            data.forEach((dpt) => {
-              if (dpt.value.startsWith(prefix)) {
-                $destination.append($('<option></option>').attr('value', dpt.value).text(dpt.text));
-              }
-            });
-            if (node[destinationSelector.replace('#node-input-', '')]) {
-              $destination.val(node[destinationSelector.replace('#node-input-', '')]).trigger('change');
-            }
-          });
+          $tabs.hide()
+          $requiresBridgeElems.hide()
         }
+      }
+      updateTabsVisibility()
 
-        function getGroupAddress($sourceWidget, $nameWidget, $dptWidget, dptPrefixes) {
-          $sourceWidget.autocomplete({
-            minLength: 0,
-            source(request, response) {
-              const server = oNodeServer();
-              if (!server) { response([]); return; }
-              $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
-                response($.map(data, (value) => {
-                  const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`;
-                  for (let i = 0; i < dptPrefixes.length; i += 1) {
-                    if (htmlUtilsfullCSVSearch(search, `${request.term} ${dptPrefixes[i]}`)) {
-                      return {
-                        label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
-                        value: value.ga,
-                      };
+      const resolveKNXServerValue = () => {
+        const domValue = $serverInput ? $serverInput.val() : undefined
+        if (domValue !== undefined && domValue !== null) return domValue
+        return node.server
+      }
+
+      const hasKNXServerSelected = () => {
+        const val = resolveKNXServerValue()
+        if (val === undefined || val === null) return false
+        if (typeof val === 'string' && KNX_EMPTY_VALUES.has(val)) return false
+        if (val === false) return false
+        return Boolean(val)
+      }
+
+      $enablePinsSelect.val(previousPins)
+
+      const updateKNXVisibility = () => {
+        if (hasKNXServerSelected()) {
+          $knxSections.show()
+          $readStatusRow.show()
+          $enablePinsSelect.prop('disabled', false)
+          const desiredPins = 'no'
+          if ($enablePinsSelect.val() !== desiredPins) {
+            $enablePinsSelect.val(desiredPins).trigger('change')
+          }
+          previousPins = desiredPins
+          getDPT('1.', '#node-input-dptPlugSwitch')
+          getDPT('1.', '#node-input-dptPlugState')
+          getDPT('1.', '#node-input-dptPlugPowerState')
+        } else {
+          $knxSections.hide()
+          $readStatusRow.hide()
+          previousPins = normalizePinsValue(node.enableNodePINS)
+          $enablePinsSelect.val('yes')
+          $enablePinsSelect.prop('disabled', true)
+          $enablePinsSelect.trigger('change')
+        }
+      }
+
+      $('#node-input-enableNodePINS').on('change', function () {
+        const val = $(this).val()
+        node.enableNodePINS = val
+        node.outputs = val === 'yes' ? 1 : 0
+        node.inputs = val === 'yes' ? 1 : 0
+        if (hasKNXServerSelected()) {
+          previousPins = val
+        }
+        if (val === 'yes') {
+          $('#node-input-enableNodePINS').closest('.form-row').find('.form-tips').show()
+        } else {
+          $('#node-input-enableNodePINS').closest('.form-row').find('.form-tips').hide()
+        }
+      })
+
+      updateKNXVisibility()
+      $serverInput.on('change.knxUltimateHuePlug', () => {
+        updateKNXVisibility()
+      })
+
+      const oNodeServer = () => RED.nodes.node($('#node-input-server').val())
+      const oNodeServerHue = () => RED.nodes.node($('#node-input-serverHue').val())
+
+      function getDPT (prefix, destinationSelector) {
+        const $destination = $(destinationSelector)
+        $destination.empty()
+        const serverId = $('#node-input-server').val()
+        if (!serverId || serverId === '_ADD_') {
+          return
+        }
+        $.getJSON(`knxUltimateDpts?serverId=${serverId}`, (data) => {
+          data.forEach((dpt) => {
+            if (dpt.value.startsWith(prefix)) {
+              $destination.append($('<option></option>').attr('value', dpt.value).text(dpt.text))
+            }
+          })
+          if (node[destinationSelector.replace('#node-input-', '')]) {
+            $destination.val(node[destinationSelector.replace('#node-input-', '')]).trigger('change')
+          }
+        })
+      }
+
+      function getGroupAddress ($sourceWidget, $nameWidget, $dptWidget, dptPrefixes) {
+        $sourceWidget.autocomplete({
+          minLength: 0,
+          source (request, response) {
+            const server = oNodeServer()
+            if (!server) { response([]); return }
+            $.getJSON(`knxUltimatecsv?nodeID=${server.id}`, (data) => {
+              response($.map(data, (value) => {
+                const search = `${value.ga} (${value.devicename}) DPT${value.dpt}`
+                for (let i = 0; i < dptPrefixes.length; i += 1) {
+                  if (htmlUtilsfullCSVSearch(search, `${request.term} ${dptPrefixes[i]}`)) {
+                    return {
+                      label: `${value.ga} # ${value.devicename} # ${value.dpt}`,
+                      value: value.ga
                     }
                   }
-                  return null;
-                }));
-              });
-            },
-            select(event, ui) {
-              let sDevName = ui.item.label.split('#')[1].trim();
-              try {
-                sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim();
-              } catch (error) { /* empty */ }
-              $nameWidget.val(sDevName);
-              const optVal = $dptWidget.find(`option:contains('${ui.item.label.split('#')[2].trim()}')`).attr('value');
-              if (optVal !== undefined && optVal !== null) {
-                $dptWidget.val(optVal).trigger('change');
-              } else {
-                $dptWidget.trigger('change');
-              }
-            },
-          }).focus(function () {
-            $(this).autocomplete('search', `${$(this).val()}exactmatch`);
-          });
-          try {
-            const server = oNodeServer();
-            if (server && server.id) KNX_enableSecureFormatting($sourceWidget, server.id);
-          } catch (error) { /* empty */ }
-        }
-
-        getDPT('1.', '#node-input-dptPlugSwitch');
-        getDPT('1.', '#node-input-dptPlugState');
-        getDPT('1.', '#node-input-dptPlugPowerState');
-
-        getGroupAddress($('#node-input-GAPlugSwitch'), $('#node-input-namePlugSwitch'), $('#node-input-dptPlugSwitch'), ['1.']);
-        getGroupAddress($('#node-input-GAPlugState'), $('#node-input-namePlugState'), $('#node-input-dptPlugState'), ['1.']);
-        getGroupAddress($('#node-input-GAPlugPowerState'), $('#node-input-namePlugPowerState'), $('#node-input-dptPlugPowerState'), ['1.']);
-
-        const $deviceName = $('#node-input-name');
-        const $refreshButton = $('.hue-refresh-devices');
-        const $loadingIndicator = $('.hue-devices-loading');
-        cachedDevices = [];
-
-        function filterDevices(devices, term) {
-          const cleaned = (term || '').replace(/exactmatch/gi, '').trim();
-          return $.map(devices, (value) => {
-            const sSearch = value.name;
-            if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
-              return {
-                hueDevice: value.id,
-                hueType: value.type || value.deviceObject?.type || 'plug',
-                value: value.name,
-              };
+                }
+                return null
+              }))
+            })
+          },
+          select (event, ui) {
+            let sDevName = ui.item.label.split('#')[1].trim()
+            try {
+              sDevName = sDevName.substr(sDevName.indexOf(')') + 1).trim()
+            } catch (error) { /* empty */ }
+            $nameWidget.val(sDevName)
+            const optVal = $dptWidget.find(`option:contains('${ui.item.label.split('#')[2].trim()}')`).attr('value')
+            if (optVal !== undefined && optVal !== null) {
+              $dptWidget.val(optVal).trigger('change')
+            } else {
+              $dptWidget.trigger('change')
             }
-            return null;
-          });
-        }
-
-        function fetchDevices(hueServer, term, response, { forceRefresh = false } = {}) {
-          if (!hueServer) { response([]); return; }
-          if (!forceRefresh && cachedDevices.length > 0) {
-            response(filterDevices(cachedDevices, term));
-            return;
           }
-          $loadingIndicator.show();
-          const refreshQuery = forceRefresh ? '&forceRefresh=1' : '';
-          $.getJSON(`KNXUltimateGetResourcesHUE?rtype=plug&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
-            const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : (Array.isArray(data?.resources) ? data.resources : []));
-            cachedDevices = listCandidates.map((value) => {
-              if (value.deviceObject) return value;
-              const name = value.metadata?.name || value.name || '';
-              const type = value.type || value.rtype || value.resource_type || (value.deviceObject?.type);
-              return {
-                id: value.id || value.rid,
-                name,
-                type: type,
-                deviceObject: value,
-              };
-            });
-            response(filterDevices(cachedDevices, term));
-          }).always(() => {
-            $loadingIndicator.hide();
-          }).fail(() => {
-            cachedDevices = [];
-            response([]);
-          });
-        }
-
-        $deviceName.autocomplete({
-          minLength: 0,
-          source(request, response) {
-            const hueServer = oNodeServerHue();
-            if (!hueServer) { response([]); return; }
-            fetchDevices(hueServer, request.term, response);
-          },
-          select(event, ui) {
-            const hueType = ui.item.hueType || 'plug';
-            $('#node-input-hueDevice').val(`${ui.item.hueDevice}#${hueType}`);
-          },
         }).focus(function () {
-          $(this).autocomplete('search', `${$(this).val()}exactmatch`);
-        });
+          $(this).autocomplete('search', `${$(this).val()}exactmatch`)
+        })
+        try {
+          const server = oNodeServer()
+          if (server && server.id) KNX_enableSecureFormatting($sourceWidget, server.id)
+        } catch (error) { /* empty */ }
+      }
 
-        $refreshButton.on('click.knxUltimateHuePlug', () => {
-          cachedDevices = [];
-          const hueServer = oNodeServerHue();
-          if (!hueServer) return;
-          fetchDevices(hueServer, '', () => {
-            $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`);
-          }, { forceRefresh: true });
-        });
+      getDPT('1.', '#node-input-dptPlugSwitch')
+      getDPT('1.', '#node-input-dptPlugState')
+      getDPT('1.', '#node-input-dptPlugPowerState')
 
-        $('#node-input-serverHue').on('change.knxUltimateHuePlug', () => {
-          cachedDevices = [];
-          updateTabsVisibility();
-          $loadingIndicator.hide();
-        });
+      getGroupAddress($('#node-input-GAPlugSwitch'), $('#node-input-namePlugSwitch'), $('#node-input-dptPlugSwitch'), ['1.'])
+      getGroupAddress($('#node-input-GAPlugState'), $('#node-input-namePlugState'), $('#node-input-dptPlugState'), ['1.'])
+      getGroupAddress($('#node-input-GAPlugPowerState'), $('#node-input-namePlugPowerState'), $('#node-input-dptPlugPowerState'), ['1.'])
 
-        $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes');
-        $('#node-input-enableNodePINS').val(normalizePinsValue(node.enableNodePINS || 'no')).trigger('change');
-      },
-      oneditsave() {
-        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
-        detachHandlers();
-        const pinsSelection = $('#node-input-enableNodePINS').val();
-        this.enableNodePINS = normalizePinsValue(pinsSelection);
-        this.outputs = this.enableNodePINS === 'yes' ? 1 : 0;
-        this.inputs = this.enableNodePINS === 'yes' ? 1 : 0;
-        cachedDevices = [];
-      },
-      oneditcancel() {
-        detachHandlers();
-        cachedDevices = [];
-        try { RED.sidebar.show('info'); } catch (error) { /* empty */ }
-      },
-    });
-  }());
+      const $deviceName = $('#node-input-name')
+      const $refreshButton = $('.hue-refresh-devices')
+      const $loadingIndicator = $('.hue-devices-loading')
+      cachedDevices = []
+
+      function filterDevices (devices, term) {
+        const cleaned = (term || '').replace(/exactmatch/gi, '').trim()
+        return $.map(devices, (value) => {
+          const sSearch = value.name
+          if (cleaned === '' || htmlUtilsfullCSVSearch(sSearch, cleaned)) {
+            return {
+              hueDevice: value.id,
+              hueType: value.type || value.deviceObject?.type || 'plug',
+              value: value.name
+            }
+          }
+          return null
+        })
+      }
+
+      function fetchDevices (hueServer, term, response, { forceRefresh = false } = {}) {
+        if (!hueServer) { response([]); return }
+        if (!forceRefresh && cachedDevices.length > 0) {
+          response(filterDevices(cachedDevices, term))
+          return
+        }
+        $loadingIndicator.show()
+        const refreshQuery = forceRefresh ? '&forceRefresh=1' : ''
+        $.getJSON(`KNXUltimateGetResourcesHUE?rtype=plug&serverId=${encodeURIComponent(hueServer.id)}${refreshQuery}&_=${Date.now()}`, (data) => {
+          const listCandidates = Array.isArray(data) ? data : (Array.isArray(data?.devices) ? data.devices : (Array.isArray(data?.resources) ? data.resources : []))
+          cachedDevices = listCandidates.map((value) => {
+            if (value.deviceObject) return value
+            const name = value.metadata?.name || value.name || ''
+            const type = value.type || value.rtype || value.resource_type || (value.deviceObject?.type)
+            return {
+              id: value.id || value.rid,
+              name,
+              type,
+              deviceObject: value
+            }
+          })
+          response(filterDevices(cachedDevices, term))
+        }).always(() => {
+          $loadingIndicator.hide()
+        }).fail(() => {
+          cachedDevices = []
+          response([])
+        })
+      }
+
+      $deviceName.autocomplete({
+        minLength: 0,
+        source (request, response) {
+          const hueServer = oNodeServerHue()
+          if (!hueServer) { response([]); return }
+          fetchDevices(hueServer, request.term, response)
+        },
+        select (event, ui) {
+          const hueType = ui.item.hueType || 'plug'
+          $('#node-input-hueDevice').val(`${ui.item.hueDevice}#${hueType}`)
+        }
+      }).focus(function () {
+        $(this).autocomplete('search', `${$(this).val()}exactmatch`)
+      })
+
+      $refreshButton.on('click.knxUltimateHuePlug', () => {
+        cachedDevices = []
+        const hueServer = oNodeServerHue()
+        if (!hueServer) return
+        fetchDevices(hueServer, '', () => {
+          $deviceName.autocomplete('search', `${$deviceName.val()}exactmatch`)
+        }, { forceRefresh: true })
+      })
+
+      $('#node-input-serverHue').on('change.knxUltimateHuePlug', () => {
+        cachedDevices = []
+        updateTabsVisibility()
+        $loadingIndicator.hide()
+      })
+
+      $('#node-input-readStatusAtStartup').val(node.readStatusAtStartup || 'yes')
+      $('#node-input-enableNodePINS').val(normalizePinsValue(node.enableNodePINS || 'no')).trigger('change')
+    },
+    oneditsave () {
+      try { RED.sidebar.show('info') } catch (error) { /* empty */ }
+      detachHandlers()
+      const pinsSelection = $('#node-input-enableNodePINS').val()
+      this.enableNodePINS = normalizePinsValue(pinsSelection)
+      this.outputs = this.enableNodePINS === 'yes' ? 1 : 0
+      this.inputs = this.enableNodePINS === 'yes' ? 1 : 0
+      cachedDevices = []
+    },
+    oneditcancel () {
+      detachHandlers()
+      cachedDevices = []
+      try { RED.sidebar.show('info') } catch (error) { /* empty */ }
+    }
+  })
+}())

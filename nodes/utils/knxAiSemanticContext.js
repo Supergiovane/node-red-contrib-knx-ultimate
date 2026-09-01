@@ -574,11 +574,11 @@ const packKnxAiSemanticContext = ({ catalog, byteBudget, detailReferences } = {}
     const overflowDeclaration = complete
       ? ''
       : pickOverflowDeclaration({
-          byteBudget: Math.max(0, maxBytes - buffer.usedBytes() - 1),
-          manifestBytes: packedManifestBytes,
-          recordCount: records.length,
-          includedCount
-        })
+        byteBudget: Math.max(0, maxBytes - buffer.usedBytes() - 1),
+        manifestBytes: packedManifestBytes,
+        recordCount: records.length,
+        includedCount
+      })
     if (overflowDeclaration) buffer.appendAtomic(overflowDeclaration)
     return {
       lines: buffer.lines,

@@ -1897,7 +1897,7 @@ describe('KNX AI conversational control', () => {
     expect(runtime).to.include("if (type === 'thinking')")
     expect(runtime).to.include("if (type !== 'request') return")
     expect(runtime).to.include('node.setNodeStatus = ({ text } = {}) => {')
-    expect(runtime).not.to.include("text: GA + payload")
+    expect(runtime).not.to.include('text: GA + payload')
     expect(runtime).not.to.include("node.status({ fill: 'red', shape: 'dot', text: '[THE GATEWAY NODE HAS BEEN DISABLED]' })")
   })
 
@@ -2320,7 +2320,6 @@ describe('KNX AI conversational control', () => {
   })
 
   it('keeps reasoning and streaming configuration provider-neutral in the runtime', () => {
-
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('node.llmReasoningEffort = normalizeKnxAiReasoningEffort(config.llmReasoningEffort)')
     expect(runtime).to.include('resolveKnxAiReasoningRequestFields({')
@@ -2773,7 +2772,7 @@ describe('KNX AI conversational control', () => {
     expect(webUi).to.include("entry.scheduledTaskRun === true && String(entry.sessionId || '') === 'sidebar'")
   })
 
-  it('keeps the Education-only proactive policy, five outputs, help, and docs aligned in every locale', () => {
+  it('keeps Education-scoped alerts, consent-gated Cerebrum habits, five outputs, help, and docs aligned in every locale', () => {
     const root = path.join(__dirname, '..')
     const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('llmAllowKnxCommands: { value: false }')
@@ -2799,7 +2798,14 @@ describe('KNX AI conversational control', () => {
     const runtime = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include('replyMessage.inputMessage = cloneInputMessage(inputMessage)')
     expect(runtime).to.include('inputMessage: cloneInputMessage(inputMessage)')
-    expect(runtime).to.include('node.llmEnabled !== true || !education')
+    expect(runtime).to.include('node.llmEnabled !== true) return')
+    expect(runtime).to.include('const candidate = education ? Array.from(node._proactiveStates.values())')
+    expect(runtime).to.include("habit.status === 'pending_confirmation'")
+    expect(runtime).to.include('findKnxAiHabitCandidates(node._homeMemory')
+    expect(runtime).to.include('handleCerebrumHabitReply({ msg, question, sessionId, habit: pendingHabit })')
+    expect(runtime).to.include('sendKnxAiOutputs([null, null, replyMessage, null], syntheticInputMessage)')
+    expect(runtime).to.include("type: 'cerebrum_habit_proposal'")
+    expect(runtime).to.include('CEREBRUM_STATE_TICK_MS')
     ;[
       'proactiveEnabled',
       'proactiveRecipient',
@@ -2829,11 +2835,11 @@ describe('KNX AI conversational control', () => {
     expect(runtime).not.to.include('highQuality: true')
 
     const webUi = fs.readFileSync(path.join(root, 'ui', 'knxUltimateAI-vue', 'src', 'App.vue'), 'utf8')
-    expect(webUi).to.include("activateSettingsTab('learning')")
-    expect(webUi).to.include("activeTab: queryActiveTab")
-    expect(webUi).to.include("settingsTab: querySettingsTab || loadString(settingsTabKey, 'config')")
-    expect(webUi).to.include("['assistant', 'settings'].includes(requested)")
-    expect(webUi).to.include("get('settingsTab') === 'learning'")
+    expect(webUi).to.include("activateCerebrumTab('learning')")
+    expect(webUi).to.include('activeTab: queryActiveTab')
+    expect(webUi).to.include("cerebrumTab: queryCerebrumTab || loadString(cerebrumTabKey, 'conversation')")
+    expect(webUi).to.include("['cerebrum', 'settings'].includes(requested)")
+    expect(webUi).to.include("['conversation', 'learning', 'memory'].includes(requested)")
     expect(webUi).to.include('v-model="state.chatLearningContent"')
     expect(webUi).to.include('loadChatLearningFile({ force: true })')
     expect(webUi).to.include('@click="copyChatLearningFile"')
@@ -3110,8 +3116,10 @@ describe('KNX AI conversational control', () => {
     expect(editor).to.include('id="knx-ai-detected-adapters-panel"')
     expect(editor).to.include('id="knx-ai-open-chat-learning"')
     expect(editor).to.include('openKnxAiWebPage("chat-learning")')
-    expect(editor).to.include('params.set("tab", "settings")')
-    expect(editor).to.include('params.set("settingsTab", "learning")')
+    expect(editor).to.include('id="knx-ai-open-cerebrum-memory"')
+    expect(editor).to.include('openKnxAiWebPage("cerebrum-memory")')
+    expect(editor).to.include('params.set("tab", "cerebrum")')
+    expect(editor).to.include('params.set("cerebrumTab", "learning")')
     expect(editor).to.include('url: "knxUltimateAI/adapters"')
     expect(editor).to.include('$("#knx-ai-tabs").tabs({ active: 0 })')
     expect(editor).to.include('.knx-ai-accordion-subsection')
@@ -4243,6 +4251,56 @@ describe('KNX AI persistent chat context', () => {
     expect(runtime).to.include('node.resetChatLearningFile = async')
   })
 
+  it('exposes the validated user-editable Cerebrum memory in the Web UI', () => {
+    const root = path.join(__dirname, '..')
+    const runtime = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.js'), 'utf8')
+    const webUi = fs.readFileSync(path.join(root, 'ui', 'knxUltimateAI-vue', 'src', 'App.vue'), 'utf8')
+    expect(runtime).to.include("RED.httpAdmin.get('/knxUltimateAI/sidebar/home-memory'")
+    expect(runtime).to.include("RED.httpAdmin.post('/knxUltimateAI/sidebar/home-memory/save'")
+    expect(runtime).to.include("RED.httpAdmin.post('/knxUltimateAI/sidebar/home-memory/reset'")
+    expect(runtime).to.include('parseKnxAiHomeMemoryMarkdownStrict(fileContent)')
+    expect(runtime).to.include('buildKnxAiHomeMemoryRevision(liveMemory)')
+    expect(runtime).to.include('node.getCerebrumMemoryFile = async')
+    expect(webUi).to.include("activateCerebrumTab('memory')")
+    expect(webUi).to.include("apiUrl('home-memory/save')")
+    expect(webUi).to.include("apiUrl('home-memory/reset')")
+    expect(runtime).to.include('jsonContent: `${JSON.stringify(liveMemory, null, 2)}\\n`')
+    expect(webUi).to.include("state.cerebrumMemoryViewMode === 'json'")
+    expect(webUi).to.include('Simplified text explains the same data without technical JSON fields and is always read-only.')
+    expect(webUi).to.include('cerebrum-memory-simple-view')
+    expect(webUi).to.include('Cerebrum never activates an inferred habit until the occupant confirms or corrects it.')
+  })
+
+  it('groups Cerebrum submenus, binds the Web UI to its opening node, and backs up every authoritative Cerebrum file', () => {
+    const root = path.join(__dirname, '..')
+    const runtime = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.js'), 'utf8')
+    const editor = fs.readFileSync(path.join(root, 'nodes', 'knxUltimateAI.html'), 'utf8')
+    const webUi = fs.readFileSync(path.join(root, 'ui', 'knxUltimateAI-vue', 'src', 'App.vue'), 'utf8')
+
+    expect(webUi).to.include('activateSidebarTab(\'cerebrum\')')
+    expect(webUi).to.include('activateCerebrumTab(\'conversation\')')
+    expect(webUi).to.include('activateCerebrumTab(\'learning\')')
+    expect(webUi).to.include('activateCerebrumTab(\'memory\')')
+    expect(webUi).not.to.include('activateSidebarTab(\'assistant\')')
+    expect(webUi).not.to.include('settingsTab')
+    expect(webUi).not.to.include('KNX AI Node')
+    expect(webUi).not.to.include('v-model="state.selectedNodeId"')
+    expect(webUi).to.include('state.selectedNodeId = queryNodeId')
+    expect(webUi).to.include('Open Cerebrum from a deployed KNX AI node.')
+    expect(editor).to.include('params.set("cerebrumTab", "conversation")')
+    expect(editor).not.to.include('params.set("settingsTab"')
+
+    expect(runtime).to.include("format: 'knx-ai-cerebrum-backup'")
+    expect(runtime).to.include('version: 1,')
+    ;['aiConfiguration', 'chatLearning', 'homeMemory', 'schedules', 'schedulesReadable']
+      .forEach(id => expect(runtime).to.include(`${id}: buildCerebrumBackupFile({`))
+    expect(runtime).to.include('p.format !== \'knx-ai-cerebrum-backup\' || p.version !== 1')
+    expect(runtime).to.include('Unsupported backup. Import a KNX AI Cerebrum backup version 1.')
+    expect(runtime).to.include('parseKnxAiChatContextFileStrict(readBackupContent(\'chatLearning\'')
+    expect(runtime).to.include('parseKnxAiHomeMemoryMarkdownStrict(readBackupContent(\'homeMemory\'')
+    expect(runtime).to.include('JSON.parse(readBackupContent(\'schedules\'')
+  })
+
   it('keeps sessions isolated and clears only the selected chat', () => {
     let context = createEmptyKnxAiChatContext()
     context = addKnxAiChatTurn(context, {
@@ -4591,7 +4649,7 @@ describe('KNX AI Setup Doctor and onboarding', () => {
       assistantEnabled: true
     })
 
-    expect(KNX_AI_SETUP_DOCTOR_VERSION).to.equal(1)
+    expect(KNX_AI_SETUP_DOCTOR_VERSION).to.equal(2)
     expect(estimateKnxAiLogicalFunctions(installationCatalog)).to.equal(3)
     expect(firstRun.totals).to.deep.include({
       groupAddresses: 4,
@@ -4646,7 +4704,7 @@ describe('KNX AI Setup Doctor and onboarding', () => {
       providerProbe: { state: 'reachable', modelCount: 2 }
     })
 
-    expect(ready).to.include({ version: 1, status: 'ready', score: 100 })
+    expect(ready).to.include({ version: 2, status: 'ready', score: 100 })
     ;['tts', 'cameras'].forEach(id => {
       const check = ready.checks.find(item => item.id === id)
       expect(check).to.include({ status: 'info', blocking: false, weight: 0 })
@@ -4773,7 +4831,7 @@ describe('KNX AI Setup Doctor and onboarding', () => {
       })
       expect(snapshot.statusLabel, language).to.be.a('string').and.not.equal('')
       expect(snapshot.summary, language).to.be.a('string').and.not.equal('')
-      expect(snapshot.checks, language).to.have.length(11)
+      expect(snapshot.checks, language).to.have.length(13)
       snapshot.checks.forEach(check => {
         expect(check.title, `${language}:${check.id}:title`).to.be.a('string').and.not.equal('')
         expect(check.detail, `${language}:${check.id}:detail`).to.be.a('string').and.not.equal('')
@@ -4862,11 +4920,11 @@ describe('KNX AI Setup Doctor and onboarding', () => {
     expect(editor).to.include('#knx-ai-setup-doctor-panel[open] .knx-ai-setup-doctor-chevron')
     expect(editor).to.include('const renderSetupDoctor = (snapshot) => {')
     expect(editor).to.include('renderSetupDoctor(data && data.setupDoctor)')
-    expect(editor).to.include('openKnxAiWebPage("assistant", String(prompt.text))')
+    expect(editor).to.include('openKnxAiWebPage("cerebrum", String(prompt.text))')
     expect(editor).to.include('requestData.refreshSetup = "1"')
     expect(editor).to.include('knxUltimateAI.messages.setupDoctorDeployHint')
 
-    expect(webUi).to.include("return ['assistant', 'settings'].includes(requested) ? requested : 'overview'")
+    expect(webUi).to.include("return ['cerebrum', 'settings'].includes(requested) ? requested : 'overview'")
     expect(webUi).to.include("get('prompt') || ''")
     expect(webUi).to.include('chatDraft: queryPrompt')
     expect(webUi).to.include('const setupDoctor = computed(')

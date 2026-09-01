@@ -163,8 +163,8 @@ const normalizeKnxAiCameraAction = (value, cameras = []) => {
     ? eventType === 'smartDetectLine'
       ? camera.lines
       : ['smartDetectZone', 'smartDetectLoiterZone'].includes(eventType)
-        ? camera.zones
-        : []
+          ? camera.zones
+          : []
     : []
   const normalizedScopeTarget = normalizeSearchText(requestedScope)
   const matchingScopes = normalizedScopeTarget
@@ -231,8 +231,8 @@ const cameraWatchMatchesEvent = (watch, event) => {
   const wantedObjects = (Array.isArray(watch.objectTypes) ? watch.objectTypes : []).map(normalizeCameraObjectType).filter(Boolean)
   const watchEventType = normalizeCameraEventType(watch.eventType)
   const eventType = normalizeCameraEventType(event.eventType)
-  const genericSmartDetection = watchEventType === 'smartDetect'
-    || (watchEventType === 'motion' && wantedObjects.length > 0)
+  const genericSmartDetection = watchEventType === 'smartDetect' ||
+    (watchEventType === 'motion' && wantedObjects.length > 0)
   if (genericSmartDetection) {
     if (!['smartDetectZone', 'smartDetectLine', 'smartDetectLoiterZone'].includes(eventType)) return false
   } else if (watchEventType && watchEventType !== eventType) return false

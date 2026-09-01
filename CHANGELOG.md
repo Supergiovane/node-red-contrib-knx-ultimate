@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 6.4.0** - September 2026<br/>
+
+- **KNX AI — Cerebrum (BETA)**: renamed the Web Assistant area to Cerebrum and introduced a passive home-automation intelligence layer that studies KNX telegrams, useful Node-RED flow events and the registered HUE, Matter and Home Assistant adapters. Cerebrum maintains bounded current-state and observation context locally, learns only repeated patterns spanning distinct days and asks the occupant for confirmation or correction through the Assistant output before a habit can become predictive. Confirmed habits remain subject to the exact ETS/DPT permissions: group addresses marked read-only are never written.<br/>
+- **Cerebrum — Home Assistant adapter**: added the `Cerebrum Home Assistant` node and the shared runtime registry. When Node-RED is running as a Home Assistant add-on, Setup Doctor detects whether the required `ha-api` round trip is present and tells the user to add it when missing. Entity states, events and service capabilities are exposed to Cerebrum through bounded, vendor-neutral records without retaining raw messages, secrets or binary payloads.<br/>
+- **Cerebrum — supervised startup**: every KNX AI node now asks its configured model to generate a short startup reassurance on the Assistant output. The message carries `msg.boot = true` for simple flow filtering and falls back to a localized deterministic notice if the provider is unavailable.<br/>
+- **KNX AI Web — Cerebrum workspace and readable memory**: reorganized the Web navigation into Cerebrum submenus, removed the separate KNX AI node selector and bound the workspace directly to the node that opened it. Cerebrum Memory now offers an editable authoritative JSON view and a read-only simplified view; AI Chat Learning offers the equivalent editable native `.knxctx` view and localized simplified view. Copy follows the visible representation, while save, restore, download and concurrency checks continue to protect the complete authoritative files.<br/>
+- **Cerebrum — complete import/export**: the Settings page now contains only import/export and its versioned backup includes AI configuration, chat learning, home memory, schedules and the readable schedules companion file, with validation and rollback-safe restoration.<br/>
+
 **Version 6.3.32** - August 2026<br/>
 
 - **KNX AI**: AI-first chat with complete cloud ETS context, selectable local windows and guided retrieval; selected ETS access is now the sole read/write authority, with no neutral role.<br/>

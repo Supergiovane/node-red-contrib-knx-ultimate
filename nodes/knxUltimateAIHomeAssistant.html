@@ -1,0 +1,38 @@
+<script type="text/javascript">
+    RED.nodes.registerType('knxUltimateAIHomeAssistant', {
+        category: "KNX Ultimate AI",
+        color: '#41BDF5',
+        defaults: {
+            name: { value: "Cerebrum Home Assistant" },
+            requestTimeoutMs: { value: 15000, validate: RED.validators.number() }
+        },
+        inputs: 1,
+        outputs: 1,
+        outputLabels: function () { return "ha-api request"; },
+        icon: "font-awesome/fa-home",
+        label: function () { return this.name || "Cerebrum Home Assistant"; },
+        paletteLabel: "Cerebrum Home Assistant"
+    });
+</script>
+
+<script type="text/html" data-template-name="knxUltimateAIHomeAssistant">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-requestTimeoutMs"><i class="fa fa-clock-o"></i> API timeout</label>
+        <input type="number" id="node-input-requestTimeoutMs" min="3000" max="60000" step="1000">
+    </div>
+    <div class="form-tips">
+        Connect this node's output to a Home Assistant <b>API</b> node (<code>ha-api</code>), then connect the API output back to this node's input. Home Assistant event nodes may also feed this input so Cerebrum can observe their state changes.
+    </div>
+</script>
+
+<script type="text/html" data-help-name="knxUltimateAIHomeAssistant">
+    <p>Connects Cerebrum to the Home Assistant Node-RED API node without storing Home Assistant credentials in KNX Ultimate.</p>
+    <h3>Required round trip</h3>
+    <p><code>Cerebrum Home Assistant → API (ha-api) → Cerebrum Home Assistant</code></p>
+    <p>The bridge sends dynamic WebSocket requests under <code>msg.payload</code>, correlates the returned message and exposes entity, state, service and event capabilities to the in-process Cerebrum registry.</p>
+    <p>Writes are only a provider capability. KNX AI must still apply its normal proposal, validation and confirmation policy before a Home Assistant service call can be executed.</p>
+</script>

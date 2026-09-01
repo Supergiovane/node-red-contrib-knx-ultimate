@@ -16,7 +16,7 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - See which group addresses are most active.
 - Create and manage areas with AI support.
 - Run guided tests and read clear results.
-- Ask the assistant "what is wrong?" and get quick suggestions.
+- Ask Cerebrum "what is wrong?" and get quick suggestions.
 - Generate a ready-to-import Node-RED flow from a plain-language description (Flow Builder, BETA).
 
 ## Open it quickly
@@ -34,13 +34,22 @@ This page keeps the historical name `KNX-AI-Sidebar` for compatibility.
 - **Ask**: type a question in natural language.
   If disk archive is enabled in the node, Ask searches archived telegrams and defaults to the last 20 minutes when no explicit date is provided.
 - **Flow Builder** (BETA): describe an automation in plain words and get a Node-RED flow (JSON) to paste into the editor.
-- **Settings**: node selection, full configuration import/export and the editable shared AI Chat Learning file.
+- **Cerebrum (BETA)**: Conversation, editable AI Chat Learning and the shared Cerebrum Memory are organized as submenus.
+- **Settings**: only import/export of the complete KNX AI and Cerebrum backup. The page is bound to the KNX AI node that opened it; there is no second node selector.
 
 ## AI Chat Learning
 
-Open **Settings → AI Chat Learning** to inspect the absolute path and edit the shared `knxai-chat-context.knxctx` used live by all KNX AI nodes on the same storage. You can copy it, download it as a backup or restore another `.knxctx` file. Edit the authoritative native V3 tab-separated records (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`); Save validates the 512 KB bound and atomically writes the canonical file. **Reinitialize Memory** replaces it with an empty context after explicit confirmation. Concurrent changes are protected by a revision check. Previous Markdown/JSON V2 and Base64 V1 files are deliberately not read, imported or migrated.
+Open **Cerebrum → AI Chat Learning** to inspect the shared `knxai-chat-context.knxctx` used live by all KNX AI nodes on the same storage. **Native file** is the editable source; **Simplified text** is a localized read-only view of conversations, learned instructions and camera watches. Copy follows the current view, while download and restore always operate on the complete `.knxctx` backup. Save validates the 512 KB bound and atomically writes the canonical native V3 records (`SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH`, `END_SESSION`). **Reinitialize Memory** replaces it with an empty context after explicit confirmation. Concurrent changes are protected by a revision check. Previous Markdown/JSON V2 and Base64 V1 files are deliberately not read, imported or migrated.
 
-The **Open AI Chat Learning** button in the Node-RED node configuration, under **Conversations & home**, opens this page and tab directly for the current node.
+The **Open AI Chat Learning** button in the Node-RED node configuration, under **Cerebrum (BETA)**, opens this page and tab directly for the current node.
+
+## Cerebrum Memory
+
+Open **Cerebrum → Cerebrum Memory** to inspect and edit `knxai-home-memory.md`. The authoritative JSON block contains learned habits, occupant confirmations/corrections/rejections, the adaptive current-state cache and reconciler diagnostics; readable Markdown is regenerated after validation. Copy, download, restore and explicit reset are supported with file-size and concurrent-revision protection.
+
+The strict version-1 backup in **Settings → Import / Export** contains the persisted KNX AI configuration plus the authoritative AI Chat Learning, home-memory and schedule files (including the readable schedule mirror). Older configuration exports are intentionally rejected.
+
+The Web page makes the consent boundary visible: a mature pattern can be **learning**, **awaiting reply**, **confirmed**, **rejected** or **paused**. Only a confirmed habit is eligible for later anticipation. The Node-RED configuration includes a direct **Open Cerebrum memory** button.
 
 ## Flow Builder (BETA)
 

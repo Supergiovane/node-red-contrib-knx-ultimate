@@ -1,11 +1,20 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { KNX_AI_WEB_I18N } from './knxAiWebI18n'
+import {
+  formatChatLearningSimpleText,
+  parseChatLearningNativeFile
+} from './chatLearningView.mjs'
+import {
+  formatCerebrumMemoryJson,
+  formatCerebrumMemorySimpleText,
+  replaceCerebrumMemoryJsonBlock
+} from './cerebrumMemoryView.mjs'
 
-const storageKey = 'knxUltimateAI:selectedNodeId'
-const autoKey = 'knxUltimateAI:autoRefresh'
 const tabKey = 'knxUltimateAI:activeTab'
-const settingsTabKey = 'knxUltimateAI:settingsTab'
+const cerebrumTabKey = 'knxUltimateAI:cerebrumTab'
+const chatLearningViewKey = 'knxUltimateAI:chatLearningView'
+const cerebrumMemoryViewKey = 'knxUltimateAI:cerebrumMemoryView'
 const flowPrefsKey = 'knxUltimateAI:flowPreview'
 const voiceKey = 'knxUltimateAI:voiceEnabled'
 const sidebarKey = 'knxUltimateAI:sidebarExpanded'
@@ -64,7 +73,7 @@ const queryNodeId = (() => {
 const queryActiveTab = (() => {
   try {
     const requested = String(new URLSearchParams(window.location.search).get('tab') || '')
-    return ['assistant', 'settings'].includes(requested) ? requested : 'overview'
+    return ['cerebrum', 'settings'].includes(requested) ? requested : 'overview'
   } catch (error) {
     return 'overview'
   }
@@ -78,9 +87,10 @@ const queryPrompt = (() => {
   }
 })()
 
-const querySettingsTab = (() => {
+const queryCerebrumTab = (() => {
   try {
-    return new URLSearchParams(window.location.search).get('settingsTab') === 'learning' ? 'learning' : ''
+    const requested = String(new URLSearchParams(window.location.search).get('cerebrumTab') || '')
+    return ['conversation', 'learning', 'memory'].includes(requested) ? requested : ''
   } catch (error) {
     return ''
   }
@@ -526,8 +536,7 @@ const state = reactive({
   nodes: [],
   selectedNodeId: '',
   activeTab: queryActiveTab,
-  settingsTab: querySettingsTab || loadString(settingsTabKey, 'config'),
-  autoRefresh: loadBoolean(autoKey, true),
+  cerebrumTab: queryCerebrumTab || loadString(cerebrumTabKey, 'conversation'),
   voiceEnabled: loadBoolean(voiceKey, true),
   flowMaxNodes: loadFlowPrefs().maxNodes,
   flowSelectedGa: loadFlowPrefs().selectedGa,
@@ -626,6 +635,7 @@ const state = reactive({
   flowBuilderCopied: false,
   chatLearningContent: '',
   chatLearningBaseline: '',
+  chatLearningViewMode: ['native', 'simple'].includes(loadString(chatLearningViewKey, 'simple')) ? loadString(chatLearningViewKey, 'simple') : 'simple',
   chatLearningRevision: '',
   chatLearningName: '',
   chatLearningPath: '',
@@ -639,6 +649,26 @@ const state = reactive({
   chatLearningResetting: false,
   chatLearningCopied: false,
   chatLearningError: '',
+  cerebrumMemoryContent: '',
+  cerebrumMemoryBaseline: '',
+  cerebrumMemoryFileContent: '',
+  cerebrumMemoryViewMode: ['json', 'simple'].includes(loadString(cerebrumMemoryViewKey, 'simple')) ? loadString(cerebrumMemoryViewKey, 'simple') : 'simple',
+  cerebrumMemoryRevision: '',
+  cerebrumMemoryName: '',
+  cerebrumMemoryPath: '',
+  cerebrumMemoryBytes: 0,
+  cerebrumMemoryMaxBytes: 5 * 1024 * 1024,
+  cerebrumMemoryModifiedAt: '',
+  cerebrumMemoryHabitCount: 0,
+  cerebrumMemoryConfirmedHabitCount: 0,
+  cerebrumMemoryPendingHabitCount: 0,
+  cerebrumMemoryStateCount: 0,
+  cerebrumMemoryLoadedNodeId: '',
+  cerebrumMemoryLoading: false,
+  cerebrumMemorySaving: false,
+  cerebrumMemoryResetting: false,
+  cerebrumMemoryCopied: false,
+  cerebrumMemoryError: '',
   pollStateHandle: null,
   pollNodesHandle: null
 })
@@ -647,6 +677,7 @@ const flowCardRef = ref(null)
 const isFlowFullscreen = ref(false)
 const configImportRef = ref(null)
 const chatLearningImportRef = ref(null)
+const cerebrumMemoryImportRef = ref(null)
 const testPlanReportRef = ref(null)
 const desktopSidebarExpanded = ref(loadBoolean(sidebarKey, true))
 const mobileSidebarOpen = ref(false)
@@ -656,6 +687,7 @@ let activeStepAudio = null
 let testPlanBaselineData = null
 let pendingTestPlanAction = null
 let chatLearningOperationGeneration = 0
+let cerebrumMemoryOperationGeneration = 0
 
 function stopActiveStepAudio () {
   if (!activeStepAudio) return
@@ -1566,6 +1598,41 @@ const selectedNode = computed(() => state.nodes.find(node => node.id === state.s
 const chatLearningDirty = computed(() => state.chatLearningContent !== state.chatLearningBaseline)
 const chatLearningEditorBytes = computed(() => new Blob([String(state.chatLearningContent || '')]).size)
 const chatLearningTooLarge = computed(() => chatLearningEditorBytes.value > state.chatLearningMaxBytes)
+const chatLearningSimpleView = computed(() => {
+  try {
+    return formatChatLearningSimpleText(state.chatLearningContent, { language: uiLanguage.value })
+  } catch (error) {
+    return ''
+  }
+})
+const chatLearningViewError = computed(() => {
+  if (!state.chatLearningContent) return ''
+  try {
+    parseChatLearningNativeFile(state.chatLearningContent)
+    return ''
+  } catch (error) {
+    return error.message || 'Invalid AI Chat Learning file'
+  }
+})
+const cerebrumMemoryDirty = computed(() => state.cerebrumMemoryContent !== state.cerebrumMemoryBaseline)
+const cerebrumMemoryEditorBytes = computed(() => new Blob([String(state.cerebrumMemoryContent || '')]).size)
+const cerebrumMemoryTooLarge = computed(() => cerebrumMemoryEditorBytes.value > state.cerebrumMemoryMaxBytes)
+const cerebrumMemorySimpleView = computed(() => {
+  try {
+    return formatCerebrumMemorySimpleText(state.cerebrumMemoryContent, { language: uiLanguage.value })
+  } catch (error) {
+    return ''
+  }
+})
+const cerebrumMemoryViewError = computed(() => {
+  if (!state.cerebrumMemoryContent) return ''
+  try {
+    formatCerebrumMemoryJson(state.cerebrumMemoryContent)
+    return ''
+  } catch (error) {
+    return error.message || 'The Cerebrum JSON is not valid. Switch to JSON to correct it.'
+  }
+})
 const summary = computed(() => state.stateData && state.stateData.summary ? state.stateData.summary : {})
 const nodeInfo = computed(() => state.stateData && state.stateData.node ? state.stateData.node : {})
 const setupDoctor = computed(() => state.stateData && state.stateData.setupDoctor ? state.stateData.setupDoctor : null)
@@ -1853,15 +1920,11 @@ const chatMessages = computed(() => state.chatMessages.map((item, index) => ({
 })))
 
 watch(() => state.selectedNodeId, (value) => {
-  saveString(storageKey, value || '')
   seenScheduledChatEntries.clear()
   state.areaSelectedId = ''
   state.testAreaSelectedId = loadSelectedTestAreaIdForNode(value || '')
   resetChatLearningEditor()
-})
-
-watch(() => state.autoRefresh, (value) => {
-  saveBoolean(autoKey, value)
+  resetCerebrumMemoryEditor()
 })
 
 watch(() => state.voiceEnabled, (value) => {
@@ -1877,8 +1940,16 @@ watch(() => state.activeTab, (value) => {
   saveString(tabKey, value || 'overview')
 })
 
-watch(() => state.settingsTab, (value) => {
-  saveString(settingsTabKey, value || 'config')
+watch(() => state.cerebrumTab, (value) => {
+  saveString(cerebrumTabKey, value || 'conversation')
+})
+
+watch(() => state.chatLearningViewMode, (value) => {
+  saveString(chatLearningViewKey, value === 'native' ? 'native' : 'simple')
+})
+
+watch(() => state.cerebrumMemoryViewMode, (value) => {
+  saveString(cerebrumMemoryViewKey, value === 'json' ? 'json' : 'simple')
 })
 
 watch(() => state.flowMaxNodes, (value) => {
@@ -2670,14 +2741,7 @@ async function speakText (text, description = '') {
   await playStepAudioFromBlob(blob)
 }
 
-function preferredNodeId (nodes) {
-  const queryPreferred = queryNodeId && nodes.find(node => node.id === queryNodeId) ? queryNodeId : ''
-  const stored = loadString(storageKey, '')
-  const storedPreferred = stored && nodes.find(node => node.id === stored) ? stored : ''
-  return queryPreferred || storedPreferred || (nodes[0] ? nodes[0].id : '')
-}
-
-async function fetchNodes ({ preserveSelection = true } = {}) {
+async function fetchNodes () {
   state.loadingNodes = true
   setStatus('Loading nodes...')
   try {
@@ -2691,10 +2755,21 @@ async function fetchNodes ({ preserveSelection = true } = {}) {
       setStatus(state.lastError)
       return
     }
-    const nextId = preserveSelection && state.selectedNodeId && nodes.find(node => node.id === state.selectedNodeId)
-      ? state.selectedNodeId
-      : preferredNodeId(nodes)
-    state.selectedNodeId = nextId
+    if (!queryNodeId) {
+      state.selectedNodeId = ''
+      state.stateData = null
+      state.lastError = 'Open Cerebrum from a deployed KNX AI node.'
+      setStatus(state.lastError)
+      return
+    }
+    if (!nodes.find(node => node.id === queryNodeId)) {
+      state.selectedNodeId = ''
+      state.stateData = null
+      state.lastError = 'The KNX AI node that opened this page is not deployed.'
+      setStatus(state.lastError)
+      return
+    }
+    state.selectedNodeId = queryNodeId
     state.lastError = ''
     setStatus('Ready')
   } catch (error) {
@@ -2748,20 +2823,9 @@ async function fetchState ({ fresh = false } = {}) {
 }
 
 async function onRefresh () {
-  await fetchNodes({ preserveSelection: true })
+  await fetchNodes()
   await fetchState({ fresh: true })
   await fetchGaCatalog()
-}
-
-async function onNodeChange () {
-  clearChat()
-  state.selectedTestResultId = ''
-  state.liveTestResultId = ''
-  state.testResultFocusMode = false
-  state.testAreaSelectedId = loadSelectedTestAreaIdForNode(state.selectedNodeId)
-  await fetchState({ fresh: true })
-  await fetchGaCatalog()
-  if (state.activeTab === 'settings' && state.settingsTab === 'learning') await loadChatLearningFile()
 }
 
 function resetTestsWorkspaceView () {
@@ -2847,11 +2911,12 @@ function closeTestPlanEditor () {
   }, 'close the current test editor')
 }
 
-function activateSettingsTab (tabId) {
+function activateCerebrumTab (tabId) {
   const target = String(tabId || '').trim()
-  if (target !== 'node' && target !== 'config' && target !== 'learning') return
-  state.settingsTab = target
+  if (target !== 'conversation' && target !== 'learning' && target !== 'memory') return
+  state.cerebrumTab = target
   if (target === 'learning') loadChatLearningFile()
+  if (target === 'memory') loadCerebrumMemoryFile()
 }
 
 function activateSidebarTab (tabId) {
@@ -2872,7 +2937,8 @@ function activateSidebarTab (tabId) {
     const hasDraft = !!state.testPlanDraft
     if (!hasSelectedPlan && !hasSelectedResult && !hasDraft) resetTestsWorkspaceView()
   }
-  if (target === 'settings' && state.settingsTab === 'learning') loadChatLearningFile()
+  if (target === 'cerebrum' && state.cerebrumTab === 'learning') loadChatLearningFile()
+  if (target === 'cerebrum' && state.cerebrumTab === 'memory') loadCerebrumMemoryFile()
   if (state.activeTab !== target) {
     state.activeTab = target
   } else {
@@ -3021,7 +3087,8 @@ async function sendAsk (questionOverride = '') {
 async function startSetupDoctorDemo (prompt) {
   const question = String(prompt || '').trim()
   if (!question || !nodeInfo.value.llmEnabled || state.asking) return
-  activateSidebarTab('assistant')
+  activateCerebrumTab('conversation')
+  activateSidebarTab('cerebrum')
   await nextTick()
   await sendAsk(question)
 }
@@ -4457,7 +4524,7 @@ async function runActuatorTest () {
 
 async function exportFullConfig () {
   if (!state.selectedNodeId) return
-  setStatus('Exporting config...')
+  setStatus('Exporting KNX AI and Cerebrum backup...')
   try {
     const data = await requestJson(apiUrl('config/export'), {
       method: 'POST',
@@ -4468,14 +4535,14 @@ async function exportFullConfig () {
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `knx-ai-config-${state.selectedNodeId}.json`
+    link.download = `knx-ai-cerebrum-backup-${state.selectedNodeId}.json`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    setStatus('Config exported')
+    setStatus('KNX AI and Cerebrum backup exported')
   } catch (error) {
-    state.lastError = error.message || 'Failed to export config'
+    state.lastError = error.message || 'Failed to export KNX AI and Cerebrum backup'
     setStatus(state.lastError)
   }
 }
@@ -4487,10 +4554,12 @@ function triggerConfigImport () {
 async function importFullConfig (event) {
   const file = event && event.target && event.target.files && event.target.files[0] ? event.target.files[0] : null
   if (!file || !state.selectedNodeId) return
-  setStatus('Importing config...')
   try {
     const text = await file.text()
     const parsed = JSON.parse(text)
+    const confirmed = window.confirm(localizeUiText("Import this backup? It replaces this node's KNX AI configuration and scheduled Cerebrum tasks, plus the shared AI Chat Learning and Cerebrum Memory used by every KNX AI node on this storage."))
+    if (!confirmed) return
+    setStatus('Importing KNX AI and Cerebrum backup...')
     const data = await requestJson(apiUrl('config/import'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -4507,9 +4576,13 @@ async function importFullConfig (event) {
       testResults: data.testResults || persistedTestResults.value
     })
     await fetchGaCatalog()
-    setStatus('Config imported')
+    resetChatLearningEditor()
+    resetCerebrumMemoryEditor()
+    if (state.activeTab === 'cerebrum' && state.cerebrumTab === 'learning') await loadChatLearningFile()
+    if (state.activeTab === 'cerebrum' && state.cerebrumTab === 'memory') await loadCerebrumMemoryFile()
+    setStatus('KNX AI and Cerebrum backup imported')
   } catch (error) {
-    state.lastError = error.message || 'Failed to import config'
+    state.lastError = error.message || 'Failed to import KNX AI and Cerebrum backup'
     setStatus(state.lastError)
   } finally {
     if (event && event.target) event.target.value = ''
@@ -4634,10 +4707,14 @@ async function reinitializeChatLearningMemory () {
 async function copyChatLearningFile () {
   if (!state.chatLearningContent) return
   try {
-    await copyTextToClipboard(state.chatLearningContent)
+    const copiedText = state.chatLearningViewMode === 'simple'
+      ? chatLearningSimpleView.value
+      : state.chatLearningContent
+    if (!copiedText) throw new Error('Could not prepare the AI Chat Learning view')
+    await copyTextToClipboard(copiedText)
     state.chatLearningCopied = true
     state.chatLearningError = ''
-    setStatus('Chat-learning file copied to clipboard')
+    setStatus(state.chatLearningViewMode === 'simple' ? 'Simplified AI Chat Learning view copied to clipboard' : 'Chat-learning native file copied to clipboard')
     setTimeout(() => { state.chatLearningCopied = false }, 2500)
   } catch (error) {
     state.chatLearningError = error.message || 'Could not copy to clipboard'
@@ -4680,16 +4757,203 @@ async function importChatLearningBackup (event) {
   }
 }
 
+function resetCerebrumMemoryEditor () {
+  cerebrumMemoryOperationGeneration += 1
+  state.cerebrumMemoryContent = ''
+  state.cerebrumMemoryBaseline = ''
+  state.cerebrumMemoryFileContent = ''
+  state.cerebrumMemoryRevision = ''
+  state.cerebrumMemoryName = ''
+  state.cerebrumMemoryPath = ''
+  state.cerebrumMemoryBytes = 0
+  state.cerebrumMemoryModifiedAt = ''
+  state.cerebrumMemoryHabitCount = 0
+  state.cerebrumMemoryConfirmedHabitCount = 0
+  state.cerebrumMemoryPendingHabitCount = 0
+  state.cerebrumMemoryStateCount = 0
+  state.cerebrumMemoryLoadedNodeId = ''
+  state.cerebrumMemoryLoading = false
+  state.cerebrumMemorySaving = false
+  state.cerebrumMemoryResetting = false
+  state.cerebrumMemoryCopied = false
+  state.cerebrumMemoryError = ''
+}
+
+function applyCerebrumMemorySnapshot (data = {}, nodeId = state.selectedNodeId) {
+  const fileContent = String(data.content || '')
+  let jsonContent = String(data.jsonContent || '')
+  if (!jsonContent) {
+    try {
+      jsonContent = formatCerebrumMemoryJson(fileContent)
+    } catch (error) {
+      jsonContent = fileContent
+    }
+  }
+  state.cerebrumMemoryContent = jsonContent
+  state.cerebrumMemoryBaseline = jsonContent
+  state.cerebrumMemoryFileContent = fileContent
+  state.cerebrumMemoryRevision = String(data.revision || '')
+  state.cerebrumMemoryName = String(data.name || 'knxai-home-memory.md')
+  state.cerebrumMemoryPath = String(data.path || '')
+  state.cerebrumMemoryBytes = Math.max(0, Number(data.bytes) || new Blob([fileContent]).size)
+  state.cerebrumMemoryMaxBytes = Math.max(1, Number(data.maxBytes) || (5 * 1024 * 1024))
+  state.cerebrumMemoryModifiedAt = String(data.modifiedAt || data.updatedAt || '')
+  state.cerebrumMemoryHabitCount = Math.max(0, Number(data.habitCount) || 0)
+  state.cerebrumMemoryConfirmedHabitCount = Math.max(0, Number(data.confirmedHabitCount) || 0)
+  state.cerebrumMemoryPendingHabitCount = Math.max(0, Number(data.pendingHabitCount) || 0)
+  state.cerebrumMemoryStateCount = Math.max(0, Number(data.stateCount) || 0)
+  state.cerebrumMemoryLoadedNodeId = nodeId
+  state.cerebrumMemoryError = ''
+}
+
+async function loadCerebrumMemoryFile ({ force = false } = {}) {
+  if (!state.selectedNodeId || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting) return
+  if (cerebrumMemoryDirty.value && !force) return
+  if (cerebrumMemoryDirty.value && force && !window.confirm(localizeUiText('Discard unsaved Cerebrum memory changes and reload?'))) return
+  const nodeId = state.selectedNodeId
+  const operationGeneration = ++cerebrumMemoryOperationGeneration
+  state.cerebrumMemoryLoading = true
+  state.cerebrumMemoryError = ''
+  setStatus('Loading Cerebrum memory...')
+  try {
+    const data = await requestJson(apiUrl(`home-memory?nodeId=${encodeURIComponent(nodeId)}`))
+    if (operationGeneration !== cerebrumMemoryOperationGeneration || state.selectedNodeId !== nodeId) return
+    applyCerebrumMemorySnapshot(data, nodeId)
+    setStatus('Cerebrum memory loaded')
+  } catch (error) {
+    if (operationGeneration !== cerebrumMemoryOperationGeneration || state.selectedNodeId !== nodeId) return
+    state.cerebrumMemoryError = error.message || 'Failed to load Cerebrum memory'
+    setStatus(state.cerebrumMemoryError)
+  } finally {
+    if (operationGeneration === cerebrumMemoryOperationGeneration) state.cerebrumMemoryLoading = false
+  }
+}
+
+async function saveCerebrumMemoryFile () {
+  if (!state.selectedNodeId || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting || !cerebrumMemoryDirty.value || cerebrumMemoryTooLarge.value) return
+  const nodeId = state.selectedNodeId
+  const operationGeneration = ++cerebrumMemoryOperationGeneration
+  state.cerebrumMemorySaving = true
+  state.cerebrumMemoryError = ''
+  setStatus('Saving Cerebrum memory...')
+  try {
+    const data = await requestJson(apiUrl('home-memory/save'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        nodeId,
+        jsonContent: state.cerebrumMemoryContent,
+        revision: state.cerebrumMemoryRevision
+      })
+    })
+    if (operationGeneration !== cerebrumMemoryOperationGeneration || state.selectedNodeId !== nodeId) return
+    applyCerebrumMemorySnapshot(data, nodeId)
+    setStatus('Cerebrum memory saved')
+  } catch (error) {
+    if (operationGeneration !== cerebrumMemoryOperationGeneration || state.selectedNodeId !== nodeId) return
+    state.cerebrumMemoryError = error.message || 'Failed to save Cerebrum memory'
+    setStatus(state.cerebrumMemoryError)
+  } finally {
+    if (operationGeneration === cerebrumMemoryOperationGeneration) state.cerebrumMemorySaving = false
+  }
+}
+
+async function reinitializeCerebrumMemory () {
+  if (!state.selectedNodeId || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting) return
+  const confirmed = window.confirm(localizeUiText('This permanently deletes learned habits, occupant decisions and cached home states, and discards unsaved editor changes. Reinitialize Cerebrum memory from zero?'))
+  if (!confirmed) return
+  const nodeId = state.selectedNodeId
+  const operationGeneration = ++cerebrumMemoryOperationGeneration
+  state.cerebrumMemoryResetting = true
+  state.cerebrumMemoryError = ''
+  setStatus('Reinitializing Cerebrum memory...')
+  try {
+    const data = await requestJson(apiUrl('home-memory/reset'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ nodeId, revision: state.cerebrumMemoryRevision })
+    })
+    if (operationGeneration !== cerebrumMemoryOperationGeneration || state.selectedNodeId !== nodeId) return
+    applyCerebrumMemorySnapshot(data, nodeId)
+    setStatus('Cerebrum memory reinitialized')
+  } catch (error) {
+    if (operationGeneration !== cerebrumMemoryOperationGeneration || state.selectedNodeId !== nodeId) return
+    state.cerebrumMemoryError = error.message || 'Failed to reinitialize Cerebrum memory'
+    setStatus(state.cerebrumMemoryError)
+  } finally {
+    if (operationGeneration === cerebrumMemoryOperationGeneration) state.cerebrumMemoryResetting = false
+  }
+}
+
+async function copyCerebrumMemoryFile () {
+  if (!state.cerebrumMemoryContent) return
+  try {
+    const copyContent = state.cerebrumMemoryViewMode === 'simple'
+      ? cerebrumMemorySimpleView.value
+      : state.cerebrumMemoryContent
+    await copyTextToClipboard(copyContent)
+    state.cerebrumMemoryCopied = true
+    state.cerebrumMemoryError = ''
+    setStatus(state.cerebrumMemoryViewMode === 'simple' ? 'Simplified Cerebrum view copied to clipboard' : 'Cerebrum JSON copied to clipboard')
+    setTimeout(() => { state.cerebrumMemoryCopied = false }, 2500)
+  } catch (error) {
+    state.cerebrumMemoryError = error.message || 'Could not copy to clipboard'
+    setStatus(state.cerebrumMemoryError)
+  }
+}
+
+function downloadCerebrumMemoryBackup () {
+  if (!state.cerebrumMemoryContent) return
+  try {
+    const content = replaceCerebrumMemoryJsonBlock(state.cerebrumMemoryFileContent, state.cerebrumMemoryContent)
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = state.cerebrumMemoryName || 'knxai-home-memory.md'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    setStatus('Cerebrum memory backup downloaded')
+  } catch (error) {
+    state.cerebrumMemoryError = error.message || 'Could not prepare the Cerebrum memory backup'
+    setStatus(state.cerebrumMemoryError)
+  }
+}
+
+function triggerCerebrumMemoryImport () {
+  if (cerebrumMemoryImportRef.value) cerebrumMemoryImportRef.value.click()
+}
+
+async function importCerebrumMemoryBackup (event) {
+  const file = event && event.target && event.target.files && event.target.files[0] ? event.target.files[0] : null
+  if (!file) return
+  try {
+    const content = await file.text()
+    if (new Blob([content]).size > state.cerebrumMemoryMaxBytes) throw new Error('Cerebrum memory backup exceeds the file-size limit')
+    state.cerebrumMemoryContent = formatCerebrumMemoryJson(content)
+    state.cerebrumMemoryFileContent = content
+    state.cerebrumMemoryViewMode = 'json'
+    state.cerebrumMemoryError = ''
+    setStatus('Cerebrum memory backup loaded; review it and save to apply it.')
+  } catch (error) {
+    state.cerebrumMemoryError = error.message || 'Failed to load Cerebrum memory backup'
+    setStatus(state.cerebrumMemoryError)
+  } finally {
+    if (event && event.target) event.target.value = ''
+  }
+}
+
 function startTimers () {
   if (!state.pollStateHandle) {
     state.pollStateHandle = window.setInterval(() => {
-      if (!state.autoRefresh) return
       fetchState({ fresh: false })
     }, 1500)
   }
   if (!state.pollNodesHandle) {
     state.pollNodesHandle = window.setInterval(() => {
-      fetchNodes({ preserveSelection: true })
+      fetchNodes()
     }, 15000)
   }
 }
@@ -4711,10 +4975,11 @@ onMounted(async () => {
   window.addEventListener('resize', syncViewportMode)
   document.addEventListener('keydown', onGlobalKeydown)
   document.addEventListener('fullscreenchange', syncFullscreenState)
-  await fetchNodes({ preserveSelection: false })
+  await fetchNodes()
   await fetchState({ fresh: true })
   await fetchGaCatalog()
-  if (state.settingsTab === 'learning') await loadChatLearningFile()
+  if (state.activeTab === 'cerebrum' && state.cerebrumTab === 'learning') await loadChatLearningFile()
+  if (state.activeTab === 'cerebrum' && state.cerebrumTab === 'memory') await loadCerebrumMemoryFile()
   startTimers()
   startUiTranslationObserver()
 })
@@ -4811,12 +5076,12 @@ onBeforeUnmount(() => {
             <span class="sidebar-nav-title">Test Results</span>
           </span>
         </button>
-        <button class="tab-button" :class="{ active: state.activeTab === 'assistant' }" type="button" title="Assistant" aria-label="Assistant" @click="activateSidebarTab('assistant')">
+        <button class="tab-button" :class="{ active: state.activeTab === 'cerebrum' }" type="button" title="Cerebrum" aria-label="Cerebrum" @click="activateSidebarTab('cerebrum')">
           <span class="sidebar-nav-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" class="sidebar-nav-svg"><path d="M4 5h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg>
           </span>
           <span class="sidebar-nav-copy">
-            <span class="sidebar-nav-title">Assistant</span>
+            <span class="sidebar-nav-title">Cerebrum</span>
           </span>
         </button>
         <button class="tab-button" :class="{ active: state.activeTab === 'flowBuilder' }" type="button" title="Flow Builder" aria-label="Flow Builder" @click="activateSidebarTab('flowBuilder')">
@@ -5904,10 +6169,30 @@ onBeforeUnmount(() => {
         <p v-else class="empty-state">No anomalies detected right now.</p>
       </section>
 
-      <section v-if="state.activeTab === 'assistant'" class="card card-chat">
+      <section v-if="state.activeTab === 'cerebrum'" class="card card-cerebrum-nav">
         <div class="card-head">
-          <h2>Ask</h2>
+          <div>
+            <h2>Cerebrum <span class="beta-badge">BETA</span></h2>
+            <p class="area-detail-subhead">Conversation, learning and home memory in one place.</p>
+          </div>
           <span class="meta-chip">{{ nodeInfo.llmEnabled ? 'AI enabled' : 'AI disabled' }}</span>
+        </div>
+        <div class="settings-tab-strip" role="tablist" aria-label="Cerebrum sections">
+          <button class="settings-tab-button" :class="{ active: state.cerebrumTab === 'conversation' }" type="button" role="tab" :aria-selected="state.cerebrumTab === 'conversation'" @click="activateCerebrumTab('conversation')">
+            Conversation
+          </button>
+          <button class="settings-tab-button" :class="{ active: state.cerebrumTab === 'learning' }" type="button" role="tab" :aria-selected="state.cerebrumTab === 'learning'" @click="activateCerebrumTab('learning')">
+            AI Chat Learning
+          </button>
+          <button class="settings-tab-button" :class="{ active: state.cerebrumTab === 'memory' }" type="button" role="tab" :aria-selected="state.cerebrumTab === 'memory'" @click="activateCerebrumTab('memory')">
+            Cerebrum Memory
+          </button>
+        </div>
+      </section>
+
+      <section v-if="state.activeTab === 'cerebrum' && state.cerebrumTab === 'conversation'" class="card card-chat">
+        <div class="card-head">
+          <h2>Conversation</h2>
         </div>
         <div class="chat-log">
           <article v-for="message in chatMessages" :key="message.key" class="chat-message" :class="`chat-${message.kind}`">
@@ -6007,61 +6292,29 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section v-if="state.activeTab === 'settings'" class="card card-settings">
-        <div class="card-head">
+      <section v-if="state.activeTab === 'settings' || (state.activeTab === 'cerebrum' && state.cerebrumTab !== 'conversation')" class="card card-settings">
+        <div v-if="state.activeTab === 'settings'" class="card-head">
           <div>
             <h2>Settings</h2>
-            <p class="area-detail-subhead">Manage node options, shared CHAT learning and full configuration import/export.</p>
+            <p class="area-detail-subhead">Import or export a complete KNX AI and Cerebrum backup.</p>
           </div>
         </div>
-        <div class="settings-tab-strip">
-          <button class="settings-tab-button" :class="{ active: state.settingsTab === 'node' }" type="button" @click="activateSettingsTab('node')">
-            KNX AI Node
-          </button>
-          <button class="settings-tab-button" :class="{ active: state.settingsTab === 'config' }" type="button" @click="activateSettingsTab('config')">
-            Import / Export
-          </button>
-          <button class="settings-tab-button" :class="{ active: state.settingsTab === 'learning' }" type="button" @click="activateSettingsTab('learning')">
-            AI Chat Learning
-          </button>
-        </div>
-        <article v-if="state.settingsTab === 'node'" class="area-detail settings-panel">
-          <div class="card-head settings-panel-head">
-            <h3>KNX AI Node</h3>
-            <span class="meta-chip">Runtime preferences</span>
-          </div>
-          <p class="area-detail-subhead">Select the node used by this UI and control refresh behavior.</p>
-          <div class="settings-node-grid">
-            <label class="flow-field">
-              <span>Node</span>
-              <select v-model="state.selectedNodeId" class="node-select" @change="onNodeChange">
-                <option v-for="node in state.nodes" :key="node.id" :value="node.id">
-                  {{ `${node.name || 'KNX AI'}${node.gatewayName ? ` | ${node.gatewayName}` : ''}` }}
-                </option>
-              </select>
-            </label>
-            <label class="checkbox settings-node-checkbox">
-              <input v-model="state.autoRefresh" type="checkbox">
-              <span>Auto refresh</span>
-            </label>
-          </div>
-        </article>
-        <article v-else-if="state.settingsTab === 'config'" class="area-detail settings-panel">
+        <article v-if="state.activeTab === 'settings'" class="area-detail settings-panel">
           <div class="card-head settings-panel-head">
             <h3>Import / Export</h3>
-            <span class="meta-chip">Full configuration</span>
+            <span class="meta-chip">Complete backup</span>
           </div>
-          <p class="area-detail-subhead">Export or import the full KNX AI configuration for the selected node.</p>
+          <p class="area-detail-subhead">The backup contains the KNX AI configuration and every authoritative Cerebrum file: AI Chat Learning, home memory and scheduled tasks.</p>
           <div class="card-head-actions action-cluster settings-config-actions">
             <button class="secondary-button" type="button" :disabled="!state.selectedNodeId" @click="exportFullConfig">
-              Export Configuration
+              Export Backup
             </button>
             <button class="secondary-button" type="button" :disabled="!state.selectedNodeId" @click="triggerConfigImport">
-              Import Configuration
+              Import Backup
             </button>
           </div>
         </article>
-        <article v-else class="area-detail settings-panel chat-learning-panel">
+        <article v-else-if="state.cerebrumTab === 'learning'" class="area-detail settings-panel chat-learning-panel">
           <div class="card-head settings-panel-head">
             <div>
               <h3>AI Chat Learning</h3>
@@ -6075,23 +6328,60 @@ onBeforeUnmount(() => {
               <span v-if="chatLearningDirty" class="meta-chip chat-learning-dirty">Unsaved changes</span>
             </div>
           </div>
+          <p class="area-detail-subhead">The Native file view contains the authoritative, user-editable learning data. Simplified text explains the same conversations, learned instructions and camera watches in plain language and is always read-only.</p>
+          <div class="cerebrum-memory-view-switch" role="tablist" aria-label="AI Chat Learning view">
+            <button
+              class="settings-tab-button"
+              :class="{ active: state.chatLearningViewMode === 'native' }"
+              type="button"
+              role="tab"
+              :aria-selected="state.chatLearningViewMode === 'native'"
+              @click="state.chatLearningViewMode = 'native'"
+            >
+              Native file
+            </button>
+            <button
+              class="settings-tab-button"
+              :class="{ active: state.chatLearningViewMode === 'simple' }"
+              type="button"
+              role="tab"
+              :aria-selected="state.chatLearningViewMode === 'simple'"
+              @click="state.chatLearningViewMode = 'simple'"
+            >
+              Simplified text
+            </button>
+            <span class="cerebrum-memory-view-hint">
+              {{ state.chatLearningViewMode === 'simple' ? 'Readable overview · read-only' : 'Editable native file' }}
+            </span>
+          </div>
           <label class="flow-field chat-learning-path-field">
             <span>File path</span>
             <code>{{ state.chatLearningPath || 'Loading chat learning...' }}</code>
           </label>
           <textarea
+            v-if="state.chatLearningViewMode === 'native'"
             v-model="state.chatLearningContent"
             class="chat-learning-editor"
             :disabled="state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting || !state.selectedNodeId"
             spellcheck="false"
-            aria-label="AI Chat Learning file"
+            aria-label="AI Chat Learning native file"
           />
+          <pre
+            v-else
+            class="cerebrum-memory-simple-view chat-learning-simple-view"
+            tabindex="0"
+            role="document"
+            aria-label="Simplified AI Chat Learning, read-only"
+          >{{ chatLearningSimpleView }}</pre>
+          <p v-if="state.chatLearningViewMode === 'simple' && chatLearningViewError" class="error-banner chat-learning-error" role="alert">
+            {{ chatLearningViewError }} Switch to Native file to correct it.
+          </p>
           <p v-if="state.chatLearningError" class="error-banner chat-learning-error" role="alert">{{ state.chatLearningError }}</p>
           <div class="card-head-actions action-cluster chat-learning-actions">
             <button class="secondary-button" type="button" :disabled="!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="loadChatLearningFile({ force: true })">
               {{ state.chatLearningLoading ? 'Loading...' : 'Reload from disk' }}
             </button>
-            <button class="secondary-button" type="button" :disabled="!state.chatLearningContent || state.chatLearningResetting" @click="copyChatLearningFile">
+            <button class="secondary-button" type="button" :disabled="!state.chatLearningContent || state.chatLearningResetting || (state.chatLearningViewMode === 'simple' && !!chatLearningViewError)" @click="copyChatLearningFile">
               {{ state.chatLearningCopied ? 'Copied!' : 'Copy' }}
             </button>
             <button class="secondary-button" type="button" :disabled="!state.chatLearningContent || state.chatLearningResetting" @click="downloadChatLearningBackup">
@@ -6100,7 +6390,7 @@ onBeforeUnmount(() => {
             <button class="secondary-button" type="button" :disabled="!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="triggerChatLearningImport">
               Restore Backup
             </button>
-            <button class="primary-button" type="button" :disabled="!state.selectedNodeId || !chatLearningDirty || chatLearningTooLarge || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="saveChatLearningFile">
+            <button class="primary-button" type="button" :disabled="state.chatLearningViewMode !== 'native' || !state.selectedNodeId || !chatLearningDirty || chatLearningTooLarge || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="saveChatLearningFile">
               {{ state.chatLearningSaving ? 'Saving...' : 'Save Changes' }}
             </button>
             <button class="danger-button" type="button" :disabled="!state.selectedNodeId || state.chatLearningLoading || state.chatLearningSaving || state.chatLearningResetting" @click="reinitializeChatLearningMemory">
@@ -6111,8 +6401,99 @@ onBeforeUnmount(() => {
             Last saved: {{ formatDateTime(state.chatLearningModifiedAt) }}
           </p>
         </article>
+        <article v-else class="area-detail settings-panel chat-learning-panel">
+          <div class="card-head settings-panel-head">
+            <div>
+              <h3>Cerebrum Memory <span class="beta-badge">BETA</span></h3>
+              <p class="area-detail-subhead">Inspect, edit and back up learned habits, occupant decisions and the autonomously reconciled home-state cache.</p>
+            </div>
+            <div class="chat-learning-meta">
+              <span class="meta-chip">{{ state.cerebrumMemoryHabitCount }} habits</span>
+              <span class="meta-chip">{{ state.cerebrumMemoryConfirmedHabitCount }} confirmed</span>
+              <span v-if="state.cerebrumMemoryPendingHabitCount" class="meta-chip chat-learning-dirty">{{ state.cerebrumMemoryPendingHabitCount }} awaiting reply</span>
+              <span class="meta-chip">{{ state.cerebrumMemoryStateCount }} states</span>
+              <span class="meta-chip" :class="{ 'chat-learning-size-over': cerebrumMemoryTooLarge }">
+                {{ formatByteSize(cerebrumMemoryEditorBytes) }} / {{ formatByteSize(state.cerebrumMemoryMaxBytes) }}
+              </span>
+              <span v-if="cerebrumMemoryDirty" class="meta-chip chat-learning-dirty">Unsaved changes</span>
+            </div>
+          </div>
+          <p class="area-detail-subhead">The JSON view contains the authoritative, user-editable memory. Simplified text explains the same data without technical JSON fields and is always read-only. Cerebrum never activates an inferred habit until the occupant confirms or corrects it.</p>
+          <div class="cerebrum-memory-view-switch" role="tablist" aria-label="Cerebrum memory view">
+            <button
+              class="settings-tab-button"
+              :class="{ active: state.cerebrumMemoryViewMode === 'json' }"
+              type="button"
+              role="tab"
+              :aria-selected="state.cerebrumMemoryViewMode === 'json'"
+              @click="state.cerebrumMemoryViewMode = 'json'"
+            >
+              JSON
+            </button>
+            <button
+              class="settings-tab-button"
+              :class="{ active: state.cerebrumMemoryViewMode === 'simple' }"
+              type="button"
+              role="tab"
+              :aria-selected="state.cerebrumMemoryViewMode === 'simple'"
+              @click="state.cerebrumMemoryViewMode = 'simple'"
+            >
+              Simplified text
+            </button>
+            <span class="cerebrum-memory-view-hint">
+              {{ state.cerebrumMemoryViewMode === 'simple' ? 'Readable overview · read-only' : 'Editable structured data' }}
+            </span>
+          </div>
+          <label class="flow-field chat-learning-path-field">
+            <span>File path</span>
+            <code>{{ state.cerebrumMemoryPath || 'Loading Cerebrum memory...' }}</code>
+          </label>
+          <textarea
+            v-if="state.cerebrumMemoryViewMode === 'json'"
+            v-model="state.cerebrumMemoryContent"
+            class="chat-learning-editor"
+            :disabled="state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting || !state.selectedNodeId"
+            spellcheck="false"
+            aria-label="Cerebrum memory JSON"
+          />
+          <pre
+            v-else
+            class="cerebrum-memory-simple-view"
+            tabindex="0"
+            role="document"
+            aria-label="Simplified Cerebrum memory, read-only"
+          >{{ cerebrumMemorySimpleView }}</pre>
+          <p v-if="state.cerebrumMemoryViewMode === 'simple' && cerebrumMemoryViewError" class="error-banner chat-learning-error" role="alert">
+            {{ cerebrumMemoryViewError }} Switch to JSON to correct it.
+          </p>
+          <p v-if="state.cerebrumMemoryError" class="error-banner chat-learning-error" role="alert">{{ state.cerebrumMemoryError }}</p>
+          <div class="card-head-actions action-cluster chat-learning-actions">
+            <button class="secondary-button" type="button" :disabled="!state.selectedNodeId || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting" @click="loadCerebrumMemoryFile({ force: true })">
+              {{ state.cerebrumMemoryLoading ? 'Loading...' : 'Reload from disk' }}
+            </button>
+            <button class="secondary-button" type="button" :disabled="!state.cerebrumMemoryContent || state.cerebrumMemoryResetting || (state.cerebrumMemoryViewMode === 'simple' && !!cerebrumMemoryViewError)" @click="copyCerebrumMemoryFile">
+              {{ state.cerebrumMemoryCopied ? 'Copied!' : 'Copy' }}
+            </button>
+            <button class="secondary-button" type="button" :disabled="!state.cerebrumMemoryContent || state.cerebrumMemoryResetting" @click="downloadCerebrumMemoryBackup">
+              Download Backup
+            </button>
+            <button class="secondary-button" type="button" :disabled="!state.selectedNodeId || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting" @click="triggerCerebrumMemoryImport">
+              Restore Backup
+            </button>
+            <button class="primary-button" type="button" :disabled="state.cerebrumMemoryViewMode !== 'json' || !state.selectedNodeId || !cerebrumMemoryDirty || cerebrumMemoryTooLarge || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting" @click="saveCerebrumMemoryFile">
+              {{ state.cerebrumMemorySaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+            <button class="danger-button" type="button" :disabled="!state.selectedNodeId || state.cerebrumMemoryLoading || state.cerebrumMemorySaving || state.cerebrumMemoryResetting" @click="reinitializeCerebrumMemory">
+              {{ state.cerebrumMemoryResetting ? 'Reinitializing...' : 'Reinitialize Memory' }}
+            </button>
+          </div>
+          <p v-if="state.cerebrumMemoryModifiedAt" class="area-detail-subhead chat-learning-modified">
+            Last saved: {{ formatDateTime(state.cerebrumMemoryModifiedAt) }}
+          </p>
+        </article>
         <input ref="configImportRef" type="file" accept="application/json,.json" class="hidden-file-input" @change="importFullConfig">
         <input ref="chatLearningImportRef" type="file" accept="text/plain,.knxctx" class="hidden-file-input" @change="importChatLearningBackup">
+        <input ref="cerebrumMemoryImportRef" type="file" accept="application/json,text/markdown,text/plain,.json,.md" class="hidden-file-input" @change="importCerebrumMemoryBackup">
       </section>
 
     </main>
@@ -7163,8 +7544,18 @@ onBeforeUnmount(() => {
 .card-areas,
 .card-profiles,
 .card-settings,
+.card-cerebrum-nav,
 .card-flow-builder {
   grid-column: span 12;
+}
+
+.card-cerebrum-nav {
+  min-height: 0;
+  padding-bottom: 10px;
+}
+
+.card-cerebrum-nav .settings-tab-strip {
+  margin-bottom: 0;
 }
 
 .card-chat {
@@ -7240,19 +7631,6 @@ onBeforeUnmount(() => {
   margin-bottom: 12px;
 }
 
-.settings-node-grid {
-  display: grid;
-  grid-template-columns: minmax(240px, 420px) auto;
-  gap: 12px;
-  align-items: end;
-  margin-top: 12px;
-}
-
-.settings-node-checkbox {
-  width: fit-content;
-  min-height: 36px;
-}
-
 .settings-config-actions {
   margin-top: 12px;
 }
@@ -7283,6 +7661,24 @@ onBeforeUnmount(() => {
 
 .chat-learning-path-field {
   margin-top: 14px;
+}
+
+.cerebrum-memory-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.cerebrum-memory-view-switch .settings-tab-button {
+  min-height: 36px;
+  padding: 7px 13px;
+}
+
+.cerebrum-memory-view-hint {
+  color: #667085;
+  font-size: 12px;
 }
 
 .chat-learning-path-field code {
@@ -7324,6 +7720,31 @@ onBeforeUnmount(() => {
   cursor: wait;
 }
 
+.cerebrum-memory-simple-view {
+  width: 100%;
+  min-height: 430px;
+  max-height: 70vh;
+  margin: 12px 0 0;
+  padding: 16px;
+  resize: vertical;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid rgba(95, 108, 130, 0.3);
+  border-radius: var(--soft-radius);
+  background: linear-gradient(180deg, #fffdf8 0%, #fbfcfe 100%);
+  color: #273142;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+  box-sizing: border-box;
+}
+
+.cerebrum-memory-simple-view:focus {
+  outline: 2px solid rgba(239, 108, 0, 0.18);
+  border-color: rgba(239, 108, 0, 0.5);
+}
+
 .chat-learning-error {
   margin-top: 10px;
 }
@@ -7337,15 +7758,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 900px) {
-  .settings-node-grid {
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .settings-node-checkbox {
-    width: 100%;
-  }
-
   .chat-learning-meta {
     justify-content: flex-start;
   }
