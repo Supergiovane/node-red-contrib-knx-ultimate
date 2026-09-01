@@ -23,7 +23,7 @@ Use it to:
 - browse live **lights** detected from boolean-style KNX values
 - browse live **dimmers** detected from `DPT 5.001` style values
 - filter items, switch between Viewer nodes and keep the page auto-refreshed
-- get a UI visually aligned with **KNX AI**
+- get a UI visually aligned with **Cerebrum Ultimate**
 
 The web page is served directly by Node-RED, so it follows the same authentication model used by the editor/admin endpoints.
 

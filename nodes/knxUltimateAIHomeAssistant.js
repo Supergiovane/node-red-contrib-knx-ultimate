@@ -72,7 +72,7 @@ module.exports = function (RED) {
         const safeService = String(service || '').trim()
         if (!safeDomain || !safeService) return Promise.reject(new Error('Home Assistant domain and service are required'))
         if (!authorization || authorization.confirmed !== true || authorization.source !== 'knxUltimateAI') {
-          return Promise.reject(new Error('Home Assistant service calls require an explicit KNX AI confirmation authorization'))
+          return Promise.reject(new Error('Home Assistant service calls require an explicit Cerebrum Ultimate confirmation authorization'))
         }
         return sendApiRequest({
           type: 'call_service',

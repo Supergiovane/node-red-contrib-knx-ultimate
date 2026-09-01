@@ -1,5 +1,7 @@
 const { expect } = require('chai')
 const { EventEmitter } = require('events')
+const fs = require('fs')
+const path = require('path')
 
 const {
   buildKnxAiCerebrumPromptContext,
@@ -11,7 +13,21 @@ const {
 } = require('../nodes/utils/knxAiCerebrum')
 const { buildKnxAiSetupDoctorSnapshot, summarizeKnxAiFlowWiring } = require('../nodes/knxUltimateAI').__test
 
-describe('KNX AI Cerebrum discovery and Home Assistant bridge', () => {
+describe('Cerebrum Ultimate Cerebrum discovery and Home Assistant bridge', () => {
+  it('keeps legacy runtime types registered while hiding their palette entries', () => {
+    const aiEditor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.html'), 'utf8')
+    const bridgeEditor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAIHomeAssistant.html'), 'utf8')
+    const aiRuntime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    const bridgeRuntime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAIHomeAssistant.js'), 'utf8')
+
+    expect(aiEditor).to.include("RED.nodes.registerType('knxUltimateAI'")
+    expect(aiEditor).to.include("RED.palette.remove('knxUltimateAI')")
+    expect(bridgeEditor).to.include("RED.nodes.registerType('knxUltimateAIHomeAssistant'")
+    expect(bridgeEditor).to.include("RED.palette.remove('knxUltimateAIHomeAssistant')")
+    expect(aiRuntime).to.include("RED.nodes.registerType('knxUltimateAI'")
+    expect(bridgeRuntime).to.include("RED.nodes.registerType('knxUltimateAIHomeAssistant'")
+  })
+
   it('discovers flow logic, HUE, Matter and a complete ha-api round trip', () => {
     const flowNodes = [
       { id: 'ha-server', type: 'server', addon: true },

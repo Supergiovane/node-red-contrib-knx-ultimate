@@ -49,7 +49,7 @@ const makeTask = (overrides = {}) => ({
   ...overrides
 })
 
-describe('KNX AI semantic scheduler', () => {
+describe('Cerebrum Ultimate semantic scheduler', () => {
   it('passes the resolved Markdown filename through the atomic writer filePath contract', () => {
     const source = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(source).to.include('writeAtomicUtf8File({ filePath: markdownPath, content: buildKnxAiScheduleMarkdown(node._scheduleStore) })')
@@ -458,7 +458,7 @@ describe('KNX AI semantic scheduler', () => {
 
     expect(outcome.store.tasks[0].sourceRequest).to.equal(sourceRequest)
     const markdown = buildKnxAiScheduleMarkdown(outcome.store, { now })
-    expect(markdown).to.include('# KNX AI Plans and Reminders')
+    expect(markdown).to.include('# Cerebrum Ultimate Plans and Reminders')
     expect(markdown).to.include('## Promemoria espresso liberamente')
     expect(markdown).to.include('- ID: `schedule-markdown`')
     expect(markdown).to.include('- Instruction: Ricostruisci il contesto e svolgi il compito richiesto.')

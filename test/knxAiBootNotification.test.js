@@ -4,7 +4,7 @@ const path = require('path')
 
 const { getKnxAiBootFallbackCopy } = require('../nodes/knxUltimateAI').__test
 
-describe('KNX AI startup assistant notification', () => {
+describe('Cerebrum Ultimate startup assistant notification', () => {
   it('provides a Cerebrum fallback in every supported language', () => {
     const languages = ['en', 'it', 'de', 'fr', 'es', 'zh-CN']
     languages.forEach(language => {

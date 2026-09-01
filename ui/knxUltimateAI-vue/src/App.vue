@@ -258,7 +258,7 @@ const UI_LANGUAGE_ALIASES = {
 }
 
 const NON_TRANSLATABLE_LITERALS = new Set([
-  'KNX AI',
+  'Cerebrum Ultimate',
   'KNX Ultimate',
   'GroupValue_Write',
   'GroupValue_Response',
@@ -1888,7 +1888,7 @@ const summaryText = computed(() => {
   if (!Object.keys(s).length) return 'No data available.'
   const counters = s.counters || {}
   const lines = []
-  lines.push(nodeInfo.value.name || selectedNode.value?.name || 'KNX AI')
+  lines.push(nodeInfo.value.name || selectedNode.value?.name || 'Cerebrum Ultimate')
   lines.push(`Analysis window: ${Number(s.meta?.analysisWindowSec || 0)}s`)
   lines.push(`Telegrams: ${Number(counters.telegrams || 0)} | Rate: ${Number(counters.overallRatePerSec || 0)}/s`)
   lines.push(`Echoed: ${Number(counters.echoed || 0)} | Repeat: ${Number(counters.repeated || 0)} | Unknown DPT: ${Number(counters.unknownDpt || 0)}`)
@@ -2507,7 +2507,7 @@ async function exportSelectedTestResultPdf () {
     const entries = testResultEntries(report)
     const suggestions = testResultSuggestions(report)
 
-    writeWrapped('KNX AI Test Result', { size: 17, bold: true, color: [20, 28, 39], lineHeight: 20 })
+    writeWrapped('Cerebrum Ultimate Test Result', { size: 17, bold: true, color: [20, 28, 39], lineHeight: 20 })
     writeWrapped(reportName, { size: 14, bold: true, color: [20, 28, 39], lineHeight: 17, gapAfter: 4 })
     writeWrapped(`Exported: ${exportedAt}`, { size: 10, color: [88, 96, 113] })
     writeWrapped(`Generated: ${generatedAt}`, { size: 10, color: [88, 96, 113] })
@@ -2751,21 +2751,21 @@ async function fetchNodes () {
     if (!nodes.length) {
       state.selectedNodeId = ''
       state.stateData = null
-      state.lastError = 'No KNX AI nodes found.'
+      state.lastError = 'No Cerebrum Ultimate nodes found.'
       setStatus(state.lastError)
       return
     }
     if (!queryNodeId) {
       state.selectedNodeId = ''
       state.stateData = null
-      state.lastError = 'Open Cerebrum from a deployed KNX AI node.'
+      state.lastError = 'Open Cerebrum from a deployed Cerebrum Ultimate node.'
       setStatus(state.lastError)
       return
     }
     if (!nodes.find(node => node.id === queryNodeId)) {
       state.selectedNodeId = ''
       state.stateData = null
-      state.lastError = 'The KNX AI node that opened this page is not deployed.'
+      state.lastError = 'The Cerebrum Ultimate node that opened this page is not deployed.'
       setStatus(state.lastError)
       return
     }
@@ -3381,7 +3381,7 @@ async function regenerateLlmAreas () {
   const nodeId = String(state.selectedNodeId || '').trim()
   if (state.areaLlmRegenerating || state.areaLlmBulkDeleting) return
   if (!nodeId) {
-    state.areaLlmError = 'Select a KNX AI node first'
+    state.areaLlmError = 'Select a Cerebrum Ultimate node first'
     setStatus(state.areaLlmError)
     return
   }
@@ -3422,7 +3422,7 @@ async function deleteAllLlmAreas () {
   const nodeId = String(state.selectedNodeId || '').trim()
   if (state.areaLlmRegenerating || state.areaLlmBulkDeleting) return
   if (!nodeId) {
-    state.areaLlmError = 'Select a KNX AI node first'
+    state.areaLlmError = 'Select a Cerebrum Ultimate node first'
     setStatus(state.areaLlmError)
     return
   }
@@ -4524,7 +4524,7 @@ async function runActuatorTest () {
 
 async function exportFullConfig () {
   if (!state.selectedNodeId) return
-  setStatus('Exporting KNX AI and Cerebrum backup...')
+  setStatus('Exporting Cerebrum Ultimate and Cerebrum backup...')
   try {
     const data = await requestJson(apiUrl('config/export'), {
       method: 'POST',
@@ -4540,9 +4540,9 @@ async function exportFullConfig () {
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-    setStatus('KNX AI and Cerebrum backup exported')
+    setStatus('Cerebrum Ultimate and Cerebrum backup exported')
   } catch (error) {
-    state.lastError = error.message || 'Failed to export KNX AI and Cerebrum backup'
+    state.lastError = error.message || 'Failed to export Cerebrum Ultimate and Cerebrum backup'
     setStatus(state.lastError)
   }
 }
@@ -4557,9 +4557,9 @@ async function importFullConfig (event) {
   try {
     const text = await file.text()
     const parsed = JSON.parse(text)
-    const confirmed = window.confirm(localizeUiText("Import this backup? It replaces this node's KNX AI configuration and scheduled Cerebrum tasks, plus the shared AI Chat Learning and Cerebrum Memory used by every KNX AI node on this storage."))
+    const confirmed = window.confirm(localizeUiText("Import this backup? It replaces this node's Cerebrum Ultimate configuration and scheduled Cerebrum tasks, plus the shared AI Chat Learning and Cerebrum Memory used by every Cerebrum Ultimate node on this storage."))
     if (!confirmed) return
-    setStatus('Importing KNX AI and Cerebrum backup...')
+    setStatus('Importing Cerebrum Ultimate and Cerebrum backup...')
     const data = await requestJson(apiUrl('config/import'), {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -4580,9 +4580,9 @@ async function importFullConfig (event) {
     resetCerebrumMemoryEditor()
     if (state.activeTab === 'cerebrum' && state.cerebrumTab === 'learning') await loadChatLearningFile()
     if (state.activeTab === 'cerebrum' && state.cerebrumTab === 'memory') await loadCerebrumMemoryFile()
-    setStatus('KNX AI and Cerebrum backup imported')
+    setStatus('Cerebrum Ultimate and Cerebrum backup imported')
   } catch (error) {
-    state.lastError = error.message || 'Failed to import KNX AI and Cerebrum backup'
+    state.lastError = error.message || 'Failed to import Cerebrum Ultimate and Cerebrum backup'
     setStatus(state.lastError)
   } finally {
     if (event && event.target) event.target.value = ''
@@ -4998,7 +4998,7 @@ onBeforeUnmount(() => {
   <header class="m-header">
     <div class="m-header-brand">
       <span class="m-logo-mark">K</span>
-      <span class="hb-logo-text-mobile">KNX AI</span>
+      <span class="hb-logo-text-mobile">Cerebrum Ultimate</span>
     </div>
     <button
       class="hamburger-icon"
@@ -5127,7 +5127,7 @@ onBeforeUnmount(() => {
         </span>
         <span v-if="selectedNode" class="status-detail">Provider: {{ selectedNode.llmProvider || 'n/a' }} | Model: {{ selectedNode.llmModel || 'n/a' }}</span>
         <a class="sidebar-doc-link" :href="KNX_AI_VUE_DOCS_URL" target="_blank" rel="noopener noreferrer">
-          Documentation: KNX AI Vue
+          Documentation: Cerebrum Ultimate Vue
         </a>
       </div>
     </aside>
@@ -5259,7 +5259,7 @@ onBeforeUnmount(() => {
               <div v-if="state.areaBuilderFocus !== true" class="card-head">
                 <div>
                   <h4>Edit Area</h4>
-                  <p class="area-detail-subhead">The installer can rename the area and decide exactly which group addresses belong to it. Everything is persisted per KNX AI node.</p>
+                  <p class="area-detail-subhead">The installer can rename the area and decide exactly which group addresses belong to it. Everything is persisted per Cerebrum Ultimate node.</p>
                 </div>
                 <div class="card-head-actions action-cluster">
                   <button
@@ -5326,7 +5326,7 @@ onBeforeUnmount(() => {
                   {{ state.areaLlmError }}
                 </p>
                 <p v-if="!nodeInfo.llmEnabled" class="area-detail-subhead">
-                  Enable the AI in the KNX AI node to regenerate areas or suggest GA for a new draft.
+                  Enable the AI in the Cerebrum Ultimate node to regenerate areas or suggest GA for a new draft.
                 </p>
               </div>
               <div v-if="state.areaBuilderFocus !== true" class="area-ga-editor">
@@ -6296,7 +6296,7 @@ onBeforeUnmount(() => {
         <div v-if="state.activeTab === 'settings'" class="card-head">
           <div>
             <h2>Settings</h2>
-            <p class="area-detail-subhead">Import or export a complete KNX AI and Cerebrum backup.</p>
+            <p class="area-detail-subhead">Import or export a complete Cerebrum Ultimate and Cerebrum backup.</p>
           </div>
         </div>
         <article v-if="state.activeTab === 'settings'" class="area-detail settings-panel">
@@ -6304,7 +6304,7 @@ onBeforeUnmount(() => {
             <h3>Import / Export</h3>
             <span class="meta-chip">Complete backup</span>
           </div>
-          <p class="area-detail-subhead">The backup contains the KNX AI configuration and every authoritative Cerebrum file: AI Chat Learning, home memory and scheduled tasks.</p>
+          <p class="area-detail-subhead">The backup contains the Cerebrum Ultimate configuration and every authoritative Cerebrum file: AI Chat Learning, home memory and scheduled tasks.</p>
           <div class="card-head-actions action-cluster settings-config-actions">
             <button class="secondary-button" type="button" :disabled="!state.selectedNodeId" @click="exportFullConfig">
               Export Backup
@@ -6318,7 +6318,7 @@ onBeforeUnmount(() => {
           <div class="card-head settings-panel-head">
             <div>
               <h3>AI Chat Learning</h3>
-              <p class="area-detail-subhead">View, edit and back up the shared learning file used by every KNX AI node on this storage.</p>
+              <p class="area-detail-subhead">View, edit and back up the shared learning file used by every Cerebrum Ultimate node on this storage.</p>
             </div>
             <div class="chat-learning-meta">
               <span class="meta-chip">{{ state.chatLearningSessionCount }} <span>sessions</span></span>

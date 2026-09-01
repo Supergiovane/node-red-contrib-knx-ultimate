@@ -8,6 +8,10 @@
 
 KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT, diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.
 
+## Cerebrum Ultimate
+
+The former bundled AI assistant has moved to the standalone [Cerebrum Ultimate](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate) package. Cerebrum Ultimate now provides the conversational, learning and supervised home-intelligence features, while using KNX Ultimate as an optional compatible integration. Hidden legacy runtime types remain in this package only so existing Node-RED flows continue to load; new installations should add the Cerebrum node from the standalone package.
+
 <br/>
 <br/>
 <br/>

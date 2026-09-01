@@ -1,6 +1,6 @@
 {
   "knxUltimateAI": {
-    "title": "KNX AI (Traffic Analyzer)",
+    "title": "Legacy-KI-Knoten — Cerebrum Ultimate verwenden",
     "sections": {
       "groupAssistant": "KI-Assistent",
       "groupChatHome": "Cerebrum (BETA)",
@@ -35,8 +35,8 @@
       "webAccessEnabled": "Der KI die Nutzung des Webs erlauben",
       "webMaxCallsPerHour": "Maximale Web-Aufrufe pro Stunde",
       "chatAdapterPreset": "Adapter für Ein-/Ausgangsnachrichten",
-      "chatInputCode": "Eingangszuordnung (Chat → KNX AI)",
-      "chatOutputCode": "Ausgangszuordnung (KNX AI → Chat)",
+      "chatInputCode": "Eingangszuordnung (Chat → Cerebrum Ultimate)",
+      "chatOutputCode": "Ausgangszuordnung (Cerebrum Ultimate → Chat)",
       "aiEducation": "KI-Erziehung (vom Benutzer verwaltet)"
     },
     "outputs": {
@@ -102,7 +102,7 @@
       "lmStudioContextConfigured": "Aktiver Modellkontext",
       "lmStudioContextFailed": "Der Modellkontext konnte nicht konfiguriert werden",
       "lmStudioContextCurrentlyLoaded": "derzeit geladen",
-      "etsAccessHint": "Wähle die für KNX AI verfügbaren Gruppenadressen. Jede ausgewählte Adresse ist aktiv und lesbar; jede ausgewählte Adresse ohne Markierung Nur Lesen ist schreibbar. Cloud-Anbieter erhalten den vollständigen ausgewählten semantischen ETS-Katalog; lokale Modelle erhalten so viel, wie in das gewählte Kontextfenster passt, und können fehlende Details lokal abrufen.",
+      "etsAccessHint": "Wähle die für Cerebrum Ultimate verfügbaren Gruppenadressen. Jede ausgewählte Adresse ist aktiv und lesbar; jede ausgewählte Adresse ohne Markierung Nur Lesen ist schreibbar. Cloud-Anbieter erhalten den vollständigen ausgewählten semantischen ETS-Katalog; lokale Modelle erhalten so viel, wie in das gewählte Kontextfenster passt, und können fehlende Details lokal abrufen.",
       "etsFilterPlaceholder": "Nach Name, GA oder DPT filtern…",
       "etsSelected": "ausgewählt",
       "etsReadOnly": "Nur lesen",
@@ -110,7 +110,7 @@
       "etsNoGateway": "Wähle ein KNX-Gateway aus.",
       "etsNoGa": "Keine Gruppenadressen gefunden. Importiere die ETS-Liste im KNX-Gateway.",
       "etsCsvError": "Die Gruppenadressliste konnte nicht vom Gateway geladen werden.",
-      "reasoningEffortHint": "Optionale Vorgabe für Modelle, die einen Denkaufwand unterstützen. Automatisch sendet keine Vorgabe; lehnt der Anbieter oder das Modell den gewählten Wert ab, versucht KNX AI es ohne diesen erneut.",
+      "reasoningEffortHint": "Optionale Vorgabe für Modelle, die einen Denkaufwand unterstützen. Automatisch sendet keine Vorgabe; lehnt der Anbieter oder das Modell den gewählten Wert ab, versucht Cerebrum Ultimate es ohne diesen erneut.",
       "localContextBudget": "Lokales Kontextfenster",
       "localContextHint": "Legt den maximalen Kontext nur für lokale Modelle fest. Maximum verwendet das bekannte Kontextfenster des ausgewählten Modells; nicht verfügbare Größen werden ausgeblendet. Cloud-Anbieter ignorieren diese Auswahl und erhalten den vollständigen ausgewählten semantischen ETS-Katalog.",
       "ollamaNotSupported": "Ollama local mode: API key not required. Default endpoint is http://localhost:11434/api/chat.",
@@ -179,7 +179,7 @@
           "ask": "Fragen"
         },
         "empty": {
-          "noNodes": "Keine KNX AI-Knoten gefunden.",
+          "noNodes": "Keine Cerebrum Ultimate-Knoten gefunden.",
           "noAnomalies": "Keine Anomalien."
         },
         "chat": {

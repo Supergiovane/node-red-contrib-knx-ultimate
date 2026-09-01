@@ -43,7 +43,6 @@ const HELP_TO_WIKI = new Map([
   ['knxUltimateHueHumiditySensor', 'HUE Humidity sensor'],
   ['knxUltimateHueCameraMotion', 'HUE Camera motion'],
   ['knxUltimateHuePlug', 'HUE Plug'],
-  ['knxUltimateAI', 'KNX AI'],
   ['knxUltimateMultiRouting', 'KNX Multi Routing'],
   ['knxUltimateRouterFilter', 'KNX Router Filter'],
   ['matter-config', 'Matter-Controller-Configuration'],

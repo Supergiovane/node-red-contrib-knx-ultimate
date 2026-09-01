@@ -23,7 +23,7 @@ permalink: /wiki/zh-CN-knxUltimateViewer
 - 显示由布尔型 KNX 数值识别出的**灯光**
 - 显示由 `DPT 5.001` 类型数值识别出的**调光器**
 - 过滤项目、切换不同 Viewer 节点，并保持自动刷新
-- 使用与 **KNX AI** 风格一致的界面
+- 使用与 **Cerebrum Ultimate** 风格一致的界面
 
 该 Web 页面由 Node-RED 直接提供，因此沿用与编辑器和管理端点相同的认证模型。
 

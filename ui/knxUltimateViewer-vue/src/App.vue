@@ -274,7 +274,7 @@ onBeforeUnmount(() => {
         <p class="eyebrow">KNX Viewer Web</p>
         <h1>{{ viewerNode.name || 'KNX Viewer' }}</h1>
         <p class="subhead">
-          Live lights and dimmer values collected by the KNX Viewer node. The visual language stays aligned with KNX AI, but focused on field states.
+          Live lights and dimmer values collected by the KNX Viewer node. The visual language stays aligned with Cerebrum Ultimate, but focused on field states.
         </p>
       </div>
 

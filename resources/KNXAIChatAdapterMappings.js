@@ -3,7 +3,7 @@
     {
       id: 'windkh-telegrambot',
       title: 'windkh/node-red-contrib-telegrambot',
-      inputCode: `// Receiver/Event -> KNX AI
+      inputCode: `// Receiver/Event -> Cerebrum Ultimate
 // Supports normal "telegram receiver" messages, including the one-time
 // reply-keyboard confirmation buttons, plus legacy callback_query events.
 const telegram = msg.payload;
@@ -70,7 +70,7 @@ if (telegram.type !== 'message') return;
 msg.topic = 'ask';
 msg.prompt = content;
 return msg;`,
-      outputCode: `// KNX AI chat output -> Telegram sender
+      outputCode: `// Cerebrum Ultimate chat output -> Telegram sender
 // Converts the text reply and, when required, adds a one-time reply keyboard.
 // A button click returns through the normal Telegram receiver, so no separate
 // callback event node is required.
@@ -192,7 +192,7 @@ return msg;`
     {
       id: 'redbot-telegram',
       title: 'RedBot / node-red-contrib-chatbot (Telegram)',
-      inputCode: `// RedBot Telegram Receiver -> KNX AI
+      inputCode: `// RedBot Telegram Receiver -> Cerebrum Ultimate
 // RedBot normalizes Telegram text, voice audio and inline-button postbacks in msg.payload.
 const redbot = msg.payload;
 if (!redbot || typeof redbot !== 'object') return;
@@ -252,7 +252,7 @@ if (action === 'confirm' || action === 'cancel') {
 msg.topic = 'ask';
 msg.prompt = content;
 return msg;`,
-      outputCode: `// KNX AI chat output -> RedBot Telegram Sender
+      outputCode: `// Cerebrum Ultimate chat output -> RedBot Telegram Sender
 // Preserves RedBot conversation helpers and emits either a plain message
 // or inline postback buttons for KNX confirmation/cancellation.
 const source = msg.inputMessage && typeof msg.inputMessage === 'object'

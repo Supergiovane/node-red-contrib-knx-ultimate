@@ -160,7 +160,7 @@ const {
   __test: knxAiWebAccessTest
 } = require('../nodes/utils/knxAiWebAccess')
 
-describe('KNX AI conversational control', () => {
+describe('Cerebrum Ultimate conversational control', () => {
   const catalog = [
     { ga: '1/2/3', dpt: '1.001', label: 'Living room light command', role: 'command' },
     { ga: '1/2/4', dpt: '1.001', label: 'Living room light status', role: 'status' },
@@ -380,7 +380,7 @@ describe('KNX AI conversational control', () => {
     expect(resolveKnxAiSessionId(msg)).to.equal('12345')
   })
 
-  it('maps telegrambot receiver and callback messages directly into KNX AI', () => {
+  it('maps telegrambot receiver and callback messages directly into Cerebrum Ultimate', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'windkh-telegrambot')
     const adapter = compileKnxAiChatAdapter({
       code: preset.inputCode,
@@ -445,7 +445,7 @@ describe('KNX AI conversational control', () => {
     })).to.equal('confirm')
   })
 
-  it('maps a telegrambot voice message into a bounded KNX AI voice request', () => {
+  it('maps a telegrambot voice message into a bounded Cerebrum Ultimate voice request', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'windkh-telegrambot')
     const adapter = compileKnxAiChatAdapter({ code: preset.inputCode, direction: 'chat input' })
     const message = executeKnxAiChatAdapter({
@@ -859,7 +859,7 @@ describe('KNX AI conversational control', () => {
     expect(speechError.message).not.to.include('secret')
   })
 
-  it('maps KNX AI replies and confirmation actions directly into telegrambot sender messages', () => {
+  it('maps Cerebrum Ultimate replies and confirmation actions directly into telegrambot sender messages', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'windkh-telegrambot')
     const adapter = compileKnxAiChatAdapter({
       code: preset.outputCode,
@@ -940,7 +940,7 @@ describe('KNX AI conversational control', () => {
     expect(JSON.parse(upgraded.payload.options.reply_markup)).to.deep.equal(expectedMarkup)
   })
 
-  it('maps a voice-originated KNX AI reply into a Telegram voice with its confirmation keyboard', () => {
+  it('maps a voice-originated Cerebrum Ultimate reply into a Telegram voice with its confirmation keyboard', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'windkh-telegrambot')
     const adapter = compileKnxAiChatAdapter({ code: preset.outputCode, direction: 'chat output' })
     const audio = Buffer.from([1, 2, 3, 4])
@@ -1101,7 +1101,7 @@ describe('KNX AI conversational control', () => {
     })
   })
 
-  it('maps RedBot Telegram messages and postbacks directly into KNX AI', () => {
+  it('maps RedBot Telegram messages and postbacks directly into Cerebrum Ultimate', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
     expect(preset).to.be.an('object')
     const adapter = compileKnxAiChatAdapter({
@@ -1151,7 +1151,7 @@ describe('KNX AI conversational control', () => {
     })
   })
 
-  it('maps a RedBot Telegram voice buffer into a bounded KNX AI voice request', () => {
+  it('maps a RedBot Telegram voice buffer into a bounded Cerebrum Ultimate voice request', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
     const adapter = compileKnxAiChatAdapter({ code: preset.inputCode, direction: 'chat input' })
     const voiceBuffer = Buffer.from('OggS')
@@ -1222,7 +1222,7 @@ describe('KNX AI conversational control', () => {
     expect(message.knxAi.voiceInput.data).to.equal(voiceBuffer)
   })
 
-  it('maps KNX AI replies and confirmation actions into RedBot inline buttons', () => {
+  it('maps Cerebrum Ultimate replies and confirmation actions into RedBot inline buttons', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
     const adapter = compileKnxAiChatAdapter({
       code: preset.outputCode,
@@ -1276,7 +1276,7 @@ describe('KNX AI conversational control', () => {
     })
   })
 
-  it('maps a voice-originated KNX AI reply into a native RedBot Telegram audio message', () => {
+  it('maps a voice-originated Cerebrum Ultimate reply into a native RedBot Telegram audio message', () => {
     const preset = chatAdapterMappings.find(item => item.id === 'redbot-telegram')
     const adapter = compileKnxAiChatAdapter({ code: preset.outputCode, direction: 'chat output' })
     const audio = Buffer.from([1, 2, 3, 4])
@@ -1454,7 +1454,7 @@ describe('KNX AI conversational control', () => {
     expect(() => compileKnxAiChatAdapter({
       code: 'return {',
       direction: 'chat input'
-    })).to.throw('Invalid KNX AI chat input adapter')
+    })).to.throw('Invalid Cerebrum Ultimate chat input adapter')
 
     const asynchronous = compileKnxAiChatAdapter({
       code: 'return Promise.resolve(msg);',
@@ -1974,12 +1974,12 @@ describe('KNX AI conversational control', () => {
 
     const root = path.join(__dirname, '..')
     ;[
-      ['en', 'KNX AI.md', 'minimum timeout of 30 minutes'],
-      ['it', 'it-KNX AI.md', 'timeout minimo di 30 minuti'],
-      ['de', 'de-KNX AI.md', 'Mindest-Timeout von 30 Minuten'],
-      ['fr', 'fr-KNX AI.md', 'attente minimal de 30 minutes'],
-      ['es', 'es-KNX AI.md', 'espera mínimo de 30 minutos'],
-      ['zh-CN', 'zh-CN-KNX AI.md', '至少 30 分钟超时']
+      ['en', 'Cerebrum Ultimate.md', 'minimum timeout of 30 minutes'],
+      ['it', 'it-Cerebrum Ultimate.md', 'timeout minimo di 30 minuti'],
+      ['de', 'de-Cerebrum Ultimate.md', 'Mindest-Timeout von 30 Minuten'],
+      ['fr', 'fr-Cerebrum Ultimate.md', 'attente minimal de 30 minutes'],
+      ['es', 'es-Cerebrum Ultimate.md', 'espera mínimo de 30 minutos'],
+      ['zh-CN', 'zh-CN-Cerebrum Ultimate.md', '至少 30 分钟超时']
     ].forEach(([locale, wikiName, marker]) => {
       const help = fs.readFileSync(path.join(root, 'nodes', 'locales', locale, 'knxUltimateAI.html'), 'utf8')
       const wiki = fs.readFileSync(path.join(root, 'docs', 'wiki', wikiName), 'utf8')
@@ -2391,7 +2391,7 @@ describe('KNX AI conversational control', () => {
     const runtime = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
     expect(runtime).to.include("const tokenLimitBody = node.llmProvider === 'lmstudio'")
     expect(runtime).to.include('const requestBody = Object.assign(tokenLimitBody, schemaBody)')
-    expect(runtime).not.to.include('context compacted by KNX AI')
+    expect(runtime).not.to.include('context compacted by Cerebrum Ultimate')
   })
 
   it('preserves the context of an already loaded LM Studio model', async () => {
@@ -2890,13 +2890,13 @@ describe('KNX AI conversational control', () => {
     expect(webUi).to.include('Reinitialize Memory')
     expect(webUi).to.include('This permanently deletes all saved AI Chat Learning sessions, instructions and camera watches')
     expect(webUi).to.include('revision: state.chatLearningRevision')
-    expect(webUi).not.to.include('The native KNX AI records are authoritative and editable.')
+    expect(webUi).not.to.include('The native Cerebrum Ultimate records are authoritative and editable.')
     expect(webUi).not.to.include('Only the current KNXAI_CHAT_CONTEXT 3 format is accepted.')
     expect(webUi).to.include('accept="text/plain,.knxctx"')
     expect(webUi).to.include("'knxai-chat-context.knxctx'")
 
     const webI18n = fs.readFileSync(path.join(root, 'ui', 'knxUltimateAI-vue', 'src', 'knxAiWebI18n.js'), 'utf8')
-    expect(webI18n).not.to.include('The native KNX AI records are authoritative and editable.')
+    expect(webI18n).not.to.include('The native Cerebrum Ultimate records are authoritative and editable.')
     expect(webI18n).not.to.include('Only the current KNXAI_CHAT_CONTEXT 3 format is accepted.')
     expect(webI18n.match(/'AI Chat Learning':/g)).to.have.length(5)
     expect(webI18n.match(/'Download Backup':/g)).to.have.length(5)
@@ -2905,12 +2905,12 @@ describe('KNX AI conversational control', () => {
     expect(webI18n.match(/'Chat learning reinitialized':/g)).to.have.length(5)
 
     const locales = [
-      ['en', 'KNX AI.md'],
-      ['it', 'it-KNX AI.md'],
-      ['de', 'de-KNX AI.md'],
-      ['fr', 'fr-KNX AI.md'],
-      ['es', 'es-KNX AI.md'],
-      ['zh-CN', 'zh-CN-KNX AI.md']
+      ['en', 'Cerebrum Ultimate.md'],
+      ['it', 'it-Cerebrum Ultimate.md'],
+      ['de', 'de-Cerebrum Ultimate.md'],
+      ['fr', 'fr-Cerebrum Ultimate.md'],
+      ['es', 'es-Cerebrum Ultimate.md'],
+      ['zh-CN', 'zh-CN-Cerebrum Ultimate.md']
     ]
     const expectedChatLabels = {
       en: ['Chat input and output pins', 'Input/output message adapter', 'Compatible nodes detected and used in chat'],
@@ -3056,75 +3056,26 @@ describe('KNX AI conversational control', () => {
     })
   })
 
-  it('ships a ready-to-import example for fresh reads and confirmed writes', () => {
-    const examplePath = path.join(
-      __dirname,
-      '..',
-      'examples',
-      'KNX AI - Conversational Control with Confirmation.json'
-    )
-    const flow = JSON.parse(fs.readFileSync(examplePath, 'utf8'))
-    const readInject = flow.find(node => node.id === 'inj_knx_ai_control_read')
-    const routineInject = flow.find(node => node.id === 'inj_knx_ai_control_routine')
-    const aiNode = flow.find(node => node.id === 'node_knx_ai_control')
-    const universalNode = flow.find(node => node.id === 'node_knx_ai_control_universal')
-
-    expect(readInject).to.be.an('object')
-    expect(readInject.props.find(prop => prop.p === 'payload').v).to.include('temperatura attuale')
-    expect(readInject.wires).to.deep.equal([['node_knx_ai_control']])
-    expect(routineInject).to.be.an('object')
-    expect(routineInject.props.find(prop => prop.p === 'payload').v).to.include('Sto uscendo')
-    expect(routineInject.wires).to.deep.equal([['node_knx_ai_control']])
-    expect(aiNode.llmAllowKnxCommands).to.equal(true)
-    expect(aiNode.llmRequireCommandConfirmation).to.equal(true)
-    expect(aiNode.wires[3]).to.include('node_knx_ai_control_universal')
-    expect(universalNode.listenallga).to.equal(true)
-    expect(universalNode.setTopicType).to.equal('listenAllGA')
+  it('removes the legacy control example and points users to the standalone package', () => {
+    const root = path.join(__dirname, '..')
+    expect(fs.existsSync(path.join(root, 'examples', 'Cerebrum Ultimate - Conversational Control with Confirmation.json'))).to.equal(false)
+    expect(fs.readFileSync(path.join(root, 'README.md'), 'utf8')).to.include('node-red-contrib-cerebrum-ultimate')
   })
 
-  it('declares the dedicated fifth output in every KNX AI example', () => {
+  it('does not publish examples that instantiate the hidden legacy runtime type', () => {
     const examplesRoot = path.join(__dirname, '..', 'examples')
-    const exampleNames = fs.readdirSync(examplesRoot)
-      .filter(name => name.startsWith('KNX AI - ') && name.endsWith('.json'))
-    expect(exampleNames).not.to.be.empty
-    exampleNames.forEach(name => {
-      const flow = JSON.parse(fs.readFileSync(path.join(examplesRoot, name), 'utf8'))
-      const aiNodes = flow.filter(node => node && node.type === 'knxUltimateAI')
-      expect(aiNodes, name).not.to.be.empty
-      aiNodes.forEach(aiNode => expect(aiNode.wires, `${name}: ${aiNode.id}`).to.have.length(5))
-    })
+    const legacyExamples = fs.readdirSync(examplesRoot)
+      .filter(name => name.endsWith('.json'))
+      .filter(name => fs.readFileSync(path.join(examplesRoot, name), 'utf8').includes('"type": "knxUltimateAI"'))
+    expect(legacyExamples).to.deep.equal([])
   })
 
-  it('ships a direct telegrambot receiver to KNX AI to sender example', () => {
-    const examplePath = path.join(
-      __dirname,
-      '..',
-      'examples',
-      'KNX AI - Telegrambot Direct Chat.json'
-    )
-    const flow = JSON.parse(fs.readFileSync(examplePath, 'utf8'))
-    const receiver = flow.find(node => node.id === 'telegram_receiver_knx_ai')
-    const aiNode = flow.find(node => node.id === 'node_knx_ai_telegram')
-    const sender = flow.find(node => node.id === 'telegram_sender_knx_ai')
-
-    expect(receiver.type).to.equal('telegram receiver')
-    expect(receiver.wires[0]).to.deep.equal(['node_knx_ai_telegram'])
-    expect(flow.find(node => node.id === 'telegram_callback_knx_ai')).to.equal(undefined)
-    expect(aiNode.wires[2]).to.include('telegram_sender_knx_ai')
-    expect(aiNode.wires[3]).to.include('node_knx_ai_telegram_universal')
-    expect(aiNode.chatAdapterPreset).to.equal('windkh-telegrambot')
-    ;['voiceBaseUrl', 'voiceApiKey', 'voiceTranscriptionModel', 'voiceSpeechModel', 'voiceSpeechVoice']
-      .forEach(property => expect(aiNode).not.to.have.property(property))
-    const setupComment = flow.find(node => node.id === 'comment_knx_ai_telegram_setup')
-    expect(setupComment.info).to.include('OpenAI-compatible chat provider')
-    expect(setupComment.info).not.to.include('separate Voice API key')
-    expect(receiver.name).to.include('voice')
-    expect(aiNode).not.to.have.property('proactiveEnabled')
-    expect(aiNode).not.to.have.property('proactiveOpenMinutes')
-    expect(aiNode).not.to.have.property('proactiveCooldownMinutes')
-    expect(aiNode).not.to.have.property('homeMemoryMaxKb')
-    expect(aiNode.aiEducation).to.include('persiana')
-    expect(sender.type).to.equal('telegram sender')
+  it('moves Telegram and conversational examples to Cerebrum Ultimate documentation', () => {
+    const root = path.join(__dirname, '..')
+    expect(fs.existsSync(path.join(root, 'examples', 'Cerebrum Ultimate - Telegrambot Direct Chat.json'))).to.equal(false)
+    const migrationPage = fs.readFileSync(path.join(root, 'docs', 'wiki', 'Cerebrum Ultimate.md'), 'utf8')
+    expect(migrationPage).to.include('node-red-contrib-cerebrum-ultimate')
+    expect(migrationPage).to.include('Cerebrum Ultimate README')
   })
 
   it('removes the separate voice service and requires the OpenAI-compatible chat provider', () => {
@@ -3341,7 +3292,7 @@ describe('KNX AI conversational control', () => {
     expect(editor).not.to.include('id="node-input-llmModel" list="knx-ai-llmModels"')
   })
 
-  it('keeps the local-context hint from widening the KNX AI editor', () => {
+  it('keeps the local-context hint from widening the Cerebrum Ultimate editor', () => {
     const editor = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.html'), 'utf8')
     expect(editor).to.include('#knx-ai-llm-connection-settings')
     expect(editor).to.include('max-width: 720px')
@@ -3648,7 +3599,7 @@ describe('KNX AI conversational control', () => {
   })
 })
 
-describe('KNX AI provider-independent web access', () => {
+describe('Cerebrum Ultimate provider-independent web access', () => {
   const fixedDate = '2026-08-28T12:34:56.000Z'
   const now = () => new Date(fixedDate)
   const publicDns = async () => [{ address: '93.184.216.34', family: 4 }]
@@ -3859,12 +3810,12 @@ describe('KNX AI provider-independent web access', () => {
     expect(editor).not.to.include('webProactive')
 
     const locales = [
-      ['en', 'KNX AI.md'],
-      ['it', 'it-KNX AI.md'],
-      ['de', 'de-KNX AI.md'],
-      ['fr', 'fr-KNX AI.md'],
-      ['es', 'es-KNX AI.md'],
-      ['zh-CN', 'zh-CN-KNX AI.md']
+      ['en', 'Cerebrum Ultimate.md'],
+      ['it', 'it-Cerebrum Ultimate.md'],
+      ['de', 'de-Cerebrum Ultimate.md'],
+      ['fr', 'fr-Cerebrum Ultimate.md'],
+      ['es', 'es-Cerebrum Ultimate.md'],
+      ['zh-CN', 'zh-CN-Cerebrum Ultimate.md']
     ]
     locales.forEach(([locale, wikiName]) => {
       const catalog = JSON.parse(fs.readFileSync(path.join(root, 'nodes', 'locales', locale, 'knxUltimateAI.json'), 'utf8')).knxUltimateAI
@@ -3879,8 +3830,10 @@ describe('KNX AI provider-independent web access', () => {
       const wiki = fs.readFileSync(path.join(root, 'docs', 'wiki', wikiName), 'utf8')
         .replace(/^---\n[\s\S]*?\n---\n+/, '')
         .trim()
-      expect(help, locale).to.equal(wiki)
-      expect(help, locale).to.match(/Web/)
+      expect(help, locale).to.include('node-red-contrib-cerebrum-ultimate')
+      expect(wiki, locale).to.include('node-red-contrib-cerebrum-ultimate')
+      expect(help, locale).to.include('Cerebrum Ultimate')
+      expect(wiki, locale).to.include('Cerebrum Ultimate')
     })
   })
 
@@ -4120,8 +4073,8 @@ describe('KNX AI provider-independent web access', () => {
   })
 })
 
-describe('KNX AI persistent chat context', () => {
-  it('shares one live memory state across KNX AI node instances', () => {
+describe('Cerebrum Ultimate persistent chat context', () => {
+  it('shares one live memory state across Cerebrum Ultimate node instances', () => {
     const registry = new Map()
     const firstNode = {}
     const secondNode = {}
@@ -4180,7 +4133,7 @@ describe('KNX AI persistent chat context', () => {
     expect(getKnxAiChatSession(context, 'semantic-memory').instructions).to.deep.equal([])
   })
 
-  it('round-trips each session through the native KNX AI context', () => {
+  it('round-trips each session through the native Cerebrum Ultimate context', () => {
     let context = createEmptyKnxAiChatContext()
     context = addKnxAiChatTurn(context, {
       sessionId: 'telegram-123',
@@ -4230,7 +4183,7 @@ describe('KNX AI persistent chat context', () => {
 
     const pureJson = JSON.stringify({ version: 2, sessions: [] })
     expect(() => parseKnxAiChatContextFileStrict(pureJson)).to.throw('expected KNXAI_CHAT_CONTEXT 3 header')
-    const legacy = '# KNX AI Chat Context\n\n<!-- KNX_AI_CHAT_CONTEXT_V1_BASE64 eyJ2ZXJzaW9uIjoxLCJzZXNzaW9ucyI6W119 -->'
+    const legacy = '# Cerebrum Ultimate Chat Context\n\n<!-- KNX_AI_CHAT_CONTEXT_V1_BASE64 eyJ2ZXJzaW9uIjoxLCJzZXNzaW9ucyI6W119 -->'
     expect(() => parseKnxAiChatContextFileStrict(legacy)).to.throw('KNXAI_CHAT_CONTEXT 3 header')
     expect(parseKnxAiChatContextFile(legacy).sessions).to.deep.equal([])
   })
@@ -4322,10 +4275,10 @@ describe('KNX AI persistent chat context', () => {
     expect(webUi).to.include('activateCerebrumTab(\'memory\')')
     expect(webUi).not.to.include('activateSidebarTab(\'assistant\')')
     expect(webUi).not.to.include('settingsTab')
-    expect(webUi).not.to.include('KNX AI Node')
+    expect(webUi).not.to.include('Cerebrum Ultimate Node')
     expect(webUi).not.to.include('v-model="state.selectedNodeId"')
     expect(webUi).to.include('state.selectedNodeId = queryNodeId')
-    expect(webUi).to.include('Open Cerebrum from a deployed KNX AI node.')
+    expect(webUi).to.include('Open Cerebrum from a deployed Cerebrum Ultimate node.')
     expect(editor).to.include('params.set("cerebrumTab", "conversation")')
     expect(editor).not.to.include('params.set("settingsTab"')
 
@@ -4334,7 +4287,7 @@ describe('KNX AI persistent chat context', () => {
     ;['aiConfiguration', 'chatLearning', 'homeMemory', 'schedules', 'schedulesReadable']
       .forEach(id => expect(runtime).to.include(`${id}: buildCerebrumBackupFile({`))
     expect(runtime).to.include('p.format !== \'knx-ai-cerebrum-backup\' || p.version !== 1')
-    expect(runtime).to.include('Unsupported backup. Import a KNX AI Cerebrum backup version 1.')
+    expect(runtime).to.include('Unsupported backup. Import a Cerebrum Ultimate Cerebrum backup version 1.')
     expect(runtime).to.include('parseKnxAiChatContextFileStrict(readBackupContent(\'chatLearning\'')
     expect(runtime).to.include('parseKnxAiHomeMemoryMarkdownStrict(readBackupContent(\'homeMemory\'')
     expect(runtime).to.include('JSON.parse(readBackupContent(\'schedules\'')
@@ -4385,7 +4338,7 @@ describe('KNX AI persistent chat context', () => {
   })
 })
 
-describe('KNX AI camera adapters', () => {
+describe('Cerebrum Ultimate camera adapters', () => {
   afterEach(() => {
     delete globalThis[KNX_AI_CAMERA_REGISTRY_KEY]
   })
@@ -4506,7 +4459,7 @@ describe('KNX AI camera adapters', () => {
   })
 })
 
-describe('KNX AI persistent historical context', () => {
+describe('Cerebrum Ultimate persistent historical context', () => {
   it('stores KNX and adapter history directly in the compact native context format', () => {
     const telegram = {
       ts: Date.parse('2026-08-25T10:00:00.000Z'),
@@ -4629,8 +4582,8 @@ describe('KNX AI persistent historical context', () => {
   })
 })
 
-describe('KNX AI Setup Doctor and onboarding', () => {
-  it('reports one-based KNX AI output wiring and detects upstream nodes', () => {
+describe('Cerebrum Ultimate Setup Doctor and onboarding', () => {
+  it('reports one-based Cerebrum Ultimate output wiring and detects upstream nodes', () => {
     const flowNodes = [
       { id: 'summary_debug', type: 'debug', name: 'Summary debug' },
       { id: 'telegram_sender', type: 'telegram sender', name: 'Telegram sender' },

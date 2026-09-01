@@ -23,7 +23,7 @@ Se puede usar para:
 - visualizar en vivo las **luces** detectadas a partir de valores KNX booleanos
 - visualizar los **dimmers** detectados a partir de valores tipo `DPT 5.001`
 - filtrar elementos, cambiar entre nodos Viewer y mantener el auto-refresh activo
-- disponer de una interfaz visual coherente con **KNX AI**
+- disponer de una interfaz visual coherente con **Cerebrum Ultimate**
 
 La página web es servida directamente por Node-RED, por lo que sigue el mismo modelo de autenticación que el editor y los endpoints de administración.
 

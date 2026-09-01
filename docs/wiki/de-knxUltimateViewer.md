@@ -23,7 +23,7 @@ Sie kann verwendet werden, um:
 - **Lichter** aus booleschen KNX-Werten live anzuzeigen
 - **Dimmer** aus Werten im Stil `DPT 5.001` anzuzeigen
 - Einträge zu filtern, zwischen Viewer-Nodes zu wechseln und Auto-Refresh aktiv zu halten
-- eine optisch mit **KNX AI** abgestimmte Oberfläche zu nutzen
+- eine optisch mit **Cerebrum Ultimate** abgestimmte Oberfläche zu nutzen
 
 Die Webseite wird direkt von Node-RED bereitgestellt und folgt daher demselben Authentifizierungsmodell wie Editor und Admin-Endpunkte.
 

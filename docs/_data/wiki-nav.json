@@ -14,6 +14,11 @@
           "external": true
         },
         {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
+          "external": false
+        },
+        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -26,16 +31,6 @@
         {
           "label": "Security",
           "url": "/wiki/SECURITY",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Web pages and sidebar",
-      "items": [
-        {
-          "label": "KNX AI Dashboard",
-          "url": "/wiki/KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -116,11 +111,6 @@
         {
           "label": "HA Translator",
           "url": "/wiki/HATranslator",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/KNX%20AI",
           "external": false
         },
         {
@@ -264,11 +254,6 @@
           "external": false
         },
         {
-          "label": "KNX AI",
-          "url": "/wiki/-Sample---KNX-AI",
-          "external": false
-        },
-        {
           "label": "KNX Multi Routing",
           "url": "/wiki/-Sample---KNX-Multi-Routing",
           "external": false
@@ -371,6 +356,11 @@
           "external": true
         },
         {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/it-Cerebrum-Ultimate",
+          "external": false
+        },
+        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -383,16 +373,6 @@
         {
           "label": "Sicurezza",
           "url": "/wiki/it-SECURITY",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Web pages and sidebar",
-      "items": [
-        {
-          "label": "KNX AI Dashboard",
-          "url": "/wiki/it-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -473,11 +453,6 @@
         {
           "label": "Traduttore HA",
           "url": "/wiki/it-HATranslator",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/it-KNX%20AI",
           "external": false
         },
         {
@@ -621,11 +596,6 @@
           "external": false
         },
         {
-          "label": "KNX AI",
-          "url": "/wiki/-Sample---KNX-AI",
-          "external": false
-        },
-        {
           "label": "KNX Multi Routing",
           "url": "/wiki/-Sample---KNX-Multi-Routing",
           "external": false
@@ -728,6 +698,11 @@
           "external": true
         },
         {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/de-Cerebrum-Ultimate",
+          "external": false
+        },
+        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -740,16 +715,6 @@
         {
           "label": "Sicherheit",
           "url": "/wiki/de-SECURITY",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Web pages and sidebar",
-      "items": [
-        {
-          "label": "KNX AI Dashboard",
-          "url": "/wiki/de-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -830,11 +795,6 @@
         {
           "label": "HA-Übersetzer",
           "url": "/wiki/de-HATranslator",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/de-KNX%20AI",
           "external": false
         },
         {
@@ -978,11 +938,6 @@
           "external": false
         },
         {
-          "label": "KNX AI",
-          "url": "/wiki/-Sample---KNX-AI",
-          "external": false
-        },
-        {
           "label": "KNX Multi Routing",
           "url": "/wiki/-Sample---KNX-Multi-Routing",
           "external": false
@@ -1085,6 +1040,11 @@
           "external": true
         },
         {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/fr-Cerebrum-Ultimate",
+          "external": false
+        },
+        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -1097,16 +1057,6 @@
         {
           "label": "Security",
           "url": "/wiki/fr-SECURITY",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Web pages and sidebar",
-      "items": [
-        {
-          "label": "Dashboard KNX AI",
-          "url": "/wiki/fr-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1187,11 +1137,6 @@
         {
           "label": "HA Translator",
           "url": "/wiki/fr-HATranslator",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/fr-KNX%20AI",
           "external": false
         },
         {
@@ -1335,11 +1280,6 @@
           "external": false
         },
         {
-          "label": "KNX AI",
-          "url": "/wiki/-Sample---KNX-AI",
-          "external": false
-        },
-        {
           "label": "KNX Multi Routing",
           "url": "/wiki/-Sample---KNX-Multi-Routing",
           "external": false
@@ -1442,6 +1382,11 @@
           "external": true
         },
         {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/es-Cerebrum-Ultimate",
+          "external": false
+        },
+        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -1454,16 +1399,6 @@
         {
           "label": "Security",
           "url": "/wiki/es-SECURITY",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Web pages and sidebar",
-      "items": [
-        {
-          "label": "Dashboard KNX AI",
-          "url": "/wiki/es-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1544,11 +1479,6 @@
         {
           "label": "HA Translator",
           "url": "/wiki/es-HATranslator",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/es-KNX%20AI",
           "external": false
         },
         {
@@ -1692,11 +1622,6 @@
           "external": false
         },
         {
-          "label": "KNX AI",
-          "url": "/wiki/-Sample---KNX-AI",
-          "external": false
-        },
-        {
           "label": "KNX Multi Routing",
           "url": "/wiki/-Sample---KNX-Multi-Routing",
           "external": false
@@ -1799,6 +1724,11 @@
           "external": true
         },
         {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/zh-CN-Cerebrum-Ultimate",
+          "external": false
+        },
+        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -1811,16 +1741,6 @@
         {
           "label": "安全",
           "url": "/wiki/zh-CN-SECURITY",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Web pages and sidebar",
-      "items": [
-        {
-          "label": "KNX AI 仪表板",
-          "url": "/wiki/zh-CN-KNX-AI-Sidebar",
           "external": false
         }
       ]
@@ -1901,11 +1821,6 @@
         {
           "label": "HA 翻译器",
           "url": "/wiki/zh-CN-HATranslator",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/zh-CN-KNX%20AI",
           "external": false
         },
         {
@@ -2046,11 +1961,6 @@
         {
           "label": "物联网桥接",
           "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX AI",
-          "url": "/wiki/-Sample---KNX-AI",
           "external": false
         },
         {

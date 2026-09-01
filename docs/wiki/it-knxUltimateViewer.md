@@ -23,7 +23,7 @@ Puoi usarla per:
 - visualizzare le **luci** rilevate dai valori KNX booleani
 - visualizzare i **dimmer** rilevati dai valori in stile `DPT 5.001`
 - filtrare gli oggetti, cambiare nodo Viewer e mantenere la pagina in auto-refresh
-- avere una UI coerente visivamente con **KNX AI**
+- avere una UI coerente visivamente con **Cerebrum Ultimate**
 
 La pagina web è servita direttamente da Node-RED, quindi segue lo stesso modello di autenticazione dell'editor e degli endpoint admin.
 

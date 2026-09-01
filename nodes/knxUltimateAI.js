@@ -537,7 +537,7 @@ const getKnxAiSetupDoctorCopy = (language) => {
       status: { ready: 'Ready', attention: 'Almost ready', blocked: 'Action needed' },
       checks: {
         gateway: ['KNX gateway', details => !details.configured ? 'Select a KNX Ultimate gateway and deploy.' : details.connected ? `Connected to ${details.name || 'the configured gateway'}.` : `${details.name || 'The configured gateway'} is not connected yet.`],
-        ets: ['ETS project', details => details.objectCount > 0 ? `${details.objectCount} unique group addresses and ${details.areaCount} ETS areas/groups recognized.` : 'No ETS group address is available to KNX AI. Configure ETS object access and verify the ETS CSV import in the gateway.'],
+        ets: ['ETS project', details => details.objectCount > 0 ? `${details.objectCount} unique group addresses and ${details.areaCount} ETS areas/groups recognized.` : 'No ETS group address is available to Cerebrum Ultimate. Configure ETS object access and verify the ETS CSV import in the gateway.'],
         assistant: ['AI assistant', details => details.enabled ? 'The assistant is enabled.' : 'Enable the LLM assistant to start conversations.'],
         provider: ['Provider and model', details => details.ready ? `${details.providerLabel} · ${details.model}` : `Complete the missing provider settings: ${details.missing.join(', ')}.`],
         providerConnection: ['Provider connection', details => details.state === 'reachable' ? details.selectedModelAvailable === false ? `Provider reached, but the selected model “${details.model}” is not in its reported catalog.` : `Provider reached successfully${details.modelCount > 0 ? `; ${details.modelCount} model(s) reported` : ''}.` : details.state === 'checking' ? 'Checking the provider without sending a chat request…' : details.state === 'unreachable' ? 'The configuration is saved, but the provider model endpoint did not answer. Use Refresh models to retry.' : 'The connectivity check will run after the provider is configured.'],
@@ -562,17 +562,17 @@ const getKnxAiSetupDoctorCopy = (language) => {
         openings: 'Which doors or windows are open now? Read-only.',
         climate: 'Which temperatures and climate states can you read now?',
         anomalies: 'Any KNX anomalies needing attention? Read-only.',
-        setup: 'What is missing from my KNX AI setup?'
+        setup: 'What is missing from my Cerebrum Ultimate setup?'
       },
       welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0
         ? `Hello${name ? ` ${name}` : ''}! I have already oriented myself in your ETS project without sending anything to the bus. I found ${totals.groupAddresses} unique group addresses, ${totals.etsAreas} ETS areas/groups and about ${totals.logicalFunctionsEstimate} recognizable logical functions. These are ETS signals, not a count of physical devices.${assistantEnabled ? '' : '\n\nThe AI assistant is not enabled yet; Setup Doctor shows what remains to configure.'}\n\nYou can start safely with:\n${prompts.map(item => `• ${item.text}`).join('\n')}`
-        : `Hello${name ? ` ${name}` : ''}! I am ready to help, but no ETS group address is selected for KNX AI yet. Configure ETS object access, verify the ETS CSV import and reopen Setup Doctor.${assistantEnabled ? '' : ' Also enable the AI assistant when you want to start chatting.'}`
+        : `Hello${name ? ` ${name}` : ''}! I am ready to help, but no ETS group address is selected for Cerebrum Ultimate yet. Configure ETS object access, verify the ETS CSV import and reopen Setup Doctor.${assistantEnabled ? '' : ' Also enable the AI assistant when you want to start chatting.'}`
     },
     it: {
       status: { ready: 'Pronto', attention: 'Quasi pronto', blocked: 'Serve un intervento' },
       checks: {
         gateway: ['Gateway KNX', details => !details.configured ? 'Seleziona un gateway KNX Ultimate e fai Deploy.' : details.connected ? `Connesso a ${details.name || 'gateway configurato'}.` : `${details.name || 'Il gateway configurato'} non è ancora connesso.`],
-        ets: ['Progetto ETS', details => details.objectCount > 0 ? `Riconosciuti ${details.objectCount} indirizzi di gruppo univoci e ${details.areaCount} aree/gruppi ETS.` : 'Nessun indirizzo ETS è disponibile a KNX AI. Configura Accesso agli oggetti ETS e verifica il CSV importato nel gateway.'],
+        ets: ['Progetto ETS', details => details.objectCount > 0 ? `Riconosciuti ${details.objectCount} indirizzi di gruppo univoci e ${details.areaCount} aree/gruppi ETS.` : 'Nessun indirizzo ETS è disponibile a Cerebrum Ultimate. Configura Accesso agli oggetti ETS e verifica il CSV importato nel gateway.'],
         assistant: ['Assistente AI', details => details.enabled ? 'L’assistente è abilitato.' : 'Abilita l’assistente LLM per iniziare le conversazioni.'],
         provider: ['Provider e modello', details => details.ready ? `${details.providerLabel} · ${details.model}` : `Completa le impostazioni mancanti: ${details.missing.join(', ')}.`],
         providerConnection: ['Connessione provider', details => details.state === 'reachable' ? details.selectedModelAvailable === false ? `Provider raggiunto, ma il modello selezionato “${details.model}” non compare nel catalogo disponibile.` : `Provider raggiunto correttamente${details.modelCount > 0 ? `; disponibili ${details.modelCount} modelli` : ''}.` : details.state === 'checking' ? 'Controllo il provider senza inviare richieste chat…' : details.state === 'unreachable' ? 'La configurazione è salvata, ma l’endpoint dei modelli non ha risposto. Usa Aggiorna modelli per riprovare.' : 'Il controllo di connettività partirà dopo aver configurato il provider.'],
@@ -597,17 +597,17 @@ const getKnxAiSetupDoctorCopy = (language) => {
         openings: 'Quali porte o finestre sono aperte? Solo lettura.',
         climate: 'Quali temperature e stati clima puoi leggere ora?',
         anomalies: 'Ci sono anomalie KNX? Non eseguire comandi.',
-        setup: 'Cosa manca nella configurazione KNX AI?'
+        setup: 'Cosa manca nella configurazione Cerebrum Ultimate?'
       },
       welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0
         ? `Ciao${name ? ` ${name}` : ''}! Mi sono già orientato nel progetto ETS senza inviare nulla sul bus. Ho trovato ${totals.groupAddresses} indirizzi di gruppo univoci, ${totals.etsAreas} aree/gruppi ETS e circa ${totals.logicalFunctionsEstimate} funzioni logiche riconoscibili. Sono segnali ETS, non un conteggio dei dispositivi fisici.${assistantEnabled ? '' : '\n\nL’assistente AI non è ancora abilitato; Setup Doctor mostra cosa resta da configurare.'}\n\nPuoi iniziare in sicurezza con:\n${prompts.map(item => `• ${item.text}`).join('\n')}`
-        : `Ciao${name ? ` ${name}` : ''}! Sono pronto ad aiutarti, ma non è ancora selezionato alcun indirizzo ETS per KNX AI. Configura Accesso agli oggetti ETS, verifica il CSV importato e poi riapri Setup Doctor.${assistantEnabled ? '' : ' Abilita anche l’assistente AI quando vorrai iniziare a chattare.'}`
+        : `Ciao${name ? ` ${name}` : ''}! Sono pronto ad aiutarti, ma non è ancora selezionato alcun indirizzo ETS per Cerebrum Ultimate. Configura Accesso agli oggetti ETS, verifica il CSV importato e poi riapri Setup Doctor.${assistantEnabled ? '' : ' Abilita anche l’assistente AI quando vorrai iniziare a chattare.'}`
     },
     de: {
       status: { ready: 'Bereit', attention: 'Fast bereit', blocked: 'Aktion erforderlich' },
       checks: {
         gateway: ['KNX-Gateway', details => !details.configured ? 'Wählen Sie ein KNX-Ultimate-Gateway und führen Sie Deploy aus.' : details.connected ? `Mit ${details.name || 'dem konfigurierten Gateway'} verbunden.` : `${details.name || 'Das konfigurierte Gateway'} ist noch nicht verbunden.`],
-        ets: ['ETS-Projekt', details => details.objectCount > 0 ? `${details.objectCount} eindeutige Gruppenadressen und ${details.areaCount} ETS-Bereiche/-Gruppen erkannt.` : 'Für KNX AI ist keine ETS-Gruppenadresse verfügbar. Konfigurieren Sie den Zugriff auf ETS-Objekte und prüfen Sie den ETS-CSV-Import.'],
+        ets: ['ETS-Projekt', details => details.objectCount > 0 ? `${details.objectCount} eindeutige Gruppenadressen und ${details.areaCount} ETS-Bereiche/-Gruppen erkannt.` : 'Für Cerebrum Ultimate ist keine ETS-Gruppenadresse verfügbar. Konfigurieren Sie den Zugriff auf ETS-Objekte und prüfen Sie den ETS-CSV-Import.'],
         assistant: ['KI-Assistent', details => details.enabled ? 'Der Assistent ist aktiviert.' : 'Aktivieren Sie den LLM-Assistenten, um Unterhaltungen zu starten.'],
         provider: ['Provider und Modell', details => details.ready ? `${details.providerLabel} · ${details.model}` : `Vervollständigen Sie: ${details.missing.join(', ')}.`],
         providerConnection: ['Provider-Verbindung', details => details.state === 'reachable' ? details.selectedModelAvailable === false ? `Provider erreichbar, aber das ausgewählte Modell „${details.model}“ fehlt im gemeldeten Katalog.` : `Provider erfolgreich erreicht${details.modelCount > 0 ? `; ${details.modelCount} Modell(e) gemeldet` : ''}.` : details.state === 'checking' ? 'Provider-Prüfung ohne Chat-Anfrage…' : details.state === 'unreachable' ? 'Die Konfiguration ist gespeichert, aber der Modell-Endpunkt antwortete nicht. Aktualisieren Sie die Modellliste erneut.' : 'Die Verbindungsprüfung startet nach der Provider-Konfiguration.'],
@@ -621,14 +621,14 @@ const getKnxAiSetupDoctorCopy = (language) => {
         homeAssistant: ['Home Assistant', details => details.ready ? 'Bereit: Cerebrum und ha-api sind als vollständiger Hin- und Rückweg verbunden.' : details.recommendationCode === 'add_ha_api' ? 'Node-RED läuft als Home-Assistant-Add-on, aber ein API-Node (ha-api) fehlt im Flow.' : details.recommendationCode === 'add_cerebrum_bridge' ? 'ha-api ist vorhanden. Fügen Sie Cerebrum Home Assistant hinzu.' : details.recommendationCode === 'wire_round_trip' ? 'Verbinden Sie Cerebrum Home Assistant → ha-api → Cerebrum Home Assistant.' : 'Home Assistant wurde nicht erkannt; die Integration ist optional.']
       },
       summary: (status, totals, issueCount) => status === 'ready' ? `Bereit: ${totals.groupAddresses} KNX-Signale, ${totals.etsAreas} ETS-Bereiche/-Gruppen und etwa ${totals.logicalFunctionsEstimate} erkennbare logische Funktionen.` : status === 'attention' ? `Fast bereit: ${totals.groupAddresses} KNX-Signale erkannt; ${issueCount} Punkt(e) brauchen Aufmerksamkeit.` : `${totals.groupAddresses} KNX-Signale erkannt, aber ${issueCount} erforderliche Punkt(e) fehlen.`,
-      prompts: { area: name => `Nur lesen: Was wissen Sie über „${name}“?`, inventory: 'Was erkennen Sie in meiner KNX-Anlage? Nur lesen.', lights: 'Welche Leuchten können Sie jetzt lesen? Nichts ändern.', openings: 'Welche Türen oder Fenster sind offen? Nur lesen.', climate: 'Welche Temperaturen und Klimazustände lesen Sie jetzt?', anomalies: 'Gibt es KNX-Anomalien? Keine Befehle ausführen.', setup: 'Was fehlt in meiner KNX-AI-Konfiguration?' },
-      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `Hallo${name ? ` ${name}` : ''}! Ich habe mich bereits im ETS-Projekt orientiert, ohne etwas auf den Bus zu senden. Gefunden: ${totals.groupAddresses} eindeutige Gruppenadressen, ${totals.etsAreas} ETS-Bereiche/-Gruppen und etwa ${totals.logicalFunctionsEstimate} erkennbare logische Funktionen. Das sind ETS-Signale, keine Anzahl physischer Geräte.${assistantEnabled ? '' : '\n\nDer KI-Assistent ist noch nicht aktiviert; Setup Doctor zeigt die fehlenden Schritte.'}\n\nSicher starten mit:\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `Hallo${name ? ` ${name}` : ''}! Für KNX AI ist noch keine ETS-Gruppenadresse ausgewählt. Konfigurieren Sie den Zugriff auf ETS-Objekte, prüfen Sie den CSV-Import und öffnen Sie Setup Doctor erneut.`
+      prompts: { area: name => `Nur lesen: Was wissen Sie über „${name}“?`, inventory: 'Was erkennen Sie in meiner KNX-Anlage? Nur lesen.', lights: 'Welche Leuchten können Sie jetzt lesen? Nichts ändern.', openings: 'Welche Türen oder Fenster sind offen? Nur lesen.', climate: 'Welche Temperaturen und Klimazustände lesen Sie jetzt?', anomalies: 'Gibt es KNX-Anomalien? Keine Befehle ausführen.', setup: 'Was fehlt in meiner Cerebrum Ultimate-Konfiguration?' },
+      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `Hallo${name ? ` ${name}` : ''}! Ich habe mich bereits im ETS-Projekt orientiert, ohne etwas auf den Bus zu senden. Gefunden: ${totals.groupAddresses} eindeutige Gruppenadressen, ${totals.etsAreas} ETS-Bereiche/-Gruppen und etwa ${totals.logicalFunctionsEstimate} erkennbare logische Funktionen. Das sind ETS-Signale, keine Anzahl physischer Geräte.${assistantEnabled ? '' : '\n\nDer KI-Assistent ist noch nicht aktiviert; Setup Doctor zeigt die fehlenden Schritte.'}\n\nSicher starten mit:\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `Hallo${name ? ` ${name}` : ''}! Für Cerebrum Ultimate ist noch keine ETS-Gruppenadresse ausgewählt. Konfigurieren Sie den Zugriff auf ETS-Objekte, prüfen Sie den CSV-Import und öffnen Sie Setup Doctor erneut.`
     },
     fr: {
       status: { ready: 'Prêt', attention: 'Presque prêt', blocked: 'Action requise' },
       checks: {
         gateway: ['Passerelle KNX', details => !details.configured ? 'Sélectionnez une passerelle KNX Ultimate puis déployez.' : details.connected ? `Connecté à ${details.name || 'la passerelle configurée'}.` : `${details.name || 'La passerelle configurée'} n’est pas encore connectée.`],
-        ets: ['Projet ETS', details => details.objectCount > 0 ? `${details.objectCount} adresses de groupe uniques et ${details.areaCount} zones/groupes ETS reconnus.` : 'Aucune adresse ETS n’est disponible pour KNX AI. Configurez l’accès aux objets ETS et vérifiez l’import CSV dans la passerelle.'],
+        ets: ['Projet ETS', details => details.objectCount > 0 ? `${details.objectCount} adresses de groupe uniques et ${details.areaCount} zones/groupes ETS reconnus.` : 'Aucune adresse ETS n’est disponible pour Cerebrum Ultimate. Configurez l’accès aux objets ETS et vérifiez l’import CSV dans la passerelle.'],
         assistant: ['Assistant IA', details => details.enabled ? 'L’assistant est activé.' : 'Activez l’assistant LLM pour commencer les conversations.'],
         provider: ['Fournisseur et modèle', details => details.ready ? `${details.providerLabel} · ${details.model}` : `Complétez les réglages manquants : ${details.missing.join(', ')}.`],
         providerConnection: ['Connexion au fournisseur', details => details.state === 'reachable' ? details.selectedModelAvailable === false ? `Fournisseur joignable, mais le modèle sélectionné « ${details.model} » n’apparaît pas dans son catalogue.` : `Fournisseur joint avec succès${details.modelCount > 0 ? ` ; ${details.modelCount} modèle(s) signalé(s)` : ''}.` : details.state === 'checking' ? 'Vérification du fournisseur sans requête de chat…' : details.state === 'unreachable' ? 'La configuration est enregistrée, mais le point de terminaison des modèles ne répond pas. Actualisez les modèles pour réessayer.' : 'La vérification démarrera après la configuration du fournisseur.'],
@@ -642,14 +642,14 @@ const getKnxAiSetupDoctorCopy = (language) => {
         homeAssistant: ['Home Assistant', details => details.ready ? 'Prêt : Cerebrum et ha-api sont reliés par une boucle requête/réponse complète.' : details.recommendationCode === 'add_ha_api' ? 'Node-RED fonctionne comme add-on Home Assistant, mais aucun nœud API (ha-api) n’est déployé.' : details.recommendationCode === 'add_cerebrum_bridge' ? 'ha-api est présent. Ajoutez le nœud Cerebrum Home Assistant.' : details.recommendationCode === 'wire_round_trip' ? 'Reliez Cerebrum Home Assistant → ha-api → Cerebrum Home Assistant.' : 'Home Assistant n’a pas été détecté ; cette intégration est optionnelle.']
       },
       summary: (status, totals, issueCount) => status === 'ready' ? `Prêt : ${totals.groupAddresses} signaux KNX, ${totals.etsAreas} zones/groupes ETS et environ ${totals.logicalFunctionsEstimate} fonctions logiques reconnaissables.` : status === 'attention' ? `Presque prêt : ${totals.groupAddresses} signaux KNX reconnus ; ${issueCount} point(s) demandent votre attention.` : `${totals.groupAddresses} signaux KNX reconnus, mais ${issueCount} point(s) requis restent à compléter.`,
-      prompts: { area: name => `Lecture seule : que savez-vous de « ${name} » ?`, inventory: 'Qu’avez-vous reconnu dans mon installation KNX ? Lecture seule.', lights: 'Quelles lumières pouvez-vous lire ? Ne changez rien.', openings: 'Quelles portes ou fenêtres sont ouvertes ? Lecture seule.', climate: 'Quels états de température et de climat pouvez-vous lire ?', anomalies: 'Des anomalies KNX demandent-elles attention ? Lecture seule.', setup: 'Que manque-t-il à ma configuration KNX AI ?' },
-      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `Bonjour${name ? ` ${name}` : ''} ! Je me suis déjà orienté dans le projet ETS sans rien envoyer sur le bus. J’ai trouvé ${totals.groupAddresses} adresses de groupe uniques, ${totals.etsAreas} zones/groupes ETS et environ ${totals.logicalFunctionsEstimate} fonctions logiques reconnaissables. Ce sont des signaux ETS, pas un nombre d’appareils physiques.${assistantEnabled ? '' : '\n\nL’assistant IA n’est pas encore activé ; Setup Doctor indique ce qui manque.'}\n\nVous pouvez commencer sans risque avec :\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `Bonjour${name ? ` ${name}` : ''} ! Aucune adresse ETS n’est encore sélectionnée pour KNX AI. Configurez l’accès aux objets ETS, vérifiez l’import CSV puis rouvrez Setup Doctor.`
+      prompts: { area: name => `Lecture seule : que savez-vous de « ${name} » ?`, inventory: 'Qu’avez-vous reconnu dans mon installation KNX ? Lecture seule.', lights: 'Quelles lumières pouvez-vous lire ? Ne changez rien.', openings: 'Quelles portes ou fenêtres sont ouvertes ? Lecture seule.', climate: 'Quels états de température et de climat pouvez-vous lire ?', anomalies: 'Des anomalies KNX demandent-elles attention ? Lecture seule.', setup: 'Que manque-t-il à ma configuration Cerebrum Ultimate ?' },
+      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `Bonjour${name ? ` ${name}` : ''} ! Je me suis déjà orienté dans le projet ETS sans rien envoyer sur le bus. J’ai trouvé ${totals.groupAddresses} adresses de groupe uniques, ${totals.etsAreas} zones/groupes ETS et environ ${totals.logicalFunctionsEstimate} fonctions logiques reconnaissables. Ce sont des signaux ETS, pas un nombre d’appareils physiques.${assistantEnabled ? '' : '\n\nL’assistant IA n’est pas encore activé ; Setup Doctor indique ce qui manque.'}\n\nVous pouvez commencer sans risque avec :\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `Bonjour${name ? ` ${name}` : ''} ! Aucune adresse ETS n’est encore sélectionnée pour Cerebrum Ultimate. Configurez l’accès aux objets ETS, vérifiez l’import CSV puis rouvrez Setup Doctor.`
     },
     es: {
       status: { ready: 'Listo', attention: 'Casi listo', blocked: 'Acción necesaria' },
       checks: {
         gateway: ['Gateway KNX', details => !details.configured ? 'Selecciona un gateway KNX Ultimate y vuelve a desplegar.' : details.connected ? `Conectado a ${details.name || 'el gateway configurado'}.` : `${details.name || 'El gateway configurado'} todavía no está conectado.`],
-        ets: ['Proyecto ETS', details => details.objectCount > 0 ? `${details.objectCount} direcciones de grupo únicas y ${details.areaCount} áreas/grupos ETS reconocidos.` : 'No hay direcciones ETS disponibles para KNX AI. Configura el acceso a objetos ETS y verifica la importación CSV en la pasarela.'],
+        ets: ['Proyecto ETS', details => details.objectCount > 0 ? `${details.objectCount} direcciones de grupo únicas y ${details.areaCount} áreas/grupos ETS reconocidos.` : 'No hay direcciones ETS disponibles para Cerebrum Ultimate. Configura el acceso a objetos ETS y verifica la importación CSV en la pasarela.'],
         assistant: ['Asistente IA', details => details.enabled ? 'El asistente está habilitado.' : 'Habilita el asistente LLM para iniciar conversaciones.'],
         provider: ['Proveedor y modelo', details => details.ready ? `${details.providerLabel} · ${details.model}` : `Completa los ajustes que faltan: ${details.missing.join(', ')}.`],
         providerConnection: ['Conexión del proveedor', details => details.state === 'reachable' ? details.selectedModelAvailable === false ? `Proveedor accesible, pero el modelo seleccionado “${details.model}” no aparece en su catálogo.` : `Proveedor alcanzado correctamente${details.modelCount > 0 ? `; ${details.modelCount} modelo(s) disponibles` : ''}.` : details.state === 'checking' ? 'Comprobando el proveedor sin enviar una solicitud de chat…' : details.state === 'unreachable' ? 'La configuración está guardada, pero el endpoint de modelos no respondió. Actualiza los modelos para reintentar.' : 'La comprobación comenzará después de configurar el proveedor.'],
@@ -663,14 +663,14 @@ const getKnxAiSetupDoctorCopy = (language) => {
         homeAssistant: ['Home Assistant', details => details.ready ? 'Listo: Cerebrum y ha-api están conectados en un circuito completo de solicitud y respuesta.' : details.recommendationCode === 'add_ha_api' ? 'Node-RED funciona como add-on de Home Assistant, pero no hay un nodo API (ha-api) desplegado.' : details.recommendationCode === 'add_cerebrum_bridge' ? 'ha-api está presente. Añade el nodo Cerebrum Home Assistant.' : details.recommendationCode === 'wire_round_trip' ? 'Conecta Cerebrum Home Assistant → ha-api → Cerebrum Home Assistant.' : 'No se detectó Home Assistant; esta integración es opcional.']
       },
       summary: (status, totals, issueCount) => status === 'ready' ? `Listo: ${totals.groupAddresses} señales KNX, ${totals.etsAreas} áreas/grupos ETS y unas ${totals.logicalFunctionsEstimate} funciones lógicas reconocibles.` : status === 'attention' ? `Casi listo: ${totals.groupAddresses} señales KNX reconocidas; ${issueCount} elemento(s) requieren atención.` : `${totals.groupAddresses} señales KNX reconocidas, pero faltan ${issueCount} elemento(s) necesarios.`,
-      prompts: { area: name => `Solo lectura: ¿qué sabes de «${name}»?`, inventory: '¿Qué reconoces en mi instalación KNX? Solo lectura.', lights: '¿Qué luces puedes leer ahora? No cambies nada.', openings: '¿Qué puertas o ventanas están abiertas? Solo lectura.', climate: '¿Qué temperaturas y estados del clima puedes leer?', anomalies: '¿Hay anomalías KNX que atender? Solo lectura.', setup: '¿Qué falta en mi configuración de KNX AI?' },
-      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `¡Hola${name ? ` ${name}` : ''}! Ya me he orientado en el proyecto ETS sin enviar nada al bus. Encontré ${totals.groupAddresses} direcciones de grupo únicas, ${totals.etsAreas} áreas/grupos ETS y unas ${totals.logicalFunctionsEstimate} funciones lógicas reconocibles. Son señales ETS, no un recuento de dispositivos físicos.${assistantEnabled ? '' : '\n\nEl asistente IA aún no está habilitado; Setup Doctor muestra lo que falta.'}\n\nPuedes empezar de forma segura con:\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `¡Hola${name ? ` ${name}` : ''}! Aún no hay direcciones ETS seleccionadas para KNX AI. Configura el acceso a objetos ETS, verifica la importación CSV y vuelve a abrir Setup Doctor.`
+      prompts: { area: name => `Solo lectura: ¿qué sabes de «${name}»?`, inventory: '¿Qué reconoces en mi instalación KNX? Solo lectura.', lights: '¿Qué luces puedes leer ahora? No cambies nada.', openings: '¿Qué puertas o ventanas están abiertas? Solo lectura.', climate: '¿Qué temperaturas y estados del clima puedes leer?', anomalies: '¿Hay anomalías KNX que atender? Solo lectura.', setup: '¿Qué falta en mi configuración de Cerebrum Ultimate?' },
+      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `¡Hola${name ? ` ${name}` : ''}! Ya me he orientado en el proyecto ETS sin enviar nada al bus. Encontré ${totals.groupAddresses} direcciones de grupo únicas, ${totals.etsAreas} áreas/grupos ETS y unas ${totals.logicalFunctionsEstimate} funciones lógicas reconocibles. Son señales ETS, no un recuento de dispositivos físicos.${assistantEnabled ? '' : '\n\nEl asistente IA aún no está habilitado; Setup Doctor muestra lo que falta.'}\n\nPuedes empezar de forma segura con:\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `¡Hola${name ? ` ${name}` : ''}! Aún no hay direcciones ETS seleccionadas para Cerebrum Ultimate. Configura el acceso a objetos ETS, verifica la importación CSV y vuelve a abrir Setup Doctor.`
     },
     zh: {
       status: { ready: '已就绪', attention: '即将就绪', blocked: '需要处理' },
       checks: {
         gateway: ['KNX 网关', details => !details.configured ? '请选择 KNX Ultimate 网关并重新部署。' : details.connected ? `已连接到 ${details.name || '已配置网关'}。` : `${details.name || '已配置网关'}尚未连接。`],
-        ets: ['ETS 项目', details => details.objectCount > 0 ? `已识别 ${details.objectCount} 个唯一组地址和 ${details.areaCount} 个 ETS 区域/组。` : 'KNX AI 没有可用的 ETS 组地址。请配置 ETS 对象访问并检查网关中的 ETS CSV 导入。'],
+        ets: ['ETS 项目', details => details.objectCount > 0 ? `已识别 ${details.objectCount} 个唯一组地址和 ${details.areaCount} 个 ETS 区域/组。` : 'Cerebrum Ultimate 没有可用的 ETS 组地址。请配置 ETS 对象访问并检查网关中的 ETS CSV 导入。'],
         assistant: ['AI 助手', details => details.enabled ? '助手已启用。' : '请启用 LLM 助手以开始对话。'],
         provider: ['提供商和模型', details => details.ready ? `${details.providerLabel} · ${details.model}` : `请补全缺少的设置：${details.missing.join('、')}。`],
         providerConnection: ['提供商连接', details => details.state === 'reachable' ? details.selectedModelAvailable === false ? `已连接提供商，但其目录中没有所选模型“${details.model}”。` : `已成功连接提供商${details.modelCount > 0 ? `；报告 ${details.modelCount} 个模型` : ''}。` : details.state === 'checking' ? '正在检查提供商，不会发送聊天请求…' : details.state === 'unreachable' ? '配置已保存，但模型端点没有响应。请刷新模型后重试。' : '配置提供商后将自动检查连接。'],
@@ -684,8 +684,8 @@ const getKnxAiSetupDoctorCopy = (language) => {
         homeAssistant: ['Home Assistant', details => details.ready ? '已就绪：Cerebrum 与 ha-api 已形成完整请求/响应回路。' : details.recommendationCode === 'add_ha_api' ? 'Node-RED 作为 Home Assistant add-on 运行，但流程中没有 API 节点（ha-api）。' : details.recommendationCode === 'add_cerebrum_bridge' ? '已存在 ha-api。请添加 Cerebrum Home Assistant 节点。' : details.recommendationCode === 'wire_round_trip' ? '请连接 Cerebrum Home Assistant → ha-api → Cerebrum Home Assistant。' : '未检测到 Home Assistant；此集成为可选项。']
       },
       summary: (status, totals, issueCount) => status === 'ready' ? `已就绪：${totals.groupAddresses} 个 KNX 信号、${totals.etsAreas} 个 ETS 区域/组，以及约 ${totals.logicalFunctionsEstimate} 个可识别逻辑功能。` : status === 'attention' ? `即将就绪：已识别 ${totals.groupAddresses} 个 KNX 信号；${issueCount} 项需要注意。` : `已识别 ${totals.groupAddresses} 个 KNX 信号，但仍需完成 ${issueCount} 个必要项目。`,
-      prompts: { area: name => `只读：你了解“${name}”区域的哪些内容？`, inventory: '你在 KNX 系统中识别到了什么？仅限读取。', lights: '你现在可以读取哪些灯？不要更改任何内容。', openings: '目前哪些门或窗打开？仅限读取。', climate: '你现在可以读取哪些温度和空调状态？', anomalies: '是否有需要注意的 KNX 异常？仅限读取。', setup: '我的 KNX AI 配置还缺少什么？' },
-      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `你好${name ? `，${name}` : ''}！我已经了解 ETS 项目，且没有向总线发送任何内容。我发现了 ${totals.groupAddresses} 个唯一组地址、${totals.etsAreas} 个 ETS 区域/组，以及约 ${totals.logicalFunctionsEstimate} 个可识别逻辑功能。这些是 ETS 信号，并非物理设备数量。${assistantEnabled ? '' : '\n\nAI 助手尚未启用；Setup Doctor 会显示仍需配置的内容。'}\n\n你可以安全地从以下问题开始：\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `你好${name ? `，${name}` : ''}！尚未为 KNX AI 选择 ETS 组地址。请配置 ETS 对象访问、检查 CSV 导入，然后重新打开 Setup Doctor。`
+      prompts: { area: name => `只读：你了解“${name}”区域的哪些内容？`, inventory: '你在 KNX 系统中识别到了什么？仅限读取。', lights: '你现在可以读取哪些灯？不要更改任何内容。', openings: '目前哪些门或窗打开？仅限读取。', climate: '你现在可以读取哪些温度和空调状态？', anomalies: '是否有需要注意的 KNX 异常？仅限读取。', setup: '我的 Cerebrum Ultimate 配置还缺少什么？' },
+      welcome: ({ name, totals, prompts, assistantEnabled }) => totals.groupAddresses > 0 ? `你好${name ? `，${name}` : ''}！我已经了解 ETS 项目，且没有向总线发送任何内容。我发现了 ${totals.groupAddresses} 个唯一组地址、${totals.etsAreas} 个 ETS 区域/组，以及约 ${totals.logicalFunctionsEstimate} 个可识别逻辑功能。这些是 ETS 信号，并非物理设备数量。${assistantEnabled ? '' : '\n\nAI 助手尚未启用；Setup Doctor 会显示仍需配置的内容。'}\n\n你可以安全地从以下问题开始：\n${prompts.map(item => `• ${item.text}`).join('\n')}` : `你好${name ? `，${name}` : ''}！尚未为 Cerebrum Ultimate 选择 ETS 组地址。请配置 ETS 对象访问、检查 CSV 导入，然后重新打开 Setup Doctor。`
     }
   }
   const code = normalizeLanguageCode(language, 'en')
@@ -983,7 +983,7 @@ const releaseSharedKnxAiState = ({ registry, filePath, node }) => {
 }
 
 // ---------------------------------------------------------------------------
-// KNX AI Flow Builder helpers
+// Cerebrum Ultimate Flow Builder helpers
 // Build a node "catalog" (type + editable fields) from this package's own
 // editor .html files, so the LLM knows exactly which node types and config
 // fields it can emit when generating a Node-RED flow to paste in the editor.
@@ -1339,7 +1339,7 @@ const normalizeKnxAiGeneratedFlow = ({ rawNodes, catalog, knxServerId, existingC
     return node
   })
 
-  const tabNode = { id: tabId, type: 'tab', label: 'KNX AI generated flow', disabled: false, info: '' }
+  const tabNode = { id: tabId, type: 'tab', label: 'Cerebrum Ultimate generated flow', disabled: false, info: '' }
   return { nodes: [tabNode].concat(out), warnings, tabId }
 }
 
@@ -1347,7 +1347,7 @@ const sendKnxAiVueIndex = (req, res) => {
   const entryPath = path.join(knxAiVueDistDir, 'index.html')
   fs.readFile(entryPath, 'utf8', (error, html) => {
     if (error || typeof html !== 'string') {
-      res.status(503).type('text/plain').send('KNX AI Vue build not found. Run "npm run knx-ai:build" in the module root.')
+      res.status(503).type('text/plain').send('Cerebrum Ultimate Vue build not found. Run "npm run knx-ai:build" in the module root.')
       return
     }
     const rawToken = getRequestAccessToken(req)
@@ -2003,12 +2003,12 @@ const getKnxAiHabitCopy = language => {
 
 const getKnxAiBootFallbackCopy = ({ language, reason = '' } = {}) => {
   const copies = {
-    en: 'KNX AI has started and Cerebrum is supervising the home. The AI startup test could not generate this message',
-    it: 'KNX AI è stato avviato e Cerebrum mantiene la casa sotto supervisione. Il test AI di avvio non ha potuto generare questo messaggio',
-    de: 'KNX AI wurde gestartet und Cerebrum überwacht das Zuhause. Der KI-Starttest konnte diese Nachricht nicht erzeugen',
-    fr: 'KNX AI a démarré et Cerebrum supervise la maison. Le test IA de démarrage n’a pas pu générer ce message',
-    es: 'KNX AI se ha iniciado y Cerebrum supervisa la casa. La prueba de IA de inicio no pudo generar este mensaje',
-    zh: 'KNX AI 已启动，Cerebrum 正在监护住宅。启动时的 AI 测试未能生成此消息'
+    en: 'Cerebrum Ultimate has started and Cerebrum is supervising the home. The AI startup test could not generate this message',
+    it: 'Cerebrum Ultimate è stato avviato e Cerebrum mantiene la casa sotto supervisione. Il test AI di avvio non ha potuto generare questo messaggio',
+    de: 'Cerebrum Ultimate wurde gestartet und Cerebrum überwacht das Zuhause. Der KI-Starttest konnte diese Nachricht nicht erzeugen',
+    fr: 'Cerebrum Ultimate a démarré et Cerebrum supervise la maison. Le test IA de démarrage n’a pas pu générer ce message',
+    es: 'Cerebrum Ultimate se ha iniciado y Cerebrum supervisa la casa. La prueba de IA de inicio no pudo generar este mensaje',
+    zh: 'Cerebrum Ultimate 已启动，Cerebrum 正在监护住宅。启动时的 AI 测试未能生成此消息'
   }
   const normalized = normalizeHomeLanguage(language)
   const base = copies[normalized === 'zh-CN' ? 'zh' : normalized] || copies.en
@@ -2397,7 +2397,7 @@ const cloneKnxAiInputMessage = (inputMessage, cloneMessage, onError) => {
 
 const safeKnxAiSend = ({ outputs, send, onError }) => {
   try {
-    if (typeof send !== 'function') throw new Error('KNX AI output sender is unavailable')
+    if (typeof send !== 'function') throw new Error('Cerebrum Ultimate output sender is unavailable')
     send(outputs)
     return true
   } catch (error) {
@@ -2420,7 +2420,7 @@ const compileKnxAiChatAdapter = ({ code, direction = 'chat' } = {}) => {
       run: new Function('msg', 'inputMessage', 'node', 'RED', `"use strict";\n${source}`) // eslint-disable-line no-new-func
     }
   } catch (error) {
-    throw new Error(`Invalid KNX AI ${adapterDirection} adapter: ${error.message || error}`)
+    throw new Error(`Invalid Cerebrum Ultimate ${adapterDirection} adapter: ${error.message || error}`)
   }
 }
 
@@ -2434,11 +2434,11 @@ const executeKnxAiChatAdapter = ({
   if (!adapter || typeof adapter.run !== 'function') return msg
   const result = adapter.run(msg, inputMessage, node, RED)
   if (result && typeof result.then === 'function') {
-    throw new Error(`KNX AI ${adapter.direction || 'chat'} adapter must be synchronous`)
+    throw new Error(`Cerebrum Ultimate ${adapter.direction || 'chat'} adapter must be synchronous`)
   }
   if (result === undefined || result === null) return null
   if (!result || typeof result !== 'object' || Array.isArray(result)) {
-    throw new Error(`KNX AI ${adapter.direction || 'chat'} adapter must return msg or no value`)
+    throw new Error(`Cerebrum Ultimate ${adapter.direction || 'chat'} adapter must return msg or no value`)
   }
   return result
 }
@@ -5402,7 +5402,7 @@ const decorateChatCompletionsModelError = ({ error, model, url }) => {
   const decorated = new Error(
     `Model "${selectedModel}" is not compatible with the configured Chat Completions endpoint (${endpoint}). ` +
     'Choose a chat-capable model, for example gpt-5.4 or gpt-4o-mini. ' +
-    `Legacy /v1/completions models are not supported by KNX AI.${originalMessage ? ` Provider response: ${originalMessage}` : ''}`
+    `Legacy /v1/completions models are not supported by Cerebrum Ultimate.${originalMessage ? ` Provider response: ${originalMessage}` : ''}`
   )
   if (error && error.status !== undefined) decorated.status = error.status
   if (error && error.response !== undefined) decorated.response = error.response
@@ -6074,7 +6074,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.getSidebarState !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const language = normalizeLanguageCode(req.query?.language || extractLanguageCodeFromHeader(req.headers && req.headers['accept-language']), 'en')
@@ -6096,7 +6096,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.getChatLearningFile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         res.json(await n.getChatLearningFile())
@@ -6114,7 +6114,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.updateChatLearningFile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         res.json(await n.updateChatLearningFile({
@@ -6135,7 +6135,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.resetChatLearningFile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         res.json(await n.resetChatLearningFile({ revision: req.body?.revision }))
@@ -6153,7 +6153,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.getCerebrumMemoryFile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         res.json(await n.getCerebrumMemoryFile())
@@ -6171,7 +6171,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.updateCerebrumMemoryFile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         res.json(await n.updateCerebrumMemoryFile({
@@ -6193,7 +6193,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.resetCerebrumMemoryFile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         res.json(await n.resetCerebrumMemoryFile({ revision: req.body?.revision }))
@@ -6216,7 +6216,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.sidebarAsk !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.sidebarAsk(question)
@@ -6240,7 +6240,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAreaDefinition !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.saveAreaDefinition({
@@ -6270,7 +6270,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.resetAreaDefinition !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.resetAreaDefinition({ areaId })
@@ -6294,7 +6294,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAreaDefinition !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.deleteAreaDefinition({ areaId })
@@ -6313,7 +6313,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAllLlmAreas !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.deleteAllLlmAreas()
@@ -6332,7 +6332,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.getGaCatalog !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.getGaCatalog()
@@ -6351,7 +6351,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.saveGaRoleOverride !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.saveGaRoleOverride(req.body || {})
@@ -6370,7 +6370,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.createAreaDefinition !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.createAreaDefinition(req.body || {})
@@ -6389,7 +6389,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.regenerateLlmAreas !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.regenerateLlmAreas()
@@ -6408,7 +6408,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.suggestAreaDraftWithLlm !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.suggestAreaDraftWithLlm(req.body || {})
@@ -6427,7 +6427,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAreaProfile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.saveAreaProfile(req.body || {})
@@ -6451,7 +6451,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAreaProfile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.deleteAreaProfile({ profileId })
@@ -6472,7 +6472,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.runAreaProfile !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.runAreaProfile({ areaId, profileId })
@@ -6491,7 +6491,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.exportAiConfig !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.exportAiConfig()
@@ -6511,7 +6511,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.importAiConfig !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.importAiConfig(configPayload)
@@ -6530,7 +6530,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.saveActuatorTestPreset !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.saveActuatorTestPreset(req.body || {})
@@ -6554,7 +6554,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteActuatorTestPreset !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.deleteActuatorTestPreset({ presetId })
@@ -6573,7 +6573,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.runActuatorTest !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.runActuatorTest(req.body || {})
@@ -6597,7 +6597,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.getAreaSignalCatalog !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.getAreaSignalCatalog({ areaId })
@@ -6629,7 +6629,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.generateAiTestPlan !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.generateAiTestPlan({ areaId, prompt, language })
@@ -6656,7 +6656,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.generateAiFlow !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.generateAiFlow({ prompt, language })
@@ -6675,7 +6675,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAiTestPlan !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.saveAiTestPlan(req.body?.plan || {})
@@ -6699,7 +6699,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAiTestPlan !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.deleteAiTestPlan({ planId })
@@ -6718,7 +6718,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.runAiTestPlan !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.runAiTestPlan({
@@ -6745,7 +6745,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.runAiTestPlanStep !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.runAiTestPlanStep({
@@ -6767,7 +6767,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.saveAiTestResult !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.saveAiTestResult(req.body?.report || {})
@@ -6791,7 +6791,7 @@ module.exports = function (RED) {
         }
         const n = aiRuntimeNodes.get(nodeId) || RED.nodes.getNode(nodeId)
         if (!n || n.type !== 'knxUltimateAI' || typeof n.deleteAiTestResult !== 'function') {
-          res.status(404).json({ error: 'KNX AI node not found' })
+          res.status(404).json({ error: 'Cerebrum Ultimate node not found' })
           return
         }
         const ret = await n.deleteAiTestResult({ reportId })
@@ -7014,7 +7014,7 @@ module.exports = function (RED) {
       return
     }
 
-    node.name = config.name || 'KNX AI'
+    node.name = config.name || 'Legacy AI node'
     node.topic = config.topic || node.name
     node.outputtopic = node.topic
     node.dpt = ''
@@ -7813,7 +7813,7 @@ module.exports = function (RED) {
         const fallback = String(csvGaLabels[ga] || '').trim()
         if (fallback) gaLabels[ga] = fallback
       })
-      gaLabels.BUS = node.name || 'KNX AI'
+      gaLabels.BUS = node.name || 'Cerebrum Ultimate'
 
       let patterns = []
       if (node.enablePattern) {
@@ -8570,7 +8570,7 @@ module.exports = function (RED) {
       })
       const filePath = getLastChatPromptDebugFile()
       const content = [
-        'KNX AI LAST CHAT PROMPT — LOCAL DEBUG COPY',
+        'Cerebrum Ultimate LAST CHAT PROMPT — LOCAL DEBUG COPY',
         `Generated at: ${new Date().toISOString()}`,
         `Provider: ${String(node.llmProvider || '')}`,
         `Model: ${String(node.llmModel || '')}`,
@@ -8606,7 +8606,7 @@ module.exports = function (RED) {
         try {
           writeAtomicUtf8File({ filePath: markdownPath, content: buildKnxAiScheduleMarkdown(node._scheduleStore) })
         } catch (markdownError) {
-          try { node.sysLogger?.warn(`KNX AI schedule Markdown write error: ${markdownError.message || markdownError}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate schedule Markdown write error: ${markdownError.message || markdownError}`) } catch (logError) { /* ignore */ }
         }
         node._scheduleStorePath = filePath
         return {
@@ -8616,7 +8616,7 @@ module.exports = function (RED) {
           activeCount: listActiveKnxAiSchedules(node._scheduleStore).length
         }
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI schedule write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate schedule write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return null
       }
     }
@@ -8657,7 +8657,7 @@ module.exports = function (RED) {
             scheduleScheduleStorePersist({ immediate: true })
           }
         } catch (recoveryError) { /* preserve the original load error */ }
-        try { node.sysLogger?.warn(`KNX AI schedule load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate schedule load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return null
       }
     }
@@ -8674,7 +8674,7 @@ module.exports = function (RED) {
             try { fs.unlinkSync(path.join(dirPath, name)) } catch (error) { /* ignore */ }
           })
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI home memory temporary-file cleanup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate home memory temporary-file cleanup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       }
     }
 
@@ -8737,7 +8737,7 @@ module.exports = function (RED) {
           maxBytes: rendered.maxBytes
         }
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI home memory write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate home memory write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return null
       }
     }
@@ -8798,7 +8798,7 @@ module.exports = function (RED) {
           property: '_homeMemory',
           initialValue: createEmptyKnxAiHomeMemory()
         })
-        try { node.sysLogger?.warn(`KNX AI home memory load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate home memory load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return scheduleHomeMemoryPersist({ immediate: true })
       }
     }
@@ -8899,7 +8899,7 @@ module.exports = function (RED) {
             try { fs.unlinkSync(path.join(dirPath, name)) } catch (error) { /* ignore */ }
           })
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI chat context temporary-file cleanup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate chat context temporary-file cleanup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       }
     }
 
@@ -8928,7 +8928,7 @@ module.exports = function (RED) {
           maxBytes: rendered.maxBytes
         }
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI chat context write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate chat context write error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return null
       }
     }
@@ -8992,7 +8992,7 @@ module.exports = function (RED) {
           initialValue: createEmptyKnxAiChatContext()
         })
         node._conversationSessions = new Map()
-        try { node.sysLogger?.warn(`KNX AI chat context load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate chat context load error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return scheduleChatContextPersist({ immediate: true })
       }
     }
@@ -9055,7 +9055,7 @@ module.exports = function (RED) {
       node._chatContext = rendered.context
       node._conversationSessions = conversationMapFromKnxAiChatContext(node._chatContext)
       const persisted = scheduleChatContextPersist({ immediate: true })
-      if (!persisted) throw new Error('Unable to save the KNX AI chat-learning file')
+      if (!persisted) throw new Error('Unable to save the Cerebrum Ultimate chat-learning file')
       return buildChatLearningFileSnapshot({ fromDisk: true })
     }
 
@@ -9078,7 +9078,7 @@ module.exports = function (RED) {
         boundNode._chatSessionSources = new Map()
       })
       const persisted = scheduleChatContextPersist({ immediate: true })
-      if (!persisted) throw new Error('Unable to reinitialize the KNX AI chat-learning file')
+      if (!persisted) throw new Error('Unable to reinitialize the Cerebrum Ultimate chat-learning file')
       return buildChatLearningFileSnapshot({ fromDisk: true })
     }
 
@@ -9148,7 +9148,7 @@ module.exports = function (RED) {
           }
         }
       } catch (error) {
-        node.sysLogger?.warn(`KNX AI history prune error: ${error.message || error}`)
+        node.sysLogger?.warn(`Cerebrum Ultimate history prune error: ${error.message || error}`)
       }
     }
 
@@ -9163,7 +9163,7 @@ module.exports = function (RED) {
       if (pendingKey) node._historyDiskPending.set(pendingKey, telegram)
       fs.appendFile(filePath, line, 'utf8', (error) => {
         if (pendingKey && node._historyDiskPending.get(pendingKey) === telegram) node._historyDiskPending.delete(pendingKey)
-        if (error) node.sysLogger?.warn(`KNX AI history append error: ${error.message || error}`)
+        if (error) node.sysLogger?.warn(`Cerebrum Ultimate history append error: ${error.message || error}`)
       })
       pruneHistoryArchiveFiles()
     }
@@ -9198,7 +9198,7 @@ module.exports = function (RED) {
         node._history = restored
         trimHistory(now)
       } catch (error) {
-        node.sysLogger?.warn(`KNX AI history restore error: ${error.message || error}`)
+        node.sysLogger?.warn(`Cerebrum Ultimate history restore error: ${error.message || error}`)
       }
     }
 
@@ -9238,7 +9238,7 @@ module.exports = function (RED) {
         })
         return accumulator.finish()
       } catch (error) {
-        node.sysLogger?.warn(`KNX AI history load slice error: ${error.message || error}`)
+        node.sysLogger?.warn(`Cerebrum Ultimate history load slice error: ${error.message || error}`)
         return emptyAccumulator()
       }
     }
@@ -9314,7 +9314,7 @@ module.exports = function (RED) {
           try { fs.unlinkSync(path.join(dirPath, entry.name)) } catch (error) { /* ignore */ }
         })
       } catch (error) {
-        node.sysLogger?.warn(`KNX AI adapter history prune error: ${error.message || error}`)
+        node.sysLogger?.warn(`Cerebrum Ultimate adapter history prune error: ${error.message || error}`)
       }
     }
 
@@ -9328,7 +9328,7 @@ module.exports = function (RED) {
       if (pendingKey) node._adapterHistoryDiskPending.set(pendingKey, normalized)
       fs.appendFile(filePath, `${serializeKnxAiCompactHistoryRecord(normalized, 'adapter')}\n`, 'utf8', error => {
         if (pendingKey && node._adapterHistoryDiskPending.get(pendingKey) === normalized) node._adapterHistoryDiskPending.delete(pendingKey)
-        if (error) node.sysLogger?.warn(`KNX AI adapter history append error: ${error.message || error}`)
+        if (error) node.sysLogger?.warn(`Cerebrum Ultimate adapter history append error: ${error.message || error}`)
       })
       pruneAdapterHistoryArchiveFiles()
       return normalized
@@ -9365,7 +9365,7 @@ module.exports = function (RED) {
           if (Number.isFinite(ts) && ts >= from && ts <= to) accumulator.add(item)
         })
       } catch (error) {
-        node.sysLogger?.warn(`KNX AI adapter history load error: ${error.message || error}`)
+        node.sysLogger?.warn(`Cerebrum Ultimate adapter history load error: ${error.message || error}`)
       }
       return accumulator.finish()
     }
@@ -9509,7 +9509,7 @@ module.exports = function (RED) {
       }
       const filePath = getAiConfigStorageFile()
       const dirPath = path.dirname(filePath)
-      if (!ensureDirectorySync(dirPath)) throw new Error('Unable to create KNX AI storage directory')
+      if (!ensureDirectorySync(dirPath)) throw new Error('Unable to create Cerebrum Ultimate storage directory')
       fs.writeFileSync(filePath, JSON.stringify({
         version: 4,
         updatedAt: new Date().toISOString(),
@@ -10699,7 +10699,7 @@ module.exports = function (RED) {
     }
 
     node.regenerateLlmAreas = async () => {
-      if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
+      if (!node.llmEnabled) throw new Error('LLM is disabled in the Cerebrum Ultimate node config')
       const gaCatalog = getGaCatalogSnapshot()
       if (!Array.isArray(gaCatalog) || !gaCatalog.length) throw new Error('No ETS group addresses available')
       const jsonMaxTokens = Math.max(50000, Number(node.llmMaxTokens) || 0)
@@ -10741,7 +10741,7 @@ module.exports = function (RED) {
           writeGaRoleOverrides(nextGaRoles)
         }
       } catch (error) {
-        node.warn(`KNX AI role classification skipped: ${error.message || String(error)}`)
+        node.warn(`Cerebrum Ultimate role classification skipped: ${error.message || String(error)}`)
       }
 
       const nextOverrides = Object.assign({}, loadAreaOverrides())
@@ -10778,7 +10778,7 @@ module.exports = function (RED) {
     }
 
     node.suggestAreaDraftWithLlm = async ({ prompt, name, description, gaList } = {}) => {
-      if (!node.llmEnabled) throw new Error('LLM is disabled in the KNX AI node config')
+      if (!node.llmEnabled) throw new Error('LLM is disabled in the Cerebrum Ultimate node config')
       const installerPrompt = String(prompt || '').trim()
       if (!installerPrompt) throw new Error('Missing prompt')
       const gaCatalog = getGaCatalogSnapshot()
@@ -10819,7 +10819,7 @@ module.exports = function (RED) {
           writeGaRoleOverrides(nextGaRoles)
         }
       } catch (error) {
-        node.warn(`KNX AI draft GA role classification skipped: ${error.message || String(error)}`)
+        node.warn(`Cerebrum Ultimate draft GA role classification skipped: ${error.message || String(error)}`)
       }
       return {
         ok: true,
@@ -11119,7 +11119,7 @@ module.exports = function (RED) {
 
     node.getChatLearningFile = async () => {
       const persisted = scheduleChatContextPersist({ immediate: true })
-      if (!persisted) throw new Error('Unable to prepare the KNX AI chat-learning file')
+      if (!persisted) throw new Error('Unable to prepare the Cerebrum Ultimate chat-learning file')
       return buildChatLearningFileSnapshot({ fromDisk: true })
     }
 
@@ -11165,7 +11165,7 @@ module.exports = function (RED) {
     node.importAiConfig = async (payload) => {
       const p = payload && typeof payload === 'object' ? payload : {}
       if (p.format !== 'knx-ai-cerebrum-backup' || p.version !== 1) {
-        throw Object.assign(new Error('Unsupported backup. Import a KNX AI Cerebrum backup version 1.'), { status: 400 })
+        throw Object.assign(new Error('Unsupported backup. Import a Cerebrum Ultimate Cerebrum backup version 1.'), { status: 400 })
       }
       const files = p.files && typeof p.files === 'object' && !Array.isArray(p.files) ? p.files : null
       const readBackupContent = (id, maxBytes) => {
@@ -11197,7 +11197,7 @@ module.exports = function (RED) {
         readBackupContent('schedulesReadable', 2 * 1024 * 1024)
       } catch (error) {
         if (error && error.status) throw error
-        throw Object.assign(new Error(`Invalid KNX AI Cerebrum backup: ${error.message || error}`), { status: 400 })
+        throw Object.assign(new Error(`Invalid Cerebrum Ultimate Cerebrum backup: ${error.message || error}`), { status: 400 })
       }
 
       const nextAreas = configuration.areas && typeof configuration.areas === 'object' ? configuration.areas : {}
@@ -11427,7 +11427,7 @@ module.exports = function (RED) {
             userContent: resolvedUserContent
           })
         } catch (error) {
-          try { node.sysLogger?.warn(`KNX AI prompt debug file error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate prompt debug file error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         }
       }
       const structuredSchema = jsonSchema && jsonSchema.schema
@@ -11838,7 +11838,7 @@ module.exports = function (RED) {
         configLines.length ? configLines.join('\n') : '(none found)',
         '',
         `CONFIGURED KNX GROUP ADDRESS CATALOG (${fullGaCatalog.length} objects; ga | dpt | access | label):`,
-        gaLines.length ? gaLines.join('\n') : '(no ETS group address selected for KNX AI)',
+        gaLines.length ? gaLines.join('\n') : '(no ETS group address selected for Cerebrum Ultimate)',
         '',
         'Return the JSON object now.'
       ].join('\n')
@@ -12692,7 +12692,7 @@ module.exports = function (RED) {
             retrievedAt: new Date().toISOString(),
             error: 'The bounded Web operation failed.'
           }))
-          try { node.sysLogger?.warn(`KNX AI Web operation error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate Web operation error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         }
       }
       const blockedReason = node.webAccessEnabled === true
@@ -13019,7 +13019,7 @@ module.exports = function (RED) {
           fallback: 'text',
           error: error.message || String(error)
         }
-        try { node.sysLogger?.warn(`KNX AI Telegram voice reply fallback: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate Telegram voice reply fallback: ${error.message || error}`) } catch (logError) { /* ignore */ }
       }
       return enriched
     }
@@ -13785,7 +13785,7 @@ module.exports = function (RED) {
           if (typeof provider.subscribe === 'function') {
             const unsubscribe = provider.subscribe(event => {
               try { handleCameraAdapterEvent(event, provider) } catch (error) {
-                try { node.sysLogger?.warn(`KNX AI camera event error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+                try { node.sysLogger?.warn(`Cerebrum Ultimate camera event error: ${error.message || error}`) } catch (logError) { /* ignore */ }
               }
             })
             node._cameraProviderUnsubscribers.set(providerId, typeof unsubscribe === 'function' ? unsubscribe : () => {})
@@ -13810,7 +13810,7 @@ module.exports = function (RED) {
               controllerName: camera && camera.controllerName || provider.controllerName
             }))).filter(Boolean)
           } catch (error) {
-            try { node.sysLogger?.warn(`KNX AI camera catalog '${providerId}' unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
+            try { node.sysLogger?.warn(`Cerebrum Ultimate camera catalog '${providerId}' unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
             return []
           }
         }))
@@ -13904,7 +13904,7 @@ module.exports = function (RED) {
         if (typeof provider.subscribe === 'function') {
           const unsubscribe = provider.subscribe(event => {
             try { handleHomeAutomationAdapterEvent(event, provider) } catch (error) {
-              try { node.sysLogger?.warn(`KNX AI home automation event error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+              try { node.sysLogger?.warn(`Cerebrum Ultimate home automation event error: ${error.message || error}`) } catch (logError) { /* ignore */ }
             }
           })
           node._homeAutomationProviderUnsubscribers.set(providerId, typeof unsubscribe === 'function' ? unsubscribe : () => {})
@@ -13980,7 +13980,7 @@ module.exports = function (RED) {
           lastError: error.message || String(error)
         })
         scheduleHomeMemoryPersist()
-        try { node.sysLogger?.warn(`KNX AI Cerebrum Home Assistant refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum Home Assistant refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return false
       }
     }
@@ -14073,12 +14073,12 @@ module.exports = function (RED) {
         systemPrompt: [
           'Write a warm, concise startup notification for a smart-home assistant.',
           `Use language ${normalizedLanguage}.`,
-          'Say explicitly that the KNX AI node has started and reassure the occupant that the home is under Cerebrum supervision.',
+          'Say explicitly that the Cerebrum Ultimate node has started and reassure the occupant that the home is under Cerebrum supervision.',
           'This is also a live AI startup test. Do not claim that integrations or devices were checked, that every service is online, or that any home action was performed.',
           'Use one or two natural sentences. Do not include Markdown, IDs, addresses, DPTs or technical diagnostics.',
           'Return JSON only with exactly: {"message":"text"}.'
         ].join('\n'),
-        userContent: 'Generate the KNX AI startup notification now.',
+        userContent: 'Generate the Cerebrum Ultimate startup notification now.',
         jsonSchema: {
           name: 'knx_ai_boot_notification',
           strict: true,
@@ -14127,7 +14127,7 @@ module.exports = function (RED) {
       } catch (error) {
         llmError = String(error && error.message || error || '').replace(/\s+/g, ' ').trim().slice(0, 300)
         content = getKnxAiBootFallbackCopy({ language })
-        try { node.sysLogger?.warn(`KNX AI startup notification model test failed: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate startup notification model test failed: ${error.message || error}`) } catch (logError) { /* ignore */ }
       } finally {
         node._bootAssistantInFlight = false
       }
@@ -14287,7 +14287,7 @@ module.exports = function (RED) {
         scheduleHomeMemoryPersist({ immediate: true })
         return true
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI Cerebrum habit proposal error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum habit proposal error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return false
       } finally {
         node._cerebrumHabitProposalInFlight = false
@@ -14430,7 +14430,7 @@ module.exports = function (RED) {
       } catch (error) {
         node._homeMemory = updateKnxAiReconciler(node._homeMemory, { lastError: error.message || String(error) })
         scheduleHomeMemoryPersist()
-        try { node.sysLogger?.warn(`KNX AI Cerebrum state tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum state tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       } finally {
         node._cerebrumStateTickInFlight = false
       }
@@ -14886,7 +14886,7 @@ module.exports = function (RED) {
         if (language) node._homeMemory.ownerLanguage = normalizeHomeLanguage(language)
         scheduleHomeMemoryPersist()
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI home owner memory error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate home owner memory error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       }
     }
 
@@ -15075,7 +15075,7 @@ module.exports = function (RED) {
         }
         return { notify: true, content: candidate, recheckAfterMinutes }
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI proactive Education evaluation error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate proactive Education evaluation error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return { notify: false, content: '', recheckAfterMinutes: PROACTIVE_EDUCATION_RETRY_MINUTES }
       }
     }
@@ -15192,7 +15192,7 @@ module.exports = function (RED) {
         if (!content || content.length > 1200 || content.startsWith('{') || content.startsWith('```')) return { notify: false, content: '' }
         return { notify: true, content }
       } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI Cerebrum habit evaluation error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum habit evaluation error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         return { notify: false, content: '' }
       }
     }
@@ -15282,7 +15282,7 @@ module.exports = function (RED) {
             if (sent === true) node._proactiveGlobalSentAt.push(now)
           })
           .catch(error => {
-            try { node.sysLogger?.warn(`KNX AI Cerebrum habit suggestion error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+            try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum habit suggestion error: ${error.message || error}`) } catch (logError) { /* ignore */ }
           })
           .finally(() => node._proactiveInFlight.delete(inFlightKey))
         return
@@ -15302,7 +15302,7 @@ module.exports = function (RED) {
         })
         .catch(error => {
           candidate.nextCheckAt = now + (PROACTIVE_EDUCATION_RETRY_MINUTES * 60 * 1000)
-          try { node.sysLogger?.warn(`KNX AI proactive notification error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate proactive notification error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         })
         .finally(() => {
           node._proactiveInFlight.delete(candidate.ga)
@@ -16128,7 +16128,7 @@ module.exports = function (RED) {
         const completion = completeKnxAiScheduleRun({ store: node._scheduleStore, taskId: task.id, ok: false, error: error.message || String(error) })
         node._scheduleStore = completion.store
         scheduleScheduleStorePersist({ immediate: true })
-        try { node.sysLogger?.warn(`KNX AI scheduled task error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate scheduled task error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       } finally {
         releaseScheduledTaskIfNoPendingCamera(task.id)
         node._scheduleTickInFlight = false
@@ -16345,7 +16345,7 @@ module.exports = function (RED) {
           return await Promise.race([
             capturePromise,
             new Promise((resolve, reject) => {
-              timeout = setTimeout(() => reject(new Error('The KNX AI sidebar request did not produce a reply')), 25000)
+              timeout = setTimeout(() => reject(new Error('The Cerebrum Ultimate sidebar request did not produce a reply')), 25000)
             })
           ])
         } finally {
@@ -16393,20 +16393,20 @@ module.exports = function (RED) {
             zh: '我无法处理这条语音消息。请重试或改为发送文字请求。'
           }
           const providerCopies = {
-            en: 'Telegram voice requires the OpenAI-compatible chat provider. Select it in KNX AI → AI Assistant Connection and deploy.',
-            it: 'I vocali Telegram richiedono il provider chat OpenAI-compatible. Selezionalo in KNX AI → Connessione Assistente AI e fai Deploy.',
-            de: 'Telegram-Sprachnachrichten erfordern den OpenAI-kompatiblen Chat-Provider. Wählen Sie ihn unter KNX AI → Verbindung zum KI-Assistenten aus und führen Sie Deploy aus.',
-            fr: 'Les messages vocaux Telegram nécessitent le fournisseur de chat OpenAI-compatible. Sélectionnez-le dans KNX AI → Connexion de l’assistant IA, puis déployez.',
-            es: 'Los mensajes de voz de Telegram requieren el proveedor de chat OpenAI-compatible. Selecciónalo en KNX AI → Conexión del Asistente IA y vuelve a desplegar.',
-            zh: 'Telegram 语音消息需要 OpenAI-compatible 聊天提供商。请在 KNX AI → AI 助手连接中选择它，然后重新部署。'
+            en: 'Telegram voice requires the OpenAI-compatible chat provider. Select it in Cerebrum Ultimate → AI Assistant Connection and deploy.',
+            it: 'I vocali Telegram richiedono il provider chat OpenAI-compatible. Selezionalo in Cerebrum Ultimate → Connessione Assistente AI e fai Deploy.',
+            de: 'Telegram-Sprachnachrichten erfordern den OpenAI-kompatiblen Chat-Provider. Wählen Sie ihn unter Cerebrum Ultimate → Verbindung zum KI-Assistenten aus und führen Sie Deploy aus.',
+            fr: 'Les messages vocaux Telegram nécessitent le fournisseur de chat OpenAI-compatible. Sélectionnez-le dans Cerebrum Ultimate → Connexion de l’assistant IA, puis déployez.',
+            es: 'Los mensajes de voz de Telegram requieren el proveedor de chat OpenAI-compatible. Selecciónalo en Cerebrum Ultimate → Conexión del Asistente IA y vuelve a desplegar.',
+            zh: 'Telegram 语音消息需要 OpenAI-compatible 聊天提供商。请在 Cerebrum Ultimate → AI 助手连接中选择它，然后重新部署。'
           }
           const apiKeyCopies = {
-            en: 'Telegram voice needs the API key of the selected OpenAI-compatible provider. Enter it in KNX AI → AI Assistant Connection and deploy.',
-            it: 'I vocali Telegram richiedono la API key del provider OpenAI-compatible selezionato. Inseriscila in KNX AI → Connessione Assistente AI e fai Deploy.',
-            de: 'Telegram-Sprachnachrichten benötigen den API-Schlüssel des ausgewählten OpenAI-kompatiblen Providers. Tragen Sie ihn unter KNX AI → Verbindung zum KI-Assistenten ein und führen Sie Deploy aus.',
-            fr: 'Les messages vocaux Telegram nécessitent la clé API du fournisseur OpenAI-compatible sélectionné. Saisissez-la dans KNX AI → Connexion de l’assistant IA, puis déployez.',
-            es: 'Los mensajes de voz de Telegram necesitan la clave API del proveedor OpenAI-compatible seleccionado. Introdúcela en KNX AI → Conexión del Asistente IA y vuelve a desplegar.',
-            zh: 'Telegram 语音消息需要所选 OpenAI-compatible 提供商的 API 密钥。请在 KNX AI → AI 助手连接中填写，然后重新部署。'
+            en: 'Telegram voice needs the API key of the selected OpenAI-compatible provider. Enter it in Cerebrum Ultimate → AI Assistant Connection and deploy.',
+            it: 'I vocali Telegram richiedono la API key del provider OpenAI-compatible selezionato. Inseriscila in Cerebrum Ultimate → Connessione Assistente AI e fai Deploy.',
+            de: 'Telegram-Sprachnachrichten benötigen den API-Schlüssel des ausgewählten OpenAI-kompatiblen Providers. Tragen Sie ihn unter Cerebrum Ultimate → Verbindung zum KI-Assistenten ein und führen Sie Deploy aus.',
+            fr: 'Les messages vocaux Telegram nécessitent la clé API du fournisseur OpenAI-compatible sélectionné. Saisissez-la dans Cerebrum Ultimate → Connexion de l’assistant IA, puis déployez.',
+            es: 'Los mensajes de voz de Telegram necesitan la clave API del proveedor OpenAI-compatible seleccionado. Introdúcela en Cerebrum Ultimate → Conexión del Asistente IA y vuelve a desplegar.',
+            zh: 'Telegram 语音消息需要所选 OpenAI-compatible 提供商的 API 密钥。请在 Cerebrum Ultimate → AI 助手连接中填写，然后重新部署。'
           }
           const copySet = error && error.code === 'KNX_AI_VOICE_PROVIDER_REQUIRED'
             ? providerCopies
@@ -16425,7 +16425,7 @@ module.exports = function (RED) {
               error: error.message || String(error)
             }
           })
-          try { node.sysLogger?.warn(`KNX AI Telegram voice input error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate Telegram voice input error: ${error.message || error}`) } catch (logError) { /* ignore */ }
           try { node.error(error, adaptedMessage) } catch (reportError) { /* ignore */ }
           updateConversationStatus({ type: 'request', question: content, language })
           sendKnxAiOutputs([null, null, replyMessage, null], adaptedMessage)
@@ -16508,7 +16508,7 @@ module.exports = function (RED) {
           node._sidebarAskCaptures.forEach(capture => {
             try {
               if (capture && typeof capture.resolve === 'function') {
-                capture.resolve({ answer: 'KNX AI node closed before the request completed.', provider: '', model: '', metadata: { type: 'node_closed' } })
+                capture.resolve({ answer: 'Cerebrum Ultimate node closed before the request completed.', provider: '', model: '', metadata: { type: 'node_closed' } })
               }
             } catch (error) { /* ignore */ }
           })
@@ -16571,43 +16571,43 @@ module.exports = function (RED) {
       loadChatContextFromDisk()
       loadScheduleStoreFromDisk()
     } catch (error) {
-      node.sysLogger?.warn(`KNX AI history startup error: ${error.message || error}`)
+      node.sysLogger?.warn(`Cerebrum Ultimate history startup error: ${error.message || error}`)
     }
 
     try {
       const cameraRegistry = getKnxAiCameraAdapterRegistry()
       node._cameraRegistryUnsubscribe = cameraRegistry.subscribe(() => {
         Promise.resolve(syncCameraAdapterRegistry({ force: true })).catch(error => {
-          try { node.sysLogger?.warn(`KNX AI camera adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate camera adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         })
       })
       Promise.resolve(syncCameraAdapterRegistry({ force: true })).catch(error => {
-        try { node.sysLogger?.warn(`KNX AI camera adapter startup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate camera adapter startup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       })
       node._cameraRegistrySyncTimer = setInterval(() => {
         Promise.resolve(syncCameraAdapterRegistry()).catch(error => {
-          try { node.sysLogger?.warn(`KNX AI camera adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate camera adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         })
       }, 30 * 1000)
     } catch (error) {
-      try { node.sysLogger?.warn(`KNX AI camera registry unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      try { node.sysLogger?.warn(`Cerebrum Ultimate camera registry unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
     }
 
     try {
       const homeAutomationRegistry = getKnxAiHomeAutomationRegistry()
       node._homeAutomationRegistryUnsubscribe = homeAutomationRegistry.subscribe(() => {
         try { syncHomeAutomationAdapterRegistry() } catch (error) {
-          try { node.sysLogger?.warn(`KNX AI home automation adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate home automation adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         }
       })
       syncHomeAutomationAdapterRegistry()
       node._homeAutomationRegistrySyncTimer = setInterval(() => {
         try { syncHomeAutomationAdapterRegistry() } catch (error) {
-          try { node.sysLogger?.warn(`KNX AI home automation adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate home automation adapter refresh error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         }
       }, 30 * 1000)
     } catch (error) {
-      try { node.sysLogger?.warn(`KNX AI home automation registry unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      try { node.sysLogger?.warn(`Cerebrum Ultimate home automation registry unavailable: ${error.message || error}`) } catch (logError) { /* ignore */ }
     }
 
     if (node._homeMemoryPeriodicTimer) clearInterval(node._homeMemoryPeriodicTimer)
@@ -16620,24 +16620,24 @@ module.exports = function (RED) {
       node._bootAssistantTimer = null
       if (node._closing === true) return
       Promise.resolve(emitKnxAiBootNotification()).catch(error => {
-        try { node.sysLogger?.warn(`KNX AI startup notification error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate startup notification error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       })
     }, 2500)
 
     if (node._cerebrumStateTimer) clearInterval(node._cerebrumStateTimer)
     Promise.resolve(runCerebrumStateTick()).catch(error => {
-      try { node.sysLogger?.warn(`KNX AI Cerebrum startup tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+      try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum startup tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
     })
     node._cerebrumStateTimer = setInterval(() => {
       Promise.resolve(runCerebrumStateTick()).catch(error => {
-        try { node.sysLogger?.warn(`KNX AI Cerebrum tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate Cerebrum tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       })
     }, CEREBRUM_STATE_TICK_MS)
 
     if (node._proactiveCheckTimer) clearInterval(node._proactiveCheckTimer)
     node._proactiveCheckTimer = setInterval(() => {
       try { checkProactiveHomeState() } catch (error) {
-        try { node.sysLogger?.warn(`KNX AI proactive check error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate proactive check error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       }
     }, 30 * 1000)
 
@@ -16647,11 +16647,11 @@ module.exports = function (RED) {
       node._scheduleStartupTimer = null
       if (node._closing === true) return
       Promise.resolve(runScheduledTaskTick()).catch(error => {
-        try { node.sysLogger?.warn(`KNX AI schedule startup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+        try { node.sysLogger?.warn(`Cerebrum Ultimate schedule startup error: ${error.message || error}`) } catch (logError) { /* ignore */ }
       })
       node._scheduleTickTimer = setInterval(() => {
         Promise.resolve(runScheduledTaskTick()).catch(error => {
-          try { node.sysLogger?.warn(`KNX AI schedule tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
+          try { node.sysLogger?.warn(`Cerebrum Ultimate schedule tick error: ${error.message || error}`) } catch (logError) { /* ignore */ }
         })
       }, 15 * 1000)
     }, 2 * 1000)

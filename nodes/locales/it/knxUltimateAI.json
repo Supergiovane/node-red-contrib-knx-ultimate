@@ -1,6 +1,6 @@
 {
   "knxUltimateAI": {
-    "title": "KNX AI (Analisi Traffico)",
+    "title": "Nodo AI legacy — usa Cerebrum Ultimate",
     "sections": {
       "groupAssistant": "Assistente AI",
       "groupChatHome": "Cerebrum (BETA)",
@@ -35,8 +35,8 @@
       "webAccessEnabled": "Consenti all’AI di usare il Web",
       "webMaxCallsPerHour": "Numero massimo di chiamate Web all’ora",
       "chatAdapterPreset": "Adattatore messaggi ingresso/uscita",
-      "chatInputCode": "Mappatura ingresso (chat → KNX AI)",
-      "chatOutputCode": "Mappatura uscita (KNX AI → chat)",
+      "chatInputCode": "Mappatura ingresso (chat → Cerebrum Ultimate)",
+      "chatOutputCode": "Mappatura uscita (Cerebrum Ultimate → chat)",
       "aiEducation": "Educazione AI (gestita dall'utente)"
     },
     "outputs": {
@@ -110,7 +110,7 @@
       "lmStudioContextConfigured": "Contesto attivo del modello",
       "lmStudioContextFailed": "Impossibile configurare il contesto del modello",
       "lmStudioContextCurrentlyLoaded": "attualmente caricato",
-      "etsAccessHint": "Seleziona gli indirizzi di gruppo disponibili a KNX AI. Ogni indirizzo selezionato è attivo e leggibile; ogni indirizzo selezionato non marcato Sola lettura è scrivibile. I provider cloud ricevono l'intero catalogo ETS semantico selezionato; i modelli locali ricevono ciò che entra nella finestra di contesto scelta e possono recuperare localmente i dettagli mancanti.",
+      "etsAccessHint": "Seleziona gli indirizzi di gruppo disponibili a Cerebrum Ultimate. Ogni indirizzo selezionato è attivo e leggibile; ogni indirizzo selezionato non marcato Sola lettura è scrivibile. I provider cloud ricevono l'intero catalogo ETS semantico selezionato; i modelli locali ricevono ciò che entra nella finestra di contesto scelta e possono recuperare localmente i dettagli mancanti.",
       "etsFilterPlaceholder": "Filtra per nome, GA o DPT…",
       "etsSelected": "selezionati",
       "etsReadOnly": "Sola lettura",
@@ -118,7 +118,7 @@
       "etsNoGateway": "Seleziona un gateway KNX.",
       "etsNoGa": "Nessun indirizzo di gruppo trovato. Importa la lista ETS nel gateway KNX.",
       "etsCsvError": "Impossibile caricare la lista degli indirizzi di gruppo dal gateway.",
-      "reasoningEffortHint": "Preferenza facoltativa per i modelli che supportano l'impegno di ragionamento. Automatico non invia alcuna preferenza; se il provider o il modello rifiuta il valore scelto, KNX AI riprova senza di esso.",
+      "reasoningEffortHint": "Preferenza facoltativa per i modelli che supportano l'impegno di ragionamento. Automatico non invia alcuna preferenza; se il provider o il modello rifiuta il valore scelto, Cerebrum Ultimate riprova senza di esso.",
       "localContextBudget": "Finestra contesto locale",
       "localContextHint": "Imposta il contesto massimo inviato soltanto ai modelli locali. Massimo usa la finestra nota del modello selezionato; le dimensioni non disponibili vengono nascoste quando il limite del modello è noto. I provider cloud ignorano questa selezione e ricevono l'intero catalogo ETS semantico selezionato.",
       "ollamaNotSupported": "Modalita locale Ollama: API key non richiesta. Endpoint predefinito: http://localhost:11434/api/chat.",
@@ -194,7 +194,7 @@
           "ask": "Chiedi"
         },
         "empty": {
-          "noNodes": "Nessun nodo KNX AI trovato.",
+          "noNodes": "Nessun nodo Cerebrum Ultimate trovato.",
           "noAnomalies": "Nessuna anomalia."
         },
         "chat": {

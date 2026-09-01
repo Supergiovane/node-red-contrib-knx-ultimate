@@ -309,7 +309,7 @@ const renderKnxAiChatContextFile = (context) => {
   const target = normalizeKnxAiChatContext(context)
   target.updatedAt = new Date().toISOString()
   const lines = [
-    '# KNX AI native chat-learning context',
+    '# Cerebrum Ultimate native chat-learning context',
     '# Tab-separated records. Escapes: \\\\ (backslash), \\t (tab), \\n (newline), \\r (carriage return).',
     '# Records: SESSION, INSTRUCTION, TURN, CAMERA_WATCH, END_SESSION.',
     buildKnxAiChatContextRecord(CHAT_CONTEXT_NATIVE_HEADER, [CHAT_CONTEXT_VERSION]),
@@ -373,7 +373,7 @@ const parseKnxAiChatContextFileStrict = (content) => {
     if (!line.trim() || line.trimStart().startsWith('#')) return
     const fields = line.split('\t').map(unescapeKnxAiChatContextField)
     const record = fields.shift()
-    const fail = message => { throw new Error(`Invalid KNX AI native chat-learning context at line ${lineIndex + 1}: ${message}`) }
+    const fail = message => { throw new Error(`Invalid Cerebrum Ultimate native chat-learning context at line ${lineIndex + 1}: ${message}`) }
 
     if (!headerSeen) {
       if (record !== CHAT_CONTEXT_NATIVE_HEADER || String(fields[0] || '') !== String(CHAT_CONTEXT_VERSION)) {
@@ -446,8 +446,8 @@ const parseKnxAiChatContextFileStrict = (content) => {
   })
 
   if (!headerSeen) throw new Error(`The file does not contain a ${CHAT_CONTEXT_NATIVE_HEADER} ${CHAT_CONTEXT_VERSION} header`)
-  if (currentSession) throw new Error('Invalid KNX AI native chat-learning context: SESSION without END_SESSION')
-  if (!context.createdAt || !context.updatedAt) throw new Error('Invalid KNX AI native chat-learning context: CREATED_AT and UPDATED_AT are required')
+  if (currentSession) throw new Error('Invalid Cerebrum Ultimate native chat-learning context: SESSION without END_SESSION')
+  if (!context.createdAt || !context.updatedAt) throw new Error('Invalid Cerebrum Ultimate native chat-learning context: CREATED_AT and UPDATED_AT are required')
   return normalizeKnxAiChatContext(context)
 }
 

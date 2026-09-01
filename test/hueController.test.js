@@ -1144,7 +1144,7 @@ describe('Unified HUE Controller', () => {
     expect(privateLightEditor).to.include("node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), { type: 'error', fixed: true }")
   })
 
-  it('exposes the unified node and its configuration references to the KNX AI Flow Builder', () => {
+  it('exposes the unified node and its configuration references to the Cerebrum Ultimate Flow Builder', () => {
     const catalog = require('../nodes/knxUltimateAI').__test.buildKnxAiPackageNodeCatalog()
     const controller = catalog.find((entry) => entry.type === 'knxUltimateHueController')
     expect(controller).to.include({

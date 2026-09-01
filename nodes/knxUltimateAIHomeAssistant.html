@@ -1,21 +1,23 @@
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateAIHomeAssistant', {
-        category: "KNX Ultimate AI",
+        category: "KNX Ultimate (legacy)",
         color: '#41BDF5',
         defaults: {
-            name: { value: "Cerebrum Home Assistant" },
+            name: { value: "Legacy Home Assistant bridge" },
             requestTimeoutMs: { value: 15000, validate: RED.validators.number() }
         },
         inputs: 1,
         outputs: 1,
         outputLabels: function () { return "ha-api request"; },
         icon: "font-awesome/fa-home",
-        label: function () { return this.name || "Cerebrum Home Assistant"; },
-        paletteLabel: "Cerebrum Home Assistant"
+        label: function () { return this.name || "Legacy Home Assistant bridge"; },
+        paletteLabel: "Legacy Home Assistant bridge"
     });
+    try { RED.palette.remove('knxUltimateAIHomeAssistant'); } catch (error) { }
 </script>
 
 <script type="text/html" data-template-name="knxUltimateAIHomeAssistant">
+    <div class="form-tips" style="margin-bottom:10px;"><b>Legacy node:</b> for new installations use the Home Assistant bridge included with <a href="https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme" target="_blank"><b>Cerebrum Ultimate</b></a>.</div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name">
@@ -34,5 +36,5 @@
     <h3>Required round trip</h3>
     <p><code>Cerebrum Home Assistant → API (ha-api) → Cerebrum Home Assistant</code></p>
     <p>The bridge sends dynamic WebSocket requests under <code>msg.payload</code>, correlates the returned message and exposes entity, state, service and event capabilities to the in-process Cerebrum registry.</p>
-    <p>Writes are only a provider capability. KNX AI must still apply its normal proposal, validation and confirmation policy before a Home Assistant service call can be executed.</p>
+    <p>Writes are only a provider capability. Cerebrum Ultimate must still apply its normal proposal, validation and confirmation policy before a Home Assistant service call can be executed.</p>
 </script>

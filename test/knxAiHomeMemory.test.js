@@ -27,7 +27,7 @@ const {
   updateKnxAiTemporalHabit
 } = require('../nodes/utils/knxAiHomeMemory')
 
-describe('KNX AI bounded home intelligence memory', () => {
+describe('Cerebrum Ultimate bounded home intelligence memory', () => {
   it('defaults and clamps the home-memory file to 5 MB', () => {
     expect(HOME_MEMORY_DEFAULT_KB).to.equal(5120)
     expect(HOME_MEMORY_MAX_KB).to.equal(5120)
@@ -91,7 +91,7 @@ describe('KNX AI bounded home intelligence memory', () => {
 
     expect(rendered.bytes).to.be.at.most(64 * 1024)
     expect(rendered.markdown).not.to.include(education)
-    expect(rendered.markdown).to.include('AI Education — configured on the KNX AI node')
+    expect(rendered.markdown).to.include('AI Education — configured on the Cerebrum Ultimate node')
     expect(rendered.markdown).to.include('not stored in learned memory')
     const restored = parseKnxAiHomeMemoryMarkdown(rendered.markdown)
     expect(restored.observations.length).to.be.at.most(120)
@@ -403,7 +403,7 @@ describe('KNX AI bounded home intelligence memory', () => {
       parseChatLearningNativeFile
     } = await import('../ui/knxUltimateAI-vue/src/chatLearningView.mjs')
     const nativeFile = [
-      '# KNX AI native chat-learning context',
+      '# Cerebrum Ultimate native chat-learning context',
       'KNXAI_CHAT_CONTEXT\t3',
       'CREATED_AT\t2026-08-01T06:00:00.000Z',
       'UPDATED_AT\t2026-08-18T07:35:00.000Z',

@@ -38,31 +38,18 @@
             "zh": "安全"
           },
           "page": "SECURITY"
-        }
-      ]
-    },
-    {
-      "key": "sidebarPlugins",
-      "labels": {
-        "en": "Web pages and sidebar",
-        "it": "Web pages and sidebar",
-        "de": "Web pages and sidebar",
-        "fr": "Web pages and sidebar",
-        "es": "Web pages and sidebar",
-        "zh": "Web pages and sidebar"
-      },
-      "items": [
+        },
         {
           "type": "page",
           "labels": {
-            "en": "KNX AI Dashboard",
-            "it": "KNX AI Dashboard",
-            "de": "KNX AI Dashboard",
-            "fr": "Dashboard KNX AI",
-            "es": "Dashboard KNX AI",
-            "zh": "KNX AI 仪表板"
+            "en": "Cerebrum Ultimate",
+            "it": "Cerebrum Ultimate",
+            "de": "Cerebrum Ultimate",
+            "fr": "Cerebrum Ultimate",
+            "es": "Cerebrum Ultimate",
+            "zh": "Cerebrum Ultimate"
           },
-          "page": "KNX-AI-Sidebar"
+          "page": "Cerebrum-Ultimate"
         }
       ]
     },
@@ -227,18 +214,6 @@
             "zh": "HA 翻译器"
           },
           "page": "HATranslator"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX AI",
-            "it": "KNX AI",
-            "de": "KNX AI",
-            "fr": "KNX AI",
-            "es": "KNX AI",
-            "zh": "KNX AI"
-          },
-          "page": "KNX AI"
         },
         {
           "type": "page",
@@ -507,18 +482,6 @@
             "zh": "物联网桥接"
           },
           "page": "-Sample---IoT-Bridge"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX AI",
-            "it": "KNX AI",
-            "de": "KNX AI",
-            "fr": "KNX AI",
-            "es": "KNX AI",
-            "zh": "KNX AI"
-          },
-          "page": "-Sample---KNX-AI"
         },
         {
           "type": "page",

@@ -467,11 +467,11 @@
 
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateAI', {
-        category: "KNX Ultimate AI",
+        category: "KNX Ultimate (legacy)",
         color: '#FF9800',
         defaults: {
             server: { type: "knxUltimate-config", required: true },
-            name: { value: "KNX AI", required: false },
+            name: { value: "Legacy AI node", required: false },
             topic: { value: "", required: false },
 
             llmEnabled: { value: false },
@@ -509,9 +509,9 @@
         },
         icon: "node-eye-icon.svg",
         label: function () {
-            return (this.name || "KNX AI");
+            return (this.name || "Legacy AI node");
         },
-        paletteLabel: "KNX AI",
+        paletteLabel: "Legacy AI node",
         oneditprepare: function () {
             try { RED.sidebar.show("help"); } catch (error) { }
             const node = this;
@@ -1531,9 +1531,13 @@
             } catch (error) { }
         }
     })
+    // The historical type remains registered so deployed flows keep loading,
+    // but new Cerebrum nodes belong to node-red-contrib-cerebrum-ultimate.
+    try { RED.palette.remove('knxUltimateAI'); } catch (error) { }
 </script>
 
 <script type="text/html" data-template-name="knxUltimateAI">
+  <div class="form-tips" style="margin-bottom:10px;"><b>Legacy node:</b> existing flow instances remain supported. For new installations use <a href="https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme" target="_blank"><b>Cerebrum Ultimate</b></a>.</div>
   <div class="form-row" style="margin-bottom:10px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>
@@ -1559,7 +1563,7 @@
         <label><i class="fa fa-external-link"></i> Web UI</label>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" class="red-ui-button" id="knx-ai-open-web-page-vue" style="background-color:#ff9800; border-color:#ff9800; color:#ffffff !important; -webkit-text-fill-color:#ffffff;">
-                <i class="fa fa-external-link" style="color:#ffffff !important;"></i> <span style="color:#ffffff !important;">Open KNX AI Web Page</span>
+                <i class="fa fa-external-link" style="color:#ffffff !important;"></i> <span style="color:#ffffff !important;">Open Cerebrum Ultimate Web Page</span>
             </button>
         </div>
     </div>
