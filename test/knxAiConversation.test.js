@@ -24,6 +24,7 @@ const {
   applyKnxAiCatalogAccessConfiguration,
   applyKnxAiChatConfirmationPresetFallback,
   applyKnxAiChatMediaPresetFallback,
+  applyKnxAiRedBotOutputEnvelopeFallback,
   applyKnxAiTelegramVoiceInputPresetFallback,
   applyKnxAiTelegramVoiceOutputPresetFallback,
   applyKnxAiGaRoleActionsToCatalog,
@@ -1400,7 +1401,10 @@ describe('KNX AI conversational control', () => {
 
     expect(message.originalMessage).to.include({ transport: 'telegram', chatId: 'redbot-chat-1' })
     expect(message.chat).to.be.a('function')
-    expect(message.chat().get()).to.deep.equal({})
+    const context = message.chat()
+    expect(context.get()).to.include({ chatId: 'redbot-chat-1', transport: 'telegram' })
+    expect(context.set({ messageId: 42 })).to.equal(context)
+    expect(context.get('messageId')).to.equal(42)
     expect(message.get('chatId')).to.equal('redbot-chat-1')
     expect(message.payload).to.include({
       transport: 'telegram',
@@ -1409,6 +1413,41 @@ describe('KNX AI conversational control', () => {
       inbound: false,
       content: 'Movimento in giardino'
     })
+  })
+
+  it('repairs saved RedBot adapters whose synthetic context rejects outbound Telegram state updates', () => {
+    const legacyContext = {
+      get: () => ({}),
+      set: () => undefined,
+      remove: () => undefined
+    }
+    const message = applyKnxAiRedBotOutputEnvelopeFallback({
+      preset: 'redbot-telegram',
+      inputMessage: {
+        topic: 'boot',
+        payload: { chatId: 'redbot-boot-chat', transport: 'telegram' },
+        boot: true
+      },
+      message: {
+        payload: {
+          chatId: 'redbot-boot-chat',
+          transport: 'telegram',
+          type: 'message',
+          inbound: false,
+          content: 'Cerebrum online.'
+        },
+        chat: () => legacyContext,
+        boot: true
+      }
+    })
+
+    const context = message.chat()
+    const updateResult = context.set({ messageId: 123, outboundMessageId: 123 })
+    expect(updateResult).to.equal(context)
+    expect(updateResult).not.to.equal(undefined)
+    expect(context.get('messageId')).to.equal(123)
+    expect(message.originalMessage).to.include({ transport: 'telegram', chatId: 'redbot-boot-chat' })
+    expect(message.boot).to.equal(true)
   })
 
   it('rejects invalid or asynchronous custom chat adapter code safely', () => {

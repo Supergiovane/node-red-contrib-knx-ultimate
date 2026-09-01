@@ -290,12 +290,38 @@ if (sourcePayload.userId !== undefined && msg.originalMessage.userId === undefin
     msg.originalMessage.userId = sourcePayload.userId;
 }
 if (typeof msg.chat !== 'function') {
+    const contextValues = {
+        chatId: chatId,
+        userId: sourcePayload.userId,
+        transport: sourcePayload.transport || 'telegram'
+    };
+    const syntheticContext = {
+        get: function () {
+            const keys = Array.prototype.slice.call(arguments);
+            if (keys.length === 0) return Object.assign({}, contextValues);
+            if (keys.length === 1) return contextValues[keys[0]];
+            return keys.reduce(function (result, key) {
+                result[key] = contextValues[key];
+                return result;
+            }, {});
+        },
+        set: function (key, value) {
+            if (key && typeof key === 'object') Object.assign(contextValues, key);
+            else if (key !== undefined) contextValues[key] = value;
+            return syntheticContext;
+        },
+        remove: function () {
+            Array.prototype.slice.call(arguments).forEach(function (key) { delete contextValues[key]; });
+            return syntheticContext;
+        },
+        clear: function () {
+            Object.keys(contextValues).forEach(function (key) { delete contextValues[key]; });
+            return syntheticContext;
+        },
+        all: function () { return Object.assign({}, contextValues); }
+    };
     msg.chat = function () {
-        return {
-            get: function () { return {}; },
-            set: function () { return undefined; },
-            remove: function () { return undefined; }
-        };
+        return syntheticContext;
     };
 }
 if (typeof msg.get !== 'function') {

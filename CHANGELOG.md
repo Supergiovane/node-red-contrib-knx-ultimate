@@ -6,8 +6,9 @@
 
 # CHANGELOG
 
-**Version 6.4.0** - September 2026<br/>
+**Version 6.4.1** - September 2026<br/>
 
+- **KNX AI — safe Cerebrum startup delivery**: corrected the RedBot Telegram envelope used by startup and other proactive messages after a Node-RED restart. Its synthetic chat context now fulfils RedBot's synchronous context contract instead of returning `undefined`, preventing `chat-platform` from raising an uncaught `sourceCode` error and terminating Node-RED. Saved RedBot adapter code is hardened at runtime as well. Schedule persistence now passes the generated Markdown filename to the atomic writer under the correct `filePath` key, removing the accompanying undefined-path warning.<br/>
 - **KNX AI — Cerebrum (BETA)**: renamed the Web Assistant area to Cerebrum and introduced a passive home-automation intelligence layer that studies KNX telegrams, useful Node-RED flow events and the registered HUE, Matter and Home Assistant adapters. Cerebrum maintains bounded current-state and observation context locally, learns only repeated patterns spanning distinct days and asks the occupant for confirmation or correction through the Assistant output before a habit can become predictive. Confirmed habits remain subject to the exact ETS/DPT permissions: group addresses marked read-only are never written.<br/>
 - **Cerebrum — Home Assistant adapter**: added the `Cerebrum Home Assistant` node and the shared runtime registry. When Node-RED is running as a Home Assistant add-on, Setup Doctor detects whether the required `ha-api` round trip is present and tells the user to add it when missing. Entity states, events and service capabilities are exposed to Cerebrum through bounded, vendor-neutral records without retaining raw messages, secrets or binary payloads.<br/>
 - **Cerebrum — supervised startup**: every KNX AI node now asks its configured model to generate a short startup reassurance on the Assistant output. The message carries `msg.boot = true` for simple flow filtering and falls back to a localized deterministic notice if the provider is unavailable.<br/>

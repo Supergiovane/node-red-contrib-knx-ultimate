@@ -2473,6 +2473,76 @@ const applyKnxAiChatMediaPresetFallback = ({ preset, message, inputMessage } = {
   return message
 }
 
+const applyKnxAiRedBotOutputEnvelopeFallback = ({ preset, message, inputMessage } = {}) => {
+  if (String(preset || '') !== 'redbot-telegram' || !message || typeof message !== 'object') return message
+  const source = inputMessage && typeof inputMessage === 'object'
+    ? inputMessage
+    : message.inputMessage && typeof message.inputMessage === 'object'
+      ? message.inputMessage
+      : {}
+  if (typeof source.chat === 'function') {
+    if (typeof message.chat !== 'function') message.chat = source.chat
+    return message
+  }
+
+  const payload = message.payload && typeof message.payload === 'object' ? message.payload : {}
+  const sourcePayload = source.payload && typeof source.payload === 'object' ? source.payload : {}
+  const sourceOriginal = source.originalMessage && typeof source.originalMessage === 'object' ? source.originalMessage : {}
+  const chatId = payload.chatId !== undefined
+    ? payload.chatId
+    : sourcePayload.chatId !== undefined
+      ? sourcePayload.chatId
+      : sourceOriginal.chatId !== undefined
+        ? sourceOriginal.chatId
+        : sourceOriginal.chat && sourceOriginal.chat.id
+  if (chatId === undefined || chatId === null || chatId === '') return message
+
+  if (!message.originalMessage || typeof message.originalMessage !== 'object') message.originalMessage = {}
+  if (!message.originalMessage.transport) message.originalMessage.transport = payload.transport || sourcePayload.transport || 'telegram'
+  if (message.originalMessage.chatId === undefined) message.originalMessage.chatId = chatId
+  const userId = payload.userId !== undefined ? payload.userId : sourcePayload.userId
+  if (userId !== undefined && message.originalMessage.userId === undefined) message.originalMessage.userId = userId
+
+  // RedBot accepts both synchronous and asynchronous chat-context providers,
+  // but its `when()` helper rejects a context operation that returns undefined.
+  // A rejection without an Error makes chat-platform try to set sourceCode on
+  // undefined and can terminate Node-RED. Keep a tiny synchronous context for
+  // proactive messages that have no real inbound RedBot context after restart.
+  const contextValues = {
+    chatId,
+    userId,
+    transport: payload.transport || sourcePayload.transport || 'telegram'
+  }
+  const syntheticContext = {
+    get (...keys) {
+      if (!keys.length) return Object.assign({}, contextValues)
+      if (keys.length === 1) return contextValues[keys[0]]
+      return keys.reduce((result, key) => {
+        result[key] = contextValues[key]
+        return result
+      }, {})
+    },
+    set (key, value) {
+      if (key && typeof key === 'object') Object.assign(contextValues, key)
+      else if (key !== undefined) contextValues[key] = value
+      return syntheticContext
+    },
+    remove (...keys) {
+      keys.forEach(key => delete contextValues[key])
+      return syntheticContext
+    },
+    clear () {
+      Object.keys(contextValues).forEach(key => delete contextValues[key])
+      return syntheticContext
+    },
+    all () {
+      return Object.assign({}, contextValues)
+    }
+  }
+  message.chat = () => syntheticContext
+  return message
+}
+
 const applyKnxAiChatConfirmationPresetFallback = ({ preset, message } = {}) => {
   if (String(preset || '') !== 'windkh-telegrambot' || !message || typeof message !== 'object') return message
   const payload = message.payload && typeof message.payload === 'object' ? message.payload : null
@@ -8534,7 +8604,7 @@ module.exports = function (RED) {
         const markdownPath = getScheduleMarkdownFile()
         writeAtomicUtf8File({ filePath, content: `${JSON.stringify(node._scheduleStore, null, 2)}\n` })
         try {
-          writeAtomicUtf8File({ markdownPath, content: buildKnxAiScheduleMarkdown(node._scheduleStore) })
+          writeAtomicUtf8File({ filePath: markdownPath, content: buildKnxAiScheduleMarkdown(node._scheduleStore) })
         } catch (markdownError) {
           try { node.sysLogger?.warn(`KNX AI schedule Markdown write error: ${markdownError.message || markdownError}`) } catch (logError) { /* ignore */ }
         }
@@ -12771,13 +12841,18 @@ module.exports = function (RED) {
             RED
           })
           : message
+        const redBotReadyMessage = applyKnxAiRedBotOutputEnvelopeFallback({
+          preset: node.chatAdapterPreset,
+          message: adapted,
+          inputMessage
+        })
         const outputMessage = applyKnxAiChatConfirmationPresetFallback({
           preset: node.chatAdapterPreset,
           message: applyKnxAiChatMediaPresetFallback({
             preset: node.chatAdapterPreset,
             message: applyKnxAiTelegramVoiceOutputPresetFallback({
               preset: node.chatAdapterPreset,
-              message: adapted,
+              message: redBotReadyMessage,
               inputMessage
             }),
             inputMessage
@@ -16622,6 +16697,7 @@ module.exports.__test = {
   applyKnxAiCatalogAccessConfiguration,
   applyKnxAiChatConfirmationPresetFallback,
   applyKnxAiChatMediaPresetFallback,
+  applyKnxAiRedBotOutputEnvelopeFallback,
   applyKnxAiTelegramVoiceInputPresetFallback,
   applyKnxAiTelegramVoiceOutputPresetFallback,
   applyKnxAiGaRoleActionsToCatalog,

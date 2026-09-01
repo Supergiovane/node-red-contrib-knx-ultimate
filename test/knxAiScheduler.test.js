@@ -1,4 +1,6 @@
 const { expect } = require('chai')
+const fs = require('fs')
+const path = require('path')
 
 const {
   KNX_AI_SCHEDULE_MAX_INTERVAL_MINUTES,
@@ -48,6 +50,12 @@ const makeTask = (overrides = {}) => ({
 })
 
 describe('KNX AI semantic scheduler', () => {
+  it('passes the resolved Markdown filename through the atomic writer filePath contract', () => {
+    const source = fs.readFileSync(path.join(__dirname, '..', 'nodes', 'knxUltimateAI.js'), 'utf8')
+    expect(source).to.include('writeAtomicUtf8File({ filePath: markdownPath, content: buildKnxAiScheduleMarkdown(node._scheduleStore) })')
+    expect(source).not.to.include('writeAtomicUtf8File({ markdownPath, content: buildKnxAiScheduleMarkdown(node._scheduleStore) })')
+  })
+
   it('creates, lists and cancels schedules only for the owning chat', () => {
     const now = Date.parse('2026-08-29T08:00:00.000Z')
     const actionFor = title => ({
