@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 7.0.1** - September 2026<br/>
+
+KNX Device: fixed a wrong status text, when the node receives a READ request and responds with the last payload received.</br>
+KNX Device: the input msg now supports **msg.event = "GroupValue_Read"** as an additional method besides msg.readstatus = true, to issue a READ command to the bus.</br>
+
 **Version 7.0.0** - September 2026<br/>
 
 - **Major release — focused KNX package**: KNX Ultimate 7 starts the new package boundary. Conversational AI, supervised home learning, shared memory and multi-platform chat now belong to the standalone `node-red-contrib-cerebrum-ultimate`; this package remains the optional KNX/ETS integration. Existing deployed flows that contain the hidden legacy runtime types continue to load, but new instances can no longer be added from the palette.<br/>

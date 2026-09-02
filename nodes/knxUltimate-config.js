@@ -1529,9 +1529,9 @@ module.exports = (RED) => {
                   }
                   _input.handleSend(msg)
                 } else if (_input.hasOwnProperty('isSceneController')) { // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
-                // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
+                  // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.
                   if (_dest === _input.topic || _dest === _input.topicSave) {
-                  // Prepare the two messages to be evaluated directly into the Scene Controller node.
+                    // Prepare the two messages to be evaluated directly into the Scene Controller node.
                     new Promise((resolve) => {
                       if (_dest === _input.topic) {
                         try {
@@ -1568,16 +1568,16 @@ module.exports = (RED) => {
                         } catch (error) { }
                       }
                       resolve(true) // fulfilled
-                    // reject("error"); // rejected
+                      // reject("error"); // rejected
                     })
                       .then(function () { })
                       .catch(function () { })
                   } else {
-                  // 19/03/2020 Check and Update value if the input is part of a scene controller
+                    // 19/03/2020 Check and Update value if the input is part of a scene controller
                     new Promise((resolve) => {
-                    // Check and update the values of each device in the scene and update the rule array accordingly.
+                      // Check and update the values of each device in the scene and update the rule array accordingly.
                       for (let i = 0; i < _input.rules.length; i++) {
-                      // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
+                        // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
                         const oDevice = _input.rules[i]
                         if (typeof oDevice !== 'undefined' && oDevice.topic == _dest) {
                           const msg = buildInputMessage({
@@ -1606,23 +1606,23 @@ module.exports = (RED) => {
                         }
                       }
                       resolve(true) // fulfilled
-                    // reject("error"); // rejected
+                      // reject("error"); // rejected
                     })
                       .then(function () { })
                       .catch(function () { })
                   }
                 } else if (_input.hasOwnProperty('isLogger')) {
-                // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
-                // 24/03/2021 Logger Node, i'll pass cemiETS
+                  // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+                  // 24/03/2021 Logger Node, i'll pass cemiETS
                   if (_cemiETS !== undefined) {
-                  // new Promise((resolve, reject) => {
+                    // new Promise((resolve, reject) => {
                     _input.handleSend(_cemiETS)
-                  //    resolve(true); // fulfilled
-                  // reject("error"); // rejected
-                  // }).then(function () { }).catch(function () { });
+                    //    resolve(true); // fulfilled
+                    // reject("error"); // rejected
+                    // }).then(function () { }).catch(function () { });
                   }
                 } else if (_input.listenallga === true && universalNodeAcceptsGA(_input, _dest)) {
-                // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
+                  // 25/10/2019 TRY TO AUTO DECODE IF Group address not found in the CSV
                   const msg = buildInputMessage({
                     _srcGA: _src,
                     _destGA: _dest,
@@ -1645,8 +1645,8 @@ module.exports = (RED) => {
                   _input.handleSend(msg)
                 } else if (_input.topic == _dest) {
                   if (_input.hasOwnProperty('isWatchDog')) {
-                  // 04/02/2020 Watchdog implementation
-                  // Is a watchdog node
+                    // 04/02/2020 Watchdog implementation
+                    // Is a watchdog node
                   } else {
                     const msg = buildInputMessage({
                       _srcGA: _src,
@@ -1721,14 +1721,14 @@ module.exports = (RED) => {
                   _input.handleSend(msg)
                 } else
                 if (_input.hasOwnProperty('isLogger')) {
-                // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
-                // 24/03/2021 Logger Node, i'll pass cemiETS
+                  // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+                  // 24/03/2021 Logger Node, i'll pass cemiETS
                   if (_cemiETS !== undefined) {
-                  // new Promise((resolve, reject) => {
+                    // new Promise((resolve, reject) => {
                     _input.handleSend(_cemiETS)
-                  //    resolve(true); // fulfilled
-                  // reject("error"); // rejected
-                  // }).then(function () { }).catch(function () { });
+                    //    resolve(true); // fulfilled
+                    // reject("error"); // rejected
+                    // }).then(function () { }).catch(function () { });
                   }
                 } else if (_input.listenallga === true && universalNodeAcceptsGA(_input, _dest)) {
                   const msg = buildInputMessage({
@@ -1752,9 +1752,9 @@ module.exports = (RED) => {
                   })
                   _input.handleSend(msg)
                 } else if (_input.topic === _dest) {
-                // 04/02/2020 Watchdog implementation
+                  // 04/02/2020 Watchdog implementation
                   if (_input.hasOwnProperty('isWatchDog')) {
-                  // Is a watchdog node
+                    // Is a watchdog node
                     _input.watchDogTimerReset()
                   } else {
                     const msg = buildInputMessage({
@@ -1827,18 +1827,18 @@ module.exports = (RED) => {
                   _input.handleSend(msg)
                 } else
                 if (_input.hasOwnProperty('isLogger')) {
-                // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
-                // node.sysLogger?.info("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
-                // 24/03/2021 Logger Node, i'll pass cemiETS
+                  // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
+                  // node.sysLogger?.info("BANANA isLogger", _evt, _src, _dest, _rawValue, _cemiETS);
+                  // 24/03/2021 Logger Node, i'll pass cemiETS
                   if (_cemiETS !== undefined) {
-                  // new Promise((resolve, reject) => {
+                    // new Promise((resolve, reject) => {
                     _input.handleSend(_cemiETS)
-                  //    resolve(true); // fulfilled
-                  // reject("error"); // rejected
-                  // }).then(function () { }).catch(function () { });
+                    //    resolve(true); // fulfilled
+                    // reject("error"); // rejected
+                    // }).then(function () { }).catch(function () { });
                   }
                 } else if (_input.listenallga === true && universalNodeAcceptsGA(_input, _dest)) {
-                // Read Request
+                  // Read Request
                   const msg = buildInputMessage({
                     _srcGA: _src,
                     _destGA: _dest,
@@ -1860,11 +1860,11 @@ module.exports = (RED) => {
                   })
                   _input.handleSend(msg)
                 } else if (_input.topic === _dest) {
-                // 04/02/2020 Watchdog implementation
+                  // 04/02/2020 Watchdog implementation
                   if (_input.hasOwnProperty('isWatchDog')) {
-                  // Is a watchdog node
+                    // Is a watchdog node
                   } else {
-                  // Read Request
+                    // Read Request
                     const msg = buildInputMessage({
                       _srcGA: _src,
                       _destGA: _dest,
@@ -1881,7 +1881,7 @@ module.exports = (RED) => {
                     // 24/09/2019 Autorespond to BUS
                     if (_input.hasOwnProperty('notifyreadrequestalsorespondtobus') && _input.notifyreadrequestalsorespondtobus === true) {
                       if (typeof _input.currentPayload === 'undefined' || _input.currentPayload === '' || _input.currentPayload === null) {
-                      // 14/08/2021 Added || input.currentPayload === null
+                        // 14/08/2021 Added || input.currentPayload === null
                         node.sendKNXTelegramToKNXEngine({
                           grpaddr: _dest,
                           payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
@@ -1909,8 +1909,8 @@ module.exports = (RED) => {
                         _input.setNodeStatus({
                           fill: 'blue',
                           shape: 'ring',
-                          text: 'Read & Autorespond with default',
-                          payload: _input.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized,
+                          text: 'Read & Autorespond',
+                          payload: _input.currentPayload,
                           GA: _input.topic,
                           dpt: msg.knx.dpt,
                           devicename: ''

@@ -756,7 +756,7 @@ module.exports = function (RED) {
       // #endregion
 
       // 25/07/2019 if payload is read or the Telegram type is set to "read", do a read, otherwise, write to the bus
-      if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true) || node.outputtype === 'read') {
+      if ((msg.hasOwnProperty('readstatus') && msg.readstatus === true) || node.outputtype === 'read' || (msg.hasOwnProperty('event') && msg.event === 'GroupValue_Read')) {
         // READ: Send a Read request to the bus
         let grpaddr = ''
         if (node.listenallga == false) {
