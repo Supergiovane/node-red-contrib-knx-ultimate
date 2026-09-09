@@ -36,3 +36,4 @@ test/*
 !test/docsNavigation.test.js
 !test/knxUltimateWatchDog.test.js
 !test/knxUltimateIoTBridge.test.js
+!test/knxFunctionAutocomplete.test.js

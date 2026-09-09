@@ -25,6 +25,7 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXSendSnippets.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/KNXReceiveSnippets.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxFunctionAutocomplete.js"></script>
 
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimate', {
@@ -407,6 +408,36 @@ return msg;`
                 })
             }
 
+            let groupAddressRequest = null;
+            let groupAddressServerId = null;
+            let functionEditorsDisposed = false;
+            const functionEditorDisposables = [];
+            const loadFunctionGroupAddresses = () => {
+                const serverId = $("#node-input-server").val();
+                if (functionEditorsDisposed || !serverId || serverId === '_ADD_') return Promise.resolve([]);
+                if (!groupAddressRequest || groupAddressServerId !== serverId) {
+                    groupAddressServerId = serverId;
+                    groupAddressRequest = new Promise(resolve => {
+                        $.getJSON("knxUltimatecsv?nodeID=" + encodeURIComponent(serverId))
+                            .done(data => resolve(Array.isArray(data) ? data : []))
+                            .fail(() => { groupAddressRequest = null; resolve([]); });
+                    });
+                }
+                return groupAddressRequest.then(data => {
+                    return !functionEditorsDisposed && $("#node-input-server").val() === serverId ? data : [];
+                });
+            };
+            node.disposeKnxFunctionEditors = () => {
+                functionEditorsDisposed = true;
+                functionEditorDisposables.forEach(disposable => disposable.dispose());
+                ['sampleEditor', 'sendMsgToKNXCodeEditor', 'receiveMsgFromKNXCodeEditor'].forEach(key => {
+                    try { if (node[key]) node[key].destroy(); } catch (error) { }
+                    delete node[key];
+                });
+                delete node.activeCodeEditor;
+                delete node.disposeKnxFunctionEditors;
+            };
+
             const applyEditorOptions = (editor) => {
                 try {
                     if (!editor) return;
@@ -425,47 +456,15 @@ return msg;`
                             enableLiveAutocompletion: true
                         });
                     }
-                    if (typeof editor.completers === 'undefined') {
-                        editor.completers = [];
-                    }
-                    if (Array.isArray(editor.completers) && !editor._knxHelperCompleter) {
-                        const aceCompletions = knxFunctionHelperItems.map(item => ({
-                            caption: item.label,
-                            value: item.aceValue,
-                            snippet: item.snippet,
-                            meta: 'KNX helper',
-                            doc: item.doc
-                        }));
-                        const helperCompleter = {
-                            getCompletions: function (_editor, _session, _pos, prefix, callback) {
-                                const search = (prefix || '').toLowerCase();
-                                const filtered = search
-                                    ? aceCompletions.filter(entry => entry.caption.toLowerCase().startsWith(search) || entry.value.toLowerCase().startsWith(search))
-                                    : aceCompletions;
-                                callback(null, filtered.length ? filtered : aceCompletions);
-                            },
-                            getDocTooltip: function (item) {
-                                if (!item || item.docHTML || !item.doc) return;
-                                item.docHTML = '<b>' + item.caption + '</b><hr />' + item.doc;
-                            }
-                        };
-                        editor.completers.push(helperCompleter);
-                        editor._knxHelperCompleter = helperCompleter;
-                    }
-                    if (typeof monaco !== 'undefined' && !globalScope.knxFunctionMonacoCompletionProvider) {
+                    functionEditorDisposables.push(globalScope.KNXUltimateFunctionAutocomplete.attach(editor, {
+                        monaco: typeof monaco !== 'undefined' ? monaco : null,
+                        ace: typeof ace !== 'undefined' ? ace : null,
+                        loadGroupAddresses: loadFunctionGroupAddresses,
+                        helperItems: knxFunctionHelperItems
+                    }));
+                    if (typeof monaco !== 'undefined' && !globalScope.knxFunctionMonacoGlobals) {
                         try {
-                            const functionSuggestions = knxFunctionHelperItems.map(item => ({
-                                label: item.label,
-                                kind: monaco.languages.CompletionItemKind.Function,
-                                insertText: item.snippet,
-                                insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-                                documentation: item.doc
-                            }));
-
-                            globalScope.knxFunctionMonacoCompletionProvider = monaco.languages.registerCompletionItemProvider('javascript', {
-                                provideCompletionItems: () => ({ suggestions: functionSuggestions })
-                            });
-
+                            globalScope.knxFunctionMonacoGlobals = true;
                             monaco.languages.typescript.javascriptDefaults.addExtraLib([
                                 '/** Read a KNX group address. This helper is async, so use await to get the real value. By default, if the value is not cached, a KNX read is sent. Pass false as third parameter to use cache-only mode. */',
                                 'declare function getGAValue(address: string, dptOrReadIfMissing?: string | boolean, readIfMissing?: boolean): Promise<any>;',
@@ -764,6 +763,7 @@ return msg;`
             })
 
             function checkUI() {
+                groupAddressRequest = null;
 
                 // Backward compatibility
                 if (node.outputRBE === true || $("#node-input-outputRBE").val() === true) {
@@ -1117,8 +1117,9 @@ return msg;`
             } catch (error) { }
 
             var node = this;
-            this.sendMsgToKNXCode = this.sendMsgToKNXCodeEditor.getValue();
-            this.receiveMsgFromKNXCode = this.receiveMsgFromKNXCodeEditor.getValue();
+            const cleanFunctionCode = window.KNXUltimateFunctionAutocomplete.pruneUnusedGaComments;
+            this.sendMsgToKNXCode = cleanFunctionCode(this.sendMsgToKNXCodeEditor.getValue());
+            this.receiveMsgFromKNXCode = cleanFunctionCode(this.receiveMsgFromKNXCodeEditor.getValue());
             if ($("#node-input-setTopicType").val() === "listenAllGA") {
                 this.listenallga = true;
             } else {
@@ -1150,16 +1151,7 @@ return msg;`
                 // $("#divInputRBE").show()               
             }
 
-            // 15/09/2020 Supergiovane, Detele the sample help editor
-            try {
-                node.sampleEditor.destroy();
-                delete node.sampleEditor;
-                node.sendMsgToKNXCodeEditor.destroy();
-                delete node.sendMsgToKNXCodeEditor;
-                node.receiveMsgFromKNXCodeEditor.destroy();
-                delete node.receiveMsgFromKNXCodeEditor;
-                //RED.editor.destroy(); // 23/01/2024 added  
-            } catch (error) { }
+            if (node.disposeKnxFunctionEditors) node.disposeKnxFunctionEditors();
 
         },
         oneditcancel: function () {
@@ -1168,16 +1160,7 @@ return msg;`
                 RED.sidebar.show("info");
             } catch (error) { }
 
-            // 15/09/2020 Supergiovane, Detele the sample help editor
-            try {
-                node.sampleEditor.destroy();
-                delete node.sampleEditor;
-                node.sendMsgToKNXCodeEditor.destroy();
-                delete node.sendMsgToKNXCodeEditor;
-                node.receiveMsgFromKNXCodeEditor.destroy();
-                delete node.receiveMsgFromKNXCodeEditor;
-                RED.editor.destroy(); // 23/01/2024 added  
-            } catch (error) { }
+            if (this.disposeKnxFunctionEditors) this.disposeKnxFunctionEditors();
         }
     })
 

@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 7.0.2** - September 2026<br/>
+
+- **KNX Device — group address autocomplete**: both input and output function editors now suggest imported ETS group addresses in the first argument of `getGAValue(...)` and `setGAValue(...)`. Search by address, device name or DPT in Monaco and Ace.<br/>
+- **KNX Device — readable GA references**: selecting an address adds its full ETS name and hierarchy to a deduplicated comment list at the beginning of the code. Clicking **Done** removes unused addresses from each editor's list before saving; addresses mentioned only in comments do not count as used.<br/>
+
 **Version 7.0.1** - September 2026<br/>
 
 KNX Device: fixed a wrong status text, when the node receives a READ request and responds with the last payload received.</br>
