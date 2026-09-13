@@ -10,10 +10,10 @@
     "read": "Leggi"
   },
   "knxUltimateHueCameraMotion": {
-    "paletteLabel": "Motion camera Hue",
-    "heading": "Nodo motion camera HUE",
-    "hue_sensor": "Motion camera HUE",
-    "no_devices": "Nessuna camera motion disponibile",
+    "paletteLabel": "Movimento telecamera Hue",
+    "heading": "Nodo movimento telecamera Hue",
+    "hue_sensor": "Movimento telecamera Hue",
+    "no_devices": "Nessuna telecamera Hue con rilevamento del movimento disponibile",
     "tabs": {
       "motion": "Movimento",
       "behaviour": "Comportamento"
@@ -21,10 +21,10 @@
     "node_pins": "Pin di output",
     "node_pins_hide": "Nascondi",
     "node_pins_show": "Mostra il pin di output Node-RED",
-    "output_info": "Nessun gateway KNX selezionato. Se il pin di output Node-RED è abilitato, gli eventi motion della Hue vengono comunque inviati al flow.",
+    "output_info": "Nessun gateway KNX selezionato. Se il pin di output Node-RED è abilitato, gli eventi di movimento della telecamera Hue vengono comunque inviati al flow.",
     "read_status_startup": "Leggi lo stato all'avvio",
     "opt_no": "No",
     "opt_yes_emit": "Sì, ed emetti i telegrammi KNX.",
-    "motion_info": "Collega il GA KNX per ricevere lo stato di movimento (rilevato/non rilevato)."
+    "motion_info": "Collega l'indirizzo di gruppo KNX per ricevere lo stato di movimento (rilevato/non rilevato)."
   }
 }

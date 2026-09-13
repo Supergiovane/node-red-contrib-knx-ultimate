@@ -1,15 +1,14 @@
 <script type="text/markdown" data-help-name="knxUltimateHATranslator">
-<p> Questo nodo traduce il msg di input in valori True/False validi. <p>
+<p>Questo nodo converte i valori del messaggio in ingresso in valori booleani true/false.</p>
 
-Può tradurre un payload input, in valori booleani True /False. <Br />
-Ogni riga nella casella di testo, rappresenta un comando di traduzione.<br/>
-Puoi aggiungere la tua riga di traduzione. <br/>
+Ogni riga nella casella di testo definisce una regola di traduzione.<br/>
+Puoi aggiungere, eliminare o modificare le regole. <br/>
 
 | Proprietà | Descrizione |
 |-|-|
 |Nome |Il nome del nodo.|
 |Input |La proprietà di input MSG da valutare e tradurre.|
-|Tradurre |Aggiungi, elimina o modifica il tuo comando di traduzione.Il comando di traduzione della riga deve essere \*\* stringa di input da HA: valore knx \*\* (_valore kn&#x78;_&#x63;ome vero o falso).Ad esempio: <code> Apri: true </code> <code> chiuso: false </code>.|
+|Traduzioni |Aggiungi, elimina o modifica le regole. Ogni riga deve avere il formato **stringa in ingresso da HA: valore KNX**, dove il valore KNX è true o false. Ad esempio: <code> Apri: true </code> oppure <code> chiuso: false </code>. |
 
 <br/>
 </script>

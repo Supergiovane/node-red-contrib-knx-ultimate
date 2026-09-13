@@ -24,8 +24,8 @@ L’editor può mostrare, per ogni nodo, un pulsante che invia manualmente un co
 |Proprietà|Descrizione|
 |--|--|
 | Mostra pulsante manuale | Se attivo, il piccolo pulsante viene visualizzato sul nodo nel workspace e nel pannello dei nodi. |
-| Azione del pulsante | Definisce l’operazione eseguita al click. **Invia KNX Read** invia un telegramma di lettura standard. **Toggle boolean** è disponibile per i datapoint di tipo 1.x e alterna i valori _true_/_false_ a ogni click. **Scrivi valore personalizzato** invia il valore inserito dall’utente (deve essere compatibile con il Datapoint configurato). |
-| Stato iniziale del toggle | (Solo datapoint booleani) Imposta il valore iniziale utilizzato dalla modalità toggle. Lo stato viene aggiornato automaticamente in base ai telegrammi che il nodo riceve dal BUS. |
+| Azione del pulsante | Definisce l’operazione eseguita al click. **Invia KNX Read** invia un telegramma di lettura standard. **Alterna valore booleano** è disponibile per i datapoint di tipo 1.x e alterna i valori _true_/_false_ a ogni click. **Scrivi valore personalizzato** invia il valore inserito dall’utente (deve essere compatibile con il Datapoint configurato). |
+| Valore booleano iniziale | (Solo datapoint booleani) Imposta il valore iniziale utilizzato dalla modalità toggle. Lo stato viene aggiornato automaticamente in base ai telegrammi che il nodo riceve dal BUS. |
 | Valore personalizzato | Payload utilizzato dalla modalità “Scrivi valore personalizzato”. È possibile inserire qualsiasi letterale JSON, ad esempio `42`, `true`, `"testo"` oppure `{ "red": 255 }`. |
 
 Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universale l’azione di lettura è disabilitata perché l’indirizzo di gruppo sarebbe sconosciuto.
@@ -43,18 +43,18 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 | Passthrough | Se attivo, inoltra sul PIN di uscita il msg di ingresso. |
 || **Dal PIN di INGRESSO del nodo verso il BUS KNX** |
 | Tipo telegramma | `write` per inviare un telegramma di scrittura (in genere è ciò che vuoi); in alternativa puoi scegliere a quale tipo di telegramma reagire. |
-| Filtro RBE | Filtro "Report by change”. Se attivo, invia al BUS solo messaggi di ingresso con valore diverso dal precedente. Se devi inviare sempre lo stesso valore, disattivalo. Se attivo, verrà aggiunta l'indicazione "rbe” al nome del nodo. |
+| Filtro RBE | Filtro RBE (Report by Exception). Se attivo, invia al BUS solo messaggi di ingresso con valore diverso dal precedente. Se devi inviare sempre lo stesso valore, disattivalo. Se attivo, verrà aggiunta l'indicazione "rbe” al nome del nodo. |
 | Invio periodico del valore memorizzato | Se attivo, il nodo invia sul BUS KNX il valore memorizzato ad intervalli regolari (telegramma di tipo _write_). Questa opzione bypassa volutamente l'RBE in uscita. |
 | Intervallo invio periodico | Intervallo in secondi dell'invio periodico. |
 || **Dal BUS KNX verso il PIN di USCITA del nodo** |
-| Read status on start | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
-| Filtro RBE | Filtro "Report by change” sull'uscita: invia al flow solo quando il valore cambia. Se vuoi inviare anche valori ripetuti, lascialo disattivo. Se attivo, aggiunge "rbe” al nome del nodo. |
-| React to write telegrams | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
-| React to response telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
-| React to read telegrams | Il nodo invia un msg al flow alla ricezione di un telegramma di lettura. Utile quando vuoi rispondere con un valore personalizzato al BUS. |
-| Multiply | Moltiplica o divide il valore del payload. Funziona solo con numeri. |
-| Decimals | Arrotonda o gestisce i decimali. Solo numeri. |
-| Negatives | Gestisce i valori negativi. Solo numeri. |
+| Leggi il valore alla connessione/riconnessione | Legge lo stato del GA ad ogni avvio di Node-RED e a ogni riconnessione al Gateway KNX. Il nodo memorizza i valori su file, quindi puoi scegliere se leggere da file o dal BUS KNX. |
+| Filtro RBE | Filtro RBE (Report by Exception) sull'uscita: invia al flow solo quando il valore cambia. Se vuoi inviare anche valori ripetuti, lascialo disattivo. Se attivo, aggiunge "rbe” al nome del nodo. |
+| Reagisci all'evento Scrittura (Write) | Il nodo invia un msg al flow ogni volta che riceve un telegramma di tipo write dal BUS KNX. |
+| Reagisci all'evento Risposta (Response) | Il nodo invia un msg al flow alla ricezione di un telegramma di risposta. Utile in scenari specifici. |
+| Reagisci all'evento Lettura (Read) | Il nodo invia un msg al flow alla ricezione di un telegramma di lettura. Utile quando vuoi rispondere con un valore personalizzato al BUS. |
+| Moltiplica | Moltiplica o divide il valore del payload. Funziona solo con numeri. |
+| Decimali | Arrotonda o gestisce i decimali. Solo numeri. |
+| Negativi | Gestisce i valori negativi. Solo numeri. |
 
 <br/>
 <br/>
@@ -275,7 +275,7 @@ return msg;
 ```javascript
 
 // Invia una richiesta di lettura al BUS; seleziona l'opzione
-// "React to response telegrams" per ricevere la risposta.
+// "Reagisci all'evento Risposta (Response)" per ricevere la risposta.
 msg.readstatus = true;
 return msg;
 ```

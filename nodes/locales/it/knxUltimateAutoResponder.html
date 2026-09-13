@@ -1,8 +1,8 @@
 <script type="text/markdown" data-help-name="knxUltimateAutoResponder">
-<p> Questo nodo risponderà alle richieste di lettura del bus KNX.
+<p>Questo nodo risponde alle richieste di lettura del bus KNX.</p>
 
-Il nodo registra tutti i telegrammi trasmessi al bus KNX e memorizzano i valori in memoria.
-Risponde quindi alle richieste di lettura inviando tale valore memorizzato al bus come richiesta.
+Il nodo registra tutti i telegrammi trasmessi sul bus KNX e ne conserva i valori in memoria.
+Risponde quindi alle richieste di lettura inviando il valore memorizzato al bus come risposta.
 Se l'indirizzo di gruppo da leggere non ha ancora valore, il nodo risponderà con un valore predefinito.
 Il nodo risponderà solo agli indirizzi di gruppo specificati nel campo JSON **Rispondi a**.
 Per impostazione predefinita, esiste un esempio pre-compilato nel testo JSON "Rispondi a", in cui puoi semplicemente cambiare/eliminare le cose. Assicurati **di non usarlo così com'è** !!!
@@ -12,20 +12,20 @@ Per impostazione predefinita, esiste un esempio pre-compilato nel testo JSON "Ri
 | Proprietà | Descrizione |
 |-|-|
 |Gateway |Seleziona il gateway KNX da utilizzare |
-|Rispondi a |Il nodo risponderà alle richieste di lettura provenienti dagli indirizzi di gruppo specificati in questo array JSON.Il formato è specificato di seguito.|
+|Rispondi a |Il nodo risponde alle richieste di lettura degli indirizzi di gruppo specificati in questo array JSON. Il formato è descritto di seguito.|
 
 <br/>
 
 **Formato JSON**
 
-Il JSON è **sempre** una serie di oggetti, contenente ciascuna direttiva. Ogni direttiva indica al nodo cosa fare.
+Il JSON è **sempre** un array di oggetti. Ogni oggetto contiene una direttiva che indica al nodo cosa fare.
 
 | Proprietà | Descrizione |
 |-|-|
-|Nota | **Chiave `note` opzionale**, per promemoria. Non verrà utilizzato da nessuna parte. |
-|ga |L'indirizzo di gruppo. Puoi anche usare i ".." Wildchars, per specificare una serie di indirizzi di gruppo. Il ".." può essere usato solo con il livello del terzo GA, es: **1/1/0..257**. Vedi i campioni sottostanti. |
+|`note` | **Chiave `note` opzionale**, per promemoria. Non viene usata dal nodo. |
+|ga |L'indirizzo di gruppo. Puoi usare ".." per specificare un intervallo di indirizzi di gruppo, solo nel terzo livello, ad esempio **1/1/0..257**. Vedi gli esempi sottostanti. |
 |dpt |Il punto dati dell'indirizzo di gruppo, nel formato "1.001". È **opzionale** se il file CSV ETS è stato importato.|
-|Predefinito |Il valore inviato al bus in risposta a una richiesta di lettura, quando il valore dell'indirizzo di gruppo non è stato ancora memorizzato dal nodo.|
+|`default` |Il valore inviato al bus in risposta a una richiesta di lettura, quando il valore dell'indirizzo di gruppo non è stato ancora memorizzato dal nodo.|
 
 **Cominciamo con una direttiva**
 
@@ -45,7 +45,7 @@ Il file CSV ETS deve essere stato importato, altrimenti è necessario aggiungere
 **Direttiva un po' più completa**
 
 Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo a partire dal 3/1/1, al 3/1/22 incluso. Se nessun valore è ancora in memoria, risponderà con _false_.
-C'è anche una chiave `note`, semplicemente come nota di promemoria. Non verrà utilizzato da nessuna parte.
+C'è anche una chiave `note`, semplicemente come nota di promemoria. Non viene usata dal nodo.
 
 ```json
 
@@ -59,10 +59,10 @@ C'è anche una chiave `note`, semplicemente come nota di promemoria. Non verrà 
 ]
 ```
 
-**Direttive concatenanti**
+**Più direttive**
 
 Il nodo AutoResponder risponderà alle richieste di lettura per l'indirizzo di gruppo a partire dal 2/2/5, al 2/2/21 incluso. Se nessun valore è ancora in memoria, risponderà con un valore di 25.
-Il nodo AutoResponder risponderà anche alle richieste di lettura per l'indirizzo di gruppo 2/4/22. Se nessun valore è ancora in memoria, risponderà con lo stato di stringa _sconosciuto!_.
+Il nodo AutoResponder risponderà anche alle richieste di lettura per l'indirizzo di gruppo 2/4/22. Se nessun valore è ancora in memoria, risponderà con la stringa `Unknown status!`.
 Si prega di notare la **virgola** tra l'oggetto JSON di ciascuna direttiva.
 
 ```json

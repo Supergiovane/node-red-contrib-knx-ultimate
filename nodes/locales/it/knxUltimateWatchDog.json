@@ -6,7 +6,7 @@
         "properties": {
             "node-input-server": "Gateway",
             "node-input-checkLevel": "Livello controllo (vedi Wiki)",
-            "node-input-topic": "Group Address da monitorare",
+            "node-input-topic": "Indirizzo di gruppo da monitorare",
             "node-input-name": "Nome nodo",
             "node-input-autoStart": "Avvia il watchdog automaticamente",
             "node-input-listenToKnxUltimateNodeErrors": "Ascolta gli errori dei nodi KNX-Ultimate",
@@ -19,7 +19,7 @@
 
         },
         "selectlists": {
-            "Ethernet": "Solo Ethernet unicast (Default), tramite ping. Funziona SOLO con Interfacce IP (non con routers)",
+            "Ethernet": "Solo Ethernet unicast (predefinito), tramite ping. Funziona SOLO con interfacce IP (non con router)",
             "EthKNX": "Ethernet + KNX Twisted Pair, usando un vero dispositivo KNX esistente"
         }
         

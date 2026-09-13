@@ -1,6 +1,6 @@
 {
   "knxUltimateGlobalContext": {
-        "paletteLabel": "Context Globale KNX",
+        "paletteLabel": "Contesto globale KNX",
         "title": "Variabile Globale KNX",
         "node-input-name": "Nome variabile (no spazi, solo [a-z])",
         "advanced": {
@@ -10,7 +10,7 @@
             "exposeAsVariableREADWRITE" : "Lettura/Scrittura",
             "node-input-server" : "Gateway",
             "writeExecutionInterval" : "Intervallo scrittura su BUS",
-            "warning" : "Attenzione: è sufficiente UN SOLO NODO in tutto il progetto. La variabile verrà vista da tutti i flows, indipendentemente da dove sia stato messo il nodo."
+            "warning" : "Attenzione: è sufficiente UN SOLO NODO in tutto il progetto. La variabile verrà vista da tutti i flow, indipendentemente da dove sia stato messo il nodo."
         },
         "interval_250ms": "250ms",
         "interval_500ms": "500ms",

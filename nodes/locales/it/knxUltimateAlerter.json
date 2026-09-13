@@ -8,18 +8,18 @@
             "node-input-name": "Nome nodo",
             "node-input-timerinterval": "Intervallo tra ciascun messaggio (in secondi)",
             "node-input-whentostart": "Modalità avvio allerta",
-            "node-input-initialread": "Leggi il valore di ogni device alla connessione/riconnessione",
+            "node-input-initialread": "Leggi il valore di ogni dispositivo alla connessione/riconnessione",
             "node-input-initialread0": "No",
             "node-input-initialread1": "Leggi dal BUS KNX",
             "node-input-initialreadGAInRules": "Leggi stati alla connessione/riconnessione"
         },
         "selectlists": {
             "manualstart": "Avvia ciclo allerta manualmente tramite messaggio in ingresso",
-            "ifnewalert": "Avvia ciclo allerta ad ogni nuovo dispositivo allertato"
+            "ifnewalert": "Avvia il ciclo di allerta a ogni nuovo dispositivo in allarme"
         },
         "other": {
             "sceneConfig": "Dispositivi da monitorare (IL DPT DEVE ESSERE BOOLEANO)",
-            "add": "Premi Aggiungi, per aggiungere un dispositivo"
+            "add": "Premi Aggiungi per aggiungere un dispositivo"
         }
     }
 }

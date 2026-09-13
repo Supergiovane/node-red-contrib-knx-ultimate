@@ -4,7 +4,7 @@
 
 ## Panoramica
 
-Il nodo Hue Plug collega una presa intelligente Philips Hue alle indirizzazioni KNX:
+Il nodo Hue Plug collega una presa intelligente Philips Hue agli indirizzi di gruppo KNX:
 
 - comandi on/off dal BUS
 - feedback dello stato dalla piattaforma Hue
@@ -15,13 +15,13 @@ Il nodo Hue Plug collega una presa intelligente Philips Hue alle indirizzazioni 
 |Campo|Descrizione|
 |--|--|
 | Gateway KNX | Gateway KNX utilizzato |
-| Hue Bridge | Hue Bridge configurata |
+| Hue Bridge | Bridge Hue configurato |
 | Nome | Seleziona la presa Hue (autocomplete) |
 | Comando | GA KNX per l'invio dell'on/off (DPT booleano) |
-| Stato | GA optional per ricevere lo stato on/off dal bridge |
-| Power state | GA optional che replica il campo `power_state` (on/standby) |
+| Stato | GA opzionale per ricevere lo stato on/off dal bridge |
+| Stato alimentazione | GA opzionale che replica il campo `power_state` (on/standby) |
 | Leggi stato all'avvio | Se abilitato, all'avvio il nodo invia lo stato corrente |
-| Pin di I/O | Abilita i pin Node-RED per inviare payload Hue custom o ricevere gli eventi sul flow |
+| Pin di I/O | Abilita i pin Node-RED per inviare payload Hue personalizzati o ricevere gli eventi sul flow |
 
 ## Suggerimenti KNX
 

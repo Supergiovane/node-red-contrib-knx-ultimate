@@ -56,7 +56,7 @@
 | Proprietà | Descrizione |
 |-|-|
 |Gateway KNX |Seleziona il gateway KNX da utilizzare |
-|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
+|Hue Bridge |Seleziona il bridge Hue da utilizzare |
 |Nome |Luce Hue o gruppo da utilizzare. Le luci e i gruppi disponibili compaiono mentre digiti|
 
 <br/>
@@ -69,41 +69,41 @@ Il pulsante `Locate` (icona play) avvia una sessione di identificazione Hue per 
 
 **Opzioni**
 
-Qui puoi scegliere gli indirizzi KNX per essere collegati ai comandi/stati della luce Avable Hue. <br/>
+Qui puoi associare gli indirizzi di gruppo KNX ai comandi e agli stati disponibili della luce Hue. <br/>
 Inizia a digitare nel campo GA (nome o indirizzo di gruppo) e i dispositivi disponibili compariranno mentre digiti.
 
 **Interruttore**
 
 | Proprietà | Descrizione |
 |-|-|
-|Controllo |Questo GA viene utilizzato per accendere/disattivare la luce della tonalità tramite un valore KNX booleano True/False |
+|Comando |Indirizzo di gruppo usato per accendere o spegnere la luce Hue tramite un valore KNX booleano true/false. |
 |Stato |Collegalo all'indirizzo del gruppo di stato dell'interruttore della luce |
 
 <br/>
 
-**Dim**
+**Dimmer**
 
 | Proprietà | Descrizione |
 |-|-|
-|Control Dim | Dim relativo della luce HUE. La velocità si imposta nella scheda **Behaviour** .|
-|Controllo % |Cambia la luminosità della luce della tonalità assoluta (0-100%) |
+|Controllo dimmer | Dim relativo della luce HUE. La velocità si imposta nella scheda **Comportamento** .|
+|Controllo % |Imposta la luminosità assoluta della luce Hue (0–100%). |
 |Stato % |Collegalo all'indirizzo del gruppo KNX di luminosità della luce |
-|Dim Speed (ms) | Velocità di dimming in millisecondi. Vale per la luce e per il "tunable white”. Calcolata sul range 0%→100%.|
-|Min Dim Luminosità |La luminosità minima che la lampada può raggiungere.Ad esempio, se si sta dimmulando la luce, la luce smetterà di attenuare la luminosità specificata.|
-|Max Dim Brightness |La massima luminosità che la lampada può raggiungere.Ad esempio, se si sta dimmulando la luce, la luce smetterà di attenuare la luminosità specificata.|
+|Velocità dimmer (ms) | Velocità di dimming in millisecondi. Vale per la luce e per il "tunable white”. Calcolata sul range 0%→100%.|
+|Luminosità minima dimmer |Luminosità minima raggiungibile durante la regolazione: la diminuzione si arresta alla percentuale specificata. |
+|Luminosità massima dimmer |Luminosità massima raggiungibile durante la regolazione: l'aumento si arresta alla percentuale specificata. |
 
 <br/>
 
-**Tunable White**
+**Bianco regolabile**
 
 | Proprietà | Descrizione |
 |-|-|
-|Control Dim | Cambia la temperatura del bianco con DPT 3.007 (velocità in **Behaviour** ). |
+|Controllo dimmer | Cambia la temperatura del bianco con DPT 3.007 (velocità in **Comportamento** ). |
 |Controllo % | Cambia la temperatura del bianco con DPT 5.001. 0 = caldo, 100 = freddo |
 |Stato %| GA di stato temperatura (DPT 5.001). 0 = caldo, 100 = freddo |
-|Controllo Kelvin | **DPT 7.600: ** imposta in Kelvin con range KNX 2000-6535 (convertito in mirek).<br/>**DPT 9.002:** imposta in Kelvin con range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
-|Stato Kelvin | **DPT 7.600: ** leggi in Kelvin via range KNX 2000-6535 (convertito).<br/>**DPT 9.002:** leggi in Kelvin via range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
-|Inverti Dim Direction |Inverte la direzione fioca.|
+|Controllo Kelvin | **DPT 7.600:** imposta in Kelvin con range KNX 2000-6535 (convertito in mirek).<br/>**DPT 9.002:** imposta in Kelvin con range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
+|Stato Kelvin | **DPT 7.600:** leggi in Kelvin via range KNX 2000-6535 (convertito).<br/>**DPT 9.002:** leggi in Kelvin via range HUE 2000-6535 (Ambiance da 2200). Possibili piccole variazioni per conversioni. |
+|Inverti direzione dimmer |Inverte la direzione della regolazione. |
 <br/>
 
 **RGB/HSV**
@@ -112,15 +112,15 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) e i dispositivi disp
 |-|-|
 | **Sezione RGB** ||
 |Controllo RGB | Cambia colore con tripla RGB (r,g,b); gestione gamut inclusa. L'invio colore accende la luce impostando colore/luminosità; con r,g,b=0 la luce si spegne |
-|Stato RGB |L'indirizzo del gruppo di stato del colore della luce.DataPoint accettato è RGB Triplet (R, G, B) |
+|Stato RGB |Indirizzo di gruppo che riporta lo stato del colore della luce. Il datapoint accetta una terna RGB (R, G, B). |
 | **Sezione HSV** ||
-|Color H Dim | Scorri la tonalità (HSV) con DPT 3.007; velocità in **Behaviour** |
+|Controllo dimmer H | Scorri la tonalità (HSV) con DPT 3.007; velocità in **Comportamento** |
 |Stato H %|Stato del circolo cromatico HSV. |
-|Control S Dim | Cambia saturazione con DPT 3.007; velocità in **Behaviour** |
-|Stato S %|L'indirizzo del gruppo di stato di saturazione del colore chiaro. |
-|Dim Speed ​​(MS) |La velocità di oscuramento, in millisecondi, dal basso alla scala superiore.|
+|Controllo dimmer S | Cambia saturazione con DPT 3.007; velocità in **Comportamento** |
+|Stato S % |Indirizzo di gruppo che riporta lo stato della saturazione del colore della luce. |
+|Velocità dimmer (ms) |Tempo di regolazione, in millisecondi, per passare dal minimo al massimo della scala. |
 
-Per controllare la "V” (luminosità) dell'HSV, usa i controlli standard nella scheda **Dim** .
+Per controllare la "V” (luminosità) dell'HSV, usa i controlli standard nella scheda **Dimmer** .
 
 <br/>
 
@@ -130,8 +130,8 @@ _Effetti base non HUE_
 
 | Proprietà | Descrizione |
 |-|-|
-| Blink | _true_ fa lampeggiare la luce, _false_ ferma il lampeggio. Alterna acceso/spento; utile per segnalazioni. Funziona con tutte le luci HUE. |
-| Color Cycle | _true_ avvia il ciclo colori, _false_ lo interrompe. Cambia casualmente il colore della luce HUE a intervalli regolari. Funziona con le luci HUE che supportano il colore. L'effetto parte dopo 10 secondi. |
+| Lampeggio | _true_ fa lampeggiare la luce, _false_ ferma il lampeggio. Alterna acceso/spento; utile per segnalazioni. Funziona con tutte le luci HUE. |
+| Ciclo colore | _true_ avvia il ciclo colori, _false_ lo interrompe. Cambia casualmente il colore della luce HUE a intervalli regolari. Funziona con le luci HUE che supportano il colore. L'effetto parte dopo 10 secondi. |
 
 _Effetti nativi HUE_
 
@@ -146,20 +146,20 @@ La tabella **Effetti nativi HUE** consente di associare valori KNX agli effetti 
 
 |Proprietà |Descrizione |
 |------------------------------------------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|Leggi lo stato all'avvio |Leggi lo stato della luce HUE all'avvio del nodo-rosso o al rosso nodo-rosso del nodo e invia quello stato al bus KNX |
-|Stato di luminosità KNX |Aggiorna lo stato dell'indirizzo del gruppo di luminosità KNX, ogni volta che la lampada Hue viene accesa/disattivata.Le opzioni sono \*\* quando Hue Light è spento, inviare lo 0%.Quando accesa, ripristinare il valore precedente (comportamento KNX predefinito) \*\* e \*\* lasciano come (comportamento di tonalità predefinito) \*\*.Se si dispone di Dimmer KNX con stato di luminosità, come MDT, l'opzione suggerita è \*\*\*quando la luce della tonalità è disattivata, inviare lo 0%.Quando accesa, ripristinare il valore precedente (comportamento KNX predefinito) \*\*\* |
-|Aggiorna lo stato HUE locale in cache dai write KNX |Opzione avanzata, abilitata di default. Se attiva, i write che arrivano dal bus KNX aggiornano subito anche lo stato HUE locale in cache del nodo, senza attendere feedback/eventi dal bridge Hue. Questo rende le reazioni locali piu rapide e le risposte immediate ai read KNX piu coerenti, soprattutto quando la luce o il grouped_light sono spenti. Disattivala se preferisci che la cache segua solo il feedback/evento reale del bridge Hue. |
-|Accendi comportamento |Imposta il comportamento delle luci quando acceso.Puoi scegliere tra comportamenti diversi. <br/> \*\* Seleziona colore: \*\* La luce verrà accesa con il colore di tua scelta.Per cambiare il colore, fai clic sul selettore dei colori (sotto il controll&#x6F;_&#x53;eleziona colore_). <br/> \*\* Seleziona temperatura e luminosità: \*\* La luce verrà accesa con la temperatura (kelvin) e la luminosità (0-100) di tua scelta. <br/> \*\* Nessuna: \*\* La luce manterrà il suo ultimo stato.Nel caso in cui tu abbia abilitato l'illuminazione notturna, dopo la fine della notte, la lampada riprenderà lo stato del colore/temperatura/luminosità fissata al giorno.|
-|Illuminazione notturna |Permette di impostare un particolare colore/luminosità della luce di notte.Le opzioni sono le stesse del giorno.È possibile selezionare una temperatura/luminosità o colore.Una temperatura accogliente di 2700 Kelvin, con una luminosità del 10% o 20%, è una buona scelta per la luce notturna del bagno |
-|Giorno/notte |Seleziona l'indirizzo di gruppo utilizzato per impostare il comportamento giorno/notte.Il valore dell'indirizzo di gruppo è _true_ se giorno, _false_ se notturno.|
-|Valore giorno/notte invertito |Inverti i valori dell'indirizzo di gruppo _day/night_.Il valore predefinito è \*\* non controllato **.|
-|Leggi lo stato all'avvio |Leggi lo stato all'avvio ed emetti l'evento al bus KNX all'avvio/riconnessione.(Predefinito "no") |
-|Forza modalità diurna |È possibile forzare la modalità diurna cambiando manualmente la luce come descritto qui: \*\* Passa alla modalità Day spostando rapidamente il Ligth OFF e poi solo questa luce) \*\* fa ciò che ha descritto e agisce solo su questa luce.** Passa alla modalità Day mediante rapido spegnimento del LIGTH OFF e quindi (applica tutti i nodi leggeri) \*\* agisce a tutti i nodi leggeri, impostando l'indirizzo del gruppo Day/Night in modalità Day.|
-|Pin di input/output del nodo |Nascondi o mostra i pin di input/output.I pin di input/output consentono al nodo di accettare l'ingresso MSG dal flusso e inviare l'uscita MSG al flusso.L'MSG di input deve seguire gli standard API V.2 HUE.Questo è un esempio di MSG, che accende la luce: <code> msg.on = {"on": true} </code>.Fare riferimento alla \[pagina API HUE ufficiale](§url0§) |
+|Leggi lo stato all'avvio |Legge lo stato della luce Hue all'avvio di Node-RED o dopo un deploy completo e lo invia al bus KNX. |
+|Stato luminosità KNX |Aggiorna l'indirizzo di gruppo dello stato di luminosità quando la lampada Hue viene accesa o spenta. Le opzioni sono **Se la luce HUE è spenta invia 0%. Se è accesa, ripristina il valore precedente (comportamento KNX predefinito)** e **Lascia invariato (comportamento HUE predefinito)**. Per i dimmer KNX con stato di luminosità, come quelli MDT, è consigliata la prima opzione. |
+|Aggiorna lo stato HUE locale in cache dai write KNX |Opzione avanzata, abilitata di default. Se attiva, i write che arrivano dal bus KNX aggiornano subito anche lo stato HUE locale in cache del nodo, senza attendere feedback/eventi dal bridge Hue. Questo rende le reazioni locali più rapide e le risposte immediate ai read KNX più coerenti, soprattutto quando la luce o il grouped_light sono spenti. Disattivala se preferisci che la cache segua solo il feedback/evento reale del bridge Hue. |
+|Comportamento all'accensione |Imposta il comportamento della luce quando viene accesa.<br/>**Seleziona colore:** accende la luce con il colore scelto. Fai clic sul selettore dei colori per modificarlo.<br/>**Seleziona temperatura e luminosità:** accende la luce con la temperatura (kelvin) e la luminosità (0–100%) scelte.<br/>**Nessuno:** mantiene l'ultimo stato della luce. Se è abilitata l'illuminazione notturna, al termine della notte viene ripristinato lo stato di colore, temperatura e luminosità impostato per il giorno. |
+|Illuminazione notturna |Permette di impostare il colore o la combinazione di temperatura e luminosità da usare di notte. Le opzioni sono le stesse della modalità diurna. Per la luce notturna del bagno, ad esempio, puoi scegliere 2700 K e una luminosità del 10% o 20%. |
+|Giorno/Notte |Indirizzo di gruppo che seleziona la modalità giorno/notte: _true_ per il giorno, _false_ per la notte. |
+|Inverti valore giorno/notte |Inverte i valori dell'indirizzo di gruppo giorno/notte. Per impostazione predefinita l'opzione è **deselezionata**. |
+|Leggi lo stato all'avvio |Legge lo stato e lo invia al bus KNX all'avvio o alla riconnessione. Valore predefinito: **No**. |
+|Forza modalità diurna |Consente di passare alla modalità diurna spegnendo e riaccendendo rapidamente la luce. **Solo questa luce** applica il cambio alla luce selezionata; **tutte le luci** lo applica a tutti i nodi luce, impostando la modalità giorno/notte su giorno. |
+|PIN di Input/Output del nodo |Mostra o nasconde i pin di ingresso e uscita, che consentono di ricevere e inviare messaggi al flow. I messaggi in ingresso devono seguire il formato delle API Hue v2. Ad esempio, per accendere la luce: <code> msg.on = {"on": true} </code>. Consulta la [pagina ufficiale delle API Hue](https://developers.meethue.com/develop/hue-api-v2/api-reference/#resource_light__id__put). |
 
 ##### Nota
 
-La funzione Dimming funziona in modalità \*\* KNX `start` e` stop` \*\*.Per iniziare a Dimming, invia solo un telegramma KNX "Start".Per smettere di oscurarsi, invia un telegramma KNX "Stop".Per favore \*\* ricorda che \*\*, quando imposti le proprietà del tuo muro.
+La regolazione funziona con i comandi KNX **start** e **stop**: invia un telegramma "start" per avviarla e un telegramma "stop" per arrestarla. Tienine conto quando configuri i pulsanti a parete.
 
 <br/>
 
@@ -173,7 +173,7 @@ La funzione Dimming funziona in modalità \*\* KNX `start` e` stop` \*\*.Per ini
 
 #### Panoramica
 
-Il nodo Hue Plug collega una presa intelligente Philips Hue alle indirizzazioni KNX:
+Il nodo Hue Plug collega una presa intelligente Philips Hue agli indirizzi di gruppo KNX:
 
 - comandi on/off dal BUS
 - feedback dello stato dalla piattaforma Hue
@@ -184,13 +184,13 @@ Il nodo Hue Plug collega una presa intelligente Philips Hue alle indirizzazioni 
 |Campo|Descrizione|
 |--|--|
 | Gateway KNX | Gateway KNX utilizzato |
-| Hue Bridge | Hue Bridge configurata |
+| Hue Bridge | Bridge Hue configurato |
 | Nome | Seleziona la presa Hue (autocomplete) |
 | Comando | GA KNX per l'invio dell'on/off (DPT booleano) |
-| Stato | GA optional per ricevere lo stato on/off dal bridge |
-| Power state | GA optional che replica il campo `power_state` (on/standby) |
+| Stato | GA opzionale per ricevere lo stato on/off dal bridge |
+| Stato alimentazione | GA opzionale che replica il campo `power_state` (on/standby) |
 | Leggi stato all'avvio | Se abilitato, all'avvio il nodo invia lo stato corrente |
-| Pin di I/O | Abilita i pin Node-RED per inviare payload Hue custom o ricevere gli eventi sul flow |
+| Pin di I/O | Abilita i pin Node-RED per inviare payload Hue personalizzati o ricevere gli eventi sul flow |
 
 #### Suggerimenti KNX
 
@@ -224,7 +224,7 @@ Nel campo GA (nome o indirizzo di gruppo) inizia a digitare per collegare la GA 
 |Proprietà|Descrizione|
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona la Hue Bridge da utilizzare |
+| Hue Bridge | Seleziona il bridge Hue da utilizzare |
 | Pulsante Hue | Pulsante Hue da usare (autocompletamento) |
 
 **Interruttore**
@@ -376,7 +376,7 @@ Nel campo GA digita nome o indirizzo di gruppo KNX per collegare l'indirizzo: i 
 
 ## Movimento telecamera (`camera_motion`)
 
-<p>Il nodo Hue Camera Motion ascolta il servizio di motion delle camere Philips Hue e replica in KNX lo stato rilevato/non rilevato.</p>
+<p>Il nodo Hue Camera Motion riceve gli eventi di movimento delle telecamere Philips Hue e replica in KNX lo stato rilevato/non rilevato.</p>
 
 Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA KNX; i dispositivi compaiono durante la digitazione.
 
@@ -385,8 +385,8 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 |Proprietà|Descrizione|
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona la Hue Bridge da utilizzare |
-| Motion camera HUE | Sensore motion della camera Hue (autocompletamento durante la digitazione) |
+| Hue Bridge | Seleziona il bridge Hue da utilizzare |
+| Movimento telecamera Hue | Sensore di movimento della telecamera Hue (autocompletamento durante la digitazione) |
 | Leggi lo stato all'avvio | All'avvio/riconnessione legge il valore corrente e lo invia a KNX (predefinito: no) |
 
 **Associazione**
@@ -402,7 +402,7 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 
 ##### Dettagli
 
-`msg.payload` contiene l'ultimo stato di movimento fornito dal servizio camera di Hue.
+`msg.payload` contiene l'ultimo stato di movimento fornito dal servizio della telecamera Hue.
 
 ---
 
@@ -412,14 +412,14 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 
 <p>Questo nodo inoltra gli eventi di un sensore di contatto HUE mappandoli su indirizzi di gruppo KNX.</p>
 
-Inizia a digitare nel campo GA, il nome o l'indirizzo di gruppo del dispositivo KNX, i dispositivi disponibili iniziano a mostrare mentre si digita.
+Inizia a digitare il nome o l'indirizzo di gruppo del dispositivo KNX nel campo GA: l'autocompletamento mostra i dispositivi disponibili.
 
 **Generale**
 
 | Proprietà | Descrizione |
 |-|-|
 |Gateway KNX |Seleziona il gateway KNX da utilizzare |
-|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
+|Hue Bridge |Seleziona il bridge Hue da utilizzare |
 | Sensore contatto Hue | Sensore di contatto HUE da usare (autocompletamento) |
 
 |Proprietà |Descrizione |
@@ -450,7 +450,7 @@ Emette l'illuminamento ambientale (lux) a ogni variazione. Nel campo GA digita n
 | Proprietà | Descrizione |
 |-|-|
 |Gateway KNX |Seleziona il gateway KNX da utilizzare |
-|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
+|Hue Bridge |Seleziona il bridge Hue da utilizzare |
 | Sensore luce Hue | Sensore di luce HUE da usare (autocompletamento) |
 |Leggi lo stato all'avvio |Leggi lo stato all'avvio ed emetti l'evento al bus KNX all'avvio/riconnessione.(Predefinito "no") |
 
@@ -484,7 +484,7 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 | Proprietà | Descrizione |
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona la Hue Bridge da utilizzare |
+| Hue Bridge | Seleziona il bridge Hue da utilizzare |
 | Sensore temperatura Hue | Sensore di temperatura HUE (autocompletamento) |
 | Leggi lo stato all'avvio | All'avvio/riconnessione, leggi il valore corrente e invialo su KNX (predefinito: no) |
 
@@ -518,7 +518,7 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 |Proprietà|Descrizione|
 |--|--|
 | Gateway KNX | Seleziona il gateway KNX da utilizzare |
-| Hue Bridge | Seleziona la Hue Bridge da utilizzare |
+| Hue Bridge | Seleziona il bridge Hue da utilizzare |
 | Sensore HUE | Sensore di umidità HUE (autocompletamento durante la digitazione) |
 | Leggi lo stato all'avvio | All'avvio/riconnessione legge il valore corrente e lo invia a KNX (predefinito: no) |
 
@@ -543,7 +543,7 @@ Inizia a digitare nel campo GA (nome o indirizzo di gruppo) per collegare la GA 
 
 ## Scena (`scene`)
 
-Il nodo **Hue Scene** pubblica le scene Hue su KNX e può inoltrare gli eventi grezzi al flow di Node-RED. Il campo scena supporta l'autocompletamento; dopo aver creato nuove scene sulla bridge premi l'icona di aggiornamento per ricaricare l'elenco.
+Il nodo **Hue Scene** pubblica le scene Hue su KNX e può inoltrare gli eventi grezzi al flow di Node-RED. Il campo scena supporta l'autocompletamento; dopo aver creato nuove scene sul bridge premi l'icona di aggiornamento per ricaricare l'elenco.
 
 ##### Schede disponibili
 
@@ -654,15 +654,14 @@ Inizia a digitare il nome o l'indirizzo di gruppo nel campo GA: l'autocompletame
 
 <p>Questo nodo monitora se un dispositivo HUE ha un aggiornamento software disponibile e pubblica lo stato su KNX.</p>
 
-Inizia a digitare il nome o l'indirizzo di gruppo del dispositivo KNX nel campo GA, i dispositivi disponibili iniziano a mostrare mentre
-stai digitando.
+Inizia a digitare il nome o l'indirizzo di gruppo del dispositivo KNX nel campo GA: l'autocompletamento mostra i dispositivi disponibili.
 
 **Generale**
 
 | Proprietà | Descrizione |
 |-|-|
 |Gateway KNX |Seleziona il gateway KNX da utilizzare |
-|Hue Bridge |Seleziona la Hue Bridge da utilizzare |
+|Hue Bridge |Seleziona il bridge Hue da utilizzare |
 | Dispositivo Hue | Dispositivo HUE da monitorare (autocompletamento) |
 
 **Mappatura**

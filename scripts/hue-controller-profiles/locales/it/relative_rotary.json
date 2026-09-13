@@ -1,6 +1,6 @@
 {
   "knxUltimateHueTapDial": {
-    "title": "Nodo Hue Tap Dial (rotary)",
+    "title": "Nodo Hue Tap Dial (rotazione)",
     "paletteLabel": "Hue Tap Dial",
     "hue_device": "Hue Tap Dial",
     "tabs": {
@@ -8,7 +8,7 @@
       "behaviour": "Comportamento"
     },
     "mapping_info": "Collega gli eventi di rotazione del Tap Dial alle GA KNX.",
-    "behaviour_info": "Decidi se mantenere visibile il pin di output di Node-RED quando la consegna KNX è disattivata.",
+    "behaviour_info": "Decidi se mantenere visibile il pin di output di Node-RED quando l'invio a KNX è disattivato.",
     "node_pins": "PIN di input/output del nodo",
     "node_pins_hide": "Nascondi PIN",
     "node_pins_show": "Mostra i PIN di input/output",

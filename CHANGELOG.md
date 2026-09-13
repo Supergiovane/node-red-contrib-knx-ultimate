@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 7.0.3** - September 2026<br/>
+
+- Fixed some wrong translations.<br/>
+- KNX Engine bump to 6.0.4.<br/>
+
 **Version 7.0.2** - September 2026<br/>
 
 - **KNX Device — group address autocomplete**: both input and output function editors now suggest imported ETS group addresses in the first argument of `getGAValue(...)` and `setGAValue(...)`. Search by address, device name or DPT in Monaco and Ace.<br/>

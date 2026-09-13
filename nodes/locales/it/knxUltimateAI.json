@@ -40,7 +40,7 @@
       "aiEducation": "Educazione AI (gestita dall'utente)"
     },
     "outputs": {
-      "summary": "Summary/Statistiche",
+      "summary": "Riepilogo/Statistiche",
       "anomalies": "Anomalie",
       "assistant": "Assistente AI",
       "knxCommands": "Operazioni KNX",
@@ -121,7 +121,7 @@
       "reasoningEffortHint": "Preferenza facoltativa per i modelli che supportano l'impegno di ragionamento. Automatico non invia alcuna preferenza; se il provider o il modello rifiuta il valore scelto, Cerebrum Ultimate riprova senza di esso.",
       "localContextBudget": "Finestra contesto locale",
       "localContextHint": "Imposta il contesto massimo inviato soltanto ai modelli locali. Massimo usa la finestra nota del modello selezionato; le dimensioni non disponibili vengono nascoste quando il limite del modello è noto. I provider cloud ignorano questa selezione e ricevono l'intero catalogo ETS semantico selezionato.",
-      "ollamaNotSupported": "Modalita locale Ollama: API key non richiesta. Endpoint predefinito: http://localhost:11434/api/chat.",
+      "ollamaNotSupported": "Modalità locale Ollama: API key non richiesta. Endpoint predefinito: http://localhost:11434/api/chat.",
       "ollamaNoModels": "Nessun modello Ollama locale trovato. Installa un modello o scegli dalla libreria.",
       "installingOllamaModel": "Avvio Ollama e installo il modello…",
       "installedOllamaModel": "Modello Ollama installato",
@@ -186,10 +186,10 @@
     "sidebar": {
       "ui": {
         "refreshNodeList": "Aggiorna lista nodi",
-        "refreshSummary": "Aggiorna summary",
+        "refreshSummary": "Aggiorna riepilogo",
         "auto": "Auto",
         "sections": {
-          "summary": "Summary",
+          "summary": "Riepilogo",
           "anomalies": "Anomalie",
           "ask": "Chiedi"
         },
@@ -224,7 +224,7 @@
         },
         "analysisWindowLine": "Finestra analisi: {{seconds}}s",
         "statsLine": "Telegrammi: {{telegrams}} · Rate: {{rate}}/s · Echoed: {{echoed}} · DPT sconosciuti: {{unknownDpt}}",
-        "topGAsTitle": "Top Group Address:",
+        "topGAsTitle": "Indirizzi di gruppo più attivi:",
         "eventsTitle": "Eventi:",
         "patternsTitle": "Pattern (sequenze ricorrenti):",
         "patternItem": "{{from}} → {{to}}  ({{count}} volte entro {{withinMs}}ms)"

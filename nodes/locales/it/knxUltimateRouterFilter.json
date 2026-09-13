@@ -3,8 +3,8 @@
     "title": "KNX Router Filter",
     "sections": {
       "events": "Eventi",
-      "ga": "Filtro Group Address",
-      "src": "Filtro Source (indirizzo fisico)"
+      "ga": "Filtro indirizzi di gruppo",
+      "src": "Filtro sorgente (indirizzo fisico)"
     },
     "properties": {
       "name": "Nome",
@@ -13,17 +13,17 @@
       "allowRead": "Permetti GroupValue_Read",
       "mode": "Modalità",
       "gaPatterns": "Pattern GA",
-      "srcPatterns": "Pattern Source",
-      "rewriteGA": "Riscrivi Group Address (destination)",
-      "gaRewriteRules": "Regole rewrite GA",
-      "rewriteSource": "Riscrivi Source (indirizzo fisico)",
-      "srcRewriteRules": "Regole rewrite Source"
+      "srcPatterns": "Pattern sorgente",
+      "rewriteGA": "Riscrivi indirizzo di gruppo (destinazione)",
+      "gaRewriteRules": "Regole di riscrittura GA",
+      "rewriteSource": "Riscrivi sorgente (indirizzo fisico)",
+      "srcRewriteRules": "Regole di riscrittura sorgente"
     },
     "selectlists": {
       "mode": {
-        "off": "Off",
-        "allow": "Permetti solo match",
-        "block": "Blocca i match"
+        "off": "Disabilitato",
+        "allow": "Consenti solo le corrispondenze",
+        "block": "Blocca le corrispondenze"
       }
     },
     "placeholder": {

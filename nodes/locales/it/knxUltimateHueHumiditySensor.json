@@ -3,12 +3,12 @@
     "paletteLabel": "Sensore umidità Hue",
     "heading": "Nodo sensore umidità HUE",
     "hue_sensor": "Sensore HUE",
-    "no_devices": "Non ci sono apparecchi da visualizzare",
+    "no_devices": "Nessun sensore di umidità Hue disponibile",
     "tabs": {
       "humidity": "Umidità",
       "behaviour": "Comportamento"
     },
-    "humidity_info": "Collega il GA KNX per ricevere la misura di umidità relativa (%).",
+    "humidity_info": "Collega l'indirizzo di gruppo KNX per ricevere la misura di umidità relativa (%).",
     "node_pins": "Pin di output",
     "node_pins_hide": "Nascondi",
     "node_pins_show": "Mostra il pin di output Node-RED",

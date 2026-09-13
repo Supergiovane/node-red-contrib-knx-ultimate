@@ -8,9 +8,9 @@ Il nodo Scene Controller si comporta come un dispositivo KNX di controllo scene:
 | Proprietà | Descrizione |
 |--|--|
 | Gateway | Gateway KNX selezionato. |
-| Scene Recall | **Datapoint ** e**Trigger Value** . Indirizzo di gruppo per il richiamo scena (es. `0/0/1`). Il nodo reagisce ai telegrammi ricevuti su questa GA richiamando la scena. Il Datapoint è il DPT della GA di richiamo scena. Il Trigger Value è il valore che deve essere ricevuto per attivare il richiamo. Ricorda: per richiamare/salvare una scena con un comando DIM, inserisci nel Trigger Value l'oggetto corretto di dimming (`{decr_incr:1,data:5}` per alzare, `{decr_incr:0,data:5}` per abbassare). |
-| Scene Save | **Datapoint ** e**Trigger Value** . Indirizzo di gruppo per il salvataggio scena (es. `0/0/2`). Il nodo reagisce ai telegrammi ricevuti salvando i valori correnti di tutti i dispositivi della scena in memoria non volatile. Il Datapoint è il DPT della GA di salvataggio. Il Trigger Value è il valore che deve essere ricevuto per attivare il salvataggio. Ricorda: per richiamare/salvare una scena con DIM usa l'oggetto di dimming come sopra. |
-| Node name | Nome nodo (puoi indicare ad es. "Recall: <dispositivo> / Save: <dispositivo>"). |
+| Richiama Scena | **Datapoint** e **Valore di attivazione**. Indirizzo di gruppo per il richiamo scena (es. `0/0/1`). Il nodo reagisce ai telegrammi ricevuti su questa GA richiamando la scena. Il Datapoint è il DPT della GA di richiamo scena. Il valore di attivazione è il valore che deve essere ricevuto per attivare il richiamo. Ricorda: per richiamare/salvare una scena con un comando DIM, inserisci nel campo del valore di attivazione l'oggetto corretto di dimming (`{decr_incr:1,data:5}` per alzare, `{decr_incr:0,data:5}` per abbassare). |
+| Salva Scena | **Datapoint** e **Valore di attivazione**. Indirizzo di gruppo per il salvataggio scena (es. `0/0/2`). Il nodo reagisce ai telegrammi ricevuti salvando i valori correnti di tutti i dispositivi della scena in memoria non volatile. Il Datapoint è il DPT della GA di salvataggio. Il valore di attivazione è il valore che deve essere ricevuto per attivare il salvataggio. Ricorda: per richiamare/salvare una scena con DIM usa l'oggetto di dimming come sopra. |
+| Nome nodo | Nome nodo (puoi indicare ad es. "Recall: <dispositivo> / Save: <dispositivo>"). |
 | Topic | Topic del nodo. |
 
 ## Configurazione scena
@@ -21,9 +21,9 @@ La scena salva automaticamente i nuovi valori degli attuatori della lista non ap
 
 | Proprietà | Descrizione |
 |--|--|
-| Pulsante ADD | Aggiunge una riga. |
-| Campi riga | 1) Indirizzo di gruppo 2) Datapoint 3) Valore di default per questo dispositivo nella scena (può essere sovrascritto da Scene Save). Sotto, il nome del dispositivo.<br/> Per inserire una pausa, scrivi **wait ** nel primo campo e un numero nell'ultimo campo, che rappresenta la durata (millisecondi), ad es. `2000`.<br/> Il comando**wait** accetta anche secondi, minuti o ore: aggiungi `s` (es. `12s`), `m` (es. `5m`) o `h` (es. `1h`). |
-| Pulsante Remove | Rimuove una riga/dispositivo. |
+| Pulsante Aggiungi | Aggiunge una riga. |
+| Campi riga | 1) Indirizzo di gruppo 2) Datapoint 3) Valore predefinito per questo dispositivo nella scena (può essere sovrascritto da Salva Scena). Sotto, il nome del dispositivo.<br/> Per inserire una pausa, scrivi **wait** nel primo campo e un numero nell'ultimo campo, che rappresenta la durata (millisecondi), ad es. `2000`.<br/> Il comando **wait** accetta anche secondi, minuti o ore: aggiungi `s` (es. `12s`), `m` (es. `5m`) o `h` (es. `1h`). |
+| Pulsante Rimuovi | Rimuove una riga/dispositivo. |
 
 ## Messaggi in uscita
 
