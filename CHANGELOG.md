@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 7.0.4** - September 2026<br/>
+
+- KNX Engine bump to 6.0.5.<br/>
+
 **Version 7.0.3** - September 2026<br/>
 
 - Fixed some wrong translations.<br/>
