@@ -1144,29 +1144,6 @@ describe('Unified HUE Controller', () => {
     expect(privateLightEditor).to.include("node._('knxUltimateHueLight.locate_error') || 'Unable to locate Hue device'), { type: 'error', fixed: true }")
   })
 
-  it('exposes the unified node and its configuration references to the Cerebrum Ultimate Flow Builder', () => {
-    const catalog = require('../nodes/knxUltimateAI').__test.buildKnxAiPackageNodeCatalog()
-    const controller = catalog.find((entry) => entry.type === 'knxUltimateHueController')
-    expect(controller).to.include({
-      paletteLabel: 'HUE Controller',
-      category: 'KNX Ultimate HUE',
-      inputs: 0,
-      outputs: 0
-    })
-    expect(controller.fields.server).to.deep.include({ isConfig: true, configType: 'knxUltimate-config' })
-    expect(controller.fields.serverHue).to.deep.include({ isConfig: true, configType: 'hue-config' })
-    expect(controller.fields).to.have.keys(
-      'server',
-      'serverHue',
-      'name',
-      'hueControllerType',
-      'hueDevice',
-      'enableNodePINS',
-      'inputs',
-      'outputs'
-    )
-  })
-
   it('keeps dedicated Hue nodes registered but hides them from the palette as deprecated', () => {
     const hueEditors = fs.readdirSync(path.join(projectRoot, 'nodes'))
       .filter((file) => /^knxUltimateHue(?!Controller).*\.html$/.test(file))

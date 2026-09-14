@@ -6,11 +6,12 @@
 
 # CHANGELOG
 
-**Version 7.1.0-beta.0** - September 2026<br/>
+**Version 7.1.0-beta.1** - September 2026<br/>
 
 - New **KNX Utility** node with eleven functions, including Home Assistant Translator, and conversion of legacy nodes.<br/>
 - Automatic flow backup before converting KNX and HUE nodes.<br/>
 - Simple **KNX Viewer** telegram list with 24-hour history saved to file.<br/>
+- **BREAKING CHANGE:** Removed legacy **KNX AI** nodes and their web dashboard. Existing AI flows must be migrated to standalone **Cerebrum Ultimate**.<br/>
 - KNX Engine updated to 6.0.6.<br/>
 
 **Version 7.0.4** - September 2026<br/>

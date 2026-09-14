@@ -3,8 +3,8 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "7.1.0-beta.0",
-  "description": "KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT and Modbus adapters, diagnostics with AI, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.",
+  "version": "7.1.0-beta.1",
+  "description": "KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT and Modbus adapters, diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.",
   "files": [
     "nodes/",
     "resources/",
@@ -19,8 +19,6 @@
     "@matter/main": "^0.17.9",
     "@matter/nodejs": "^0.17.9",
     "@project-chip/matter.js": "^0.17.9",
-    "google-translate-tts": "^0.3.0",
-    "js-yaml": "4.3.1",
     "knxultimate": "6.0.6",
     "lodash": "4.18.1",
     "mqtt": "^5.15.2",
@@ -32,7 +30,6 @@
     "version": ">=3.1.1",
     "plugins": {
       "commonFunctions": "/nodes/commonFunctions.js",
-      "knxUltimateCerebrumRuntime": "/nodes/plugins/knxUltimate-cerebrum-runtime-plugin.js",
       "knxUltimateFlowBubbles": "/nodes/plugins/knxUltimate-flow-bubbles-plugin.html"
     },
     "nodes": {
@@ -47,8 +44,6 @@
       "knxUltimateGlobalContext": "/nodes/knxUltimateGlobalContext.js",
       "knxUltimateAlerter": "/nodes/knxUltimateAlerter.js",
       "knxUltimateViewer": "/nodes/knxUltimateViewer.js",
-      "knxUltimateAI": "/nodes/knxUltimateAI.js",
-      "knxUltimateAIHomeAssistant": "/nodes/knxUltimateAIHomeAssistant.js",
       "knxUltimateMultiRouting": "/nodes/knxUltimateMultiRouting.js",
       "knxUltimateRouterFilter": "/nodes/knxUltimateRouterFilter.js",
       "knxUltimateAutoResponder": "/nodes/knxUltimateAutoResponder.js",
@@ -110,8 +105,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "npm run knx-ai:build && npm run knx-viewer:build",
-    "prepack": "npm run knx-ai:build && npm run knx-viewer:build",
+    "build": "npm run knx-viewer:build",
+    "prepack": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "npm run hue-controller:check && npm run knx-utility:check && DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
     "test:unit": "mocha \"test/**/*.test.js\"",
@@ -128,8 +123,6 @@
     "avviaquesto-itest:serve": "node test/integration/serveFlow.mjs",
     "lint:fix": "standard --fix",
     "lint-fix": "standard --fix",
-    "knx-ai:dev": "vite --config ui/knxUltimateAI-vue/vite.config.mjs",
-    "knx-ai:build": "vite build --config ui/knxUltimateAI-vue/vite.config.mjs",
     "knx-viewer:dev": "vite --config ui/knxUltimateViewer-vue/vite.config.mjs",
     "knx-viewer:build": "vite build --config ui/knxUltimateViewer-vue/vite.config.mjs",
     "translate-wiki": "node scripts/translate-wiki.js",
@@ -149,7 +142,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
     "chai": "^4.3.10",
-    "jspdf": "^4.2.1",
+    "js-yaml": "4.3.1",
     "marked": "^14.1.0",
     "mocha": "^10.4.0",
     "vite": "^7.3.6",

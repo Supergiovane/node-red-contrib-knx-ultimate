@@ -3,7 +3,6 @@
 const oOS = require('os')
 const fs = require('fs')
 const path = require('path')
-const yaml = require('js-yaml')
 const dptlib = require('knxultimate').dptlib
 const customHTTP = require('./utils/http')
 const KNXClient = require('knxultimate').KNXClient
