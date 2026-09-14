@@ -4,6 +4,10 @@ title: "Alerter-Configuration"
 lang: it
 permalink: /wiki/it-Alerter-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Alerter**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+
 # Configurazione del nodo Alerter
 
 Con il nodo Alerter puoi segnalare su un display o al nodo node-red-contrib-tts-ultimate (feedback vocale) se i dispositivi selezionati sono in stato di allarme, cioè hanno `payload` **true** .

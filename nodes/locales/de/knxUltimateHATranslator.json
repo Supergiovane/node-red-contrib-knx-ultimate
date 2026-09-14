@@ -1,6 +1,8 @@
 {
   "knxUltimateHATranslator": {
-    "paletteLabel": "Home Assistant Übersetzer"
+    "paletteLabel": "Home Assistant Übersetzer (deprecated)",
+    "legacy_notice": "Dieser Knoten ist veraltet und wird für bestehende Flows weiterhin unterstützt. Verwenden Sie KNX Utility für neue Flows. Die Schaltfläche unten konvertiert alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows.",
+    "migration_button": "Alle kompatiblen bisherigen KNX-Knoten konvertieren",
+    "migration_button_title": "Alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows des Editors in KNX Utility konvertieren"
   }
 }
-

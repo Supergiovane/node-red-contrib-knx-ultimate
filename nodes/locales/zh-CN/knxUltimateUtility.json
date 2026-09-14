@@ -1,0 +1,56 @@
+{
+  "knxUltimateUtility": {
+    "legacy_notice": "此节点已弃用，但仍支持现有流程。新流程请使用 KNX Utility。下方按钮可转换所有流程和子流程中的全部兼容旧版 KNX 工具节点。",
+    "migration_button": "转换所有兼容的旧版 KNX 节点",
+    "migration_button_title": "将编辑器所有流程和子流程中的全部兼容旧版 KNX 工具节点转换为 KNX Utility",
+    "migration_confirm": "将所有流程和子流程中的全部 {{count}} 个兼容旧版 KNX 工具节点转换为 KNX Utility？当前节点编辑器将关闭，未保存的编辑将被丢弃。节点 ID、设置、连接和分组保持不变。转换在此浏览器中进行，可以撤销，并在部署后生效。 转换前会自动开始下载编辑器中所有当前流程的 JSON 备份。与 Node-RED 标准导出相同，备份不包含受保护的凭据。浏览器可能会询问文件保存位置。",
+    "migration_cancel": "取消",
+    "migration_convert": "转换为 KNX Utility",
+    "migration_none": "未找到兼容的旧版 KNX 工具节点。",
+    "migration_success": "流程备份下载已开始。 已将 {{count}} 个节点转换为 KNX Utility。请检查结果并点击部署以应用。您可以使用撤销来撤销转换。",
+    "migration_backup_failed": "无法启动流程备份。未转换任何节点：",
+    "migration_failed": "KNX Utility 转换失败：",
+    "locale": "zh-CN",
+    "function": "功能",
+    "gateway": "KNX 网关",
+    "name": "名称",
+    "types": {
+      "alerter": "Alerter",
+      "autoresponder": "AutoResponder",
+      "datetime": "日期 / 时间",
+      "watchdog": "WatchDog",
+      "globalcontext": "全局上下文",
+      "logger": "日志记录",
+      "staircase": "楼梯照明",
+      "garage": "车库门",
+      "scenecontroller": "场景控制",
+      "loadcontrol": "负载控制",
+      "hatranslator": "Home Assistant Translator"
+    },
+    "invalid_function": "未知功能。部署前请选择支持的功能。",
+    "pins": {
+      "alerter": "1 个输入 · 3 个输出",
+      "autoresponder": "无端口 · 直接响应 KNX 总线请求",
+      "datetime": "无端口 · 定时发送和节点按钮",
+      "watchdog": "1 个输入 · 1 个输出",
+      "globalcontext": "无流程端口 · 全局上下文变量",
+      "logger": "1 个输入 · 2 个输出",
+      "staircase": "1 个输入 · 1 个输出",
+      "garage": "1 个输入 · 1 个输出",
+      "scenecontroller": "1 个输入 · 1 个输出",
+      "loadcontrol": "1 个输入 · 1 个输出",
+      "hatranslator": "1 个输入 · 1 个输出 · 无需网关"
+    },
+    "outputs": {
+      "0": "每个报警设备一条消息",
+      "1": "所有报警设备",
+      "2": "最近报警的设备"
+    },
+    "variable_name": "变量名称",
+    "variable_name_description": "仅限字母（A–Z、a–z）。此名称决定全局变量 <name>_READ 和 <name>_WRITE。",
+    "logger_outputs": {
+      "0": "ETS 诊断 XML",
+      "1": "报文计数"
+    }
+  }
+}

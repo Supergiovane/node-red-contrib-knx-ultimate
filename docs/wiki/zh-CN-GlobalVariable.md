@@ -4,6 +4,10 @@ title: "GlobalVariable"
 lang: zh-CN
 permalink: /wiki/zh-CN-GlobalVariable
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **Global Context**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+
 # KNX 全局变量
 
 该节点将从总线收到的组地址映射到全局上下文变量，\

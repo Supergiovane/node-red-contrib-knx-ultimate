@@ -4,6 +4,10 @@ title: "Staircase-Configuration"
 lang: fr
 permalink: /wiki/fr-Staircase-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Staircase**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 ---
 # Temporisateur d'escalier
 Le nœud **KNX Staircase** émule un éclairage d'escalier temporisé. Lorsqu'un front actif est reçu sur la GA d'impulsion la lampe s'allume, le compte à rebours démarre et un préavis peut être envoyé avant l'extinction. Override manuel, blocage et émission d'événements sont également pris en charge.

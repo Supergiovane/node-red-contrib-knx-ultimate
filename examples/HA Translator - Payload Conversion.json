@@ -2,7 +2,7 @@
   {
     "id": "ha_tab",
     "type": "tab",
-    "label": "KNX HA Translator",
+    "label": "KNX Utility - HA Translator",
     "disabled": false,
     "info": ""
   },
@@ -11,25 +11,29 @@
     "type": "comment",
     "z": "ha_tab",
     "name": "Translate Home Assistant-like strings to booleans",
-    "info": "",
+    "info": "Home Assistant Translator runs inside KNX Utility with no gateway. Deploy this example and click an inject button: the output payload is converted to a boolean, preserving the other message fields.",
     "x": 350,
     "y": 60,
     "wires": []
   },
   {
     "id": "ha_node",
-    "type": "knxUltimateHATranslator",
+    "type": "knxUltimateUtility",
     "z": "ha_tab",
     "name": "HA Translator",
     "payloadPropName": "payload",
-    "commandText": "on:true\noff:false\nopen:true\nclosed:false\nhome:true\nnot_home:false",
     "x": 560,
     "y": 220,
     "wires": [
       [
         "ha_dbg"
       ]
-    ]
+    ],
+    "utilityType": "hatranslator",
+    "inputs": 1,
+    "outputs": 1,
+    "server": "",
+    "haTranslationTable": "on:true\noff:false\nopen:true\nclosed:false\nhome:true\nnot_home:false"
   },
   {
     "id": "ha_on",
@@ -51,7 +55,9 @@
     "x": 180,
     "y": 180,
     "wires": [
-      "ha_node"
+      [
+        "ha_node"
+      ]
     ]
   },
   {
@@ -74,7 +80,9 @@
     "x": 180,
     "y": 220,
     "wires": [
-      "ha_node"
+      [
+        "ha_node"
+      ]
     ]
   },
   {
@@ -97,7 +105,9 @@
     "x": 180,
     "y": 260,
     "wires": [
-      "ha_node"
+      [
+        "ha_node"
+      ]
     ]
   },
   {

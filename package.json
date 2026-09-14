@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "7.0.4",
+  "version": "7.1.0-beta.0",
   "description": "KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT and Modbus adapters, diagnostics with AI, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.",
   "files": [
     "nodes/",
@@ -21,7 +21,7 @@
     "@project-chip/matter.js": "^0.17.9",
     "google-translate-tts": "^0.3.0",
     "js-yaml": "4.3.1",
-    "knxultimate": "6.0.5",
+    "knxultimate": "6.0.6",
     "lodash": "4.18.1",
     "mqtt": "^5.15.2",
     "ping": "0.4.4",
@@ -37,6 +37,7 @@
     },
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
+      "knxUltimateUtility": "/nodes/knxUltimateUtility.js",
       "knxUltimateDateTime": "/nodes/knxUltimateDateTime.js",
       "knxUltimateStaircase": "/nodes/knxUltimateStaircase.js",
       "knxUltimateLoadControl": "/nodes/knxUltimateLoadControl.js",
@@ -112,7 +113,7 @@
     "build": "npm run knx-ai:build && npm run knx-viewer:build",
     "prepack": "npm run knx-ai:build && npm run knx-viewer:build",
     "prepublishOnly": "npm run build",
-    "test": "npm run hue-controller:check && DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
+    "test": "npm run hue-controller:check && npm run knx-utility:check && DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
     "test:unit": "mocha \"test/**/*.test.js\"",
     "release:publish": "node scripts/publish-and-refresh.js",
     "release:refresh-flows": "node scripts/publish-and-refresh.js --refresh-only",
@@ -141,7 +142,9 @@
     "docs:sync": "node scripts/export-wiki-to-pages.js",
     "wiki:refresh": "npm run wiki:help-export && node scripts/generate-wiki-navbar.js && node scripts/prepare-wiki-pages.js && npm run docs:sync",
     "docs:serve": "node scripts/dev-serve-docs.js",
-    "docs:serve:norl": "node scripts/dev-serve-docs.js"
+    "docs:serve:norl": "node scripts/dev-serve-docs.js",
+    "knx-utility:generate": "node scripts/generate-knx-utility-profiles.js",
+    "knx-utility:check": "node scripts/generate-knx-utility-profiles.js --check"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",

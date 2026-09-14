@@ -1,7 +1,7 @@
 {
   "knxUltimateDateTime": {
     "title": "Fecha/Hora",
-    "paletteLabel": "Fecha/Hora",
+    "paletteLabel": "Fecha/Hora (deprecated)",
     "node-input-server": "Gateway KNX",
     "node-input-name": "Nombre",
     "node-input-outputtopic": "Topic de salida del nodo",
@@ -24,7 +24,9 @@
       "nameDateTime": "Nombre ETS (opc.)",
       "nameDate": "Nombre ETS (opc.)",
       "nameTime": "Nombre ETS (opc.)"
-    }
+    },
+    "legacy_notice": "Este nodo está obsoleto y sigue siendo compatible con los flujos existentes. Usa KNX Utility para los nuevos flujos. El botón siguiente convierte todas las utilidades KNX antiguas compatibles en todos los flujos y subflujos.",
+    "migration_button": "Convertir todos los nodos KNX antiguos compatibles",
+    "migration_button_title": "Convertir en KNX Utility todas las instancias de utilidades KNX antiguas compatibles en todos los flujos y subflujos del editor"
   }
 }
-

@@ -4,6 +4,10 @@ title: "Staircase-Configuration"
 lang: en
 permalink: /wiki/Staircase-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> This dedicated node remains compatible with existing flows. For new flows use [KNX Utility](/node-red-contrib-knx-ultimate/wiki/KNX-Utility) and select **Staircase**. Its editor provides bulk conversion of all compatible legacy utility nodes across every flow and subflow, with a single Undo and manual Deploy.
+
 ---
 # Staircase Light configuration
 The **KNX Staircase** node emulates the typical stairwell timer using KNX group addresses. When the trigger GA receives an impulse the lamp is forced on, a configurable timer starts and optional warnings are issued before switching off. Additional features cover manual override, blocking (for maintenance), and event reporting to the Node-RED flow.

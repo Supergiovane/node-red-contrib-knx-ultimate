@@ -1,6 +1,6 @@
 {
   "knxUltimateWatchDog": {
-    "paletteLabel": "Chien de garde de KNX",
+    "paletteLabel": "Chien de garde de KNX (deprecated)",
     "title": "Chien de garde",
     "properties": {
       "node-input-server": "Porte",
@@ -19,6 +19,9 @@
     "selectlists": {
       "Ethernet": "Seul Ethernet Unicast (par défaut), en utilisant un ping. Fonctionne uniquement avec les interfaces KNX (pas les routeurs)",
       "EthKNX": "Paire torsadé Ethernet + KNX, en utilisant un réel appareil KNX"
-    }
+    },
+    "legacy_notice": "Ce nœud est obsolète et reste pris en charge dans les flux existants. Utilisez KNX Utility pour les nouveaux flux. Le bouton ci-dessous convertit tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux.",
+    "migration_button": "Convertir tous les anciens nœuds KNX compatibles",
+    "migration_button_title": "Convertir en KNX Utility toutes les instances des anciens utilitaires KNX compatibles dans tous les flux et sous-flux de l’éditeur"
   }
 }

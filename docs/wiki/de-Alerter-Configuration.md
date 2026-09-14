@@ -4,6 +4,10 @@ title: "Alerter-Configuration"
 lang: de
 permalink: /wiki/de-Alerter-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **Alerter**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # Alerter - Node-Konfiguration
 
 Mit dem Node "Alerter" kannst du auf einem Display oder über den Node node-red-contrib-tts-ultimate (Sprachausgabe) melden, welche ausgewählten Geräte einen Alarmzustand haben, also `payload` **true** liefern.

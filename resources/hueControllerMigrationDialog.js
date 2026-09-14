@@ -67,7 +67,7 @@
 
   function showCompletionMessage (RED, translate, convertedCount, windowObject, donationUrl) {
     if (!RED || typeof RED.notify !== 'function') return
-    const message = translate('migration_success', 'Process finished. {{count}} legacy HUE nodes were converted. Inspect every modified node, including its function, configuration, pins and wiring, before clicking Deploy. If this conversion saved you time, you can support the continued development of KNX Ultimate with the optional button below.')
+    const message = translate('migration_success', 'The flow backup download has started. Process finished. {{count}} legacy HUE nodes were converted. Inspect every modified node, including its function, configuration, pins and wiring, before clicking Deploy. If this conversion saved you time, you can support the continued development of KNX Ultimate with the optional button below.')
       .replace('{{count}}', String(convertedCount))
     let notification
     try {
@@ -130,7 +130,7 @@
       .css({ marginBottom: '10px', fontWeight: 'bold' })
       .appendTo($dialog)
     $('<div class="hue-controller-migration-note"></div>')
-      .text(translate('migration_privacy', 'Conversion happens entirely in this browser. No flow, node, configuration, credential, group address, or wiring data is transmitted or retained.'))
+      .text(translate('migration_privacy', 'Conversion happens entirely in this browser. No flow, node, configuration, credential, group address or wiring data is sent to external services. A JSON flow backup is downloaded locally.'))
       .css({ marginBottom: '10px', padding: '8px 10px', borderLeft: '4px solid #2980b9', background: '#eaf4fb' })
       .appendTo($dialog)
     $('<div class="hue-controller-migration-email"></div>')
@@ -138,7 +138,7 @@
       .css({ marginBottom: '10px' })
       .appendTo($dialog)
     $('<div class="form-tips hue-controller-migration-backup"></div>')
-      .text(translate('migration_deploy_notice', 'Before continuing, export a backup of your flows. The current editor will close. Only the legacy HUE nodes will be changed; all config nodes and wiring remain untouched. Review the result, then click Deploy yourself.'))
+      .text(translate('migration_deploy_notice', 'Before conversion, the browser automatically starts downloading a JSON backup of all flows. Protected credentials are excluded, as in the standard Node-RED export. Your browser may ask where to save the file. The current editor will close. Only the legacy HUE nodes will be changed; all config nodes and wiring remain untouched. Review the result, then click Deploy yourself.'))
       .css({ marginBottom: '10px', padding: '8px 10px', borderLeft: '4px solid #d79b00', background: '#fff8df' })
       .appendTo($dialog)
     $('<div class="form-tips hue-controller-migration-review"></div>')
@@ -161,11 +161,22 @@
     }
 
     const performMigration = () => {
-      if (running) return
+      if (running || closed) return
       running = true
       $convert.prop('disabled', true)
       try {
         migrationApi.createLocalMigrationPatches(legacyNodes)
+        try {
+          const backupApi = options.backupApi || windowObject.KNXUltimateFlowMigrationBackup
+          if (!backupApi || typeof backupApi.download !== 'function') throw new Error('The flow backup tool is unavailable')
+          backupApi.download(RED, { environment: windowObject, documentObject, kind: 'hue' })
+        } catch (error) {
+          running = false
+          $convert.prop('disabled', false)
+          const message = error && error.message ? error.message : String(error)
+          $status.text(`${translate('migration_backup_failed', 'Flow backup could not be started. No nodes were converted:')} ${message}`).css('color', '#b00020')
+          return
+        }
         closeDialog()
         closeEditorTray(RED, $)
         windowObject.setTimeout(() => {

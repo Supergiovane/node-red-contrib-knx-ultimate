@@ -1,0 +1,56 @@
+{
+  "knxUltimateUtility": {
+    "legacy_notice": "Ce nœud est obsolète et reste pris en charge dans les flux existants. Utilisez KNX Utility pour les nouveaux flux. Le bouton ci-dessous convertit tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux.",
+    "migration_button": "Convertir tous les anciens nœuds KNX compatibles",
+    "migration_button_title": "Convertir en KNX Utility toutes les instances des anciens utilitaires KNX compatibles dans tous les flux et sous-flux de l’éditeur",
+    "migration_confirm": "Convertir les {{count}} anciens utilitaires KNX compatibles de tous les flux et sous-flux en KNX Utility ? L’éditeur du nœud actuel sera fermé et les modifications non enregistrées seront abandonnées. Les identifiants, paramètres, connexions et groupes sont conservés. La conversion se déroule dans ce navigateur, peut être annulée et prend effet avec Deploy. Avant la conversion, le téléchargement d’une sauvegarde JSON de tous les flux actuellement dans l’éditeur démarrera automatiquement. Les identifiants protégés sont exclus, comme dans l’export standard de Node-RED. Le navigateur peut demander où enregistrer le fichier.",
+    "migration_cancel": "Annuler",
+    "migration_convert": "Convertir en KNX Utility",
+    "migration_none": "Aucun ancien utilitaire KNX compatible trouvé.",
+    "migration_success": "Le téléchargement de la sauvegarde des flux a démarré. {{count}} nœuds convertis en KNX Utility. Vérifiez le résultat et cliquez sur Deploy pour l’appliquer. Vous pouvez revenir en arrière avec Annuler.",
+    "migration_backup_failed": "Impossible de démarrer la sauvegarde des flux. Aucun nœud n’a été converti :",
+    "migration_failed": "Échec de la conversion en KNX Utility :",
+    "locale": "fr",
+    "function": "Fonction",
+    "gateway": "Passerelle KNX",
+    "name": "Nom",
+    "types": {
+      "alerter": "Alerter",
+      "autoresponder": "AutoResponder",
+      "datetime": "Date / Heure",
+      "watchdog": "WatchDog",
+      "globalcontext": "Contexte global",
+      "logger": "Logger",
+      "staircase": "Éclairage escalier",
+      "garage": "Garage",
+      "scenecontroller": "Contrôleur de scènes",
+      "loadcontrol": "Contrôle des charges",
+      "hatranslator": "Home Assistant Translator"
+    },
+    "invalid_function": "Fonction inconnue. Sélectionnez une fonction prise en charge avant le déploiement.",
+    "pins": {
+      "alerter": "1 entrée · 3 sorties",
+      "autoresponder": "Aucun port · Répond directement sur le bus KNX",
+      "datetime": "Aucun port · Envois programmés et bouton du nœud",
+      "watchdog": "1 entrée · 1 sortie",
+      "globalcontext": "Aucun port de flow · Variables du contexte global",
+      "logger": "1 entrée · 2 sorties",
+      "staircase": "1 entrée · 1 sortie",
+      "garage": "1 entrée · 1 sortie",
+      "scenecontroller": "1 entrée · 1 sortie",
+      "loadcontrol": "1 entrée · 1 sortie",
+      "hatranslator": "1 entrée · 1 sortie · Aucune passerelle requise"
+    },
+    "outputs": {
+      "0": "Un message par appareil en alerte",
+      "1": "Tous les appareils en alerte",
+      "2": "Dernier appareil en alerte"
+    },
+    "variable_name": "Nom de variable",
+    "variable_name_description": "Lettres uniquement (A–Z, a–z). Ce nom détermine les variables globales <nom>_READ et <nom>_WRITE.",
+    "logger_outputs": {
+      "0": "XML de diagnostic ETS",
+      "1": "Compteur de télégrammes"
+    }
+  }
+}

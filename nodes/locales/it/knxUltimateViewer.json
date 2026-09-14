@@ -6,6 +6,14 @@
             "ga_dashboard": "Dashboard Indirizzi di Gruppo",
             "simple_array": "Semplice array JSON per registrazione dati",
             "queue": "Coda telegrammi Dashboard"
-        }
+        },
+        "locale": "it",
+        "advanced": {
+            "node-input-server": "Gateway"
+        },
+        "web-monitor": "Monitor web",
+        "open-monitor": "Apri monitor KNX Viewer",
+        "open-monitor-tooltip": "Apri il monitor degli indirizzi di gruppo e lo storico di 24 ore in una nuova scheda",
+        "monitor-description": "Un semplice elenco dei cambiamenti degli indirizzi di gruppo, con storico di 24 ore su file. La registrazione continua anche a pagina chiusa o in pausa."
     }
 }

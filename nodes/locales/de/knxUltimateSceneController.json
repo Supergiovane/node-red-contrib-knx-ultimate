@@ -1,6 +1,6 @@
 {
     "knxUltimateSceneController": {
-        "paletteLabel": "KNX Szenensteuerung",
+        "paletteLabel": "KNX Szenensteuerung (deprecated)",
         "title": "Szene Kontroller",
         "properties": {
             "node-input-server": "Gateway",
@@ -21,10 +21,12 @@
         },
         "advanced": {
             "notify-DPT3007": "Du haßt ein relatives DIM ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
-            "notify-DPT18001": "Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
-            ,"notify-DPT232600": "Du haßt einen RGB Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
-            ,"notify-DPT251600":"Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
-           
-        }
+            "notify-DPT18001": "Du haßt Szene Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
+            "notify-DPT232600": "Du haßt einen RGB Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln.",
+            "notify-DPT251600": "Du haßt einen RGBW Datenpunkt ausgewählt. Bitte <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>klicke hier, um dieses Beispiel anzuzeigen</a> und lernen, wie den Payload handeln."
+        },
+        "legacy_notice": "Dieser Knoten ist veraltet und wird für bestehende Flows weiterhin unterstützt. Verwenden Sie KNX Utility für neue Flows. Die Schaltfläche unten konvertiert alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows.",
+        "migration_button": "Alle kompatiblen bisherigen KNX-Knoten konvertieren",
+        "migration_button_title": "Alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows des Editors in KNX Utility konvertieren"
     }
 }

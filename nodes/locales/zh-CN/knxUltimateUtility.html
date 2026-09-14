@@ -1,0 +1,930 @@
+<script type="text/markdown" data-help-name="knxUltimateUtility">
+# KNX Utility
+
+为每个 KNX Utility 节点选择一个功能。使用 KNX 总线的功能需要网关；Home Assistant Translator 直接处理消息。编辑器、图标和端口随所选功能变化。KNX Device 仍是主要 KNX 节点。
+
+转换按钮可在编辑器本地转换所有流程及子流程中兼容的十一种旧节点。保留 ID、设置、连线和分组，包括 AutoResponder 保存值和场景所用的 ID、GlobalContext 变量名称以及 Logger 文件路径。检查转换结果后再部署。一次撤销即可恢复原节点。切换功能会保留临时草稿；取消不会更改已保存的节点及场景。新建 AutoResponder 的地址列表为空。场景规则的更改仅在部署时才使学习值失效。
+
+确认后，在修改任何节点之前，浏览器会自动开始下载带有日期和时间的 JSON 备份，包含编辑器中所有当前流程，包括标签页、子流程、配置节点、分组和连线。文件使用 Node-RED 标准导出格式，可重新导入。与标准导出相同，节点声明的凭据不会包含在备份中。浏览器可能会询问文件保存位置。如果无法准备备份或启动下载，则不会转换任何节点。
+
+<a id="knx-utility-help-alerter"></a>
+
+## Alerter
+
+### Alerter 节点配置
+
+使用 Alerter 节点可以在显示器上，或通过 node-red-contrib-tts-ultimate 节点（语音播报），提示被选中的设备是否处于告警状态，即 `payload` 为 **true** 。
+该节点按可配置的时间间隔，逐条（一次一条）输出包含当前告警设备详细信息的消息。例如，它可以告诉你"有多少个、哪些窗户处于打开状态”。<br/>
+节点直接从 KNX 总线读取设备数值。此外，你也可以向节点发送自定义告警，与 KNX 设备无关。<br/>
+示例页面展示了在流程中的用法。<br/>
+
+- **Gateway（网关）**
+
+> 选择此节点使用的 KNX 网关。
+
+- **Name（名称）**
+
+> 节点名称。
+
+- **告警轮询的启动方式**
+
+> 选择触发开始发送告警消息的事件。
+
+- **每条消息的间隔（秒）**
+
+> 连续两条输出消息之间的时间间隔。
+
+## 需要监控的设备
+
+在此添加需要监控的设备。<br/>
+填写设备的组地址，或为设备指定一个标签。<br/>
+
+- **在连接/重连时读取每个设备的值**
+
+> 启动或重连时，节点会为列表中的每个设备发送一次读取请求。
+
+- **ADD 按钮**
+
+> 向列表新增一行。
+
+- **设备行 ** > 第一列为组地址（也可以填写任意文本，配合输入消息使用；参见示例页面）。第二列为设备简称（**最多 14 个字符** ）。第三列为设备全名。
+
+- **DELETE 按钮**
+
+> 从列表中移除该设备。
+
+<br/>
+<br/>
+
+## 节点的输出消息
+
+PIN1：按设定间隔，每个告警设备输出一条消息。<br/>
+PIN2：输出一条汇总消息，包含所有处于告警状态的设备。<br/>
+PIN3：仅输出最近一个进入告警状态的设备。<br/>
+
+**PIN1**
+
+```javascript
+
+msg = {
+  topic: "0/1/12",
+  count: 3, // 处于告警状态的设备总数
+  devicename: "卧室窗户",
+  longdevicename: "卧室主窗",
+  payload: true
+}
+```
+
+**PIN2**
+
+```javascript
+
+msg = {
+  topic: "door, 0/0/11, 0/1/2, 0/0/9",
+  devicename: "入户门, 客厅壁灯, 地下室壁灯, 书房灯",
+  longdevicename: "主入户门, 客厅左侧壁灯, 地下室右侧壁灯, 书房顶灯",
+  count: 4,
+  payload: true
+}
+```
+
+**PIN3**
+
+```javascript
+
+msg = {
+  topic: "0/1/12",
+  count: 3, // 处于告警状态的设备总数
+  devicename: "卧室窗户",
+  longdevicename: "卧室主窗",
+  payload: true
+}
+```
+
+当所有设备均处于静止（无告警）时的输出：
+
+**PIN1, PIN2, PIN3**
+
+```javascript
+
+msg = {
+  topic: "",
+  count: 0,
+  devicename: "",
+  longdevicename: "",
+  payload: false
+}
+```
+
+<br/>
+<br/>
+
+## 节点的输入消息
+
+```javascript
+
+msg.readstatus = true
+```
+
+读取列表中每个设备的当前值。
+
+```javascript
+
+msg.start = true
+```
+
+启动一次"遍历所有告警设备并依次输出”的轮询。轮询在最后一个设备输出后结束；若需再次轮询，请再次发送该输入消息。
+
+<br/>
+
+**自定义设备告警** <br/>
+
+要更新某个自定义设备的状态（true/false），发送如下输入消息：
+
+```javascript
+
+msg = {
+  topic: "door",
+  payload: true // 也可为 false，以清除此设备的告警
+}
+```
+
+<br/>
+
+## 示例
+
+<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter">点击此处查看示例</a>
+
+<br/>
+<br/>
+<br/>
+
+<a id="knx-utility-help-autoresponder"></a>
+
+## AutoResponder
+
+此节点将响应KNX总线的读取请求。
+
+节点记录所有传输到KNX总线并将值存储在内存中的电报。
+然后，它通过根据请求将这种记忆的值发送回总线来响应阅读请求。
+如果要读取的组地址尚无值，则节点将以默认值响应。
+该节点将仅响应 **响应** JSON字段中指定的组地址。
+新节点使用空列表 `[]`。仅添加需要由此节点响应的组地址。
+
+**配置**
+
+|属性|描述|
+| - | - |
+|网关|选择要使用的KNX门户|
+|回应|节点将响应来自此JSON数组中指定的组地址的读取请求。格式在下面指定。|
+
+<br/>
+
+\*\* json格式\*\*
+
+json总是\*\*一个对象数组，包含每个指令。每个指令都告诉节点怎么办。
+
+|属性|描述|
+| - | - |
+|注意| **可选** 注意键，以获取提醒。它不会在任何地方使用。|
+|GA |小组地址。您也可以使用" ..”野生币，以特定一系列组地址。" ..”只能与第三GA的级别一起使用，例如：\*\* 1/1/0..255 **。请参阅下面的样本。|
+|DPT |组地址数据点，格式为" 1.001”。如果已导入ETS CSV文件，则**可选\*\*。|
+|默认|当组件地址值尚未被节点记忆时，以读取请求的响应发送到总线。|
+
+**让我们从一个指令开始**
+
+Autoresponder节点将响应组地址2/7/1的读取请求。如果尚未在内存中值，它将以 _true _回复。
+ETS CSV文件必须已导入，否则您也必须添加__" dpt”：" 1.001” \*\*密钥。
+
+```json
+
+[
+    {
+        "ga": "2/7/1",
+        "default": true
+    }
+]
+```
+
+**更完整的指令**
+
+自动回答器节点将响应从3/1/1开始的读取请求，包括3/1/22。如果内存尚无值，它将用 _false _回复。
+还有一个__ note \*\*键，仅作为提醒笔记。它不会在任何地方使用。
+
+```json
+
+[
+    {
+        "note": "Virtual sensors coming from Hikvision AX-Pro",
+        "ga": "3/1/1..22",
+        "dpt": "1.001",
+        "default": false
+    }
+]
+```
+
+**串联指令**
+
+从2/2/5到2/2/21，Autoresponder节点将响应对组地址的读取请求。如果尚无记忆中的值，它将以25值回复。
+Autoresponder节点还将响应组件2/4/22的读取请求。如果内存中还没有值，它将使用字符串 \*未知状态！ \*回复。
+请注意每个指令的JSON对象之间的 **逗号** 。
+
+```json
+
+[
+    {
+        "note": "DALI garden virtual brightness %",
+        "ga": "2/2/5..21",
+        "default": 25
+    },
+    {
+        "note": "Alarm armed status text",
+        "ga": "2/4/22",
+        "dpt": "16.001",
+        "default": "Unknown status!"
+    }
+]
+```
+
+<br/>
+
+<a id="knx-utility-help-datetime"></a>
+
+## 日期 / 时间
+
+向配置的组地址发送系统日期和时间：**19.001** 为日期/时间，**11.001** 为日期，**10.001** 为时间。至少配置一个地址；所有已配置地址都会收到报文。ETS 自动补全会建议兼容地址。
+
+可启用延迟启动发送、以秒或分钟为单位的定时发送，或使用已部署节点上的按钮立即发送。部署更改后按钮才会启用。本功能没有流程输入或输出端口。
+
+网关断开连接时，保留最近一条待发送请求，并在重新连接后发送。
+
+<a id="knx-utility-help-watchdog"></a>
+
+## WatchDog
+
+### WatchDog（看门狗）
+
+用于检测与网关或特定 KNX 设备的连接状况，并在出现故障时执行自动化操作。
+
+**功能**
+
+1. 周期性发送报文并等待应答，若总线连接异常则向流程输出消息。提供两种检测级别（见下）。
+2. 通过消息修改配置节点（Config-Node）的网关参数，实现 KNX/IP 路由器/接口的切换（如主备切换）。
+3. 强制与 KNX 总线建立/断开连接。
+
+#### 以太网层与 KNX 双绞线层检测
+
+WatchDog 提供两级检测：
+
+- 以太网级：仅检测 KNX-Ultimate 与 KNX/IP 接口（Unicast）之间的连通性。
+- 以太网 + KNX-TP：检查整条链路（以太网→TP）。需一个能响应读取请求的物理设备。
+
+适合用于错误/连接故障告警（邮件通知、自动切换备份网关等）。
+
+#### 设置（SETTINGS）
+
+| 属性 | 说明 |
+|--|--|
+| 网关 | 选择的 KNX 网关。|
+| 需要监控的组地址 | 用于发送与监测的组地址；DPT 必须为 1.x（布尔）。|
+| 节点名称 | 节点名称。|
+| 自动启动看门狗定时器 | 在部署/启动时自动启动定时器。|
+| 监听 KNX-Ultimate 节点错误 | 默认启用。当与所选网关关联的 KNX-Ultimate 节点（包括 KNX Device）报告红色错误状态时，输出 `NodeError` 消息。禁用后只抑制这些 `NodeError` 消息；WatchDog 自身的总线检测和控制消息仍保持启用。|
+| 检查等级 (请查阅wiki) | 见上。|
+
+**Check level**
+
+> Ethernet：检测 KNX-Ultimate（Unicast）与 KNX/IP 接口之间的连接。<br/>
+
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png" width="90%"><br/>
+
+> Ethernet + KNX TP：完整检测（支持路由器/接口）。向物理设备发送 Read 并等待 Response；以太网或 TP 的任何故障都会被上报。请在 ETS 中为某个执行器配置一条会响应读取的 **状态** GA。<br/>
+
+<img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png" width="90%"><br/>
+
+#### 高级选项
+
+| 属性 | 说明 |
+|--|--|
+| 重试间隔 (秒) | 以秒为单位的检测间隔。|
+| 出错前的重试次数 | 连续失败多少次后报告错误。|
+
+### WatchDog 的输出
+
+WatchDog 始终输出自身的总线检测和控制消息。启用 **监听 KNX-Ultimate 节点错误** 后，它还会输出与所选网关关联的 KNX-Ultimate 节点（包括 KNX Device）所报告的错误。
+
+**WatchDog 自身连接问题**
+
+<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">详见此处</a>
+
+```javascript
+
+msg = {
+  type: "BUSError",
+  checkPerformed: "Ethernet" // 或 "Eth+KNX",
+  nodeid: "23HJ.2355",
+  payload: true,
+  description: "..."
+}
+```
+
+**启用错误监听且某个 KNX-Ultimate 节点报告错误时**
+
+```javascript
+
+msg = {
+  type: "NodeError",
+  checkPerformed: "Self KNX-Ultimate node reporting a red color status",
+  nodeid: "23HJ.2355",
+  payload: true,
+  description: "...",
+  completeError: {
+    nodeid: "23HJ.2355",
+    topic: "0/1/1",
+    devicename: "Kitchen Light",
+    GA: "0/1/1"
+  }
+}
+```
+
+**通过 setGatewayConfig 修改网关配置**
+
+```javascript
+
+msg = {
+  type: "setGatewayConfig",
+  checkPerformed: "The Watchdog node changed the gateway configuration.",
+  nodeid: "23HJ.2355",
+  payload: true,
+  description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1\nBindLocalInterface:Auto",
+  completeError: ""
+}
+```
+
+**强制连接/断开**
+
+```javascript
+
+msg = {
+  type: "connectGateway",
+  checkPerformed: "The Watchdog issued a connection/disconnection to the gateway.",
+  nodeid: "23HJ.2355",
+  payload: true, // true=连接，false=断开
+  description: "Connection",
+  completeError: ""
+}
+```
+
+---
+
+### 输入消息（INPUT）
+
+#### 启动/停止 WatchDog
+
+```javascript
+
+msg.start = true; return msg; // 启动
+```
+
+```javascript
+msg.start = false; return msg; // 停止
+```
+
+#### 运行期修改 KNX/IP 网关设置
+
+通过 `msg.setGatewayConfig` 更改 IP/Port/PhysicalAddress/Protocol 等；配置节点会应用并重连。Node-RED 重启后恢复为配置节点中的设置。所有参数均为可选。
+
+```javascript
+
+msg.setGatewayConfig = { IP:"224.0.23.12", Port:3671, PhysicalAddress:"15.15.1", BindToEthernetInterface:"Auto",
+  Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
+"Attuatori luci" "0/-/-" "" "" "" "" "Auto"
+"Luci primo piano" "0/0/-" "" "" "" "" "Auto"
+"Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"` };
+return msg;
+```
+
+仅更改 IP：
+
+```javascript
+
+msg.setGatewayConfig = { IP:"224.0.23.12" }; return msg;
+```
+
+**强制断开并禁用自动重连**
+
+```javascript
+
+msg.connectGateway = false; return msg;
+```
+
+**强制连接并启用自动重连**
+
+```javascript
+
+msg.connectGateway = true; return msg;
+```
+
+#### 参见
+
+[Sample WatchDog](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
+
+<a id="knx-utility-help-globalcontext"></a>
+
+## 全局上下文
+
+### KNX 全局变量
+
+该节点将从总线收到的组地址映射到全局上下文变量，\
+并允许通过该变量向 KNX 总线写入。
+
+#### 概览
+
+- 将 Global Context 节点加入流程并命名；该名称作为全局变量的基础名。
+- 读取使用后缀 `_READ`（如 `MyVar_READ`）。
+- 写入使用后缀 `_WRITE`（如 `MyVar_WRITE`）。
+- 可在配置中将变量暴露为只读或读/写。
+- 出于安全考虑，请修改默认名称。
+
+注意：写入执行后，`<Name>_WRITE` 会被自动清空，避免反复写入。
+
+#### 设置
+
+| 属性 | 说明 |
+|--|--|
+| 网关 | KNX 网关。|
+| 变量名 (不能有空格，只能用小写字母) | 全局变量基础名。会创建 `<Name>_READ`（读取）与 `<Name>_WRITE`（写入）。为安全起见不要使用默认名。|
+| 作为全局变量公开 | 选择是否以及如何暴露全局变量。若不需写入，建议设置为只读。|
+| 总线写入间隔时间 | 轮询 `<Name>_WRITE` 并向总线写入的时间间隔。|
+
+#### 变量中的 msg 对象
+
+```javascript
+
+{
+  address: "0/0/1",
+  dpt: "1.001",
+  payload: true,
+  devicename: "Dinning Room->Table Light"
+}
+```
+
+#### 快速用法
+
+##### 读取变量
+
+```javascript
+
+const list = global.get("KNXContextBanana_READ") || [];
+node.send({ payload: list });
+
+const ga = list.find(a => a.address === "0/0/10");
+if (ga && ga.payload === true) return { payload: "FOUND AND TRUE" };
+if (ga && ga.payload === false) return { payload: "FOUND AND FALSE" };
+```
+
+##### 通过变量写入总线
+
+```javascript
+
+const toSend = [];
+toSend.push({ address: "0/0/10", dpt: "1.001", payload: msg.payload });
+// 如果已导入 ETS，可省略 dpt，由系统据 payload 推断
+toSend.push({ address: "0/0/11", payload: msg.payload });
+
+global.set("KNXContextBanana_WRITE", toSend);
+```
+
+#### 完整示例
+
+<a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode" target="_blank"><i class="fa fa-info-circle"></i> 查看示例</a>
+
+<a id="knx-utility-help-logger"></a>
+
+## 日志记录
+
+### Logger（日志）
+
+Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容的 XML 文件。
+
+你可以用 file 节点将其保存到磁盘，或发送到 FTP 等。该文件可在 ETS 中用于诊断或回放报文。
+该节点还可统计报文数量（每秒或自定义间隔）。 <br/> <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target="_blank">示例在此</a>
+
+#### 设置
+
+|属性|说明|
+|--|--|
+| 网关 | KNX 网关。|
+| 主题名 | 节点的 topic。|
+| 节点名称 | 节点名称。|
+
+#### ETS 兼容的总线诊断文件
+
+|属性|说明|
+|--|--|
+| 自动启动定时器 | 在部署或启动时自动启动定时器。|
+| 新的 payload 每 (分钟) | 用于控制 payload 输出和/或写入文件的间隔。当启用文件保存时，到达配置的最大行数后，文件会执行**轮换**，优先删除最早的行。|
+| 最大行数 (0 = 没有限制) | XML 在该时间窗口内的最大行数；0 表示不限制。当同时启用文件保存时，该值也表示文件允许的最大行数；达到限制后，文件会执行**轮换**，并逐步删除最早的行。|
+
+#### KNX 报文计数器
+
+|属性|说明|
+|--|--|
+| 自动启动定时器 | 在部署或启动时自动启动定时器。|
+| 计数间隔（秒） | 以秒为单位向流程输出计数的间隔。|
+
+---
+
+### 节点输出
+
+**PIN 1：ETS 兼容的 XML**
+
+使用 file 节点保存 `msg.payload`，或发送至 FTP 等。
+
+```javascript
+
+msg = {
+  topic: "MyLogger",
+  payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." // XML 字符串
+}
+```
+
+**PIN 2：KNX 报文计数**
+
+每个计数周期输出：
+
+```javascript
+
+msg = {
+  topic: "",
+  payload: 10,
+  countIntervalInSeconds: 5,
+  currentTime: "25/10/2021, 11:11:44"
+}
+```
+
+---
+
+### 输入消息（INPUT）
+
+ETS 兼容 XML 控制
+
+**启动计时器**
+
+```javascript
+
+msg.etsstarttimer = true; return msg;
+```
+
+**停止计时器**
+
+```javascript
+
+msg.etsstarttimer = false; return msg;
+```
+
+**立即输出 XML**
+
+```javascript
+
+// 立刻输出 XML；若计时器在运行，则一并重启
+msg.etsoutputnow = true; return msg;
+```
+
+报文计数器控制
+
+**启动计时器**
+
+```javascript
+
+msg.telegramcounterstarttimer = true; return msg;
+```
+
+**停止计时器**
+
+```javascript
+
+msg.telegramcounterstarttimer = false; return msg;
+```
+
+**立即输出计数**
+
+```javascript
+
+msg.telegramcounteroutputnow = true; return msg;
+```
+
+#### 参见
+
+- [Sample Logger](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
+
+<a id="knx-utility-help-staircase"></a>
+
+## 楼梯照明
+
+### KNX STAIRCASE LIGHT
+
+<p>Use this node to implement a KNX staircase timer. It listens for trigger pulses, drives the output actuator, mirrors the state on a status GA and honours manual override or block commands.</p>
+
+**Group addresses**
+
+|Property|Description|
+|--|--|
+| Trigger GA | Binary input that starts the timer when it receives `1`. If “0 command cancels the cycle” is enabled, a `0` stops the light immediately. |
+| Output GA | Actuator driven while the cycle is active. Select the DPT that matches the load (binary, dimming, analog, …). |
+| Status GA | Mirrors the active/pre-warning state. With pre-warning in *Toggle status GA* mode it will briefly change state before timeout. |
+| Override GA | Forces the light ON and pauses the timer for the duration of the override signal. |
+| Block GA | When true, new triggers are ignored. Depending on *When blocked* the light is either forced OFF or left untouched. |
+
+**Timer behaviour**
+
+|Option|Description|
+|--|--|
+| Timer duration | Base countdown length for the staircase cycle. |
+| On new trigger | Choose whether further pulses restart the timer, extend it by the configured duration, or are ignored. |
+| 0 command cancels the cycle | Ends the cycle with reason `manual-off` when the trigger returns to `0`. |
+| When blocked | Decide if a block command should only inhibit new triggers or also force the output off. |
+
+**Pre-warning**
+
+|Option|Description|
+|--|--|
+| Send pre-warning | Enables the alert before timeout. |
+| Pre-warning offset | Seconds before the end when the alert is triggered. |
+| Pre-warning mode | *Toggle status GA* briefly toggles the status address. *Flash output* switches the output off and back on after the configured flash duration. |
+| Flash duration | Time in milliseconds the output remains off when flashing. |
+
+**Node output**
+
+- When *Emit events* is enabled the node outputs structured objects describing `trigger`, `extend`, `prewarn`, `timeout`, `override`, `block` and `manual-off` events. Each payload includes `event`, `remaining`, `active`, `override`, `blocked` and optional details.
+- Without events enabled you can rely on the KNX status GA for automation feedback.
+
+#### Inputs
+
+|Property|Description|
+|--|--|
+| Flow input | Send `true`, `false`, `"open"` or `"close"` from the flow to start or cancel the timer. |
+| KNX telegrams | The node reacts to telegrams for the configured group addresses. |
+
+#### Flow example
+
+```javascript
+
+// Start the staircase timer
+msg.payload = true;
+return msg;
+```
+
+```javascript
+// Cancel the timer (requires '0 command cancels the cycle')
+msg.payload = false;
+return msg;
+```
+
+#### Outputs
+
+|Property|Description|
+|--|--|
+| Events (optional) | Sends the event objects when *Emit events* is checked. |
+
+<a id="knx-utility-help-garage"></a>
+
+## 车库门
+
+### KNX GARAGE DOOR
+
+<p>Control a KNX garage door with direct Boolean commands or toggle impulses, optional hold-open / disable GAs, safety photocell feedback and automatic re-close. The node can emit movement and obstruction indicators as well as structured events for the flow.</p>
+
+**Command group addresses**
+
+|Property|Description|
+|--|--|
+| Command GA (true=open, false=close) | Boolean GA (`gaCommand`) where `true` opens and `false` closes. Default DPT 1.001. |
+| Impulse GA | Rising edge toggles the door (`gaImpulse`, default DPT 1.017). Used automatically when no direct command GA is provided. |
+| Hold-open GA | Keeps the door open and cancels auto re-close while true (`gaHoldOpen`). |
+| Disable GA | Blocks any command emitted by the node (`gaDisable`). Useful during maintenance/manual mode. |
+
+**Input / sensor group addresses**
+
+|Property|Description|
+|--|--|
+| Photocell GA | Goes true when the beam is interrupted; the node reopens and flags obstruction (`gaPhotocell`). |
+| Moving GA | Optional pulse when the node commands movement so other devices can follow the motion (`gaMoving`). |
+| Obstruction GA | Mirrors the obstruction status for dashboards, alarms or logic blocks (`gaObstruction`). |
+
+**Automatic re-close**
+
+- Enable *Auto re-close* to start a countdown whenever the door becomes open.
+- Hold-open or disable cancel the timer until they return to false.
+- When the timer expires the node sends the close command (or impulse) and raises an `auto-close` event.
+
+**Safety**
+
+- A photocell true during closing immediately reopens the door and sets the obstruction flag.
+- External writes to the obstruction GA keep the internal status aligned with dashboards.
+- Movement pulses can drive ventilation, lighting or alarm routines.
+
+#### Inputs
+
+|Property|Description|
+|--|--|
+| `msg.payload` | Accepts `true`, `false`, `'open'`, `'close'` or `'toggle'` to control the door from the flow. |
+| KNX telegrams | Reacts to the configured GAs (command, impulse, hold-open, disable, photocell, moving, obstruction). |
+
+#### Flow example
+
+```javascript
+
+// Open the door
+msg.payload = 'open'; // also accepts true
+return msg;
+```
+
+```javascript
+// Close the door
+msg.payload = 'close'; // also accepts false
+return msg;
+```
+
+```javascript
+// Toggle the door state
+msg.payload = 'toggle';
+return msg;
+```
+
+#### Outputs
+
+|Property|Description|
+|--|--|
+| Events (optional) | With *Emit events* enabled the node outputs objects containing `event`, `state`, `disabled`, `holdOpen` and `obstruction` so you can log or supervise the door. |
+
+<a id="knx-utility-help-scenecontroller"></a>
+
+## 场景控制
+
+### Scene Controller（场景控制器）
+
+该节点与 KNX 场景控制器一致：可以保存和召回场景。
+
+#### 节点设置
+
+| 属性 | 说明 |
+|--|--|
+| Gateway | 选择的 KNX 网关。|
+| Scene Recall | **Datapoint ** 与**Trigger Value** 。用于召回场景的组地址（如 `0/0/1`）。节点在此 GA 收到报文即召回场景。DPT 为召回 GA 的类型；Trigger Value 为触发召回所需的数值。提示：若用 DIM 方式触发，请设置正确的调光对象值（`{decr_incr:1,data:5}` 上调、`{decr_incr:0,data:5}` 下调）。|
+| Scene Save | **Datapoint ** 与**Trigger Value** 。用于保存场景的组地址（如 `0/0/2`）。节点在收到报文时，保存场景内所有设备的当前值（非易失存储）。DPT 为保存 GA 的类型；Trigger Value 触发保存（DIM 同上）。|
+| Node name | 节点名称（可写"Recall: … / Save: …”）。|
+| Topic | 节点的 topic。|
+
+#### 场景配置
+
+像真实 KNX 场景控制器一样，为场景添加设备；每行表示一个设备。
+
+一旦从总线接收到新值，节点会自动记录该场景内执行器的最新值。
+
+| 属性 | 说明 |
+|--|--|
+| ADD 按钮 | 新增一行。|
+| 行字段 | 1）组地址 2）Datapoint 3）默认场景值（可被 Scene Save 覆盖）。下方为设备名。<br/> 插入暂停：在第一列填 **wait ** ，最后一列填时长（毫秒），如 `2000`。<br/>**wait** 也支持秒/分/小时：`12s`、`5m`、`1h`。|
+| Remove | 移除该设备行。|
+
+#### 节点输出
+
+```javascript
+
+msg = {
+  topic: "Scene Controller",
+  recallscene: true|false,
+  savescene: true|false,
+  savevalue: true|false,
+  disabled: true|false
+}
+```
+
+---
+
+#### 输入消息（INPUT）
+
+节点主要依靠 KNX 报文进行场景的召回/保存；也可通过消息进行控制。可禁用来自总线的命令，仅接受流程消息。
+
+**召回场景**
+
+```javascript
+
+msg.recallscene = true; return msg;
+```
+
+**保存场景**
+
+```javascript
+
+msg.savescene = true; return msg;
+```
+
+**保存某条 GA 的当前值**
+
+虽然场景会自动跟踪执行器的数值，但在某些情况下需要以"真实场景值”记录另一条 GA（如状态而非命令）的当前值。
+
+例如卷帘：绝对高度的状态 GA 才能反映准确位置。可用该状态 GA 去更新场景内相关执行器的命令 GA。
+
+```javascript
+
+msg.savevalue = true;
+msg.topic = "0/1/1"; // GA
+msg.payload = 70; // 要保存的值
+return msg;
+```
+
+**禁用 Scene Controller**
+
+禁用来自 KNX 总线的命令（仍接受流程消息）。例如夜间不希望从实体按钮召回/保存场景时很有用。
+
+```javascript
+
+msg.disabled = true; // false 重新启用
+return msg;
+```
+
+#### 参见
+
+[Sample Scene Controller](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)
+
+<a id="knx-utility-help-loadcontrol"></a>
+
+## 负载控制
+
+### KNX负载控制节点
+
+<p>使用负载控制节点，当电流消耗超过一定阈值时，您可以自动管理负载（洗衣机，烤箱等）的断开连接。
+
+设备智能关闭，检查设备的可能消耗以确定是否与其他设备将其关闭。<br/>
+节点可以自动重新激活负载。<br/>
+该节点一次根据您选择的顺序关闭一个设备（或多个设备）。<br/>
+
+**一般的**
+
+|属性|描述|
+| - | - |
+|网关|KNX门户。也可能不选择任何网关。在这种情况下，将仅考虑输入到节点的消息。|
+|模式|选择 _自动（内部）_ 使用 Monitor W/阈值/定时器；选择 _手动（msg.shedding）_ 禁用内部逻辑，仅使用 `msg.shedding`（`shed`/`unshed`）。|
+|监视WH |小组地址代表您建筑物的总消费。|
+|限制WH |电表可以承受的最大阈值。当超过此阈值时，节点开始关闭设备。|
+|延迟关闭（S）|在几秒钟内表示，表示节点将评估消耗并关闭每个设备的频率。|
+|延迟打开（S）|在几秒钟内表示，表示节点会评估消耗的频率并打开关闭的每个设备。|
+
+<br/>
+
+**负载控制**
+
+在这里，您可以添加设备以在过载的情况下关闭。<br/>
+选择要关闭的设备。输入设备名称或其组地址。<br/>
+输入任何指示在第一行中选择的设备消耗的组地址。 **这是一个可选参数** 。如果该设备消耗的数量超过一定数量的瓦特，则意味着它正在使用。如果消耗较少，则该设备将被视为"不使用”，并且该设备将立即关闭。<br/>
+如果启用了 \*自动恢复 \*，则"重置延迟”到期时，将自动重新激活设备。
+
+#### 输入
+
+|属性|描述|
+| - | - |
+|`msg.readstatus = true` |迫使列表中每个设备的KNX总线读取值。_ **该节点本身已经完成了所有操作** _，但是如果需要，可以使用此命令强制重新阅读瓦特中当前值的重新阅读。| | |
+|`msg.enable = true` |启用负载控制。|
+|`msg.disable = true` |禁用负载控制。|
+|`msg.reset = true` |重置节点状态并重新打开所有设备。 |
+|`msg.shedding` |String。手动模式：`shed` 关闭下一路负载，`unshed` 恢复上一条；自动模式：`shed`/`unshed` 强制内部逻辑；`auto` 恢复正常监视。|
+
+#### 输出
+
+1. 标准输出
+   ：有效载荷（字符串|对象）：命令的标准输出。
+
+#### 细节
+
+```javascript
+
+msg = {
+  "topic": "Home Total Consumption", // Node Name
+  "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
+  "device": "Washing machine", // Device shedded
+  "ga": "", // Group address of the shedded device
+  "totalPowerConsumption": 3100, // Current power consumption
+  "wattLimit": 3000, // Limit you set in the config window
+  "payload": 1, // Current shedding stage
+}
+
+```
+
+### 样本
+
+\<a href =" https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl”>单击此处以获取示例</a>
+
+<br/>
+
+<a id="knx-utility-help-hatranslator"></a>
+
+## Home Assistant Translator
+
+将 Home Assistant 的文本状态转换为布尔值。此功能有一个输入和一个输出，无需 KNX 网关。
+
+选择要读取的消息属性，例如 `payload` 或 `data.new_state.state`。每行输入一条规则，格式为 `输入:true` 或 `输入:false`，例如 `on:true` 和 `off:false`。匹配不区分大小写。冒号应直接连接输入文本和布尔值。
+
+输出为原消息的副本，`msg.payload` 替换为布尔值，其他字段保留。也支持布尔及数值输入。缺失或无法识别的值不会产生输出，并在节点状态中提示。迁移旧版 Translator 会保留输入属性及自定义转换表。
+</script>

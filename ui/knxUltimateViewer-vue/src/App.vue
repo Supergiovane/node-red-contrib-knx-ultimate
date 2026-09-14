@@ -1,786 +1,351 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
+import { getLabels } from './labels'
 
+const query = new URLSearchParams(window.location.search)
+const queryNodeId = query.get('nodeId') || ''
+const queryAccessToken = query.get('access_token') || ''
+const { language, text: t } = getLabels(query.get('lang') || navigator.language)
 const nodeKey = 'knxUltimateViewer:selectedNodeId'
-const autoKey = 'knxUltimateViewer:autoRefresh'
 const searchKey = 'knxUltimateViewer:search'
+const pageSize = 200
 
-const queryNodeId = (() => {
-  try {
-    return new URLSearchParams(window.location.search).get('nodeId') || ''
-  } catch (error) {
-    return ''
-  }
-})()
+function loadString (key, fallback = '') {
+  try { return window.localStorage.getItem(key) || fallback } catch (error) { return fallback }
+}
 
-const queryAccessToken = (() => {
-  try {
-    return new URLSearchParams(window.location.search).get('access_token') || ''
-  } catch (error) {
-    return ''
-  }
-})()
+function saveString (key, value) {
+  try { window.localStorage.setItem(key, String(value || '')) } catch (error) {}
+}
 
-function readAuthTokenFromLocalStorage () {
+function readAuthToken () {
+  if (queryAccessToken.trim()) return queryAccessToken.trim()
   try {
-    if (!window.localStorage) return ''
     const candidates = []
     for (let i = 0; i < window.localStorage.length; i += 1) {
       const key = String(window.localStorage.key(i) || '')
       if (!key.startsWith('auth-tokens')) continue
-      const raw = window.localStorage.getItem(key)
-      if (!raw) continue
-      let parsed = null
       try {
-        parsed = JSON.parse(raw)
-      } catch (error) {
-        parsed = null
-      }
-      const token = parsed && typeof parsed.access_token === 'string' ? parsed.access_token.trim() : ''
-      if (!token) continue
-      const expiresAt = Number(parsed && (parsed.expires_at || parsed.expiry || parsed.expires) ? (parsed.expires_at || parsed.expiry || parsed.expires) : 0)
-      candidates.push({ token, expiresAt: Number.isFinite(expiresAt) ? expiresAt : 0 })
+        const value = JSON.parse(window.localStorage.getItem(key))
+        if (typeof value?.access_token !== 'string' || !value.access_token.trim()) continue
+        const expiry = Number(value.expires_at || value.expiry || value.expires || 0)
+        candidates.push({ token: value.access_token.trim(), expiry: Number.isFinite(expiry) ? expiry : 0 })
+      } catch (error) {}
     }
-    if (!candidates.length) return ''
-    candidates.sort((a, b) => b.expiresAt - a.expiresAt)
-    return candidates[0].token || ''
-  } catch (error) {
-    return ''
-  }
+    candidates.sort((a, b) => b.expiry - a.expiry)
+    return candidates[0]?.token || ''
+  } catch (error) { return '' }
 }
 
-const bearerAccessToken = (() => {
-  const urlToken = String(queryAccessToken || '').trim()
-  if (urlToken) return urlToken
-  return readAuthTokenFromLocalStorage()
-})()
-
-function withAuthHeaders (headersInput) {
-  const headers = Object.assign({}, headersInput || {})
-  if (bearerAccessToken && !headers.Authorization && !headers.authorization) {
-    headers.Authorization = `Bearer ${bearerAccessToken}`
-  }
-  return headers
-}
-
+const bearerAccessToken = readAuthToken()
 const state = reactive({
   nodes: [],
-  selectedNodeId: queryNodeId || loadString(nodeKey, ''),
-  autoRefresh: loadBoolean(autoKey, true),
-  search: loadString(searchKey, ''),
-  status: 'Ready',
-  loadingNodes: false,
-  loadingState: false,
+  selectedNodeId: queryNodeId || loadString(nodeKey),
+  search: loadString(searchKey),
+  live: true,
+  loading: true,
+  nodesLoaded: false,
   data: null,
   lastError: '',
-  pollHandle: null
+  before: '',
+  updatedAt: 0
 })
+let requestVersion = 0
+let requestController = null
+let pollHandle = null
+let searchHandle = null
+let mounted = false
+let stopped = false
 
-function loadString (key, fallback = '') {
-  try {
-    return window.localStorage ? (window.localStorage.getItem(key) || fallback) : fallback
-  } catch (error) {
-    return fallback
-  }
-}
-
-function loadBoolean (key, fallback) {
-  try {
-    if (!window.localStorage) return fallback
-    const raw = window.localStorage.getItem(key)
-    if (raw === null || raw === undefined || raw === '') return fallback
-    return raw === 'true'
-  } catch (error) {
-    return fallback
-  }
-}
-
-function saveString (key, value) {
-  try {
-    if (window.localStorage) window.localStorage.setItem(key, String(value ?? ''))
-  } catch (error) {}
-}
-
-function saveBoolean (key, value) {
-  try {
-    if (window.localStorage) window.localStorage.setItem(key, value ? 'true' : 'false')
-  } catch (error) {}
-}
-
-function apiUrl (tail) {
+function apiUrl (tail, parameters = {}) {
   const url = new URL(tail, window.location.href)
+  Object.entries(parameters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, String(value))
+  })
   if (queryAccessToken) url.searchParams.set('access_token', queryAccessToken)
   return url.toString()
 }
 
-function setStatus (text) {
-  state.status = String(text || '')
-}
-
-async function requestJson (url, options) {
-  const requestOptions = Object.assign({ credentials: 'same-origin' }, options || {})
-  requestOptions.headers = withAuthHeaders(requestOptions.headers)
-  const response = await fetch(url, requestOptions)
-  const contentType = String(response.headers.get('content-type') || '').toLowerCase()
-  const text = await response.text()
-  if (response.ok && contentType.includes('text/html')) {
-    throw new Error('Authentication required or insufficient permissions (session token missing or expired).')
+async function requestJson (tail, parameters, signal) {
+  const headers = bearerAccessToken ? { Authorization: `Bearer ${bearerAccessToken}` } : {}
+  const response = await fetch(apiUrl(tail, parameters), { credentials: 'same-origin', headers, signal, cache: 'no-store' })
+  if (response.status === 401 || response.status === 403 || (response.ok && String(response.headers.get('content-type')).includes('text/html'))) {
+    throw new Error(t.authError)
   }
-  let json = {}
-  try {
-    json = text ? JSON.parse(text) : {}
-  } catch (error) {
-    json = { error: text || `HTTP ${response.status}` }
-  }
-  if (!response.ok) {
-    const baseMessage = (json && json.error) ? json.error : `HTTP ${response.status}`
-    if (response.status === 401 || response.status === 403) {
-      throw new Error(`Authentication required or insufficient permissions (${response.status}).`)
-    }
-    throw new Error(baseMessage)
-  }
-  return json
-}
-
-function normalizeText (value) {
-  return String(value || '').trim()
-}
-
-function preferredNodeId (nodes) {
-  const queryPreferred = queryNodeId && nodes.find(node => node.id === queryNodeId) ? queryNodeId : ''
-  const stored = loadString(nodeKey, '')
-  const storedPreferred = stored && nodes.find(node => node.id === stored) ? stored : ''
-  return queryPreferred || storedPreferred || (nodes[0] ? nodes[0].id : '')
-}
-
-async function fetchNodes ({ preserveSelection = true } = {}) {
-  state.loadingNodes = true
-  try {
-    const data = await requestJson(apiUrl('nodes'))
-    const nextNodes = Array.isArray(data && data.nodes) ? data.nodes : []
-    state.nodes = nextNodes
-    if (!preserveSelection || !state.selectedNodeId || !nextNodes.find(node => node.id === state.selectedNodeId)) {
-      state.selectedNodeId = preferredNodeId(nextNodes)
-    }
-  } finally {
-    state.loadingNodes = false
-  }
-}
-
-async function fetchState () {
-  if (!state.selectedNodeId) {
-    state.data = null
-    state.lastError = 'No KNX Viewer node available.'
-    setStatus('No viewer nodes')
-    return
-  }
-  state.loadingState = true
-  state.lastError = ''
-  setStatus('Refreshing KNX Viewer...')
-  try {
-    const data = await requestJson(apiUrl(`state?nodeId=${encodeURIComponent(state.selectedNodeId)}`))
-    state.data = data
-    setStatus('Live state loaded')
-  } catch (error) {
-    state.lastError = error.message || String(error)
-    setStatus('Unable to load state')
-  } finally {
-    state.loadingState = false
-  }
+  let result
+  try { result = await response.json() } catch (error) { throw new Error(t.responseError) }
+  if (!response.ok) throw new Error(typeof result?.error === 'string' ? result.error : t.requestError)
+  return result
 }
 
 function clearPolling () {
-  if (state.pollHandle) {
-    clearInterval(state.pollHandle)
-    state.pollHandle = null
-  }
+  clearTimeout(pollHandle)
+  pollHandle = null
+}
+
+function cancelRequest () {
+  requestVersion += 1
+  requestController?.abort()
+  requestController = null
+  state.loading = false
+  clearPolling()
 }
 
 function schedulePolling () {
   clearPolling()
-  if (!state.autoRefresh) return
-  state.pollHandle = setInterval(() => {
-    fetchState().catch(() => {})
-  }, 3000)
+  if (!stopped && state.live && state.nodesLoaded && state.selectedNodeId) {
+    pollHandle = setTimeout(() => { loadHistory() }, 2000)
+  }
 }
 
-async function refreshNow () {
-  await fetchNodes({ preserveSelection: true })
-  await fetchState()
+async function loadHistory () {
+  if (stopped || !state.selectedNodeId) return
+  cancelRequest()
+  const version = requestVersion
+  const controller = new AbortController()
+  requestController = controller
+  state.loading = true
+  try {
+    const data = await requestJson('history', {
+      nodeId: state.selectedNodeId,
+      limit: pageSize,
+      before: state.before,
+      search: state.search.trim()
+    }, controller.signal)
+    if (stopped || version !== requestVersion) return
+    if (!Array.isArray(data?.entries)) throw new Error(t.responseError)
+    state.data = { ...data, entries: data.entries.slice(0, pageSize) }
+    state.lastError = ''
+    state.updatedAt = Date.now()
+  } catch (error) {
+    if (stopped || version !== requestVersion || error.name === 'AbortError') return
+    state.lastError = error.message || t.requestError
+  } finally {
+    if (!stopped && version === requestVersion) {
+      state.loading = false
+      requestController = null
+      schedulePolling()
+    }
+  }
 }
 
-function formatAge (value) {
-  const ts = Number(value || 0)
-  if (!Number.isFinite(ts) || ts <= 0) return 'n/a'
-  const diff = Math.max(0, Date.now() - ts)
-  if (diff < 15000) return 'just now'
-  if (diff < 60000) return `${Math.round(diff / 1000)}s ago`
-  if (diff < 3600000) return `${Math.round(diff / 60000)}m ago`
-  return `${Math.round(diff / 3600000)}h ago`
+async function loadNodes () {
+  cancelRequest()
+  const version = requestVersion
+  const controller = new AbortController()
+  requestController = controller
+  state.loading = true
+  try {
+    const result = await requestJson('nodes', {}, controller.signal)
+    if (stopped || version !== requestVersion) return false
+    if (!Array.isArray(result?.nodes)) throw new Error(t.responseError)
+    state.nodes = result.nodes
+    state.nodesLoaded = true
+    if (state.selectedNodeId && !state.nodes.some(node => node.id === state.selectedNodeId)) {
+      if (queryNodeId) {
+        state.lastError = t.unknownViewer
+        return false
+      }
+      state.selectedNodeId = ''
+    }
+    if (!state.selectedNodeId) state.selectedNodeId = state.nodes[0]?.id || ''
+    state.lastError = state.selectedNodeId ? '' : t.noViewers
+    return Boolean(state.selectedNodeId)
+  } catch (error) {
+    if (!stopped && version === requestVersion && error.name !== 'AbortError') state.lastError = error.message || t.requestError
+    return false
+  } finally {
+    if (!stopped && version === requestVersion) {
+      state.loading = false
+      requestController = null
+    }
+  }
 }
+
+function resetPage () {
+  state.before = ''
+  state.data = null
+  state.updatedAt = 0
+  state.lastError = ''
+}
+
+async function retry () {
+  if (!state.nodesLoaded || !state.nodes.some(node => node.id === state.selectedNodeId)) {
+    mounted = false
+    const available = await loadNodes()
+    mounted = true
+    if (!available) return
+  }
+  await loadHistory()
+}
+
+function toggleLive () {
+  clearTimeout(searchHandle)
+  cancelRequest()
+  state.live = !state.live
+  if (state.live) {
+    state.before = ''
+    loadHistory()
+  }
+}
+
+function showNewest () {
+  cancelRequest()
+  state.before = ''
+  loadHistory()
+}
+
+function showOlder () {
+  const cursor = state.data?.nextCursor
+  if (!cursor || !state.data?.hasMore) return
+  cancelRequest()
+  state.live = false
+  state.before = cursor
+  loadHistory()
+}
+
+const viewerNode = computed(() => state.data?.node || state.nodes.find(node => node.id === state.selectedNodeId) || {})
+const entries = computed(() => state.data?.entries || [])
+const status = computed(() => state.lastError ? t.offline : state.live ? t.live : t.paused)
+const storageError = computed(() => state.data?.storageError || '')
+const clockFormatter = new Intl.DateTimeFormat(language, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3, hour12: false })
 
 function formatClock (value) {
-  if (!value) return 'n/a'
   const date = new Date(value)
-  if (!Number.isFinite(date.getTime())) return 'n/a'
-  return date.toLocaleString()
+  return Number.isFinite(date.getTime()) ? clockFormatter.format(date) : '—'
 }
 
-const viewerNode = computed(() => state.data && state.data.node ? state.data.node : {})
-const summary = computed(() => state.data && state.data.summary ? state.data.summary : {})
-const items = computed(() => Array.isArray(state.data && state.data.items) ? state.data.items : [])
-const filteredItems = computed(() => {
-  const search = normalizeText(state.search).toLowerCase()
-  if (!search) return items.value
-  return items.value.filter((item) => {
-    const haystack = `${item.address || ''} ${item.devicename || ''} ${item.dpt || ''}`.toLowerCase()
-    return haystack.includes(search)
-  })
-})
-const lightItems = computed(() => filteredItems.value.filter(item => item.kind === 'light'))
-const dimmerItems = computed(() => filteredItems.value.filter(item => item.kind === 'dimmer'))
-const otherItems = computed(() => filteredItems.value.filter(item => item.kind === 'other').slice(0, 12))
+function timestamp (entry) { return entry.timestampMs ?? entry.timestamp }
+function timestampIso (entry) {
+  const date = new Date(timestamp(entry))
+  return Number.isFinite(date.getTime()) ? date.toISOString() : undefined
+}
+function telegramType (entry) {
+  const event = String(entry.event || '').trim()
+  const types = { groupvalue_read: 'Read', groupvalue_write: 'Write', groupvalue_response: 'Response', update_nowrite: 'Update' }
+  return types[event.toLowerCase()] || event.replace(/_/g, ' ') || '—'
+}
+function isRead (entry) { return telegramType(entry).toLowerCase() === 'read' }
+function payloadText (entry) {
+  if (isRead(entry)) return '—'
+  const text = entry.payloadText ?? (typeof entry.payload === 'object' ? JSON.stringify(entry.payload) : entry.payload)
+  return text === undefined || text === null || text === '' ? '—' : String(text)
+}
 
-watch(() => state.selectedNodeId, async (value, oldValue) => {
-  saveString(nodeKey, value || '')
-  if (!value || value === oldValue) return
-  await fetchState()
+watch(() => state.selectedNodeId, () => {
+  saveString(nodeKey, state.selectedNodeId)
+  if (!mounted) return
+  clearTimeout(searchHandle)
+  cancelRequest()
+  resetPage()
+  if (state.selectedNodeId) loadHistory()
 })
 
-watch(() => state.autoRefresh, (value) => {
-  saveBoolean(autoKey, value)
-  schedulePolling()
-})
-
-watch(() => state.search, (value) => {
-  saveString(searchKey, value || '')
+watch(() => state.search, () => {
+  saveString(searchKey, state.search)
+  if (!mounted) return
+  clearTimeout(searchHandle)
+  cancelRequest()
+  resetPage()
+  searchHandle = setTimeout(() => { loadHistory() }, 300)
 })
 
 onMounted(async () => {
-  await fetchNodes({ preserveSelection: false })
-  await fetchState()
-  schedulePolling()
+  document.documentElement.lang = language
+  document.title = t.title
+  const available = await loadNodes()
+  // Flush selection watchers before enabling user-driven requests.
+  await Promise.resolve()
+  mounted = true
+  if (available && !stopped) await loadHistory()
 })
 
 onBeforeUnmount(() => {
-  clearPolling()
+  stopped = true
+  mounted = false
+  clearTimeout(searchHandle)
+  cancelRequest()
 })
 </script>
 
 <template>
-  <div class="page-shell">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">KNX Viewer Web</p>
-        <h1>{{ viewerNode.name || 'KNX Viewer' }}</h1>
-        <p class="subhead">
-          Live lights and dimmer values collected by the KNX Viewer node. The visual language stays aligned with Cerebrum Ultimate, but focused on field states.
-        </p>
+  <main class="viewer">
+    <header class="heading">
+      <div class="heading-title">
+        <h1>{{ t.title }}</h1>
+        <span class="viewer-name">{{ viewerNode.name || '' }}</span>
+        <span v-if="viewerNode.gatewayName" class="gateway-name">{{ viewerNode.gatewayName }}</span>
       </div>
-
-      <div class="toolbar">
-        <select v-model="state.selectedNodeId" class="node-select">
-          <option value="" disabled>Select KNX Viewer</option>
-          <option v-for="node in state.nodes" :key="node.id" :value="node.id">
-            {{ `${node.name || 'KNXViewer'}${node.gatewayName ? ` | ${node.gatewayName}` : ''}` }}
-          </option>
-        </select>
-        <label class="checkbox">
-          <input v-model="state.autoRefresh" type="checkbox">
-          <span>Auto refresh</span>
-        </label>
-        <button class="secondary-button" type="button" :disabled="state.loadingState || state.loadingNodes" @click="refreshNow">
-          Refresh
-        </button>
-      </div>
-
-      <div class="statusbar">
-        <span class="status-pill" :class="state.lastError ? 'status-error' : 'status-ok'">
-          {{ state.lastError || state.status }}
-        </span>
-        <div class="pill-row">
-          <span class="pill neutral">Gateway {{ viewerNode.gatewayName || 'n/a' }}</span>
-          <span class="pill success">Lights on {{ summary.lightOnCount || 0 }}</span>
-          <span class="pill neutral">Lights off {{ summary.lightOffCount || 0 }}</span>
-          <span class="pill warn">Avg dimmer {{ summary.averageDimmerLevel || 0 }}%</span>
-        </div>
-      </div>
+      <p>{{ t.subtitle }} <span class="separator" aria-hidden="true">·</span> <span>{{ t.history }}</span></p>
     </header>
 
-    <section class="metric-grid">
-      <article class="metric-card">
-        <span class="metric-label">Detected lights</span>
-        <strong>{{ summary.lightCount || 0 }}</strong>
-        <p>Boolean-style KNX values currently visible to this Viewer node.</p>
-      </article>
-      <article class="metric-card">
-        <span class="metric-label">Detected dimmers</span>
-        <strong>{{ summary.dimmerCount || 0 }}</strong>
-        <p>5.001-like level values rendered as dimmer cards.</p>
-      </article>
-      <article class="metric-card">
-        <span class="metric-label">Known group addresses</span>
-        <strong>{{ summary.totalItems || 0 }}</strong>
-        <p>Total KNX group addresses seen by the Viewer in this runtime session.</p>
-      </article>
-      <article class="metric-card">
-        <span class="metric-label">Last KNX update</span>
-        <strong>{{ formatClock(summary.lastUpdate) }}</strong>
-        <p>Most recent telegram reflected in this web page.</p>
-      </article>
+    <div class="toolbar">
+      <label v-if="state.nodes.length > 1" class="viewer-picker">
+        <span class="visually-hidden">{{ t.viewer }}</span>
+        <select v-model="state.selectedNodeId" :aria-label="t.viewer">
+          <option v-if="!state.nodes.some(node => node.id === state.selectedNodeId)" :value="state.selectedNodeId" disabled>{{ state.selectedNodeId }}</option>
+          <option v-for="node in state.nodes" :key="node.id" :value="node.id">{{ node.name || node.id }}{{ node.gatewayName ? ` · ${node.gatewayName}` : '' }}</option>
+        </select>
+      </label>
+      <div class="search-field">
+        <svg aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m12.5 12.5 4 4" /></svg>
+        <input v-model="state.search" type="search" :aria-label="t.search" :placeholder="t.search" autocomplete="off" spellcheck="false">
+      </div>
+      <span class="live-status" :class="{ paused: !state.live, offline: state.lastError }" role="status"><span aria-hidden="true" />{{ status }}</span>
+      <button class="live-button" type="button" :aria-pressed="!state.live" :disabled="!state.nodes.some(node => node.id === state.selectedNodeId)" @click="toggleLive">
+        <svg v-if="state.live" aria-hidden="true" viewBox="0 0 16 16"><path d="M5 3v10M11 3v10" /></svg>
+        <svg v-else aria-hidden="true" viewBox="0 0 16 16"><path d="m5 3 7 5-7 5Z" /></svg>
+        {{ state.live ? t.pause : t.resume }}
+      </button>
+    </div>
+
+    <div v-if="state.lastError" class="notice error-notice" role="alert">
+      <span>{{ state.lastError }}</span>
+      <button type="button" :disabled="state.loading" @click="retry">{{ t.retry }}</button>
+    </div>
+    <div v-if="storageError" class="notice storage-notice" role="alert">{{ t.storageError }} <span>{{ storageError }}</span></div>
+
+    <section class="monitor" :aria-label="t.table" :aria-busy="state.loading">
+      <div class="table-scroll" tabindex="0" :aria-label="t.table">
+        <table>
+          <caption class="visually-hidden">{{ t.table }}</caption>
+          <thead>
+            <tr><th scope="col" class="time-column">{{ t.time }}</th><th scope="col" class="type-column">{{ t.telegramType }}</th><th scope="col" class="source-column">{{ t.source }}</th><th scope="col" class="address-column">{{ t.address }}</th><th scope="col" class="name-column">{{ t.name }}</th><th scope="col" class="dpt-column">{{ t.dpt }}</th><th scope="col" class="value-column">{{ t.previous }}</th><th scope="col" class="value-column">{{ t.value }}</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="entry in entries" :key="entry.id">
+              <td class="time-cell"><time :datetime="timestampIso(entry)">{{ formatClock(timestamp(entry)) }}</time></td>
+              <td class="type-cell" :title="entry.event || undefined">{{ telegramType(entry) }}</td>
+              <td class="mono">{{ entry.source || '—' }}</td>
+              <td class="mono address-cell">{{ entry.address || '—' }}</td>
+              <td class="name-cell">{{ entry.devicename || '—' }}</td>
+              <td class="mono">{{ entry.dpt || '—' }}</td>
+              <td class="payload-cell previous-cell" :title="!isRead(entry) && entry.previousPayloadText == null ? t.firstValue : undefined">{{ isRead(entry) ? '—' : entry.previousPayloadText ?? '—' }}</td>
+              <td class="payload-cell current-cell">{{ payloadText(entry) }}<span v-if="!isRead(entry) && entry.payloadmeasureunit" class="unit"> {{ entry.payloadmeasureunit }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-if="!entries.length" class="empty-state" role="status">
+          <p v-if="state.loading">{{ t.loadingHistory }}</p>
+          <template v-else-if="!state.lastError">
+            <p>{{ state.search.trim() ? t.emptySearch : t.empty }}</p>
+            <span v-if="!state.search.trim()">{{ t.emptyHint }}</span>
+          </template>
+          <p v-else>{{ t.requestError }}</p>
+        </div>
+      </div>
+      <footer class="table-footer">
+        <span class="row-count">{{ entries.length }} {{ t.rows }}<span v-if="state.before" class="history-tag"> · {{ t.historical }}</span></span>
+        <nav class="pagination" :aria-label="t.history">
+          <button type="button" :disabled="!state.before || state.loading" @click="showNewest">{{ t.newest }}</button>
+          <button type="button" :disabled="!state.data?.hasMore || !state.data?.nextCursor || state.loading" @click="showOlder">{{ t.older }}</button>
+        </nav>
+      </footer>
     </section>
 
-    <section class="card">
-      <div class="card-head">
-        <h2>Lights</h2>
-        <span class="meta-chip">{{ lightItems.length }} visible</span>
-      </div>
-      <div class="section-tools">
-        <input v-model="state.search" class="search-input" type="text" placeholder="Search GA, label or DPT">
-        <p class="section-note">Rendering is based on the live values currently exposed by KNX Viewer.</p>
-      </div>
-      <div v-if="lightItems.length" class="lights-grid">
-        <article v-for="item in lightItems" :key="item.address" class="tile-card light-card" :class="{ 'is-on': item.isOn, 'is-off': !item.isOn }">
-          <div class="tile-head">
-            <div class="light-badge">
-              <span class="light-badge-core" />
-            </div>
-            <span class="meta-chip">{{ item.address }}</span>
-          </div>
-          <h3>{{ item.devicename || item.address }}</h3>
-          <p class="tile-meta">{{ item.dpt || 'no dpt' }}</p>
-          <div class="tile-stats">
-            <span class="pill" :class="item.isOn ? 'success' : 'neutral'">{{ item.isOn ? 'ON' : 'OFF' }}</span>
-            <span class="pill neutral">Updated {{ formatAge(item.lastUpdateMs) }}</span>
-          </div>
-        </article>
-      </div>
-      <p v-else class="empty-state">No boolean light-style values detected yet.</p>
-    </section>
-
-    <section class="card">
-      <div class="card-head">
-        <h2>Dimmers</h2>
-        <span class="meta-chip">{{ dimmerItems.length }} visible</span>
-      </div>
-      <div v-if="dimmerItems.length" class="dimmer-grid">
-        <article v-for="item in dimmerItems" :key="item.address" class="tile-card dimmer-card" :class="{ 'is-active': Number(item.level || 0) > 0 }">
-          <div class="tile-head">
-            <span class="meta-chip">{{ item.address }}</span>
-            <span class="pill warn">{{ item.level || 0 }}%</span>
-          </div>
-          <h3>{{ item.devicename || item.address }}</h3>
-          <p class="tile-meta">{{ item.dpt || 'no dpt' }}</p>
-          <div class="dimmer-track">
-            <span class="dimmer-fill" :style="{ width: `${item.level || 0}%` }" />
-          </div>
-          <div class="tile-stats">
-            <span class="pill neutral">Updated {{ formatAge(item.lastUpdateMs) }}</span>
-            <span class="pill" :class="Number(item.level || 0) > 0 ? 'success' : 'neutral'">
-              {{ Number(item.level || 0) > 0 ? 'ACTIVE' : 'IDLE' }}
-            </span>
-          </div>
-        </article>
-      </div>
-      <p v-else class="empty-state">No dimmer values detected yet.</p>
-    </section>
-
-    <section class="card">
-      <div class="card-head">
-        <h2>Recent KNX Values</h2>
-        <span class="meta-chip">{{ otherItems.length }} preview</span>
-      </div>
-      <div v-if="otherItems.length" class="other-list">
-        <article v-for="item in otherItems" :key="item.address" class="other-row">
-          <div>
-            <strong>{{ item.devicename || item.address }}</strong>
-            <p>{{ item.address }}{{ item.dpt ? ` | ${item.dpt}` : '' }}</p>
-          </div>
-          <div class="other-side">
-            <span class="pill neutral">{{ item.payloadText || '-' }}</span>
-            <span class="pill neutral">{{ formatAge(item.lastUpdateMs) }}</span>
-          </div>
-        </article>
-      </div>
-      <p v-else class="empty-state">No additional KNX values available for preview.</p>
-    </section>
-  </div>
+    <footer class="page-footer">
+      <span>{{ t.retained }}</span>
+      <span v-if="state.updatedAt" class="updated-at">{{ t.updated }} {{ formatClock(state.updatedAt) }}</span>
+    </footer>
+  </main>
 </template>
-
-<style>
-.page-shell {
-  width: min(100% - 32px, 1440px);
-  margin: 16px auto 28px;
-}
-
-.topbar,
-.card,
-.metric-card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: var(--shadow);
-}
-
-.topbar,
-.card {
-  border-radius: 28px;
-  padding: 22px;
-}
-
-.topbar {
-  margin-bottom: 16px;
-}
-
-.eyebrow {
-  margin: 0;
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-h1,
-h2,
-h3,
-p {
-  margin: 0;
-}
-
-h1 {
-  margin-top: 8px;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.05;
-}
-
-.subhead {
-  max-width: 860px;
-  margin: 10px 0 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.toolbar,
-.statusbar,
-.pill-row,
-.tile-stats,
-.section-tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.toolbar {
-  margin-top: 18px;
-}
-
-.statusbar {
-  justify-content: space-between;
-  margin-top: 14px;
-}
-
-.node-select,
-.checkbox,
-.search-input,
-.secondary-button,
-.tile-card,
-.other-row {
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.88);
-}
-
-.node-select,
-.search-input {
-  padding: 10px 12px;
-  color: var(--text);
-}
-
-.node-select {
-  min-width: min(420px, 100%);
-}
-
-.checkbox {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  padding: 10px 12px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.secondary-button {
-  padding: 10px 14px;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.secondary-button:hover {
-  background: var(--accent-soft);
-  border-color: rgba(122, 104, 216, 0.4);
-}
-
-.secondary-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.status-pill,
-.meta-chip,
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.status-ok,
-.pill.success {
-  background: var(--ok-bg);
-  color: #23753c;
-}
-
-.status-error {
-  background: var(--err-bg);
-  color: #ae2f3b;
-}
-
-.pill.neutral,
-.meta-chip {
-  background: var(--accent-soft);
-  color: var(--muted);
-}
-
-.pill.warn {
-  background: var(--warn-bg);
-  color: #9c6110;
-}
-
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 16px;
-}
-
-.metric-card {
-  border-radius: 22px;
-  padding: 18px;
-}
-
-.metric-label {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.metric-card strong {
-  display: block;
-  margin-top: 12px;
-  font-size: 28px;
-  line-height: 1;
-}
-
-.metric-card p {
-  margin-top: 10px;
-  color: var(--muted);
-  line-height: 1.45;
-  font-size: 13px;
-}
-
-.card {
-  margin-bottom: 16px;
-}
-
-.card-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 14px;
-}
-
-.section-tools {
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.search-input {
-  min-width: min(360px, 100%);
-}
-
-.section-note,
-.tile-meta,
-.empty-state,
-.other-row p {
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-.lights-grid,
-.dimmer-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 14px;
-}
-
-.tile-card {
-  padding: 16px;
-}
-
-.tile-card h3 {
-  margin-top: 12px;
-  font-size: 18px;
-  line-height: 1.2;
-}
-
-.tile-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-}
-
-.tile-meta {
-  margin-top: 8px;
-  font-size: 13px;
-}
-
-.tile-stats {
-  margin-top: 14px;
-}
-
-.light-card.is-on {
-  background:
-    radial-gradient(circle at top center, rgba(255, 229, 96, 0.48), transparent 42%),
-    linear-gradient(180deg, rgba(255, 248, 189, 0.99) 0%, rgba(255, 234, 132, 0.97) 100%);
-  border-color: rgba(217, 154, 52, 0.7);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 18px 42px rgba(240, 195, 60, 0.18);
-}
-
-.light-card.is-off {
-  background: linear-gradient(180deg, rgba(248, 245, 255, 0.98) 0%, rgba(240, 236, 251, 0.94) 100%);
-}
-
-.light-badge {
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(98, 87, 142, 0.16);
-}
-
-.light-card.is-on .light-badge {
-  background: linear-gradient(180deg, rgba(255, 251, 220, 0.95) 0%, rgba(255, 241, 170, 0.98) 100%);
-  border-color: rgba(217, 154, 52, 0.5);
-}
-
-.light-badge-core {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: #9da0b6;
-  box-shadow: 0 0 0 6px rgba(157, 160, 182, 0.18);
-}
-
-.light-card.is-on .light-badge-core {
-  width: 24px;
-  height: 24px;
-  background: #ffcf2e;
-  box-shadow:
-    0 0 0 10px rgba(255, 207, 46, 0.28),
-    0 0 18px rgba(255, 207, 46, 0.55),
-    0 0 38px rgba(255, 207, 46, 0.4);
-}
-
-.dimmer-card.is-active {
-  background: linear-gradient(180deg, rgba(255, 251, 227, 0.98) 0%, rgba(255, 245, 200, 0.94) 100%);
-  border-color: rgba(217, 154, 52, 0.35);
-}
-
-.dimmer-track {
-  height: 14px;
-  margin-top: 16px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(122, 104, 216, 0.12);
-}
-
-.dimmer-fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #f0c33c 0%, #ffde73 45%, #7a68d8 100%);
-}
-
-.other-list {
-  display: grid;
-  gap: 10px;
-}
-
-.other-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  align-items: center;
-  padding: 14px 16px;
-}
-
-.other-side {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-@media (max-width: 1080px) {
-  .metric-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .page-shell {
-    width: min(100% - 16px, 1440px);
-    margin-top: 8px;
-  }
-
-  .topbar,
-  .card {
-    padding: 16px;
-    border-radius: 22px;
-  }
-
-  .metric-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .statusbar,
-  .section-tools,
-  .other-row {
-    align-items: flex-start;
-  }
-
-  .other-row {
-    flex-direction: column;
-  }
-
-  .other-side {
-    justify-content: flex-start;
-  }
-}
-</style>

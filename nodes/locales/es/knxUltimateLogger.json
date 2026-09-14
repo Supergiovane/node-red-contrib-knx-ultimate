@@ -1,6 +1,6 @@
 {
   "knxUltimateLogger": {
-    "paletteLabel": "Logger KNX",
+    "paletteLabel": "Logger KNX (deprecated)",
     "title": "Logger KNX para ETS",
     "properties": {
       "node-input-server": "Puerta",
@@ -23,6 +23,9 @@
         "emit": "Emitir solo el payload",
         "emit_save": "Emitir el payload y guardar en archivo"
       }
-    }
+    },
+    "legacy_notice": "Este nodo está obsoleto y sigue siendo compatible con los flujos existentes. Usa KNX Utility para los nuevos flujos. El botón siguiente convierte todas las utilidades KNX antiguas compatibles en todos los flujos y subflujos.",
+    "migration_button": "Convertir todos los nodos KNX antiguos compatibles",
+    "migration_button_title": "Convertir en KNX Utility todas las instancias de utilidades KNX antiguas compatibles en todos los flujos y subflujos del editor"
   }
 }

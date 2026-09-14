@@ -4,6 +4,10 @@ title: "WatchDog-Configuration"
 lang: es
 permalink: /wiki/es-WatchDog-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Este nodo dedicado sigue siendo compatible con los flujos existentes. Para los nuevos flujos usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/es-KNX-Utility) y selecciona **WatchDog**. Su editor convierte todas las utilidades antiguas compatibles en todos los flujos y subflujos, con una sola operación Deshacer y Deploy manual.
+
 Verifica la conexión a la puerta de enlace o a un dispositivo KNX específico 
 
 # Watchdog

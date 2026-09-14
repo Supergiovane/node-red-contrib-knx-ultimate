@@ -4,6 +4,10 @@ title: "WatchDog-Configuration"
 lang: it
 permalink: /wiki/it-WatchDog-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **WatchDog**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+
 # WatchDog
 
 Controlla la connessione al Gateway o a uno specifico dispositivo KNX e consente azioni automatiche in caso di problemi.

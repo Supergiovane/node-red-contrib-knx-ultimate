@@ -4,6 +4,10 @@ title: "SceneController-Configuration"
 lang: fr
 permalink: /wiki/fr-SceneController-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Scene Controller**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 Le nœud de contrôle de la scène, se comporte exactement comme un périphérique de contrôleur de scène.Il est capable d'économiser et de rappeler une scène. 
 
 # Paramètres de nœud de contrôleur de scène

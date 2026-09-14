@@ -4,6 +4,10 @@ title: "WatchDog-Configuration"
 lang: de
 permalink: /wiki/de-WatchDog-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **WatchDog**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # WatchDog
 
 Überwacht die Verbindung zum Gateway oder zu einem bestimmten KNX-Gerät und ermöglicht automatische Maßnahmen bei Störungen.

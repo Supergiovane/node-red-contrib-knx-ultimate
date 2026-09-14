@@ -1,0 +1,30 @@
+{
+  "knxUltimateDateTime": {
+    "title": "Date/Time",
+    "paletteLabel": "DateTime",
+    "node-input-server": "KNX Gateway",
+    "node-input-name": "Name",
+    "node-input-outputtopic": "Topic for node output",
+    "section_addresses": "Group addresses",
+    "gaDateTime": "DateTime GA (DPT 19.001)",
+    "gaDate": "Date GA (DPT 11.001)",
+    "gaTime": "Time GA (DPT 10.001)",
+    "section_send": "Send options",
+    "node-input-sendOnDeploy": "Send on deploy/startup",
+    "node-input-sendOnDeployDelay": "Startup delay (seconds)",
+    "node-input-periodicSend": "Periodic send",
+    "node-input-periodicSendInterval": "Interval",
+    "unit_seconds": "Seconds",
+    "unit_minutes": "Minutes",
+    "notifySent": "Sent to KNX",
+    "notifyQueued": "Queued (gateway not connected yet)",
+    "placeholders": {
+      "outputtopic": "Optional output topic",
+      "ga": "e.g. 1/7/1",
+      "nameDateTime": "Optional ETS device name",
+      "nameDate": "Optional ETS device name",
+      "nameTime": "Optional ETS device name"
+    }
+  }
+}
+

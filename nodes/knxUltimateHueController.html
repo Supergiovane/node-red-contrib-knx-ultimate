@@ -3,6 +3,7 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerEditorSelection.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerProfiles.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigration.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/flowMigrationBackup.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigrationDialog.js"></script>
 
 <script type="text/javascript">
@@ -1067,11 +1068,9 @@ The controller supports lights and grouped lights, plugs, buttons, Tap dial, mot
 
 ## Convert a legacy HUE flow
 
-Use **Convert legacy HUE flow**, paste a complete Node-RED flow export, and press **Convert**. The conversion runs only in the browser: it does not inspect or modify the open flow. The returned JSON replaces every supported legacy HUE node with HUE Controller while preserving IDs, configuration references, properties, positions, and wires. Copy the result and import it into Node-RED, preferably as a new flow for comparison before removing the original.
+Use **Convert legacy HUE flow** in HUE Controller or the conversion button in a legacy HUE editor. After confirmation, the browser automatically starts downloading a dated JSON backup of all current editor flows, including tabs, subflows, configuration nodes, groups and wires. The backup uses the standard Node-RED export format and excludes declared credentials. Your browser may ask where to save the file. If the backup cannot be created or its download cannot be started, no nodes are converted.
 
-Node-RED intentionally excludes credentials from flow exports. When importing into the same Node-RED installation, keep **Reuse existing Hue and KNX config nodes** selected: referenced `hue-config` and `knxUltimate-config` objects are omitted from the converted JSON, while their IDs remain on the converted nodes so the existing configurations retain their keys and passwords. Clear the option only for a different installation, where credentials must be entered again after import.
-
-**Copy converted flow** uses the browser Clipboard API and falls back to a temporary selected textarea when direct clipboard access is unavailable. If the browser blocks both methods, the output JSON is selected so it can be copied manually.
+The current editor then closes and discards unsaved form edits. Conversion runs locally in the editor and preserves node IDs, settings, configuration references, positions, groups and wiring. A single Undo restores the original nodes. Review the converted flows and click **Deploy** yourself; conversion does not deploy automatically.
 
 ## Compatibility and loop protection
 

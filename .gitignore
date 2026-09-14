@@ -18,6 +18,9 @@ scripts/*
 !scripts/publish-and-refresh.js
 !scripts/hue-controller-profiles/
 !scripts/hue-controller-profiles/**
+!scripts/generate-knx-utility-profiles.js
+!scripts/knx-utility-profiles/
+!scripts/knx-utility-profiles/**
 
 # Live integration test secrets & local state (NEVER commit real IPs/tokens/passwords)
 flows_cred.json
@@ -37,3 +40,11 @@ test/*
 !test/knxUltimateWatchDog.test.js
 !test/knxUltimateIoTBridge.test.js
 !test/knxFunctionAutocomplete.test.js
+!test/knxUtilityRuntime.test.js
+!test/knxUtilityProfiles.test.js
+!test/knxUtilityMigration.test.js
+!test/knxUtilityEditor.test.js
+!test/knxViewerHistory.test.js
+!test/knxViewerRuntime.test.js
+!test/flowMigrationBackup.test.js
+!test/hueMigrationBackup.test.js

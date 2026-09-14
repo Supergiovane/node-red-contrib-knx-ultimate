@@ -4,6 +4,12 @@ title: "HATranslator"
 lang: de
 permalink: /wiki/de-HATranslator
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **Home Assistant Translator**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
+Home Assistant Translator hat einen Eingang und einen Ausgang und benötigt kein KNX-Gateway. Wählen Sie die zu übersetzende Nachrichteneigenschaft (etwa `payload` oder `data.new_state.state`) und bearbeiten Sie die Zuordnungen `Quelle:true` / `Quelle:false`, zum Beispiel `open:true` und `closed:false`. Der übersetzte boolesche Wert wird in `msg.payload` ausgegeben. Verbinden Sie den Ausgang mit KNX Device, wenn ein Schreiben auf den Bus erforderlich ist.
+
 Dieser Knoten übersetzt das Eingabe -MSG in gültige wahre/falsche Werte. 
 
 Es kann eine Eingangsnutzlast auf einen wahren /falschen booleschen Werte umsetzen. 

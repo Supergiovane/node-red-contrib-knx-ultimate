@@ -1,8 +1,7 @@
 {
     "knxUltimateWatchDog": {
-        "paletteLabel": "WatchDog KNX",
+        "paletteLabel": "WatchDog KNX (deprecated)",
         "title": "Watchdog",
-      
         "properties": {
             "node-input-server": "Gateway",
             "node-input-checkLevel": "Livello controllo (vedi Wiki)",
@@ -15,13 +14,14 @@
             "node-input-maxRetry": "Dopo questo numero di tentativi, segnala l'errore"
         },
         "placeholder": {
-            "monitor":"Es: 12/0/0. Per 'Solo Ethernet', usa un GA inesistente."
-
+            "monitor": "Es: 12/0/0. Per 'Solo Ethernet', usa un GA inesistente."
         },
         "selectlists": {
             "Ethernet": "Solo Ethernet unicast (predefinito), tramite ping. Funziona SOLO con interfacce IP (non con router)",
             "EthKNX": "Ethernet + KNX Twisted Pair, usando un vero dispositivo KNX esistente"
-        }
-        
+        },
+        "legacy_notice": "Questo nodo è deprecato e resta supportato nei flow esistenti. Usa KNX Utility per i nuovi flow. Il pulsante seguente converte tutti i nodi utility KNX legacy compatibili in tutti i flow e subflow.",
+        "migration_button": "Converti tutti i nodi KNX legacy compatibili",
+        "migration_button_title": "Converti in KNX Utility tutte le istanze utility KNX legacy compatibili presenti in tutti i flow e subflow dell’editor"
     }
 }

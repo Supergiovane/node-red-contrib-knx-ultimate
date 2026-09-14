@@ -1,7 +1,7 @@
 {
   "knxUltimateDateTime": {
     "title": "Date/Heure",
-    "paletteLabel": "Date/Heure",
+    "paletteLabel": "Date/Heure (deprecated)",
     "node-input-server": "Passerelle KNX",
     "node-input-name": "Nom",
     "node-input-outputtopic": "Topic de sortie du nœud",
@@ -24,7 +24,9 @@
       "nameDateTime": "Nom ETS (optionnel)",
       "nameDate": "Nom ETS (optionnel)",
       "nameTime": "Nom ETS (optionnel)"
-    }
+    },
+    "legacy_notice": "Ce nœud est obsolète et reste pris en charge dans les flux existants. Utilisez KNX Utility pour les nouveaux flux. Le bouton ci-dessous convertit tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux.",
+    "migration_button": "Convertir tous les anciens nœuds KNX compatibles",
+    "migration_button_title": "Convertir en KNX Utility toutes les instances des anciens utilitaires KNX compatibles dans tous les flux et sous-flux de l’éditeur"
   }
 }
-

@@ -4,6 +4,10 @@ title: "DateTime-Configuration"
 lang: de
 permalink: /wiki/de-DateTime-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **DateTime**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # Datum/Uhrzeit Konfiguration
 
 Der **KNX DateTime** Node schreibt das aktuelle Datum/die aktuelle Uhrzeit auf eine oder mehrere KNX-Gruppenadressen.

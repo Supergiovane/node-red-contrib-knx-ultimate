@@ -4,6 +4,10 @@ title: "Logger-Configuration"
 lang: it
 permalink: /wiki/it-Logger-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Logger**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+
 # Logger
 
 Il nodo Logger registra tutti i telegrammi e produce un file compatibile con l'XML del bus monitor ETS.

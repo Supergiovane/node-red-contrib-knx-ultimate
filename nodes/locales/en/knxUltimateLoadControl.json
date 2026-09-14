@@ -1,6 +1,6 @@
 {
     "knxUltimateLoadControl": {
-        "paletteLabel": "KNX Load Control",
+        "paletteLabel": "KNX Load Control (deprecated)",
         "title": "Load control",
         "primoaldistacco": "(this is the first to be switched off)",
         "properties": {
@@ -20,6 +20,9 @@
             "controlModeAuto": "Automatic (internal)",
             "controlModeMsg": "Manual (msg.shedding)"
         },
-        "other": {}
+        "other": {},
+        "legacy_notice": "This node is deprecated and remains supported for existing flows. Use KNX Utility for new flows. The button below converts all compatible legacy KNX utility nodes in every flow and subflow.",
+        "migration_button": "Convert all compatible legacy KNX nodes",
+        "migration_button_title": "Convert every compatible legacy KNX utility instance in all editor flows and subflows to KNX Utility"
     }
 }

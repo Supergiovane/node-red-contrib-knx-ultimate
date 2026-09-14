@@ -1,0 +1,24 @@
+{
+  "knxUltimateAlerter": {
+    "paletteLabel": "Knx alerter",
+    "title": "Nodo de alerter",
+    "properties": {
+      "node-input-server": "Puerta",
+      "node-input-name": "Nombre",
+      "node-input-timerinterval": "Intervalo entre cada MSG (en segundos)",
+      "node-input-whentostart": "Tipo de inicio del ciclo de alerta",
+      "node-input-initialread": "Valor de lectura de cada dispositivo en conexión/reconectación",
+      "node-input-initialread0": "No",
+      "node-input-initialread1": "Leer del autobús KNX",
+      "node-input-initialreadGAInRules": "Leer estados al inicio/reconexión"
+    },
+    "selectlists": {
+      "manualstart": "Inicie el ciclo de alerta manualmente a través del mensaje entrante",
+      "ifnewalert": "Inicie el ciclo de alerta con cada nuevo dispositivo alertado"
+    },
+    "other": {
+      "sceneConfig": "Dispositivos para monitorear (DPT debe ser booleano)",
+      "add": "Presione Agregar, para agregar un dispositivo"
+    }
+  }
+}

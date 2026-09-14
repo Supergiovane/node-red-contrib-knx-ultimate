@@ -1,0 +1,25 @@
+{
+  "knxUltimateWatchDog": {
+    "paletteLabel": "KNX WatchDog",
+    "title": "Watchdog",
+    "properties": {
+      "node-input-server": "Gateway",
+      "node-input-checkLevel": "Check level (siehe wiki)",
+      "node-input-topic": "Gruppenadresse monitor",
+      "node-input-name": "Name",
+      "node-input-autoStart": "Watchdog-Timer automatisch starten",
+      "node-input-listenToKnxUltimateNodeErrors": "Fehler von KNX-Ultimate-Nodes überwachen",
+      "advancedOptionsAccordion": "Erweiterte Optionen",
+      "node-input-retryInterval": "Wiederholungsintervall (in Sekunden)",
+      "node-input-maxRetry": "Anzahl der Wiederholungen, bevor ein Fehler ausgegeben wird"
+    },
+    "placeholder": {
+      "monitor": "Beispiel: 12/0/0. Bitte für 'Nur Ethernet', verwenden Sie eine nicht vorhandene Gruppenadresse."
+    },
+    "selectlists": {
+      "Ethernet": "Nur Ethernet unicast (Default) mit ping. Funktioniert NUR mit KNX Interface (kein Router)",
+      "EthKNX": "Ethernet + KNX Twisted Pair, mit einem echten KNX-Gerät"
+    },
+    "booleanHint": "Der DPT muss 1.x (Boolesch) sein"
+  }
+}

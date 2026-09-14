@@ -4,6 +4,10 @@ title: "KNXAutoResponder"
 lang: de
 permalink: /wiki/de-KNXAutoResponder
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **AutoResponder**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 Dieser Knoten antwortet auf Leseanfragen aus dem KNX -Bus.
 
 Der Knoten zeichnet alle an den KNX -Bus übertragenen Telegramme auf und speichert die Werte im Speicher.

@@ -1,8 +1,7 @@
 {
     "knxUltimateAlerter": {
-        "paletteLabel": "KNX Alerter",
+        "paletteLabel": "KNX Alerter (deprecated)",
         "title": "Alerter node",
-      
         "properties": {
             "node-input-server": "Gateway",
             "node-input-name": "Name",
@@ -20,6 +19,9 @@
         "other": {
             "sceneConfig": "Devices to monitor (DPT MUST BE BOOLEAN)",
             "add": "Press Add, to add a device"
-        }
+        },
+        "legacy_notice": "This node is deprecated and remains supported for existing flows. Use KNX Utility for new flows. The button below converts all compatible legacy KNX utility nodes in every flow and subflow.",
+        "migration_button": "Convert all compatible legacy KNX nodes",
+        "migration_button_title": "Convert every compatible legacy KNX utility instance in all editor flows and subflows to KNX Utility"
     }
 }

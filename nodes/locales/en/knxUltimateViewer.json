@@ -6,6 +6,14 @@
             "ga_dashboard": "Dashboard Group Addresses",
             "simple_array": "Simple Array Json for data recording",
             "queue": "Dashboard Telegrams queue"
-        }
+        },
+        "locale": "en",
+        "advanced": {
+            "node-input-server": "Gateway"
+        },
+        "web-monitor": "Web monitor",
+        "open-monitor": "Open KNX Viewer Monitor",
+        "open-monitor-tooltip": "Open the live group address monitor and its 24-hour history in a new tab",
+        "monitor-description": "A simple list of group address changes, with 24 hours of history saved to file. Recording continues while the page is closed or paused."
     }
 }

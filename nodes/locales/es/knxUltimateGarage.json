@@ -1,7 +1,7 @@
 {
   "knxUltimateGarage": {
     "title": "Puerta de garaje",
-    "paletteLabel": "Garaje",
+    "paletteLabel": "Garaje (deprecated)",
     "node-input-server": "Gateway KNX",
     "node-input-name": "Nombre",
     "node-input-outputtopic": "Topic para eventos",
@@ -43,6 +43,9 @@
       "events_desc": "Con la emisión de eventos el nodo produce mensajes estructurados (open, close, toggle, obstruction, disabled, hold-open, auto-close) para la lógica del flow."
     },
     "section_commands": "Direcciones de mando",
-    "section_inputs": "Direcciones de entrada/sensores"
+    "section_inputs": "Direcciones de entrada/sensores",
+    "legacy_notice": "Este nodo está obsoleto y sigue siendo compatible con los flujos existentes. Usa KNX Utility para los nuevos flujos. El botón siguiente convierte todas las utilidades KNX antiguas compatibles en todos los flujos y subflujos.",
+    "migration_button": "Convertir todos los nodos KNX antiguos compatibles",
+    "migration_button_title": "Convertir en KNX Utility todas las instancias de utilidades KNX antiguas compatibles en todos los flujos y subflujos del editor"
   }
 }

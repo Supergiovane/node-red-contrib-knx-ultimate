@@ -6,6 +6,14 @@
             "ga_dashboard": "Dashboard Gruppenadressen",
             "simple_array": "Einfache Array-JSON zur Datenaufzeichnung",
             "queue": "Dashboard Telegramm-Warteschlange"
-        }
+        },
+        "locale": "de",
+        "advanced": {
+            "node-input-server": "Gateway"
+        },
+        "web-monitor": "Webmonitor",
+        "open-monitor": "KNX Viewer Monitor öffnen",
+        "open-monitor-tooltip": "Den Gruppenadressmonitor mit dem Verlauf der letzten 24 Stunden in einem neuen Tab öffnen",
+        "monitor-description": "Eine einfache Liste der Gruppenadressänderungen mit einem in Dateien gespeicherten 24-Stunden-Verlauf. Die Aufzeichnung läuft bei geschlossener oder pausierter Seite weiter."
     }
 }

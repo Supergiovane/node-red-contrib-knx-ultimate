@@ -4,6 +4,10 @@ title: "Alerter-Configuration"
 lang: fr
 permalink: /wiki/fr-Alerter-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Alerter**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 # Configuration du nœud d'alerte
 
 Avec le nœud d'alerte, vous pouvez signaler à un affichage ou au nœud nœud-red-controst-tts-ultimate (rétroaction audio) si les périphériques sélectionnés sont alertés, c'est-à-dire qu'ils ont la charge utile **true** .

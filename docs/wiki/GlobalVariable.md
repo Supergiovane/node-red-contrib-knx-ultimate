@@ -4,6 +4,10 @@ title: "GlobalVariable"
 lang: en
 permalink: /wiki/GlobalVariable
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> This dedicated node remains compatible with existing flows. For new flows use [KNX Utility](/node-red-contrib-knx-ultimate/wiki/KNX-Utility) and select **Global Context**. Its editor provides bulk conversion of all compatible legacy utility nodes across every flow and subflow, with a single Undo and manual Deploy.
+
 # KNX GLOBAL VARIABLE
 
 This node exposes the group address received from the bus, to a **global variable** 

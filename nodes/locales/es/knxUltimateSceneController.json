@@ -1,6 +1,6 @@
 {
   "knxUltimateSceneController": {
-    "paletteLabel": "Controlador de escena KNX",
+    "paletteLabel": "Controlador de escena KNX (deprecated)",
     "title": "Controlador de escena",
     "properties": {
       "node-input-server": "Puerta",
@@ -24,6 +24,9 @@
       "notify-DPT18001": "Usted seleccionó un punto de datos de la escena. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil.",
       "notify-DPT232600": "Seleccionó un punto de datos RGB. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil.",
       "notify-DPT251600": "Seleccionó un punto de datos RGBW. Por favor, __ph_0__ haga clic aquí para ver esta muestra__ph_1__ y aprenda cómo manejar dicha carga útil."
-    }
+    },
+    "legacy_notice": "Este nodo está obsoleto y sigue siendo compatible con los flujos existentes. Usa KNX Utility para los nuevos flujos. El botón siguiente convierte todas las utilidades KNX antiguas compatibles en todos los flujos y subflujos.",
+    "migration_button": "Convertir todos los nodos KNX antiguos compatibles",
+    "migration_button_title": "Convertir en KNX Utility todas las instancias de utilidades KNX antiguas compatibles en todos los flujos y subflujos del editor"
   }
 }

@@ -1,0 +1,186 @@
+<div class="form-row">
+    <i class="fa fa-sliders"></i>
+    <label style="width:100px" for="node-input-controlMode">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-controlMode"></span>
+    </label>
+    <select style="width:40%" id="node-input-controlMode">
+        <option value="auto" data-i18n="knxUltimateLoadControl.selectlists.controlModeAuto"></option>
+        <option value="msg" data-i18n="knxUltimateLoadControl.selectlists.controlModeMsg"></option>
+    </select>
+</div>
+
+<div class="form-row knx-lc-auto-only">
+    <i class="fa fa-battery-full"></i>
+    <label style="width:100px" for="node-input-topic">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-topic"></span>
+    </label>
+    <input style="width:15%" type="text" id="node-input-topic" placeholder="Ex: 1/1/1" />
+    <select style="width:15%" id="node-input-dpt"></select>
+</div>
+
+<div class="form-row knx-lc-auto-only">
+    <i class="fa fa-exclamation"></i>
+    <label style="width:125px" for="node-input-wattLimit">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-wattLimit"></span>
+    </label>
+    <input style="width:40%" type="text" id="node-input-wattLimit" placeholder="Ex. 3000">      
+</div>
+
+<div class="form-row knx-lc-auto-only">
+    <i class="fa fa-toggle-off"></i>
+    <label style="width:125px" for="node-input-sheddingCheckInterval">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-sheddingCheckInterval"></span>
+    </label>
+    <input style="width:40%" type="text" id="node-input-sheddingCheckInterval" placeholder="">      
+</div>
+
+<div class="form-row knx-lc-auto-only">
+    <i class="fa fa-toggle-on"></i>
+    <label style="width:125px" for="node-input-sheddingRestoreDelay">
+            <span data-i18n="knxUltimateLoadControl.properties.node-input-sheddingRestoreDelay"></span>
+    </label>
+    <input style="width:40%" type="text" id="node-input-sheddingRestoreDelay" placeholder="">      
+</div>
+
+
+
+<!-- LOAD CONTROL -->
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 1</b>&nbsp;<span data-i18n="knxUltimateLoadControl.primoaldistacco"></span> <br/><br/>
+
+
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-power-off"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-GA1" placeholder="Ex: 1/1/1" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-DPT1"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-Name1" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-battery-half"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-MonitorGA1" placeholder="Optional" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-MonitorDPT1"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-MonitorName1" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore1" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore1">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 2</b><br/><br/>
+
+
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-power-off"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-GA2" placeholder="Control GA" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-DPT2"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-Name2" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-battery-half"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-MonitorGA2" placeholder="Optional" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-MonitorDPT2"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-MonitorName2" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore2" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore2">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 3</b><br/><br/>
+
+
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-power-off"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-GA3" placeholder="Control GA" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-DPT3"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-Name3" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-battery-half"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-MonitorGA3" placeholder="Optional" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-MonitorDPT3"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-MonitorName3" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore3" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore3">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 4</b><br/><br/>
+
+
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-power-off"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-GA4" placeholder="Control GA" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-DPT4"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-Name4" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-battery-half"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-MonitorGA4" placeholder="Optional" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-MonitorDPT4"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-MonitorName4" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore4" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore4">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+<hr>
+<b><span data-i18n="knxUltimateLoadControl.title"></span> 5</b><br/><br/>
+
+
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-power-off"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-GA5" placeholder="Control GA" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-DPT5"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-Name5" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <i class="fa fa-battery-half"></i>
+    
+    <input style="width:95px; flex:0 0 95px; min-width:0" type="text" id="node-input-MonitorGA5" placeholder="Optional" />
+    <select style="width:105px; flex:0 0 105px; min-width:0" id="node-input-MonitorDPT5"></select>
+    <input style="flex:1 1 120px; min-width:90px" type="text" id="node-input-MonitorName5" data-i18n="[placeholder]knxUltimateLoadControl.properties.node-input-name">
+</div>
+<div class="form-row">
+    <input type="checkbox" id="node-input-autoRestore5" style="display:inline-block; width:auto; vertical-align:top;">
+    &nbsp;
+    <label style="width:85%" for="node-input-autoRestore5">
+        <i class="fa fa-toggle-on"></i>
+        <span data-i18n="knxUltimateLoadControl.properties.node-input-autoRestore"></span>
+    </label>
+</div>
+
+</br>
+</br>
+</br>
+</br>

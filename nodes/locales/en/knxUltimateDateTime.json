@@ -1,7 +1,7 @@
 {
   "knxUltimateDateTime": {
     "title": "Date/Time",
-    "paletteLabel": "DateTime",
+    "paletteLabel": "DateTime (deprecated)",
     "node-input-server": "KNX Gateway",
     "node-input-name": "Name",
     "node-input-outputtopic": "Topic for node output",
@@ -24,7 +24,9 @@
       "nameDateTime": "Optional ETS device name",
       "nameDate": "Optional ETS device name",
       "nameTime": "Optional ETS device name"
-    }
+    },
+    "legacy_notice": "This node is deprecated and remains supported for existing flows. Use KNX Utility for new flows. The button below converts all compatible legacy KNX utility nodes in every flow and subflow.",
+    "migration_button": "Convert all compatible legacy KNX nodes",
+    "migration_button_title": "Convert every compatible legacy KNX utility instance in all editor flows and subflows to KNX Utility"
   }
 }
-

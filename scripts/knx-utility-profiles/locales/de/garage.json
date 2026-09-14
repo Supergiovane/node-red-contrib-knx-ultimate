@@ -1,0 +1,48 @@
+{
+  "knxUltimateGarage": {
+    "title": "Garage door",
+    "paletteLabel": "Garage",
+    "node-input-server": "KNX Gateway",
+    "node-input-name": "Name",
+    "node-input-outputtopic": "Topic for emitted events",
+    "command": "Command GA (true=open, false=close)",
+    "impulse": "Impulse GA",
+    "holdOpen": "Hold-open GA",
+    "disable": "Disable GA",
+    "photocell": "Photocell GA",
+    "moving": "Moving GA",
+    "obstruction": "Obstruction GA",
+    "autoCloseEnable": "Enable auto re-close",
+    "autoCloseSeconds": "Auto re-close delay (seconds)",
+    "node-input-emitEvents": "Emit events on node output",
+    "placeholders": {
+      "outputtopic": "Optional topic for node events",
+      "ga": "e.g. 1/2/3",
+      "commandName": "Door actuator",
+      "impulseName": "Impulse input",
+      "holdOpenName": "Hold-open switch",
+      "disableName": "Disable command",
+      "photocellName": "Photocell sensor",
+      "movingName": "Movement indicator",
+      "obstructionName": "Obstruction indicator"
+    },
+    "help": {
+      "intro": "Controls a KNX garage door with direct open/close commands, impulse inputs, safety sensors and automatic re-close.",
+      "commands": "Commands",
+      "command_ga": "Use the command GA for boolean control: true opens, false closes. The node also emits this when the auto close triggers.",
+      "impulse_ga": "An impulse GA toggles the door. Rising edges toggle the internal state; it is also used if no direct command GA is configured.",
+      "holdopen_ga": "Hold-open GA keeps the door open and cancels the auto re-close until it returns to false.",
+      "disable_ga": "Disable GA stops the node from issuing new commands. Useful for maintenance or manual mode.",
+      "safety": "Safety and status",
+      "photocell_ga": "The photocell GA should go true when the beam is interrupted. The node re-opens the door and flags obstruction.",
+      "moving_ga": "Movement GA (optional) is pulsed whenever the node commands the door to move, allowing other devices to follow the motion.",
+      "obstruction_ga": "Obstruction GA mirrors the obstruction state so other KNX components can react.",
+      "auto": "Automatic re-close",
+      "auto_close": "Enable the auto re-close timer to close the door automatically after the configured delay once it is open, unless hold-open or disable are active.",
+      "events": "Node output",
+      "events_desc": "With event emission enabled the node outputs structured messages (open, close, toggle, obstruction, disabled, hold-open, auto-close) for flow logic."
+    },
+    "section_commands": "Command group addresses",
+    "section_inputs": "Input / sensor group addresses"
+  }
+}

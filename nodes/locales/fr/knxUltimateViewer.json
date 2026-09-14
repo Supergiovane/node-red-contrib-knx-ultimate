@@ -1,11 +1,19 @@
 {
-  "knxUltimateViewer": {
-    "title": "Visionneuse KNX",
-    "node-input-name": "Nom",
-    "outputs": {
-      "ga_dashboard": "Adresses du groupe de tableau de bord",
-      "simple_array": "JSON à tableau simple pour l'enregistrement de données",
-      "queue": "Fitre de télégrammes de tableau de bord"
+    "knxUltimateViewer": {
+        "title": "Visionneuse KNX",
+        "node-input-name": "Nom",
+        "outputs": {
+            "ga_dashboard": "Adresses du groupe de tableau de bord",
+            "simple_array": "JSON à tableau simple pour l'enregistrement de données",
+            "queue": "Fitre de télégrammes de tableau de bord"
+        },
+        "locale": "fr",
+        "advanced": {
+            "node-input-server": "Passerelle"
+        },
+        "web-monitor": "Moniteur web",
+        "open-monitor": "Ouvrir le moniteur KNX Viewer",
+        "open-monitor-tooltip": "Ouvrir le moniteur des adresses de groupe et son historique de 24 heures dans un nouvel onglet",
+        "monitor-description": "Une liste simple des changements des adresses de groupe, avec un historique de 24 heures enregistré sur fichier. L’enregistrement continue lorsque la page est fermée ou en pause."
     }
-  }
 }

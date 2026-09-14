@@ -4,6 +4,10 @@ title: "Alerter-Configuration"
 lang: en
 permalink: /wiki/Alerter-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> This dedicated node remains compatible with existing flows. For new flows use [KNX Utility](/node-red-contrib-knx-ultimate/wiki/KNX-Utility) and select **Alerter**. Its editor provides bulk conversion of all compatible legacy utility nodes across every flow and subflow, with a single Undo and manual Deploy.
+
 # ALERTER NODE CONFIGURATION
 
 With the Alerter node you can signal to a display or to the node-red-contrib-tts-ultimate node (audio feedback) if the selected devices are alerted, i.e. they have payload **true** .

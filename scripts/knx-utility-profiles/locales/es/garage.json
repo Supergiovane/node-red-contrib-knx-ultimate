@@ -1,0 +1,48 @@
+{
+  "knxUltimateGarage": {
+    "title": "Puerta de garaje",
+    "paletteLabel": "Garaje",
+    "node-input-server": "Gateway KNX",
+    "node-input-name": "Nombre",
+    "node-input-outputtopic": "Topic para eventos",
+    "command": "GA mando (true=abre, false=cierra)",
+    "impulse": "GA impulso",
+    "holdOpen": "GA mantener abierto",
+    "disable": "GA deshabilitación",
+    "photocell": "GA fotocélula",
+    "moving": "GA movimiento",
+    "obstruction": "GA obstrucción",
+    "autoCloseEnable": "Activar cierre automático",
+    "autoCloseSeconds": "Retardo cierre automático (segundos)",
+    "node-input-emitEvents": "Emitir eventos por la salida",
+    "placeholders": {
+      "outputtopic": "Topic opcional para eventos",
+      "ga": "ej. 1/2/3",
+      "commandName": "Actuador puerta",
+      "impulseName": "Entrada impulso",
+      "holdOpenName": "Bloqueo cierre",
+      "disableName": "Comando deshabilitación",
+      "photocellName": "Sensor fotocélula",
+      "movingName": "Indicador movimiento",
+      "obstructionName": "Indicador obstrucción"
+    },
+    "help": {
+      "intro": "Controla una puerta de garaje KNX con mando directo, impulsos, sensores de seguridad y cierre automático.",
+      "commands": "Mandos",
+      "command_ga": "La GA mando recibe true para abrir y false para cerrar. El nodo la utiliza también en el cierre automático.",
+      "impulse_ga": "La GA impulso conmuta la puerta con un flanco. Se usa también cuando no hay comando directo configurado.",
+      "holdopen_ga": "La GA mantener abierto cancela el temporizador de cierre hasta que vuelva a false.",
+      "disable_ga": "La GA deshabilitación bloquea cualquier comando emitido por el nodo (modo mantenimiento).",
+      "safety": "Seguridad y estado",
+      "photocell_ga": "La GA fotocélula debe ponerse a true cuando detecta una obstrucción; el nodo vuelve a abrir y marca la alarma.",
+      "moving_ga": "La GA movimiento (opcional) se activa cada vez que el nodo ordena movimiento, facilitando la sincronización en KNX.",
+      "obstruction_ga": "La GA obstrucción replica el estado de alarma para otros dispositivos.",
+      "auto": "Cierre automático",
+      "auto_close": "Activa el cierre automático tras el tiempo configurado, salvo que esté activo mantener abierto o la deshabilitación.",
+      "events": "Salida del nodo",
+      "events_desc": "Con la emisión de eventos el nodo produce mensajes estructurados (open, close, toggle, obstruction, disabled, hold-open, auto-close) para la lógica del flow."
+    },
+    "section_commands": "Direcciones de mando",
+    "section_inputs": "Direcciones de entrada/sensores"
+  }
+}

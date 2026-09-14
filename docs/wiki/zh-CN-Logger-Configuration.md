@@ -4,6 +4,10 @@ title: "Logger-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Logger-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **Logger**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+
 # Logger（日志）
 
 Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容的 XML 文件。

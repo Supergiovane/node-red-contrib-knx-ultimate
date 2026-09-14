@@ -4,6 +4,10 @@ title: "Alerter-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Alerter-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **Alerter**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+
 # Alerter 节点配置
 
 使用 Alerter 节点可以在显示器上，或通过 node-red-contrib-tts-ultimate 节点（语音播报），提示被选中的设备是否处于告警状态，即 `payload` 为 **true** 。

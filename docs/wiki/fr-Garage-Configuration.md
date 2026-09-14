@@ -4,6 +4,10 @@ title: "Garage-Configuration"
 lang: fr
 permalink: /wiki/fr-Garage-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Garage**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 ---
 # Porte de garage
 Le nœud **KNX Garage** pilote un portail motorisé en utilisant des GA dédiées pour les commandes booléennes ou par impulsion, gère la cellule photo/obstruction, autorise le maintien ouvert ou la désactivation et propose une refermeture automatique.

@@ -4,6 +4,10 @@ title: "Staircase-Configuration"
 lang: it
 permalink: /wiki/it-Staircase-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Staircase**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+
 ---
 # Temporizzatore scale
 Il nodo **Temporizzatore scale KNX** replica il timer delle luci scala. Quando la GA di impulso riceve un fronte attivo la luce scala viene accesa, parte il conto alla rovescia e (se configurato) viene emesso un preavviso prima dello spegnimento. Sono disponibili override manuale, blocco e generazione di eventi per l'integrazione con Node-RED.

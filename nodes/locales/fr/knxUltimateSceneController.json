@@ -1,6 +1,6 @@
 {
   "knxUltimateSceneController": {
-    "paletteLabel": "Contrôleur de scène KNX",
+    "paletteLabel": "Contrôleur de scène KNX (deprecated)",
     "title": "Contrôleur de scène",
     "properties": {
       "node-input-server": "Porte",
@@ -24,6 +24,9 @@
       "notify-DPT18001": "Vous avez sélectionné un point de données de scène. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile.",
       "notify-DPT232600": "Vous avez sélectionné un point de données RVB. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile.",
       "notify-DPT251600": "Vous avez sélectionné un point de données RGBW. Veuillez __ph_0__ cliquez ici pour afficher cet exemple__ph_1__ et apprenez à gérer une telle charge utile."
-    }
+    },
+    "legacy_notice": "Ce nœud est obsolète et reste pris en charge dans les flux existants. Utilisez KNX Utility pour les nouveaux flux. Le bouton ci-dessous convertit tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux.",
+    "migration_button": "Convertir tous les anciens nœuds KNX compatibles",
+    "migration_button_title": "Convertir en KNX Utility toutes les instances des anciens utilitaires KNX compatibles dans tous les flux et sous-flux de l’éditeur"
   }
 }

@@ -4,6 +4,10 @@ title: "WatchDog-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-WatchDog-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **WatchDog**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+
 # WatchDog（看门狗）
 
 用于检测与网关或特定 KNX 设备的连接状况，并在出现故障时执行自动化操作。

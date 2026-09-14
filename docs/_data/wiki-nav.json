@@ -14,11 +14,6 @@
           "external": true
         },
         {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
-          "external": false
-        },
-        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -31,6 +26,11 @@
         {
           "label": "Security",
           "url": "/wiki/SECURITY",
+          "external": false
+        },
+        {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -59,58 +59,13 @@
       "title": "Other KNX Nodes",
       "items": [
         {
-          "label": "Scene Controller",
-          "url": "/wiki/SceneController-Configuration",
-          "external": false
-        },
-        {
-          "label": "WatchDog",
-          "url": "/wiki/WatchDog-Configuration",
-          "external": false
-        },
-        {
-          "label": "Logger",
-          "url": "/wiki/Logger-Configuration",
-          "external": false
-        },
-        {
-          "label": "Global Context",
-          "url": "/wiki/GlobalVariable",
-          "external": false
-        },
-        {
-          "label": "Alerter",
-          "url": "/wiki/Alerter-Configuration",
-          "external": false
-        },
-        {
-          "label": "Load Control",
-          "url": "/wiki/LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/Staircase-Configuration",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/Garage-Configuration",
+          "label": "KNX Utility",
+          "url": "/wiki/KNX-Utility",
           "external": false
         },
         {
           "label": "Viewer",
           "url": "/wiki/knxUltimateViewer",
-          "external": false
-        },
-        {
-          "label": "Auto Responder",
-          "url": "/wiki/KNXAutoResponder",
-          "external": false
-        },
-        {
-          "label": "HA Translator",
-          "url": "/wiki/HATranslator",
           "external": false
         },
         {
@@ -154,17 +109,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX",
+          "label": "Control Matter from KNX (BETA)",
           "url": "/wiki/Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Matter Bridge",
+          "label": "Matter Bridge (BETA)",
           "url": "/wiki/Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter",
+          "label": "Expose KNX to Matter (BETA)",
           "url": "/wiki/Matter-Bridge",
           "external": false
         }
@@ -356,11 +311,6 @@
           "external": true
         },
         {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/it-Cerebrum-Ultimate",
-          "external": false
-        },
-        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -373,6 +323,11 @@
         {
           "label": "Sicurezza",
           "url": "/wiki/it-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -401,58 +356,13 @@
       "title": "Altri Nodi KNX",
       "items": [
         {
-          "label": "Scene Controller",
-          "url": "/wiki/it-SceneController-Configuration",
-          "external": false
-        },
-        {
-          "label": "WatchDog",
-          "url": "/wiki/it-WatchDog-Configuration",
-          "external": false
-        },
-        {
-          "label": "Logger",
-          "url": "/wiki/it-Logger-Configuration",
-          "external": false
-        },
-        {
-          "label": "Global Context",
-          "url": "/wiki/it-GlobalVariable",
-          "external": false
-        },
-        {
-          "label": "Alerter",
-          "url": "/wiki/it-Alerter-Configuration",
-          "external": false
-        },
-        {
-          "label": "Controllo Carico",
-          "url": "/wiki/it-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/it-Staircase-Configuration",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/it-Garage-Configuration",
+          "label": "KNX Utility",
+          "url": "/wiki/it-KNX-Utility",
           "external": false
         },
         {
           "label": "Viewer",
           "url": "/wiki/it-knxUltimateViewer",
-          "external": false
-        },
-        {
-          "label": "Auto Responder",
-          "url": "/wiki/it-KNXAutoResponder",
-          "external": false
-        },
-        {
-          "label": "Traduttore HA",
-          "url": "/wiki/it-HATranslator",
           "external": false
         },
         {
@@ -496,17 +406,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX",
+          "label": "Control Matter from KNX (BETA)",
           "url": "/wiki/it-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Bridge Matter",
+          "label": "Bridge Matter (BETA)",
           "url": "/wiki/it-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter",
+          "label": "Expose KNX to Matter (BETA)",
           "url": "/wiki/it-Matter-Bridge",
           "external": false
         }
@@ -698,11 +608,6 @@
           "external": true
         },
         {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/de-Cerebrum-Ultimate",
-          "external": false
-        },
-        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -715,6 +620,11 @@
         {
           "label": "Sicherheit",
           "url": "/wiki/de-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -743,58 +653,13 @@
       "title": "Weitere KNX-Knoten",
       "items": [
         {
-          "label": "Szenencontroller",
-          "url": "/wiki/de-SceneController-Configuration",
-          "external": false
-        },
-        {
-          "label": "WatchDog",
-          "url": "/wiki/de-WatchDog-Configuration",
-          "external": false
-        },
-        {
-          "label": "Logger",
-          "url": "/wiki/de-Logger-Configuration",
-          "external": false
-        },
-        {
-          "label": "Global Context",
-          "url": "/wiki/de-GlobalVariable",
-          "external": false
-        },
-        {
-          "label": "Alerter",
-          "url": "/wiki/de-Alerter-Configuration",
-          "external": false
-        },
-        {
-          "label": "Laststeuerung",
-          "url": "/wiki/de-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Treppenhaus",
-          "url": "/wiki/de-Staircase-Configuration",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/de-Garage-Configuration",
+          "label": "KNX Utility",
+          "url": "/wiki/de-KNX-Utility",
           "external": false
         },
         {
           "label": "Viewer",
           "url": "/wiki/de-knxUltimateViewer",
-          "external": false
-        },
-        {
-          "label": "Auto-Responder",
-          "url": "/wiki/de-KNXAutoResponder",
-          "external": false
-        },
-        {
-          "label": "HA-Übersetzer",
-          "url": "/wiki/de-HATranslator",
           "external": false
         },
         {
@@ -838,17 +703,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX",
+          "label": "Control Matter from KNX (BETA)",
           "url": "/wiki/de-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Matter Bridge",
+          "label": "Matter Bridge (BETA)",
           "url": "/wiki/de-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter",
+          "label": "Expose KNX to Matter (BETA)",
           "url": "/wiki/de-Matter-Bridge",
           "external": false
         }
@@ -1040,11 +905,6 @@
           "external": true
         },
         {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/fr-Cerebrum-Ultimate",
-          "external": false
-        },
-        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -1057,6 +917,11 @@
         {
           "label": "Security",
           "url": "/wiki/fr-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -1085,58 +950,13 @@
       "title": "Other KNX Nodes",
       "items": [
         {
-          "label": "Scene Controller",
-          "url": "/wiki/fr-SceneController-Configuration",
-          "external": false
-        },
-        {
-          "label": "WatchDog",
-          "url": "/wiki/fr-WatchDog-Configuration",
-          "external": false
-        },
-        {
-          "label": "Logger",
-          "url": "/wiki/fr-Logger-Configuration",
-          "external": false
-        },
-        {
-          "label": "Global Context",
-          "url": "/wiki/fr-GlobalVariable",
-          "external": false
-        },
-        {
-          "label": "Alerter",
-          "url": "/wiki/fr-Alerter-Configuration",
-          "external": false
-        },
-        {
-          "label": "Load Control",
-          "url": "/wiki/fr-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/fr-Staircase-Configuration",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/fr-Garage-Configuration",
+          "label": "KNX Utility",
+          "url": "/wiki/fr-KNX-Utility",
           "external": false
         },
         {
           "label": "Viewer",
           "url": "/wiki/fr-knxUltimateViewer",
-          "external": false
-        },
-        {
-          "label": "Auto Responder",
-          "url": "/wiki/fr-KNXAutoResponder",
-          "external": false
-        },
-        {
-          "label": "HA Translator",
-          "url": "/wiki/fr-HATranslator",
           "external": false
         },
         {
@@ -1180,17 +1000,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX",
+          "label": "Control Matter from KNX (BETA)",
           "url": "/wiki/fr-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Bridge Matter",
+          "label": "Bridge Matter (BETA)",
           "url": "/wiki/fr-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter",
+          "label": "Expose KNX to Matter (BETA)",
           "url": "/wiki/fr-Matter-Bridge",
           "external": false
         }
@@ -1382,11 +1202,6 @@
           "external": true
         },
         {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/es-Cerebrum-Ultimate",
-          "external": false
-        },
-        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -1399,6 +1214,11 @@
         {
           "label": "Security",
           "url": "/wiki/es-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -1427,58 +1247,13 @@
       "title": "Other KNX Nodes",
       "items": [
         {
-          "label": "Scene Controller",
-          "url": "/wiki/es-SceneController-Configuration",
-          "external": false
-        },
-        {
-          "label": "WatchDog",
-          "url": "/wiki/es-WatchDog-Configuration",
-          "external": false
-        },
-        {
-          "label": "Logger",
-          "url": "/wiki/es-Logger-Configuration",
-          "external": false
-        },
-        {
-          "label": "Global Context",
-          "url": "/wiki/es-GlobalVariable",
-          "external": false
-        },
-        {
-          "label": "Alerter",
-          "url": "/wiki/es-Alerter-Configuration",
-          "external": false
-        },
-        {
-          "label": "Load Control",
-          "url": "/wiki/es-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/es-Staircase-Configuration",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/es-Garage-Configuration",
+          "label": "KNX Utility",
+          "url": "/wiki/es-KNX-Utility",
           "external": false
         },
         {
           "label": "Viewer",
           "url": "/wiki/es-knxUltimateViewer",
-          "external": false
-        },
-        {
-          "label": "Auto Responder",
-          "url": "/wiki/es-KNXAutoResponder",
-          "external": false
-        },
-        {
-          "label": "HA Translator",
-          "url": "/wiki/es-HATranslator",
           "external": false
         },
         {
@@ -1522,17 +1297,17 @@
           "external": false
         },
         {
-          "label": "Control Matter from KNX",
+          "label": "Control Matter from KNX (BETA)",
           "url": "/wiki/es-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Bridge Matter",
+          "label": "Bridge Matter (BETA)",
           "url": "/wiki/es-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter",
+          "label": "Expose KNX to Matter (BETA)",
           "url": "/wiki/es-Matter-Bridge",
           "external": false
         }
@@ -1724,11 +1499,6 @@
           "external": true
         },
         {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/zh-CN-Cerebrum-Ultimate",
-          "external": false
-        },
-        {
           "label": "Changelog",
           "url": "/wiki/Changelog",
           "external": false
@@ -1741,6 +1511,11 @@
         {
           "label": "安全",
           "url": "/wiki/zh-CN-SECURITY",
+          "external": false
+        },
+        {
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -1769,58 +1544,13 @@
       "title": "其他 KNX 节点",
       "items": [
         {
-          "label": "场景控制器",
-          "url": "/wiki/zh-CN-SceneController-Configuration",
-          "external": false
-        },
-        {
-          "label": "看门狗",
-          "url": "/wiki/zh-CN-WatchDog-Configuration",
-          "external": false
-        },
-        {
-          "label": "日志节点",
-          "url": "/wiki/zh-CN-Logger-Configuration",
-          "external": false
-        },
-        {
-          "label": "全局上下文",
-          "url": "/wiki/zh-CN-GlobalVariable",
-          "external": false
-        },
-        {
-          "label": "告警器",
-          "url": "/wiki/zh-CN-Alerter-Configuration",
-          "external": false
-        },
-        {
-          "label": "负载控制",
-          "url": "/wiki/zh-CN-LoadControl-Configuration",
-          "external": false
-        },
-        {
-          "label": "楼梯定时器",
-          "url": "/wiki/zh-CN-Staircase-Configuration",
-          "external": false
-        },
-        {
-          "label": "车库",
-          "url": "/wiki/zh-CN-Garage-Configuration",
+          "label": "KNX Utility",
+          "url": "/wiki/zh-CN-KNX-Utility",
           "external": false
         },
         {
           "label": "查看器",
           "url": "/wiki/zh-CN-knxUltimateViewer",
-          "external": false
-        },
-        {
-          "label": "自动响应",
-          "url": "/wiki/zh-CN-KNXAutoResponder",
-          "external": false
-        },
-        {
-          "label": "HA 翻译器",
-          "url": "/wiki/zh-CN-HATranslator",
           "external": false
         },
         {
@@ -1864,17 +1594,17 @@
           "external": false
         },
         {
-          "label": "从 KNX 控制 Matter",
+          "label": "从 KNX 控制 Matter (BETA)",
           "url": "/wiki/zh-CN-Control%20Matter%20from%20KNX",
           "external": false
         },
         {
-          "label": "Matter 桥接器",
+          "label": "Matter 桥接器 (BETA)",
           "url": "/wiki/zh-CN-Matter-Bridge-Configuration",
           "external": false
         },
         {
-          "label": "将 KNX 暴露到 Matter",
+          "label": "将 KNX 暴露到 Matter (BETA)",
           "url": "/wiki/zh-CN-Matter-Bridge",
           "external": false
         }

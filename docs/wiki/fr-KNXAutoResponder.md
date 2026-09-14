@@ -4,6 +4,10 @@ title: "KNXAutoResponder"
 lang: fr
 permalink: /wiki/fr-KNXAutoResponder
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **AutoResponder**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 Ce nœud répondra aux demandes de lecture du bus KNX.
 
 Le nœud enregistre tous les télégrammes transmis au bus KNX et stockent les valeurs en mémoire. \

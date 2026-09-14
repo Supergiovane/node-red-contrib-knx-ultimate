@@ -1,0 +1,57 @@
+<hr>
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateDateTime.section_addresses"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaDateTime" style="width:155px"><i class="fa fa-calendar"></i> <span data-i18n="knxUltimateDateTime.gaDateTime"></span></label>
+    <input type="text" id="node-input-gaDateTime" style="width:110px" placeholder="1/7/1" data-i18n="[placeholder]knxUltimateDateTime.placeholders.ga">
+    <input type="text" id="node-input-nameDateTime" style="flex:1; min-width:70px" placeholder="DateTime object" data-i18n="[placeholder]knxUltimateDateTime.placeholders.nameDateTime">
+    <label for="node-input-dptDateTime" style="width:30px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptDateTime" style="width:75px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaDate" style="width:155px"><i class="fa fa-calendar-o"></i> <span data-i18n="knxUltimateDateTime.gaDate"></span></label>
+    <input type="text" id="node-input-gaDate" style="width:110px" placeholder="1/7/2" data-i18n="[placeholder]knxUltimateDateTime.placeholders.ga">
+    <input type="text" id="node-input-nameDate" style="flex:1; min-width:70px" placeholder="Date object" data-i18n="[placeholder]knxUltimateDateTime.placeholders.nameDate">
+    <label for="node-input-dptDate" style="width:30px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptDate" style="width:75px" readonly>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-gaTime" style="width:155px"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateDateTime.gaTime"></span></label>
+    <input type="text" id="node-input-gaTime" style="width:110px" placeholder="1/7/3" data-i18n="[placeholder]knxUltimateDateTime.placeholders.ga">
+    <input type="text" id="node-input-nameTime" style="flex:1; min-width:70px" placeholder="Time object" data-i18n="[placeholder]knxUltimateDateTime.placeholders.nameTime">
+    <label for="node-input-dptTime" style="width:30px; text-align:right">DPT</label>
+    <input type="text" id="node-input-dptTime" style="width:75px" readonly>
+  </div>
+
+  <hr>
+  <div class="form-row" style="margin:4px 0 2px;">
+    <span style="font-weight:bold;" data-i18n="knxUltimateDateTime.section_send"></span>
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-sendOnDeploy" style="width:180px"><i class="fa fa-play"></i> <span data-i18n="knxUltimateDateTime.node-input-sendOnDeploy"></span></label>
+    <input type="checkbox" id="node-input-sendOnDeploy" style="width:auto">
+  </div>
+
+  <div class="form-row knx-datetime-deploy-options" style="display:flex; align-items:center;">
+    <label for="node-input-sendOnDeployDelay" style="width:180px"><i class="fa fa-clock-o"></i> <span data-i18n="knxUltimateDateTime.node-input-sendOnDeployDelay"></span></label>
+    <input type="number" id="node-input-sendOnDeployDelay" style="width:120px">
+  </div>
+
+  <div class="form-row" style="display:flex; align-items:center;">
+    <label for="node-input-periodicSend" style="width:180px"><i class="fa fa-repeat"></i> <span data-i18n="knxUltimateDateTime.node-input-periodicSend"></span></label>
+    <input type="checkbox" id="node-input-periodicSend" style="width:auto">
+  </div>
+
+  <div class="form-row knx-datetime-periodic-options" style="display:flex; align-items:center; gap:8px;">
+    <label for="node-input-periodicSendInterval" style="width:180px"><i class="fa fa-hourglass"></i> <span data-i18n="knxUltimateDateTime.node-input-periodicSendInterval"></span></label>
+    <input type="number" id="node-input-periodicSendInterval" style="width:120px">
+    <select id="node-input-periodicSendUnit" style="width:160px">
+      <option value="s" data-i18n="knxUltimateDateTime.unit_seconds"></option>
+      <option value="m" data-i18n="knxUltimateDateTime.unit_minutes"></option>
+    </select>
+  </div>

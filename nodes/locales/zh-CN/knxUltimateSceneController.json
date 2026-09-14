@@ -1,6 +1,6 @@
 {
     "knxUltimateSceneController": {
-        "paletteLabel": "KNX 场景控制器",
+        "paletteLabel": "KNX 场景控制器 (deprecated)",
         "title": "KNX 场景节点",
         "properties": {
             "node-input-server": "网关",
@@ -10,21 +10,23 @@
             "node-input-topicSave": "保存",
             "node-input-name": "节点名称",
             "node-input-outputtopic": "主题名称"
-         
         },
         "placeholder": {
-            "leaveempty":"如果留空则使用组地址",
-            "valueexample" : "案例: 0 是 false, 1 是 true, 否则是任意值"
+            "leaveempty": "如果留空则使用组地址",
+            "valueexample": "案例: 0 是 false, 1 是 true, 否则是任意值"
         },
         "other": {
-            "sceneConfig":"场景配置 (default values)",
-            "add":"点击添加, 就在场景中添加一个设备"
-         },
-         "advanced": {
+            "sceneConfig": "场景配置 (default values)",
+            "add": "点击添加, 就在场景中添加一个设备"
+        },
+        "advanced": {
             "notify-DPT3007": "你选择了相对调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
             "notify-DPT18001": "你选择了场景类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
             "notify-DPT232600": "你选择了RGB调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>点击这个连接参考案例</a> 并学习如何处理此类消息.",
-            "notify-DPT251600": "你选择了RGBW调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>点击这个连接参考案例</a> 并学习如何处理此类消息."           
-        }
+            "notify-DPT251600": "你选择了RGBW调光类型. 请 <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>点击这个连接参考案例</a> 并学习如何处理此类消息."
+        },
+        "legacy_notice": "此节点已弃用，但仍支持现有流程。新流程请使用 KNX Utility。下方按钮可转换所有流程和子流程中的全部兼容旧版 KNX 工具节点。",
+        "migration_button": "转换所有兼容的旧版 KNX 节点",
+        "migration_button_title": "将编辑器所有流程和子流程中的全部兼容旧版 KNX 工具节点转换为 KNX Utility"
     }
 }

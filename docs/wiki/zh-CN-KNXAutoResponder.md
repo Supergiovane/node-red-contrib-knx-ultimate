@@ -4,6 +4,10 @@ title: "KNXAutoResponder"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNXAutoResponder
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **AutoResponder**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+
 此节点将响应KNX总线的读取请求。
 
 节点记录所有传输到KNX总线并将值存储在内存中的电报。

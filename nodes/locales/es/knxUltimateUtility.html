@@ -1,0 +1,1080 @@
+<script type="text/markdown" data-help-name="knxUltimateUtility">
+# KNX Utility
+
+Selecciona una función para cada nodo KNX Utility. Las funciones que usan el bus KNX requieren una pasarela; Home Assistant Translator procesa directamente los mensajes. El editor, el icono y los puertos se adaptan a la función seleccionada. KNX Device sigue siendo el nodo KNX principal.
+
+El botón de conversión transforma los once tipos antiguos compatibles en todos los flows y subflows, localmente en el editor. Conserva los ID, ajustes, conexiones y grupos, incluidos los ID de valores AutoResponder y escenas guardadas, los nombres de variables GlobalContext y las rutas de archivos Logger. Revisa los flows antes de hacer Deploy. Un único Undo restaura los nodos originales. Cambiar de función conserva los borradores temporales; Cancelar deja intactos el nodo y las escenas guardados. Los nuevos AutoResponder empiezan con una lista de direcciones vacía. Los cambios de reglas de escena solo invalidan los valores aprendidos al hacer Deploy.
+
+Tras confirmar y antes de modificar los nodos, el navegador inicia automáticamente la descarga de una copia JSON con fecha y hora de todos los flujos presentes en el editor, incluidas pestañas, subflujos, nodos de configuración, grupos y conexiones. El archivo usa el formato de exportación estándar de Node-RED y puede volver a importarse. Se excluyen las credenciales declaradas por los nodos, como en la exportación estándar. El navegador puede preguntar dónde guardar el archivo. Si no es posible preparar la copia o iniciar su descarga, no se convierte ningún nodo.
+
+<a id="knx-utility-help-alerter"></a>
+
+## Alerter
+
+### Configuración del nodo de Alerter
+
+Con el nodo Alerter, puede indicar una pantalla o al nodo de nodo-Contrib-TTS-Ulude (retroalimentación de audio) Si los dispositivos seleccionados son alertados, es decir, tienen carga útil **Verdadero** .
+El nodo emite mensajes a intervalos especificados (un mensaje a la vez) que contienen los detalles de cada dispositivo alertado.Por ejemplo, el nodo puede decirle cuántas y qué ventanas están abiertas.<br/>
+El nodo recibe los valores de los dispositivos directamente desde el bus KNX.Además, puede enviar mensajes personalizados al nodo, no vinculado a los dispositivos KNX.<br/>
+La página de ejemplo explica cómo usar el nodo.<br/>
+
+- **Gateway**
+
+> Selecciona la pasarela KNX utilizada por este nodo.
+
+- **Nombre**
+
+> Nombre del nodo.
+
+- **Tipo de inicio del ciclo de alerta**
+
+> Aquí puede seleccionar el evento que se omitirá el inicio de enviar mensajes desde dispositivos alertados.
+
+- **Intervalo entre cada MSG (en segundos)**
+
+> Intervalo entre cada mensaje saliente desde el nodo.
+
+## Dispositivos para monitorear
+
+Aquí puede agregar dispositivos para monitorear.<br/>
+Ingrese el nombre del dispositivo o su dirección de grupo.<br/>
+
+- **Valor de lectura de cada dispositivo en Connection/Reconection**
+
+> En conexión/reconexión, el nodo enviará una solicitud de 'leer' cada dispositivo que pertenece a la lista.
+
+- **Agregar botón**
+
+> Agregue una fila a la lista.
+
+- **Filas del dispositivo ** > El primer campo es la dirección de grupo (pero también puede ingresar cualquier texto, que puede usar con mensajes entrantes, consulte la página de ejemplo), el segundo es el nombre del dispositivo**(máximo 14 caracteres)** , el tercero es el nombre largo del dispositivo.
+
+- **Botón Eliminar**
+
+> Elimina un dispositivo de la lista.
+
+<br/>
+<br/>
+
+## Mensaje fuera del nodo
+
+PIN1: el nodo emite un mensaje para cada dispositivo alertado, a intervalos seleccionables. <br/>
+PIN2: El nodo emite un mensaje único que contiene todos los dispositivos alertados. <br/>
+PIN3: El nodo emite un mensaje que contiene solo el último dispositivo alertado. <br/>
+
+**PIN1** 
+
+```javascript
+
+msg = {
+    "topic":"0/1/12",
+    "count":3, // TOTAL number of alerted devices
+    "devicename":"Bedroom window",
+    "longdevicename":"Bedroom main window",
+    "payload":true
+}
+
+```
+
+**PIN2** 
+
+```javascript
+
+msg = {
+    "topic":"door, 0/0/11, 0/1/2, 0/0/9",
+    "devicename":"Main Door, Applique soggiorno, Applique taverna, Luce studio",
+    "longdevicename":"Main entry Door, Applique sinistra soggiorno, Applique destra taverna, Luce soffitto studio",
+    "count":4,
+    "payload":true
+    }
+
+```
+
+**PIN3** 
+
+```javascript
+
+msg = {
+    "topic":"0/1/12",
+    "count":3, // TOTAL number of alerted devices
+    "devicename":"Bedroom window",
+    "longdevicename":"Bedroom main window",
+    "payload":true
+}
+
+```Mensaje
+
+saliente cuando todos los dispositivos están en reposo
+
+**PIN1, PIN2, PIN3** 
+
+```javascript
+
+msg = {
+    "topic":"",
+    "count":0,
+    "devicename":"",
+    "longdevicename":"",
+    "payload":false
+}
+
+```
+
+<br/>
+<br/>
+
+## Mensaje en el nodo
+
+```javascript
+
+msg.readstatus = true
+```Lea
+
+el valor de cada dispositivo que pertenece a la lista.
+
+```javascript
+
+msg.start = true
+```Comienza
+
+el ciclo de envío de todos los dispositivos alertados.El ciclo termina con el último dispositivo alertado.Para repetir el ciclo, envíe este mensaje entrante nuevamente.
+
+<br/>
+
+**Alerta de dispositivo personalizado** <br/>
+
+Para actualizar el valor verdadero/falso de un dispositivo personalizado, puede enviar este mensaje entrante
+
+```javascript
+
+msg = {
+    "topic":"door",
+    "payload":true // Or false to reset the alert for this device
+}
+
+```
+
+<br/>
+
+## MUESTRA
+
+<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter"> Haga clic aquí para ver el ejemplo </a>
+
+<br/>
+<br/>
+<br/>
+
+<a id="knx-utility-help-autoresponder"></a>
+
+## AutoResponder
+
+ Este nodo responderá a las solicitudes de lectura del bus KNX.
+
+El nodo registra todos los telegramas transmitidos al bus KNX y almacenan los valores en la memoria. \
+Luego responde a las solicitudes de lectura enviando dicho valor memorizado de regreso al bus como solicitud. \
+Si la dirección del grupo que se lee aún no tiene valor, el nodo responderá con un valor predeterminado. \
+El nodo responderá solo a las direcciones de grupo especificadas en el campo **Responder a** JSON. \
+Las nuevas instancias empiezan con `[]`. Añade solo las direcciones de grupo a las que el nodo debe responder.
+
+**Configuración**
+
+| Propiedad | Descripción |
+
+|-|-|
+|Puerta de entrada |Seleccione la puerta de enlace KNX para ser utilizada |
+|Responder a |El nodo responderá a las solicitudes de lectura provenientes de las direcciones grupales especificadas en esta matriz JSON.El formato se especifica a continuación.|
+
+<br/> ** Formato JSON ** El JSON es**siempre** una matriz de objeto, que contiene cada directiva.Cada directiva, le dice al nodo qué hacer.
+
+| Propiedad | Descripción |
+|-|-|
+|nota | ** Clave de nota opcional** , para recordatorios.No se usará en ningún lado.|
+|GA |La dirección grupal.También puede usar los ".." Wildchars, para la especidad de una gama de direcciones grupales.El ".." solo se puede usar con el nivel del tercer GA, Ej: ** 1/1/0..255** .Vea las muestras a continuación.|
+|DPT |El punto de datos de la dirección del grupo, en el formato "1.001".Es ** opcional** Si se ha importado el archivo CSV ETS.|
+|predeterminado |El valor enviado al bus en respuesta a una solicitud de lectura, cuando el valor de la dirección del grupo aún no ha sido memorizado por el nodo.| ** Comencemos con una directiva** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo 2/7/1.Si aún no hay valor en la memoria, responderá con _true _. \ |
+El archivo CSV ETS debe haberse importado, de lo contrario debe agregar la clave ** "DPT": "1.001" ** **.
+
+```json
+
+[
+    {
+        "ga": "2/7/1",
+        "default": true
+    }
+]
+```
+
+** Directiva un poco más completa** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo a partir del 3/1/1 al 3/1/22 incluida.Si aún no hay valor en la memoria, responderá con _false _. \
+También hay una clave ** Nota** , simplemente como una nota de recordatorio.No se usará en ningún lado.
+
+```json
+
+[
+    {
+        "note": "Virtual sensors coming from Hikvision AX-Pro",
+        "ga": "3/1/1..22",
+        "dpt": "1.001",
+        "default": false
+    }
+]
+```
+
+** Directivas concatenantes** El nodo de autoresponder responderá a las solicitudes de lectura para la dirección del grupo a partir del 2/2/5 al 2/2/21 incluida.Si aún no hay valor en la memoria, responderá con un valor de 25. \
+El nodo de autoresponder también responderá a las solicitudes de lectura para la dirección del grupo 2/4/22.Si aún no hay valor en la memoria, responderá con el estado de cadena _unknown! _. \
+Tenga en cuenta la ** coma** entre el objeto JSON de cada directiva.
+
+```json
+
+[
+    {
+        "note": "DALI garden virtual brightness %",
+        "ga": "2/2/5..21",
+        "default": 25
+    },
+    {
+        "note": "Alarm armed status text",
+        "ga": "2/4/22",
+        "dpt": "16.001",
+        "default": "Unknown status!"
+    }
+]
+```
+
+<br/>
+
+<a id="knx-utility-help-datetime"></a>
+
+## Fecha / Hora
+
+Envía la fecha y hora del sistema a las direcciones de grupo configuradas: **19.001** para fecha/hora, **11.001** para fecha y **10.001** para hora. Configura al menos una dirección; todas las direcciones configuradas reciben un telegrama. El autocompletado ETS sugiere direcciones compatibles.
+
+Activa el envío al inicio con retardo, el envío periódico en segundos o minutos, o utiliza el botón del nodo desplegado para enviar de inmediato. El botón se habilita tras desplegar los cambios. Este perfil no tiene puertos de entrada ni salida.
+
+Si la pasarela está desconectada, conserva el último envío pendiente y lo ejecuta al reconectarse.
+
+<a id="knx-utility-help-watchdog"></a>
+
+## WatchDog
+
+<p> Verifica la conexión a la puerta de enlace o a un dispositivo KNX específico </p>
+
+### Watchdog
+
+**¿Qué hace?**
+
+1. Verifica la comunicación/conexión de la curación de KNX Bus enviando un telegrama a intervalos regulares, observando una respuesta y envía un MSG al flujo si se rompe una conexión a KNX Bus.Dos niveles de verificación, ver más abajo.
+2. Cambia programáticamente los parámetros del nodo de configuración, por lo tanto, la conexión a su enrutador/interfaz KNX/IP (por ejemplo, si tiene 2 enrutadores KNX/IP y desea cambiar entre los dos para la copia de seguridad de la conexión).
+3. Fuerza la conexión/desconexión de la puerta de enlace desde/hacia el bus KNX.
+
+#### Comprobaciones de nivel de par de pares Ethernet y KNX Twisted
+
+El perro guardián tiene dos niveles de verificación.
+
+El primero, verifica solo la conexión entre KNX-Ultimate y la interfaz KNX/IP.
+
+El segundo, verifica toda la ruta, desde el nodo de puerta de enlace ultimatizado KNX a Ethernet, luego hasta KNX TP Media y viceversa;Esto implica el uso de un dispositivo físico, respondiendo a las solicitudes de lectura.
+
+El nodo WatchDog es un nodo poderoso para errores de señalización y problemas de conexión.<Br />
+
+Puede enviar un correo electrónico al instalador KNX responsable de su edificio, o puede cambiar automáticamente a un enrutador/interfaz IP KNX/IP de copia de seguridad en su instalación.
+
+#### AJUSTES
+
+|Propiedad |Descripción |
+|----------------------------- |--------------------------------------------------------------------------------------------------- |
+|Puerta |Gateway Knx seleccionado.|
+|Dirección de grupo para monitorear |El nodo enviará un telegrama a esta dirección y monitorea el mensaje que fluye a través del bus KNX.El punto de datos debe ser dpt 1.x (boolean). |
+|Nombre de nodo |Nombre del nodo |
+|Auto Iniciar el temporizador de vigilancia |El temporizador Watchdog comienza automáticamente en implementación o en el inicio de Node-RED.|
+|Escuchar errores de los nodos KNX-Ultimate |Activado de forma predeterminada. Emite un mensaje `NodeError` cuando un nodo KNX-Ultimate asociado a la puerta de enlace seleccionada, incluido KNX Device, informa de un estado de error rojo. Al desactivarlo solo se suprimen esos mensajes `NodeError`; las comprobaciones del bus y los mensajes de control del WatchDog siguen activos.|
+|Verificar el nivel (consulte el wiki) |Ver a continuación |
+
+**COMPROBAR NIVEL ** > _**Ethernet** _: \*checkks la conexión entre la puerta de enlace de ultimate KNX en modo unicast y su interfaz IP KNX. <Br />
+
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetLevel.png"
+width = "90%"> <Br />
+
+> _ **Ethernet y KNX TP** _: Complete Check.Funciona con enrutadores KNX/IP e interfaces KNX/IP (así como
+
+Conjunto de direcciones), verifica la conexión entre KNX-Ulimate y este dispositivo Físico KNX, emitiendo una solicitud de lectura y esperando un telegrama de respuesta desde este dispositivo.Se notificará cualquier error en la troncal Ethernet o en el tronco de par de pares KNX.Para configurar este nivel de verificación, debe reservar una dirección de grupo y agregarla a una salida de "estado" de su actuador KNX.Por ejemplo, si tiene un actuador de luz, tiene seguramente una salida de "estado de luz" que puede **responder ** a una solicitud de lectura****.
+
+Acerca de esta imagen, en ETS, asigne una salida de este actuador GIRA KNX a un estado de luz****(por ejemplo 12/0/0).Cada vez que el nodo Watchdog solicite el estado, el actuador GIRA KNX responderá.El perro guardián entonces sabe que tu KNX
+
+La conexión de par de pares retorcidos está en funcionamiento.
+
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/WatchDogEthernetKNXTPLevel.png"
+width = "90%"> <Br />
+
+#### Opciones avanzadas
+
+|Propiedad |Descripción |
+|-------- |----------- |
+|Vuelva a intentar el intervalo (en segundos) |El nodo envía un telegrama al autobús KNX en este interva de tiempo, en segundos.|
+|Número de reintento antes de dar un error | Después de que el telegrama se haya enviado por esta cantidad de veces, sin ninguna respuesta del bus KNX, el nodo arroja un error.|
+
+### Salida de mensajes del Watchdog
+
+El WatchDog siempre emite sus propios mensajes de comprobación del bus y de control. Cuando **Escuchar errores de los nodos KNX-Ultimate** está activado, también emite los errores informados por los nodos KNX-Ultimate, incluido KNX Device, asociados a la puerta de enlace seleccionada. <Br /> ** En caso de problema de autoexpresión de vigilancia** <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration"
+Target = "_ en blanco"> Consulte aquí. </a>
+
+```javascript
+
+msg = {
+type:"BUSError"
+checkPerformed: "Ethernet" for basic check, or "Eth+KNX" for full check.
+nodeid: "23HJ.2355" // (The node ID causing the error, so you can find it using node-red "search" funtion)
+payload: true
+description: // (whatever error description)
+}
+
+```
+
+<Br /> **Cuando la escucha está activada y un nodo KNX-Ultimate informa de un error**
+
+```javascript
+
+msg = {
+type:"NodeError"
+checkPerformed: "Self KNX-Ultimate node reporting a red color status"
+nodeid: "23HJ.2355" // (The node ID causing the error, so you can find it using node-red "search" funtion)
+payload: true
+description: // (KNX-Ultimate node reports his error here)
+completeError:{
+nodeid: "23HJ.2355" // (The node ID causing the error, so you can find it using node-red "search" funtion)
+topic: "0/1/1" // (or the custom topic you set in the knx-ultimate node)
+devicename: "Kitchen Light"
+GA: "0/1/1"
+
+}
+}
+
+```
+
+<Br /> ** En caso de una nueva configuración de puerta de enlace, se llama a través de SetGatewayConfig**
+
+```javascript
+
+msg = {
+type:"setGatewayConfig"
+checkPerformed: "The Watchdog node changed the gateway configuration."
+nodeid: "23HJ.2355" // (The node ID issuing the setGatewayConfig, so you can find it using node-red "search" funtion)
+payload: true
+description: "New Config issued to the gateway. IP:224.0.23.12 Port:3671 PhysicalAddress:15.15.1
+BindLocalInterface:Auto"
+completeError:""
+}
+
+```
+
+<Br /> ** Conexión forzada/desconexión**
+
+```javascript
+
+msg = {
+type:"connectGateway"
+checkPerformed: "The Watchdog issued a connection/disconnection to the gateway."
+nodeid: "23HJ.2355" // (The node ID issuing the connection/disconnection request, so you can find it using node-red
+"search" funtion)
+payload: true // true if you requested the connection, false if you requested the disconnection
+description: "Connection"
+completeError:""
+}
+
+```
+
+<Br />
+
+---
+
+### Mensaje de flujo de entrada
+
+El nodo Watchdog acepta la entrada del flujo y transmite la salida del flujo.A continuación, una explicación del formato del mensaje se enviará o se transmitirá desde el nodo.
+
+#### comienza y detiene el perro guardián
+
+Para iniciar y detener el Watchdog, puede pasar esto como mensaje al nodo <Br /> ** Comienza Watchdog** <Br />
+
+```javascript
+
+// Start the WatchDog
+msg.start = true;
+return msg;
+
+```
+
+** Detente de vigilancia** <Br />
+
+```javascript
+
+// Start the WatchDog
+msg.start = false;
+return msg;
+
+```
+
+#### Cambie la configuración de enrutador KNX/IP/interfaz en la mosca
+
+Con ** msg.setgatewayconfig** , puede cambiar el IP, el puerto, la dirección física, el protocolo, etc.
+
+El nodo de configuración cambiará la configuración y se volverá a conectar con nuevos parámetros. <Br />
+
+Tenga cuidado, si reinicia el nodo-rojo, la nueva configuración se vuelve a la configuración especificada en el nodo de configuración. <Br /> ** Todos los parámetros son opcionales** <Br />
+
+```javascript
+
+// IP: IP of your KNX/IP Router or Interface
+// Port: Port of your KNX/IP Router or Interface
+// PhysicalAddress: Physical address your KNX/IP Router or Interface (this is not a Group Address, this is a physical address indicating the physical device in your KNX installation)
+// BindToEthernetInterface: "Auto" (for automatic detection) or the ethernet interface name, for example "en0".
+// Protocol: "TunnelUDP" or "TunnelTCP" or "Multicast"
+// importCSV: the ETS exported CSV or ESF. Please see the text format in the Gateway Config Wiki Page and in the youtube
+video.
+// All these parameters are optional
+
+msg.setGatewayConfig={IP:"224.0.23.12",Port:3671,PhysicalAddress:"15.15.1",BindToEthernetInterface:"Auto",
+Protocol:"Multicast", importCSV:`"Group name" "Address" "Central" "Unfiltered" "Description" "DatapointType" "Security"
+"Attuatori luci" "0/-/-" "" "" "" "" "Auto"
+"Luci primo piano" "0/0/-" "" "" "" "" "Auto"
+"Luce camera da letto" "0/0/1" "" "" "" "DPST-1-1" "Auto"};`}
+
+return msg;
+
+```Todas
+
+las propiedades son opcionales.Por ejemplo, para cambiar solo la IP:
+
+```javascript
+
+// IP: IP of your KNX/IP Router or Interface
+msg.setGatewayConfig={IP:"224.0.23.12"};
+return msg;
+
+```
+
+** La desconexión de Force Gateway y la desactivación de los intentos de reconexión automática** <Br />
+
+```javascript
+
+// Force the gateway's disconnection from the BUS and stop the reconnection's attempts.
+msg.connectGateway = false;
+return msg;
+
+```
+
+** Conexión de Force Gateway y habilite los intentos de reconexión automática** <Br />
+
+```javascript
+
+// Force the gateway's connection to the BUS and activate the reconnection's attempts.
+msg.connectGateway = true;
+return msg;
+
+```
+
+#### Ver también
+
+[Muestra de vigilancia](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog)
+
+<a id="knx-utility-help-globalcontext"></a>
+
+## Contexto global
+
+<
+
+### KNX Global Variable
+
+Este nodo expone la dirección del grupo recibida del bus, a una variable global **** <br/>
+¡Puede escribir en el bus KNX simplemente actualice la variable global! <br/>
+
+#### Descripción general
+
+Pon un nodo de contexto global en el flujo, luego dale un nombre. <br/>
+El nombre que le da al nodo se convertirá en el nombre de la variable de contexto global. <br/>
+Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** <br/>
+Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. <br/>
+Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. <br/>
+Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos. ** _ <br/>
+
+#### Ajustes
+
+| Propiedad | Descripción |
+|-|-|
+| Puerta | La puerta de enlace KNX. |
+| Nombre de la variable (sin espacios, solo chars [A-Z]) | Nombre del contexto global. Se crearán 2 variables con este nombre, una con sufijo \ _Read (para direcciones de grupo de lectura) y la otra con sufijo _write (para direcciones de grupo de escritura). Por ejemplo, si el nombre de la variable es "KnxGlobalContext", se crean las 2 variables KNXGLOBALContext \ _read y KnxGlobalContext \ _Write. Dado que la variable global es visible desde todos los nodos (incluso los no ultimatizos de KNX), por razones de seguridad, establece un nombre que no sea el predeterminado. Haga clic en el enlace de muestra en la parte inferior de la página. |
+| Exponer como variable global | Elija si y cómo desea exponer la variable global. Si no tiene la intención de escribir en el autobús KNX, por seguridad, deje "solo leer". |
+| Intervalo de escritura de autobús | El nodo verifica la variable con el sufijo \ _Write a intervalos regulares para escribir en el bus KNX. Elija el intervalo que prefiera. |
+
+#### Propiedades de MSG
+
+```javascript
+
+// Properties of the variable, both in reading and in writing
+{
+    address : "0/0/1",
+    dpt: "1.001", 
+    payload: true,
+    devicename:"Dinning Room->Table Light"
+}
+
+```
+
+### Uso
+
+#### Muestra de nodo de contexto global
+
+Este nodo expone la dirección del grupo recibida del bus, a una variable global****<br/>
+¡Puede escribir en el bus KNX simplemente actualice la variable global! <br/>
+
+#### Descripción general
+
+Pon un nodo de contexto global en el flujo, luego dale un nombre. <br/>
+El nombre que le da al nodo se convertirá en el nombre de la variable de contexto global. <br/>
+Eso es todo. Por razones de seguridad, ** Cambie el nombre de nodo predeterminado** <br/>
+Puede acceder a la variable global agregando el sufijo \ _read al nombre del nodo. <br/>
+Puede habilitar/deshabilitar la variable de contexto global, o habilitar Readonly o leer/escribir en la ventana de configuración. <br/>
+Puede emitir un comando de escritura de bus KNX, simplemente modifica el nombre de la variable global con sufijo \ _write. _ ** Después de que se han ejecutado los comandos, la variable global con sufijo \ _Write se vacía automáticamente, no para repetir infinitamente los comandos.** _ <br/>
+
+<br/>
+
+<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/globalcontextnode.png" width = "90%"> <br/>
+
+<br/>
+
+##### Ver código
+
+> Ajuste los nodos de acuerdo con su configuración
+
+```javascript
+
+[{"id":"ababb834.9073","type":"knxUltimateGlobalContext","z":"5ed79f4a958a1f20","server":"b60c0d73.1c02b","name":"KNXContextBanana","exposeAsVariable":"exposeAsVariableREADWRITE","writeExecutionInterval":"1000","x":230,"y":200,"wires":[]},{"id":"2954e7ea.f53988","type":"function","z":"5ed79f4a958a1f20","name":"Write to the KNXContextBanana variable","func":"// This function writes some values to the KNX bus\nlet GroupAddresses = [];\nGroupAddresses.push ({address: \"0/0/10\", dpt:\"1.001\", payload:true});\nGroupAddresses.push({ address: \"0/0/11\", dpt: \"1.001\", payload: true });\nGroupAddresses.push({ address: \"0/0/12\", dpt: \"1.001\", payload: false });\n\n// You can also avoid setting datapoint.\n// This works gread if you have imported the ETS file, otherwise it'll guess the datapoint type by analyzing the payload\nGroupAddresses.push ({address: \"0/0/14\", payload:false});\nGroupAddresses.push({ address: \"0/0/15\", payload: 50 });\n\n// Remember: add the string \"_WRITE\" after the node name to write to the bus\nglobal.set(\"KNXContextBanana_WRITE\",GroupAddresses);\n","outputs":0,"noerr":0,"initialize":"","finalize":"","libs":[],"x":480,"y":300,"wires":[]},{"id":"bd4380e3.8c1ea","type":"inject","z":"5ed79f4a958a1f20","name":"Call the function","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"true","payloadType":"bool","x":220,"y":300,"wires":[["2954e7ea.f53988"]]},{"id":"269bf86a.34e9f8","type":"comment","z":"5ed79f4a958a1f20","name":"Exposing the Group Addresses to the global context variable","info":"","x":360,"y":160,"wires":[]},{"id":"f9a6ff93.086a","type":"function","z":"5ed79f4a958a1f20","name":"Read the KNXContextBanana variable","func":"// This function reads the variable\n// Remember: add the string \"_READ\" after the node name to read the variable\nlet GroupAddresses = global.get(\"KNXContextBanana_READ\") || [];\n\n// Outputs the array, as example\nnode.send({payload:GroupAddresses});\n\n// Get the Group Address object, having address 0/0/10\nlet Ga = GroupAddresses.find(a => a.address === \"0/0/10\");\n\n// Outputs the object, as example\nnode.send({ Found: Ga });\n\n// Do some testing and output some stuffs.\nif (Ga.payload === true) return {payload : \"FOUND AND TRUE\"};\nif (Ga.payload === false) return {payload : \"FOUND AND FALSE\"};\n\n","outputs":1,"noerr":0,"initialize":"","finalize":"","libs":[],"x":410,"y":420,"wires":[["f4109aa5.270e08"]]},{"id":"64c9e0f0.b13178","type":"inject","z":"5ed79f4a958a1f20","name":"Read","props":[{"p":"payload"},{"p":"topic","vt":"str"}],"repeat":"","crontab":"","once":false,"onceDelay":0.1,"topic":"","payload":"true","payloadType":"bool","x":190,"y":420,"wires":[["f9a6ff93.086a"]]},{"id":"f4109aa5.270e08","type":"debug","z":"5ed79f4a958a1f20","name":"","active":true,"tosidebar":true,"console":false,"tostatus":false,"complete":"true","targetType":"full","statusVal":"","statusType":"auto","x":630,"y":420,"wires":[]},{"id":"bf16d5a9.073b6","type":"comment","z":"5ed79f4a958a1f20","name":"Check global variable and do some stuffs","info":"","x":300,"y":380,"wires":[]},{"id":"85c342f08c9c4705","type":"comment","z":"5ed79f4a958a1f20","name":"This function writes some values to the bus","info":"","x":310,"y":260,"wires":[]},{"id":"b60c0d73.1c02b","type":"knxUltimate-config","host":"224.0.23.12","port":"3671","physAddr":"15.15.22","suppressACKRequest":false,"csv":"","KNXEthInterface":"Auto","KNXEthInterfaceManuallyInput":"","statusDisplayLastUpdate":false,"statusDisplayDeviceNameWhenALL":true,"statusDisplayDataPoint":true,"stopETSImportIfNoDatapoint":"fake","loglevel":"error","name":"Multicast","localEchoInTunneling":true,"delaybetweentelegrams":"","delaybetweentelegramsfurtherdelayREAD":"","ignoreTelegramsWithRepeatedFlag":false,"keyringFileXML":""}]
+
+```
+
+<br/>
+
+#### Obtenga el valor de la variable
+
+```javascript
+
+// This function reads the variable
+// Remember: add the string "_READ" after the node name to read the variable
+let GroupAddresses = global.get("KNXContextBanana_READ") || [];
+
+// Outputs the array, as example
+node.send({payload:GroupAddresses});
+
+// Get the Group Address object, having address 0/0/10
+let Ga = GroupAddresses.find(a => a.address === "0/0/10");
+
+// Outputs the object, as example
+node.send({ Found: Ga });
+
+// Do some testing and output some stuffs.
+if (Ga.payload === true) return {payload : "FOUND AND TRUE"};
+if (Ga.payload === false) return {payload : "FOUND AND FALSE"};
+
+```
+
+#### Enviar telegrama KNX a través de la variable global
+
+```javascript
+
+// This function writes the value to the KNX bus
+let GroupAddressesSend = [];
+GroupAddressesSend.push({address: "0/0/10", dpt:"1.001", payload:msg.payload});
+
+// You can also avoid setting datapoint.
+// This works gread if you have imported the ETS file, otherwise it'll guess the datapoint type by analyzing the payload
+GroupAddressesSend.push({address: "0/0/11", payload:msg.payload});
+
+// Remember: add the string "_WRITE" after the node name to write to the bus
+global.set("KNXContextBanana_WRITE",GroupAddressesSend);
+
+```
+
+### MUESTRA
+
+<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode" target = "_ blank"> <i class="fa fa-info-circle"> </i> ver esta muestra </a>
+
+<a id="knx-utility-help-logger"></a>
+
+## Logger
+
+<
+
+### Logger
+
+<p> El nodo del registrador registra todos los telegramas y lo genera en un archivo compatible con XML de monitor de bus ETS. </p>
+<br/>
+Puede guardar el archivo en el disco o enviarlo a un servidor FTP, por ejemplo.El archivo puede ser leído por su ETS, por ejemplo, para diagnóstico o para una repetición de los telegramas.
+<br/>
+El nodo también puede contar telegramas por segundo (o cualquier intervalo que desee).
+<br/> <a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample" target = "_ blank"> Los ejemplos están aquí. </a>
+
+<br/>
+
+#### AJUSTES
+
+| Propiedad | Descripción |
+|-|-|
+|Puerta |La puerta de enlace KNX.|
+|Tema |El tema del nodo.|
+|Nombre de nodo |Nombre del nodo.|
+
+#### archivo de diagnóstico de bus compatible con ETS
+
+| Propiedad | Descripción |
+|-|-|
+|Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de Node-RED.|
+| Nuevo payload cada (en minutos) | Intervalo de emisión del payload y/o de guardado en archivo. En caso de guardado en archivo, al alcanzar el límite de filas configurado, el archivo se **rotará**, eliminando primero las filas más antiguas.|
+|Número máximo de filas (0 = sin límite) |Máximo de filas en el XML; las más antiguas se eliminan primero. 0 para sin límite. Cuando también está activado el guardado en archivo, este valor representa el número máximo de filas del archivo; al alcanzar el límite, el archivo se **rotará**, eliminando progresivamente las filas más antiguas.|
+|Acción |Emitir solo el payload, o emitir el payload y guardar en archivo.|
+|Ruta de archivo (absoluta o relativa) |Dónde guardar el XML cuando se elige guardar.|
+
+#### contador de telegrama de knx
+
+| Propiedad | Descripción |
+|-|-|
+|Temporizador de inicio automático |Inicia el temporizador automáticamente en la implementación o en el inicio de Node-RED.|
+|Intervalo de conteo (en segundos) |Con qué frecuencia emite un MSG al flujo, que contiene el recuento de telegramas KNX. En segundos.|
+
+<br/>
+
+---
+
+### Salida del mensaje del registrador
+
+**Pin 1: archivo de archivo compatible con monitor de bus XML ETS**
+
+Puede usar un nodo de archivo para guardar la carga útil en el sistema de archivos, o puede enviarla, por ejemplo, a un servidor FTP.
+
+```javascript
+
+msg = {
+        topic:"MyLogger" 
+        payload: "CommunicationLog xmlns=http://knx.org/xml/telegrams/01 Telegram Timestamp=2020-03-27T07:32:39.470Z Service=L_Data.ind...." (A String containing the XML file)
+    } 
+
+```
+
+<br/> <br/>
+
+**Pin 2: contador de telegrama de KNX**
+
+Cada recuento, el nodo emitirá un telegrama como este:
+
+```javascript
+
+msg = {
+        topic:"",
+        payload:10,
+        countIntervalInSeconds:5,
+        currentTime:"25/10/2021, 11:11:44"
+    } 
+
+```
+
+<br/>
+
+---
+
+### Mensaje de flujo de entrada
+
+Puede controlar el registrador de alguna manera.
+
+#### Archivo de monitor de bus compatible con ETS XML
+
+**Temporizador de inicio** <br/>
+
+```javascript
+
+// Start the timer
+msg.etsstarttimer = true;
+return msg;
+
+```
+
+**Detener el temporizador** <br/>
+
+```javascript
+
+// Start the timer
+msg.etsstarttimer = false;
+return msg;
+
+```
+
+**ENCONTRA INMEDIATAMENTE una carga útil con el archivo ETS** <br/>
+
+```javascript
+
+// Output payload. Restart timer as well (in case the timer was active)
+msg.etsoutputnow = true;
+return msg;
+
+```
+
+#### contador de telegrama de knx
+
+**Temporizador de inicio** <br/>
+
+```javascript
+
+// Start the timer
+msg.telegramcounterstarttimer = true;
+return msg;
+
+```
+
+**Detener el temporizador** <br/>
+
+```javascript
+
+// Start the timer
+msg.telegramcounterstarttimer = false;
+return msg;
+
+```
+
+**Mensaje de conteo de telegrama de salida inmediatamente** <br/>
+
+```javascript
+
+// Output payload. 
+msg.telegramcounteroutputnow = true;
+return msg;
+
+```
+
+#### Ver también
+
+- _samples_
+- [Logger de muestra](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Sample)
+
+<a id="knx-utility-help-staircase"></a>
+
+## Luz de escalera
+
+### Temporizador de escalera KNX
+
+<p>El nodo Temporizador de escalera KNX reproduce el funcionamiento clásico de una luz de escaleras: escucha los impulsos de activación, gobierna el actuador, refleja el estado en una GA de feedback y respeta los comandos de override o bloqueo.</p>
+
+**Direcciones de grupo**
+
+|Propiedad|Descripción|
+|--|--|
+| GA impulso | Entrada binaria que arranca el temporizador cuando recibe `1`. Si se habilita “El valor 0 cancela el ciclo”, un `0` apaga la luz de inmediato. |
+| GA salida | Actuador que permanece activo mientras dura el ciclo. Selecciona el DPT adecuado al tipo de carga. |
+| GA estado | Refleja el estado activo/preaviso. En modo *Conmutar GA estado* cambia brevemente antes del apagado. |
+| GA override | Mantiene la luz encendida y pausa el temporizador mientras permanece en `1`. |
+| GA bloqueo | Con `1` ignora nuevos impulsos. La opción *Cuando está bloqueado* permite decidir si se debe forzar el apagado. |
+
+**Comportamiento del temporizador**
+
+|Opción|Descripción|
+|--|--|
+| Duración del temporizador | Duración base del ciclo de escalera. |
+| Nuevo impulso | Define si reiniciar el temporizador, prolongarlo o ignorar los impulsos adicionales. |
+| El valor 0 cancela el ciclo | Termina el ciclo con motivo `manual-off` cuando el impulso vuelve a `0`. |
+| Cuando está bloqueado | Decide si el bloqueo solo impide impulsos o también apaga la salida. |
+
+**Preaviso**
+
+|Opción|Descripción|
+|--|--|
+| Enviar preaviso | Activa la alerta previa al apagado. |
+| Aviso (segundos) | Cuántos segundos antes lanzar el aviso. |
+| Modo de aviso | *Conmutar GA estado* cambia temporalmente la GA de estado. *Parpadear la salida* apaga y vuelve a encender la salida tras la duración indicada. |
+| Duración del parpadeo | Milisegundos que la salida permanece apagada durante el parpadeo. |
+
+**Salida del nodo**
+
+- Con *Emitir eventos* habilitado el nodo genera objetos estructurados (`trigger`, `extend`, `prewarn`, `timeout`, `override`, `block`, `manual-off`) con información de `remaining`, `active`, `override`, `blocked`.
+- Si no emites eventos puedes usar la GA de estado como feedback en el bus KNX.
+
+#### Entradas
+
+|Propiedad|Descripción|
+|--|--|
+| Entrada desde el flow | Envía `true`, `false`, `'open'` o `'close'` para iniciar o cancelar el temporizador. |
+| Telegramas KNX | El nodo reacciona a las GA configuradas. |
+
+#### Ejemplo en el flow
+
+```javascript
+
+// Iniciar el temporizador de escalera
+msg.payload = true;
+return msg;
+```
+
+```javascript
+// Cancelar el ciclo (requiere "El valor 0 cancela el ciclo")
+msg.payload = false;
+return msg;
+```
+
+#### Salidas
+
+|Propiedad|Descripción|
+|--|--|
+| Eventos (opcional) | Con eventos habilitados el nodo envía los objetos descritos anteriormente por la salida. |
+
+<a id="knx-utility-help-garage"></a>
+
+## Garaje
+
+### Puerta de garaje KNX
+
+<p>El nodo Puerta de garaje KNX controla un portón motorizado mediante GA específicas para mandos booleanos o impulsos, mantiene abierto o deshabilita el funcionamiento, integra la fotocélula y la señal de obstrucción y puede cerrar automáticamente tras un tiempo.</p>
+
+**Direcciones de mando**
+
+|Propiedad|Descripción|
+|--|--|
+| GA mando (true=abre, false=cierra) | GA booleana (`gaCommand`): `true` abre y `false` cierra. DPT por defecto 1.001. |
+| GA impulso | El flanco activo conmuta la puerta (`gaImpulse`, DPT 1.017). También se usa cuando no existe GA mando. |
+| GA mantener abierto | Cancela la re-clausura automática mientras permanezca a true (`gaHoldOpen`). |
+| GA deshabilitación | Bloquea cualquier comando generado por el nodo (`gaDisable`). |
+
+**Direcciones de entrada/sensores**
+
+|Propiedad|Descripción|
+|--|--|
+| GA fotocélula | Debe pasar a true cuando la fotocélula detecta un obstáculo (`gaPhotocell`). |
+| GA movimiento | Pulso opcional cuando el nodo ordena el movimiento (`gaMoving`). |
+| GA obstrucción | Refleja el estado de obstrucción detectado (`gaObstruction`). |
+
+**Cierre automático**
+
+- Activa *Cierre automático* para iniciar un temporizador cada vez que la puerta esté abierta.
+- Mantener abierto o deshabilitar cancelan la cuenta atrás mientras sigan en true.
+- Al expirar el temporizador el nodo envía el cierre (o impulso) y genera un evento `auto-close`.
+
+**Seguridad**
+
+- Una fotocélula en true durante el cierre hace que la puerta se abra de nuevo y marca obstrucción.
+- Las escrituras externas sobre la GA obstrucción mantienen sincronizado el estado interno.
+- Los pulsos de movimiento pueden alimentar ventilación, iluminación o alarmas.
+
+#### Entradas
+
+|Propiedad|Descripción|
+|--|--|
+| `msg.payload` | Acepta `true`, `false`, `'open'`, `'close'` o `'toggle'` para controlar la puerta desde el flow. |
+| Telegramas KNX | Reacciona a las GA configuradas (mando, impulso, mantener abierto, deshabilitación, fotocélula, movimiento, obstrucción). |
+
+#### Ejemplo en el flow
+
+```javascript
+
+// Abrir el portón
+msg.payload = 'open'; // también acepta true
+return msg;
+```
+
+```javascript
+// Cerrar el portón
+msg.payload = 'close'; // también acepta false
+return msg;
+```
+
+```javascript
+// Conmutar el estado del portón
+msg.payload = 'toggle';
+return msg;
+```
+
+#### Salidas
+
+|Propiedad|Descripción|
+|--|--|
+| Eventos (opcional) | Con eventos activados el nodo envía objetos con `event`, `state`, `disabled`, `holdOpen`, `obstruction`. |
+
+<a id="knx-utility-help-scenecontroller"></a>
+
+## Control de escenas
+
+<p> El nodo de control de la escena se comporta exactamente como un dispositivo KNX de controlador de escena.Es capaz de guardar y recordar una escena. </p>
+
+### Configuración del nodo del controlador de escena
+
+|Propiedad |Descripción |
+|------------ |---------------------------------------------------------------------------------------------------- |
+|Puerta de entrada |Gateway Knx seleccionado.|
+|Recuerdo de la escena | **DataPoint ** y**Valor de activación ** .Dirección grupal para el retiro de escena.Ejemplo 0/0/1.El controlador de la escena reaccionará a los telegramas provenientes de esta dirección grupal, para recordar la escena.El punto de datos es el tipo de punto de datos (DPT) de la dirección de grupo _Scene Recall_.El valor de activación es el valor que debe revivirse, para activar el retiro de la escena.**Recuerde ** : para activar una escena o guardar una escena a través de un comando DIM, colocar en el recuerdo de la escena o guardar la escena**Valor de activación** , el objeto correcto para la atenuación ({Dec \ _incr: 1, datos: 5} para un aumento tenue, {regoder \ _incr: 0, datos: 5} para disminución tenue) |
+|Guardar escena | **DataPoint ** y**Valor de activación ** .Dirección grupal para guardar una escena.Ejemplo 0/0/2.El controlador de la escena reaccionará a los telegramas provenientes de esta dirección de grupo, guardando todos los valores actuales de todos los dispositivos en la escena, que se pueden recuperar más adelante.Cada vez que presione, o presione durante mucho tiempo un botón KNX real en su edificio, el controlador de la escena leerá los valores de todos los dispositivos en la escena y lo guardará en un almacenamiento no volátil.El punto de datos es el tipo de punto de datos (DPT) de la dirección de grupo _scene save_.El valor de activación es el valor que debe revivirse, para activar el ahorro de la escena.**Recuerde ** : para activar una escena o guardar una escena a través de un comando DIM, colocar en el recuerdo de la escena o guardar la escena**Valor de activación** , el objeto correcto para la atenuación ({Dec \ _incr: 1, datos: 5} para un aumento tenue, {regoder \ _incr: 0, datos: 5} para disminución tenue) |
+|Nombre del nodo |Nombre del nodo, en el formato "Recordar: Nombre del dispositivo utilizado para recuperar la escena / Guardar: Nombre del dispositivo para guardar la escena".Pero puedes establecer el nombre que quieras.|
+|Tema |Tema del nodo.|
+
+#### Configuración de la escena
+
+Debe agregar dispositivos a la escena, como un dispositivo KNX de controlador de escena real estándar.Esta es una lista, cada fila representa un dispositivo.
+
+_ **El nodo de la escena guarda automáticamente los valores actualizados de todos los actuadores que pertenecen a la escena, cada vez que recibe un nuevo valor del bus.** _
+
+|Propiedad |Descripción |
+|------------- |---------------------------------------------------------------------------------------------------- |
+|Botón Agregar |Agregue una fila a la lista.|
+|Campo de la fila |El primer campo es la dirección de grupo, el segundo es el punto de datos, tercero es el valor predeterminado para este dispositivo en la escena (la función _scene save_ puede anular esto).A continuación, se encuentra el nombre del dispositivo. <br/> Para insertar un _Pause_, escriba **espera ** en el primer campo y un número en el último campo, que representa el tiempo (en milisegundos) de la pausa, por ejemplo**2000 ** <br/> <br> El comando**espera ** acepta también valores que indican segundos o horas. <BR> a un valor en segundo lugar, add**ssule, por ejemplo, los valores de los numéricos, por ejemplo, por ejemplo, por ejemplo, los valores de los numéricos.( ** 12s**) <br> Para establecer un valor en minutos, agregue ** m**después del valor numérico, por ejemplo ( ** 5m**) <br> Para establecer un valor en horas, agregue ** h**después del valor numérico, por ejemplo ( ** 1H** ) |
+|Botón eliminar |Elimine un dispositivo de la lista.|
+
+### Salida de mensajes desde el nodo del controlador de escena
+
+```javascript
+
+msg = {
+    topic: "Scene Controller" <i>(Contains the node's topic, for example "MyTopic").</i>
+    recallscene: <i>(<b>true</b> if a scene has been recalled, otherwise <b>false</b>).</i> 
+    savescene: <i>(<b>true</b> if a scene has been saved, otherwise <b>false</b>).</i> 
+    savevalue: <i>(<b>true</b> if a group address value belonging to an actuator in the scene, has been manually saved by a msg input, otherwise <b>false</b>).</i> 
+    disabled: <i>(<b>true</b> if the scene controller has been disabled via input message msg.disabled = true, otherwise <b>false</b>).</i> 
+}
+
+```
+
+---
+
+### Mensaje de flujo de entrada
+
+El nodo del controlador de la escena reacciona principalmente a los telegramas KNX y confía en eso para recordar y guardar escenas.
+
+Sin embargo, puede recordar y guardar escenas enviando un mensaje al nodo.El controlador de la escena se puede deshabilitar para inhibir los comandos que provienen del autobús KNX. ** Recuerde una escena** 
+
+```javascript
+
+// Example of a function that recall the scene
+msg.recallscene = true; 
+return msg;
+
+```
+
+** Guardar una escena** 
+
+```javascript
+
+// Example of a function that saves the scene
+msg.savescene = true; 
+return msg;
+
+```
+
+** Guardar el valor actual de una dirección de grupo ** _**El nodo de la escena ya guarda los valores actualizados de todos los actuadores que pertenecen a la escena.** _
+
+A veces es útil poder guardar el valor actual de una dirección de grupo que es diferente de la que ingresó en la escena, como el valor real del actuador de la escena.
+
+Por ejemplo, un actuador de obturador generalmente tiene una dirección de grupo de comando y una de estado.
+
+El nodo guarda la escena tomando valores de dirección de grupo de comando, que pueden no estar alineados con el valor de estado real.
+
+Sin embargo, puede trabajar en torno a esto actualizando manualmente el valor de la dirección del grupo de comando, tomándolo desde la dirección del grupo de estado.
+
+Piense en esto: si tiene un actuador ciego, tiene una dirección grupal para el movimiento, una dirección grupal para el paso, una dirección de grupo para la altura absoluta, etc. la única dirección grupal que conoce la posición exacta de la ciega, es la dirección de grupo ** Valor de altura absoluta** .<br/>
+
+Con esta dirección de grupo de estado, puede actualizar las direcciones del grupo de comando de los actuadores ciegos que pertenecen a la escena.Consulte la muestra en el wiki.
+
+```javascript
+
+// Example of a function that saves the status of a blind actuator, belongind to the scene.
+msg.savevalue = true; 
+msg.topic = "0/1/1";
+msg.payload = 70;
+return msg;
+
+```
+
+** Desactivar Controlador de escena**
+
+Puede deshabilitar el controlador de la escena (deshabilita la recepción del telegrama del bus KNX, pero el nodo aún acepta el mensaje de entrada del flujo en su lugar).En algún momento es aconsejable para deshabilitar el retiro y el salvamento de una escena, por ejemplo, cuando es de noche y llamas, desde un botón de empuje KNX, una "escena de TV" que levanta o baja una ciega, la escena no se recordará ni salvará.En cambio, puede habilitar otra escena, solo por la noche, por ejemplo, para atenuar una serie de luces.
+
+```javascript
+
+// Example of disabling the scene controller. The commands coming from KNX BUS will be disabled. The node still accept the input msg from the flow instead!
+msg.disabled = true; // Otherwise "msg.disabled = false" to re-enable the node.
+return msg;
+
+```
+
+#### Ver también
+
+[Controlador de escena de muestra](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Sample-Scene-Node)
+
+<a id="knx-utility-help-loadcontrol"></a>
+
+## Control de cargas
+
+### Nodo de control de carga KNX
+
+<p> Con el nodo de control de carga puede administrar automáticamente la desconexión de las cargas (lavadora, horno, etc.) cuando el consumo de corriente excede un cierto umbral.
+
+Los dispositivos se desactivan de manera inteligente, verificando el posible consumo del dispositivo para determinar si apagarlo con otros.<br/>
+El nodo puede reactivar automáticamente las cargas.<br/>
+El nodo apaga un dispositivo (o múltiples dispositivos) a la vez, según el orden que ha seleccionado. <BR/>
+
+**General**
+
+| Propiedad | Descripción |
+|-|-|
+|Puerta |KNX Gateway.También es posible no seleccionar ninguna puerta de enlace;En este caso, solo se considerarán mensajes entrantes al nodo.|
+|Modo |Seleccione _Automático (interno)_ para usar Monitor W/umbrales/temporizadores. Seleccione _Manual (msg.shedding)_ para deshabilitar la lógica interna y usar solo `msg.shedding` (`shed`/`unshed`).|
+|Monitor W |Dirección grupal que representa el consumo total de su edificio.|
+|Soglia W |Umbral máximo que su medidor de electricidad puede soportar.Cuando se excede este umbral, el nodo comienza a apagar los dispositivos.|
+|Retraso apagado (s) |Expresado en segundos, indica con qué frecuencia el nodo evaluará el consumo y apagará cada dispositivo.|
+|Interruptor de retraso (s) (s) |Expresado en segundos, indica con qué frecuencia el nodo evaluará el consumo y encenderá cada dispositivo que se apagó.|
+
+<br/>
+
+**Control de carga**
+
+Aquí puede agregar dispositivos para apagar en caso de sobrecarga.<br/>
+Elija el dispositivo para apagar.Ingrese el nombre del dispositivo o su dirección de grupo.<br/>
+Ingrese cualquier dirección de grupo que indique el consumo del dispositivo elegido en la primera línea. **Este es un parámetro opcional** .Si el dispositivo consume más de un cierto número de vatios, significa que está en uso.Si consume menos, el dispositivo se considerará "no en uso" y tanto esto como el siguiente se desactivarán a la vez. <br/>
+Si _Automatic Recovery_ está habilitado, el dispositivo se reactiva automáticamente cuando expira el "retraso de reinicio".
+
+#### entradas
+
+| Propiedad | Descripción |
+|-|-|
+|`msg.readstatus = true` |Forzar la lectura de los valores del bus KNX de cada dispositivo en la lista._ **El nodo ya hace todo por sí mismo** _, pero si es necesario, es posible usar este comando para forzar una releer de los valores actuales en Watt. |
+|`msg.enable = true` |Habilitar el control de carga. |
+|`msg.disable = true` |Deshabilite el control de carga. |
+|`msg.reset = true` |Restablecer los estados de nodo y encender todos los dispositivos. |
+|`msg.shedding` |String. En modo _Manual_: `shed` apaga la siguiente carga, `unshed` restaura la anterior. En modo _Automático_: `shed`/`unshed` fuerza la lógica interna; `auto` restablece la supervisión normal.|
+
+#### salidas
+
+1. Salida estándar
+: Payload (String | Object): la salida estándar del comando.
+
+#### Detalles
+
+```javascript
+
+msg = {
+  "topic": "Home Total Consumption", // Node Name
+  "operation": "Increase Shedding" or "Decrease Shedding" or operation reflecting the input message (disable, enable, reset), // Operation
+  "device": "Washing machine", // Device shedded
+  "ga": "", // Group address of the shedded device
+  "totalPowerConsumption": 3100, // Current power consumption
+  "wattLimit": 3000, // Limit you set in the config window
+  "payload": 1, // Current shedding stage
+}
+
+```
+
+### Muestra
+
+<a href = "https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleLoadControl"> Haga clic aquí para ver el ejemplo </a>
+
+<br/>
+
+<a id="knx-utility-help-hatranslator"></a>
+
+## Home Assistant Translator
+
+Convierte los estados de texto de Home Assistant en valores booleanos. Esta función tiene una entrada y una salida y no requiere una pasarela KNX.
+
+Elige la propiedad del mensaje de entrada que se leerá, como `payload` o `data.new_state.state`. Introduce una traducción por línea con el formato `entrada:true` o `entrada:false`, por ejemplo `on:true` y `off:false`. La comparación no distingue mayúsculas de minúsculas. Escribe los dos puntos directamente entre el texto y el valor booleano.
+
+La salida es una copia del mensaje con un `msg.payload` booleano; los demás campos se conservan. También admite entradas booleanas y numéricas. Los valores ausentes o desconocidos no generan mensajes y se indican en el estado del nodo. La migración conserva la propiedad de entrada y la tabla de traducciones personalizada.
+</script>

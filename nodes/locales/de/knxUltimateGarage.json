@@ -1,7 +1,7 @@
 {
   "knxUltimateGarage": {
     "title": "Garage door",
-    "paletteLabel": "Garage",
+    "paletteLabel": "Garage (deprecated)",
     "node-input-server": "KNX Gateway",
     "node-input-name": "Name",
     "node-input-outputtopic": "Topic for emitted events",
@@ -43,6 +43,9 @@
       "events_desc": "With event emission enabled the node outputs structured messages (open, close, toggle, obstruction, disabled, hold-open, auto-close) for flow logic."
     },
     "section_commands": "Command group addresses",
-    "section_inputs": "Input / sensor group addresses"
+    "section_inputs": "Input / sensor group addresses",
+    "legacy_notice": "Dieser Knoten ist veraltet und wird für bestehende Flows weiterhin unterstützt. Verwenden Sie KNX Utility für neue Flows. Die Schaltfläche unten konvertiert alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows.",
+    "migration_button": "Alle kompatiblen bisherigen KNX-Knoten konvertieren",
+    "migration_button_title": "Alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows des Editors in KNX Utility konvertieren"
   }
 }

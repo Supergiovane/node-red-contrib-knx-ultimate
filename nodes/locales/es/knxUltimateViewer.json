@@ -1,11 +1,19 @@
 {
-  "knxUltimateViewer": {
-    "title": "Espectador de knx",
-    "node-input-name": "Nombre",
-    "outputs": {
-      "ga_dashboard": "Direcciones de grupo de tablero",
-      "simple_array": "Array simple JSON para grabación de datos",
-      "queue": "Cola de telegramas del tablero"
+    "knxUltimateViewer": {
+        "title": "Espectador de knx",
+        "node-input-name": "Nombre",
+        "outputs": {
+            "ga_dashboard": "Direcciones de grupo de tablero",
+            "simple_array": "Array simple JSON para grabación de datos",
+            "queue": "Cola de telegramas del tablero"
+        },
+        "locale": "es",
+        "advanced": {
+            "node-input-server": "Pasarela"
+        },
+        "web-monitor": "Monitor web",
+        "open-monitor": "Abrir monitor KNX Viewer",
+        "open-monitor-tooltip": "Abrir el monitor de direcciones de grupo y su historial de 24 horas en una pestaña nueva",
+        "monitor-description": "Una lista sencilla de los cambios de las direcciones de grupo, con un historial de 24 horas guardado en archivo. La grabación continúa con la página cerrada o en pausa."
     }
-  }
 }

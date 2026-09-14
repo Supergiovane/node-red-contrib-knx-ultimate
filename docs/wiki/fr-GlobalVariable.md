@@ -4,6 +4,10 @@ title: "GlobalVariable"
 lang: fr
 permalink: /wiki/fr-GlobalVariable
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Global Context**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 # Variable globale KNX
 
 Ce nœud expose l'adresse de groupe reçue du bus à une variable globale **** 

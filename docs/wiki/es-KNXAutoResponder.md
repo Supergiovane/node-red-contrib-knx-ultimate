@@ -4,6 +4,10 @@ title: "KNXAutoResponder"
 lang: es
 permalink: /wiki/es-KNXAutoResponder
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Este nodo dedicado sigue siendo compatible con los flujos existentes. Para los nuevos flujos usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/es-KNX-Utility) y selecciona **AutoResponder**. Su editor convierte todas las utilidades antiguas compatibles en todos los flujos y subflujos, con una sola operación Deshacer y Deploy manual.
+
 Este nodo responderá a las solicitudes de lectura del bus KNX.
 
 El nodo registra todos los telegramas transmitidos al bus KNX y almacenan los valores en la memoria. \

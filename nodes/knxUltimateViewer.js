@@ -3,9 +3,9 @@ const path = require('path')
 const KNXAddress = require('knxultimate').KNXAddress
 const _ = require('lodash')
 const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
+const createViewerHistory = require('./utils/knxViewerHistory')
 
-let viewerAdminEndpointsRegistered = false
-const viewerRuntimeNodes = new Map()
+const viewerRuntimeContexts = new WeakMap()
 const knxUltimateViewerVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateViewer-vue')
 
 const sendKnxUltimateViewerVueIndex = (req, res) => {
@@ -163,7 +163,20 @@ const buildViewerWebState = (node) => {
 }
 
 module.exports = function (RED) {
-  if (!viewerAdminEndpointsRegistered) {
+  let context = viewerRuntimeContexts.get(RED)
+  if (!context) {
+    context = { nodes: new Map(), endpointsRegistered: false }
+    viewerRuntimeContexts.set(RED, context)
+  }
+  const viewerRuntimeNodes = context.nodes
+  const findViewer = nodeId => nodeId ? viewerRuntimeNodes.get(nodeId) : viewerRuntimeNodes.values().next().value
+  const viewerDetails = node => ({
+    id: node.id,
+    name: node.name || 'KNXViewer',
+    gatewayId: node.serverKNX ? node.serverKNX.id : '',
+    gatewayName: node.serverKNX ? node.serverKNX.name || '' : ''
+  })
+  if (!context.endpointsRegistered) {
     RED.httpAdmin.use('/knxUltimateViewer', normalizeAuthFromAccessTokenQuery)
 
     RED.httpAdmin.get('/knxUltimateViewer/page', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
@@ -191,12 +204,7 @@ module.exports = function (RED) {
     RED.httpAdmin.get('/knxUltimateViewer/nodes', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       try {
         const nodes = Array.from(viewerRuntimeNodes.values())
-          .map((node) => ({
-            id: node.id,
-            name: node.name || 'KNXViewer',
-            gatewayId: node.serverKNX ? node.serverKNX.id : '',
-            gatewayName: (node.serverKNX && node.serverKNX.name) ? node.serverKNX.name : ''
-          }))
+          .map(viewerDetails)
           .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
         res.json({ nodes })
       } catch (error) {
@@ -207,10 +215,7 @@ module.exports = function (RED) {
     RED.httpAdmin.get('/knxUltimateViewer/state', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
       try {
         const nodeId = String(req.query.nodeId || '').trim()
-        let viewerNode = nodeId ? viewerRuntimeNodes.get(nodeId) : null
-        if (!viewerNode) {
-          viewerNode = Array.from(viewerRuntimeNodes.values())[0]
-        }
+        const viewerNode = findViewer(nodeId)
         if (!viewerNode) {
           res.status(404).json({ error: 'KNX Viewer node not found' })
           return
@@ -221,12 +226,42 @@ module.exports = function (RED) {
       }
     })
 
-    viewerAdminEndpointsRegistered = true
+    RED.httpAdmin.get('/knxUltimateViewer/history', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
+      try {
+        const nodeId = String(req.query.nodeId || '').trim()
+        const viewerNode = findViewer(nodeId)
+        if (!viewerNode) {
+          res.status(404).json({ error: 'KNX Viewer node not found' })
+          return
+        }
+        if (!viewerNode.viewerHistory) {
+          res.status(503).json({ error: viewerNode.viewerHistoryError || 'KNX Viewer history is unavailable' })
+          return
+        }
+        const limit = req.query.limit === undefined ? 200 : Number(req.query.limit)
+        if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {
+          res.status(400).json({ error: 'History limit must be between 1 and 1000' })
+          return
+        }
+        const result = await viewerNode.viewerHistory.query({
+          limit,
+          before: String(req.query.before || ''),
+          search: String(req.query.search || '').slice(0, 200)
+        })
+        res.set('Cache-Control', 'no-store')
+        res.json({ ...result, node: viewerDetails(viewerNode), retentionHours: 24 })
+      } catch (error) {
+        res.status(error.code === 'INVALID_CURSOR' ? 400 : 500).json({ error: error.message || String(error) })
+      }
+    })
+
+    context.endpointsRegistered = true
   }
 
   function knxUltimateViewer (config) {
     RED.nodes.createNode(this, config)
     const node = this
+    let closed = false
     node.serverKNX = RED.nodes.getNode(config.server) || undefined
     const pushStatus = (status) => {
       if (!status) return
@@ -251,7 +286,7 @@ module.exports = function (RED) {
     node.name = config.name === undefined ? 'KNXViewer' : config.name
     node.outputtopic = node.name
     node.dpt = ''
-    node.notifyreadrequest = false
+    node.notifyreadrequest = true
     node.notifyreadrequestalsorespondtobus = 'false'
     node.notifyreadrequestalsorespondtobusdefaultvalueifnotinitialized = ''
     node.notifyresponse = true
@@ -268,6 +303,23 @@ module.exports = function (RED) {
     node.formatdecimalsvalue = 2
     node.timerPIN3 = null
     node.exposedGAs = []
+
+    const reportHistoryError = error => {
+      const message = error && error.message ? error.message : String(error)
+      if (node.viewerHistoryError !== message) node.warn('KNX Viewer history: ' + message)
+      node.viewerHistoryError = message
+    }
+    try {
+      node.viewerHistory = createViewerHistory({
+        userDir: RED.settings.userDir,
+        nodeId: node.id,
+        gatewayId: node.serverKNX.id,
+        onError: reportHistoryError
+      })
+      node.viewerHistory.ready.catch(reportHistoryError)
+    } catch (error) {
+      reportHistoryError(error)
+    }
 
     viewerRuntimeNodes.set(node.id, node)
 
@@ -286,31 +338,54 @@ module.exports = function (RED) {
     }
 
     node.handleSend = (msg) => {
-      let gaEntry
+      if (closed || !msg || !msg.knx) return
+      const isRead = msg.knx.event === 'GroupValue_Read'
+      const address = String(msg.knx.destination || '').trim()
+      let addressRAW
       try {
-        gaEntry = node.exposedGAs.find(ga => ga.address === msg.knx.destination)
+        addressRAW = KNXAddress.createFromString(address, KNXAddress.TYPE_GROUP).get()
       } catch (error) {
+        return
       }
+      const timestampMs = Date.now()
       const deviceName = msg.devicename === node.name ? 'Import ETS file to view the group address name' : msg.devicename
-      const addressRAW = KNXAddress.createFromString(msg.knx.destination, KNXAddress.TYPE_GROUP).get()
+      const rawPayload = Buffer.isBuffer(msg.knx.rawValue) ? msg.knx.rawValue.toString('hex') : normalizePayloadText(msg.knx.rawValue)
+      const unit = msg.payloadmeasureunit && msg.payloadmeasureunit !== 'unknown' ? String(msg.payloadmeasureunit).trim() : ''
+      if (node.viewerHistory) {
+        node.viewerHistory.record({
+          timestampMs,
+          address,
+          source: String(msg.knx.source || ''),
+          dpt: String(msg.knx.dpt || ''),
+          devicename: msg.devicename === node.name ? '' : String(msg.devicename || ''),
+          payload: msg.payload,
+          payloadText: normalizePayloadText(msg.payload),
+          payloadmeasureunit: unit,
+          rawPayload,
+          event: String(msg.knx.event || '')
+        }).catch(reportHistoryError)
+      }
+      // A read request has no state value and must not change the legacy outputs.
+      if (isRead) return
+      const gaEntry = node.exposedGAs.find(ga => ga.address === address)
       if (gaEntry === undefined) {
         node.exposedGAs.push({
-          address: msg.knx.destination,
+          address,
           addressRAW,
           dpt: msg.knx.dpt,
           payload: msg.payload,
           devicename: deviceName,
-          lastupdate: new Date(),
-          rawPayload: 'HEX Raw: ' + msg.knx.rawValue.toString('hex') || '?',
-          payloadmeasureunit: (msg.payloadmeasureunit !== 'unknown' ? ' ' + msg.payloadmeasureunit : '')
+          lastupdate: new Date(timestampMs),
+          rawPayload: 'HEX Raw: ' + (rawPayload || '?'),
+          payloadmeasureunit: unit ? ' ' + unit : ''
         })
       } else {
         gaEntry.dpt = msg.knx.dpt
         gaEntry.payload = msg.payload
         gaEntry.devicename = deviceName
-        gaEntry.lastupdate = new Date()
-        gaEntry.rawPayload = 'HEX Raw: ' + msg.knx.rawValue.toString('hex') || '?'
-        gaEntry.payloadmeasureunit = (msg.payloadmeasureunit !== 'unknown' ? ' ' + msg.payloadmeasureunit : '')
+        gaEntry.lastupdate = new Date(timestampMs)
+        gaEntry.rawPayload = 'HEX Raw: ' + (rawPayload || '?')
+        gaEntry.payloadmeasureunit = unit ? ' ' + unit : ''
       }
 
       const pin1 = node.createPayloadPIN1()
@@ -416,12 +491,16 @@ module.exports = function (RED) {
     })
 
     node.on('close', function (done) {
+      closed = true
       if (node.timerPIN3 !== null) clearInterval(node.timerPIN3)
-      viewerRuntimeNodes.delete(node.id)
+      if (viewerRuntimeNodes.get(node.id) === node) viewerRuntimeNodes.delete(node.id)
       if (node.serverKNX) {
         node.serverKNX.removeClient(node)
       }
-      done()
+      Promise.resolve().then(() => node.viewerHistory && node.viewerHistory.close()).then(() => done(), error => {
+        reportHistoryError(error)
+        done()
+      })
     })
 
     if (node.serverKNX) {

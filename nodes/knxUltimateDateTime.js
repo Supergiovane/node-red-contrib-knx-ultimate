@@ -1,33 +1,9 @@
 const loggerClass = require('./utils/sysLogger')
 
-let sendNowEndpointRegistered = false
+const registerSendNowEndpoint = require('./utils/knxDateTimeSendNow')
 
 module.exports = function (RED) {
-  if (!sendNowEndpointRegistered) {
-    RED.httpAdmin.post('/knxUltimateDateTime/sendNow', RED.auth.needsPermission('knxUltimate-config.write'), (req, res) => {
-      try {
-        const { id } = req.body || {}
-        if (!id) {
-          res.status(400).json({ error: 'Missing node id' })
-          return
-        }
-        const targetNode = RED.nodes.getNode(id)
-        if (!targetNode) {
-          res.status(404).json({ error: 'KNX DateTime node not found' })
-          return
-        }
-        if (typeof targetNode.triggerSend !== 'function') {
-          res.status(400).json({ error: 'Node does not support sendNow' })
-          return
-        }
-        const result = targetNode.triggerSend({ reason: 'button' })
-        res.json({ status: 'ok', queued: result && result.queued === true })
-      } catch (error) {
-        res.status(500).json({ error: error.message || 'KNX DateTime send failed' })
-      }
-    })
-    sendNowEndpointRegistered = true
-  }
+  registerSendNowEndpoint(RED)
 
   function knxUltimateDateTime (config) {
     RED.nodes.createNode(this, config)

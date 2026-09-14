@@ -4,6 +4,10 @@ title: "LoadControl-Configuration"
 lang: fr
 permalink: /wiki/fr-LoadControl-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Load Control**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 # Nœud de contrôle de charge KNX
 
  Avec le nœud de contrôle de charge, vous pouvez gérer automatiquement la déconnexion des charges (lave-linge, four, etc.) lorsque la consommation de courant dépasse un certain seuil.

@@ -1,0 +1,48 @@
+{
+  "knxUltimateGarage": {
+    "title": "Portone garage",
+    "paletteLabel": "Garage",
+    "node-input-server": "Gateway KNX",
+    "node-input-name": "Nome",
+    "node-input-outputtopic": "Topic eventi emessi",
+    "command": "GA comando (true=apre, false=chiude)",
+    "impulse": "GA impulso",
+    "holdOpen": "GA blocco richiusura",
+    "disable": "GA disabilitazione",
+    "photocell": "GA fotocellula",
+    "moving": "GA in movimento",
+    "obstruction": "GA ostruzione",
+    "autoCloseEnable": "Abilita richiusura automatica",
+    "autoCloseSeconds": "Tempo richiusura automatica (secondi)",
+    "node-input-emitEvents": "Emetti eventi in uscita",
+    "placeholders": {
+      "outputtopic": "Topic opzionale per gli eventi",
+      "ga": "es. 1/2/3",
+      "commandName": "Attuatore portone",
+      "impulseName": "Ingresso impulso",
+      "holdOpenName": "Comando blocco richiusura",
+      "disableName": "Comando disabilitazione",
+      "photocellName": "Sensore fotocellula",
+      "movingName": "Indicatore movimento",
+      "obstructionName": "Indicatore ostruzione"
+    },
+    "help": {
+      "intro": "Gestisce un portone garage KNX con comandi diretti, impulso, sensori di sicurezza e richiusura automatica.",
+      "commands": "Comandi",
+      "command_ga": "La GA comando esegue apertura (true) o chiusura (false). Il nodo la usa anche per la richiusura automatica.",
+      "impulse_ga": "La GA impulso commuta il portone. I fronti attivi aggiornano lo stato interno e vengono usati se non è disponibile un comando diretto.",
+      "holdopen_ga": "La GA blocco richiusura mantiene il portone aperto e annulla il timer finché torna a false.",
+      "disable_ga": "La GA disabilitazione sospende qualsiasi automatismo del nodo (utile in manutenzione).",
+      "safety": "Sicurezze e stati",
+      "photocell_ga": "La GA fotocellula deve andare a true quando l'ostruzione interrompe il fascio: il nodo riapre subito il portone e segnala l'ostruzione.",
+      "moving_ga": "La GA in movimento (opzionale) viene pulsata quando il nodo comanda il portone, così altri dispositivi possono sincronizzarsi.",
+      "obstruction_ga": "La GA ostruzione replica lo stato d'allarme per altri componenti KNX.",
+      "auto": "Richiusura automatica",
+      "auto_close": "Abilita il timer per chiudere automaticamente il portone dopo il tempo impostato, salvo blocco richiusura o disabilitazione attiva.",
+      "events": "Uscita del nodo",
+      "events_desc": "Con gli eventi attivi il nodo genera messaggi strutturati (open, close, toggle, obstruction, disabled, hold-open, auto-close) per la logica del flow."
+    },
+    "section_commands": "GA di comando",
+    "section_inputs": "GA di ingresso/sensori"
+  }
+}

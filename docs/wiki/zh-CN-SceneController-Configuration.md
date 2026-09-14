@@ -4,6 +4,10 @@ title: "SceneController-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-SceneController-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **Scene Controller**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+
 # Scene Controller（场景控制器）
 
 该节点与 KNX 场景控制器一致：可以保存和召回场景。

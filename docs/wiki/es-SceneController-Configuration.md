@@ -4,6 +4,10 @@ title: "SceneController-Configuration"
 lang: es
 permalink: /wiki/es-SceneController-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Este nodo dedicado sigue siendo compatible con los flujos existentes. Para los nuevos flujos usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/es-KNX-Utility) y selecciona **Scene Controller**. Su editor convierte todas las utilidades antiguas compatibles en todos los flujos y subflujos, con una sola operación Deshacer y Deploy manual.
+
 El nodo de control de la escena se comporta exactamente como un dispositivo KNX de controlador de escena.Es capaz de guardar y recordar una escena. 
 
 # Configuración del nodo del controlador de escena

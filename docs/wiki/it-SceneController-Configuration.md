@@ -4,6 +4,10 @@ title: "SceneController-Configuration"
 lang: it
 permalink: /wiki/it-SceneController-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Scene Controller**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+
 # Scene Controller
 
 Il nodo Scene Controller si comporta come un dispositivo KNX di controllo scene: consente di salvare e richiamare una scena.

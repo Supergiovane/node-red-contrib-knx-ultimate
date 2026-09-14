@@ -4,6 +4,10 @@ title: "LoadControl-Configuration"
 lang: de
 permalink: /wiki/de-LoadControl-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **Load Control**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # KNX Load Control Node
 
 Mit dem Load-Control-Node schaltest du Lasten (Waschmaschine, Ofen usw.) automatisch ab, wenn der Verbrauch einen Schwellwert überschreitet.

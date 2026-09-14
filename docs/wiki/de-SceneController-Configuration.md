@@ -4,6 +4,10 @@ title: "SceneController-Configuration"
 lang: de
 permalink: /wiki/de-SceneController-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **Scene Controller**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # Scene Controller
 
 Der Scene-Controller-Node verhält sich wie ein KNX-Szenencontroller: Szenen speichern und abrufen.

@@ -4,6 +4,10 @@ title: "GlobalVariable"
 lang: de
 permalink: /wiki/de-GlobalVariable
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **Global Context**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # KNX GLOBALE VARIABLE
 
 Dieser Node spiegelt empfangene Gruppenadressen in eine globale Kontext-Variable\

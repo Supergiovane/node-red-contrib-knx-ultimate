@@ -4,6 +4,10 @@ title: "WatchDog-Configuration"
 lang: fr
 permalink: /wiki/fr-WatchDog-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **WatchDog**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+
 vérifie la connexion à la passerelle ou à un périphérique KNX spécifique 
 
 # Chien de garde

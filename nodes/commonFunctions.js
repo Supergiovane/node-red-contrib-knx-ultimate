@@ -281,8 +281,8 @@ module.exports = (RED) => {
       }
     })
 
-    // 2025-12 Download logger XML file configured in a knxUltimateLogger node
-    RED.httpAdmin.get('/knxUltimateLoggerDownload', normalizeAuthFromAccessTokenQuery, RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
+    // Shared Logger download for legacy nodes and the private Utility profile.
+    const downloadLoggerFile = (req, res) => {
       try {
         const nodeId = (req.query.nodeId || req.query.id || '').toString()
         if (!nodeId) {
@@ -316,7 +316,9 @@ module.exports = (RED) => {
         try { RED.log.error(`KNXUltimateLoggerDownload error: ${error.message}`) } catch (e) {}
         if (!res.headersSent) res.status(500).json({ error: 'UNEXPECTED_ERROR' })
       }
-    })
+    }
+    RED.httpAdmin.get('/knxUltimateLoggerDownload', normalizeAuthFromAccessTokenQuery, RED.auth.needsPermission('knxUltimate-config.read'), downloadLoggerFile)
+    RED.httpAdmin.get('/knxUltimateUtility/logger/download', normalizeAuthFromAccessTokenQuery, RED.auth.needsPermission('knxUltimate-config.read'), downloadLoggerFile)
 
     // 2025-09 List interfaces (IA) from KNX Secure keyring
     RED.httpAdmin.get('/knxUltimateKeyringInterfaces', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {

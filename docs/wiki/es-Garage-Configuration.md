@@ -4,6 +4,10 @@ title: "Garage-Configuration"
 lang: es
 permalink: /wiki/es-Garage-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Este nodo dedicado sigue siendo compatible con los flujos existentes. Para los nuevos flujos usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/es-KNX-Utility) y selecciona **Garage**. Su editor convierte todas las utilidades antiguas compatibles en todos los flujos y subflujos, con una sola operación Deshacer y Deploy manual.
+
 ---
 # Puerta de garaje
 El nodo **KNX Garage** controla un portón motorizado con GA dedicadas a mandos booleanos o impulsos, integra fotocélula y estado de obstrucción, permite mantener abierto o deshabilitar la lógica y dispone de cierre automático.

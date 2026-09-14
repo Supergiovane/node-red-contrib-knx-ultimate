@@ -6,6 +6,14 @@
             "ga_dashboard": "仪表板组地址",
             "simple_array": "用于数据记录的简单数组 JSON",
             "queue": "仪表板电报队列"
-        }
+        },
+        "locale": "zh-CN",
+        "advanced": {
+            "node-input-server": "网关"
+        },
+        "web-monitor": "网页监视器",
+        "open-monitor": "打开 KNX Viewer 监视器",
+        "open-monitor-tooltip": "在新标签页中打开组地址监视器和最近 24 小时的历史记录",
+        "monitor-description": "以简单列表显示组地址的状态变化，并将最近 24 小时的历史记录保存到文件。关闭页面或暂停显示时仍会继续记录。"
     }
 }

@@ -1,7 +1,7 @@
 {
   "knxUltimateGarage": {
     "title": "Porte de garage",
-    "paletteLabel": "Garage",
+    "paletteLabel": "Garage (deprecated)",
     "node-input-server": "Passerelle KNX",
     "node-input-name": "Nom",
     "node-input-outputtopic": "Topic des événements",
@@ -43,6 +43,9 @@
       "events_desc": "Avec l'émission d'événements activée le nœud génère des messages structurés (open, close, toggle, obstruction, disabled, hold-open, auto-close) pour la logique du flow."
     },
     "section_commands": "Adresses de commande",
-    "section_inputs": "Adresses d’entrée / capteurs"
+    "section_inputs": "Adresses d’entrée / capteurs",
+    "legacy_notice": "Ce nœud est obsolète et reste pris en charge dans les flux existants. Utilisez KNX Utility pour les nouveaux flux. Le bouton ci-dessous convertit tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux.",
+    "migration_button": "Convertir tous les anciens nœuds KNX compatibles",
+    "migration_button_title": "Convertir en KNX Utility toutes les instances des anciens utilitaires KNX compatibles dans tous les flux et sous-flux de l’éditeur"
   }
 }

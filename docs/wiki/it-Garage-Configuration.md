@@ -4,6 +4,10 @@ title: "Garage-Configuration"
 lang: it
 permalink: /wiki/it-Garage-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Garage**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+
 ---
 # Porta garage
 Il nodo **KNX Garage** comanda un portone motorizzato con GA dedicate ai comandi diretti o a impulso, integra fotocellula e stato di ostruzione, permette il blocco della richiusura e la disabilitazione e può richiudere automaticamente dopo un intervallo.

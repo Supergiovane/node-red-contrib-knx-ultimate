@@ -4,6 +4,10 @@ title: "Alerter-Configuration"
 lang: es
 permalink: /wiki/es-Alerter-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Este nodo dedicado sigue siendo compatible con los flujos existentes. Para los nuevos flujos usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/es-KNX-Utility) y selecciona **Alerter**. Su editor convierte todas las utilidades antiguas compatibles en todos los flujos y subflujos, con una sola operación Deshacer y Deploy manual.
+
 # Configuración del nodo de Alerter
 
 Con el nodo Alerter, puede indicar una pantalla o al nodo de nodo-Contrib-TTS-Ulude (retroalimentación de audio) Si los dispositivos seleccionados son alertados, es decir, tienen carga útil **Verdadero** .

@@ -104,125 +104,24 @@
     </div>
     <div
       style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Scenes</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Scene Controller</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Recall, store, and
-        learn scenes directly inside Node-RED.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration"
+      <div style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">KNX tools</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">KNX Utility</div>
+      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Eleven functions for alerts, scenes, timing, monitoring, bus automation and Home Assistant state translation. Choose the function in one editor.</p>
+      <a href="{{ site.baseurl }}/wiki/KNX-Utility"
         style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
     </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Automation</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Auto Responder</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Automatically replies
-        to KNX read requests or keeps virtual datapoints in sync.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNXAutoResponder"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Integration</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Global Context</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Mirrors selected
-        group addresses into the Node-RED global context.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/GlobalVariable"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
+
     <div
       style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
       <div
         style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
         Monitoring</div>
       <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Viewer</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Live dashboard to
-        inspect telegrams and decoded values in real time.</p>
+      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Simple group address change monitor with 24 hours of history saved to file.</p>
       <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer"
         style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
     </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Reliability</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Watchdog</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Watches the bus,
-        sends alerts, and can fail over to backup gateways.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Diagnostics</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Logger</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Records telegrams
-        into ETS-friendly XML for deep troubleshooting.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Logger-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Alerts</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Alerter</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Raises visual or
-        audio alarms when monitored addresses hit critical events.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Energy</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Load Control</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Coordinates heavy
-        loads to prevent the main breaker from tripping.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/LoadControl-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Clock</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">DateTime</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Syncs the current
-        date/time to the KNX bus (DPT 19.001), optionally also Date and Time objects.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/DateTime-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Timers</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Staircase</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Smart staircase timer
-        with fade-out and reminder options.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Staircase-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Entrances</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">Garage</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Manages gate and door
-        logic with impulse control, feedback, and interlocks.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Garage-Configuration"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
+
     <div
       style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
       <div
@@ -234,17 +133,7 @@
       <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/IoT-Bridge-Configuration"
         style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
     </div>
-    <div
-      style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f3f2d 0%,#11824f 45%,#1ab96b 100%);box-shadow:0 8px 16px rgba(16,60,40,0.22);color:#f2fff6;">
-      <div
-        style="font-size:0.55rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(242,255,246,0.65);font-weight:700;margin-bottom:4px;">
-        Home Assistant</div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:6px;">HA Translator</div>
-      <p style="margin:0 0 6px 0;font-size:0.72rem;line-height:1.35;color:rgba(242,255,246,0.92);">Maps Home Assistant
-        services to KNX group writes via flexible tables.</p>
-      <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/HATranslator"
-        style="color:#d7ffe8;font-weight:600;text-decoration:none;font-size:0.7rem;">Documentation</a>
-    </div>
+
     <div
       style="flex:1 1 140px;min-width:130px;padding:12px;border-radius:10px;background:linear-gradient(135deg,#122a4d 0%,#1c56a8 50%,#3d86e8 100%);box-shadow:0 8px 16px rgba(18,42,77,0.28);color:#f2f8ff;">
       <div

@@ -1,0 +1,9 @@
+{
+  "knxUltimateHATranslator": {
+    "paletteLabel": "Home Assistant Übersetzer",
+    "inputProperty": "Eingangseigenschaft",
+    "inputHint": "Zu übersetzende Nachrichteneigenschaft, zum Beispiel payload oder payload.state.",
+    "translations": "Übersetzungen (Home Assistant → KNX)",
+    "translationHint": "Eine Übersetzung pro Zeile im Format zustand:true oder zustand:false. Zum Beispiel: on:true und off:false."
+  }
+}

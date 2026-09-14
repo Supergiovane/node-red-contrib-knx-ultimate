@@ -1,7 +1,7 @@
 {
   "knxUltimateStaircase": {
     "title": "Temporizzatore scale",
-    "paletteLabel": "Temporizzatore scale",
+    "paletteLabel": "Temporizzatore scale (deprecated)",
     "node-input-server": "Gateway KNX",
     "node-input-name": "Nome",
     "node-input-outputtopic": "Topic eventi emessi",
@@ -54,6 +54,9 @@
       "blockName": "Nome comando blocco"
     },
     "section_commands": "GA di comando",
-    "section_inputs": "GA di ingresso"
+    "section_inputs": "GA di ingresso",
+    "legacy_notice": "Questo nodo è deprecato e resta supportato nei flow esistenti. Usa KNX Utility per i nuovi flow. Il pulsante seguente converte tutti i nodi utility KNX legacy compatibili in tutti i flow e subflow.",
+    "migration_button": "Converti tutti i nodi KNX legacy compatibili",
+    "migration_button_title": "Converti in KNX Utility tutte le istanze utility KNX legacy compatibili presenti in tutti i flow e subflow dell’editor"
   }
 }

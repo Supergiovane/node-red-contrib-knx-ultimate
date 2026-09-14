@@ -1,0 +1,31 @@
+{
+    "knxUltimateSceneController": {
+        "paletteLabel": "KNX Scene Controller",
+        "title": "Scene controller",
+        "properties": {
+            "node-input-server": "Gateway",
+            "node-input-topic": "Scene Recall",
+            "node-input-dpt": "DPT",
+            "node-input-topicTrigger": "Trigger",
+            "node-input-topicSave": "Scene Save",
+            "node-input-name": "Node Name",
+            "node-input-outputtopic": "Topic"
+         
+        },
+        "placeholder": {
+            "leaveempty":"Leave empty to use Group Address",
+            "valueexample" : "Ex: false, true, otherwise any value"
+        },
+        "other": {
+            "sceneConfig":"Scene default values configuration",
+            "add":"Press ADD, to add a device in the scene"
+         },
+         "advanced": {
+            "notify-DPT3007":"You selected a relative DIM. Please <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Dimming'>click here to view this sample</a> and learn how to handle such payload.",
+            "notify-DPT18001":"You selected a scene DPT. Please <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Control-a-scene-actuator'>click here to view this sample</a> and learn how to handle such payload."
+            ,"notify-DPT232600": "You selected an RGB DPT. Please <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGB-Color'>click here to view this sample</a> and learn how to handle such payload."
+            ,"notify-DPT251600": "You selected an RGBW DPT. Please <a target='_blank' href='https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---RGBW-Color-plus-White'>click here to view this sample</a> and learn how to handle such payload."
+            
+        }
+    }
+}

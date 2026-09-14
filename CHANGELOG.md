@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 7.1.0-beta.0** - September 2026<br/>
+
+- New **KNX Utility** node with eleven functions, including Home Assistant Translator, and conversion of legacy nodes.<br/>
+- Automatic flow backup before converting KNX and HUE nodes.<br/>
+- Simple **KNX Viewer** telegram list with 24-hour history saved to file.<br/>
+- KNX Engine updated to 6.0.6.<br/>
+
 **Version 7.0.4** - September 2026<br/>
 
 - KNX Engine bump to 6.0.5.<br/>

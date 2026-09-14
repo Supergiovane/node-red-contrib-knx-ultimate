@@ -1,6 +1,8 @@
 {
   "knxUltimateHATranslator": {
-    "paletteLabel": "Traduttore Home Assistant"
+    "paletteLabel": "Traduttore Home Assistant (deprecated)",
+    "legacy_notice": "Questo nodo è deprecato e resta supportato nei flow esistenti. Usa KNX Utility per i nuovi flow. Il pulsante seguente converte tutti i nodi utility KNX legacy compatibili in tutti i flow e subflow.",
+    "migration_button": "Converti tutti i nodi KNX legacy compatibili",
+    "migration_button_title": "Converti in KNX Utility tutte le istanze utility KNX legacy compatibili presenti in tutti i flow e subflow dell’editor"
   }
 }
-

@@ -1,0 +1,56 @@
+{
+  "knxUltimateUtility": {
+    "legacy_notice": "Questo nodo è deprecato e resta supportato nei flow esistenti. Usa KNX Utility per i nuovi flow. Il pulsante seguente converte tutti i nodi utility KNX legacy compatibili in tutti i flow e subflow.",
+    "migration_button": "Converti tutti i nodi KNX legacy compatibili",
+    "migration_button_title": "Converti in KNX Utility tutte le istanze utility KNX legacy compatibili presenti in tutti i flow e subflow dell’editor",
+    "migration_confirm": "Convertire in KNX Utility tutti i {{count}} nodi utility KNX legacy compatibili presenti in tutti i flow e subflow? L’editor del nodo corrente verrà chiuso e le modifiche non salvate verranno scartate. ID, impostazioni, collegamenti e gruppi vengono conservati. La conversione avviene in questo browser, può essere annullata e diventa effettiva con Deploy. Prima della conversione verrà avviato automaticamente il download di un backup JSON di tutti i flow attualmente nell’editor. Le credenziali protette sono escluse, come nell’esportazione standard di Node-RED. Il browser può chiedere dove salvare il file.",
+    "migration_cancel": "Annulla",
+    "migration_convert": "Converti in KNX Utility",
+    "migration_none": "Nessun nodo utility KNX legacy compatibile trovato.",
+    "migration_success": "Il download del backup dei flow è stato avviato. {{count}} nodi convertiti in KNX Utility. Controlla il risultato e premi Deploy per applicarlo. Puoi annullare la conversione con Annulla.",
+    "migration_backup_failed": "Impossibile avviare il backup dei flow. Nessun nodo è stato convertito:",
+    "migration_failed": "Conversione in KNX Utility non riuscita:",
+    "locale": "it",
+    "function": "Funzione",
+    "gateway": "Gateway KNX",
+    "name": "Nome",
+    "types": {
+      "alerter": "Alerter",
+      "autoresponder": "AutoResponder",
+      "datetime": "Data / Ora",
+      "watchdog": "WatchDog",
+      "globalcontext": "Contesto globale",
+      "logger": "Logger",
+      "staircase": "Luci scale",
+      "garage": "Garage",
+      "scenecontroller": "Controllo scene",
+      "loadcontrol": "Controllo carichi",
+      "hatranslator": "Home Assistant Translator"
+    },
+    "invalid_function": "Funzione sconosciuta. Seleziona una funzione supportata prima del deploy.",
+    "pins": {
+      "alerter": "1 ingresso · 3 uscite",
+      "autoresponder": "Nessuna porta · Risponde direttamente sul bus KNX",
+      "datetime": "Nessuna porta · Invii programmati e pulsante sul nodo",
+      "watchdog": "1 ingresso · 1 uscita",
+      "globalcontext": "Nessuna porta flow · Variabili del contesto globale",
+      "logger": "1 ingresso · 2 uscite",
+      "staircase": "1 ingresso · 1 uscita",
+      "garage": "1 ingresso · 1 uscita",
+      "scenecontroller": "1 ingresso · 1 uscita",
+      "loadcontrol": "1 ingresso · 1 uscita",
+      "hatranslator": "1 ingresso · 1 uscita · Gateway non richiesto"
+    },
+    "outputs": {
+      "0": "Un messaggio per ogni dispositivo in allarme",
+      "1": "Tutti i dispositivi in allarme",
+      "2": "Ultimo dispositivo in allarme"
+    },
+    "variable_name": "Nome variabile",
+    "variable_name_description": "Solo lettere (A–Z, a–z). Questo nome determina le variabili globali <nome>_READ e <nome>_WRITE.",
+    "logger_outputs": {
+      "0": "XML diagnostica ETS",
+      "1": "Conteggio telegrammi"
+    }
+  }
+}

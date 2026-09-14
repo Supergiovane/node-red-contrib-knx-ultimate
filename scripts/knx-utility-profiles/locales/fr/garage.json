@@ -1,0 +1,48 @@
+{
+  "knxUltimateGarage": {
+    "title": "Porte de garage",
+    "paletteLabel": "Garage",
+    "node-input-server": "Passerelle KNX",
+    "node-input-name": "Nom",
+    "node-input-outputtopic": "Topic des événements",
+    "command": "GA commande (true=ouvre, false=ferme)",
+    "impulse": "GA impulsion",
+    "holdOpen": "GA maintien ouvert",
+    "disable": "GA désactivation",
+    "photocell": "GA cellule photo",
+    "moving": "GA en mouvement",
+    "obstruction": "GA obstruction",
+    "autoCloseEnable": "Activer la refermeture automatique",
+    "autoCloseSeconds": "Délai de refermeture (secondes)",
+    "node-input-emitEvents": "Émettre des événements en sortie",
+    "placeholders": {
+      "outputtopic": "Topic optionnel pour les événements",
+      "ga": "ex. 1/2/3",
+      "commandName": "Actionneur porte",
+      "impulseName": "Entrée impulsion",
+      "holdOpenName": "Maintien ouvert",
+      "disableName": "Commande désactivation",
+      "photocellName": "Capteur phot cellule",
+      "movingName": "Indicateur mouvement",
+      "obstructionName": "Indicateur obstruction"
+    },
+    "help": {
+      "intro": "Pilote une porte de garage KNX avec commandes directes, impulsion, sécurités et refermeture automatique.",
+      "commands": "Commandes",
+      "command_ga": "La GA commande reçoit true pour ouvrir et false pour fermer. Le noeud l'utilise aussi pour le rappel automatique.",
+      "impulse_ga": "La GA impulsion commute la porte via un front actif et sert si aucune commande booléenne n'est disponible.",
+      "holdopen_ga": "La GA maintien ouvert annule le timer tant qu'elle reste à true.",
+      "disable_ga": "La GA désactivation bloque toute action du nœud (mode maintenance).",
+      "safety": "Sécurité et état",
+      "photocell_ga": "La GA cellule photo passe à true en cas d'obstacle; le nœud rouvre et signale l'obstruction.",
+      "moving_ga": "La GA en mouvement (optionnelle) est pulsée lorsque le nœud commande la porte, pour informer les autres équipements.",
+      "obstruction_ga": "La GA obstruction diffuse l'état d'alarme aux autres participants KNX.",
+      "auto": "Refermeture automatique",
+      "auto_close": "Active la refermeture après le délai défini sauf maintien ouvert ou désactivation.",
+      "events": "Sortie du nœud",
+      "events_desc": "Avec l'émission d'événements activée le nœud génère des messages structurés (open, close, toggle, obstruction, disabled, hold-open, auto-close) pour la logique du flow."
+    },
+    "section_commands": "Adresses de commande",
+    "section_inputs": "Adresses d’entrée / capteurs"
+  }
+}

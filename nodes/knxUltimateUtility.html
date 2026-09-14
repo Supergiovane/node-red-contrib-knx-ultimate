@@ -1,0 +1,325 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityProfiles.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/flowMigrationBackup.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityMigration.js"></script>
+
+<script type="text/javascript">
+  (function () {
+    const profiles = window.KNXUltimateUtilityProfiles;
+    const types = Object.keys(profiles.PROFILE_TYPES);
+    const clone = (value) => value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+    const definition = (type) => types.includes(type) ? profiles.getDefinition(type, RED) : undefined;
+    const text = (key) => RED._('node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.' + key);
+    const activeType = (node) => node._utilityEditor ? node._utilityEditor.type() : node.utilityType;
+    const validationContext = (node) => typeof node._utilityEditor?.values === 'function' ? node._utilityEditor.values() : node;
+
+    function buildDefaults() {
+      // Node-RED must know every persistable field and the real config-node
+      // reference before opening the editor. Only the active profile validates.
+      const defaults = {
+        server: {
+          value: '',
+          type: 'knxUltimate-config',
+          validate: function (value) {
+            const descriptor = definition(activeType(this))?.defaults.server;
+            if (!descriptor) return true;
+            if (!value || value === '_ADD_') return false;
+            const gateway = RED.nodes.node(value);
+            return Boolean(gateway && gateway.type === 'knxUltimate-config' && gateway.valid !== false);
+          }
+        },
+        name: {
+          value: '',
+          validate: function (value) {
+            const descriptor = definition(activeType(this))?.defaults.name;
+            return !descriptor || typeof descriptor.validate !== 'function' || descriptor.validate.call(validationContext(this), value);
+          }
+        },
+        // The bus address is shared by WatchDog, Logger, SceneController and
+        // LoadControl. Imports that omit it must not inherit WatchDog's sample GA.
+        topic: {
+          value: '',
+          validate: function (value) {
+            const descriptor = definition(activeType(this))?.defaults.topic;
+            if (!descriptor) return true;
+            if (descriptor.required && (value === '' || value === undefined || value === null)) return false;
+            return typeof descriptor.validate !== 'function' || descriptor.validate.call(validationContext(this), value);
+          }
+        },
+        utilityType: { value: 'alerter', required: true, validate: (value) => types.includes(value) },
+        inputs: { value: 1 },
+        outputs: { value: 3 }
+      };
+      types.forEach((type) => {
+        Object.entries(definition(type).defaults).forEach(([key, property]) => {
+          if (Object.prototype.hasOwnProperty.call(defaults, key)) return;
+          const descriptor = { ...property };
+          delete descriptor.required;
+          defaults[key] = {
+            ...descriptor,
+            value: clone(property.value),
+            validate: function (value) {
+              const selected = definition(activeType(this));
+              const descriptor = selected && selected.defaults[key];
+              if (!descriptor) return true;
+              if (descriptor.required && (value === '' || value === undefined || value === null)) return false;
+              return typeof descriptor.validate !== 'function' || descriptor.validate.call(validationContext(this), value);
+            }
+          };
+        });
+      });
+      return defaults;
+    }
+
+    function setValue(field, value) {
+      if (!field.length) return;
+      if (field.is(':checkbox')) field.prop('checked', value === true || value === 'true');
+      else if (value !== undefined && value !== null) field.val(typeof value === 'object' ? JSON.stringify(value) : value);
+    }
+
+    function readValue(field, fallback) {
+      if (!field.length) return fallback;
+      if (field.is(':checkbox')) return field.prop('checked');
+      const value = field.val();
+      return value === undefined || value === null ? fallback : value;
+    }
+
+    function translateFragment(container, type) {
+      container.find('[data-i18n]').each(function () {
+        const element = $(this);
+        const spec = element.attr('data-i18n');
+        const match = spec.match(/^\[([^\]]+)\](.+)$/);
+        const key = match ? match[2] : spec;
+        const value = profiles.translate(type, key, RED);
+        if (value && value !== key) {
+          if (match) element.attr(match[1], value);
+          else element.text(value);
+          element.removeAttr('data-i18n');
+        }
+      });
+    }
+
+    RED.nodes.registerType('knxUltimateUtility', {
+      category: 'KNX Ultimate',
+      color: '#C7E9C0',
+      defaults: buildDefaults(),
+      catalogDefaults: {
+        server: { type: 'knxUltimate-config' }, name: {}, utilityType: {}, inputs: {}, outputs: {}
+      },
+      inputs: 1,
+      outputs: 3,
+      icon: function () { return definition(this.utilityType)?.icon || 'node-knx-icon.svg'; },
+      paletteLabel: 'KNX Utility',
+      label: function () { return this.name || 'KNX Utility · ' + text('types.' + this.utilityType); },
+      outputLabels: function (index) {
+        if (this.utilityType === 'alerter') return text('outputs.' + index);
+        const selected = definition(this.utilityType);
+        if (this.utilityType === 'logger') return text('logger_outputs.' + index);
+        const labels = selected?.outputLabels;
+        if (typeof labels === 'function') return labels.call(this, index);
+        return Array.isArray(labels) ? labels[index] : '';
+      },
+      button: {
+        visible: function () { return this.utilityType === 'datetime'; },
+        enabled: function () { return !this.changed && this.utilityType === 'datetime'; },
+        onclick: function () {
+          const selected = definition(this.utilityType);
+          if (selected?.button?.onclick) selected.button.onclick.call(this);
+        }
+      },
+      oneditprepare: function () {
+        const node = this;
+        const drafts = {};
+        let selectedType;
+        let context;
+        let mounted;
+        let closed = false;
+        let helpTimer;
+        const container = $('#knx-utility-profile-editor');
+
+        // Edit a separate context: profile hooks (including asynchronous ETS
+        // suggestions) must never mutate the saved node before Done is pressed.
+        function makeContext(type, useSaved) {
+          const selected = definition(type);
+          const result = { id: node.id, z: node.z, type: node.type, changed: node.changed };
+          Object.entries(selected.defaults).forEach(([key, property]) => {
+            result[key] = clone(useSaved && node[key] !== undefined ? node[key] : property.value);
+          });
+          result.utilityType = type;
+          result._ = (key, values) => profiles.translate(type, key, RED, values);
+          return result;
+        }
+
+        function collect() {
+          if (!mounted || !context) return;
+          Object.keys(mounted.defaults).forEach((key) => {
+            context[key] = readValue($('#node-input-' + key), context[key]);
+          });
+          if (typeof mounted.oneditsave === 'function') mounted.oneditsave.call(context);
+          drafts[selectedType] = context;
+        }
+
+        function dispose() {
+          clearTimeout(helpTimer);
+          if (mounted && context && typeof mounted.oneditcancel === 'function') mounted.oneditcancel.call(context);
+          $('#node-input-server').off('.knxUtilityProfile');
+          // Widget destruction also releases autocomplete menus appended to body.
+          container.find('.ui-autocomplete-input').each(function () {
+            try { $(this).autocomplete('destroy'); } catch (error) { /* already disposed */ }
+          });
+          container.empty();
+        }
+
+        function render(type, first) {
+          if (closed) return;
+          if (!first && type === selectedType) return;
+          if (!first) collect();
+          dispose();
+          selectedType = type;
+          mounted = definition(type);
+          $('#knx-utility-invalid-function').toggle(!mounted);
+          if (!mounted) { context = undefined; return; }
+          context = drafts[type] || makeContext(type, first);
+          // Shared fields retain the user's current selections across profiles.
+          context.server = readValue($('#node-input-server'), node.server);
+          context.name = readValue($('#node-input-name'), node.name);
+          $('#knx-utility-gateway-row').toggle(Boolean(mounted.defaults.server));
+          const isGlobalContext = type === 'globalcontext';
+          if (isGlobalContext && !context.name) {
+            context.name = mounted.defaults.name.value;
+            $('#node-input-name').val(context.name);
+          }
+          $('#knx-utility-name-label').text(text(isGlobalContext ? 'variable_name' : 'name')).removeAttr('data-i18n');
+          $('#knx-utility-name-description').toggle(isGlobalContext);
+          container.html(profiles.getTemplate(type));
+          translateFragment(container, type);
+          Object.keys(mounted.defaults).forEach((key) => {
+            if (key !== 'name' && key !== 'server') setValue($('#node-input-' + key), context[key]);
+          });
+          $('#node-input-inputs').val(mounted.inputs);
+          $('#node-input-outputs').val(mounted.outputs);
+          $('#knx-utility-pin-description').text(text('pins.' + type));
+          $('#node-input-name').attr('placeholder', isGlobalContext ? mounted.defaults.name.value : 'KNX Utility · ' + text('types.' + type));
+          if (typeof mounted.oneditprepare === 'function') mounted.oneditprepare.call(context);
+          // These controls are mounted after Node-RED attaches its initial
+          // validation handlers. Trigger a shared field's standard handler so
+          // the complete editor validates again while the user edits a profile.
+          container.find('input, select, textarea').on('change.knxUtility keyup.knxUtility paste.knxUtility', function () {
+            if (!$(this).attr('skipValidation')) $('#node-input-name').trigger('change');
+          });
+          $('#node-input-name').trigger('change');
+          try { RED.sidebar.show('help'); } catch (error) { /* sidebar unavailable */ }
+          // Node-RED can replace help after the tray opens even when the previous
+          // node's markers still exist. Follow the selected function through
+          // that short transition and cancel retries on close.
+          let attempts = 0;
+          const focusHelp = () => {
+            if (closed || selectedType !== type || typeof document === 'undefined') return;
+            const marker = document.getElementById('knx-utility-help-' + type);
+            if (marker) marker.scrollIntoView({ block: 'start' });
+            if (++attempts < 4) helpTimer = setTimeout(focusHelp, 100);
+          };
+          helpTimer = setTimeout(focusHelp, 100);
+        }
+
+        node._utilityEditor = {
+          type: () => selectedType,
+          values: () => {
+            const values = { ...context, _utilityEditor: node._utilityEditor, _def: node._def };
+            Object.keys(mounted?.defaults || {}).forEach((key) => {
+              values[key] = readValue($('#node-input-' + key), values[key]);
+            });
+            return values;
+          },
+          save: () => {
+            collect();
+            if (!mounted || !context) return;
+            // The gateway selector belongs to Node-RED's normal save path,
+            // which also updates config-node users when its reference changes.
+            Object.keys(mounted.defaults).forEach((key) => {
+              if (key !== 'server') node[key] = clone(context[key]);
+            });
+            node.utilityType = selectedType;
+            node.inputs = mounted.inputs;
+            node.outputs = mounted.outputs;
+          },
+          resize: (size) => {
+            if (mounted && typeof mounted.oneditresize === 'function') mounted.oneditresize.call(context, size);
+          },
+          close: () => {
+            closed = true;
+            dispose();
+            $('#node-input-utilityType').off('.knxUtility');
+          }
+        };
+        const initialType = node.utilityType || 'alerter';
+        $('#node-input-utilityType').val(initialType).on('change.knxUtility', function () { render($(this).val(), false); });
+        const migration = window.KNXUltimateUtilityMigration;
+        $('#knx-utility-migration-row').toggle(Boolean(migration && migration.collectLegacyUtilityNodes(RED).length));
+        render(initialType, true);
+      },
+      oneditsave: function () {
+        if (this._utilityEditor) {
+          this._utilityEditor.save();
+          this._utilityEditor.close();
+          delete this._utilityEditor;
+        }
+      },
+      oneditcancel: function () {
+        if (this._utilityEditor) {
+          this._utilityEditor.close();
+          delete this._utilityEditor;
+        }
+      },
+      oneditresize: function (size) {
+        if (this._utilityEditor) this._utilityEditor.resize(size);
+      }
+    });
+  }());
+</script>
+
+<style>
+  #node-input-utilityType { max-width: calc(100% - 160px); }
+  #dialog-form:has(#knx-utility-profile-editor) > .form-row > label { width: 150px; }
+  #knx-utility-profile-editor .form-row > label { width: 180px; }
+  #knx-utility-profile-editor .form-row { box-sizing: border-box; }
+  #knx-utility-profile-editor input { min-width: 0; }
+  #knx-utility-migration-row .red-ui-button { background: #d97706; border-color: #b45309; color: white; }
+</style>
+
+<script type="text/html" data-template-name="knxUltimateUtility">
+  <div class="form-row" id="knx-utility-migration-row" style="display:none">
+    <button type="button" class="red-ui-button knx-utility-migrate-flow" data-i18n="[title]knxUltimateUtility.migration_button_title"><i class="fa fa-exchange"></i> <span data-i18n="knxUltimateUtility.migration_button"></span></button>
+  </div>
+  <div class="form-row">
+    <label for="node-input-utilityType"><i class="fa fa-cogs"></i> <span data-i18n="knxUltimateUtility.function"></span></label>
+    <select id="node-input-utilityType" style="width:70%">
+      <option value="alerter" data-i18n="knxUltimateUtility.types.alerter"></option>
+      <option value="autoresponder" data-i18n="knxUltimateUtility.types.autoresponder"></option>
+      <option value="datetime" data-i18n="knxUltimateUtility.types.datetime"></option>
+      <option value="watchdog" data-i18n="knxUltimateUtility.types.watchdog"></option>
+      <option value="globalcontext" data-i18n="knxUltimateUtility.types.globalcontext"></option>
+      <option value="logger" data-i18n="knxUltimateUtility.types.logger"></option>
+      <option value="staircase" data-i18n="knxUltimateUtility.types.staircase"></option>
+      <option value="garage" data-i18n="knxUltimateUtility.types.garage"></option>
+      <option value="scenecontroller" data-i18n="knxUltimateUtility.types.scenecontroller"></option>
+      <option value="loadcontrol" data-i18n="knxUltimateUtility.types.loadcontrol"></option>
+      <option value="hatranslator" data-i18n="knxUltimateUtility.types.hatranslator"></option>
+    </select>
+  </div>
+  <div class="form-row" id="knx-utility-gateway-row">
+    <label for="node-input-server"><i class="fa fa-circle-o"></i> <span data-i18n="knxUltimateUtility.gateway"></span></label>
+    <input type="text" id="node-input-server">
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> <span id="knx-utility-name-label" data-i18n="knxUltimateUtility.name"></span></label>
+    <input type="text" id="node-input-name">
+  </div>
+  <div class="form-row" id="knx-utility-name-description" style="display:none" data-i18n="knxUltimateUtility.variable_name_description"></div>
+  <div class="form-row" id="knx-utility-pin-description" style="opacity:.8"></div>
+  <div class="form-tips" id="knx-utility-invalid-function" style="display:none" data-i18n="knxUltimateUtility.invalid_function"></div>
+  <input type="hidden" id="node-input-inputs">
+  <input type="hidden" id="node-input-outputs">
+  <hr>
+  <div id="knx-utility-profile-editor"></div>
+</script>

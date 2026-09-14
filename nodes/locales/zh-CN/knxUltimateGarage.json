@@ -1,7 +1,7 @@
 {
   "knxUltimateGarage": {
     "title": "Garage door",
-    "paletteLabel": "Garage",
+    "paletteLabel": "Garage (deprecated)",
     "node-input-server": "KNX Gateway",
     "node-input-name": "Name",
     "node-input-outputtopic": "Topic for emitted events",
@@ -43,6 +43,9 @@
       "events_desc": "With event emission enabled the node outputs structured messages (open, close, toggle, obstruction, disabled, hold-open, auto-close) for flow logic."
     },
     "section_commands": "Command group addresses",
-    "section_inputs": "Input / sensor group addresses"
+    "section_inputs": "Input / sensor group addresses",
+    "legacy_notice": "此节点已弃用，但仍支持现有流程。新流程请使用 KNX Utility。下方按钮可转换所有流程和子流程中的全部兼容旧版 KNX 工具节点。",
+    "migration_button": "转换所有兼容的旧版 KNX 节点",
+    "migration_button_title": "将编辑器所有流程和子流程中的全部兼容旧版 KNX 工具节点转换为 KNX Utility"
   }
 }

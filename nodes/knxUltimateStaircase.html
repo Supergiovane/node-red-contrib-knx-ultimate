@@ -1,9 +1,11 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/flowMigrationBackup.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityMigration.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
   RED.nodes.registerType('knxUltimateStaircase', {
-    category: 'KNX Ultimate',
-    color: '#C7E9C0',
+    category: 'deprecated',
+    color: '#E5F0E2',
     defaults: {
       server: { type: 'knxUltimate-config', required: true },
       name: { value: '' },
@@ -37,9 +39,9 @@
     outputs: 1,
     icon: 'node-knx-icon.svg',
     label: function () {
-      return this.name || 'KNX Staircase';
+      return (this.name || 'KNX Staircase') + " (deprecated)";
     },
-    paletteLabel: 'KNX Staircase',
+    paletteLabel: 'KNX Staircase (deprecated)',
     oneditprepare: function () {
       const node = this;
       const $knxServerInput = $('#node-input-server');
@@ -195,6 +197,15 @@
 
 
 <script type="text/html" data-template-name="knxUltimateStaircase">
+  <div class="form-row knx-utility-legacy-notice" role="note" style="box-sizing:border-box; padding:10px 12px; margin-bottom:12px; border-left:4px solid #d79b00; background:#fff8df; color:#4d3a00;">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    <span data-i18n="knxUltimateStaircase.legacy_notice"></span>
+  </div>
+  <div class="form-row knx-utility-legacy-migration-action" style="margin-bottom:14px;">
+    <button type="button" class="red-ui-button knx-utility-migrate-flow" style="background:#d97706; border-color:#b45309; color:#fff !important; font-weight:700;" data-i18n="[title]knxUltimateStaircase.migration_button_title">
+      <i class="fa fa-exchange" style="color:#fff !important;"></i> <span style="color:#fff !important;" data-i18n="knxUltimateStaircase.migration_button"></span>
+    </button>
+  </div>
   <div class="form-row" style="margin-bottom:10px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>

@@ -66,12 +66,24 @@
                     return "";
                 }
             };
+            const resolveLanguage = () => {
+                let language;
+                try {
+                    const translated = RED._("knxUltimateViewer.locale");
+                    if (translated && translated !== "knxUltimateViewer.locale") language = translated;
+                } catch (error) { }
+                const raw = String(language || (RED.settings && RED.settings.lang) || (window.navigator && window.navigator.language) || "en").replace(/_/g, "-").toLowerCase();
+                if (raw.startsWith("zh")) return "zh-CN";
+                const base = raw.split("-")[0];
+                return ["en", "it", "de", "fr", "es"].includes(base) ? base : "en";
+            };
             $("#knx-viewer-open-web-page").on("click", function (evt) {
                 evt.preventDefault();
                 const adminRoot = resolveAdminRoot();
                 const targetBase = adminRoot + "/knxUltimateViewer/page";
                 const params = new URLSearchParams();
                 if (nodeId) params.set("nodeId", nodeId);
+                params.set("lang", resolveLanguage());
                 const accessToken = resolveAccessToken();
                 if (accessToken) params.set("access_token", accessToken);
                 const target = targetBase + (params.toString() ? ("?" + params.toString()) : "");
@@ -126,13 +138,14 @@
 </div>
 
 <div class="form-row">
-    <label><i class="fa fa-external-link"></i> Web UI</label>
+    <label><i class="fa fa-external-link"></i> <span data-i18n="knxUltimateViewer.web-monitor"></span></label>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
-        <button type="button" class="red-ui-button" id="knx-viewer-open-web-page" style="background-color:#2bb673; border-color:#2bb673; color:#ffffff !important; -webkit-text-fill-color:#ffffff;">
-            <i class="fa fa-leaf" style="color:#10341f !important;"></i> <span style="color:#10341f !important;">Open KNX Viewer Web Page</span>
+        <button type="button" class="red-ui-button" id="knx-viewer-open-web-page" data-i18n="[title]knxUltimateViewer.open-monitor-tooltip">
+            <i class="fa fa-list-alt"></i> <span data-i18n="knxUltimateViewer.open-monitor"></span>
         </button>
     </div>
 </div>
+<div class="form-tips" data-i18n="knxUltimateViewer.monitor-description"></div>
 
 
 

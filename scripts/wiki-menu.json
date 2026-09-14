@@ -106,82 +106,14 @@
         {
           "type": "page",
           "labels": {
-            "en": "Scene Controller",
-            "it": "Scene Controller",
-            "de": "Szenencontroller",
-            "zh": "场景控制器"
+            "en": "KNX Utility",
+            "it": "KNX Utility",
+            "de": "KNX Utility",
+            "fr": "KNX Utility",
+            "es": "KNX Utility",
+            "zh": "KNX Utility"
           },
-          "page": "SceneController-Configuration"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "WatchDog",
-            "it": "WatchDog",
-            "de": "WatchDog",
-            "zh": "看门狗"
-          },
-          "page": "WatchDog-Configuration"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Logger",
-            "it": "Logger",
-            "de": "Logger",
-            "zh": "日志节点"
-          },
-          "page": "Logger-Configuration"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Global Context",
-            "it": "Global Context",
-            "de": "Global Context",
-            "zh": "全局上下文"
-          },
-          "page": "GlobalVariable"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Alerter",
-            "it": "Alerter",
-            "de": "Alerter",
-            "zh": "告警器"
-          },
-          "page": "Alerter-Configuration"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Load Control",
-            "it": "Controllo Carico",
-            "de": "Laststeuerung",
-            "zh": "负载控制"
-          },
-          "page": "LoadControl-Configuration"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Staircase",
-            "it": "Staircase",
-            "de": "Treppenhaus",
-            "zh": "楼梯定时器"
-          },
-          "page": "Staircase-Configuration"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Garage",
-            "it": "Garage",
-            "de": "Garage",
-            "zh": "车库"
-          },
-          "page": "Garage-Configuration"
+          "page": "KNX-Utility"
         },
         {
           "type": "page",
@@ -192,28 +124,6 @@
             "zh": "查看器"
           },
           "page": "knxUltimateViewer"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Auto Responder",
-            "it": "Auto Responder",
-            "de": "Auto-Responder",
-            "zh": "自动响应"
-          },
-          "page": "KNXAutoResponder"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "HA Translator",
-            "it": "Traduttore HA",
-            "de": "HA-Übersetzer",
-            "fr": "HA Translator",
-            "es": "HA Translator",
-            "zh": "HA 翻译器"
-          },
-          "page": "HATranslator"
         },
         {
           "type": "page",

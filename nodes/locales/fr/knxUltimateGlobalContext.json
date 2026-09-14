@@ -1,6 +1,6 @@
 {
   "knxUltimateGlobalContext": {
-    "paletteLabel": "Contexte mondial KNX",
+    "paletteLabel": "Contexte mondial KNX (deprecated)",
     "title": "Contexte mondial KNX",
     "node-input-name": "Nom variable (pas d'espaces, seulement Chars [A-Z])",
     "advanced": {
@@ -16,6 +16,9 @@
     "interval_500ms": "500 ms",
     "interval_1000ms_default": "1000 ms (par défaut)",
     "interval_1500ms": "1500 ms",
-    "interval_2000ms": "2000 ms"
+    "interval_2000ms": "2000 ms",
+    "legacy_notice": "Ce nœud est obsolète et reste pris en charge dans les flux existants. Utilisez KNX Utility pour les nouveaux flux. Le bouton ci-dessous convertit tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux.",
+    "migration_button": "Convertir tous les anciens nœuds KNX compatibles",
+    "migration_button_title": "Convertir en KNX Utility toutes les instances des anciens utilitaires KNX compatibles dans tous les flux et sous-flux de l’éditeur"
   }
 }

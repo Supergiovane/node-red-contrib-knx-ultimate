@@ -4,6 +4,10 @@ title: "Logger-Configuration"
 lang: de
 permalink: /wiki/de-Logger-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Dieser Einzelknoten bleibt mit bestehenden Flows kompatibel. Verwenden Sie für neue Flows [KNX Utility](/node-red-contrib-knx-ultimate/wiki/de-KNX-Utility) und wählen Sie **Logger**. Sein Editor konvertiert alle kompatiblen bisherigen Hilfsknoten in allen Flows und Subflows gemeinsam, mit einmaligem Rückgängig und manuellem Deploy.
+
 # Logger
 
 Der Logger-Node zeichnet alle Telegramme auf und erzeugt eine ETS-Busmonitor-kompatible XML-Datei.

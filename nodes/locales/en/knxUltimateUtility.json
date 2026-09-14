@@ -1,0 +1,56 @@
+{
+  "knxUltimateUtility": {
+    "legacy_notice": "This node is deprecated and remains supported for existing flows. Use KNX Utility for new flows. The button below converts all compatible legacy KNX utility nodes in every flow and subflow.",
+    "migration_button": "Convert all compatible legacy KNX nodes",
+    "migration_button_title": "Convert every compatible legacy KNX utility instance in all editor flows and subflows to KNX Utility",
+    "migration_confirm": "Convert all {{count}} compatible legacy KNX utility nodes in every flow and subflow to KNX Utility? The current node editor will close and discard unsaved edits. IDs, settings, connections and groups are preserved. Conversion happens in this browser, can be undone, and takes effect when you Deploy. Before conversion, a JSON backup download of all current editor flows will start automatically. Protected credentials are excluded, as in the standard Node-RED export. Your browser may ask where to save the file.",
+    "migration_cancel": "Cancel",
+    "migration_convert": "Convert to KNX Utility",
+    "migration_none": "No compatible legacy KNX utility nodes were found.",
+    "migration_success": "The flow backup download has started. {{count}} nodes converted to KNX Utility. Review the result and click Deploy to apply it. You can undo the conversion with Undo.",
+    "migration_backup_failed": "Flow backup could not be started. No nodes were converted:",
+    "migration_failed": "KNX Utility conversion failed:",
+    "locale": "en",
+    "function": "Function",
+    "gateway": "KNX Gateway",
+    "name": "Name",
+    "types": {
+      "alerter": "Alerter",
+      "autoresponder": "AutoResponder",
+      "datetime": "Date / Time",
+      "watchdog": "WatchDog",
+      "globalcontext": "Global Context",
+      "logger": "Logger",
+      "staircase": "Staircase",
+      "garage": "Garage",
+      "scenecontroller": "Scene Controller",
+      "loadcontrol": "Load Control",
+      "hatranslator": "Home Assistant Translator"
+    },
+    "invalid_function": "Unknown function. Select a supported function before deploying.",
+    "pins": {
+      "alerter": "1 input · 3 outputs",
+      "autoresponder": "No flow ports · Responds directly on the KNX bus",
+      "datetime": "No flow ports · Scheduled sends and canvas button",
+      "watchdog": "1 input · 1 output",
+      "globalcontext": "No flow ports · Global context variables",
+      "logger": "1 input · 2 outputs",
+      "staircase": "1 input · 1 output",
+      "garage": "1 input · 1 output",
+      "scenecontroller": "1 input · 1 output",
+      "loadcontrol": "1 input · 1 output",
+      "hatranslator": "1 input · 1 output · No gateway required"
+    },
+    "outputs": {
+      "0": "One message per alerted device",
+      "1": "All alerted devices",
+      "2": "Most recently alerted device"
+    },
+    "variable_name": "Variable name",
+    "variable_name_description": "Letters only (A–Z, a–z). This name determines the global variables <name>_READ and <name>_WRITE.",
+    "logger_outputs": {
+      "0": "ETS diagnostic XML",
+      "1": "Telegram count"
+    }
+  }
+}

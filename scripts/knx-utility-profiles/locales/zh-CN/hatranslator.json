@@ -1,0 +1,9 @@
+{
+  "knxUltimateHATranslator": {
+    "paletteLabel": "Home Assistant 转换器",
+    "inputProperty": "输入属性",
+    "inputHint": "需要转换的消息属性，例如 payload 或 payload.state。",
+    "translations": "转换映射（Home Assistant → KNX）",
+    "translationHint": "每行一条映射，格式为 state:true 或 state:false。例如：on:true 和 off:false。"
+  }
+}

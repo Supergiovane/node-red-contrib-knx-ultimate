@@ -1,0 +1,29 @@
+{
+  "knxUltimateLogger": {
+    "paletteLabel": "KNX 日志",
+    "title": "KNX 日志节点",
+    "properties": {
+      "node-input-server": "网关",
+      "node-input-topic": "主题名",
+      "node-input-name": "节点名称",
+      "node-input-autoStartTimerCreateETSXML": "自动启动定时器",
+      "mlxETSFileAccordion": "ETS 兼容总线诊断文件",
+      "node-input-intervalCreateETSXML": "新的 payload 每 (分钟)",
+      "node-input-maxRowsInETSXML": "最大行数 (0 = 没有限制)",
+      "node-input-saveMode": "操作",
+      "node-input-filePath": "文件路径（绝对或相对）",
+      "telegramCounter": "KNX 电报计数",
+      "node-input-intervalTelegramCount": "计数间隔（秒）"
+    },
+    "placeholder": {
+      "node-input-filePath": "/var/tmp/knx-logger.xml"
+    },
+    "selectlists": {
+      "saveMode": {
+        "emit": "仅发送 payload",
+        "emit_save": "发送 payload 并保存到文件"
+      }
+    },
+    "noFilePath": "文件路径为空"
+  }
+}

@@ -1,9 +1,11 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/flowMigrationBackup.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityMigration.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/htmlUtils.js"></script>
 
 <script type="text/javascript">
     RED.nodes.registerType('knxUltimateGlobalContext', {
-        category: "KNX Ultimate",
-        color: '#C7E9C0',
+        category: 'deprecated',
+        color: '#E5F0E2',
         defaults: {
             //buttonState: {value: true},
             server: { type: "knxUltimate-config", required: true },
@@ -16,9 +18,9 @@
         outputs: 0,
         icon: "node-knx-icon.svg",
         label: function () {
-            return (this.name);
+            return ((this.name)) + " (deprecated)";
         },
-        paletteLabel: "KNX Global Context",
+        paletteLabel: "KNX Global Context (deprecated)",
         // button: {
         //     enabled: function() {
         //         // return whether or not the button is enabled, based on the current
@@ -64,6 +66,15 @@
 </script>
 
 <script type="text/html" data-template-name="knxUltimateGlobalContext">
+  <div class="form-row knx-utility-legacy-notice" role="note" style="box-sizing:border-box; padding:10px 12px; margin-bottom:12px; border-left:4px solid #d79b00; background:#fff8df; color:#4d3a00;">
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+    <span data-i18n="knxUltimateGlobalContext.legacy_notice"></span>
+  </div>
+  <div class="form-row knx-utility-legacy-migration-action" style="margin-bottom:14px;">
+    <button type="button" class="red-ui-button knx-utility-migrate-flow" style="background:#d97706; border-color:#b45309; color:#fff !important; font-weight:700;" data-i18n="[title]knxUltimateGlobalContext.migration_button_title">
+      <i class="fa fa-exchange" style="color:#fff !important;"></i> <span style="color:#fff !important;" data-i18n="knxUltimateGlobalContext.migration_button"></span>
+    </button>
+  </div>
   <div class="form-row" style="margin-bottom:10px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>

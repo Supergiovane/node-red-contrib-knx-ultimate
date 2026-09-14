@@ -1305,7 +1305,7 @@ describe('Unified HUE Controller', () => {
     expect(sharedDialog).to.include("text: translate('migration_donate', 'Support KNX Ultimate ❤️')")
     expect((sharedDialog.match(/windowObject\.open\(/g) || [])).to.have.length(1)
     expect(sharedDialog).to.include("RED.actions.invoke('core:cancel-edit-tray')")
-    expect(sharedDialog).to.include('Before continuing, export a backup of your flows.')
+    expect(sharedDialog).to.include('Before conversion, the browser automatically starts downloading a JSON backup of all flows.')
     expect(sharedDialog).to.include('form-tips hue-controller-migration-backup')
     expect(sharedDialog).to.include("borderLeft: '4px solid #d79b00', background: '#fff8df'")
     expect(sharedDialog).to.include('migration_review_notice')

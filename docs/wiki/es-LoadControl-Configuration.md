@@ -4,6 +4,10 @@ title: "LoadControl-Configuration"
 lang: es
 permalink: /wiki/es-LoadControl-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> Este nodo dedicado sigue siendo compatible con los flujos existentes. Para los nuevos flujos usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/es-KNX-Utility) y selecciona **Load Control**. Su editor convierte todas las utilidades antiguas compatibles en todos los flujos y subflujos, con una sola operación Deshacer y Deploy manual.
+
 # Nodo de control de carga KNX
 
  Con el nodo de control de carga puede administrar automáticamente la desconexión de las cargas (lavadora, horno, etc.) cuando el consumo de corriente excede un cierto umbral.

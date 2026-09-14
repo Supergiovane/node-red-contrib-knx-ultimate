@@ -4,6 +4,10 @@ title: "Garage-Configuration"
 lang: en
 permalink: /wiki/Garage-Configuration
 ---
+
+<!-- KNX_UTILITY_LEGACY_NOTICE -->
+> This dedicated node remains compatible with existing flows. For new flows use [KNX Utility](/node-red-contrib-knx-ultimate/wiki/KNX-Utility) and select **Garage**. Its editor provides bulk conversion of all compatible legacy utility nodes across every flow and subflow, with a single Undo and manual Deploy.
+
 ---
 # Garage Door configuration
 The **KNX Garage** node drives a motorised door using dedicated group addresses for direct commands, toggle impulses, hold-open / disable logic and safety sensors. It can optionally re-close the door after a timeout, emit movement / obstruction indicators and report events to the Node-RED flow.

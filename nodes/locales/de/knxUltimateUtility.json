@@ -1,0 +1,56 @@
+{
+  "knxUltimateUtility": {
+    "legacy_notice": "Dieser Knoten ist veraltet und wird für bestehende Flows weiterhin unterstützt. Verwenden Sie KNX Utility für neue Flows. Die Schaltfläche unten konvertiert alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows.",
+    "migration_button": "Alle kompatiblen bisherigen KNX-Knoten konvertieren",
+    "migration_button_title": "Alle kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows des Editors in KNX Utility konvertieren",
+    "migration_confirm": "Alle {{count}} kompatiblen bisherigen KNX-Hilfsknoten in sämtlichen Flows und Subflows in KNX Utility konvertieren? Der aktuelle Knoten-Editor wird geschlossen und nicht gespeicherte Änderungen werden verworfen. IDs, Einstellungen, Verbindungen und Gruppen bleiben erhalten. Die Konvertierung erfolgt in diesem Browser, kann rückgängig gemacht werden und wird mit Deploy wirksam. Vor der Konvertierung startet automatisch der Download einer JSON-Sicherung aller aktuell im Editor vorhandenen Flows. Geschützte Zugangsdaten sind wie beim Standardexport von Node-RED ausgeschlossen. Ihr Browser fragt möglicherweise nach dem Speicherort.",
+    "migration_cancel": "Abbrechen",
+    "migration_convert": "In KNX Utility konvertieren",
+    "migration_none": "Keine kompatiblen bisherigen KNX-Hilfsknoten gefunden.",
+    "migration_success": "Der Download der Flow-Sicherung wurde gestartet. {{count}} Knoten in KNX Utility konvertiert. Prüfen Sie das Ergebnis und klicken Sie auf Deploy, um es anzuwenden. Mit Rückgängig können Sie die Konvertierung aufheben.",
+    "migration_backup_failed": "Die Flow-Sicherung konnte nicht gestartet werden. Es wurden keine Knoten konvertiert:",
+    "migration_failed": "Konvertierung in KNX Utility fehlgeschlagen:",
+    "locale": "de",
+    "function": "Funktion",
+    "gateway": "KNX-Gateway",
+    "name": "Name",
+    "types": {
+      "alerter": "Alerter",
+      "autoresponder": "AutoResponder",
+      "datetime": "Datum / Uhrzeit",
+      "watchdog": "WatchDog",
+      "globalcontext": "Globaler Kontext",
+      "logger": "Logger",
+      "staircase": "Treppenlicht",
+      "garage": "Garage",
+      "scenecontroller": "Szenensteuerung",
+      "loadcontrol": "Laststeuerung",
+      "hatranslator": "Home Assistant Translator"
+    },
+    "invalid_function": "Unbekannte Funktion. Wählen Sie vor dem Deploy eine unterstützte Funktion.",
+    "pins": {
+      "alerter": "1 Eingang · 3 Ausgänge",
+      "autoresponder": "Keine Anschlüsse · Antwortet direkt auf dem KNX-Bus",
+      "datetime": "Keine Anschlüsse · Zeitgesteuertes Senden und Schaltfläche am Knoten",
+      "watchdog": "1 Eingang · 1 Ausgang",
+      "globalcontext": "Keine Flow-Ports · Globale Kontextvariablen",
+      "logger": "1 Eingang · 2 Ausgänge",
+      "staircase": "1 Eingang · 1 Ausgang",
+      "garage": "1 Eingang · 1 Ausgang",
+      "scenecontroller": "1 Eingang · 1 Ausgang",
+      "loadcontrol": "1 Eingang · 1 Ausgang",
+      "hatranslator": "1 Eingang · 1 Ausgang · Kein Gateway erforderlich"
+    },
+    "outputs": {
+      "0": "Eine Nachricht je Gerät im Alarmzustand",
+      "1": "Alle Geräte im Alarmzustand",
+      "2": "Zuletzt ausgelöstes Gerät"
+    },
+    "variable_name": "Variablenname",
+    "variable_name_description": "Nur Buchstaben (A–Z, a–z). Dieser Name bestimmt die globalen Variablen <Name>_READ und <Name>_WRITE.",
+    "logger_outputs": {
+      "0": "ETS-Diagnose-XML",
+      "1": "Telegrammzähler"
+    }
+  }
+}

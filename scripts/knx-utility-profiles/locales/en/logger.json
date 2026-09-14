@@ -1,0 +1,29 @@
+{
+  "knxUltimateLogger": {
+    "paletteLabel": "KNX Logger",
+    "title": "KNX logger for ETS",
+    "properties": {
+      "node-input-server": "Gateway",
+      "node-input-topic": "Topic",
+      "node-input-name": "Node Name",
+      "node-input-autoStartTimerCreateETSXML": "Auto start timer",
+      "mlxETSFileAccordion": "ETS compatible BUS Diagnostic File",
+      "node-input-intervalCreateETSXML": "New payload every (in minutes)",
+      "node-input-maxRowsInETSXML": "Max number of rows (0 = no limit)",
+      "node-input-saveMode": "Action",
+      "node-input-filePath": "File path (absolute or relative)",
+      "telegramCounter": "KNX Telegram Counter",
+      "node-input-intervalTelegramCount": "Count interval (in seconds)"
+    },
+    "placeholder": {
+      "node-input-filePath": "/var/tmp/knx-logger.xml"
+    },
+    "selectlists": {
+      "saveMode": {
+        "emit": "Emit payload only",
+        "emit_save": "Emit payload and save to file"
+      }
+    },
+    "noFilePath": "File path is empty"
+  }
+}
