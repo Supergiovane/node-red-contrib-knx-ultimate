@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 7.1.0-beta.2** - September 2026<br/>
+
+- Public beta avaiable for all<br/>
+
 **Version 7.1.0-beta.1** - September 2026<br/>
 
 - New **KNX Utility** node with eleven functions, including Home Assistant Translator, and conversion of legacy nodes.<br/>
