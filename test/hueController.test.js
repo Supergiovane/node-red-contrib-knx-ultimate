@@ -1252,7 +1252,7 @@ describe('Unified HUE Controller', () => {
     })
 
     const controller = fs.readFileSync(path.join(projectRoot, 'nodes/knxUltimateHueController.html'), 'utf8')
-    expect(controller).to.match(/category:\s*['"]deprecated['"]/)
+    expect(controller).to.match(/category:\s*['"]KNX Ultimate['"]/)
     expect(controller).to.match(/color:\s*['"]#C0C7E9['"]/)
     expect(controller).to.include("paletteLabel: 'HUE Controller'")
     expect(controller).not.to.match(/paletteLabel:\s*['"]HUE Controller \(deprecated\)['"]/)
