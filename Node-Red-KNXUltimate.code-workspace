@@ -4,6 +4,12 @@
       "name": "node-red-contrib-knx-ultimate",
       "path": ".",
     },
+    {
+      "path": "../node-red-contrib-hue-ultimate",
+    },
+    {
+      "path": "../node-red-contrib-matter-ultimate",
+    },
   ],
   "settings": {
     "files.associations": {
