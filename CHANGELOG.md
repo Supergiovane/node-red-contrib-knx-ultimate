@@ -6,2949 +6,2343 @@
 
 # CHANGELOG
 
-**Version 7.1.2** - September 2026<br/>
+**Version 7.1.2** - September 2026
 
-- Restored HUE Controller in the palette.<br/>
+- HUE Controller is available in the palette again.
 
-**Version 7.1.1** - September 2026<br/>
+**Version 7.1.1** - September 2026
 
-- Restored legacy KNX AI nodes and their web dashboard for existing flows; nodes remain hidden from the palette.<br/>
-- HUE and Matter nodes hidden from the palette; existing flows continue to work.<br/>
-- Added a migration reminder for legacy HUE and KNX nodes.<br/>
+- Restored the old KNX AI nodes and web page so existing flows keep working.
+- HUE and Matter nodes are hidden from the palette, but existing flows still work.
 
-**Version 7.1.0-beta.2** - September 2026<br/>
+**Version 7.1.0-beta.2** - September 2026
 
-- Public beta avaiable for all<br/>
+- Public beta available to everyone.
 
-**Version 7.1.0-beta.1** - September 2026<br/>
+**Version 7.1.0-beta.1** - September 2026
 
-- New **KNX Utility** node with eleven functions, including Home Assistant Translator, and conversion of legacy nodes.<br/>
-- Automatic flow backup before converting KNX and HUE nodes.<br/>
-- Simple **KNX Viewer** telegram list with 24-hour history saved to file.<br/>
-- **BREAKING CHANGE:** Removed legacy **KNX AI** nodes and their web dashboard. Existing AI flows must be migrated to standalone **Cerebrum Ultimate**.<br/>
-- KNX Engine updated to 6.0.6.<br/>
+- New KNX Utility node combines eleven functions and can convert the old nodes.
+- Flows are backed up before KNX or HUE conversion.
+- KNX Viewer shows telegrams from the last 24 hours, including after a restart.
+- **Upgrade notice:** this beta removes the old KNX AI nodes. Existing AI flows require migration to Cerebrum Ultimate.
 
-**Version 7.0.4** - September 2026<br/>
+**Version 7.0.4** - September 2026
 
-- KNX Engine bump to 6.0.5.<br/>
+- Updated the KNX communication software.
 
-**Version 7.0.3** - September 2026<br/>
+**Version 7.0.3** - September 2026
 
-- Fixed some wrong translations.<br/>
-- KNX Engine bump to 6.0.4.<br/>
+- Corrected translations and updated the KNX communication software.
 
-**Version 7.0.2** - September 2026<br/>
+**Version 7.0.2** - September 2026
 
-- **KNX Device — group address autocomplete**: both input and output function editors now suggest imported ETS group addresses in the first argument of `getGAValue(...)` and `setGAValue(...)`. Search by address, device name or DPT in Monaco and Ace.<br/>
-- **KNX Device — readable GA references**: selecting an address adds its full ETS name and hierarchy to a deduplicated comment list at the beginning of the code. Clicking **Done** removes unused addresses from each editor's list before saving; addresses mentioned only in comments do not count as used.<br/>
+- KNX Device makes it easier to find ETS group addresses and see their names when writing functions.
 
-**Version 7.0.1** - September 2026<br/>
+**Version 7.0.1** - September 2026
 
-KNX Device: fixed a wrong status text, when the node receives a READ request and responds with the last payload received.</br>
-KNX Device: the input msg now supports **msg.event = "GroupValue_Read"** as an additional method besides msg.readstatus = true, to issue a READ command to the bus.</br>
+- Corrected the status shown when answering a KNX read request.
+- Added another way to request KNX values from a flow.
 
-**Version 7.0.0** - September 2026<br/>
+**Version 7.0.0** - September 2026
 
-- **Major release — focused KNX package**: KNX Ultimate 7 starts the new package boundary. Conversational AI, supervised home learning, shared memory and multi-platform chat now belong to the standalone `node-red-contrib-cerebrum-ultimate`; this package remains the optional KNX/ETS integration. Existing deployed flows that contain the hidden legacy runtime types continue to load, but new instances can no longer be added from the palette.<br/>
-- **Cerebrum Ultimate documentation handoff**: removed the obsolete bundled-assistant guides, samples, dashboard pages and public labels. The README, multilingual homepages, wiki navigation, localized legacy-node help and tutorial roadmap now point to the standalone `node-red-contrib-cerebrum-ultimate` package. The hidden legacy runtime identifiers remain registered only so existing flows continue to load.<br/>
-- **Cerebrum standalone extraction**: the historical `knxUltimateAI` and `knxUltimateAIHomeAssistant` types remain registered so existing deployed flows continue to load and can be edited, but they are now hidden from the Node-RED palette. New Cerebrum installations move to the independent `node-red-contrib-cerebrum-ultimate` package, where KNX Ultimate is an optional integration alongside Home Assistant, HUE, Matter and other adapters.<br/>
-- **Cerebrum Ultimate — safe Cerebrum startup delivery**: corrected the RedBot Telegram envelope used by startup and other proactive messages after a Node-RED restart. Its synthetic chat context now fulfils RedBot's synchronous context contract instead of returning `undefined`, preventing `chat-platform` from raising an uncaught `sourceCode` error and terminating Node-RED. Saved RedBot adapter code is hardened at runtime as well. Schedule persistence now passes the generated Markdown filename to the atomic writer under the correct `filePath` key, removing the accompanying undefined-path warning.<br/>
-- **Cerebrum Ultimate — Cerebrum (BETA)**: renamed the Web Assistant area to Cerebrum and introduced a passive home-automation intelligence layer that studies KNX telegrams, useful Node-RED flow events and the registered HUE, Matter and Home Assistant adapters. Cerebrum maintains bounded current-state and observation context locally, learns only repeated patterns spanning distinct days and asks the occupant for confirmation or correction through the Assistant output before a habit can become predictive. Confirmed habits remain subject to the exact ETS/DPT permissions: group addresses marked read-only are never written.<br/>
-- **Cerebrum — Home Assistant adapter**: added the `Cerebrum Home Assistant` node and the shared runtime registry. When Node-RED is running as a Home Assistant add-on, Setup Doctor detects whether the required `ha-api` round trip is present and tells the user to add it when missing. Entity states, events and service capabilities are exposed to Cerebrum through bounded, vendor-neutral records without retaining raw messages, secrets or binary payloads.<br/>
-- **Cerebrum — supervised startup**: every Cerebrum Ultimate node now asks its configured model to generate a short startup reassurance on the Assistant output. The message carries `msg.boot = true` for simple flow filtering and falls back to a localized deterministic notice if the provider is unavailable.<br/>
-- **Cerebrum Ultimate Web — Cerebrum workspace and readable memory**: reorganized the Web navigation into Cerebrum submenus, removed the separate Cerebrum Ultimate node selector and bound the workspace directly to the node that opened it. Cerebrum Memory now offers an editable authoritative JSON view and a read-only simplified view; AI Chat Learning offers the equivalent editable native `.knxctx` view and localized simplified view. Copy follows the visible representation, while save, restore, download and concurrency checks continue to protect the complete authoritative files.<br/>
-- **Cerebrum — complete import/export**: the Settings page now contains only import/export and its versioned backup includes AI configuration, chat learning, home memory, schedules and the readable schedules companion file, with validation and rollback-safe restoration.<br/>
+- New AI installations use the separate Cerebrum Ultimate package. Existing AI nodes remain supported but are hidden from the palette.
+- Cerebrum adds Home Assistant integration, learns repeated home routines and asks before using them predictively.
+- Improved the AI web page, memory backup and restore, and startup messages. Fixed a Telegram startup crash.
 
-**Version 6.3.32** - August 2026<br/>
+**Version 6.3.32** - August 2026
 
-- **Cerebrum Ultimate**: AI-first chat with complete cloud ETS context, selectable local windows and guided retrieval; selected ETS access is now the sole read/write authority, with no neutral role.<br/>
+- Cerebrum chat uses the selected ETS addresses and their read/write permissions.
 
-**Version 6.3.31** - August 2026<br/>
+**Version 6.3.31** - August 2026
 
-- **Cerebrum Ultimate — adaptive prompts for 8K local models**: the conversational prompt now reserves response space from the active model window before every request. For an 8K model it uses a compact tool contract and automatically bounds the newest conversation turns, KNX/adapter events, home memory, Web results, schedules, Function source, retrieved ETS objects and camera metadata. The complete selected ETS catalog remains local and available through deterministic retrieval; it is not copied wholesale into the prompt. The prompt-debug file records the final bounded system/user text actually sent to the model.<br/>
-- **Cerebrum Ultimate — model-guided local ETS retrieval**: the conversational model now receives `catalogActions` for deterministic searches over the complete selected ETS catalog held inside the node instead of receiving the full catalog in every prompt. Bounded multi-pass retrieval supports ranked search across exact GAs, ETS names, aliases, hierarchy, areas, semantics, DPTs and value labels; accent-insensitive and typo-tolerant matches; exact-address lookup; area discovery/browsing; and related command/status discovery. No socket or second classifier is used: LM Studio returns structured requests, Cerebrum Ultimate executes them locally and calls the same model again with a deduplicated subset of at most 24 objects. Commands and GA-role learning are accepted only for retrieved objects and still pass the complete local ETS/DPT/access validation. The final prompt debug file exposes the retrieval summaries and exact retrieved subset.<br/>
-- **Cerebrum Ultimate — complete ETS with deduplicated operational context**: removed the 4K/8K/16K/unlimited context-size selector and its persisted runtime property while keeping the complete selected ETS catalog locally searchable from every conversation. The implicit KNX and adapter archive range is now 20 minutes instead of 24 hours; an explicit user time range still takes precedence. Packaged help, README, wiki, examples and changelog text are no longer embedded in prompts and can instead be retrieved from public GitHub through the request-driven Web tool. Retrieved ETS metadata, archive rows and the current request each have one canonical prompt location; duplicated archive summaries, ETS-derived area lists, per-GA live snapshots and the always-on Node-RED project inventory were removed. Complete Function source is supplied only for explicit Function-code review requests. A node-specific, locally protected `knxai-last-chat-prompt-<node-id>.txt` debug file is overwritten before every conversational model call with the exact system/user prompt text and its estimated size, excluding API keys and HTTP headers; its path appears in the editor context card. Ollama receives the model's full declared window as `num_ctx`; Cerebrum Ultimate never retries an oversized request by compacting its input.<br/>
-- **Cerebrum Ultimate — explicit ETS catalog access and read-only policy**: added the same filterable group-address selector used by IoT Bridge’s MQTT profile, with Select all/none and bulk or per-row Read only controls. Every selected ETS object is available to conversational retrieval, while Flow Builder keeps its complete selected design inventory. Excluded objects are absent from AI tools, while read-only objects remain searchable and readable but are rejected locally for every write even if their inferred or learned role is command. Complete ETS names, hierarchy paths and duplicate-address aliases are preserved in the local catalog and retrieved object records. There is intentionally no backward-compatibility migration: an existing node without a newly saved explicit ETS selection exposes no group addresses until it is opened, configured, saved and deployed.<br/>
-- **Cerebrum Ultimate — request-driven Web access with clarification-first tool use**: removed the fixed proactive Web polling option, interval selector, background timer, synthetic recipient routing and related Setup Doctor state. During a normal conversation the model now decides semantically whether the current request needs fresh public information; when a missing goal, scope, place, time window or desired outcome would materially change the answer or query, it must ask one concise clarification and emit no tool action until the user answers. Explicit one-time or recurring Web checks remain available through the user-authorized natural-language scheduler and share the existing hourly budget, bounded research loop, verified citations and security controls. Editor strings, help, wiki documentation and tests were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>
+- Cerebrum works better with smaller local AI models and finds relevant ETS addresses more reliably.
+- **After updating:** open the AI node, select the ETS addresses it may access, save and Deploy. No addresses are available until you do this.
+- Web lookups now follow chat requests or schedules instead of fixed background checks.
 
-**Version 6.3.30** - August 2026<br/>
+**Version 6.3.30** - August 2026
 
-- **Cerebrum Ultimate — two-way RedBot Telegram voice chat**: the `RedBot / node-red-contrib-chatbot (Telegram)` preset now accepts RedBot's native inbound `audio` payload and its already-downloaded OGG/Opus `Buffer`, applies the same 20 MB and five-minute safeguards without downloading the file a second time, and transcribes it through the selected OpenAI-compatible provider. Successful requests receive a native RedBot `audio` reply with the localized AI-generated-voice disclosure and text caption; KNX confirmations deliberately remain RedBot `inline-buttons` text messages because its Telegram voice sender cannot attach that keyboard to `sendVoice`. Existing saved RedBot input/output mappings are upgraded at runtime. The separate `windkh/node-red-contrib-telegrambot` voice contract and its tests remain unchanged.<br/>
+- Cerebrum supports Telegram voice conversations through RedBot.
 
-**Version 6.3.29** - August 2026<br/>
+**Version 6.3.29** - August 2026
 
-- **Cerebrum Ultimate — patient provider-neutral model requests**: every LLM chat request now receives the same 30-minute minimum deadline, regardless of provider, model or model manager, while longer legacy configured values remain honored. The model transport carries that deadline through both streaming and non-streaming responses instead of inheriting a shorter HTTP-library header timeout; fast responses are returned immediately, model-response timeouts remain distinct from unreachable-server errors, and Telegram audio operations retain their separate two-minute safeguard.<br/>
-- **Cerebrum Ultimate — provider-neutral reasoning control and responsive chat**: added a localized **Reasoning effort** selector with provider/model default, `none`, `minimal`, `low`, `medium`, `high`, `xhigh` and `max` choices. The default sends no preference; explicit supported values are mapped by request protocol to Chat Completions `reasoning_effort`, Anthropic `output_config.effort` or Ollama `think`, without model-name allowlists, and a rejected preference is removed while preserving the rest of the request. OpenAI-compatible and Ollama chats now stream responses for every configured endpoint, keep reasoning traces separate from the structured user reply and retry without streaming when an endpoint rejects it. Abort and HTTP transport timeouts are reported as model-response timeouts instead of as false connection failures; genuine unreachable-server errors retain their provider-specific setup guidance. Context-error compaction remains in force. Editor help and wiki documentation were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — optional model-sized local context**: added a localized **No Cerebrum Ultimate limit** choice to the local-model chat-context selector. The existing 4K, 8K and 16K budgets are unchanged and 16K remains the backward-compatible default; when the new choice is explicit, Cerebrum Ultimate uses the active/reported Ollama or Bionic LM Studio context window instead of imposing its own token cap, while the model's physical limit and the existing context-error fallback remain authoritative.<br/>
-- **Cerebrum Ultimate editor — quieter Setup Doctor placement**: moved Setup Doctor to the bottom of the **Chat and home** page, below the available-chat-context overview, and made it an accessible collapsed-by-default section so routine configuration stays compact while every diagnostic and refresh action remains available on demand.<br/>
-- **Cerebrum Ultimate — semantic persistent chat scheduling and fixed AI Education**: added model-selected `scheduleActions` for creating, listing and cancelling one-time or recurring reminders, monitors and future home commands from normal human-language chat, without keywords, trigger phrases or rigid intent classifiers. Each node persists authoritative schedule state in JSON and a generated readable Markdown view across restarts; due tasks reuse both the model's execution instruction and the exact original user request while retaining Web budgets, detected-camera limits, explicit TTS Ultimate wiring, ETS/DPT validation and configured KNX confirmation. Empty structured replies from smaller local models receive one general semantic recovery pass instead of surfacing the old “No response text” placeholder. Scheduled camera results are delivered back to sidebar chat, and cancelling a plan also invalidates any pending camera work or KNX confirmation belonging to it. `reset` clears all schedules for the node, while `clear_chat` cancels only the current session's schedules. AI Education remains a fixed, user-edited node property stored in the Node-RED flow: the model reads it as authoritative guidance but never writes it; learned chat memory stores facts and preferences requested in chat, while scheduler storage holds plans and reminders. The previously introduced legacy `knxai-education-<node-id>.md` file is no longer read or written; existing copies are left untouched and ignored. Localized editor strings, help and wiki pages were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>
+- Cerebrum can create reminders and scheduled home actions from chat, keeping them after a restart.
+- Improved support for slower and local AI models, with more response settings and clearer errors.
+- Simplified the setup checks and kept user instructions separate from learned information.
+- Older separate instruction files are no longer used; keep user instructions in the node settings.
 
-**Version 6.3.27** - August 2026<br/>
+**Version 6.3.27** - August 2026
 
-- Cerebrum Ultimate: enabled some things by default.
+- Adjusted Cerebrum's default settings.
 
-**Version 6.3.26** - August 2026<br/>
+**Version 6.3.26** - August 2026
 
-- **Cerebrum Ultimate — opt-in Web Intelligence with verified sources**: added a provider-independent general Web tool that the conversational model selects semantically from the current request, without topic-specific logic, keywords or intent classifiers. Web access is off by default; proactive Web checks require a separate opt-in, explicit user-authored AI Education, a destination learned from at least one normal chat request and a configurable 5, 10, 15, 30, 60 or 180-minute minimum interval. Setup Doctor reports Web/proactive readiness, missing Education or recipient and the live hourly budget. Interactive and proactive requests share a rolling hourly call budget, with at most three Web operations in total per user turn or proactive cycle. Web-backed answers carry runtime-validated numbered citations (`[S1]`, …) with sanitized URLs and available publication/retrieval times; external content remains untrusted data and cannot override assistant rules or permissions. Only bounded public HTTPS resources are accepted, with private/local/link-local/cloud-metadata targets, unsafe redirects, authenticated browsing and cookies blocked. Queries and the server's public IP are disclosed to external sites or the search service, while KNX/ETS data, camera content, chat identifiers, learned memory and credentials are never added automatically. Once verified Web results are available, the model can compose other enabled tools when authorized by the current chat or AI Education; existing tool availability, KNX permissions, ETS/DPT validation and configured write confirmation remain unchanged. Editor help and wiki documentation were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — clearer chat wiring terminology**: renamed the editor labels for chat input/output pins, message adapters and automatically detected compatible nodes in all six shipped languages, including the related empty/loading/error states and localized help/wiki references.<br/>
-- **Cerebrum Ultimate — automatic Setup Doctor and personalized safe first run**: added an editor and Web UI preflight that checks the selected gateway and ETS import, AI/provider/model/API-key setup, provider reachability, chat and KNX-operation wiring, detected cameras and optional TTS Ultimate wiring. The provider check calls only its model-list endpoint, never sends a chat request and consumes no inference tokens; unused camera and TTS integrations do not reduce core readiness. Inventory wording now distinguishes the exact number of unique KNX group-address signals from estimated logical functions and deliberately avoids an unreliable physical-device count. Sending `/start` or `/help` produces a deterministic localized welcome on output 3 with installation-specific statistics and up to three safe suggestions, without calling the LLM, reading or writing KNX, or generating TTS; the Telegram preset renders those suggestions as an explicit reply keyboard. After explicit selection, a starter suggestion may perform exact KNX reads when needed, while KNX writes and routines, camera actions, TTS, persistent-memory changes and GA-role learning are suppressed. Help, wiki and the direct Telegram example were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — explicit TTS Ultimate flow output**: replaced the internal **TTS Ultimate node for announcements** selector and direct node injection with a dedicated fifth output labelled **TTS Ultimate**. Each model-selected announcement now leaves the node through normal Node-RED wiring with the exact spoken text in `msg.payload`, `msg.topic = "knx_ai_announcement"` and `msg.knxAi` metadata for type, source node, session and reason; normal fan-out or Link Out/Link In can route it to one or more `ttsultimate` nodes. Output positions 1–4 remain unchanged. Existing flows that relied on the saved `ttsUltimateNodeId` selection must physically connect output 5 after upgrading; the old selection is no longer used. Help, wiki pages and importable Cerebrum Ultimate examples were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — two-way Telegram voice chat**: the `windkh/node-red-contrib-telegrambot` preset now accepts native OGG/Opus voice messages, downloads them through the receiver-provided Telegram link with same-origin, timeout, 20 MB and five-minute safeguards, redacts the token-bearing URL, and transcribes them through OpenAI-compatible `/audio/transcriptions`. Successful voice requests receive native Telegram OGG/Opus replies synthesized by `/audio/speech`, including a localized AI-generated-voice disclosure, the text caption and confirmation keyboard; failed or oversized synthesis falls back to the complete text answer. Voice processing is intentionally plug-and-play only with the selected **OpenAI-compatible** chat provider: it reuses that provider's endpoint and API key with built-in `gpt-4o-mini-transcribe`, `gpt-4o-mini-tts` and `alloy` defaults. The separate Telegram voice-service section, credential and model fields were removed. Anthropic, Ollama and Bionic LM Studio remain available for text chat; a voice request with one of them returns a localized provider-selection instruction before audio download. Existing saved preset mappings are upgraded at runtime, the direct Telegram example now ships with the preset selected, and help/wiki documentation covers provider and privacy requirements in EN, IT, DE, FR, ES and zh-CN.<br/>
+- Cerebrum can search the web when enabled and include source links in its answers.
+- Added setup checks, clearer chat connections and Telegram voice conversations.
+- Spoken announcements now use a dedicated output connected to TTS Ultimate. Update existing announcement connections accordingly.
 
-**Version 6.3.25** - August 2026<br/>
+**Version 6.3.25** - August 2026
 
-- **IoT Bridge — direct Modbus Flex adapter without a bundled Modbus client**: Modbus mappings can now emit the exact `modbus-flex-write` request consumed by `node-red-contrib-modbus` and decode `modbus-read` / `modbus-flex-getter` responses back to KNX. The protocol-specific editor asks only for Unit ID, zero-based address, Modbus area and Boolean/unsigned 16-bit/signed 16-bit format; FC1–FC6 and quantity are derived automatically. TCP/RTU connections, polling, queues and reconnects remain in the external Modbus nodes. KNX responses never become Modbus commands, write acknowledgements never become KNX state, unchanged polls can be suppressed with **Emit on change only**, and local KNX echoes are loop-protected. Existing scalar Modbus mappings remain on the legacy contract until explicitly switched to Flex. A safe manual example and the six localized help/wiki sets document the wiring and host-version compatibility.<br/>
-- **Dependency cleanup — native asynchronous gateway DNS resolution**: replaced `dns-sync` and its obsolete `shelljs` → `glob@7` → `inflight` production chain with Node's built-in promise-based OS resolver. KNX gateway hostnames and `/etc/hosts` resolution remain supported in verbatim address order, while connection startup no longer launches a blocking child process.<br/>
+- IoT Bridge can exchange KNX commands and values with the Node-RED Modbus package.
+- Improved KNX gateway hostname lookup.
 
-**Version 6.3.24** - August 2026<br/>
+**Version 6.3.24** - August 2026
 
-- **Cerebrum Ultimate — working Telegram confirmation buttons**: changed the `windkh/node-red-contrib-telegrambot` preset from inline callbacks to a one-time Telegram reply keyboard. **Confirm** and **Cancel** now return as normal localized messages through the already connected `telegram receiver`, eliminating the silent no-op caused by a missing `callback_query` event node. Existing saved preset output mappings are upgraded at runtime, the keyboard is removed after the decision, and legacy callback events remain accepted. The importable direct-chat example no longer requires extra callback wiring; help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — native CHAT learning memory**: replaced the verbose Markdown/JSON V2 learning file with the direct line-oriented `knxai-chat-context.knxctx` V3 format. Sessions, instructions, turns and camera watches are stored as editable tab-separated `SESSION`, `INSTRUCTION`, `TURN`, `CAMERA_WATCH` and `END_SESSION` records with escaped text fields, without JSON serialization or a regenerated preview. The Web UI keeps copy, download, restore, revision-safe save and protected reinitialization. Previous `.md` Markdown/JSON V2 and Base64 V1 files are deliberately not read, imported, migrated or deleted; Cerebrum Ultimate starts a new native context instead. Help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — compact LLM settings layout**: constrained the assistant connection form to a readable responsive width and removed the fixed 290 px indentation that allowed the local-context hint and status line to widen the complete Node-RED properties panel. The model autocomplete now reopens after mouse release, so the full provider list remains visible after a normal click instead of appearing only while the button is held.<br/>
-- **Cerebrum Ultimate — resettable CHAT learning**: added a protected **Reinitialize Memory** action to **Settings → AI Chat Learning**. After explicit confirmation it atomically replaces the shared learning file with a new empty native context, clears sessions, persistent instructions, camera watches and pending chat confirmations across every Cerebrum Ultimate node using the same storage, and refreshes the editor immediately. Concurrent changes remain protected by the existing content revision check.<br/>
-- **Cerebrum Ultimate — complete model picker**: clicking the model field now opens the complete list returned by the selected provider regardless of the text already present, while typed text can still filter the same list and custom model names remain accepted.<br/>
-- **Cerebrum Ultimate — native compact context archives**: replaced JSONL serialization for KNX telegram and detected-adapter history with Cerebrum Ultimate's direct line-oriented `.knxctx` format. Typed payloads, flags and bounded adapter metadata round-trip without repeated JSON property names, while bus and archive summaries are rendered as compact `key=value` context instead of JSON before reaching the model. Existing JSONL archives are deliberately not read or migrated; new daily files use `YYYY-MM-DD.knxctx`. The user-editable CHAT learning file remains separate because it is also a portable user backup surface. Context cards, editor help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — user-selectable local chat context**: added a localized **Chat context amount** selector for Ollama and Bionic LM Studio with 4K, 8K and 16K choices; 16K remains the default. The selected budget proportionally bounds KNX traffic, archives, ETS catalog, Node-RED inventory, memory and adapter context, and is also sent as Ollama's `num_ctx`, while the complete agent tool contract stays available without phrase classifiers, keyword gates or linguistic intent routing. The context overview now reports the configured operational limit. Editor help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — reliable conversational recall**: verified that session IDs and recent turns were already persisted correctly, then moved the current session memory next to the current request in the operational prompt so small local models do not lose user-supplied facts inside large KNX context. The structured memory tool now explicitly covers durable user facts such as preferred name and language as well as preferences and instructions, while remaining model-selected with no phrase classifiers or intent routing; credentials, security codes and API keys are excluded.<br/>
-- **Cerebrum Ultimate — editable and portable CHAT learning**: added **Settings → AI Chat Learning** to the Vue web UI for viewing the exact absolute path and editing, copying, downloading or restoring the shared learning file. The **Conversations & home** tab in the Node-RED node configuration includes a localized shortcut that opens the Web UI directly on this editor for the current node. Saves are validated, bounded to 512 KB, written atomically and applied immediately to every Cerebrum Ultimate node sharing the same storage, while revision checks prevent stale editors from overwriting newer learning. UI strings, editor help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — intent-free agentic chat tools**: removed hard-coded semantic phrase classifiers from conversational routing. Every Ask/CHAT request now lets the model reason directly over the current goal, persistent user guidance, AI Education and the available structured KNX, camera, TTS Ultimate and memory tools. Routine planning no longer depends on a multilingual keyword list, TTS announcements no longer require an action alias, and durable chat instructions are remembered or forgotten through model-selected structured actions instead of regular-expression intent detection. Runtime argument validation, camera-adapter availability checks, ETS/DPT safeguards and command confirmation remain unchanged.<br/>
-- **Cerebrum Ultimate — learned KNX group-address roles**: a `neutral` GA is now treated as unresolved rather than permanently uncontrollable. The conversational model can learn or forget the exact `command`, `status` or `neutral` role from trusted user teaching, persistent chat guidance, AI Education or unequivocal ETS semantics through the structured `gaRoleActions` tool. Learned role, reason and evidence are persisted per node in `knxai-config-<node-id>.json`, synchronized into bounded semantic home memory and reused after restart. A command role learned in the current answer can validate a write in that same turn, while exact ETS membership, immutable DPT, payload validation and configured confirmation still apply. Help and wiki documentation were aligned in EN, IT, DE, FR, ES and zh-CN.<br/>
+- Cerebrum's Telegram confirmation buttons now work through the normal chat connection.
+- Chat memory can be viewed, edited, backed up, restored or reset. Improved recall of user preferences.
+- Simplified AI settings and model selection, and improved learning of how KNX addresses are used.
+- **Upgrade notice:** older chat-memory and event-history files are kept on disk but are not imported. New memory and history start with this release.
 
-**Version 6.3.22** - August 2026<br/>
+**Version 6.3.22** - August 2026
 
-- **Cerebrum Ultimate — visible context size and real prompt weight**: the “Chat context overview” card now shows the current operational context limit and the actual UTF-8 size of the last operational chat prompt. Ollama, Bionic, OpenAI-compatible and Claude token-usage fields are captured when returned by the provider; otherwise the UI clearly labels the token count as an estimate. Local limits reflect the active context without exceeding Cerebrum Ultimate's 16K cap.<br/>
-- **Cerebrum Ultimate — documentation-free operational chat**: Telegram, RedBot and custom CHAT adapters no longer inject packaged help, README, changelog, wiki or example snippets into model prompts. They retain live and archived KNX data, ETS semantics, Node-RED inventory, conversation and home memory, AI Education, cameras and TTS; the web Assistant keeps documentation access for package-support questions.<br/>
-- **Cerebrum Ultimate — tolerant safe-read normalization**: state queries from small local models no longer become rejected writes when the model returns exact ETS destinations but omits the operation discriminator and payload. Payload-free operations are safely inferred as `GroupValue_Read`; payload-bearing operations remain writes and retain every ETS-role, DPT, payload and confirmation safeguard.<br/>
-- **Cerebrum Ultimate — fixed 16K Ollama runtime and prompt budget**: Ollama's advertised model maximum is now informational instead of being sent back as the requested `num_ctx`. Cerebrum Ultimate caps `num_ctx` and its relevance-selected semantic prompt at 16K, preventing 131K KV-cache allocation and full-context prefill. An audit confirmed that OpenAI and Claude receive only output limits, not a client-selected maximum context window.<br/>
-- **Cerebrum Ultimate — fixed 16K Bionic prompt budget**: Bionic's reported active or maximum context can no longer promote conversations to the full 131K data view. Cerebrum Ultimate always builds a relevance-selected 16K semantic prompt for Bionic while preserving the provider's loaded instance, open-ended reasoning, routines, KNX control, cameras and TTS capabilities.<br/>
-- **Cerebrum Ultimate — preserve Bionic LM Studio context**: model discovery now keeps the context length of an already loaded Bionic instance instead of confusing the model's maximum capability with the desired runtime setting. Cerebrum Ultimate no longer loads inactive models through the management API: the first chat request leaves JIT loading and saved per-model defaults to Bionic, while Cerebrum Ultimate uses a conservative 16K prompt budget until the active configuration can be inspected.<br/>
-- **Cerebrum Ultimate — neutral structured-response example**: the conversational contract now demonstrates empty action arrays instead of a fabricated group address, DPT, camera and payload. This prevents small local models from copying placeholder operations into unrelated replies such as greetings while preserving open-ended reasoning and every existing KNX, camera, TTS and routine capability.<br/>
+- Cerebrum runs more reliably with local AI models and shows how much conversation information it is using.
+- Improved KNX state queries and prevented example addresses from being mistaken for real commands.
 
-**Version 6.3.21** - August 2026<br/>
+**Version 6.3.21** - August 2026
 
-- **Cerebrum Ultimate — persistent adapter-event history**: every event published by an automatically detected adapter is now normalized into vendor-neutral metadata and appended to a node-specific daily JSONL archive. The archive follows the 10-day KNX retention, guaranteeing at least 24 hours of camera and future adapter events across Node-RED restarts without storing snapshot image data. The editor context card exposes the actual adapter-history directories.<br/>
-- **Cerebrum Ultimate — authoritative historical queries**: web Assistant, Telegram, RedBot and custom CHAT channels now query both the adapter-event archive and the existing KNX daily telegram files. Historical prompts include totals calculated across every stored row in the requested interval plus relevance-selected detail samples, preventing sample size from being reported as the total. Natural-language ranges now include multilingual “last N hours” requests and are bounded by available retention.<br/>
+- Cerebrum keeps a history of events from connected integrations and can answer questions about past activity.
 
-**Version 6.3.19** - August 2026<br/>
+**Version 6.3.19** - August 2026
 
-- **Cerebrum Ultimate — conversational multi-step routines**: added coordinated routines such as leaving home, bedtime and cinema mode. Cerebrum Ultimate can now perform a first pass with up to 20 fresh KNX state reads, use the authoritative bus results to prepare an ordered plan of up to 12 validated writes, request one confirmation and then execute the complete routine. After confirmation it waits up to four seconds for immediate matching bus feedback, reports verified and unverified operations without treating missing immediate feedback as a device failure, and dispatches any explicitly requested TTS Ultimate announcement only after execution. Routine details, preliminary readings and execution results are exposed as structured chat metadata. The importable confirmation example, editor help and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — localized output labels**: corrected the four output-pin labels to use the node-scoped Node-RED translation catalog, so Summary, Anomalies, Assistant and KNX Commands follow the active editor language.<br/>
+- Cerebrum supports routines such as bedtime or leaving home, checking KNX states before preparing commands.
+- Corrected output labels in the selected language.
 
-**Version 6.3.18** - August 2026<br/>
+**Version 6.3.18** - August 2026
 
-- **Cerebrum Ultimate — focused configuration with fixed defaults**: aligned the hidden traffic-analysis defaults to a 600-second history, disk archival enabled for 10 days, automatic summaries disabled, a 120-second analysis window, 5,000 in-memory events and a Top-12 list. The Node-RED project inventory is now always included, while traffic analysis, chat input/output mappings and their obsolete editor controls remain hidden. Documentation language selection was removed because the AI now chooses the appropriate language. Proactive-home switches and advanced proactive settings were removed without legacy-value migration: user-managed AI Education is now the sole configuration surface for this behaviour. Editor help, examples and wiki documentation were updated in EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Cerebrum Ultimate — horizontal accordion and visible chat context**: rebuilt the editor accordion with the same horizontal-tab layout and visual behaviour as KNXUltimate. Automatically detected adapters now appear at the end, followed by a new context card that summarizes what chat can access, including generated context filenames and the absolute KNX telegram archive directories.<br/>
-- **Cerebrum Ultimate — TTS Ultimate announcements**: added automatic discovery of `node-red-contrib-tts-ultimate` and a selector for the TTS Ultimate node to use across all flows. Chat responses can now dispatch spoken announcements through the selected TTS/Sonos path while preserving the existing adapter registry design.<br/>
-- **Cerebrum Ultimate — local model providers and responsiveness**: promoted Ollama out of beta and added Bionic LM Studio. Model selection now discovers each local model's maximum context length and configures it when loaded; smaller context windows automatically receive reduced, relevance-selected prompts and bounded output budgets, with progressive context compaction on provider overflow errors. Local requests use a ten-minute minimum timeout, preserve detailed provider errors and retry supported OpenAI-compatible parameter variants. Chat users receive localized thinking feedback while inference is running, and the node status now reports only incoming requests and thinking state instead of KNX telegram traffic.<br/>
+- Simplified Cerebrum setup and added spoken announcements through TTS Ultimate.
+- Improved local AI support, including Ollama and Bionic LM Studio.
 
-**Version 6.3.17** - August 2026<br/>
+**Version 6.3.17** - August 2026
 
-- **Cerebrum Ultimate — unified Assistant context for chat channels**: Telegram, RedBot and custom chat adapters now receive the same complete KNX analysis context as the web Assistant, including the full relevant traffic selection, summaries, areas, learned home memory, Node-RED flow context, Function-node source and documentation snippets enabled by the node configuration. The chat-specific ETS catalog, camera capabilities, persistent conversation context, command validation and confirmation safeguards remain layered on top.<br/>
+- Telegram and other chat connections can use the same home information as the web assistant.
 
-**Version 6.3.16** - August 2026<br/>
+**Version 6.3.16** - August 2026
 
-- **Cerebrum Ultimate — automatically detected camera adapters**: installed camera suites can now register vendor-neutral camera catalogs, connectivity state, snapshots and smart events directly in the Cerebrum Ultimate chat runtime, without selectors or camera-node wiring. The “Conversations & home” editor section shows every detected adapter together with its registered controllers and cameras. `node-red-contrib-unifi-ultimate` is the first provider: users can request or visually analyze a current Protect snapshot and create persistent Telegram/RedBot notifications for motion, smart line crossings and intrusion/loiter zones. Generic smart-detection rules now correctly distinguish classified people, animals, vehicles, faces, license plates and packages from unclassified motion, and match classifications across Protect smart zones, lines and loiter zones. Chat snapshots no longer force full-HD; the provider chooses a supported quality and retries only transient failures at standard quality. An offline camera is identified explicitly before Chat AI proposes an unavailable snapshot. Camera rules share `knxai-chat-context.md` and survive Node-RED restarts; Telegram adapters emit snapshots as native photos. Existing `node-red-contrib-telegrambot` presets saved before image support are upgraded at runtime for snapshot replies, including explicit JPEG filename and MIME metadata. The same registry contract is ready for packages such as `hikvision-ultimate`.<br/>
+- Cerebrum automatically discovers compatible camera integrations for snapshots and camera events.
 
-**Version 6.3.15** - August 2026<br/>
+**Version 6.3.15** - August 2026
 
-- **Cerebrum Ultimate — persistent shared CHAT context**: every Ask/chat session now reloads its bounded recent conversation and explicit long-term user instructions after Node-RED restarts. Requests such as “remember not to use the term unknown” are retained per session in the atomically written shared file `knxultimatestorage/knxai/memory/knxai-chat-context.md`, independently from home intelligence memory and even when KNX actuator control is disabled. All Cerebrum Ultimate nodes using the same storage share one live context; the file keeps up to 8 recent turns and 20 durable instructions per session, 50 sessions total, and a 512 KB hard limit. `clear_chat` removes only the selected shared session and `reset` clears the shared context.<br/>
-- **Cerebrum Ultimate — unified memory files**: all Cerebrum Ultimate instances using the same storage now share `knxai-home-memory.md` and `knxai-chat-context.md`, without `node.id` in either filename. Per-node memory files from earlier builds are deliberately not migrated or read.<br/>
-- **Cerebrum Ultimate — fixed 5 MB home memory**: the shared home-memory file now has a fixed 5 MB limit. The `homeMemoryMaxKb` editor option has been removed to simplify the UI, and saved values no longer affect runtime behavior.<br/>
-- **Cerebrum Ultimate — RedBot Telegram chat adapter**: added a selectable `RedBot / node-red-contrib-chatbot (Telegram)` preset for direct `chatbot-telegram-receive → Cerebrum Ultimate → chatbot-telegram-send` wiring. It preserves RedBot conversation tracking, maps normalized inbound text and postbacks, and emits native `inline-buttons` confirmation actions.<br/>
+- Cerebrum remembers conversations and user instructions after restarts and shares memory between its nodes.
+- Added RedBot Telegram support.
+- **Upgrade notice:** older memory files saved separately for each node are not imported into the new shared memory.
 
-**Version 6.3.14** - August 2026<br/>
+**Version 6.3.14** - August 2026
 
-- **Expose KNX to Matter — Room Air Conditioner and Door Lock**: added native Matter **Room Air Conditioner** (`0x0072`) and **Door Lock** (`0x000A`) profiles. A room AC combines On/Off, current temperature, heating/cooling setpoints and fan speed in one endpoint; a door lock maps separate Lock/Unlock command and Locked/Unlocked status GAs. Both profiles support KNX or flow-backed state updates without feedback loops, with editor help and documentation in EN/IT/DE/FR/ES/zh-CN.<br/>
+- Matter Bridge can expose KNX room air conditioners and door locks.
 
-**Version 6.3.13** - August 2026<br/>
+**Version 6.3.13** - August 2026
 
-- **Matter**: promoted Matter Controller, Matter Bridge and Expose KNX to Matter from BETA to production-ready status; removed BETA labels and experimental warnings from the palette, editor help, examples and multilingual documentation while retaining pairing, backup and endpoint-structure safety guidance.<br/>
-- **Matter visual identity**: changed the Matter node background to the official Matter Day color (`#8FB1FA`) and the controller/bridge icon artwork to Matter Night (`#131926`) for readable, standards-aligned palette and canvas presentation.<br/>
+- Matter Controller and Matter Bridge are no longer marked as beta.
+- Updated Matter node colours and icons.
 
-**Version 6.3.12** - August 2026<br/>
+**Version 6.3.12** - August 2026
 
-- **HUE Controller**: completed the EN, IT, DE, FR, ES and zh-CN editor translations, including Light Level, Locate, Light mapping labels, mapping placeholders, error messages and tutorial links; the embedded profiles and dynamic device labels now follow Node-RED's active locale instead of a potentially stale page-language attribute. Corrected French/Spanish Hue and KNX terminology and realigned the localized help and wiki documentation.<br/>
+- Completed HUE Controller translations in all six supported languages.
 
-**Version 6.3.11** - August 2026<br/>
+**Version 6.3.11** - August 2026
 
-- **Matter Controller**: fixed KNX GA mapping tabs being hidden by transient empty KNX/Matter config-selector values during Node-RED 5 editor initialization; saved gateways now remain selected until the user explicitly changes them.<br/>
+- Fixed Matter Controller hiding KNX settings or losing the displayed gateway selection when opening the editor.
 
-**Version 6.3.10** - August 2026<br/>
+**Version 6.3.10** - August 2026
 
-- **Watchdog**: added a default-on option to listen for error states reported by KNX-Ultimate nodes, including KNX Device, through the selected gateway; disabling it suppresses `NodeError` flow messages without affecting the Watchdog's own bus checks or control messages. Existing flows retain the previous enabled behavior.<br/>
+- Watchdog can optionally report errors from other KNX Ultimate nodes. This is enabled by default.
 
-**Version 6.3.9** - August 2026<br/>
+**Version 6.3.9** - August 2026
 
-- **Matter on Home Assistant**: declared the Node.js platform adapter as a required runtime dependency so Home Assistant's Node-RED add-on cannot omit it while installing optional packages; Matter Controller and Matter Bridge now load normally instead of reporting `Cannot find module '@matter/nodejs'` at startup.<br/>
+- Fixed Matter nodes failing to load in the Home Assistant Node-RED add-on.
 
-**Version 6.3.8** - August 2026<br/>
+**Version 6.3.8** - August 2026
 
-- **HUE Controller**: fixed Light and grouped-light mapping tabs remaining hidden when Node-RED emits temporary empty KNX/Hue config-selector values during editor initialization; saved gateways now survive bootstrap and remount, while only an explicit user selection of `none` hides the mapping tabs.<br/>
+- Fixed HUE Controller hiding light settings or losing the displayed gateway selection when opening the editor.
 
-**Version 6.3.7** - August 2026<br/>
+**Version 6.3.7** - August 2026
 
-- **HUE Controller**: improved gateway-dependent editor visibility, preserving all KNX mappings and restoring the correct tab layout when gateways are deselected or reselected; obsolete headings and decorative images were removed.<br/>
-- **HUE Controller**: added clearer Hue Bridge loading/offline feedback, kept saved mappings visible while disabling unavailable device discovery, and restored the complete previous configuration when the editor is cancelled after previewing another Hue resource.<br/>
+- HUE Controller keeps saved KNX settings when gateways are changed and restores them correctly when edits are cancelled.
+- Added clearer messages while the Hue Bridge is loading or offline.
 
-**Version 6.3.6** - August 2026<br/>
+**Version 6.3.6** - August 2026
 
-- **HUE Controller**: grouped lights now always show the complete Light mapping editor when KNX is configured, without checking child-light capabilities.<br/>
+- Hue light groups now show all light settings when a KNX gateway is selected.
 
-**Version 6.3.5** - August 2026<br/>
+**Version 6.3.5** - August 2026
 
-- **HUE Controller**: fixed Light mapping tabs being blocked by the Hue resource-readiness check and false-success Locate requests. Editor and Locate failures now show a red Node-RED message.<br/>
+- Fixed missing HUE light settings and misleading Locate success messages.
 
-**Version 6.3.2** - August 2026<br/>
+**Version 6.3.2** - August 2026
 
-- Fixed stop issue in dimme-up.<br/>
+- Fixed stopping an upward dimming command.
 
-**Version 6.3.1** - August 2026<br/>
+**Version 6.3.1** - August 2026
 
-- Updated dependencies, including the security-fixed jsPDF release.<br/>
-- Replaced `node-color-log` with Winston, shared with the KNXUltimate engine.<br/>
-- **Documentation language navigation**: fixed localized homepage links returning `404` on GitHub Pages because they incorrectly included a trailing slash.<br/>
+- Updated components for security and fixed links to translated documentation.
 
-**Version 6.3.0** - August 2026<br/>
+**Version 6.3.0** - August 2026
 
-- **HUE Controller**: unified device-first workflow for all supported Hue API v2 resources, with automatic type detection and legacy-node migration.<br/>
-- **Matter**: clearer commissioning progress and refined Controller/Bridge workflows and documentation.<br/>
-- **Editor pickers**: Hue, Matter and KNX Group Address lists now open reliably and show every available entry before filtering.<br/>
+- New HUE Controller combines the supported Hue devices in one node, detects the device type and converts old nodes.
+- Improved Matter pairing feedback and device selection lists.
 
-**Version 6.2.3-beta.5** - August 2026<br/>
+**Version 6.2.3-beta.5** - August 2026
 
-- **HUE Controller**: device-first selection with automatic type detection and all supported Hue API v2 resources.<br/>
-- **Device pickers**: Hue, Matter and KNX Group Address lists now stay open on click and show all entries before filtering.<br/>
+- HUE Controller detects the selected device type automatically.
+- Fixed Hue, Matter and KNX selection lists closing too early.
 
-**Version 6.2.3-beta.4** - August 2026<br/>
+**Version 6.2.3-beta.4** - August 2026
 
-- **Matter Controller — live commissioning progress**: replaced the pairing overlay spinner with a milestone-based progress bar driven by the actual matter.js commissioning flow. The blocking panel now describes the active discovery, PASE, device-information, fail-safe, regulatory, time-sync, attestation, credential, access-control, CASE reconnect and completion phase in English; when exposed by the commissionee, its product name, Vendor ID and Product ID appear below the current operation. Progress polling is local to the Node-RED editor, stops with the pairing request and is isolated by operation ID across editor tabs.<br/>
-- **HUE Controller — unified Hue API v2 node**: added one controller node covering the complete set of existing Hue functions: lights and grouped lights, plugs, buttons, Tap dial, motion and camera motion, contacts, light level, temperature, humidity, scenes, battery, Zigbee connectivity and device software update. The compact device-function selector uses one third of the available width and opens the established dedicated editor with its localized labels; KNX mapping fields are hidden whenever no **KNX Gateway** is selected, including `none`, an empty value and **Add new...**. The YouTube tutorial playlist now appears once at the top of the editor, while routine inline `form-tips` are removed from the unified UI and a compact migration privacy disclaimer remains directly below the conversion button. The migration action runs entirely inside the browser and changes only the legacy HUE nodes requiring conversion, preserving every existing property, config reference, group, position and link; no flow or node data leaves the editor and the workspace remains undeployed for user review. After a successful conversion, an editable email draft addressed to the author opens without navigating the top-level Node-RED page and contains only the converted-node count and space for optional notes; the user decides whether to send it and nothing is sent automatically. The final Node-RED message offers an optional support button, and the PayPal donation page opens only when the user clicks it. Each profile executes the same mature runtime contract, preserving KNX telegram types, Hue event/status direction, flow pins and loop protection. Runtime implementations, editor definitions, templates and all six translation catalogs are embedded as package-internal HUE Controller profiles; registration order no longer matters, the KNX and Hue gateway fields remain real config-node selectors, and the controller has no runtime or editor dependency on deprecated node types. The original Hue Light node remains unchanged. Existing dedicated Hue nodes remain fully compatible and registered, use Node-RED's special `deprecated` category so they no longer appear in the palette, retain the lighter `#E7E9F6` color and `(deprecated)` canvas suffix without changing saved names, and show a localized HUE Controller migration notice at the top of their editors.<br/>
-- **HUE Controller — complete per-function help**: the established help of every dedicated Hue node is now incorporated under the corresponding HUE Controller function key, with an anchor index and automatic sidebar focus when the function changes. The same 15-section reference is included in the Controller wiki documentation in EN, IT, DE, FR, ES and zh-CN; legacy deprecation notices are deliberately excluded from the embedded copies.<br/>
-- **HUE Controller — legacy-independent maintenance boundary**: private runtime profiles and the private editor/template/translation sources are now the canonical implementation of HUE Controller. Its generator and consistency check read only those private sources and never inspect the frozen legacy nodes, so future Controller fixes remain isolated and the dedicated deprecated nodes can eventually be removed without breaking either runtime or UI. Added detailed architecture and lifecycle comments around runtime constructor capture, RED facades, editor mounting, profile drafts, dynamic pins, translations and the Hue Light bootstrap path.<br/>
-- **HUE Controller — consolidated documentation**: removed all dedicated legacy Hue nodes from the multilingual documentation home cards and HUE navigation, leaving only Hue Bridge configuration and HUE Controller. Reworked the Controller page in EN, IT, DE, FR, ES and zh-CN with a responsive visual overview, the complete 15-function capability map, common Controller behavior, a four-step setup path, optional-KNX guidance, migration details and the full per-function reference inherited from the former dedicated nodes.<br/>
-- **HUE Controller — visible migration action**: added a localized YouTube guide link immediately before every legacy-flow migration button, pointing to `https://youtu.be/f0Evf2QFI7c` in HUE Controller and all 15 legacy editors. The action uses a high-contrast orange treatment, forced white text and icon colors that cannot be overridden by Node-RED's button theme, darker hover/active states and an accessible keyboard focus ring so it remains immediately recognizable and readable in light and dark editor themes.<br/>
-- **HUE Controller documentation routing**: added canonical Jekyll front matter and localized permalinks to every HUE Controller wiki page, fixing the GitHub Pages `404` and restoring correct links between EN, IT, DE, FR, ES and zh-CN.<br/>
-- **Matter documentation visual refresh**: redesigned the Matter Controller, Matter Bridge configuration and Expose KNX to Matter wiki introductions in EN, IT, DE, FR, ES and zh-CN. The responsive visual overviews now surface the controller lifecycle, commissioning and backup workflow, persistent multi-fabric bridge identity, live endpoint reconciliation, the complete 17-profile device map and concise setup paths while retaining the established technical reference below.<br/>
-- **HUE Controller — contextual migration action**: the highlighted legacy-flow migration button now appears in HUE Controller only when the Node-RED editor finds at least one registered legacy HUE node in the current flows, and the same orange action is available directly below the deprecation notice in every dedicated legacy HUE editor. All 15 legacy editors share one delegated confirmation dialog with the original pale-yellow backup warning before the fully local conversion and a separate safety notice requiring users to inspect every modified HUE node—function, configuration references, pins and wiring—before Deploy. Locked or changed flows and local conversion errors leave the workspace untouched; successful conversion creates one undoable editor change, opens an editable usage email draft without navigating away from Node-RED, and never deploys or sends email automatically. When these steps finish, a fixed modal Node-RED success message remains visible until the user clicks **OK**.<br/>
-- **HUE Controller — voluntary donation action**: removed the automatic PayPal window after legacy conversion. The fixed completion message now offers a localized optional **Support KNX Ultimate** button alongside **OK**; the donation page opens in a new browser tab only after the user deliberately clicks that button, and the completion message remains available for flow-review guidance.<br/>
-- **HUE Controller — legacy KNX mapping preservation**: fixed asynchronous DPT selectors overwriting an existing value when a converted node was inspected and saved before their options had finished loading. Conversion now treats every GA and DPT already stored by all 15 legacy HUE node types as authoritative and preserves those values unchanged; it does not infer, replace or recover missing DPTs.<br/>
-- **HUE Controller — light capability discovery**: fixed single lights losing their Dim, Tunable White, RGB/HSV and native-effects KNX sections while the embedded Light editor was bootstrapping. Capability discovery now resolves the persisted Hue Bridge configuration instead of Node-RED's temporary `_ADD_` selector sentinel, so Hue API v2 `dimming`, `color_temperature`, `color` and `effects` capabilities enable the corresponding mappings correctly. The legacy Hue Light node remains unchanged.<br/>
-- **HUE Controller — bounded Hue Bridge wait**: restored the Light editor's spinning-hourglass dialog while the selected Hue Bridge is still loading resources. Readiness is polled every 500 ms and the editor is always released after about 10 seconds with a localized error; Save, Cancel, Close and function changes cancel the timer. Removed the Controller wrapper overrides that had forced the wait icon hidden, and replaced the legacy global-`this` timer with strict-mode-safe private state. The legacy Hue Light node remains unchanged.<br/>
-- **HUE Controller — compact KNX rows**: reduced the DPT selector to 90–105 px and the Name field to 70–115 px within Controller mapping rows, keeping GA, DPT and Name on one line instead of wrapping on narrower editor trays. Rows are identified from their strict DPT field IDs after the private profile is mounted, so the scoped layout applies consistently without changing any frozen legacy template or persisted value.<br/>
+- New HUE Controller combines lights, sensors, buttons, scenes and other Hue functions in one node.
+- Added guided conversion of old Hue nodes, preserving their KNX settings. Donations after conversion are optional.
+- Improved Hue device detection, Locate, editor layout and help.
+- Matter pairing now shows progress and clearer status messages.
 
-**Version 6.2.2** - July 2026<br/>
+**Version 6.2.2** - July 2026
 
-- Bump KNX Engine to 6.0.2<br/>
-- **Cerebrum Ultimate — streamlined configuration and JavaScript chat editors**: removed the raw-hex, custom system-prompt, documentation-toggle, telegram-type and anomaly/pattern controls from the node editor. Cerebrum Ultimate now always listens to GroupValue Read/Response/Write, initializes pattern/anomaly analysis with its established defaults, excludes raw hex from prompts and always includes relevant documentation context. The chat input/output mappings now use the same color-coded JavaScript editors as KNXUltimate (green input and yellow output), including safe save/cancel lifecycle handling; **No adapter** is the default and keeps both editors hidden. All editor `form-tips` were removed, and model refresh now uses only a rotating button icon while loading instead of reporting the number of models found. Missing numeric settings now receive their established defaults instead of invalidating older nodes; this includes 120 minutes for the open threshold, 360 minutes for repeat cooldown and 256 KB for home memory. The KNX gateway is the only editor field that remains mandatory.<br/>
+- Updated KNX communication and simplified Cerebrum configuration.
 
-**Version 6.2.1** - July 2026<br/>
+**Version 6.2.1** - July 2026
 
-- **Cerebrum Ultimate — bounded proactive home intelligence**: added an opt-in **Proactive home & memory** section that derives a multilingual semantic model from ETS hierarchy, names, roles and DPTs and can proactively report reliably recognized covers, windows or doors left open beyond a configurable threshold. Notifications use output 3 with `msg.knxAi.type = "proactive_notification"`, retain the Telegram recipient through `msg.inputMessage`, obey quiet hours, a per-object cooldown and a maximum of three messages per hour, and never emit autonomous KNX commands on output 4. The LLM treats the user-only **AI Education** text as authoritative when deciding whether a candidate notification is useful; if Education cannot be evaluated, the notification is suppressed. A Markdown home reference is loaded at Node-RED startup, updated atomically and periodically, cleans stale temporary files, and is limited to 64–1,024 KB (256 KB by default), 120 significant observations, 80 aggregate habits, 80 notification records and 300 semantic ETS objects; older low-priority entries are pruned before the hard file limit can be exceeded. The direct Telegram example demonstrates the bounded memory and proactive settings.<br/>
-- **Cerebrum Ultimate — clearer accordion editor and practical guidance**: replaced the crowded vertical tabs with three main accordion sections: **AI assistant**, **Conversations & home**, and **KNX traffic analysis**. Opening one section shows all related options together, with no nested tabs or hidden advanced details and no changes to persisted field IDs or values. Help and wiki documentation in every supported language now include realistic values for recipient, threshold, quiet hours, cooldown and memory, a copyable **AI Education** example, expected proactive/suppressed outcomes, and the KNX safety boundaries.<br/>
+- Cerebrum can optionally observe the home and report useful changes, with remembered home information.
+- Simplified its settings and added practical guidance.
 
-**Version 6.2.0** - July 2026<br/>
+**Version 6.2.0** - July 2026
 
-- **Cerebrum Ultimate — DPT 1 command payload normalization**: fixed actuator writes being rejected when an otherwise valid AI response represented a DPT 1.xxx value as numeric `1`/`0` (including quoted values) instead of a JSON boolean. Exact safe equivalents `true`/`false`, `1`/`0`, `on`/`off` and ETS value labels are now normalized to real booleans before local validation, confirmation and Universal Mode output; other numeric values remain rejected.<br/>
-- **Sidebar package cleanup**: removed the unused **KNX Debug** and **KNX Monitor** sidebar tabs, their dedicated admin endpoints and the Debug logger's global 5,000-entry memory buffer. The independent Flow Bubbles plugin and standard Node-RED logging remain unchanged.<br/>
-- **Cerebrum Ultimate — conversational actuator control**: `ask` inputs can now produce a text reply on the existing AI Assistant output and separately emit locally validated `GroupValue_Write` messages on a new KNX commands output for a KNX Ultimate node in Universal Mode. Actuator control is opt-in and off by default; commands are limited to exact imported ETS group addresses classified as commands, must use the ETS DPT, pass payload/range validation and are capped per request. A second option, enabled by default, previews the exact GA/DPT/payload plan and waits up to five minutes for confirmation from the same chat session before emitting anything; cancellation, stale-plan replacement and validation immediately before output prevent an old or changed plan from reaching KNX. Recent chat turns are kept in bounded per-session RAM history, including detected Telegram chat IDs, and `clear_chat` clears both conversation and pending commands for one session without affecting traffic history. A ready-to-import conversational control example is available under `examples/`, including simulated chat input, confirmation/cancellation and the Universal Mode connection.<br/>
-- **Cerebrum Ultimate — fresh KNX state reads**: natural-language requests for a current value can now emit locally validated `GroupValue_Read` operations for exact objects in the imported ETS catalog, including status and read-only objects. Output 4 supplies the Universal Mode contract (`msg.destination`, exact ETS `msg.dpt`, `msg.event = "GroupValue_Read"` and `msg.readstatus = true`), waits up to six seconds for a fresh response/write telegram, and returns localized decoded values plus `msg.knxAi.readResults` on output 3. Reads are immediate and never require confirmation; the existing command-role and confirmation protections remain mandatory for writes. The conversational example now includes a live room-temperature read.<br/>
-- **Cerebrum Ultimate — request-language confirmation instructions**: whenever validated commands are waiting for confirmation, the assistant now always appends deterministic confirmation/cancellation instructions in the current request language. Explicit message language remains authoritative, followed by the LLM language field, local request-text detection and Telegram/configuration fallback.<br/>
-- **Cerebrum Ultimate — button-ready confirmation metadata**: pending confirmation replies now expose `msg.knxAi.confirmationRequest` with session, expiry, command count and localized `confirm`/`cancel` actions. Each action includes a stable `callbackData` value and a ready-to-send Node-RED message, allowing Telegram and other chat nodes to present buttons instead of requiring typed confirmation.<br/>
-- **Cerebrum Ultimate — input message passthrough**: every AI Assistant and KNX command output now includes an independent copy of the triggering input message in `msg.inputMessage`, preserving Telegram/chat metadata and custom flow properties for downstream routing. Message-cloning and output-dispatch failures are contained and reported so malformed custom properties or downstream runtime errors cannot produce an uncaught exception or rejection.<br/>
-- **Cerebrum Ultimate — streamlined vertical editor tabs**: the editor now opens on a compact **Quick setup** tab containing only the common AI choices (enable, provider, credential, model, KNX commands and confirmation). Capture, storage, detection, AI context and advanced connection controls use the same left-hand vertical tab layout and shared CSS as the Matter editors, with technical fields grouped by topic and no changes to persisted field IDs or configuration values.<br/>
-- **Cerebrum Ultimate — selectable chat adapters and direct Telegrambot wiring**: a new **Chat adapters** tab loads preset input/output mappings from `resources/KNXAIChatAdapterMappings.js` and inserts their editable synchronous JavaScript into two persisted, full-width text boxes. The included `windkh/node-red-contrib-telegrambot` preset accepts receiver text and callback-query events directly, preserves chat/session/language data, converts output 3 directly to the Telegram sender contract and creates localized inline confirmation buttons from `msg.knxAi.confirmationRequest`. Adapter syntax/runtime failures are contained and reported, while unrelated outputs remain protected. A ready-to-import direct receiver/event → Cerebrum Ultimate → sender example is included under `examples/`; the Telegram package remains an optional external dependency.<br/>
-- **Cerebrum Ultimate — chat model compatibility**: the refreshed OpenAI-compatible model list now excludes known legacy completion-only models such as `gpt-3.5-turbo-instruct`, `davinci-002` and `babbage-002`. If a manually entered or third-party model rejects `/v1/chat/completions`, the assistant now reports the selected model and endpoint and suggests a compatible chat model instead of forwarding the provider's opaque error unchanged. Models that accept only the default temperature are retried without the custom `temperature` field, and token-limit fallbacks can be combined in the same request without discarding the prompt or conversation.<br/>
-- **Control Matter from KNX — contextual flow PIN help**: **Node Input/Output PINs** now reveals the capability-driven **Flow input** section directly below the selector instead of adding a separate editor tab. The section remains hidden while the pins are disabled. Light endpoints now receive contextual, copyable examples for their supported top-level `msg.on`, `msg.dimming`, `msg.color_temperature` and `msg.color` contracts, while non-light endpoints retain their advertised simple and advanced Matter examples.<br/>
-- **Matter Bridge — contextual flow PIN help**: **Node Input/Output PINs** now sits outside the editor tabs and, when enabled, reveals a contextual **Flow input/output** section directly below it. Copyable Flow → Matter and Matter → Flow examples are filtered to the selected device type, covering lights, covers, thermostats, fans, sensors, alarms and the flow-only robot vacuum while documenting only the message contracts already accepted or emitted by the runtime.<br/>
+- Cerebrum chat can read KNX states and prepare device commands, with optional confirmation before sending.
+- Added easier Telegram connections and improved AI compatibility.
+- Removed the KNX Debug and KNX Monitor sidebar tabs.
+- Matter nodes show flow connection help when their inputs and outputs are enabled.
 
-**Version 6.1.0** - July 2026<br/>
+**Version 6.1.0** - July 2026
 
-- **Matter Controller — QR pairing-code reader**: the pairing editor can now fill the existing `MT:…` field by scanning a QR code with the local webcam or reading it from a selected image, including inverted white-on-dark QR codes used by some device web interfaces. Decoding remains entirely in the browser and never uploads the image or video; after a valid QR is read, pairing starts automatically, while manually typed codes still require **PAIR**. The optional device name is positioned before the scanner, the decoded code remains visible underneath it and fabric backup controls have moved to the bottom of the editor. A prominent blocking progress overlay prevents further editor interactions until commissioning succeeds or fails. When live camera access is unavailable because the editor is not open over HTTPS/`localhost`, permission was denied or the browser lacks camera support, the editor explains the reason and keeps image loading available.<br/>
-- **Matter Controller — commissioned-device status**: fixed the connection-state import for the installed matter.js API, so the associated-devices table now reports `connected`, `disconnected`, `reconnecting` or `waitingfordiscovery` instead of misleading values such as `unknown (0)`. The table has also been regression-tested to preserve every row returned by the controller without collapsing equal Node IDs.<br/>
-- **Matter Controller — per-device command isolation**: commands now remain ordered inside an independent execution lane for each commissioned Node ID instead of sharing one blocking serial queue. An offline, timing-out or removed device can no longer delay other Matter Controller nodes that react to the same KNX group address. Removed Node IDs are rejected before queueing, every Matter operation has a bounded timeout and pending commands are purged on removal. An unavailable Controller node latches its red status and ignores subsequent KNX/flow commands instead of accepting them optimistically; it resumes automatically when that specific Matter device reports `connected`, while opening the node editor explicitly enables a manual retry.<br/>
-- **Control Matter from KNX — Universal Mode**: a dedicated **Mode** selector now switches between a single Matter device and controller-wide Universal Mode. Its **Universal Battery Monitor** scans every commissioned node and endpoint for battery Power Source clusters, maintains a normalized cache, publishes an optional aggregate KNX alarm as DPT 1.005, cycles low-battery device names every 2 seconds as DPT 16.001, and answers `getAllBatteries` flow queries. The alternative **All Matter events** service preserves the generic attribute/event stream and dynamic read/write/command input.<br/>
-- **Universal Battery Monitor — KNX editor and diagnostics**: battery options now use the same vertical-tab and ETS/CSV group-address selectors as single-device profiles. Alarm and text mappings are aligned as Function/GA/DPT/Name rows, support editable names and KNX read responses, ignore wired Power Source endpoints, and show an aggregate battery status instead of per-device `unknown` states.<br/>
-- **Matter light capability refresh**: Color Control `featureMap` and the endpoint device type now drive the Tunable White and RGB/HSV tabs. New selections, changed devices and previously saved nodes normalize stale capabilities so Tunable White lights no longer retain unsupported colour mappings.<br/>
-- **Matter editor/help cleanup**: decorative animated light icons and duplicate localized help headings were removed from the Matter Controller, Matter Bridge and shared light editor where applicable.<br/>
-- **Matter Bridge — editor tab orientation**: the device editor now uses the same left-hand vertical tab layout as Matter Controller, keeping Mappings and Advanced options visually consistent without changing saved configuration.<br/>
-- **Control Matter from KNX — simple flow input and capability help**: non-light endpoints now accept the same human-readable `msg.payload = { function, value }` contract used by Matter Bridge. The selected node and endpoint are implicit; percentages, temperatures and measurements use human units, while omitting `value` reads a supported state. A capability-driven **Flow input** tab, consistent with the node's existing editor tabs, replaces the modal help button and provides copyable simple examples plus every advertised readable/writable attribute, command, cluster ID and advanced message. It remains available for flow-only nodes without a KNX gateway. Existing top-level `clusterId`/`command`/`attribute` inputs remain compatible, and Door Lock also accepts `{function:"lock",value:true|false}`.<br/>
-- **Examples — Matter semantic flow input**: added an importable, non-destructive Matter Controller example with manual Inject nodes for On/Off, level, cover position, thermostat setpoint, temperature read and Identify. It deliberately creates no `matter-config`, sends nothing automatically and directs users to select an existing fabric/endpoint and use only functions advertised in the **Flow input** tab.<br/>
-- **Control Matter from KNX — dedicated controller profiles**: Window Covering (`0x0102`), Thermostat (`0x0201`), Fan Control (`0x0202`) and Switch (`0x003B`) endpoints are now selected into explicit capability-driven profiles instead of the anonymous mapped fallback. They share the guarded mapping lifecycle while presenting semantic canvas status; Switch initial/long/multi-press events are filtered to the selected endpoint and exposed on the optional flow output. Simple actuators and sensors remain on the generic mapped profile.<br/>
-- **Control Matter from KNX — flow attribute reads and persistent Door Lock status**: mapped endpoints now use an unambiguous top-level flow contract: `msg.clusterId` plus `msg.attribute` reads an attribute, `msg.value` makes it an attribute write, and `msg.command` plus `msg.args` invokes a command. Reads return the value in `msg.payload`, may force a remote request with `msg.requestFromRemote = true`, and accept numeric attribute ID `0`. Door Lock nodes now retain their last `locked`/`unlocked` canvas status when generic Matter or KNX notifications arrive.<br/>
+- Matter pairing can read QR codes from a camera or image.
+- Added monitoring for low batteries across all paired Matter devices.
+- Improved support for shutters, thermostats, fans, switches and locks. An offline device no longer delays other devices.
+- Corrected connection status, light options and flow input help.
 
-**Version 6.0.10** - July 2026<br/>
+**Version 6.0.10** - July 2026
 
-- **Matter nodes — crash containment**: asynchronous bridge state updates, controller client callbacks, engine errors, startup/watchdog timers and the controller command queue are now guarded so rejected promises and EventEmitter errors are reported instead of becoming uncaught exceptions or unhandled rejections capable of stopping Node-RED.<br/>
-- **Matter Controller — post-commission naming**: assigning a name immediately after pairing now waits for matter.js to finish exposing the root `BasicInformation` cluster. Root endpoint 0 is resolved explicitly, preventing the misleading `BasicInformation cluster not found` warning seen when re-adding devices such as Shelly Plug.<br/>
-- **Control Matter from KNX — profile deploy crash**: Door Lock and multi-purpose profiles now expose the KNX status callback before registering with `knxUltimate-config`, preventing `_Node.setNodeStatus is not a function` during deploy.<br/>
-- **Control Matter from KNX — flow PIN persistence**: the **Node Input/Output PINs** selection is no longer overwritten from the KNX gateway presence when reopening the editor. The saved choice remains authoritative and `inputs`/`outputs` are updated coherently on save.<br/>
-- **Matter terminology cleanup**: removed leftover Philips Hue wording from Matter controller labels, notifications, runtime status, localized strings and help. Backward-compatible saved configuration keys remain unchanged.<br/>
-- **Control Matter from KNX (BETA) — Door Lock support**: commissioned Door Lock endpoints (including locks bridged by a vendor Matter hub) are now detected from their real `0x0101` cluster and expose KNX DPT 1 command/status mappings. `true` invokes `lockDoor`, `false` invokes `unlockDoor`, and subscribed `lockState` feedback updates KNX without command reflection. `NotFullyLocked` and `Unlatched` remain explicit flow states and are never collapsed into an unsafe binary KNX value. The optional remote-operation PIN is stored as a Node-RED credential; endpoints that do not advertise a requested command are rejected instead of receiving an invented operation. This is the first controller-side device profile in the extensible profile architecture requested in [discussion #519](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/discussions/519).<br/>
-- **Control Matter from KNX (BETA) — multi-purpose endpoint profiles**: the controller node now keeps its established light path unchanged while routing non-light endpoints through a separate capability-driven mapped profile. Selecting a plug/On-Off actuator, cover, thermostat, fan, environmental/contact/occupancy sensor, battery, electrical-power or energy endpoint builds only the KNX mappings backed by clusters, attributes and supported commands actually reported by that endpoint. These mappings now live inside a dedicated **Mappings** tab beside **Behaviour**, matching the established light editor layout. Each mapping can be disabled by leaving its GA empty; cached status supports KNX read responses and startup publication, attribute reports never reflect commands back to Matter, and cluster events remain available on the optional flow output. Saved mappings survive an untouched editor save even when the Matter endpoint is temporarily offline.<br/>
-- **Matter nodes — cleaner editors**: long pairing, storage, cache and endpoint-structure explanations were removed from the Matter node forms and consolidated in the localized HTML help, keeping the editors focused on fields, actions and live operational status.<br/>
-- **Matter nodes — distinct canvas icons**: Matter Controller and Matter Bridge nodes now use separate compact icons, with `mat` above a large right/left direction arrow, making the two integration directions immediately distinguishable in the palette, workspace and configuration selectors.<br/>
-- **Matter Controller/Bridge — protocol version and portable storage backups**: the Node-RED startup version line now logs the implemented Matter protocol revision (Matter 1.5.1, separately from the matter.js package version). Both Matter configuration editors can export and import a per-instance JSON backup containing the complete persistent Matter storage required to preserve fabrics, private credentials, sessions and commissioned/paired nodes. Import atomically replaces only the selected instance and restarts its engine; backup files contain secrets and must be protected like passwords.<br/>
-- **Homepage — KNX integration engines, MQTT and Matter overview**: the integration-logo heading and Supported technologies section now identify the KNX integration engines and include dedicated MQTT and Matter cards in all six languages (EN/IT/DE/FR/ES/zh-CN), highlighting MQTT/Home Assistant discovery and the bidirectional Matter Controller/Bridge integration for controlling Matter devices and exposing KNX objects to Matter. The feature-request/enterprise-support solicitation, standalone changelog promotion and donation section have been removed.<br/>
-- **Expose KNX to Matter (BETA) — dedup for duplicate Alexa light commands**: same Alexa quirk as the covers below, on lights: a single "turn on" / "set to 50%" voice request could arrive as up to two _identical_ cluster commands (two `On`, or `MoveToLevelWithOnOff` + `MoveToLevel` with the same level), making the node emit duplicate raw msgs on `OnOffLightDevice`/`DimmableLightDevice` ([discussion #516](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/discussions/516)). A short leading-edge dedup now forwards the first command immediately (no added latency — lights react instantly) and drops only a command identical to the one just emitted for the same function within the window; any change of value (a real On→Off, or a different brightness) always passes through at once, so genuine commands are never swallowed. The window is exposed in the node's **Advanced** tab as _Alexa duplicate-command window_ (default 1.2s, **0 = disabled/raw**), the same approach the Home Assistant Matter Hub adopted for this Alexa behavior. The complementary _ignore brightness after On_ option (already present) covers Alexa's other habit of sending a brightness right after On.<br/>
-- **Expose KNX to Matter (BETA) — Home Assistant Matter Hub-style cover compatibility**: `WindowCovering` now exposes **Swap Open / Close** and **Cover slider debounce** in the Advanced tab. Swap reverses the binary KNX Up/Down command and percentage direction symmetrically for Alexa installations that interpret them backwards. Debounce collapses rapid `GoToLiftPercentage` targets into the last KNX command; `0` uses the adaptive Home Assistant Matter Hub windows (400ms first command / 150ms subsequent commands), while `1`–`5000` selects a fixed per-cover window. `StopMotion` remains immediate and cancels every pending movement. Help HTML and Matter Bridge docs were updated in EN/IT/DE/FR/ES/zh-CN.<br/>
-- **Expose KNX to Matter (BETA) — cover "arrived" safety net**: in _Wait for KNX status_ mode, if no KNX status telegram confirms the exact requested position within a generous window (45s), the node now falls back to reflecting the requested position to Matter anyway. Without this, a real actuator that never reports back the _exact_ requested percentage (positioning tolerance/drift) could leave the Matter device reporting "still moving" forever, since matter.js only clears `OperationalStatus` on an exact match.<br/>
-- **Expose KNX to Matter (BETA) — raw color commands**: RGB and tunable-white lights now capture color commands at the same "raw" command boundary already used for On/Off, dimming and covers - a repeated color command (e.g. the same color sent twice) is forwarded on the node's optional output PIN every time, not just on the first. Only possible for ColorControl because it is command-based (`MoveToHue`, `MoveToSaturation`, `MoveToHueAndSaturation`, `MoveToColor`, `MoveToColorTemperature`); Thermostat setpoints and Fan speed remain attribute-write only in the Matter spec, so they still report only on actual value changes - there is no lower-level hook matter.js exposes for those.<br/>
-- **Expose KNX to Matter (BETA) — fixed WindowCovering percentage commands**: `GoToLiftPercentage` commands (e.g. "Alexa, set the cover to 50%") were being misread as plain Open/Close commands, discarding the requested percentage. matter.js always resolves the command's `direction` parameter to a concrete Open/Close before calling our handler — it is not a usable signal — while `targetPercent100ths` is always populated. The node now classifies purely on the target position (0/10000 → Up/Down GA, anything else → Position GA), fixing intermediate cover positions from any Matter controller. Thanks to [@till69](https://github.com/till69) for tracing this down in [discussion #516](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/discussions/516).<br/>
-- **Expose KNX to Matter (BETA) — removed the "Expose as dimmable light" Alexa workaround**: now that the actual cause of Alexa's broken cover percentages is fixed (see above), the v6.0.3 workaround that exposed covers as dimmable lights is no longer needed and has been removed, including its editor checkbox. **Breaking for the small number of BETA users who enabled it**: existing flows with the option turned on simply revert to a normal Matter Window Covering device on next deploy - you may need to remove/re-add the accessory in your controller's app.<br/>
-- **Expose KNX to Matter (BETA) — heating/cooling thermostats**: the bridged Thermostat can now expose a **Cooling setpoint** in addition to the existing heating one. Add a _Cooling setpoint command/status GA_ on the device to automatically upgrade the Matter endpoint to a dual-mode (Heat/Cool) thermostat; leaving it empty keeps the previous heating-only behavior unchanged. Mode (Heat/Cool) switches from the controller are accepted but not yet mirrored back to KNX.<br/>
-- **Expose KNX to Matter (BETA) — stable per-device identity**: bridged devices now also set the optional `UniqueID` of `BridgedDeviceBasicInformation` (matching the existing serial number), improving cross-reset device identity for controllers that rely on it (e.g. Apple Home) alongside the endpoint number.<br/>
-- **Matter Bridge/Controller — safer shared storage initialization**: the `storage.path` write on the process-wide matter.js `Environment.default`, followed by the `ServerNode`/`CommissioningController` creation, is now serialized through a small FIFO lock (`matterEnvironmentLock.mjs`) shared by both engines, removing a theoretical race between a concurrently starting Matter Bridge and Matter Controller.<br/>
+- Added Matter door-lock support, more device functions, and backup and restore of pairing data. Protect these backups like passwords.
+- Improved stability, device naming and saved settings.
+- Fixed Alexa shutter positions and duplicate light commands. Added heating/cooling thermostat support.
+- **Beta upgrade notice:** the option to expose shutters as dimmable lights was removed. If you used it, you may need to remove and add the accessory again in your Matter app.
 
-**Version 6.0.4** - July 2026<br/>
+**Version 6.0.4** - July 2026
 
-- **Expose KNX to Matter (BETA) — clearer editor layout**: reorganized the device editor into dedicated **KNX mappings** and **Advanced options** tabs, following the established KNXUltimate node UI. Type-specific compatibility settings are easier to find, and checkbox labels now include icons with the checkbox positioned after the text. All saved fields and runtime behavior remain unchanged.<br/>
+- Matter Bridge settings are easier to find, with separate mapping and advanced tabs.
 
-**Version 6.0.3** - July 2026<br/>
+**Version 6.0.3** - July 2026
 
-- **Expose KNX to Matter (BETA) — Alexa cover percentage workaround**: covers/shutters can optionally be exposed to Matter controllers as dimmable lights when Alexa does not send percentage commands to a native Window Covering endpoint. Brightness represents openness (`100%` open, `0%` closed), while On/Off opens or closes the cover. Commands and status remain mapped through the existing KNX cover position GA/DPT, including position inversion and loop-protected KNX-to-Matter feedback. The standard Matter Window Covering endpoint remains the default.<br/>
+- Added a temporary option to expose shutters as dimmable lights for Alexa percentage control.
 
-**Version 6.0.2** - July 2026<br/>
+**Version 6.0.2** - July 2026
 
-- **Expose KNX to Matter (BETA) — covers/shutters with Alexa**: initialize position-aware covers with a valid numeric Matter position instead of an unknown (`null`) value. This helps controllers such as Alexa expose percentage positioning and send `GoToLiftPercentage` instead of degrading to Open/Close only. Added targeted command diagnostics to the Node-RED log and output message for interoperability testing.<br/>
-- **Expose KNX to Matter (BETA) — raw flow output**: On/Off and absolute dimming commands are now captured at the Matter command boundary, so the optional output PIN forwards repeated commands even when the Matter state is already unchanged. Matter validation still runs before KNX routing, and KNX-to-Matter status updates remain loop-protected.<br/>
+- Improved Alexa shutter positioning and forwarding of repeated Matter commands to flows.
 
-**Version 6.0.1** - July 2026<br/>
+**Version 6.0.1** - July 2026
 
-- **Expose KNX to Matter (BETA) — flow-only covers/shutters**: fixed intermediate position commands reaching the Node-RED output but not being optimistically confirmed to Matter when no KNX command group address was configured. Voice assistants such as Alexa no longer report that the device is not responding after a percentage-position command.<br/>
+- Fixed Alexa reporting a shutter as unresponsive after a position command when controlled only through a flow.
 
-**Version 6.0.0** - July 2026<br/>
+**Version 6.0.0** - July 2026
 
-- **BREAKING CHANGE**: this release intentionally bumps the package to `6.0.0` because the Matter node model changed. The unpublished dedicated Matter controller nodes and the old generic Matter Device node have been replaced by the new single **Control Matter from KNX (BETA)** node, and the KNX-to-Matter bridge/editor behaviour has been reworked. Existing experimental Matter flows created with the previous beta nodes may need to be rebuilt or adjusted.<br/>
-- **Matter nodes are BETA**: all Matter nodes are experimental and may be changed, renamed, removed, or replaced at any time until the Matter integration leaves the BETA phase. Do not treat their editor fields, flow JSON structure, runtime behaviour, storage layout, or exposed APIs as stable yet.<br/>
-- New **Control Matter from KNX (BETA)** node: a single capability-driven Matter controller node. Select a commissioned Matter endpoint and the editor shows only the KNX mappings supported by that endpoint (switch, brightness, color temperature, temperature, humidity, lux, occupancy, contact and battery). Light endpoints keep the familiar light-style tabs and the main KNX light options from the dedicated node, including relative DIM (DPT 3.007), brightness %, tunable-white DIM/Kelvin, switch-on brightness/temperature, dim speed, min/max dim level, tunable-white direction inversion and optional day/night lighting. This replaces the unpublished dedicated Matter controller nodes and the old generic Matter Device node.<br/>
-- **Matter Bridge device (BETA)** is now presented as **Expose KNX to Matter (BETA)** in the editor, with advanced compatibility options for real-world KNX actuators: dimmable devices can ignore brightness commands sent immediately after `On`, and covers/shutters can optimistically update their Matter position while waiting for the real KNX status feedback.<br/>
-- Matter Controller pairing and device list improvements: clearer commissioning errors, persistent error dialogs, better logging, device names shown more consistently, and direct rename support from the associated-devices list.<br/>
-- **Documentation**: added localized editor help and online docs for the new Matter nodes in EN/IT/DE/FR/ES/zh-CN, and expanded the Matter section in the documentation navigation.<br/>
+- New Control Matter from KNX node combines the previous Matter controller nodes and shows settings for the selected device.
+- Improved Matter Bridge shutter and dimmer options, pairing messages and device naming.
+- **Upgrade notice:** older experimental Matter flows may need to be updated. Matter remains beta and may change before its stable release.
 
-**Version 5.2.5** - July 2026<br/>
+**Version 5.2.5** - July 2026
 
-- Maintenance release.<br/>
+- Maintenance release.
 
-**Version 5.2.4** - July 2026<br/>
+**Version 5.2.4** - July 2026
 
-- **Matter Bridge — bridge name**: the _Matter bridge name_ field (the name Alexa/Google/Apple show for the bridge itself) now falls back to the configuration node's own **Name** when left empty, instead of the generic `KNX-Ultimate Bridge`. The field is empty by default with a placeholder hint, so a freshly named bridge is never anonymous during pairing.<br/>
-  - **Naming clarification**: Alexa and Google Home honor the names set on the bridge and on the device nodes, so they appear automatically in the apps. **Apple Home deliberately ignores the provided names and asks you to name each accessory manually during setup** — this is an Apple/HomeKit limitation, not a bridge issue. Node help and the online docs now document this difference in all six languages (EN/IT/DE/FR/ES/zh-CN).<br/>
+- Matter Bridge uses its configuration name when no separate bridge name is entered.
+- Clarified that Apple Home asks users to name accessories during setup.
 
-**Version 5.2.3** - July 2026<br/>
+**Version 5.2.3** - July 2026
 
-- **MQTT / Home Assistant bridge — Entity name format**: new selector to reshape the names exposed to Home Assistant. The ETS import builds each name with the group-address path first (e.g. `(Lights->Ground floor) Living room`); now you can choose _As imported from ETS_ (default), _Name first_ (`Living room (Lights->Ground floor)`), _Name only_ (`Living room`) or _Name + group address_ (`Living room (0/1/2)`). Changing it only updates the friendly name (the `unique_id`/`object_id` stay stable, so existing entities are not duplicated).<br/>
-  - The group-address list in the editor now previews the chosen format **live**: pick a format and every row is re-labelled instantly, exactly as it will appear in Home Assistant, without reloading the list or losing the expose / read-only ticks.<br/>
-  - Entity names are sanitized before publishing: ASCII control characters are stripped and runs of whitespace collapsed (ETS exports sometimes lose an accented character and leave a double space, e.g. `Velocità vento` → `Velocit  vento`), and a name that would be empty falls back to the group address.<br/>
-- **Documentation**: node help and the online IoT-Bridge page updated for the new option in all six languages (EN/IT/DE/FR/ES/zh-CN).<br/>
+- Choose how ETS device names appear in Home Assistant, with a preview before saving.
 
-**Version 5.2.2** - July 2026<br/>
+**Version 5.2.2** - July 2026
 
-- New **Matter Bridge (BETA)**: exposes **KNX group addresses as Matter devices**. Alexa, Google Home, Apple Home (or any Matter controller) commission the bridge once — via QR code or 11-digit manual code shown in the editor — and see all your KNX devices with the names you typed, ready for app and voice control. It is the opposite direction of the Matter Device node introduced in 5.1.0.<br/>
-  - Two-node architecture (like the HUE and Matter Controller integrations): a **Matter Bridge** configuration node is the bridge itself (holds the pairing, the QR code and the port), and a **Matter Bridge device** node is added per exposed device and points to it. Spread the device nodes across your flows, each with its own status — no giant list.<br/>
-  - **17 device types**: on/off light, dimmable light, **RGB color light** (DPT 232.600, converted to/from the Matter color wheel), **tunable white light** (color temperature in Kelvin, DPT 7.600), plug, cover/shutter (up/down, stop, position % with optional inversion), thermostat (current temperature + heating setpoint, both ways), **fan/ventilation** (speed %), sensors (temperature, humidity, illuminance, occupancy, contact), **smoke/CO alarm**, **water leak detector**, **air quality sensor** (CO2 ppm with automatic air-quality classification) and **robot vacuum** (flow-only: integrate your robot with any Node-RED node and expose it to the voice assistants).<br/>
-  - Bidirectional with loop protection: assistant commands write to the KNX _command_ group addresses; telegrams on the _status_ group addresses update the Matter attributes (and the apps). At startup each device node can send a `GroupValue_Read` to its status GAs so the Matter attributes are populated before the first app query.<br/>
-  - **Live device reconciliation**: the Matter server stays alive across re-deploys — added/renamed/removed device nodes appear on the paired controllers within seconds, without restarting Node-RED and without re-pairing.<br/>
-  - Optional **node Input/Output PINs**: the output forwards every controller command to the flow; the input updates the Matter state from flow messages (`msg.payload = { function, value }`). Devices without a command GA become flow-only devices.<br/>
-  - The **KNX gateway is optional** on the device node: without it the device runs in flow-only mode, useful to expose flow-computed or non-KNX devices to Alexa & Co.<br/>
-  - Multi-fabric: several controllers can be paired at the same time; the pairing panel lists them and a **Reset pairing** button decommissions everything. The bridge identity persists across re-deploys (no re-pairing needed). Each configuration node can use a different UDP port, so multiple independent bridges are possible.<br/>
-  - Editor with ETS group-address autocomplete filtered per function: the KNX gateway is resolved automatically (auto-selected when only one exists), so the address list is always available. Localized in EN/IT/DE/FR/ES/zh-CN.<br/>
-  - Note for early 5.2.x BETA testers: the two-node split changes the Matter identity of the bridge - remove the old bridge from your Matter app and pair the new configuration node once.<br/>
-- **Matter Device** node editor: the mappings list grows to fill the edit panel and has a native resize grip (bottom-right corner) to drag it to any height.<br/>
-- Matter integration hardening: try/catch protection on all critical paths (controller startup, client registration, structure queries, commissioning aftermath) so errors never crash Node-RED. Fixed the devices editor losing the configured group addresses on close/reopen (with automatic recovery of configurations saved by the affected versions).<br/>
-- **Documentation**: node help for the three Matter nodes in all six languages, new **Matter section** in the online docs sidebar with the Matter Controller, Matter Device and Matter Bridge pages (EN/IT/DE/FR/ES/zh-CN), the two new nodes on the homepage node list and the Matter logo alongside Home Assistant and MQTT.<br/>
+- New Matter Bridge exposes KNX lights, shutters, thermostats, sensors and other devices to Alexa, Google Home and Apple Home.
+- Devices can also be controlled through flows without a KNX gateway. Pairings are kept during normal Deploys.
+- Improved stability and preservation of saved group addresses.
+- **For early beta users:** remove the old bridge from your Matter app and pair the new bridge configuration once.
 
-**Version 5.1.0** - July 2026<br/>
+**Version 5.1.0** - July 2026
 
-- New **Matter integration (BETA)**: control any commissioned **Matter device** from the KNX bus and track its states on KNX group addresses.<br/>
-  - New **Matter Controller** configuration node: a full Matter controller with its own fabric (based on [matter.js](https://github.com/project-chip/matter.js)). Pair devices directly from the editor using the 11-digit manual pairing code or the QR code content (`MT:...`); commissioning works over the IP network (WiFi/Ethernet or Thread via border router). The commissioned devices list shows name, product, node ID and connection state, with one-click unpair. Fabric credentials are stored under `knxultimatestorage/matter` in the Node-RED user directory.<br/>
-  - New **Matter Device (BETA)** node: pick a paired Matter device and map KNX group addresses to its functions with a dynamic mapping list. The function list is **human friendly**: it shows only the functions the device really exposes, with plain-language localized names (e.g. _"On/Off switch"_, _"Instantaneous power (W)"_, _"Room temperature (°C)"_) and the current value in brackets, instead of raw Matter cluster/attribute names. Friendly endpoint names for 34 common device types (smart plug, dimmable light, cover, thermostat, sensors...).<br/>
-  - Mappings are bidirectional: **KNX → Matter** (commands/attribute writes, e.g. GA 1/1/1 DPT 1.001 → OnOff) and **Matter → KNX** (attribute changes written to the GA; `GroupValue_Read` requests answered from the cache). Automatic value conversion for the common clusters: OnOff, LevelControl (0-254 ↔ %), WindowCovering (percent100ths ↔ %, up/down), ColorControl (mireds ↔ Kelvin), Thermostat and temperature/humidity sensors (centi-units ↔ units), illuminance (log scale ↔ Lux), battery (half-percent ↔ %), power/energy metering (mW ↔ W, mWh ↔ kWh), door lock, occupancy and contact sensors.<br/>
-  - Selecting a function pre-fills the **suggested KNX DPT** and the GA name; the group address field has the usual **ETS autocomplete**. Optional node input/output pins for raw Matter access from the flow. Editor and help localized in EN/IT/DE/FR/ES/zh-CN.<br/>
+- New Matter integration lets KNX control paired Matter devices and receive their status.
+- Pair devices from the editor and link their functions to KNX group addresses. Matter support is beta.
 
-**Version 5.0.4** - July 2026<br/>
+**Version 5.0.4** - July 2026
 
-- **IoT Bridge** node, **Covers & Thermostats** editor: fixed the group-address autocomplete, which suggested only DPT **1.x** addresses in every field. Each field now filters by the datapoint it expects: cover **Set/Status position** GAs list DPT **5.x** (5.001), and the thermostat **Current temperature** and **Setpoint set/status** GAs list DPT **9.x** (9.001). Up/Down, Stop and On/Off keep their 1.x filter.<br/>
+- Fixed group-address suggestions for shutters and thermostats in IoT Bridge.
 
-**Version 5.0.3** - July 2026<br/>
+**Version 5.0.3** - July 2026
 
-- Added a link to the **KNX-Ultimate YouTube tutorials playlist** at the top of every node's configuration panel, so the video tutorials are one click away from any node.<br/>
+- Added a video tutorial link to every node's settings.
 
-**Version 5.0.2** - July 2026<br/>
+**Version 5.0.2** - July 2026
 
-- **IoT Bridge** node, **MQTT / Home Assistant (native)** mode:<br/>
-  - New **Read only** flag per group address in the _Group addresses to expose_ list: a read-only GA is still published to Home Assistant (its state stays visible) but never accepts commands back to the KNX bus (switches are exposed as `binary_sensor`, numbers/text as `sensor`). Added _Set read only_ / _Clear read only_ buttons that apply it to all currently shown (filtered) addresses.<br/>
-  - New **KNX bus connection** selector: _Stand-alone_ (default, talks to the KNX gateway directly) or _Flow messages_, which enables the node's input/output pins — wire a **KNXUltimate** node in Universal mode to the input (KNX bus → MQTT) and another to the output (MQTT → KNX bus). Pins are shown only when needed (none in stand-alone, one input + one output in flow mode).<br/>
-  - Editor help and online docs updated in EN/IT/DE/FR/ES/zh-CN.<br/>
+- IoT Bridge can expose selected KNX addresses as read-only in Home Assistant.
+- Choose a direct KNX connection or connect the bridge through flow messages.
 
-**Version 5.0.1** - June 2026<br/>
+**Version 5.0.1** - June 2026
 
-- **IoT Bridge** node (renamed **MQTT - IoT** in the UI): new **MQTT / Home Assistant (native)** mode selectable via a _Mode_ dropdown. In this mode the node connects directly to an MQTT broker and bridges KNX ↔ MQTT both ways, publishing **Home Assistant MQTT Discovery** so KNX appears automatically in Home Assistant (no `mqtt in`/`mqtt out` wiring needed). The classic IoT bridge mode is unchanged.<br/>
-  - Every group address imported in the KNX gateway (ETS list) can be **exposed automatically** as a Home Assistant entity (switch, sensor, binary*sensor, number, text), typed from its DPT. A checkbox list with filter and \_Select all / none* lets you choose exactly which GAs to publish.<br/>
-  - New **Covers & Thermostats** editor: composite entities that aggregate several GAs (cover with up/down, stop and position including KNX↔HA position inversion; thermostat with current temperature, setpoint and optional on/off). The cover/thermostat GA fields have **ETS group-address autocomplete**, like the KNX device node.<br/>
-  - Robust lifecycle: the MQTT broker is closed gracefully on deploy / Node-RED exit (retained `offline`, forced disconnect, hard-capped so a slow or unreachable broker never blocks a deploy); all MQTT event handlers are fully guarded.<br/>
-  - Editor help and online docs updated, plus Home Assistant / MQTT logos on the docs pages. Localized in EN/IT/DE/FR/ES/zh-CN.<br/>
+- IoT Bridge can connect directly to MQTT and automatically add selected KNX devices to Home Assistant.
+- Added combined shutter and thermostat settings and improved connection handling.
 
-**Version 5.0.0** - June 2026<br/>
+**Version 5.0.0** - June 2026
 
-- KNXUltimate engine: updated to **6.0.1** (see the engine [CHANGELOG](https://github.com/Supergiovane/knxultimate/blob/main/CHANGELOG.md)).<br/>
-- KNX config node: new **"Reveal keyring passwords"** button in the **Utility** tab, enabled only when **KNX Secure** is selected. It shows, in clear text, all the keyring passwords (interfaces, backbone, group addresses and devices keys/passwords) plus the general keyring password, decoded from the loaded keyring file. Localized in EN/IT/DE/FR/ES/zh-CN.<br/>
+- Updated KNX communication.
+- Added a button to reveal passwords and keys from the loaded KNX Secure keyring.
 
-**Version 4.3.24** - June 2026<br/>
+**Version 4.3.24** - June 2026
 
-- Hue **Contact Sensor** and **Motion** nodes: fixed the state on the KNX bus getting stuck on a wrong value (e.g. a contact sensor showing **closed** while the door stayed open) after the Hue event-stream reconnected. The nodes now re-publish the authoritative state at startup and after every (re)connection, and ignore stale/out-of-order reports by checking the `contact_report.changed` / `motion_report.changed` timestamp. Closes [#514](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/514).<br/>
+- Fixed Hue motion and contact sensors reporting an incorrect KNX state after reconnecting.
 
-**Version 4.3.23** - June 2026<br/>
+**Version 4.3.23** - June 2026
 
-- Hue nodes: fixed the **help text** not appearing in the editor sidebar when selecting a node. The help is now declared inline in each node's main HTML file (sidebar reads help from there; the `locales/` files keep providing translations). Affected nodes: Light/Outlet, Area Motion, Battery, Button, Contact Sensor, Light Sensor, Motion, Scene, Tap Dial, Temperature Sensor, Zigbee Connectivity and Device Software Update. Also closed an unterminated template `<script>` tag in the Hue Light node.<br/>
+- Restored the editor's help text for Hue nodes.
 
-**Version 4.3.22** - June 2026<br/>
+**Version 4.3.22** - June 2026
 
-- Hue config node: when the user clicks **"I already have the credentials"** to enter the connection data manually, the now-useless **CONNECT** button is hidden.<br/>
+- Simplified manual Hue Bridge credential entry.
 
-**Version 4.3.21** - June 2026<br/>
+**Version 4.3.21** - June 2026
 
-- KNXUltimate engine: updated to 5.5.9.<br/>
+- Updated the KNX communication software.
 
-**Version 4.3.20** - June 2026<br/>
+**Version 4.3.20** - June 2026
 
-- Cerebrum Ultimate: new **Flow Builder** (BETA) tab in the AI web page — describe an automation in plain language and the AI generates a ready-to-import **Node-RED flow** (JSON) using KNX Ultimate nodes, the Philips Hue nodes and native Function/logic nodes, wired to your imported group addresses. Copy the JSON and paste it via Node-RED _Menu > Import_. Generated node ids, wiring and config-node references are validated and rewired server-side before output.<br/>
-- Cerebrum Ultimate: added **Anthropic (Claude)** as an LLM provider alongside OpenAI-compatible and Ollama. Uses Claude's native Messages API; model and API key are configurable from the node (default `claude-opus-4-8`), with model auto-discovery.<br/>
-- Cerebrum Ultimate: Flow Builder UI is fully localized (EN/IT/DE/FR/ES) and laid out side-by-side (prompt and generated JSON); minor sidebar fix so long menu labels are no longer truncated.<br/>
+- Cerebrum can create an importable Node-RED flow from a plain-language description. Flow Builder is beta.
+- Added Claude support and improved the web page layout and translations.
 
-**Version 4.3.19** - June 2026<br/>
+**Version 4.3.19** - June 2026
 
-- Docs: reworked the multilingual **FAQ & Troubleshoot** wiki pages — rewrote the **ES/FR** pages in the clean concise style, removed a garbled machine-translated tail from the **IT** page, and deleted 5 orphan FAQ files not referenced in the navigation.<br/>
-- Docs: added a dedicated FAQ section about **Weinzierl (73x) KNX/IP interfaces** that may need _Suppress ACK request_ (e.g. over VPN/high-latency links), in all 6 languages.<br/>
-- Editor: when a **Weinzierl** interface is selected from the discovery dropdown in the gateway config node, _Suppress ACK request_ is now enabled automatically (it only enables it, never overrides a manual choice, and shows an info notification).<br/>
+- Improved troubleshooting guides and automatic connection settings for Weinzierl KNX/IP interfaces.
 
-**Version 4.3.18** - May 2026<br/>
+**Version 4.3.18** - May 2026
 
-- Bump Engine to 5.5.8
-- Security: removed unused dependency `translate-google` (which transitively pulled in the critically vulnerable `safe-eval` package). No functionality was affected as the package was never referenced in the codebase.<br/>
-- Security: applied `npm audit fix` to resolve moderate and high vulnerabilities in `brace-expansion`, `diff`, `minimatch`, `picomatch`, `postcss`, and `vite`.<br/>
-- Tests: added unit test suites for `payloadManipulation` (Manipulate), `utils` (ToBoolean, fetchFromObject), `ColorConverter` (kelvin/mirek, scale, brightness, HSV/RGB, hexRgb, xyBriToRgb) and `XYFromRGB_Supergiovane` (calculateXYFromRGB) — 83 new tests, total suite 117 passing.<br/>
+- Updated components and fixed security vulnerabilities.
 
-**Version 4.3.17** - May 2026<br/>
+**Version 4.3.17** - May 2026
 
-- Examples: expanded the `examples/` folder to provide dedicated Node-RED flow files for all remaining KNX Ultimate nodes, including `KNX Staircase`, `KNX Garage`, `KNX Load Control`, `KNX IoT Bridge`, `KNX Auto Responder`, `KNX Alerter`, `KNX Global Context`, `KNX HA Translator`, and the full Philips Hue node set.<br/>
-- Examples: adopted a consistent one-file-per-node approach so users can import focused flows and quickly understand each node configuration and behavior.<br/>
+- Added ready-to-import example flows for the KNX and Hue nodes.
 
-**Version 4.3.16** - May 2026<br/>
+**Version 4.3.16** - May 2026
 
-- Docs/help/wiki: updated **KNX DateTime** help HTML and DateTime wiki pages (**EN/IT**) to document current `DPT 19.001` behavior based on JavaScript `Date`, additional input object fields (`msg.payload.dateTime` / `timestamp` / `epoch`), queued send while gateway is disconnected (latest pending only), and output metadata `msg.knxUltimateDateTime.date`.<br/>
-- Bump knxultimate Engine to 5.5.7<br/>
+- Updated DateTime help and KNX communication software.
 
-**Version 4.3.15** - May 2026<br/>
+**Version 4.3.15** - May 2026
 
-- FIX: DPT dropdown in editor now remains open when clicking on an already populated datapoint field (no immediate close on mouse button release).<br/>
-- Docs: added GitHub badges **Commit activity** and **Last commit** to the README header.<br/>
+- Fixed the datapoint selection list closing immediately after a click.
 
-**Version 4.3.13** - May 2026<br/>
+**Version 4.3.13** - May 2026
 
-- Bump KNX Engine to 5.5.6<br/>
+- Updated the KNX communication software.
 
-**Version 4.3.12** - May 2026<br/>
+**Version 4.3.12** - May 2026
 
-- Docs/help/wiki: refined **KNX DEVICE / KNX Function** wording in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to state explicitly that `getGAValue(...)` must always be used as **`await getGAValue(...)`**; without `await` the function returns a `Promise`, not the GA value.<br/>
-- UI: updated remaining **KNX Function** helper snippets to always use `await getGAValue(...)` in practical examples.<br/>
+- Corrected KNX function examples so reading a value waits for the result.
 
-**Version 4.3.11** - May 2026<br/>
+**Version 4.3.11** - May 2026
 
-- Docs/help/wiki: clarified in **KNX DEVICE / KNX Function** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) that `getGAValue(...)` is async and should be used as **`await getGAValue(...)`**, even in cache-only mode.<br/>
-- UI: updated **KNX Function** editor helper/snippet and Monaco typings so `getGAValue(...)` is suggested with `await` and exposed as a `Promise` in the editor.<br/>
+- Clarified how to read KNX values in custom functions and corrected editor suggestions.
 
-**Version 4.3.10** - April 2026<br/>
+**Version 4.3.10** - April 2026
 
-- CHANGE: **KNX Function** `getGAValue(...)` now accepts an optional `readIfMissing` boolean. Default is `true` to preserve the current behaviour; pass `false` to use cache-only mode and immediately return `undefined` when the GA value is not available locally.<br/>
-- PERF: **KNX Function** `getGAValue(...)` and KNX cache lookups now use indexed GA access plus deduplicated pending reads, reducing overhead and avoiding duplicate simultaneous `GroupValue_Read` requests for the same GA.<br/>
-- Docs/help/wiki: updated **KNX DEVICE / KNX Function** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to document the new `getGAValue(..., readIfMissing)` signature and cache-only mode.<br/>
+- Custom functions can read stored KNX values without sending a bus request.
+- Reduced duplicate requests for the same group address.
 
-**Version 4.3.9** - April 2026<br/>
+**Version 4.3.9** - April 2026
 
-- Bump KNX Engine to 5.5.3 (fixed umlaut issue in dpt16)<br/>
+- Fixed umlaut characters in KNX text values.
 
-**Version 4.3.8** - April 2026<br/>
+**Version 4.3.8** - April 2026
 
-- FIX: **Cerebrum Ultimate Web Assistant** `Ask` tab now truly uses the full available content width on desktop too; removed the leftover `50vw` cap that still kept the panel at half width.<br/>
-- FIX: **KNX DEVICE** in universal mode (`listenAllGA`) now falls back to `raw` instead of raising a datapoint-detection error when no ETS DPT is available and automatic inference fails; raw bytes remain available in `msg.knx.rawValue`.<br/>
-- NEW: **Cerebrum Ultimate** can now optionally archive captured telegrams to disk under `knxultimatestorage`, with configurable retention in days and automatic reuse of the archive for `Ask` queries.<br/>
-- CHANGE: **Cerebrum Ultimate** `Ask` now uses the disk archive by default when enabled, honoring explicit time references and otherwise searching the last 24 hours plus current RAM events.<br/>
-- CHANGE: **Cerebrum Ultimate** flow context for the AI prompt now includes the whole **Node-RED project inventory**, not only KNX nodes or the current flow, so `function`/`change`/`inject`/`template` nodes with KNX-related logic are visible to the assistant.<br/>
-- FIX: **Cerebrum Ultimate Ask** now includes the real JavaScript source of Node-RED `function` nodes for code-review questions, instead of exposing only short flattened snippets that could make the assistant say it could not inspect the full code.<br/>
-- UI: **Cerebrum Ultimate** editor options were reorganized into clearer sections, with technical tuning moved under **Advanced**, several low-value LLM tuning fields removed from the editor, and localized tab labels/help/docs updated in all supported languages.<br/>
-- UI: **Cerebrum Ultimate Web Assistant** `Ask` panel now uses the full available page width instead of being capped to half-page width on desktop.<br/>
+- Cerebrum can save telegram history and use it to answer questions about past activity.
+- Improved its knowledge of flows and custom functions, settings layout and chat display.
+- KNX Device can receive undecoded telegrams when their datapoint is unknown.
 
-**Version 4.3.6** - April 2026<br/>
+**Version 4.3.6** - April 2026
 
-- UI: when **KNX DEVICE** is set to **`dpt = raw`**, the editor now hides decoded-payload options that do not apply to raw telegrams, including **RBE**, **periodic send**, **format numeric values**, manual write button modes, and **notifyreadrequestalsorespondtobus**.<br/>
+- KNX Device hides options that do not apply to undecoded telegrams.
 
-**Version 4.3.5** - April 2026<br/>
+**Version 4.3.5** - April 2026
 
-- NEW: **KNX DEVICE** now supports explicit **`dpt = raw`** mode for incoming telegrams: decoding is skipped, `msg.payload` is `null`, and raw bytes remain available in `msg.knx.rawValue`.<br/>
-- FIX: **KNX DEVICE RAW write** now accepts both **`msg.bitlength`** and legacy **`msg.bitlenght`**, with `bitlength` preferred and old flows kept backward compatible.<br/>
-- CHANGE: **KNX DEVICE** in **`dpt = raw`** mode now accepts raw outgoing telegrams only via **`msg.writeraw`**, preventing accidental normal writes with an invalid datapoint.<br/>
-- Docs/help/wiki: updated **KNX DEVICE** help HTML and **Device** wiki pages in all supported languages (**EN/IT/DE/FR/ES/zh-CN**) to document **raw mode** and the preferred **`bitlength`** property.<br/>
+- KNX Device can receive and send undecoded telegrams.
+- Raw sending requires the dedicated raw-write input; normal writes are not accepted in this mode.
 
-**Version 4.3.4** - April 2026<br/>
+**Version 4.3.4** - April 2026
 
-- UI: **KNX Function** editor areas now have colored backgrounds (light green for _input→bus_, light yellow for _bus→output_) for easier visual distinction.<br/>
-- UI: **KNX Function** Monaco editor no longer shows red underlines for custom KNX functions (`getGAValue`, `setGAValue`, `toggle`, `self`).<br/>
-- NEW: **KNX Function** : **`let val = await getGAValue(...)`** now automatically sends a `GroupValue_Read` to the KNX bus when the requested group address has no cached value yet, and waits up to 3 seconds for the device to respond before returning `null`. Use `await getGAValue(...)` in your KNX Function code to benefit from this behaviour.<br/>
+- Improved the custom-function editor and its examples.
+- Reading a KNX value can request it from the bus if no stored value is available.
 
-**Version 4.3.3** - April 2026<br/>
+**Version 4.3.3** - April 2026
 
-- UI: in the **KNX Function helper**, the **Search GA** field is now always visible; if the ETS CSV is not imported, the field is disabled and shows `To enable the search, IMPORT THE ETS FILE`.<br/>
-- In the KNX DEVICE NODE, added the "toggle with status" function snippet.<br/>
+- Added a toggle-with-status example and clearer group-address search in the function editor.
 
-**Version 4.3.2** - April 2026<br/>
+**Version 4.3.2** - April 2026
 
-- Docs/help/wiki: updated **Cerebrum Ultimate** help HTML and wiki pages in all supported languages (EN/IT/DE/FR/ES/zh-CN) to reflect the latest LLM/Ollama UX changes.<br/>
-- Docs/help/wiki: documented the new **Ollama quick setup** flow (**Download model** -> **Install it**).<br/>
-- Docs/help/wiki: clarified that the **LLM Assistant** tab is shown first in the Cerebrum Ultimate editor for faster setup.<br/>
+- Updated Cerebrum help, including the Ollama quick setup guide.
 
-**Version 4.3.1** - April 2026<br/>
+**Version 4.3.1** - April 2026
 
-- Bumped KNXEngine to 5.5.2<br/>
-- UI: **Cerebrum Ultimate Web** now always opens on the first menu item (**Overview**).<br/>
-- FIX: **Cerebrum Ultimate Web Assistant** preset prompts now send the exact current button text to the AI request, so localized UI labels are used directly (no forced English fallback).<br/>
+- Cerebrum opens on its overview page and uses translated question buttons correctly.
+- Updated KNX communication software.
 
-**Version 4.3.0** - April 2026<br/>
+**Version 4.3.0** - April 2026
 
-- Bumped KNXEngine to 5.5.1<br/>
+- Updated the KNX communication software.
 
-**Version 4.2.14** - April 2026<br/>
+**Version 4.2.14** - April 2026
 
-- FIX: **KNX Logger** XML download now works also with Node-RED authentication enabled by appending the active editor `access_token` and respecting `httpAdminRoot` when opening the download URL.<br/>
-- FIX: **KNX Logger** admin download route now normalizes `access_token` from query into `Authorization: Bearer ...` before permission checks, then removes it from query parameters to avoid auth conflicts.<br/>
-- FIX: resolved authenticated XML export failures (`401 Unauthorized`) reported in issue #502.<br/>
+- Fixed KNX Logger downloads when Node-RED login protection is enabled.
 
-**Version 4.2.13** - April 2026<br/>
+**Version 4.2.13** - April 2026
 
-- FIX: **Cerebrum Ultimate Web** hardened authenticated requests by always attaching Bearer auth on API/audio calls (query token or Node-RED stored editor token fallback), preventing silent audio failures in authenticated sessions.<br/>
-- FIX: **Cerebrum Ultimate Tests** now validates audio responses (`audio/*`) and reports auth/session issues explicitly instead of failing silently when HTML/login pages are returned.<br/>
-- NEW: **Cerebrum Ultimate Tests** now announces test completion by voice at the end of the test run (single and repeat-stop end states).<br/>
-- UI: **Cerebrum Ultimate Tests** added a blocking wait popup while building a Test Plan from the template builder, aligned with the existing AI Areas wait overlay behavior.<br/>
-- i18n: normalized **Duplicate / Duplicate Plan** action labels to imperative form across supported UI languages for consistency in the Tests page.<br/>
+- Fixed Cerebrum audio with Node-RED login protection.
+- Improved test progress messages and added a spoken completion notice.
 
-**Version 4.2.12** - April 2026<br/>
+**Version 4.2.12** - April 2026
 
-- FIX: **Cerebrum Ultimate Web** and **KNX Viewer Web** admin routes now normalize `access_token` auth safely by mapping query token to `Authorization: Bearer ...` only when missing, then removing `access_token` from `req.query` before permission checks.<br/>
-- FIX: resolved intermittent `400 Bad Request` on authenticated web pages caused by duplicate bearer token sources (header + query string).<br/>
-- CHANGE: extracted shared auth normalization helper to `nodes/utils/httpAdminAccessToken.js` to keep AI/Viewer behavior aligned and easier to maintain.<br/>
+- Fixed intermittent access errors in Cerebrum and KNX Viewer web pages when login protection is enabled.
 
-**Version 4.2.11** - April 2026<br/>
+**Version 4.2.11** - April 2026
 
-- UI: **Cerebrum Ultimate Web** improved assistant workflow with chat-style layout (prompt input under messages), clearer prompt focus, and streamlined Ask page text.<br/>
-- UI: **Cerebrum Ultimate Web** added clearer loading feedback for AI operations (area regeneration/deletion and planner generation), including a centered blocking wait overlay during long-running area generation.<br/>
-- NEW: **Cerebrum Ultimate Web** added bulk action **Delete AI Areas** and localized labels for **Regenerate AI Areas** / **Delete AI Areas** across supported UI languages.<br/>
-- FIX: **Cerebrum Ultimate backend** hardened JSON extraction/parsing for LLM outputs and improved timeout/token-limit diagnostics in error messages.<br/>
-- CHANGE: **Cerebrum Ultimate backend** raised default/forced `llmMaxTokens` handling for structured responses and aligned editor defaults for high-token completions.<br/>
-- Docs/wiki: improved **Cerebrum Ultimate Dashboard** pages for end users, added localized guidance updates, and made support CTA links visible in docs navigation.<br/>
+- Improved Cerebrum chat layout, progress messages and error explanations.
+- Added easier management of AI areas.
 
-**Version 4.2.10** - April 2026<br/>
+**Version 4.2.10** - April 2026
 
-- UI: **Cerebrum Ultimate Web** sidebar menu style aligned to Homebridge (font size/weight, spacing, icon/text alignment and sidebar widths) for closer visual consistency.<br/>
-- UI: **Cerebrum Ultimate Web** removed sidebar menu subtitles to keep navigation labels clean and compact.<br/>
-- UI: **Cerebrum Ultimate Web** **Assistant** tab: the **Ask** panel is now half-page width on desktop and full width on smaller screens.<br/>
+- Simplified Cerebrum's menus and adjusted the chat layout for different screen sizes.
 
-**Version 4.2.7** - April 2026<br/>
+**Version 4.2.7** - April 2026
 
-- UI: **Cerebrum Ultimate Web** layout and visual style aligned to the Homebridge-like interface, with unified orange accent palette and cleaned component styling.<br/>
-- CHANGE: **Cerebrum Ultimate Web** removed legacy theme management and related theme files, keeping a single coherent visual theme.<br/>
-- UI: **Cerebrum Ultimate Web** navigation/workspace refactor: dedicated pages for **Settings** and **Test Results**, plus improved menu structure and labels.<br/>
-- NEW: **Cerebrum Ultimate Web** **Settings** now includes split tabs (**Cerebrum Ultimate Node** and **Import / Export**) and moved node selection/auto-refresh controls into the dedicated node settings panel.<br/>
-- NEW: **Cerebrum Ultimate Web** **Test Results** can now be exported to **PDF** directly from the selected report.<br/>
-- FIX: **Cerebrum Ultimate Web** area editor unsaved-changes detection no longer prompts discard/stay immediately after saving a newly created area and pressing **Close**.<br/>
+- Refreshed Cerebrum's web page, settings and navigation.
+- Test reports can be exported as PDF. Fixed an incorrect unsaved-changes warning.
 
-**Version 4.2.5** - March 2026<br/>
+**Version 4.2.5** - March 2026
 
-- NEW: added the **KNX Flow Bubbles** editor plugin to visualize live KNX Device state directly on the workspace.<br/>
-- FIX: **KNX Flow Bubbles** are now removed correctly when disabled, and their visibility is evaluated per linked **KNX Gateway** config-node instead of globally.<br/>
-- UI: **KNX Flow Bubbles** shell is now fully round for a cleaner visual appearance.<br/>
-- Docs/help/wiki: documented the **Enable flow bubbles plugin** option in the gateway editor and supported documentation languages.<br/>
-- Docs: removed obsolete references to **Echo sent message to all node with same Group Address** and aligned the text with the current automatic local mirroring behavior.<br/>
+- New Flow Bubbles show KNX device states directly on the flow workspace.
+- Fixed enabling and disabling them for individual gateways.
 
-**Version 4.2.4** - March 2026<br/>
+**Version 4.2.4** - March 2026
 
-- NEW: **KNX Viewer Web** added a new Vue-based web page, opened directly from the **KNXViewer** node editor, to visualize KNX lights and dimmers in a modern dashboard.<br/>
-- UI: **KNX Viewer Web** uses a visual style aligned with **Cerebrum Ultimate**, including live light/dimmer cards, search, node selection and auto-refresh.<br/>
-- IMPROVE: **KNX Viewer Web** ON lights now use a much stronger yellow highlight for clearer visual feedback.<br/>
-- CHANGE: package build/publish flow now also includes the **KNX Viewer Web** Vue bundle.<br/>
+- New KNX Viewer web page shows lights and dimmers, with search and live updates.
 
-**Version 4.2.3** - March 2026<br/>
+**Version 4.2.3** - March 2026
 
-- IMPROVE: **Cerebrum Ultimate Flow Map** added a new toggle to show or hide `knxUltimate` nodes running in **Universal Mode**; they are now hidden by default to keep the topology cleaner.<br/>
+- Cerebrum's flow map can show or hide Universal Mode nodes; they are hidden by default.
 
-**Version 4.2.2** - March 2026<br/>
+**Version 4.2.2** - March 2026
 
-- CHANGE: **Cerebrum Ultimate Web Page** is now the official Vue-based dashboard served from `/knxUltimateAI/sidebar/page`.<br/>
-- CHANGE: removed the old **Cerebrum Ultimate** legacy web page and its dedicated editor button, keeping the Vue preview as the only web UI entrypoint.<br/>
-- IMPROVE: **Cerebrum Ultimate Flow Map** in the Vue dashboard: wider layout, fullscreen toggle, animated/dashed traffic arrows, refined marker sizing and better panel width usage.<br/>
+- Replaced the old Cerebrum web page with the new dashboard and improved the flow map.
 
-**Version 4.2.1** - March 2026<br/>
+**Version 4.2.1** - March 2026
 
-- FIX: **KNX Hue Light** brightness writes are now applied even when the Hue light is OFF, without forcing the light to switch on.<br/>
-- FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF and receives a brightness write, the node now presets supported member `light` resources first, so the brightness is ready when the group is turned on later.<br/>
-- TEST: extended **KNX Hue Light** coverage for brightness writes on OFF lights and OFF grouped lights.<br/>
-- UPDATE: KNXUltimate engine bumped to 5.4.0<br/>
+- Hue lights and groups can store a brightness setting while off, without switching on.
 
-**Version 4.1.35** - March 2026<br/>
+**Version 4.1.35** - March 2026
 
-- NEW: **Cerebrum Ultimate** anomalies output now always emits dedicated bus connection events when the KNX gateway connection is lost and when it is restored.<br/>
-- NEW: **Cerebrum Ultimate Web Dashboard** added a bus connection persistence section with a green/red time bar showing connected/disconnected periods over the history window.<br/>
+- Cerebrum reports when the KNX connection is lost or restored and shows connection history.
 
-**Version 4.1.34** - March 2026<br/>
+**Version 4.1.34** - March 2026
 
-- FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF and receives color / color temperature / gradient commands, the node now presets supported member `light` resources first and only then turns the group ON, so all lamps can inherit the requested state more reliably.<br/>
-- DEBUG: **KNX Hue Light** added debug traces for the new grouped-light preset-before-ON sequence.<br/>
+- Hue light groups apply the requested colour more reliably before switching on.
 
-**Version 4.1.33** - March 2026<br/>
+**Version 4.1.33** - March 2026
 
-- FIX: **KNX Hue Light** grouped light handling: when a `grouped_light` is OFF, writes for dimming, color temperature, color/xy and related dynamic updates are now fanned out to the member `light` resources when needed, instead of relying only on the grouped resource.<br/>
-- CHANGE: **KNX Hue Light** advanced option **Update local cached Hue state from KNX bus writes** is now enabled by default for new nodes.<br/>
-- UI/help/wiki/docs: clarified the tradeoff of the local Hue cache synchronization option in the editor, node help and documentation pages across supported languages.<br/>
+- Improved brightness and colour control of Hue groups while off.
+- New Hue Light nodes update their stored state immediately after KNX commands by default.
 
-**Version 4.1.32** - March 2026<br/>
+**Version 4.1.32** - March 2026
 
-- KNX Engine bumped to 5.2.11.<br/>
+- Updated the KNX communication software.
 
-**Version 4.1.31** - March 2026<br/>
+**Version 4.1.31** - March 2026
 
-- NEW: **KNX Hue Light**: added advanced option **Update local cached Hue state from KNX bus writes** to keep the node local Hue cache aligned immediately on KNX write telegrams, without waiting for Hue bridge feedback.<br/>
-- UI: **KNX Hue Light**: the new advanced checkbox now restores and persists reliably when reopening/saving the node editor.<br/>
-- Docs/help/wiki: updated **KNX Hue Light** help and documentation in all supported languages (EN/IT/DE/FR/ES/zh-CN, including generated `*-zh-CN-*` wiki variants).<br/>
-- TEST: extended unit coverage for the optional KNX-write local cache synchronization behaviour.<br/>
+- Added an option for Hue Light to update its stored state immediately after KNX commands.
 
-**Version 4.1.30** - March 2026<br/>
+**Version 4.1.30** - March 2026
 
-- NEW: **Cerebrum Ultimate** now uses a full **Web Dashboard** as the main UI, opened from the node editor via **Open Web Page** button.<br/>
-- CHANGE: removed the legacy `knxUltimateAI-sidebar-plugin` file and aligned Cerebrum Ultimate admin routes to the Web Dashboard workflow.<br/>
-- IMPROVE: **Cerebrum Ultimate Flow Map** UX/readability: stable layout reset on page open, clearer legend, active/idle direction rendering and dashboard visual refinements.<br/>
-- UI: flattened the Cerebrum Ultimate Web Dashboard style (removed 3D/shadow-heavy look) for a cleaner production UI.<br/>
-- Docs/help/wiki: refreshed **Cerebrum Ultimate** documentation in all supported languages (EN/IT/DE/FR/ES/zh-CN), updated `Cerebrum Ultimate-Sidebar` pages to Web Dashboard compatibility notes, and updated docs navigation section naming/ordering.<br/>
-- FIX: **Cerebrum Ultimate Ask chat**: SVG answers are now rendered correctly even with multiple SVG blocks, fenced `svg/xml/html` code blocks, or entity-escaped SVG markup.<br/>
-- FIX: **KNX Hue Light**: KNX read response for brightness now returns `0` when the light is OFF and brightness status is configured to follow HUE on/off.<br/>
-- FIX: **KNX Hue Light**: ignore dimming-only cached brightness updates from Hue while light is OFF, preventing wrong KNX brightness status jumps.<br/>
-- IMPROVE: **KNX Hue Light** grouped light handling: when an ON event arrives without dimming payload, brightness is fetched from bridge snapshot before publishing KNX status.<br/>
-- TEST: extended unit coverage for the new Hue Light brightness/read/grouped-light snapshot behaviors.<br/>
+- Cerebrum now opens its main dashboard from the node editor, with clearer maps and chat results.
+- Fixed incorrect Hue brightness feedback, including when lights are off.
 
-**Version 4.1.29** - March 2026<br/>
+**Version 4.1.29** - March 2026
 
-- NEW: **KNX DateTime** node: set date/time on the KNX bus via **DPT 19.001** (DateTime) and optionally **DPT 11.001** (Date) / **DPT 10.001** (Time).<br/>
-- NEW: **KNX DateTime**: send on startup (with delay), periodic send, editor send-now button, and input-triggered send.<br/>
-- UI: **KNX DateTime**: when adding a new node, it can auto-select the first KNX Gateway with an ETS import and pre-fill coherent group addresses.<br/>
-- UI: **KNX DateTime**: auto-fill is also triggered when changing the selected KNX Gateway (it won’t override manual values).<br/>
-- i18n/help/wiki: added **KNX DateTime** help and docs pages in all supported languages, and added the node to the docs navigation.<br/>
+- New KNX DateTime node sends date and time at startup, periodically or on request.
+- Suggested group addresses make setup easier.
 
-**Version 4.1.28** - February 2026<br/>
+**Version 4.1.28** - February 2026
 
-- NEW: **KNX Load Control**: added **Mode** selector to disable the internal logic and use only `msg.shedding` commands (`shed`/`unshed`).<br/>
-- UI/Docs/help/wiki: updated **KNX Load Control** editor, help and docs pages in all supported languages.<br/>
+- Load Control can be operated entirely through flow commands instead of its automatic logic.
 
-**Version 4.1.27** - February 2026<br/>
+**Version 4.1.27** - February 2026
 
-- Bumped KNX Engine to 5.2.8<br/>
+- Updated the KNX communication software.
 
-**Version 4.1.26** - February 2026<br/>
+**Version 4.1.26** - February 2026
 
-- i18n: **Cerebrum Ultimate** sidebar tab: localized the Summary and UI strings in all supported languages (including output pin labels).<br/>
+- Translated Cerebrum's interface and output labels.
 
-**Version 4.1.25** - February 2026<br/>
+**Version 4.1.25** - February 2026
 
-- FIX: **KNX Device**: periodic send (cyclic write) now also works when the value is restored from the persisted GA cache after a Node-RED restart.<br/>
+- Fixed periodic KNX sending after a stored value is restored on restart.
 
-**Version 4.1.24** - February 2026<br/>
+**Version 4.1.24** - February 2026
 
-- Cleanup: removed unused dependencies (`binary-parser`, `crypto-js`, `xml2js`) and the redundant `path` polyfill.<br/>
-- Cleanup: removed `mkdirp` and switched to `fs.mkdirSync(..., { recursive: true })` for directory creation.<br/>
+- Removed unused software components.
 
-**Version 4.1.23** - February 2026<br/>
+**Version 4.1.23** - February 2026
 
-- CHANGE: **KNX Gateway config**: persisted GA cache is no longer deleted automatically when opening the editor.<br/>
-- NEW: **KNX Gateway config**: added an explicit **Clear persisted GA cache** button in the Utility tab.<br/>
-- NEW: **KNX Device**: added **Periodic send stored value** option (cyclic write) with configurable interval (disabled in Universal mode).<br/>
-- UI: **KNX Gateway config**: added a **Node Status** section label above status-related options.<br/>
-- i18n: unified manual button labels across locales: **KNX Read** and **Toggle boolean**.<br/>
-- Docs/help/wiki: updated Gateway configuration and Device pages in all supported languages to document the new options.<br/>
+- Opening gateway settings no longer clears saved KNX values. Added a separate button to clear them.
+- KNX Device can send its stored value periodically.
 
-**Version 4.1.22** - February 2026<br/>
+**Version 4.1.22** - February 2026
 
-- NEW: **KNX Multi Routing**: added KNX routing counter (hop count) handling to prevent telegram loops: optional **Respect routing counter (drop if 0)** and **Decrement routing counter when routing**.<br/>
-- FIX: **KNX Multi Routing**: improved behaviour with rewritten telegrams by relying on coherent cEMI; `knx.routingCounter` is exposed based on `knx.cemi.hex`.<br/>
-- CHANGE: **KNX Router Filter**: cEMI consistency is now always enforced when rewriting `knx.source`/`knx.destination` (updates `knx.cemi.hex` accordingly; removed the related toggle option).<br/>
-- CHANGE: **KNX Router Filter**: added `cemiSynced` metadata on passed messages (`msg.payload.knxRouterFilter.cemiSynced`).<br/>
-- NEW: **KNX Router Filter**: runtime configuration via `msg.setConfig` (all node parameters), retained until next `msg.setConfig` or redeploy/restart; config messages are not forwarded.<br/>
-- IMPROVE: **KNX Multi Routing Server KNX/IP**: better status/diagnostics and docs note about **Advertise host** for clients that show “connected” but the server receives no telegrams (multi-homed/Docker/VM).<br/>
-- Docs/help/wiki: updated **KNX Multi Routing** and **KNX Router Filter** pages in all supported languages to document routing counter, rewrite+cEMI sync behaviour, and `msg.setConfig` usage (with examples).<br/>
+- Improved KNX routing loop prevention, address rewriting and connection diagnostics.
+- Router Filter settings can be changed through flow messages.
 
-**Version 4.1.19** - February 2026<br/>
+**Version 4.1.19** - February 2026
 
-- NEW: **KNX Multi Routing**: added **Server KNX/IP** mode (standalone KNXnet/IP tunneling server) that outputs/accepts RAW telegrams on the node ports (no gateway required).<br/>
+- New Cerebrum AI assistant helps analyse KNX traffic and explain flows.
+- New Multi Routing and Router Filter nodes connect and filter multiple KNX networks. Multi Routing can also act as a KNX/IP server.
+- Added setup guides and example flows.
 
-- NEW: Cerebrum Ultimate sidebar: added another TAB in the Node-Red's toolbar buttons dedicated to AI analysis.<br>
-- NEW: added **Cerebrum Ultimate** node (traffic analyzer + optional LLM assistant) and **Cerebrum Ultimate** sidebar tab.<br/>
-- NEW: added **KNX Multi Routing** node to bridge multiple `knxUltimate-config` gateways via Node-RED (RAW telegram forwarding + source/destination metadata).<br/>
-- NEW: added **KNX Router Filter** node to filter routed RAW telegrams (event type + GA/source patterns + loop prevention).<br/>
-- CHANGE: `knxUltimateAI` LLM: enabled extra context by default (Flow inventory + documentation snippets) to improve answer quality; both can be disabled in the node settings.<br/>
-- NEW: `knxUltimateAI` LLM: added documentation snippets retrieval from built-in help/README/examples (and `docs/wiki` when available in the local install) to help the assistant explain node behaviour and configuration.<br/>
-- IMPROVE: Cerebrum Ultimate sidebar chat: improved Markdown rendering (including tables), for better readability of AI answers.<br/>
-- Docs: completed the help + wiki pages for **Cerebrum Ultimate**, **KNX Multi Routing** and **KNX Router Filter** in all supported languages, and added them to the docs homepages.<br/>
-- Docs: added the new nodes to the wiki navbar in all languages (so they appear in the left navigation menu).<br/>
-- Docs: added new wiki **Samples** pages (with diagrams) for the 3 new nodes.<br/>
-- Examples: added importable Node-RED flow JSON examples for **Cerebrum Ultimate**, **KNX Multi Routing** and **KNX Router Filter** (including KNX Multi Routing **Server KNX/IP** sample).<br/>
+**Version 4.1.15** - January 2026
 
-**Version 4.1.15** - January 2026<br/>
+- Updated the KNX communication software.
 
-- KNX Engine bump to 5.2.4<br/>
+**Version 4.1.14** - January 2026
 
-**Version 4.1.14** - January 2026<br/>
+- Improved Hue recovery after network interruptions.
+- Fixed saved Hue Button settings and status updates, and prevented status errors from stopping Node-RED.
 
-- FIX: HueEngine reconnect: improved recovery after network link drops (stale sockets), with forced HTTPS agent reset + HTTP timeouts + SSE connect timeout to prevent “stuck” connections.<br/>
-- CHANGE: HueEngine ping interval set to 90 seconds for faster disconnect detection.<br/>
-- FIX: Hue Button editor: typedInput/checkbox values now persist and restore reliably (`toggleValues`, `switchSend`, `dimSend`).<br/>
-- FIX: Hue Button runtime: node status now updates on every valid Hue event (even after reconnect / without KNX GA configured).<br/>
-- FIX: Hue config: guarded client status updates so UI/status errors cannot crash Node-RED.<br/>
-  <br/>
+**Version 4.1.12** - January 2026
 
-**Version 4.1.12** - January 2026<br/>
+- A missing Hue device no longer blocks commands to other Hue devices.
 
-- FIX: Hue HTTP layer: avoid unhandled errors that could stall the shared Hue command queue when a Hue device/resource is missing (e.g. deleted from the bridge), so other Hue nodes keep working.<br/>
-- Docs: added dedicated wiki pages for the Node-RED sidebar tabs **KNX Monitor** and **KNX Debug** (with screenshots) in all supported languages, plus a dedicated navbar section.<br/>
-- Cleanup: removed the unused `HomeAssistantImporter-sidebar-plugin` stub.<br/>
-  <br/>
+**Version 4.1.10** - January 2026
 
-**Version 4.1.10** - January 2026<br/>
+- Choose the date and time format shown in node status messages.
 
-- NEW: KNX Gateway config: added a **Status date/time format** setting (ISO / ISO no seconds / Custom tokens / Legacy) to avoid relying on the underlying OS locale (useful for Home Assistant OS).<br/>
-- Updated node status timestamp rendering across KNX Ultimate nodes to use the configured format, with safe fallbacks to prevent editor/runtime crashes.<br/>
-- Docs/help: updated the Gateway configuration help + wiki pages in all languages to document the new options.<br/>
-  <br/>
+**Version 4.1.9** - December 2025
 
-**Version 4.1.9** - December 2025<br/>
+- Added Hue Motion Area support for Bridge Pro MotionAware areas.
 
-- NEW: added **Hue Motion Area** node for Philips Hue Bridge Pro MotionAware areas, exposing aggregated motion state from Hue `convenience_area_motion` and `security_area_motion` services to KNX or Node-RED flows.<br/>
-- Hue config: extended the internal resource browser to resolve MotionAware area services against their `motion_area_configuration`, showing friendly area names and linked rooms/zones in the editor device picker.<br/>
-  <br/>
+**Version 4.1.8** - December 2025
 
-**Version 4.1.8** - December 2025<br/>
+- KNX Logger now has a file download button and clearer recording settings.
 
-- Logger node editor: when **Action** is set to `Emit payload only`, the file path row is now completely hidden (instead of just disabled), using a dedicated row id for better future Node-RED compatibility.<br/>
-- Logger node editor: added a **Download** button next to the file path.<br/>
-- Logger node: updated labels, help and wiki pages in all languages to explain both the **payload interval** and **Max rows** behaviour, including how the XML/file is **rotated** when the configured row limit is reached.<br/>
-  <br/>
+**Version 4.1.7** - December 2025
 
-**Version 4.1.7** - December 2025<br/>
+- KNX Logger offers clearer file-saving options and removes the oldest records when the row limit is reached.
 
-- Logger node: replaced the checkbox with an explicit **Action** selector (`Emit payload only` / `Emit payload and save to file`), keeping backward compatibility with existing flows.<br/>
-- Logger node: file saving now appends and enforces **Max rows** by trimming oldest lines in both buffer and file; removed the folder picker/listDirs endpoint in favour of a single full-path field.<br/>
-- Logger node: localized labels/help updated in all languages to reflect the new save mode and path field.<br/>
-  <br/>
+**Version 4.1.5** - December 2025
 
-**Version 4.1.5** - December 2025<br/>
+- Updated the KNX communication software.
 
-- Bump KNX Engine to 5.2.3.<br/>
-  <br/>
+**Version 4.1.4** - December 2025
 
-**Version 4.1.4** - December 2025<br/>
+- Fixed serial KNX connections failing to reconnect after Deploy.
 
-- KNX config node: cache and force-close the FT1.2 serial driver on deploy/close even when the KNX client instance is already null, preventing orphaned handles from blocking reconnects after a redeploy.<br/>
-  <br/>
+**Version 4.1.3** - December 2025
 
-**Version 4.1.3** - December 2025<br/>
+- Improved KBerry serial reconnection after Deploy.
 
-- KNX config node: strengthened FT1.2 teardown with a direct serial-driver close fallback so the KBerry port is reliably released even if a previous disconnect was in a "disconnected" state; prevents reconnection stalls with "Timeout waiting for FT1.2 ACK (reset)".<br/>
-  <br/>
+**Version 4.1.2** - December 2025
 
-**Version 4.1.2** - December 2025<br/>
+- Serial KNX ports are released properly when settings change, allowing reconnection.
 
-- KNX config node: deploy/disconnect now always tears down the KNX client and clears timers, ensuring Serial FT1.2/KBerry ports are released and can reconnect after configuration changes.<br/>
-  <br/>
+**Version 4.1.1** - November 2025
 
-**Version 4.1.1** - November 2025<br/>
+- Added clearer serial connection settings for KBerry/BAOS and standard FT1.2 interfaces.
+- The KNX Device manual command button is enabled by default for new nodes.
 
-- KNX config node: Serial FT1.2 now exposes a dedicated **Serial FT1.2 mode** selector with _KBerry/BAOS_ vs _Standard FT1.2_; the choice is forwarded to the KNX engine as `serialInterface.isKBERRY` (default: KBerry/BAOS).<br/>
-- KNX config node: when `SerialFT12` is selected, Secure KNX options that only apply to IP tunnelling (manual tunnel IA, tunnel user ID/password, mixed keyring+manual mode) are automatically hidden or disabled to keep the UI focused; help and wiki pages in all languages now clearly state that KNX/IP Secure & Data Secure apply only to IP transports, not to Serial FT1.2.<br/>
-- KNX Device node: the manual command button in the editor is now enabled by default and set to **Toggle boolean (write)**, with the notification message correctly translated in all locales and extended to show the payload value when relevant.<br/>
-- Docs & homepage: Serial FT1.2 documentation and the technology cards on the docs homepages have been refreshed to explicitly mention **Weinzierl KBerry/BAOS** support and the recommended UART defaults for TP/FT1.2 adapters.<br/>
-  <br/>
+**Version 4.0.30** - November 2025
 
-**Version 4.0.30** - November 2025<br/>
+- Added direct serial KNX connections, including port discovery and editable connection settings.
 
-- KNX config node: enabled the new Serial FT1.2 transport from `knxultimate`, with auto-discovery of `/dev/tty*` ports and editable UART parameters (baud rate, data bits, stop bits, parity, RTS/CTS, DTR, ACK timeout) so TPUART hats and Weinzierl TP interfaces can connect directly without KNXd.<br/>
-- Editor: serial interfaces now appear alongside KNX/IP gateways in the `IP/Hostname` dropdown (marked as `[Serial]`); selecting one auto-sets protocol to Serial FT1.2 and pre-populates the UART settings with the recommended defaults.<br/>
-  <br/>
+**Version 4.0.29** - November 2025
 
-**Version 4.0.29** - November 2025<br/>
+- Hue refresh buttons now reload devices and scenes directly from the bridge.
 
-- All Hue editor nodes now honour the refresh icon by forcing a live reload from the Hue bridge (with URL-safe server ids), keeping device/scene lists in sync after bridge-side changes.<br/>
-  <br/>
+**Version 4.0.27** - October 2025
 
-**Version 4.0.27** - October 2025<br/>
+- Fixed group-address suggestions being hidden by an empty-results message.
 
-- GA selector inputs: suppressed the empty-result tooltip by keeping the typed group address as a fallback option so single matches are never hidden behind "no items to show".<br/>
-  <br/>
+**Version 4.0.26** - October 2025
 
-**Version 4.0.26** - October 2025<br/>
+- Watchdog now suggests suitable group addresses during setup.
 
-- Watchdog node editor: added the same GA autocomplete list used in the other KNX nodes, restricted to boolean DPT 1.x addresses and with secure-address highlighting to keep configuration consistent.<br/>
-  <br/>
+**Version 4.0.25** - October 2025
 
-**Version 4.0.25** - October 2025<br/>
+- Added ready-to-use KNX function examples for common home automations and simplified the editor.
 
-- KNX Device node editor: repositioned the "Show manual command button in editor" option directly under the input passthrough setting so related controls stay together.<br/>
-- KNX Function helper: refreshed the send-side snippet library with ready-to-use home-automation templates (motion-triggered lighting, HVAC standby on window-open, night door alerts, bedtime all-off) and cleaned up placeholders for easier copy/paste.<br/>
+**Version 4.0.24** - October 2025
 
-**Version 4.0.24** - October 2025<br/>
+- Hue pairing completes automatically after pressing the bridge button. Existing credentials can also be entered manually.
+- Improved Hue discovery and KNX gateway selection.
 
-- Hue config node: pairing now polls the bridge automatically and closes the dialog as soon as the link button is pressed, with a cancellable wait message and improved error feedback.<br/>
-- Hue config node: added "I ALREADY HAVE THE CREDENTIALS" button and restored bridge discovery so manual credentials can be entered immediately without running the registration flow.<br/>
-- Backend: `/KNXUltimateRegisterToHueBridge` now succeeds even when the config node is not yet saved, ensuring the automatic pairing response always reaches the editor.<br/>
-- Documentation: refreshed Hue Bridge wiki/help pages in all supported languages to explain the new pairing flow and manual credentials option; tutorials & teleprompter scripts updated accordingly.<br/>
-- General: kept unit test coverage for the Hue Light node to guard recent regressions.<br/>
-- KNX config node: host autocomplete now shows the full gateway list on focus/click, regardless of the current filter, to simplify manual selection.<br/>
+**Version 4.0.23** - October 2025
 
-**Version 4.0.23** - October 2025<br/>
+- Fixed Hue Light issues introduced by recent changes.
 
-- Fixed some regressions in the hue light node.</br>
+**Version 4.0.22** - October 2025
 
-**Version 4.0.22** - October 2025<br/>
+- Fixed Hue light groups switching off immediately and improved the KNX Debug sidebar.
 
-- FIX: Restored the `knxUltimateHueLight` implementation to the stable 4.0.16 baseline to stop Hue `grouped_light` devices from switching off immediately.<br/>
-- FIX: Hardened the **KNX Debug** sidebar by replacing the timer logic with an HTML-driven poll loop and keeping the _Auto_ option disabled by default.<br/>
+**Version 4.0.19** - October 2025
 
-**Version 4.0.19** - October 2025<br/>
+- Hue Locate can be started and stopped and works with light groups.
+- Improved Hue reconnection, device refresh and commands while the bridge is loading.
+- Added a configurable manual KNX command button and more automation examples.
 
-- Hue Light node: the `Locate` button now runs as a toggle — it starts a bridge identify loop that replays the Hue `identify` command every second, switches the icon to “stop”, and halts immediately when pressed again or automatically after 10 minutes.<br/>
-- Hue config node: added identify-session management (start/stop/timeout) so grouped lights fan out the locate pulse to all members without spamming the bridge.<br/>
-- Admin API `/KNXUltimateLocateHueDevice`: upgraded to orchestrate the new toggle behaviour, queueing devices per session and surfacing precise success/stop responses for the editor.<br/>
-- Editor UX: locate buttons across all locales now swap play/stop icons, surface contextual tooltips, and show language-specific messages for “started” / “stopped” states.<br/>
-- Docs: refreshed the Hue Light wiki/help pages in EN/IT/DE/FR/ES/zh-CN (and mixed-language variants) to describe the continuous locate mode and the new button semantics.<br/>
-- Hue config node now exposes `refreshHueResources()` and `getHueResourceSnapshot()` so Hue devices always reload directly from the bridge after a refresh or reconnect, preventing stale caches.<br/>
-- Hue Light and Hue Plug nodes request the live Hue snapshot before applying KNX commands, queue pending writes during synchronisation (with a 10 s TTL), and replay only the fresh ones as soon as the bridge answers.<br/>
-- Hue Scene node now behaves like the other actuators: it waits for the bridge snapshot before serving KNX/flow recalls, replays deferred commands, and shows the actual flow payload in the status text.<br/>
-- All Hue editor dialogs automatically show flow pins whenever no KNX gateway is configured and hide them when one is selected, keeping the Flow output consistent with the gateway state.<br/>
-- General Hue editor polish: the refresh buttons and status messages now reflect the effective payload sent to Hue, and the UI stays responsive while the bridge syncs in the background.<br/>
-- KNX Ultimate node: the optional editor button can now be enabled per node and configured to issue a KNX read, toggle boolean DPT 1.x values, or push a custom value consistent with the node datapoint.<br/>
-- Added new KNX Function receive snippets (motion-triggered lighting, HVAC standby on window open, and night-time door alerts) to speed up common smart-home automations.<br/>
+**Version 4.0.16** - October 2025
 
-**Version 4.0.16** - October 2025<br/>
+- Fixed missing gateways in discovery and improved Hue device refresh.
 
-- Fixed Gateway Discover, that sometimes donesn't show some KNX Gateways.<br/>
-- HUE Lights Refresh button in the Light node, now ask for a refresh from the HUE bridge directly.<br/>
+**Version 4.0.15** - October 2025
 
-**Version 4.0.15** - October 2025<br/>
+- New KNX Monitor sidebar shows live group-address values, with filtering and on/off controls.
 
-- NEW: Introduced the KNX Monitor sidebar plugin with live GA table, 1 s auto-refresh, highlight on fresh telegrams and row toggles for boolean values.<br/>
-- NEW: Added inline filtering, draggable column widths, persistent gateway selection and reorder controls to speed up commissioning and diagnosis.<br/>
-- Added `/knxUltimateMonitor` and `/knxUltimateMonitorToggle` admin endpoints to feed the sidebar and allow direct write/toggle actions.<br/>
-- Docs: documented the KNX Monitor panel across all supported wiki languages and refreshed screenshots/tooltips.<br/>
+**Version 4.0.14** - October 2025
 
-**Version 4.0.14** - October 2025<br/>
+- New IoT Bridge connects KNX with MQTT, REST and Modbus through flow mappings.
 
-- NEW: Added KNX ↔ IoT Bridge node to orchestrate bidirectional KNX↔MQTT/REST/Modbus mappings with scaling, templating and ack metadata.<br/>
+**Version 4.0.13** - October 2025
 
-**Version 4.0.13** - October 2025<br/>
+- New Garage Door node supports timed closing, hold-open and safety controls.
+- Improved Staircase and Garage settings and examples.
 
-- NEW: Added KNX Garage Door node with boolean/impulse control, hold-open and disable GAs, safety integration and automatic re-close timer.<br/>
-- KNX Staircase node: editor refinements with read-only DPTs, flow payload support and localisation polish across supported languages.<br/>
-- KNX Staircase & Garage nodes: unified status handling and multilingual flow examples in docs/help.<br/>
+**Version 4.0.12** - October 2025
 
-**Version 4.0.12** - October 2025<br/>
+- New Staircase Light node supports timers, pre-warning and overrides.
+- Added a limit on how often node statuses update.
+- Hue's Keep brightness option now restores the last brightness when switching on.
 
-- NEW: Added KNX Staircase Light node with timer handling, pre-warning, override and block support.<br/>
-- KNX Config node: replaced the "errors only" status filter with a configurable status throttle (0/1/3/5/10/30 s) that emits only the latest status after the chosen delay, preventing editor memory growth when many nodes update.<br/>
-- HUE Light node: the "Keep brightness" option now restores the last active dim level when toggled via KNX On/Off instead of forcing 100%.<br/>
-- Common functions: hardened `/knxultimateCheckHueConnected` admin endpoint so missing/initialising HUE config nodes no longer raise exceptions.<br/>
+**Version 4.0.11** - October 2025
 
-**Version 4.0.11** - October 2025<br/>
+- Added Hue smart-plug, humidity and camera-motion nodes, plus light effects.
+- Improved Hue behaviour when KNX is offline and made node settings easier to use.
 
-- HUE nodes: hardened KNX telegram handling with a shared safe-send guard so editor events no longer ceases to function, when the KNX gateway is offline.<br/>
-- HUE Contact Sensor node: placeholders now leverage i18n translations with graceful fallback when translation keys are missing.<br/>
-- Editor polish: unified the default width of the `name` input across KNX and Hue nodes for a consistent layout.<br/>
-- KNX Scene Controller, Alerter and Load Control nodes: GA autocompletes now open their suggestion list immediately on focus/click to speed up GA selection.<br/>
-- Docs: audited external links; Hue API references require developer login but all other anchors resolve correctly.<br/>
-- HUE Light node: added configuration UI and runtime support for Hue lamp dynamic effects (candle, fireplace, etc.) with KNX mappings and status feedback.<br/>
-- NEW: Added Hue Plug/Outlet node to map KNX on/off control to Philips Hue smart plugs.<br/>
-- NEW: Added Hue Humidity Sensor node to expose relative humidity readings from Hue bridges to KNX.<br/>
-- NEW: Added Hue Camera Motion node to forward Hue camera motion detections to KNX, with optional flow output pins.<br/>
-- Hue Button node: refreshed editor layout and switched to Hue `button.button_report.event` instead of the deprecated `last_event`.<br/>
-- Hue Battery, Motion, Temperature, Light Sensor and Zigbee Connectivity nodes now share the unified editor layout with refresh icon, KNX-aware tabs and optional flow pin toggles.<br/>
-- Docs: cleaned bold markdown spacing across KNX Ultimate help translations to avoid rendering glitches.<br/>
+**Version 4.0.10** - October 2025
 
-**Version 4.0.10** - October 2025<br/>
+- Added an option to show only errors in node statuses.
 
-- KNX Config node: you can now choose wether to display only the errors in the node statuses only errors.<br/>
+**Version 4.0.9** - September 2025
 
-**Version 4.0.9** - September 2025<br/>
+- The network interface is selected automatically from the KNX gateway address.
+- Debug logging now includes readable keyring details, including secrets.
 
-- KNX Config node: now the ethernet interface is automatically selected, based on the KNX Gateway's IP subnet.<br/>
-- Added the details of keyring in clear text, when the loglevel is set to "debug".<br/>
+**Version 4.0.7** - September 2025
 
-**Version 4.0.7** - September 2025<br/>
+- Restored missing KNX Secure settings and improved Hue export for Home Assistant.
 
-- Fixed an issue where some secure fields were missing when creating a new config-node.<br/>
-- HUE Light: enhanced the Homeassistant export yaml.<br/>
+**Version 4.0.6** - September 2025
 
-**Version 4.0.6** - September 2025<br/>
+- Fixed automatic datapoint selection from group addresses.
 
-- Fixed regression in automatic datapoint selection, based on group address DPT.<br/>
+**Version 4.0.5** - September 2025
 
-**Version 4.0.5** - September 2025<br/>
+- Added more ways to sign in to a KNX gateway.
 
-- NEW: You have now the choide to select multiple modes to authenticate to a KNX Gateway.<br/>
+**Version 4.0.4** - September 2025
 
-**Version 4.0.4** - September 2025<br/>
+- KNX Secure gateways can be configured with tunnel credentials without a keyring file.
 
-- NEW: you can now login to your secure gateway using only tunnel and password, without the keyring file.<br/>
+**Version 4.0.3** - September 2025
 
-**Version 4.0.3** - September 2025<br/>
+- Global Context includes the time of the last update. Improved KNX function examples and settings.
 
-- GlobalContextNode: Added "lastupdate" property.<br/>
-- Device Node. Refractor snippet list and UI.<br/>
+**Version 4.0.2** - September 2025
 
-**Version 4.0.2** - September 2025<br/>
+- Added KNX Secure support and improved settings, help and translations.
+- **Before updating:** back up your flows.
 
-- CAUTION - MAKE A BACKUP OF YOUR FLOW BEFORE UPGRADING<br/>
-- NEW: KNX Secure has arrived!!<br/>
-- Enhancements: enancements in the UI<br/>
-- Enhancements: enancements in the help tab of node-red<br/>
-- Enhancements: added localization IT EN DE CN<br/>
+**Version 3.3.40** - August 2025
 
-**Version 3.3.40** - August 2025<br/>
+- KNX values are saved every five seconds as well as on disconnect.
+- Fixed Auto Responder failing to start with some ETS imports.
 
-- KNX Peristent value files are now saved every 5 seconds, other than at the node disconnection.<br/>
-- Fixed an issue preventing the AutoResponder node to start, if the imported ETS file contains malformed structure.<br/>
+**Version 3.3.39** - July 2025
 
-**Version 3.3.39** - July 2025<br/>
+- Added more KNX Device function examples.
 
-- Added other snippets to the KNX Device function tab.<br/>
+**Version 3.3.38** - May 2025
 
-**Version 3.3.38** - May 2025<br/>
+- Fixed group-address names containing tabs and improved KNX disconnection handling.
 
-- FIX: fixed possible issue having tabulator chars in the group address names.<br/>
-- KNX Engine: better handling of disconnections telegrams.<br/>
+**Version 3.3.37** - May 2025
 
-**Version 3.3.37** - May 2025<br/>
+- Fixed saved KNX values not loading after a restart or reconnection.
 
-- FIX: fixed an issue preventing the nodes from loading the presistent data from file, after node-red restarting or gateway reconnection.<br/>
+**Version 3.3.36** - April 2025
 
-**Version 3.3.36** - April 2025<br/>
+- **Requires Node.js 20.18.1 or later.**
 
-- Node.js must be >=20.18.1 to allow installation of KNX Ultimate.<br/>
+**Version 3.3.35** - May 2025
 
-**Version 3.3.35** - May 2025<br/>
+- Fixed KNX sending stopping after a telegram was not acknowledged.
 
-- Fixed an issue preventing KNX Engine queue to further processing the KNX queue, in case of lack of ACK reception of a non-existent group address.<br/>
+**Version 3.3.34** - April 2025
 
-**Version 3.3.34** - April 2025<br/>
+- **Requires Node.js 20.1.1 or later.**
 
-- **BREAKING CHANGE** **!!!!!!!**: node must be >=20.1.1 (needed before was >=20.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
-- housekeeping.<br/>
+**Version 3.3.33** - April 2025
 
-**Version 3.3.33** - April 2025<br/>
+- **Requires Node.js 20 or later.** Improved detection of lost Hue connections.
 
-- **BREAKING CHANGE** **!!!!!!!**: node must be >=20.0.0 (needed before was >=18.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
-- HUE: getting rid of the Eventsource package, due to sleepy connections not recognized.<br/>
+**Version 3.3.30** - April 2025
 
-**Version 3.3.30** - April 2025<br/>
+- **Requires Node.js 18 or later.** Fixed undetected Hue Bridge disconnections.
 
-- **BREAKING CHANGE** **!!!!!!!**: node must be >=18.0.0 (needed before was >=16.0.0).**!!!!!!!** **BREAKING CHANGE**<br/>
-- HUE: fixed SSE Hue Bridge silent disconnection issue.<br/>
+**Version 3.3.25** - April 2025
 
-**Version 3.3.25** - April 2025<br/>
+- Fixed Hue reconnection after a bridge restart when no KNX gateway is configured.
 
-- HUE: fixed a saltuary bug preventing reconnection after HUE bridge has been restarted and there is no KNX Gateway configured.<br/>
+**Version 3.3.24** - April 2025
 
-**Version 3.3.24** - April 2025<br/>
+- Added support for datapoint 14.1200.
 
-- NEW: Added Datapoint 14.1200<br/>
+**Version 3.3.23** - April 2025
 
-**Version 3.3.23** - April 2025<br/>
+- Fixed Hue nodes failing to reconnect after a disconnection.
 
-- HUE nodes: fixed no-reconnection after disconnection, due to a bug in the connection handler.<br/>
-- Housekeeping<br/>
+**Version 3.3.22** - March 2025
 
-**Version 3.3.22** - March 2025<br/>
+- Fixed missed Hue Button events.
 
-- HUE Button: fixed random unresponsive button event.<br/>
-- Housekeeping<br/>
+**Version 3.3.21** - March 2025
 
-**Version 3.3.21** - March 2025<br/>
+- Corrected an unclear datapoint validation error.
 
-- KNX Engine: fixed an unmeaningful error while validating DPTs.<br/>
+**Version 3.3.20** - March 2025
 
-**Version 3.3.20** - March 2025<br/>
+- Fixed Load Control commands received from flows.
 
-- Load control node: fixed a malfunction in the flow's msg.shedding procedure.<br/>
+**Version 3.3.19** - March 2025
 
-**Version 3.3.19** - March 2025<br/>
+- Hue Light status icons now indicate whether the light is on or off.
 
-- HUE light nodes now have the colored status icon that follows the light status on/off. Blue fill dot is ON, blue ring is OFF<br/>
+**Version 3.3.18** - March 2025
 
-**Version 3.3.18** - March 2025<br/>
+- Hue nodes show both Hue and KNX connection status.
+- Improved Hue reconnection and reduced the KNX connection delay.
 
-- For all HUE nodes, added both the HUE and KNX status in the node's status text.<br/>
-- HUE engine: fixed a reconnection issue occurring sometimes, in some circumstances.<br/>
-- KNX engine: speed up the connection, from 30 to 10 seconds.<br/>
+**Version 3.3.16** - February 2025
 
-**Version 3.3.16** - February 2025<br/>
+- Improved Hue connection handling and detection of disconnections.
 
-- HUE config node: moved the connect directive after events declarations.<br/>
-- HUE engine: optimized the disconnection detection procedure.<br/>
+**Version 3.3.15** - February 2025
 
-**Version 3.3.15** - February 2025<br/>
+- Added clearer warnings in Watchdog and gateway settings.
 
-- Housekeeping and added some warnings on Watchdog node and configuration nodes.<br/>
+**Version 3.3.14** - January 2025
 
-**Version 3.3.14** - January 2025<br/>
+- Added all subtypes of datapoint 20.
 
-- NEW: Added all subtypes to KNX Datapoint 20.x.<br/>
+**Version 3.3.13** - January 2025
 
-**Version 3.3.13** - January 2025<br/>
+- Hue Light now also supports Hue smart plugs.
 
-- NEW: Hue light now handles Hue Outlets as well.<br/>
+**Version 3.3.9** - December 2024
 
-**Version 3.3.9** - December 2024<br/>
+- Fixed a Raspberry Pi network-interface error.
 
-- CHRISTMAS FIX: issue on iterable interfaces error in raspberry pi.<br/>
+**Version 3.3.8** - December 2024
 
-**Version 3.3.8** - December 2024<br/>
+- Fixed a KNX software issue that stopped nodes from working.
 
-- HOT FIX: fixed compilation problem in the knx engine, causing the node to stop working.<br/>
+**Version 3.3.7** - December 2024
 
-**Version 3.3.7** - December 2024<br/>
+- Corrected scene-number validation to accept scenes 1 to 64.
 
-- DPT18.x: fixed scene validation 1 to 64.<br/>
+**Version 3.3.6** - December 2024
 
-**Version 3.3.6** - December 2024<br/>
+- Alerter reads states after Deploy, including when only one node changes.
 
-- KNX Alerter Node: read status after deploy even of a single node.<br/>
+**Version 3.3.5** - December 2024
 
-**Version 3.3.5** - December 2024<br/>
+- Alerter now works without an imported ETS file.
 
-- KNX Alerter Node: now the node works even if no ETS file has been imported.<br/>
+**Version 3.3.3** - November 2024
 
-**Version 3.3.3** - November 2024<br/>
+- Added automatic KNX gateway discovery and improved telegram timing on slower computers.
 
-- KNX Config Node: Automatic KNX Gateway discover in the gateway node config window.<br/>
-- KNX Engine: new: new telegram sequencer waiter, for more accurate timing in slow or sliggish computers.<br/>
-- KNX Engine: bunp 4.0.0-beta.7 .<br/>
+**Version 3.3.0** - November 2024
 
-**Version 3.3.0** - November 2024<br/>
+- Updated KNX connection handling in preparation for KNX Secure.
 
-- KNX Engine: explicitly set the local port of the unicast socket on 3671 and the local IP of the multicast to 0.0.0.0.<br/>
-- KNX Engine: many engine adaptation for the upcoming KNX-Secure implementation.<br/>
+**Version 3.2.17** - October 2024
 
-**Version 3.2.17** - October 2024<br/>
+- Improved Hue colour conversion and brightness limits.
 
-- Hue devices: globally check for boundary limits, when calculating brightness and colorYX from an RGB or HEX KNX input.<br/>
+**Version 3.2.16** - October 2024
 
-**Version 3.2.16** - October 2024<br/>
+- Fixed Hue addresses missing from the ETS import and errors when setting white light.
 
-- Hue devices: fixed an issue with the ETS CSV file, when a HUE device's GA isn't contained in the CSV.<br/>
-- Hue Light: fixed an issue in setting RGB to 255,255,255, caused by an out of boundary of the calculater brightness value.<br/>
+**Version 3.2.15** - October 2024
 
-**Version 3.2.15** - October 2024<br/>
+- Fixed colour-temperature errors with older Hue Lightstrips.
 
-- Hue Light: fixed an issue with old lightstrip causing an error in setting mirek.<br/>
+**Version 3.2.14** - October 2024
 
-**Version 3.2.14** - October 2024<br/>
+- Fixed default gateway selection in Node-RED 4.
 
-- Workarouded bug in node-red 4.0.x not selecting the default server's node.<br/>
+**Version 3.2.13** - October 2024
 
-**Version 3.2.13** - October 2024<br/>
+- Removed the recently added debug-log collection feature.
 
-- Revert back from gathering the debug log. It doesn't like me.<br/>
+**Version 3.2.12** - October 2024
 
-**Version 3.2.12** - October 2024<br/>
+- Updated the KNX communication software.
 
-- Bump knxultimate engine to v. 3.0.4.<br/>
+**Version 3.2.11** - October 2024
 
-**Version 3.2.11** - October 2024<br/>
+- Improved node help and added diagnostic information for support requests.
 
-- Fixed help texts in various nodes.<br/>
-- When you open a node, the node red's site bar goes into the help panel. Then, it goes into the info panel once closed.<br/>
-- Gather debug infos + log to be pasted into a new gitHub Issue. See the "Utility" TAB of the KNX Gateway config node. See DISCUSSIONS on gitHub.<br/>
+**Version 3.2.10** - October 2024
 
-**Version 3.2.10** - October 2024<br/>
+- Fixed Hue Bridge disconnection during a full Deploy.
 
-- Fixed a race condition happening whenever FULL DEPLOY is pressed in the node-red interface, preventing the HUE bridge node to gracefully disconnect from the HUE Bridge.<br/>
+**Version 3.2.9** - October 2024
 
-**Version 3.2.9** - October 2024<br/>
+- Improved diagnostic messages.
 
-- Maintenance release: added some log to better identify problems.<br/>
+**Version 3.2.8** - October 2024
 
-**Version 3.2.8** - October 2024<br/>
+- Restored the Read status at startup setting for older configurations.
 
-- KNX Node: fixed "read status at startup" field not showing up in very old versions.<br/>
+**Version 3.2.7** - September 2024
 
-**Version 3.2.7** - September 2024<br/>
+- Flow messages now indicate when a sent KNX telegram is echoed back.
 
-- KNX Node: added "echoed" property to the flow's msg output. See help for further infos.<br/>
+**Version 3.2.6** - September 2024
 
-**Version 3.2.6** - September 2024<br/>
+- Fixed KNX Viewer's third output.
 
-- KNXViewer: fixed an issue with the PIN3.<br/>
+**Version 3.2.4** - September 2024
 
-**Version 3.2.4** - September 2024<br/>
+- Corrected invalid telegram timing settings in older configurations.
 
-- KNX engine: fix oldest invalid KNX queue interval, by defaulting it to 25ms.<br/>
+**Version 3.2.2** - September 2024
 
-**Version 3.2.2** - September 2024<br/>
+- Fixed KNX telegram sending.
 
-- KNX engine: Bump to 3.0.2: fixed an issue with the KNX queue.<br/>
+**Version 3.2.1-beta.0** - September 2024
 
-**Version 3.2.1-beta.0** - September 2024<br/>
+- Improved diagnostic logging and telegram pacing on the KNX bus.
 
-- Rewrote the logger engine and fixed some issues in the KNXUltimate package.<br/>
-- KNX engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by the KNX BUS.<br/>
+**Version 3.2.0** - September 2024
 
-**Version 3.2.0** - September 2024<br/>
+- Improved command pacing to avoid overloading the Hue Bridge.
 
-- Major Version.<br/>
-- HUE engine: implemented a new "limiter" package for better calculate the maximum numbers of telegrams accepted by the HUE Bridge.<br/>
+**Version 3.1.9** - September 2024
 
-**Version 3.1.9** - September 2024<br/>
+- Hue Bridge can use existing credentials and display the saved credentials when requested.
 
-- HUE Bridge: you can now register to a bridge with your own credentials.<br/>
-- HUE Bridge: you can reveal the encrypted bridge's credentials (there is a button for that).<br/>
+**Version 3.1.8** - September 2024
 
-**Version 3.1.8** - September 2024<br/>
+- Completed node help and fixed the ignored logging-level setting.
 
-- Wiki: completed the wiki for all nodes.<br/>
-- Node-Red help panel: completed the help for all nodes.<br/>
-- Logging: fixed the loglevel (was simply ignored before!).<br/>
+**Version 3.1.7** - August 2024
 
-**Version 3.1.7** - August 2024<br/>
+- Fixed timing problems in custom KNX functions.
 
-- KNX Node: KNX Function: async/await caused some race condition issues, so the code is now sync.<br/>
+**Version 3.1.6** - August 2024
 
-**Version 3.1.6** - August 2024<br/>
+- Added helpers for toggling and setting KNX values in custom functions.
+- Updated the function editor and documentation.
 
-- KNX Node: KNX Function: added "self", "toggle" and "setGAValue" function. See the help.<br/>
-- KNX Node: KNX Function: the code runs now in async/await mode.<br/>
-- The wiki has been revamped and will be implemented with HUE samples, in the upcoming release.<br/>
+**Version 3.1.5** - August 2024
 
-**Version 3.1.5** - August 2024<br/>
+- KNX Function is no longer beta. Fixed settings when switching from Universal Mode.
 
-- KNX Node: fixed some UI glitches while switching from universal mode to 3-level group Group Address.<br/>
-- KNX Function code editor: exited BETA.<br/>
+**Version 3.1.4** - August 2024
 
-**Version 3.1.4** - August 2024<br/>
+- Added group-address search to the KNX Function editor.
 
-- KNX Node: added a group address search helper in the KNX Function TAB.<br/>
-- Updated documentation.<br/>
+**Version 3.1.3** - August 2024
 
-**Version 3.1.3** - August 2024<br/>
+- KNX Device opens the function editor when custom code is present.
+- Simplified Universal Mode selection. KNX Function remains beta and may change.
 
-- KNX Node: now the property page opens directly on KNX Function tab, if js code is present. CAUTION, KNX FUNCTION IS STILL IN BETA AND SUBJECT TO CHANGES.<br/>
-- KNX Node: Universal mode is now selectable in the dropdown list of GA Types.<br/>
-- KNX Node: better UI controls placements.<br/>
-- Updated documentation.<br/>
+**Version 3.1.2** - August 2024
 
-**Version 3.1.2** - August 2024<br/>
+- Fixed KNX Function editor issues. It remains beta and may change.
 
-- NEW: KNX Function code editor: minor fixes. CAUTION, KNX FUNCTION IS STILL IN BETA AND SUBJECT TO CHANGES.<br/>
+**Version 3.1.1** - August 2024
 
-**Version 3.1.1** - August 2024<br/>
+- Expanded the custom-function editor. It remains beta and may change.
 
-- NEW: KNX Function code editor in the device node: you can now write you own script to handle inbound and outboud KNX messages. Added "node" and "RED" object to the function's context. CAUTION, KNX FUNCTION IS STILL IN BETA AND SUBJECT TO CHANGES.<br/>
+**Version 3.1.0** - August 2024
 
-**Version 3.1.0** - August 2024<br/>
+- Added a function editor for custom handling of incoming and outgoing KNX messages.
 
-- NEW: KNX Function code editor in the device node: you can now write you own script to handle inbound and outboud KNX messages.<br/>
+**Version 3.0.10** - August 2024
 
-**Version 3.0.10** - August 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed unused saved values in Auto Responder. The node remains beta and may change.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- KNX Auto Responder node (BETA): fixed issue with unused saved values. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+**Version 3.0.9** - August 2024
 
-**Version 3.0.9** - August 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed incorrect Auto Responder replies. The node remains beta and may change.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- KNX Auto Responder node (BETA): fixed issue with malformed responses. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+**Version 3.0.7** - August 2024
 
-**Version 3.0.7** - August 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Auto Responder restores saved values at startup. The node remains beta and may change.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- KNX Auto Responder node (BETA): at start, it loads the last states saved in a persistent file. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+**Version 3.0.6** - August 2024
 
-**Version 3.0.6** - August 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed Auto Responder without an ETS import. The node remains beta and may change.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- KNX Auto Responder node (BETA): fixed some issues when the ETS file has not been imported. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+**Version 3.0.5** - August 2024
 
-**Version 3.0.5** - August 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Auto Responder uses a new list format; check the updated help before editing existing settings. The node remains beta.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- KNX Auto Responder node (BETA): changed to JSON array instead of plain text and updated the help. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+**Version 3.0.4** - August 2024
 
-**Version 3.0.4** - August 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- New Auto Responder answers KNX read requests with stored values. The node is beta and may change.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- NEW: KNX Auto Responder node (BETA): The node will respond to read request coming from the KNX BUS, with the current GA value. Please be aware that until the node exits beta, there can be breaking changes.<br/>
+**Version 3.0.3** - July 2024
 
-**Version 3.0.3** - July 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed a crash when the KNX interface has no free connections.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- FIX: fix crash when no more KNX tunnels avaiable.<br/>
+**Version 3.0.2** - July 2024
 
-**Version 3.0.2** - July 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- New Hue Bridge settings remind you to Deploy before continuing setup.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- HUE BRIDGE: added the message to DEPLOY the flow prior to proceed, when you're creating a new HUE CONFIG node.<br/>
+**Version 3.0.1** - July 2024
 
-**Version 3.0.1** - July 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- New gateways automatically detect the correct KNX connection protocol.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- FEATURE: Due to multiple users not well knowing the KNX Protocol, by default new nodes have "Auto" in the protocol field. The node will automatically detect and apply the correct protocol. This is the real AI.<br/>
+**Version 3.0.0** - July 2024
 
-**Version 3.0.0** - July 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Updated the KNX communication software. If you encounter problems, version 2.5.1 remains a fallback.
+- Group addresses can come from variables, with easier ETS address selection.
+- KNX Viewer can report bus congestion. Added a Hue software-update status node.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- FEATURE CAUTION: rewrote the KNX engine in Typescript. If you encounter problems, please open a gitub issue. You can revert by installing the older version 2.5.1 <br/>
-- FEATURE: KNX Ultimate node: you can now set the group address from a global, flow or $env variable, beside the standard 3-level format. <br/>
-- FEATURE: KNX Ultimate node: if you imported the ETS file, as soon as you click to any Group Address field selector, the list shows up immediately. <br/>
-- FEATURE: KNX Ultimate node: msg.setConfig passed to the node, now can read the group address name and datapoint automatically, based on the group address (require the ETS file to be imported). <br/>
-- FEATURE: KNX Ultimate node: the object property _gainfo_ has been added to the msg output. Refer to the help panel for further infos. <br/>
-- Chore: "betterized" the description for some captions in the KNX Device node. </br>
-- NEW: KNX Viewer node: added an output PIN (third) you can use to monitor the KNX BUS congestion.</br>
-- Chore: HUEEngine: reduced waiting time from 200 to 150ms and "awaited" the async function to send the hue commands in the send's loop. </br>
-- NEW: Hue Node Software Update Status for the HUE devices. <br/>
+**Version 3.0.0-beta3** - Juni 2024
 
-**Version 3.0.0-beta3** - Juni 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- KNX Viewer can report bus congestion. Improved settings labels and Hue command handling.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- Chore: "betterized" the description for some captions in the KNX Device node. </br>
-- NEW: KNX Viewer node: added an output PIN (third) you can use to monitor the KNX BUS congestion.</br>
-- Chore: HUEEngine: reduced waiting time from 200 to 150ms and "awaited" the async function to send the hue commands in the send's loop. </br>
+**Version 3.0.0-beta2** - Juni 2024
 
-**Version 3.0.0-beta2** - Juni 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Added a Hue software-update status node.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- NEW: Hue Node Software Update Status for the HUE devices. <br/>
+**Version 3.0.0-beta1** - Juni 2024
 
-**Version 3.0.0-beta1** - Juni 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Beta release of the updated KNX communication software; version 2.5.1 remains a fallback.
+- Group addresses can come from variables, with easier ETS address selection and automatic name/datapoint lookup.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- FEATURE CAUTION: rewrote the KNX engine in Typescript. If you encounter problems, please open a gitub issue. You can revert by installing the older version 2.5.1 <br/>
-- FEATURE: KNX Ultimate node: you can now set the group address from a global, flow or $env variable, beside the standard 3-level format. <br/>
-- FEATURE: KNX Ultimate node: if you imported the ETS file, as soon as you click to the Group Address field, the list shows up immediately. <br/>
-- FEATURE: KNX Ultimate node: msg.setConfig passed to the node, now can read the group address name and datapoint automatically, based on the group address (require the ETS file to be imported). <br/>
-- FEATURE: KNX Ultimate node: the object property _gainfo_ has been added to the msg output. Refer to the help panel for further infos. <br/>
+**Version 2.5.1** - Mai 2024
 
-**Version 2.5.1** - Mai 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Quickly toggling a Hue light can temporarily switch it from night to day mode.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- NEW: HUE light node: you can now override the day/night mode by setting the day mode temporary, whenever you fast toggles the light switch on then off within 10 seconds. There are multiple choiches to select from. <br/>
+**Version 2.5.0** - Mai 2024
 
-**Version 2.5.0** - Mai 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Hue light groups report average colour and colour temperature.
+- **Known issue:** groups may send duplicate status telegrams. Enable the KNX node's RBE filter to suppress duplicates.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- HUE light node: internally calculate the average color xy and temp in kelvin, for group_lights (not emitted by the HUE Bridge).<br/>
-- KNOW ISSUE: HUE light node: grouped_lights: the status group address is updated multiple times, equals to the lights contained in the grouped_light. To avoid repeating the same telegram multiple times, simply enable the RBE filter on the KNX node. <br/>
+**Version 2.4.27** - Mai 2024
 
-**Version 2.4.27** - Mai 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed colour-temperature and brightness feedback for lights in a Hue group.
+- **Known issue:** groups may send duplicate status telegrams. Enable the KNX node's RBE filter to suppress duplicates.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- HUE light node: fixed status refresh of kelvin and brightness of a light belonging to a grouped_light.<br/>
-- KNOW ISSUE: HUE light node: grouped_lights: the status group address is updated multiple times, equals to the lights contained in the grouped_light. To avoid repeating the same telegram multiple times, simply enable the RBE filter on the KNX node. <br/>
+**Version 2.4.25** - Mai 2024
 
-**Version 2.4.25** - Mai 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed replies to KNX status requests for Hue light groups.
+- **Known issue:** groups may send duplicate status telegrams. Enable the KNX node's RBE filter to suppress duplicates.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- HUE light node: fixed status sent to the KNX bus after issuing a read request for grouped_lights.<br/>
-- KNOW ISSUE: HUE light node: grouped_lights: the status group address is updated multiple times, equals to the lights contained in the grouped_light. To avoid repeating the same telegram multiple times, simply enable the RBE filter on the KNX node. <br/>
+**Version 2.4.24** - Mai 2024
 
-**Version 2.4.24** - Mai 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Corrected Hue colour-temperature values sent to KNX with datapoint 7.600.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- HUE light node: fixed kelvin temp status with datapoint 7.600, that sent wrong values to the bus.<br/>
+**Version 2.4.23** - Mai 2024
 
-**Version 2.4.23** - Mai 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Hue Scene now supports scene numbers up to 64.
 
-- Warning: Node-Red version **equals or major than 3.1.1** is needed to run this node.<br/>
-- HUE Scene node: fixed max scene count to 64.<br/>
+**Version 2.4.22** - April 2024
 
-**Version 2.4.22** - April 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Hue Button lets you choose the value and dimming direction when automatic toggling is disabled.
 
-- Warning: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- HUE button node: NEW: now you can select the value and the dim direction to be transmitted, when Toggle Status is set to unchecked. Thanks @cybersmart-eu for the suggestion.<br/>
+**Version 2.4.21** - April 2024
 
-**Version 2.4.21** - April 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed user-defined Home Assistant Translator conversions.
 
-- Warning: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- Home Assistant translator node: fixed an issue where user added translations does not work.<br/>
+**Version 2.4.20** - April 2024
 
-**Version 2.4.20** - April 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Numeric text is automatically converted to numbers for datapoint 9.
 
-- Warning: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- DPT9: auto transform a string value, to a numeric value.<br/>
+**Version 2.4.19** - April 2024
 
-**Version 2.4.19** - April 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Added links to video lessons and tutorials.
 
-- Warning: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- Start adding youtube lessons and tutorials and linking it with the nodes.<br/>
+**Version 2.4.18** - April 2024
 
-**Version 2.4.18** - April 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed KNX Device settings for older configurations.
 
-- Warning: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- Fixed some backward compatibility glitches in the KNX-Device's UI.<br/>
+**Version 2.4.16** - April 2024
 
-**Version 2.4.16** - April 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Added Home Assistant Translator and Hue Contact Sensor nodes.
+- Added a group-address list for configuring KNX/IP routing filters.
+- Fixed duplicate-value filtering and improved help.
 
-- Warning: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- NEW: Home Assistant translator node: translates the HA input msg, to a KNX value. Comes with a built-in translation table, that's user editable.<br/>
-- NEW: HUE Contact Sensor node.<br/>
-- NEW: You can now get a list of all node's GA, to paste it into your KNX/IP routing table list. (See in the Gateway config window, TAB Utility.<br/>
-- Updated KNX-Ultimate device node help.<br/>
-- Minor KNX-Ultimate device node UI changes.<br/>
-- Fixed an issue with the RBE Filters.<br/>
+**Version 2.4.9** - March 2024
 
-**Version 2.4.9** - March 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed a reported issue.
 
-- WARNING: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- Fixed [this](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/338).<br/>
+**Version 2.4.6** - Feb 2024
 
-**Version 2.4.6** - Feb 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Improved connection compatibility with some KNX/IP interfaces.
 
-- WARNING: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- Changed the KNX Engine keep alive CONNECTIONSTATUS_REQUEST interval from 60 to 30 secs, to allow some KNX/IP interfaces (not strictly following the KNX standard) to work properly.<br/>
+**Version 2.4.5** - Feb 2024
 
-**Version 2.4.5** - Feb 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Added Hue Zigbee Connectivity and HSV colour controls.
+- Improved dimming, colour temperature, startup status and use of multiple bridges.
+- Added datapoint 275.100 support and fixed network-interface selection.
 
-- WARNING: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- NEW: Added KNX Datapoint 275.100<br/>
-- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
-- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
-- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
-- HUE Light: when the light is off, the dim up sequence starts now with initial brightness = zero.<br/>
-- KNX Engine: moved all HTTP calls to a single js file plugin, loaded at startup, to avoid multi KNX gateway or multi HUE bridges issues.<br/>
-- HUE: Optimized color translation between xyBri and RGB.<br/>
-- NEW: HUE Light node: added the HSV controls.<br/>
-- HUE Light node: stopping the dim sequence, now clears also the HUE bridge queue commands, to allow stopping the dimmer quickly.<br/>
-- HUE Light node: smoother dimming.<br/>
-- Fix the listing of ethernet interfaces in the gateway config window.<br/>
-- HUE: Fixed "read at startup" option, not working for some HUE nodes.<br/>
-- NEW: HUE: added node Zigbee Connectivity.<br/>
-- PLEASE TRY THIS VERSION AND GIVE ME ANY FEEDBACK ABOUT ISSUES YOU FIND. THANKS.<br/>
+**Version 2.4.5-beta.4 PUBLIC BETA** - Feb 2024
 
-**Version 2.4.5-beta.4 PUBLIC BETA** - Feb 2024<br/>
+- Maintenance release.
 
-- Maintenance release.<br/>
+**Version 2.4.5-beta.3 PUBLIC BETA** - Feb 2024
 
-**Version 2.4.5-beta.3 PUBLIC BETA** - Feb 2024<br/>
+- Fixed Hue startup status and added the Zigbee Connectivity node.
 
-- HUE: Fixed "read at startup" option, not working for some HUE nodes.<br/>
-- NEW: HUE: added node Zigbee Connectivity.<br/>
+**Version 2.4.5-beta.2 PUBLIC BETA** - Feb 2024
 
-**Version 2.4.5-beta.2 PUBLIC BETA** - Feb 2024<br/>
+- Fixed the network-interface list in gateway settings.
 
-- Fix the listing of ethernet interfaces in the gateway config window.<br/>
+**Version 2.4.5-beta.1 PUBLIC BETA** - Feb 2024
 
-**Version 2.4.5-beta.1 PUBLIC BETA** - Feb 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Added Hue HSV colour controls and improved colour conversion and dimming. Public beta.
 
-- WARNING: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- HUE: Optimized color translation between xyBri and RGB.<br/>
-- NEW: HUE Light node: added the HSV controls.<br/>
-- HUE Light node: stopping the dim sequence, now clears also the HUE bridge queue commands, to allow stopping the dimmer quickly.<br/>
-- HUE Light node: smoother dimming.<br/>
-- PLEASE TRY THIS VERSION AND GIVE ME ANY FEEDBACK ABOUT ISSUES YOU FIND. THANKS.<br/>
+**Version 2.4.5-beta.0** - Jan 2024
 
-**Version 2.4.5-beta.0** - Jan 2024<br/>
+- **Requires Node-RED 3.1.1 or later.**
+- Fixed Hue colour temperature, effects and dimming from off.
+- Improved operation with multiple bridges and added datapoint 275.100 support. Beta release.
 
-- WARNING: this version uses the Node-Red plugin system; the Node-Red version must be **equals or major than 3.1.1**<br/>
-- NEW: Added KNX Datapoint 275.100<br/>
-- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
-- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
-- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
-- HUE Light: when the light is off, the dim up sequence starts now with initial brightness = zero.<br/>
-- KNX Engine: moved all HTTP calls to a single js file plugin, loaded at startup, to avoid multi KNX gateway or multi HUE bridges issues.<br/>
+**Version 2.4.4** - Jan 2024
 
-**Version 2.4.4** - Jan 2024<br/>
+- Transition release.
 
-- Transitional version.<br/>
+**Version 2.4.0-beta.1** - Jan 2024
 
-**Version 2.4.0-beta.1** - Jan 2024<br/>
+- Public beta with fixes for Hue colour temperature, effects, dimming and multiple bridges.
 
-- This is a public installable beta.<br/>
-- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
-- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
-- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
-- HUE Light: when the light is off, the dim up sequence starts now with initial brightness = zero.<br/>
-- KNX Engine: moved all HTTP calls to a single js file, loaded at startup, to avoid multi KNX gateway or multi HUE bridges issues.<br/>
-- Minor fixes.<br/>
+**Version 2.4.0-beta.0** - Jan 2024
 
-**Version 2.4.0-beta.0** - Jan 2024<br/>
+- Beta for installations with multiple Hue Bridges, with fixes for colour temperature, effects and dimming.
 
-- THIS IS A BETA VERSION. INSTALL ONLY IF YOU HAVE MANY HUE BRIDGES.<br/>
-- HUE Light: fixed https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/317<br/>
-- HUE Light: corrected the 7.600 kelvin range https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/316<br/>
-- HUE Light: blinking effect and color cyle are now stopped, whenever an FALSE KNX telegram is received by the light switching group address.<br/>
-- HUE Light: when the light is off, the dim up sequence starts now with initial brightness = zero.<br/>
-- KNX Engine: moved all HTTP calls to a single js file, loaded at startup, to avoid multi KNX gateway or multi HUE bridges issues.<br/>
+**Version 2.3.5** - Jan 2024
 
-**Version 2.3.5** - Jan 2024<br/>
+- Fixed Hue settings when multiple bridges are configured.
 
-- HUE Light: fixed multi HUE Bridge GUI issue.<br/>
+**Version 2.3.4** - Jan 2024
 
-**Version 2.3.4** - Jan 2024<br/>
+- Fixed the Hue brightness tab becoming inaccessible with some status settings.
 
-- HUE Light: fixex tab "DIM/Brightness" inaccessible, when "KNX Brightness Status" was set to use the default knx behaviour.<br/>
+**Version 2.3.3** - Jan 2024
 
-**Version 2.3.3** - Jan 2024<br/>
+- Added a message while Hue device details are still loading.
 
-- HUE Light: added a warning if you double click a node, with the node still querying the HUE Bridge for the device.<br/>
+**Version 2.3.2** - Jan 2024
 
-**Version 2.3.2** - Jan 2024<br/>
+- Minor Hue Light fixes.
 
-- HUE Light: minor fixes.
+**Version 2.3.0** - Jan 2024
 
-**Version 2.3.0** - Jan 2024<br/>
+- Fixed duplicate Hue brightness updates after a restart.
 
-- HUE Light: partially rewrote code to cloneDeep(oHUEDevice) not to duplicate the brightness status of a single ligh, at node-red restart. https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/312#issue-2064480332 <br/>
+**Version 2.2.40** - Jan 2024
 
-**Version 2.2.40** - Jan 2024<br/>
+- Fixed incorrect Hue on/off status at startup.
 
-- HUE Light: fixed an issue with initial status read from HUE Bridge (on/off status was incorrectly set).<br/>
+**Version 2.2.39** - Jan 2024
 
-**Version 2.2.39** - Jan 2024<br/>
+- Fixed temperature values with many decimal places and Hue dimming at the minimum brightness.
 
-- Fixed DPT 9.001 issue when sending numbers having > 2 decimals.<br/>
-- HUE Light node: fixed an issue in dimming, when the minimum dim level is set to the minimum level defined by the HUE bridge.<br/>
+**Version 2.2.37** - December 2023
 
-**Version 2.2.37** - December 2023<br/>
+- Hue Light lets you choose the dimming direction for tunable white lamps.
 
-- HUE Light Node: you can now set the DIM direction for tunable white lights. Fixed some issues as well.<br/>
+**Version 2.2.36** - December 2023
 
-**Version 2.2.36** - December 2023<br/>
+- Corrected Hue light-group behaviour when returning from night to day mode.
 
-- HUE Light Node: Ensure at least one liht belonging to a group was on before switching to nighttime. Otherwise turn all lights on at daytime.<br/>
+**Version 2.2.35** - December 2023
 
-**Version 2.2.35** - December 2023<br/>
+- Hue Light can restore the previous state of all lights in a group.
 
-- NEW: HUE Light Node: now it resumes the old status of all lights belonging to the selected group.<br/>
+**Version 2.2.34** - December 2023
 
-**Version 2.2.34** - December 2023<br/>
+- Hue Light can generate Home Assistant light settings and restore the last daytime state.
+- Hue Scene is no longer beta.
 
-- NEW: HUE Light Node: there is a new tab that auto-generates the light entity for Home Assistant.<br/>
-- HUE Light: resuming the last daytime status after nighttime, if the switch on behaviour at daytime is set to None.<br/>
-- The new HUE Scene node has exited the BETA status and is now considered safe to be used.<br/>
+**Version 2.2.33** - December 2023
 
-**Version 2.2.33** - December 2023<br/>
+- Fixed Hue colour-temperature conversion for datapoint 7.600. Hue Scene remains beta.
 
-- Quickfix: HUE Light: fixed an issue in the conversion of tunable white from Datapint 7.600 to mired and vice versa.<br/>
-- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.32** - December 2023
 
-**Version 2.2.32** - December 2023<br/>
+- Fixed Hue colour-temperature conversion for datapoint 9.002. Hue Scene remains beta.
 
-- Quickfix: HUE Light: fixed an issue in the conversion of tunable white from Datapoint 9.002 to mired and vice versa.<br/>
-- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.31** - December 2023
 
-**Version 2.2.31** - December 2023<br/>
+- Hue Scene can report whether a single scene is active. The node remains beta.
 
-- NEW: HUE Scene node: added the status GA and Datapoint, for the scene to send true/false if active/not active. This currently works only for "Single mode".<br/>
-- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.30** - December 2023
 
-**Version 2.2.30** - December 2023<br/>
+- Added multi-scene control and fixed scene-number selection.
+- Hue Light is stable; Hue Scene remains beta.
 
-- NEW: HUE Scene node: added a "Multi scene" section, more powerful.<br/>
-- HUE Scene: when selecting a group address for the scene, the scene number dropdown list doesn't show up.<br/>
-- WARNING: the new HUE Light node is to be considered **RELEASED (= production ready, but please report anyway any issue)**.<br/>
-- WARNING: the new HUE Scene node is to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.29** - November 2023
 
-**Version 2.2.29** - November 2023<br/>
-This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- Fixed incorrect Hue Light errors. The new light options remain beta.
 
-- HUE Light: fixed an issue causing the node status to signal an error. Filtered the groupvalue_read from imbound KNX messages.<br/>
-- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.28** - November 2023
 
-**Version 2.2.28** - November 2023<br/>
-This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- Fixed incorrect brightness feedback when dimming an off light and errors in dimmable-only groups. The new options remain beta.
 
-- HUE Light: fixed an issue where dimming down with the light switched off, causes the brightness status to jump to 100%, thus the light remains off.<br/>
-- HUE Light: Fixed some errors, if all devices belonging to a group, have only the dimming capability.<br/>
-- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.27** - November 2023
 
-**Version 2.2.27** - November 2023<br/>
-This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- Hue Light settings adapt to the lamp type. Get current colour now works for groups. The new options remain beta.
 
-- HUE Light: the UI now changes, to adapt to lamp type.<br/>
-- HUE Light: "Get current" color button, now works for grouped light as well, by reading the first light belongin to the group.<br/>
-- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.26** - November 2023
 
-**Version 2.2.26** - November 2023<br/>
-This is an interim version, to quick fix some issues. Please report any issue with HUE Nodes, on gitHub.<br/>
+- Fixed Hue Light status errors and brightness feedback on switch-on.
+- Hue battery, light-level and temperature sensors can answer KNX read requests. New light options remain beta.
 
-- HUE Light: fixed some spurious node status errors.<br/>
-- HUE Light: now the brightness status is ever transmitted over the KNX bus, whenever the light is switched on.<br/>
-- HUE Battery: the node can respond to KNX read request, by sending the stored value as response to the KNX bus.<br/>
-- HUE light level: the node can respond to KNX read request, by sending the stored value as response to the KNX bus.<br/>
-- HUE temperature sensor: the node can respond to KNX read request, by sending the stored value as response to the KNX bus.<br/>
-- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.25** - November 2023
 
-**Version 2.2.25** - November 2023<br/>
+- Hue Light can answer KNX status requests. Fixed saved behaviour settings and unwanted switch-off. New options remain beta.
 
-- HUE Light: fixed settings of some behaviour options.<br/>
-- You can now query the HUE Light node stati, via a "read" telegram sent to the KNX stati group address. ("Status" is Latin, not English, so the plural is "stati" and not "statuses" nor "status"). Other HUE nodes will follow asap.<br/>
-- Fixed some little bugs.<br/>
-- Fixed an issue where in some circumstances, the HUE Light turn off by itself.<br/>
-- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.24** - November 2023
 
-**Version 2.2.24** - November 2023<br/>
+- Added more Hue colour-temperature choices and switch-on colour/brightness settings. The new options remain beta.
 
-- HUE Light: added DPT 9.002 for direct kelvin selection, with HUE range (2000K-6535K). There is another DPT 7.600 with the KNX scale (0K-6553K) avaiable.<br/>
-- NEW: HUE Light: now you can choose the "switch on" behaviour between color and temperature (in Kelvin) + brightness.<br/>
-- The fontawesome JS is now locally referenced.<br/>
-- WARNING: the new HUE Light options are to be considered **BETA (= in testing with user feedback)**.<br/>
+**Version 2.2.20** - November 2023
 
-**Version 2.2.20** - November 2023<br/>
+- Fixed editor script loading under Home Assistant.
 
-- Fixed a cross site js script loading, affecting the node running under HomeAssistant.<br/>
+**Version 2.2.19** - November 2023
 
-**Version 2.2.19** - November 2023<br/>
+- Fixed Hue issues.
 
-- HUE Bugfix.<br/>
+**Version 2.2.18** - November 2023
 
-**Version 2.2.18** - November 2023<br/>
+- Fixed Hue issues and improved bridge connection checks.
 
-- HUE Bugfix.<br/>
-- New connection check for HUE bridge.<br/>
+**Version 2.2.16** - November 2023
 
-**Version 2.2.16** - November 2023<br/>
+- Hue Light and Scene nodes can be controlled directly through flow inputs and outputs.
 
-- NEW: Hue Light: you can now enable the input/output PINs and send/receive commands to/from the light, via the msg flow, like msg.on={"on":true}. The option is "Node Input/Output PINs".<br/>
-- NEW: Hue Scene: you can now enable the input/output PINs and send/receive commands to/from the light, via the msg flow. The option is "Node Input/Output PINs".<br/>
+**Version 2.2.9** - November 2023
 
-**Version 2.2.9** - November 2023<br/>
+- Fixed ioBroker errors and added Hue colour-temperature control in Kelvin, initially in beta.
+- Simplified Button and Scene settings.
 
-- Fixed errors in Iobroker.<br/>
-- HUE Light: NEW: color selection show now the temperature in kelvin.<br/>
-- HUE Light: NEW: Tunable White: added control and status in kelvin (DPT 7.600). This is in BETA testing.<br/>
-- Removed some options in button and scene nodes, because they are unnecessary.<br/>
+**Version 2.2.6** - October 2023
 
-**Version 2.2.6** - October 2023<br/>
+- Fixed unwanted Hue Button telegrams at startup and added a startup-initialisation option.
 
-- Fix: fixed HUE button sending a KNX telegram at startup. Fixed also other nodes.<br/>
-- HUE Nodes: added the option to inizialize at startup or not.<br/>
+**Version 2.2.5** - October 2023
 
-**Version 2.2.5** - October 2023<br/>
+- Fixed missing Hue event updates and refreshed KNX Device settings.
 
-- Fix: fixed some HUE nodes not able to register to the event notification service.<br/>
-- Restyle GUI of KNX Device node.<br/>
+**Version 2.2.4** - October 2023
 
-**Version 2.2.4** - October 2023<br/>
+- Improved Hue Light status updates and bridge communication.
 
-- HUE Light: fixed some status hiccups and better handling of async hue bridge functions.<br/>
+**Version 2.2.3** - October 2023
 
-**Version 2.2.3** - October 2023<br/>
+- Improved Hue dimming.
 
-- HUE Light: Again, rewrite of the DIM function to get rid of the dimming_delta.<br/>
+**Version 2.2.2** - October 2023
 
-**Version 2.2.2** - October 2023<br/>
+- Hue Motion supports camera motion events. Fixed light-group dimming and improved help.
 
-- NEW: HUE Motion: support HUE Camera motion events via the HUE Motion node.<br/>
-- HUE Light: some tweaking to the GUI.<br/> - HUE Grouped Light: Fixed relative dimming function.<br/> - KNK Alerter node: <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleAlerter">fixed the wiki sample page</a>.<br/> - KNX Viewer: added the help pane in Node-Red.<br/>
+**Version 2.2.1** - October 2023
 
-**Version 2.2.1** - October 2023<br/>
+- Added Hue dimming speed and brightness limits, with startup status reading.
+- Fixed a security vulnerability.
 
-- Massive rewrite of the DIM function, for brightness and for color temperature.<br/>
-- NEW: HUE Light: Added dimming speed, minimum dim value and maximum dim value.<br/>
-- NEW: HUE Light: Read of the lamp status at node-red start and after deploy of a new node.<br/>
-- Security fix: patched a vulnerability in crypto.js.<br/>
+**Version 2.1.63** - October 2023
 
-**Version 2.1.63** - October 2023<br/>
+- Improved the Hue colour-selection screen.
 
-- HUE Light: optimized the GUI in select color TAB.<br/>
+**Version 2.1.62** - October 2023
 
-**Version 2.1.62** - October 2023<br/>
+- Fixed Hue lights not switching on when a preset RGB colour was selected.
 
-- HUE Light: FIX: a typo error could prevent the light to switch on, if the light was set to specified RGB color at switch on.<br/>
+**Version 2.1.61** - October 2023
 
-**Version 2.1.61** - October 2023<br/>
+- Added a Hue colour picker in the editor sidebar, also useful for light groups.
 
-- HUE Light: NEW color picker. A Color picker is shown in the right TABS of node-red, as soon as you open the light node. You can choose the color you want, and paste the RGB color into the HUE light node.<br/>
-- HUE Light: the color getter is now not shown, whenever you select a grouped light. You can use the color picker instead.<br/>
+**Version 2.1.58** - October 2023
 
-**Version 2.1.58** - October 2023<br/>
+- Hue Light can copy the current lamp colour into its settings.
 
-- HUE Light: NEW color getter. Just click a button to automatically fill the node's "color" properties<br/>
+**Version 2.1.57** - October 2023
 
-**Version 2.1.57** - October 2023<br/>
+- Added Hue brightness-status options and remembered brightness after switch-off.
 
-- HUE Light: NEW Behaviour "KNX Brightness Status"<br/>
-- HUE Light: the light now remembers the last brightness value after switch off<br/>
+**Version 2.1.56** - October 2023
 
-**Version 2.1.56** - October 2023<br/>
+- Removed the invalid Hue scene number zero.
 
-- HUE Scene: removed non existant scene 0.<br/>
+**Version 2.1.54** - October 2023
 
-**Version 2.1.54** - October 2023<br/>
+- Hue Scene supports KNX scene buttons using datapoint 18.001.
 
-- HUE Scene: NEW: you can now use also the Datapoint 18.001, to recall a scene via a KNX scene pushbutton.<br/>
+**Version 2.1.52** - October 2023
 
-**Version 2.1.52** - October 2023<br/>
+- Fixed Hue brightness when switching on.
 
-- HUE Light node: fixed another possible switch on brightness issue.<br/>
+**Version 2.1.51** - October 2023
 
-**Version 2.1.51** - October 2023<br/>
+- Fixed Hue brightness when switching on.
 
-- HUE Light node: fixed a possible switch on brightness issue.<br/>
+**Version 2.1.50** - October 2023
 
-**Version 2.1.50** - October 2023<br/>
+- Corrected oversized text in KNX Viewer custom displays.
 
-- KNXUltimateViewer node: fixed too large text in custom template..<br/>
+**Version 2.1.47** - September 2023
 
-**Version 2.1.47** - September 2023<br/>
+- Fixed handling of multiple Hue Bridges.
 
-- HUE BRIDGE: fixed multiple HUE bridge handling.<br/>
+**Version 2.1.46** - September 2023
 
-**Version 2.1.46** - September 2023<br/>
+- Hue Bridge can fall back to unencrypted HTTP if its HTTPS connection fails.
 
-- HUE BRIDGE: In case of https problems (certificate expired, etc...), the node will try to connect to the HUE BRIDGE in insecure http mode.<br/>
+**Version 2.1.45** - August 2023
 
-**Version 2.1.45** - August 2023<br/>
+- Fixed KNX brightness feedback when using the Hue app and improved handling of unreachable bridges.
 
-- HUE Light: now it correctly sets the KNX brightness if you turn on/off the light via HUE app.<br/>
-- Fix a resource occupation while connecting to the HUE bridge and the bridge is not reachable for the first time.<br/>
+**Version 2.1.43** - August 2023
 
-**Version 2.1.43** - August 2023<br/>
+- Reorganised Hue behaviour settings and fixed conflicting colour options.
 
-- HUE Light: Moved some options to the "Behaviour" tab and fixed a race condition in the color setting, when some options are in conflict each other.<br/>
+**Version 2.1.42** - August 2023
 
-**Version 2.1.42** - August 2023<br/>
+- Fixed Hue device names with some Node.js versions.
 
-- Fixed some issues in getting the hue device's names, when using some non LTS versions of node.js.<br/>
+**Version 2.1.41** - August 2023
 
-**Version 2.1.41** - August 2023<br/>
+- Hue Light can control all grouped lights together.
+- Improved colour-temperature control and linked on/off brightness.
 
-- NEW: HUE Light: you can now control ALL GROUPED LIGHT together.<br/>
-- HUE Light: fixed an issue with the "Link brightness to on/off switch" option, when a json color is selected at daylight or nighttime<br/>
-- HUE Light: New: now you can use both DPT 5.001 and 3.007 in the color temperature, at the same time.<br/>
+**Version 2.1.40** - August 2023
 
-**Version 2.1.40** - August 2023<br/>
+- Fixed Hue colour cycling not stopping when requested.
 
-- HUE Light: Bugfix: color cycle continues to cycle color, even if a FALSE is sent from the group address.<br/>
+**Version 2.1.39** - August 2023
 
-**Version 2.1.39** - August 2023<br/>
+- Added percentage-based Hue colour-temperature control and settings that adapt to lamp capabilities.
+- Corrected flow message topics and delayed Hue startup status reading until devices are ready.
 
-- KNX-Ultimate Node: fixed an issue with the msg.topic sent to the flow.<br/>
-- NEW: HUE Light: now you can set the color temperature, using datapoint 5.001 as well.<br/>
-- NEW: HUE Light: the node will now disable parts of the UI, based on the capabilities of the HUE lamp.<br/>
-- HUE nodes now wait 15 seconds before getting status and updating KNX devices, after node-red restart. <br/>
+**Version 2.1.38** - August 2023
 
-**Version 2.1.38** - August 2023<br/>
+- Improved Hue event updates and diagnostic logging.
 
-- Strenghten HUE eventsource resiliency.<br/>
-- Implemented standard logging on all HUE nodes (there was temporary console.log statements).<br/>
+**Version 2.1.37** - July 2023
 
-**Version 2.1.37** - July 2023<br/>
+- Load Control can be forced to shed or restore loads through flow messages.
 
-- Load control: added msg.shedding to force shed/unshed.<br/>
+**Version 2.1.36** - July 2023
 
-**Version 2.1.36** - July 2023<br/>
+- Fixed Hue updates stopping after a long idle period.
 
-- HUE Server bugfix: in some cases, the eventsource lost the connection while in idle for more than 15 minutes; fixed.<br/>
+**Version 2.1.35** - July 2023
 
-**Version 2.1.35** - July 2023<br/>
+- Added video examples to Hue node settings.
 
-- Maintenance release. Added a youtube link with samples, into every HUE node configuration's window.<br/>
+**Version 2.1.34** - July 2023
 
-**Version 2.1.34** - July 2023<br/>
+- Added Hue light-group support, fixed Tap Dial percentages and reduced bridge traffic.
 
-- NEW: Hue light node now supports the grouped lights.<br/>
-- Tap Dial node: fixed an issue with datapoint 5.001.<br/>
-- Full rewrite of the HUE engine, to reduce the http traffic with the HUE Bridge as much as possible.<br/>
+**Version 2.1.33** - July 2023
 
-**Version 2.1.33** - July 2023<br/>
+- Fixed Hue lights that do not report their supported colour range.
 
-- HUE Light: fix for lights not supporting GAMUT.<br/>
+**Version 2.1.32** - July 2023
 
-**Version 2.1.32** - July 2023<br/>
+- New Hue Battery Sensor reports device battery levels. Sensors now read their values at startup.
 
-- NEW: Hue Battery Sensor: you can now get the battery level of all your battery powered HUE devices.<br/>
-- The sensors now read the value at startup.<br/>
-- Minor fixes.<br/>
+**Version 2.1.31** - July 2023
 
-**Version 2.1.31** - July 2023<br/>
+- Fixed the datapoint used for Hue colour cycling.
 
-- FIX: HUE Light: fixed wrong datapoint in the color cycle effect.<br/>
+**Version 2.1.29** - July 2023
 
-**Version 2.1.29** - July 2023<br/>
+- Fixed unwanted KNX switch-on feedback caused by very low Hue brightness reports.
 
-- FIX: HUE Light: fixed an issue involving brightness. The HUE HUB, randomly, sends a 0.39 dimming value as hue status. This cause an ON telegram to be sent to the KNX bus.<br/>
+**Version 2.1.28** - July 2023
 
-**Version 2.1.28** - July 2023<br/>
+- Fixed Hue dimming behaviour.
 
-- HUE Light: fixed DIM behaviour.<br/>
+**Version 2.1.27** - July 2023
 
-**Version 2.1.27** - July 2023<br/>
+- Simplified settings and moved more help into Node-RED.
 
-- Trashed some old unuseful code and status options.<br/>
-- Keep moving help to the help box of node-red.<br/>
+**Version 2.1.26** - July 2023
 
-**Version 2.1.26** - July 2023<br/>
+- Fixed Hue brightness feedback.
 
-- Hue Light: fixed brightness states issue.<br/>
+**Version 2.1.25** - July 2023
 
-**Version 2.1.25** - July 2023<br/>
+- Added an option to update KNX brightness feedback when a Hue light switches on or off.
 
-- Hue Light: added the option to update the KNX Brightness status when turn on/off the HUE light.<br/>
+**Version 2.1.24** - July 2023
 
-**Version 2.1.24** - July 2023<br/>
+- Fixed KNX on/off feedback when no Hue brightness address is configured. Use the RBE filter to suppress duplicate values.
 
-- Hue Light: fix brightness not sending true/false to the KNX switch status, if no brightness GA present. Set the RBE filter on that.<br/>
+**Version 2.1.23** - July 2023
 
-**Version 2.1.23** - July 2023<br/>
+- Hue brightness changes now update KNX on/off feedback by default.
 
-- Hue Light: Update KNX Switch Status on HUE brighness change, now is the default.<br/>
+**Version 2.1.22** - July 2023
 
-**Version 2.1.22** - July 2023<br/>
+- Hue switch-on settings can be used without enabling night lighting.
 
-- NEW: Hue Light: UI optimization and allow to set the switch on light, even it Night Lighting is unselected.<br/>
+**Version 2.1.20** - July 2023
 
-**Version 2.1.20** - July 2023<br/>
+- Added optional Hue day/night behaviour and a dedicated behaviour settings tab.
 
-- NEW: Hue Light: you can choose to enable/disable the day/night behaviour.<br/>
-- NEW: Hue Light: you can now choose some options in the new Behaviours configuration tab.<br/>
+**Version 2.1.19** - July 2023
 
-**Version 2.1.19** - July 2023<br/>
+- Improved Hue Light and Button nodes.
 
-- Hue light and Hue button optimization.<br/>
+**Version 2.1.18** - July 2023
 
-**Version 2.1.18** - July 2023<br/>
+- Fixed compatibility with MDT and Weinzierl interfaces.
 
-- Quick fix for MDT and Wienzler interfaces.<br/>
+**Version 2.1.17** - July 2023
 
-**Version 2.1.17** - July 2023<br/>
+- Refreshed KNX Device settings, added Hue day/night inversion and clearer node statuses.
 
-- Revamped UI of KNX-Ultimate device node.<br/>
-- HUE light: added "invert" option to the Day/Night sensor.<br/>
-- More verbose status for all nodes.<br/>
+**Version 2.1.16** - June 2023
 
-**Version 2.1.16** - June 2023<br/>
+- New Hue Scene node recalls Hue scenes. Added initial KNX Virtual compatibility and improved help.
+- **Upgrade notice:** gateway emulation mode was removed.
 
-- NEW: Hue scene. You can now call a HUE scene.<br/>
-- Bump dependencies versions.<br/>
-- Increased TTL of dgram socket, from 128 to 250.<br/>
-- Set max hop count in tunneling/broadcast, from 6 to 7.<br/>
-- Enabled compatibility with KNX Virtual (BETA).<br/>
-- Continue migrating the Help from gitHub to the standard Node-Red help box. You could find some discrepancies in help text. Sorry for that.<br/>
-- **BREAKING CHANGE\*** removed the emulation capability, because it's a complicated thing to mantain. If you don't know what it is, just don't care about that.<br/>
+**Version 2.1.15** - June 2023
 
-**Version 2.1.15** - June 2023<br/>
+- Fixed setup of unpaired Hue Bridges. Enter the bridge IP address before clicking Connect.
 
-- Fix an issue with auto discovery of not registered HUE bridges. Now you must first set the IP, then click CONNECT.<br/>
+**Version 2.1.14** - June 2023
 
-**Version 2.1.14** - June 2023<br/>
+- Added Hue day/night lighting behaviour.
 
-- Hue Light node: added day/night behaviour.<br/>
+**Version 2.1.13** - June 2023
 
-**Version 2.1.13** - June 2023<br/>
+- Corrected Hue colour-temperature feedback and brightness values on switch-on/off.
 
-- Hue Light node: fixed inversion in the color temp state.<br/>
-- Hue Light node: switching on/off the light, now sets the DIM to 100%/0% as well.<br/>
+**Version 2.1.12** - June 2023
 
-**Version 2.1.12** - June 2023<br/>
+- Added Hue tunable-white control.
 
-- Hue Light node: added tunable white.<br/>
+**Version 2.1.11** - June 2023
 
-**Version 2.1.11** - June 2023<br/>
+- Global Context lets you choose where values are stored.
 
-- KNX Global Context node: added the optional datastore to choose from.<br/>
+**Version 2.1.10** - June 2023
 
-**Version 2.1.10** - June 2023<br/>
+- Moved gateway help into Node-RED and updated the KNX communication software.
 
-- KNX Gateway Node: Migrated documentation to the standard node-red documentation box.<br/>
-- KNXUltimate engine is now part of the published package https://www.npmjs.com/package/knxultimate.<br/>
+**Version 2.1.9** - June 2023
 
-**Version 2.1.9** - June 2023<br/>
+- Started moving help into Node-RED's help panel.
 
-- Start migrating documentation to the standard node-red documentation box.<br/>
+**Version 2.1.8** - June 2023
 
-**Version 2.1.8** - June 2023<br/>
+- Improved Hue event updates.
 
-- HUE event stream reader revamped.<br/>
+**Version 2.1.7** - June 2023
 
-**Version 2.1.7** - June 2023<br/>
+- Fixed node status display for dimming, colour and other combined values.
 
-- KNX nodes not correctly show status of JSON objects (like dimming, color, etc.).<br/>
+**Version 2.1.6** - June 2023
 
-**Version 2.1.6** - June 2023<br/>
+- Fixed Hue colour-range handling.
 
-- Several fixes for reading the correct GAMUT color.<br/>
+**Version 2.1.4** - June 2023
 
-**Version 2.1.4** - June 2023<br/>
+- Added Hue random colour cycling and fixed node shutdown issues.
 
-- NEW: Hue light node: added random color cycle effect group address.<br/>
-- Fixed destroying KNX nodes.<br/>
-- Fixed destroying HUE nodes.<br/>
-- Several HUE bugfixes.<br/>
+**Version 2.1.3** - June 2023
 
-**Version 2.1.3** - June 2023<br/>
+- Bug fix.
 
-- Bugfix.<br/>
+**Version 2.1.2** - June 2023
 
-**Version 2.1.2** - June 2023<br/>
+- Added Hue blinking control.
 
-- NEW: Hue Hue Light node, added BLINK option.<br/>
+**Version 2.1.1** - June 2023
 
-**Version 2.1.1** - June 2023<br/>
+- Hue Tap Dial can send random KNX colours when configured for colour control.
 
-- NEW: Hue Tap Dial node: setting a color datapoint(232.600), the rotary dial will send a random color to the KNX group address.<br/>
+**Version 2.1.0** - June 2023
 
-**Version 2.1.0** - June 2023<br/>
+- Hue integration is no longer beta.
 
-- HUE nodes exited the BETA version. You can now start using HUE nodes.<br/>
+**Version 2.0.21** - June 2023
 
-**Version 2.0.21** - June 2023<br/>
+- Improved Hue event updates and icons. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Revamped hue clipv2 push event client.<br/>
-- New service icons.<br/>
+**Version 2.0.20** - June 2023
 
-**Version 2.0.20** - June 2023<br/>
+- Fixed errors when no Hue Bridges are present. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Fixed API issue, when no HUE bridges present.<br/>
+**Version 2.0.19** - June 2023
 
-**Version 2.0.19** - June 2023<br/>
+- Fixed initial Hue light status. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Fixed reading initial state of hue lamps.<br/>
+**Version 2.0.18** - June 2023
 
-**Version 2.0.18** - June 2023<br/>
+- Adjusted Hue command speed. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Fixed HUE telegram speed, according to the HUE Api V2 recommendation.<br/>
+**Version 2.0.17** - June 2023
 
-**Version 2.0.17** - June 2023<br/>
+- Fixed status reading when creating a Hue light node. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Fixed issues with async call to getlightstate aas soon as the light node is created.<br/>
+**Version 2.0.16** - June 2023
 
-**Version 2.0.16** - June 2023<br/>
+- Fixed Hue Button and Tap Dial dimming. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Fixed issues with dimming in the hue button and hue tap dial nodes.<br/>
+**Version 2.0.15** - June 2023
 
-**Version 2.0.15** - June 2023<br/>
+- Added a Hue temperature sensor and adjusted light behaviour. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- NEW: Temperature sensor.<br/>
-- Changes to HUE Light node, to mime the ISE KNX CONNECT HUE beavior.<br/>
+**Version 2.0.13** - June 2023
 
-**Version 2.0.13** - June 2023<br/>
+- Fixed missing Hue Button output events. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION POSSIBLE BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Hue Button node: fixed missing events in output msg.<br/>
+**Version 2.0.12** - June 2023
 
-**Version 2.0.12** - June 2023<br/>
+- Added a Hue light-level sensor. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- NEW: Hue light sensor node.<br/>
+**Version 2.0.11** - June 2023
 
-**Version 2.0.11** - June 2023<br/>
+- Fixed Hue Button saved settings and removed the unsupported Double Tap option. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Hotfix for Hue Button node, not retain property in config window.<br/>
-- Removed "Double Tap" event, because it doesn't exists yet.<br/>
+**Version 2.0.10** - June 2023
 
-**Version 2.0.10** - June 2023<br/>
+- Redesigned Hue Button and fixed other Hue nodes. Hue remains beta; existing configurations may need changes.
 
-- HUE: CAUTION BREAKING CHANGES TO THE HUE NODES. PLEASE BE AWARE THAT HUE NODES ARE STILL IN BETA<br/>
-- Hue Button node redesign.<br/>
-- Other hue nodes fixes<br/>
+**Version 2.0.9** - June 2023
 
-**Version 2.0.9** - June 2023<br/>
+- Added Hue Motion and Tap Dial nodes.
 
-- NEW: HUE Motion node<br/>
-- NEW: HUE Tap Dial node<br/>
+**Version 2.0.7** - June 2023
 
-**Version 2.0.7** - June 2023<br/>
+- Hue Button has a flow output and a simplified message option.
 
-- HUE Button node: added an output PIN<br/>
-- HUE Button node: added an option to emit a simplified msg
+**Version 2.0.6** - June 2023
 
-**Version 2.0.6** - June 2023<br/>
+- Added Hue Button. Hue integration is beta.
+- Expanded Node-RED help.
 
-- NEW: HUE Button node. All HUE integrations are in BETA.<br/>
-- Slowly integrating the help in the node-red help section.<br/>
+**Version 2.0.1** - June 2023
 
-**Version 2.0.1** - June 2023<br/>
+- Added more KNX group-address mappings to Hue Light.
 
-- NEW: more KNX group addresses in the HUE Light node<br/>
+**Version 2.0.0** - June 2023
 
-**Version 2.0.0** - June 2023<br/>
+- Added the Hue Light node.
+- Global Context names now accept letters only. The interface moves to English-only for this release.
 
-- NEW Added HUE Light node. More HUE nodes to come. Please feel free to try it.<br/>
-- Global context node: in the node name, only chas a-z are now allowed, to overcome syntax errors.<br/>
-- As i spend 50% of my time to translate all documentation and node texts to 4 languages, i'll leave only English as main language, so you will see the UI only in English.<br/>
+**Version 1.4.18** - Mai 2023
 
-**Version 1.4.18** - Mai 2023<br/>
+- ETS imports can use a file path instead of pasted content.
 
-- NEW: Gateway Config Node: Starting from version 1.4.18, you can also simply enter the path to the ETS exported file (e.g.: /home/pi/mycsv.csv), instead of pasting it's content.<br/>
+**Version 1.4.16** - Mai 2023
 
-**Version 1.4.16** - Mai 2023<br/>
+- Fixed using multiple Global Context nodes.
 
-- FIX: fixed an issue when you have more than one Global Variable node.<br/>
+**Version 1.4.15** - March 2023
 
-**Version 1.4.15** - March 2023<br/>
+- Fixed international characters in ETS ESF imports and added tariff datapoint 235.001.
 
-- FIX: fidex an issue with unicode chars in the ESF imported file.<br/>
-- NEW: Added Datapoint 235.001 Tariff. Please see the sample in the node window, appearing after you select the datapoint.<br/>
+**Version 1.4.14** - March 2023
 
-**Version 1.4.14** - March 2023<br/>
+- Added datapoint 29 support.
 
-- NEW: Added Datapoint 29.xxx. Please see the sample in the node window, appearing after you select the datapoint.<br/>
+**Version 1.4.13** - January 2023
 
-**Version 1.4.13** - January 2023<br/>
+- Corrected excessive decimal places in datapoint 9 values.
 
-- FIX: Fixed Datapoint 9. There was too many decimals.<br/>
+**Version 1.4.12** - January 2023
 
-**Version 1.4.12** - January 2023<br/>
+- Fixed Scene Controller.
 
-- FIX: fixed scene controller issue.<br/>
+**Version 1.4.11** - January 2023
 
-**Version 1.4.11** - January 2023<br/>
+- Fixed duplicate-value filtering after number formatting and corrected ETS ESF import.
+- Added support for Unicode text with datapoint 28.001.
 
-- FIX: fixed RBE output filter, for those Datapoints (like PPM) that doesn't follow the KNX specifications. (https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/223) and when you use the "round, multiply, etc..." payload handling option in the node configuration.<br/>
-- NEW: Added DPT28.001 UTF-8 string. Thanks @twod-davydemaegt.<br/>
-- FIX: Fixed a mistake (old one) in the ESF file import. Thanks @twod-davydemaegt.<br/>
+**Version 1.4.10** - December 2022
 
-**Version 1.4.10** - December 2022<br/>
+- Minor fixes and documentation updates.
 
-- Wellcome in: Company Can'nX from France is using KNX-Ultimate in his Kloud'nX product.<br/>
-- Minor fixes and WIKI update.<br/>
+**Version 1.4.9** - November 2022
 
-**Version 1.4.9** - November 2022<br/>
+- Global Context includes all group addresses from the ETS import.
+- Corrected help links.
 
-- NEW: GlobalContext node: If you import your ETS file, the global variable now contains ALL group addresses included in the ETS file. <br/>
-- Fixed incorrect links in the Node-Red's Help TAB for some nodes.<br/>
+**Version 1.4.8** - November 2022
 
-**Version 1.4.8** - November 2022<br/>
+- Added datapoints 13.016, 13.1200 and 13.1201.
 
-- NEW: added Datapoints 13.016, 13.1200, 13.1201.<br/>
+**Version 1.4.7** - November 2022
 
-**Version 1.4.7** - November 2022<br/>
+- Added the Griesser custom datapoint 6001.001.
 
-- NEW: added "Griesser Object" Custom Datapoint 6001.001. Thanks @croghostrider<br/>
+**Version 1.4.6** - November 2022
 
-**Version 1.4.6** - November 2022<br/>
+- Added airflow datapoint 9.009.
 
-- NEW: added Airflow Datapoint 9.009.<br/>
+**Version 1.4.5** - October 2022
 
-**Version 1.4.5** - October 2022<br/>
+- Watchdog suppresses repeated copies of the same node error.
 
-- Now the Watchdog node sends same errors from other KNX-Ultimate nodes, only once. This avoids flooding node-red flow with unnecessary messages.<br/>
+**Version 1.4.4** - October 2022
 
-**Version 1.4.4** - October 2022<br/>
+- Fixed a long-running connection problem caused by an invalid gateway address.
 
-- FIX: fixed an issue accurring when you put a wrong IP/hostname in the configuration gateway. Leaving node-red running with such wrong configuration, after a month or so, all UDP channels remain occupied until reboot. Thanks to @tarag for reporting that.<br/>
+**Version 1.4.3** - October 2022
 
-**Version 1.4.3** - October 2022<br/>
+- KNX Viewer shows clearer values and measurement units.
 
-- Changed view for JSON objects (will display the RAW value instead of the JSON) in the KNXUltimate Viewer node.<br/>
-- Added the measure unit near the payload value.<br/>
+**Version 1.4.2** - October 2022
 
-**Version 1.4.2** - October 2022<br/>
+- Added datapoint 21.001.
 
-- Added DPT 21.001.<br/>
+**Version 1.4.1** - October 2022
 
-**Version 1.4.1** - October 2022<br/>
+- Added datapoint 14.077.
+- Watchdog can update the ETS group-address list through flow messages.
 
-- Added DPT 14.077.<br/>
-- NEW: you can now set the ETS group address list at runtime, via the Watchdog Node. See here https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration the "importCSV" property of the msg.setGatewayConfig.<br/>
-- Updated the Wiki in all languages.<br/>
+**Version 1.4.0** - September 2022
 
-**Version 1.4.0** - September 2022<br/>
+- Maintenance update and corrected the flow-rate datapoint description.
 
-- Cleaned code and standardize things, thanks @croghostrider.<br/>
-- Fixed DPT 13.002 description Flow Rate in m³/h<br/>
+**Version 1.3.49** - August 2022
 
-**Version 1.3.49** - August 2022<br/>
+- Fixed name validation in KNX Viewer.
 
-- Fixed name validation in the Viewer node.<br/>
+**Version 1.3.48** - August 2022
 
-**Version 1.3.48** - August 2022<br/>
+- Improved compatibility with newer Node.js versions.
 
-- Fixed old "new Buffer" call. It's deprecated and may not work with new node.js versions.<br/>
+**Version 1.3.47** - August 2022
 
-**Version 1.3.47** - August 2022<br/>
+- Temporarily hid KNX Secure settings until support is ready.
 
-- Temporary hide KNX Secure TAB from the config window. It will appear again when KNX Secure will be ready.<br/>
+**Version 1.3.46** - July 2022
 
-**Version 1.3.46** - July 2022<br/>
+- Gateways accept hostnames as well as IP addresses, and let you choose the connection protocol.
+- Added the day/night datapoint.
 
-- NEW: Added hostname DNS resolution in Config Gateway IP. Now you can put an IP or an hostname in the IP gateway's field.<br />- NEW: Added Datapoint 1.024 Day/Night.<br />- Now the procol in the config node gateways is only suggested. You can choose the protocol by yourself.<br />
+**Version 1.3.45** - June 2022
 
-**Version 1.3.45** - June 2022<br/>
+- Duplicate-value filters can be reset through a flow message.
 
-- NEW: pass msg.resetRBE = true to a device node, to reset both input and output RBE filter on that particular node.<br />
+**Version 1.3.43** - Mai 2022
 
-**Version 1.3.43** - Mai 2022<br/>
+- Scene Controller accepts wait times in seconds, minutes or hours.
 
-- NEW: Scene Controller: you can now specity the "wait" time also in seconds, minutes or hours.<br />
+**Version 1.3.42** - Mai 2022
 
-**Version 1.3.42** - Mai 2022<br/>
+- Fixed gateway settings on small screens and network-interface detection.
 
-- Fixed an issue in the gateway config node UI. Corrected some UI spacing issues in low resolution monitor.<br />- Fixed an issue occurring in the detection of local IP in case of ETH interface without family property specified.<br />
+**Version 1.3.41** - Mai 2022
 
-**Version 1.3.41** - Mai 2022<br/>
+- Fixed manual network-interface settings and Node.js 18 compatibility.
 
-- Fixed an issue in the gateway config node UI, where you manually set the IP interface name.<br />- Fixed an issue introduced by a breaking change in Node 18.<br />- Added more "trace" log in the ipAddressHelper function, to better track the ethernet interface details.<br />
+**Version 1.3.40** - Mai 2022
 
-**Version 1.3.40** - Mai 2022<br/>
+- Global Context can find a missing datapoint from the ETS import.
 
-- Fixed an issue in the GlobalContext node, preventing the node from searching for the DPT, if the CSV ETS file has been imported and you don't specify the DPT in the msg input. Thanks to @Sebastien-Posca for pointing me out that.<br />
+**Version 1.3.39** - April 2022
 
-**Version 1.3.39** - April 2022<br/>
+- Improved KNX reconnection and handling of delayed or unacknowledged telegrams.
+- Corrected an Alerter settings label.
 
-- Fixed an empty text in the KNX Alerter config node, about the Read States at start.<br/>
-- Fixed an improperly cleaned queue in the config node close function.<br/>
-- Fixed a possible issue in case of multiple disconnection from the KNX Bus in a short timeframe.<br/>
-- Fixed sending disconnection_request with a null connection_ID, in the KNX Engine.<br/>
-- Fixed re-sending per KNX Standards, of not ACKnowledged telegrams, not always working in some circumstances.<br/>
-- Protected some function with a try-catch.<br/>
-- Now the telegram handler function stops whenever the connection is lost and restart from fresh on connection.<br />- Optimized the retain mechanism of the queue handling, in case of shorttimed disconnections.<br />
+**Version 1.3.38** - April 2022
 
-**Version 1.3.38** - April 2022<br/>
+- Reduced memory use and improved handling of large flows.
 
-- Memory footprint decreased.<br/>
-- Better handling of KNX nodes objects array, for flows with more than 250 nodes.<br/>
+**Version 1.3.37** - April 2022
 
-**Version 1.3.37** - April 2022<br/>
+- Busy KNX routers now produce a log warning instead of a disconnection.
+- Improved help for loop and overload protection.
 
-- Changed: the KNX Gateway Node don't care anymore for ROUTING_LOST_MESSAGE and ROUTING_BUSY. Previously, it was disconnecting. Now it only advises in LOG.<br/>
-- Updated and beautifullyfied the WIKI.<br/>
-- Totally rewrote the CIRCULAR REFERENCE PROTECTION and FLOOD PROTECTION wiki page, in all languages.<br/>
+**Version 1.3.36** - February 2022
 
-**Version 1.3.36** - February 2022<br/>
+- Updated and removed unused software components.
 
-- Purged unused requires and bumped dependencies versions.<br/>
+**Version 1.3.35** - March 2022
 
-**Version 1.3.35** - March 2022<br/>
+- Improved KNX disconnection handling and memory use.
+- Fixed Scene Controller statuses and number rounding.
 
-- Reset handlers by removing/adding every time the connection is set by "new" directive.<br/>
-- Fixed an issue causing glitches, when the disconnection is requested by the KNX interface instead of KNX-Ultimate.<br/>
-- Fixed an issue occurring when the disconnection is started from KNX-Ultimate by the DISCONNECT_REQUEST, but the KNX Interface fails to send the DISCONNECT_RESPONSE to confirm the disconnection.<br/>
-- Updated knxUltimate-config.js to actively disconnect and close the socket when the disconnection is requested by the KNX Interface. All other cases (disconnection by ethernet cable, disconnection by unreachable KNX Interface, disconnection by temporary out of access, disconnection by means of user intervention, disconnection by Watchdog node etc...) are not affected by this issue.<br/>
-- Optimized memory allocation to allow the garbage collector to get rid of unref variables.<br/>
-- Scene controller: fixed node status issues.<br/>
-- Load control: code revision.<br/>
-- Logger: code revision.<br/>
-- Watchdog: code revision.<br/>
-- Device node: code revision.<br/>
-- Global Context: code revision.<br/>
-- Wiki: merged Global Context node sample, into one single page for better readability.<br/>
-- FIX: fixed rounding of numbers in the device node.<br/>
+**Version 1.3.32** - February 2022
 
-**Version 1.3.32** - February 2022<br/>
+- Fixed accented characters in KNX text values.
 
-- FIX Datapoint 16.001: fixed an issue with the ISO8859-1 encoding.<br/>
+**Version 1.3.31** - February 2022
 
-**Version 1.3.31** - February 2022<br/>
+- KNX Viewer sorts values by group address and adds an output with the complete address list.
 
-- KNX Viewer node: now the payload is formatted depending on value type.<br/>
-- KNX Viewer node: now the list is ordered by group address.<br/>
-- KNX Viewer node: added a second output pin, that emits an Array containing all group addresses.<br/>
+**Version 1.3.30** - February 2022
 
-**Version 1.3.30** - February 2022<br/>
+- KNX Viewer shows dates and times in local format.
 
-- KNX Viewer node: changed the Datetime display to local time format.<br/>
+**Version 1.3.29** - February 2022
 
-**Version 1.3.29** - February 2022<br/>
+- Fixed Load Control timing and added a warning before loads are switched off.
 
-- Load Control: the timer for shedding won't everytime obey to what you've set. Fixed. <br/>
-- Load Control: Added pre-shedding yellow warning message in the node status.<br/>
+**Version 1.3.28** - February 2022
 
-**Version 1.3.28** - February 2022<br/>
+- New KNX Viewer displays group addresses and values in a dashboard.
 
-- NEW: KNX Viewer: this node allow you to see all datapints and values in a dashboard wirget. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer<br/>
+**Version 1.3.27** - February 2022
 
-**Version 1.3.27** - February 2022<br/>
+- Load Control can request power readings when the meter does not send updates automatically.
 
-- Load Control: minor fixes + issue a KNX read of Watt values, in case the GA doesn't automatically send a power value on change.<br/>
+**Version 1.3.26** - February 2022
 
-**Version 1.3.26** - February 2022<br/>
+- Fixed a crash in gateway emulation mode.
 
-- FIX: fix a crash occurring it the KNX Gateway is set to "emulate" (that means, don't write to the bus).<br/>
+**Version 1.3.25** - February 2022
 
-**Version 1.3.25** - February 2022<br/>
+- Corrected Load Control's power unit and added clearer output information.
 
-- FIX: Load Control: measure unit was Wh. Corrected in W. Thank @Mauro of VivereSmart Facebook group https://www.facebook.com/groups/viveresmart<br/>
-- Load Control: Added more info to the output message. Updated the online help.<br/>
+**Version 1.3.24** - February 2022
 
-**Version 1.3.24** - February 2022<br/>
+- New Load Control switches off selected loads when power use exceeds your limit.
+- Fixed Alerter address checks and unnecessary startup reads.
 
-- NEW: Load Control node: switch off your device if you're exceeding the Watt limit of your house.<br/>
-- FIX: Alerter Node: fixed a KNX Address verification, in case you wrote your own string instead of a GA.<br/>
-- FIX: Alerter Node: the node was sending a "read" request to all group addresses at start. Fixed.<br/>
+**Version 1.3.22** - February 2022
 
-**Version 1.3.22** - February 2022<br/>
+- Fixed some undecoded values not being sent to KNX.
 
-- FIX: WriteRaw: some values wasn't sent to the bus due to an hex conversion issue.<br/>
+**Version 1.3.21** - January 2022
 
-**Version 1.3.21** - January 2022<br/>
+- Fixed KNX Logger recording.
 
-- FIX: Node Logger wasn't correclty logging the bus traffic. Fixed.<br/>
+**Version 1.3.20** - January 2022
 
-**Version 1.3.20** - January 2022<br/>
+- KNX commands can be held during a temporary disconnection and sent after reconnection.
 
-- NEW: Telegram out queue TTL: as soon as KNX-Ultimate detects a connection loss, it will retain the telegrams sent to the BUS during the disconnection. After the reconnection, KNX-Ultimate will send the retained queue.<br/>
+**Version 1.3.19** - January 2022
 
-**Version 1.3.19** - January 2022<br/>
+- Added pressure datapoint 14.058 and clearer disconnection messages.
 
-- NEW: Added Datapoint 14.058 Pressure (Pa).<br/>
-- Added some more description while disconnecting from the BUS.<br/>
+**Version 1.3.18** - January 2022
 
-**Version 1.3.18** - January 2022<br/>
+- Scene Controller works without configured Recall and Save group addresses.
 
-- FIX: Scene Controller: fixed an issue preventing the node to work if you haven't set the RECALL and SAVE group addresses.<br/>
-- WIKI: updated the samples in the scene controller node.<br/>
+**Version 1.3.16** - January 2022
 
-**Version 1.3.16** - January 2022<br/>
+- Invalid telegrams no longer cause a KNX disconnection.
+- KNX Secure is not yet supported in this release.
 
-- KNXEngine: there are some weird KNX gateways out there, either sending malformed header or CEMI messages. Now KNX-Ultimate will simply ignore these bad messages. Prior, it was disconnecting.<br/>
-- KNXEngine: KNX-Secure packets are silently discarded for now, until KNX Secure will be ready.<br/>
-- KNXEngine: added more logs to for troubleshooting pourposes.<br/>
+**Version 1.3.15** - January 2022
 
-**Version 1.3.15** - January 2022<br/>
+- Improved disconnection handling with older KNX/IP interfaces. KNX Secure remains unavailable.
 
-- KNXEngine: better handling of disconnection in UDP mode, allowing very old grandpa KNX/IP interfaces enough time to understand what's happening, avoiding it to go crazy.<br/>
-- KNXEngine: corrected Curve Crypto in KNX-Secure (KNX Secure is not enabled yet!).<br/>
+**Version 1.3.14** - 26 December 2021
 
-**Version 1.3.14** - 26 December 2021<br/>
+- Improved telegram retries and handling of busy KNX routers.
 
-- KNXEngine: ACK management: the not acknowledged message will be re-transmitted once, then the connection will be dropped, as per KNX specs.<br/>
-- KNXEngine: ACK management: the telegram's queue to be sent to the KNX BUS will be paused during the ACK waiting.<br/>
-- KNXEngine: Routing: now the routing_busy and routing_lost_messages telegrams sent by the KNX/IP Router are handled.<br/>
+**Version 1.3.13** - 25 December 2021
 
-**Version 1.3.13** - 25 December 2021<br/>
+- Improved connection checks.
+- If acknowledgement requests are disabled, use Watchdog to detect disconnections and reconnect.
 
-- KNXEngine: when in tunneling and suppress ACK request is disabled, the error is raised only after 3° failed ACK reception instead of 1°.<br/>
-- KNXEngine: at disconnection, delete all pending ACK requests timer.<br/>
-- Warning: if you've suppressed the ACK requests, in some cases the node cannot detect the disconnection. In this case, please use the KNX Watchdog to detect the disconnecitons and reconnect.<br/>
+**Version 1.3.12** - December 2021
 
-**Version 1.3.12** - December 2021<br/>
+- Added group-address validation, including addresses up to 31/7/255.
 
-- KNX-Ultimate DEVICE node: added the validation of Group Address while deploy, with support for modern addressing up to 31/7/255.<br/>
+**Version 1.3.10** - December 2021
 
-**Version 1.3.10** - December 2021<br/>
+- Fixed unexpected disconnections and improved diagnostic messages.
 
-- FIX: fixed a stupid "Disconnected by Message length mismatch 8/16" error due to a dumb find/replace error in the code.<br/>
-- Added some more log to help resolving issues.<br/>
+**Version 1.3.5 (withdrawn)** - December 2021
 
-**Version 1.3.5 - REMOVED FROM REPO due to "Disconnected by Message length mismatch 8/16" error** - December 2021<br/>
+- Updated the KNX communication software. This release was withdrawn because of a disconnection error.
 
-- New KNX Engine has been enabled again, after fixing some glitches.<br/>
+**Version 1.3.4** - December 2021
 
-**Version 1.3.4** - December 2021<br/>
+- Temporarily restored the previous KNX communication software to resolve issues.
 
-- Temporary reverted to old API, due to some little glitches.<br/>
+**Version 1.3.2** - December 2021
 
-**Version 1.3.2** - December 2021<br/>
+- Added a button to collect diagnostic information for support requests.
 
-- NEW: config node: you can now gather debug info (there is a button for that) to be sent to the developer to help resolving your issue. Then, please paste the debug infos in your gitHub issue.<br/>
+**Version 1.3.1** - December 2021
 
-**Version 1.3.1** - December 2021<br/>
----- MAJOR VERSION WITH TOTALLY REWRITTEN KNX API, IN PURE JAVASCRIPT ----<br/>
----- IF YOU ENCOUNTER ISSUES, JUST INSTALL THE LAST OLD VERSION WITH: npm install node-red-contrib-knx-ultimate@1.2.57 ----<br/>
----- PLEASE BE AWARE THAT ALL PREVIOULSY KNX SECURE OPTIONS HAVE BEEN HIDDEN UNTIL READY TO BE RELEASED, TO AVOID CONFUSIONS ----<br/>
+- Replaced the KNX communication software and improved connection settings.
+- Logger records sent as well as received telegrams. Fixed replies and settings with multiple gateways.
+- KNX Secure settings are hidden until support is ready.
+- **If this update causes connection problems:** return to version 1.2.57.
 
-- KNX-Secure: not ready yet. I think not before the 1° quarter of 2022 because i'm learning the MANY cryptograhics algorithms of this Secure thing. Already done are the loading/checking against password of the ETS Keyring file, the new TCP stack (will come toghether with the already present UDP stack) and the first connection handshake between KNX-Ultimate and a KNX/IP Interface via TCP tunnel, using the DH Curve25519 algorythm. SOMEONE INTERESTED HELPING ME WITH THE DEVELOPMENT (FOR FREE)?<br/>
-- NEW: new KNX API developed in these months. This new API is more speedy, more mantainable (get rid of the old "machina" framework) and ready to accomodate the natively supports KNX-Secure.<br/>
-- NEW: ETS Logger: now the node logs the sent packets as well (previously, it was recording only the received ones).<br/>
-- NEW: KNX-Ultimate now supports TCP connection as well (for KNX Secure tunneling). All protocols are now supported (UDP Routing and Tunneling, TCP).<br/>
-- NEW: You can now choose the IP protocol to be used for the gateway.<br/>
-- NEW: WatchDog node: You can now set the communication protocol (TunnelingUDP, Multicast) using msg.setGatewayConfig.Protocol. Updated the Wiki as well to reflect the change.<br/>
-- FIX: Watchdog node's setConfig sat the wrong configuration in case of more than one node gateway simultaneously active on the same flow.<br/>
-- FIX: Manually setting interface in a gateway node set to multicast address, resulting in the gateway bond to all interfaces, causing some issues in receiving datagrams on systems having more than one ethernet interface active at the same time.<br/>
-- FIX: KNX-Device: if the node was set to react to "Read" requests and "Autorespond" was also enabled and "Autorespond with default value if no payload is present" was also active, in some circumstances the "response" telegram was sent to a wrong group address.<br/>
-- FIX: Config gateway: the custom delay between Telegrams sent to the KNX BUS was locked to the safe mimimum of 40ms, even if you sat a lower value. Now is 30ms, but proceed with caution if you set a low value. 50ms should be the safe-default.<br/>
-- FIX: Config gateway: suppress acknowledge telegram now work as expected, totally ignoring received Acknowledges and don't ask for any as well. Prior was only ignoring the received Acknowledges.<br/>
+**Version 1.2.57** - November 2021
 
-**Version 1.2.57** - November 2021<br/>
+- Added time-counter and liquid-volume datapoints.
 
-- Added following datapoints:<br/>
-- 12.100 counter timesec (s)<br/>
-- 12.101 counter timemin (min)<br/>
-- 12.102 counter timehrs (h)<br/>
-- 12.1200 volume liquid (l)<br/>
+**Version 1.2.56** - November 2021
 
-**Version 1.2.56** - November 2021<br/>
+- Restored local telegram feedback in tunnelling mode.
 
-- FIX: hotfix echo in tunneling mode doesn't work since 1.2.55.<br/>
+**Version 1.2.55** - November 2021
 
-**Version 1.2.55** - November 2021<br/>
+- Improved gateway performance and added keyring reading and indicators in preparation for KNX Secure.
 
-- Gateway servere node: recoding of some javascript parts, to increase speed to better accomodate the crypt/entrypt process of the upcoming KNX-Secure implementation.<br/>
-- KNX-Secure: succesfully read ETS Keyring file and decrypt of Devices keys, Group Address keys, Backbone Key, Management Key and Auth Key.<br/>
-- KNX-Secure: a shield icon near the Gateway name in the KNX Device node appears, if KNX-Secure gateway has been selected.<br/>
-- KNX-Secure: node-red log now logs wether the gateway is secure or not, ETS Keyring project name, created By and ETS version.<br/>
+**Version 1.2.54** - November 2021
 
-**Version 1.2.54** - November 2021<br/>
+- Improved KNX startup, reconnection and large-installation handling.
+- Added an optional startup connection delay and clearer gateway status. Logging settings no longer require a restart.
+- **If this update causes connection problems:** return to version 1.2.53.
 
-- <font color="red">THIS VERSION TOUCHES MANY CONNECTIVITY POINTS.</font> It should handle all things better, but if you've trouble, you can always revert to the previous version by issuing **npm install node-red-contrib-knx-ultimate@1.2.53**<br/>
-- Tunneling/Routing connection optimization: standardized delay in CONNECT_RESPONSE timeout and cleaned some code to better handling installations with more than 500 group addresses.<br/>
-- In tunneling mode, the node now signal the disconnection after 3 KNX Interface's connection state response failed, as per KNX standard.<br/>
-- Increased the socket telegram TTL (Time to Live) for Multicast as well as for Unicast, from 16 to 128 for better handling of multirouted packets.<br/>
-- Added "[THE GATEWAY NODE HAS BEEN DISABLED]" node status message, if you've disabled the KNX Gateway.<br/>
-- NEW: you can now choose to delay the connection to the KNX BUS at start. In some circumstances it's advisable to delay the connection to the BUS to allow the ethernet cards to be lifted up by the sysop. Thi happens often in VM environments.<br/>
-- Changing the log level in the Gateway node doesn't require a node-red restart anymore.<br/>
-- Because i'm flooded by user's queries, i removed a warning from the node status, if the persitent file has not yet been created.<br/>
-- Wait for message acknowledge by the IP router: now waits for 5 failed message ACKs before firing the disconnection sequence.<br/>
-- FIX: fixed a false "disconnection" node status, due to a glitch in the KNX API (after a connection request, the API was sending a false "disconnection" status). Chiamati in causa anche tutti i Santi, prima.<br/>
-- Fixed some check-connection timers not stopping in time.<br/>
-- Speed up the first KNX connection after node-red start/restart/deploy.<br/>
-- Speed up the reconnection attempts in case of disconnections.<br/>
+**Version 1.2.53** - November 2021
 
-**Version 1.2.53** - November 2021<br/>
+- New nodes can read their initial KNX value after a partial Deploy.
 
-- Device node: as soon as you add a new node with "read from bus at start" option enabeld, it requests the value from the BUS also if you DEPLOY "modified nodes" only. Prior to that, you had to do a full DEPLOY.<br/>
+**Version 1.2.52** - October 2021
 
-**Version 1.2.52** - October 2021<br/>
+- Corrected KNX Logger defaults.
 
-- KNX Logger node: fixed some default fields.<br/>
+**Version 1.2.51** - October 2021
 
-**Version 1.2.51** - October 2021<br/>
+- KNX Logger can count telegrams over a chosen time interval.
+- Fixed Sunday handling in time values and improved diagnostics.
 
-- NEW: Logger node: you can now count telegrams per second (or any interval you want), for statistic pourposes. Thank @RicharddeCrep for proposing this ehnancement.<br/>
-- WIKI: Updated the wiki in Deutsch, English, Italano and Chinese.<br/>
-- Datapoint 10.001: fixed a little issue if the date of week is Sunday.<br/>
-- Added the milliseconds indication in all logs (things happen fast!).<br/>
+**Version 1.2.49** - October 2021
 
-**Version 1.2.49** - October 2021<br/>
+- Improved KNX connections and added an option to disable automatic connection at startup.
+- Fixed Watchdog configuration changes with a manually selected network interface.
 
-- Gateway connection: added more checks for connection resilience, in case of KNX Interface of particular manufacturer.<br/>
-- Gateway connection: connection is now more speedy.<br/>
-- NEW: Gateway connection has a new option to enable/disable the automatic connection to the KNX BUS at start. You can now choose not to connect to the BUS on boot.- Watchdog node: fixed an issue in changing the configuration via setConfig parameter, when an ethernet interface was manually selected in the config window.<br/>
+**Version 1.2.48** - October 2021
 
-**Version 1.2.48** - October 2021<br/>
+- Corrected Watchdog's status colour during its first connection test.
 
-- Watchdog node: fixed a misleading status color during the first KNX test performed.<br/>
+**Version 1.2.47** - September 2021
 
-**Version 1.2.47** - September 2021<br/>
+- Added power-factor datapoint 14.057.
 
-- Added Datapoint 14.057 Power Factor.<br/>
+**Version 1.2.46** - September 2021
 
-**Version 1.2.46** - September 2021<br/>
+- Global Context can send values using datapoints from the ETS import.
 
-- GlobalContext Node: you can now correctly pass the value to a group address even without setting the datapoint, if you import the CSV file.<br/>
+**Version 1.2.45** - September 2021
 
-**Version 1.2.45** - September 2021<br/>
+- Added Chinese translations for settings and documentation.
 
-- NEW: Chinese translation. Many thanks @songzh96 for the BIG work done in traslating the entire WIKI and the node config windows in Chinese!<br/>
+**Version 1.2.44** - September 2021
 
-**Version 1.2.44** - September 2021<br/>
+- Scene Controller can pause between commands. Improved links between help pages.
 
-- NEW: Scene Node: you can now add a pause in the command rule list (example, turn on light, wait 4000 milliseconds, turn off light). <br/>
-- WIKI: better organization of help, with direct links "SEE ALSO" to other related pages. You find these links at the bottom of every each page.<br/>
+**Version 1.2.43** - September 2021
 
-**Version 1.2.43** - September 2021<br/>
+- Fixed Watchdog reconnect commands.
 
-- Watchdog Node: fixed the msg.connectGateway = true not actually reconnecting.<br/>
+**Version 1.2.42** - August 2021
 
-**Version 1.2.42** - August 2021<br/>
+- Fixed custom message topics in gateway emulation mode.
 
-- FIX: if the config node is configured in EMULATION mode, knx-ultimate ouputs always the flow msg with the Group Address as topic, instead of a msg with the customized topic (if you have customizet it).<br/>
+**Version 1.2.41** - August 2021
 
-**Version 1.2.41** - August 2021<br/>
+- Fixed restoring saved KNX values other than on/off states.
 
-- Fixed a zero day bug: the loading of buffer value other than true/false from the peristent file (where all the values are persisted, stored and read upon restart if you selected that in the node config) fails. No error occurs nor other malfunctions, but the node emits a status error and the value is not read from this file.<br/>
+**Version 1.2.40** - August 2021
 
-**Version 1.2.40** - August 2021<br/>
+- Reduced resource use and excessive reconnection attempts.
 
-- Great improvement of system resource.<br/>
-- Fixed too many reconnection attempts in a short timeframe. Now it's more relaxed thus more responsive.<br/>
-- I've successfully collected KNX Secure device to go ahead with the development. THANK YOU TO ALL PATREONS, SPECIALLY TO A COMPANY THAT WON'T BE MENTIONED HERE, HAVING SENT ME KNX SECURE DEVICES.<br/>
+**Version 1.2.39** - August 2021
 
-**Version 1.2.39** - August 2021<br/>
+- Further improved KNX reconnection checks.
 
-- I remember you that i'm still collecting money to buy a KNX Router for testing KNX-Secure. Should you help me, click "Donate via PayPal" above in this page.<br/>
-- Optimized the fix in 1.2.38 by adding more in-depth checks.<br/>
+**Version 1.2.38** - August 2021
 
-**Version 1.2.38** - August 2021<br/>
+- Fixed reconnection after a network interruption.
+- Saved values are kept separately for each gateway. Improved startup timing and replies when a value is unknown.
 
-- I remember you that i'm still collecting money to buy a KNX Router for testing KNX-Secure. Should you help me, click "Donate via PayPal" above in this page.<br/>
-- Sometimes, with some KNX Interfaces, whenever you unplug the eth cable for a while, the gateway could'nt regain the connection. Fixed.<br/>
-- Added a slight random delay before connecting to KNX BUS, to allow lazy ehternet adapters to come up after a reboot.<br/>
-- Improvement: knx-ultimate nodes does have a persistent state after reboot (it saves the states to a json file). Now, if you have multiple gateways, it saves the states for each gateway in a different file.<br/>
-- FIX: currently, knx-ultimate set to "auto respond with current value" and "if value unknown, respond with", responds with value selected by the user, if the current value is "" or undefined. Now it does so even if the value is null.<br/>
+**Version 1.2.36** - July 2021
 
-**Version 1.2.36** - July 2021<br/>
+- Fixed ETS import messages and a help link.
+- Added initial keyring import support; full KNX Secure support is not yet available.
 
-- Fixed a wrong help link in the gateway configuration node, in the italian language.<br/>
-- Fix: on importing ETS Group Addresses file, the debug window won't show the import's warnings/error.<br/>
-- NEW: starting implementation of KNX Secure (ETA END DECEMBER 2021). For now, the only thing working is keyring import and verification of his Hash against the password you set on the file while exporting keyring from ETS and decyphering of the Backbone key.<br/>
-- Updated Documentation to reflect KNX Secure changes.<br/>
+**Version 1.2.34** - June 2021
 
-**Version 1.2.34** - June 2021<br/>
+- Added an option to ignore repeated telegrams from the KNX bus.
 
-- Gateway configuration: added option Suppress repeated (R-Flag) telegrams fom BUS. When enabled, this option suppress the telegrams marked as "repeated" (with R-Flag) coming from the bus. See here: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Gateway-configuration<br/>
+**Version 1.2.33** - May 2021
 
-**Version 1.2.33** - May 2021<br/>
+- The gateway's node overview shows more configuration details.
 
-- Gateway configuration -> Advanced Options -> Node list in all flows: added more infos to each node in the list, to allow more control on the nodes overview. The options are: "No Initial Read, React to Write, React to Response, No React to Read, No Autorespond to Read Requests, Telegram type write, No RBE on Output to Bus, No RBE on Input from Bus"<br/>
+**Version 1.2.32** - May 2021
 
-**Version 1.2.32** - May 2021<br/>
+- Added time and volume datapoints 14.074 and 14.076.
 
-- NEW Dattpoint 14.074 (Time in secs) and 14.076 (Volume in m3).<br/>
+**Version 1.2.31** - May 2021
 
-**Version 1.2.31** - May 2021<br/>
+- Fixed restoring saved values after changing a node's datapoint.
 
-- Fixed an issue happening if whenever you change a KNX node's datapoint, while the persistent value saved to file has already been saved using the old datapoint.<br/>
+**Version 1.2.30** - May 2021
 
-**Version 1.2.30** - May 2021<br/>
+- Improved handling of invalid numeric input for datapoint 14.
 
-- Datapoint 14.x: fixed a possible issue if the inpur message coming from the flow, is'nt a valid datapoint 14.x value.<br/>
+**Version 1.2.29** - May 2021
 
-**Version 1.2.29** - May 2021<br/>
+- Saved values load before startup bus reads, so virtual devices can answer correctly.
+- Watchdog can enable or stop a gateway's connection attempts.
 
-- KNX Device: if "read on connection/reconnection" is selected, the gateway node will now read all values of all nodes in 2 steps: first from file (for the nodes set in this way), then from BUS (for the nodes set in this way). This allow nodes that are setup as virtual devices, to get their values from file before being asked to send the value as response to the bus, by other nodes. It's all clear? No? Sorry for that, i'm unable to better explain that.</br>- Watchdog node: NEW: you can force the selected gateway to disconnect from the KNX BUS and to STOP reconnection attempts. You can also force the selected gateway to connect to the KNX BUS and to ENABLE reconnection attempts. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---WatchDog<br/>
+**Version 1.2.28** - May 2021
 
-**Version 1.2.28** - May 2021<br/>
+- Fixed sending an on/off value to a text datapoint stopping other nodes.
 
-- KNX Device: if you send a boolean value to a node with datapoint 16.001 (Ascii string), all nodes goes to sleep and shows "Waiting" in the status. Fixed. Thanks to @Podler.
+**Version 1.2.27** - April 2021
 
-**Version 1.2.27** - April 2021<br/>
+- Fixed Alerter's reporting order. It can read all monitored states on connection or on request.
 
-- Alerter node: fixed an issue related to the order of cycled msg output of alerted devices.- Alerter node: now you can read the value of all devices belonging to the list, on each connection/reconnection.<br/>
-- Alerter node: now you can read the value of all devices belonging to the list, by massing _msg.readstatus = true_ to the node.<br/>
-- Updated Wiki, Help and SAMPLE to reflect this change.<br/>
+**Version 1.2.26** - April 2021
 
-**Version 1.2.26** - April 2021<br/>
+- Alerter has a third output for the most recently triggered device.
 
-- NEW: Alerter node: added a third output PIN containing the last alerted device (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
-- Updated Wiki, Help and SAMPLE to reflect this change.<br/>
+**Version 1.2.25** - April 2021
 
-**Version 1.2.25** - April 2021<br/>
+- Alerter can output all active alerts together and use short or long device descriptions.
 
-- NEW: Alerter node: added a second output PIN containing all alerted devices at once (useful for Telegram, Alexa and so on) (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
-- NEW: Alerter node: now you can enter TWO device's descriptions, one short (MAX 14 CHARS, SUITABLE FOR DPT 16.x) and one long.<br/>
-- Updated Wiki, Help and SAMPLE to reflect this change.<br/>
+**Version 1.2.23** - April 2021
 
-**Version 1.2.23** - April 2021<br/>
+- Alerter handles KNX response telegrams as well as writes. Improved list editing.
 
-- Fix: Put some spaces in the device list window of Alerter and Scene node, to facilitate the fields editing.<br/>
-- Alerter node: other than "write", the devices listed react to "response" telegrams as well (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
+**Version 1.2.22** - April 2021
 
-**Version 1.2.22** - April 2021<br/>
+- Added the Alerter node and examples. Fixed message topics in Universal Mode emulation.
 
-- Fix: emulated mode in knx-ultimate set to "universal mode" has the topic always set to empty string.<br/>
-- NEW: Alerter node (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Alerter-Configuration).<br/>
-- NEW: Alerter node HELP online with samples, in both italiano, english and deutsch.<br/>
+**Version 1.2.21** - April 2021
 
-**Version 1.2.21** - April 2021<br/>
+- Improved KNX multicast communication across network subnets.
 
-- Increased the Multicast TTL from 1 to 16 (this should allow the multicast packet to be routed beyond the current subnet).<br/>
+**Version 1.2.20** - April 2021
 
-**Version 1.2.20** - April 2021<br/>
+- Changed the default acknowledgement setting for better compatibility with some KNX/IP interfaces.
 
-- The "Suppress ACK Request" in the gateway config window is now enabled by default on new installations. This prevent some issues with some IP Interfaces.<br/>
+**Version 1.2.19** - April 2021
 
-**Version 1.2.19** - April 2021<br/>
+- Added a Silent logging option to reduce disk activity.
 
-- NEW: Silent Mode for log. You can now chose to totally avoid logging, thanks to the new logging engine. This is useful for reducing I/O access to the disk. Thank to @Webbeh for the request.<br/>
+**Version 1.2.18** - April 2021
 
-**Version 1.2.18** - April 2021<br/>
+- KNX values can be restored after reconnection or a Node-RED restart.
+- Improved checks for invalid telegrams.
 
-- NEW: KNX-Ultimate node can retain it's value after reconnection to KNX bus and even after reboot of node-red.<br/>
-- Update the WIKI to reflect the changes (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device).<br/>
-- NEW: begin to prepare KNX-Ultimate to support KNX Secure. Some changes to the underlying API where made.<br/>
-- Done some checks on new datapoints coming from BUS to discard wrong telegrams lenght.<br/>
+**Version 1.2.14** - March 2021
 
-**Version 1.2.14** - March 2021<br/>
+- KNX Logger records sent telegrams when using a KNX/IP interface, as well as a router.
 
-- NEW: KNX-Logger now logs telegrams sent by KNX-Ultimate nodes having an IP Interface as gateway. Previously, it worked only woth IP Routers.<br/>
-- Begin refractoring of code for KNX Secure compatibility.<br/>
+**Version 1.2.13** - March 2021
 
-**Version 1.2.13** - March 2021<br/>
+- Global Context has an adjustable KNX writing interval and improved help and translations.
 
-- Global Context Node: added the option to set the interval to write to the KNX bus.<br/>
-- Global Context Node: fixed the help link, it was broken in italian language.<br/>
-- Global Context Node: optimized the JavaScript samples.<br/>
-- Global Context Node: fix the gateway description not showing in config window, in italian language.<br/>
-- Global Context Node: added the configuration help page in the wiki for all languages (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/GlobalVariable).<br/>
-- NEW: Online node-red public test website: Point your browser here http://casacorte.myqnapcloud.com:2021 There is a node-red installation ready to be tested, with KNX-Ultimate fully set in "emulation" mode (you cannot do any damage, because the KNX backbone is simulated).<br/>
-- Added proKNX to the list of KNX device manufacturers using KNX-Ultimate (at bottom of the README page).<br/>
+**Version 1.2.11** - February 2021
 
-**Version 1.2.11** - February 2021<br/>
+- Added gateway emulation for testing and teaching without sending commands to the KNX bus.
 
-- NEW: Gateway Simulation node. Put "EMULATE" instead of IP Address in the gateway node. The gateway will not write to the KNX BUS. Useful for simulation and classroom's lessons.<br/>
-- NEW: Online node-red public test website... coming soon.
+**Version 1.2.10** - February 2021
 
-**Version 1.2.10** - February 2021<br/>
+- Corrected Global Context translations and added a setup warning.
 
-- Global Context Node: fixed translation issues and added a warning in the config window.
+**Version 1.2.9** - February 2021
 
-**Version 1.2.9** - February 2021<br/>
+- New Global Context node makes KNX values available to flow functions.
+- Added the combined date/time datapoint 19.001.
 
-- NEW: LOBAL CONTEXT node: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SampleGlobalContextNode), exposes the group addresses to a Global Context variable, to be used in function nodes.<br/>
-- NEW: Datapoint 19.001 DateTime<br/>
-- Added sample in the config window of Datapoint 19.001 and updated the sample page in the wiki.
+**Version 1.2.8** - January 2021
 
-**Version 1.2.8** - January 2021<br/>
+- Node settings can be changed through flow messages.
 
-- NEW: you can now change the node configuration my input message. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample-setConfig<br/>
-- Added msg.setConfig sample and updated the rest of the WIKI.
+**Version 1.2.7** - January 2021
 
-**Version 1.2.7** - January 2021<br/>
+- Added DALI diagnostic datapoint 237 and an example.
 
-- NEW: Datapoint 237 DALI diags. https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT237<br/>
-- Added sample DPT 237.x in the Wiki
+**Version 1.2.6** - January 2021
 
-**Version 1.2.6** - January 2021<br/>
+- Added datapoint 213 and an example.
 
-- NEW: Datapoint 213.x has been added.<br/>
-- Added sample DPT 213.x in the Wiki
+**Version 1.2.5** - January 2021
 
-**Version 1.2.5** - January 2021<br/>
+- A node's stored value can be updated without sending a KNX telegram.
+- Fixed read-request output when no value is available yet.
 
-- FIX: nodes wasn't emitting a msg to the flow, when they've been set to respond to READ requests while the they haven't already received a value either from BUS or flow.<br/>
-- NEW: you can now update the node's payload without sending the KNX Telegram to the bus. See the node input messages in the wiki and the Virtual Device sample.<br/>
-- Updated the Help in various parts of the wiki.<br/>
-- Updated Virtual Device sample, in the samples section.<br/>
+**Version 1.2.4** - January 2021
 
-**Version 1.2.4** - January 2021<br/>
+- Removed KNX Virtual compatibility to fix connection problems in some Node-RED installations.
 
-- REMOVED: removed compatibility with KNX Virtual because it brokes some dockerized/pluginized node-red KNX connections.<br/>
+**Version 1.2.3** - 31 December 2020
 
-**Version 1.2.3** - 31 December 2020<br/>
+- Corrected values for datapoints 249.600 and 242.600.
 
-- FIX: last 2 bytes of 249.600 were swapped.<br/>
-- FIX: last 2 bytes of 242.600 were swapped.<br/>
+**Version 1.2.2** - 31 December 2020
 
-**Version 1.2.2** - 31 December 2020<br/>
+- Added datapoint 249.600 and corrected validity indicators for colour datapoint 242.600.
 
-- NEW: Datapoint 249.600 added msg.payload={transitionTime:100, colourTemperature:1000, absoluteBrightness:80, isTimePeriodValid:true, isAbsoluteColourTemperatureValid:true, isAbsoluteBrightnessValid:true};- FIX: validities bits of 242.600, that returns everytime true.<br/>
+**Version 1.2.1** - December 2020
 
-**Version 1.2.1** - December 2020<br/>
+- Fixed duplicate-value filtering for colour datapoint 242.600.
+- **Upgrade notice:** messages for this datapoint must now indicate whether colour and brightness are valid. See the updated help.
 
-- FIX: fixed RBE filter not working for Datapoint 242.600<br/>
-- Change: payload 242.600 must now be passed with color and brighness valididy booleans: msg.payload={x:500, y:500, brightness:80, isColorValid:true, isBrightnessValid:true};
+**Version 1.2.0** - December 2020
 
-**Version 1.2.0** - December 2020<br/>
+- Added KNX Virtual compatibility and improved loop protection and examples.
 
-- NEW: added compatibility with ETS KNX VIRTUAL.<br/>
-- NEW: added node protection help in the german wiki.<br/>
-- Updated the circular reference protection to be more intelligent thus more tollerant. Thanks @Christian for raising the request.<br/>
-- Updated the circular reference sample in the wiki.<br/>
-- Updated the msg input help in the wiki for all languages..<br/>
+**Version 1.1.99** - December 2020
 
-**Version 1.1.99** - December 2020<br/>
+- Fixed duplicate-value filtering for combined values such as colours.
 
-- FIX: RBE filter (from BUS and from flow) doesn't work if the payload is an object.<br/>
-- Removed an unwanted debug log in dPT 242.600<br/>
+**Version 1.1.98** - December 2020
 
-**Version 1.1.98** - December 2020<br/>
+- Added colour datapoint 242.600.
 
-- NEW: added Datapoint 242.600 Color xyY.<br/>
+**Version 1.1.97** - December 2020
 
-**Version 1.1.97** - December 2020<br/>
+- Added help links and datapoint examples directly in settings.
 
-- NEW: added help links directly into the config windows and upon selection of datapoint as well.<br/>
-- Cleaning of UI.<br/>
+**Version 1.1.95** - December 2020
 
-**Version 1.1.95** - December 2020<br/>
+- Flows can send undecoded telegrams to the KNX bus.
 
-- Enhancement: you can now send a raw buffer directly to the KNX bus. See the Wiki, "message to the node" page.<br/>
-- Updated the wiki accordingly.<br/>
+**Version 1.1.93** - December 2020
 
-**Version 1.1.93** - December 2020<br/>
+- Invalid gateway addresses are rejected before connecting.
 
-- Enhancement: Check if the gateway's IP is a valid one, otherwise it avoids connection. Thanks @heleon for signaling this issue.<br/>
-- Replaced some deprecated buffer calls.<br/>
+**Version 1.1.92** - October 2020
 
-**Version 1.1.92** - October 2020<br/>
+- Fixed RGB colour control.
 
-- BUGFIX: RGB Color wasn't working. Now it's fixed.<br/>
+**Version 1.1.91** - October 2020
 
-**Version 1.1.91** - October 2020<br/>
+- Added datapoint 22.201 and more datapoint examples.
 
-- NEW: Datapoint 22.201 RCHH Status (for example, for MDT actuators)<br/>
-- Added sample for Datapoint 22.x (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---DPT22)<br/>
-- Added sample for Datapoint 20.x<br/>
+**Version 1.1.90** - October 2020
 
-**Version 1.1.90** - October 2020<br/>
+- Improved busy KNX installations using knxd.
+- Fixed missing input examples and added more datapoint and automation examples.
 
-- Connection and queue handling optimization for big installations where knxd is used and where there is a near maximum (allowed by knx standards) of datagram per seconds traffic on the BUS. Thanks @Songzh<br/>
-- FIX sample message not showing in the config window of knx-ultimate device, if the device is already presento on the flow. <br/>
-- Added sample for Datapoint 2.\*, 1 bit with priority. <br/>
-- Added sample for Datapoint 6.x, value -128 to 127%. <br/>
-- Added sample for Datapoint 7.x. <br/>
-- Added sample for Datapoint 8.x. <br/>
-- Added sample for Datapoint 9.x. <br/>
-- Added sample for Datapoint 12.x. <br/>
-- Added sample for Datapoint 13.x. <br/>
-- Added sample for Datapoint 14.x. <br/>
-- Added sample for switching on/off a POE port of Unifi Switch (https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---UnifiPOE)
+**Version 1.1.89** - September 2020
 
-**Version 1.1.89** - September 2020<br/>
+- Fixed some knxd connection failures.
 
-- Fix an issue, where the node stops connecting to the bus if you're using knxd, in some particular scenario. Thanks @Songzh<br/>
+**Version 1.1.88** - September 2020
 
-**Version 1.1.88** - September 2020<br/>
+- Corrected Scene Controller output when the node is disabled.
 
-- FIX: Scene Controller. If disabled, it outputs now the correct values of recallscene and savescene properties (before, both was sentout as false, even if true). See here at bottom: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration#messages-from-the-node<br/>
+**Version 1.1.86** - September 2020
 
-**Version 1.1.86** - September 2020<br/>
+- Scene Controller can be disabled through a flow message.
 
-- NEW: Scene Controller, added the ability to disable the scene controller via msg.disabled = true. See here at bottom: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration#messages-from-the-node<br/>
+**Version 1.1.85** - September 2020
 
-**Version 1.1.85** - September 2020<br/>
+- Fixed old telegrams remaining in KNX Logger after output.
 
-- FIX: The buffer of the ETS Logger is now cleared after every sendout. Thanks @Mil.<br/>
+**Version 1.1.84** - September 2020
 
-**Version 1.1.84** - September 2020<br/>
+- Datapoint names now match ETS. Added more datapoints and input examples directly in settings.
 
-- The knx API is now part of knx-ultimate. External dependency has been removed. This allow to a more tight integration between KNX Bus and node-red.<br/>
-- Update: Rewrite of all datapoint names, to adhere to ETS naming convenction. Updated some deprecated buffer initialization.<br/>
-- NEW: Added Datapoint 6.020 Status with mode.<br/>
-- NEW: Added Datapoint 8.012 Length in meter.<br/>
-- NEW: Added Datapoint 9.029 Wind speed (km/h).<br/>
-- NEW: Added Datapoint 9.030 Concentration (ug/m3).<br/>
-- NEW: many people simply don't care about WIKI in Github, so i need to find a simpler and more direct way to access the huge documentation, without being flooded by questions about samples, that are already in the WIKI. Now KNX-Ultimate node displays a text box with sample on how to format input payload and a link to the relative help page, directly in the config window.<br/>
+**Version 1.1.83** - September 2020
 
-**Version 1.1.83** - September 2020<br/>
+- Added datapoints 222.100 and 222.201 with examples.
 
-- Update API to 2.3.24: Added Datapoint 222.100 and 222.201.<br/>
-- NEW: Added Sample DPT 222 (See in the Wiki).<br/>
+**Version 1.1.82** - August 2020
 
-**Version 1.1.82** - August 2020<br/>
+- Fixed diagnostic logging in datapoint handling.
 
-- Update API to 2.3.23: Fixed a very old/why this?/odd issue with log in datapoints code, that instantiate a new instance of the logger instead of using the proper one. Thanks @heleon19 .<br/>
+**Version 1.1.81** - August 2020
 
-**Version 1.1.81** - August 2020<br/>
+- Added the fan-stage datapoint and clearer log timestamps and labels.
 
-- Update API to 2.3.22: Changed the log datetime from ISO to Local UTC. Added the prefix "KnUltimate-API to the log, to better undestand form where the log comes.<br/> - NEW: ADDED Datapoint 5.100 Fan Stage
+**Version 1.1.80** - August 2020
 
-**Version 1.1.80** - August 2020<br/>
+- Changes to logging level apply immediately without restarting Node-RED.
 
-- Update API to 2.3.21: changing the debug level now is applied immediately without restarting node-red.
+**Version 1.1.79** - August 2020
 
-**Version 1.1.79** - August 2020<br/>
+- Scene Controller can save a group-address value from a flow message.
 
-- NEW: The scene controller node can now save the current group address value via a msg input. See here: https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/SceneController-Configuration#messages-from-the-node and the sample in the wiki as well..
+**Version 1.1.76** - August 2020
 
-**Version 1.1.76** - August 2020<br/>
+- Fixed invalid Logger files that ETS could not open and a settings display issue.
 
-- Fixed the ETS XML logger. Sometimes the files could contains an invalid CEMI telegram that was not properly discarded and that prevent ETS to load the log. Thanks @Namakemono93.<br/>
-- Fixed a visual glitch in the KNX-Node config window (Telegram value format) for nodered 1.1.0 and above.
+**Version 1.1.75** - June 2020
 
-**Version 1.1.75** - June 2020<br/>
+- Added datapoint 7 support, including colour temperature, and corrected Italian help.
 
-- NEW: Added Datapont 7.xxx with 7.600 as well.<br/>
-- Adjusted italian node translation on "OUTPUT (invio datagrammi sul bus KNX)" selection properties. Adjusted the documentation consequently.<br/>
+**Version 1.1.73** - Mai 2020
 
-**Version 1.1.73** - Mai 2020<br/>
+- ETS import no longer fails because another node has no gateway selected.
 
-- FIX: fixed an issue in importing ETS file, preventing import if you have an improperly set knx-ultimate node, having no gateway selected. Thanks @enzensbs.<br/>
+**Version 1.1.72** - Mai 2020
 
-**Version 1.1.72** - Mai 2020<br/>
+- Fixed Watchdog gateway changes and connection checks with older Node-RED versions.
 
-- Update knx api to 2.3.19<br/>
-- FIX: fixed a problem when issuing a gateway ip change to a watchdog node, if you've a tunneling KNX Interface and node-red v. 0.20 or below.<br/>
-- FIX: above related with connection status request if tunneling mode, sometime giving "timed out waiting for CONNECTIONSTATE_RESPONSE" errors.<br/>
+**Version 1.1.71** - Mai 2020
 
-**Version 1.1.71** - Mai 2020<br/>
+- Added RGBW colour support and improved KNX connection checks.
+- Watchdog's basic network check uses ping and applies to KNX/IP interfaces, not multicast routers.
 
-- Update knx api to 2.3.18<br/>
-- NEW: added Datapoint 251.600 RGBW<br/>
-- State request to the BUS is now sent every 60 seconds instead of 10, for lowering the BUS traffic (see changelog for Version 1.1.68)<br/>
-- More relaxed handling of errors coming from an query to a KNX/IP interface not always reponding to connection status (in case, for example, of some implementations of knxd)<br/>
-- Watchdog: on "basic Ethernet check", switched to ping mode detection. With the introduction of "echo local telegrams" in unicast mode, since some versions ago, the watchdog must yet check for the KNX Interface using Ping, otherwise, the lost of connection is never trapped. Other than that, the "basic Ethernet check" works only with KNX Interfaces, because the router uses multicast and multicast is connectionless.<br/>
+**Version 1.1.70** - Mai 2020
 
-**Version 1.1.70** - Mai 2020<br/>
+- Added adjustable delays between telegrams, with a separate delay for read requests.
 
-- NEW: Added the option to select the delay between each telegram and further delay multiplicator between only the **read** telegrams<br/>
+**Version 1.1.69** - Mai 2020
 
-**Version 1.1.69** - Mai 2020<br/>
+- Added datapoints 12.001 and 12.1201.
 
-- Update: knxultimate-api to 2.3.17.<br/>
-- NEW: Added Datapoint 12.001 and 12.1201.<br/>
+**Version 1.1.68** - April 2020
 
-**Version 1.1.68** - April 2020<br/>
+- Fixed unexpected KNX tunnelling disconnections.
 
-- Update: knxultimate-api to 2.3.16.<br/>
-- FIX: fixed disconnection in tunneling mode by strictly adhere to KNX standard (sending state request to the BUS every 10 seconds). Thanks to Matthias of Timberwolf Server.<br/>
-- Introduced some internal changes in preparation to the introduction of the new dashboard compatible visualization nodeset "visu-ultimate".<br/>
+**Version 1.1.67** - April 2020
 
-**Version 1.1.67** - April 2020<br/>
+- Restored the local-feedback option and improved recovery after network problems.
 
-- Re-introduced selectable option for local echo if tunneling.<br/>
-- Smarter restart maneuvering in case of Ethernet issues, while on tunneling connections.<br/>
+**Version 1.1.65** - April 2020
 
-**Version 1.1.65** - April 2020<br/>
+- Fixed ETS device names containing the # character.
+- Enabled local telegram feedback for KNX/IP interfaces.
 
-- FIX: If the imported ETS file, contains a device name with a # character, strange things happens. Fixed.<br/>
-- Forced local Echo for IP interfaces.<br/>
+**Version 1.1.64** - April 2020
 
-**Version 1.1.64** - April 2020<br/>
+- Added Read as a selectable outgoing telegram type.
 
-- NEW: Added Telegram type "Read", to issue a read by simply pass a payload to the node. Thanks @waldbaer for the suggestion.<br/>
+**Version 1.1.63** - April 2020
 
-**Version 1.1.63** - April 2020<br/>
+- Added RGB input guidance and enabled automatic local telegram feedback in tunnelling mode.
 
-- Informational nitification when datapoint RGB is selected, on how to pass into the payload.<br/>
-- Removal selection of echoing the sent payload on all node, if the gateway is unicast. Now the echo is active everytime.<br/>
+**Version 1.1.62** - April 2020 in Italy, we're crying our dead people.
 
-**Version 1.1.62** - April 2020 in Italy, we're crying our dead people.<br/>
+- Improved gateway discovery descriptions and updated KNX communication software.
 
-- Better decriptive Multicast/Unicast gateway auto discovery.<br/>
-- Definitive use of heavily modified knx-ultimate.js API instead of knx.js.<br/>
+**Version 1.1.61** - April 2020 in Italy, deaths are increasing to 600 pro day.
 
-**Version 1.1.61** - April 2020 in Italy, deaths are increasing to 600 pro day.<br/>
+- Fixed ESF imports with multiple group addresses for one device property.
 
-- Fix error in ESF file import, if you set more than one Group Address in a single device property.<br/>
+**Version 1.1.60** - April 2020 in Italy, deaths are decresing to 500 pro day.
 
-**Version 1.1.60** - April 2020 in Italy, deaths are decresing to 500 pro day.<br/>
+- Restored gateway settings translations.
 
-- Fix error in gateway node translation, that disappeared.<br/>
+**Version 1.1.59** - April 2020 in Italy, deaths are decresing to 500 pro day.
 
-**Version 1.1.59** - April 2020 in Italy, deaths are decresing to 500 pro day.<br/>
+- Corrected translations and added a 10-byte datapoint.
 
-- Adjusted translations.<br/>
-- NEW: added Datapoint 10 Bytes.<br/>
+**Version 1.1.58** - April 2020 in Italy, continue lock down Coronavirus.
 
-**Version 1.1.58** - April 2020 in Italy, continue lock down Coronavirus.<br/>
+- Minor fixes and translation updates.
+- **Upgrade notice:** change gateway settings through Watchdog; this option was removed from KNX Device.
 
-- Adjusted translations.<br/>
-- Small bugfixes.<br/>
-- Removed the deprecated setGatewayConfig from knx-ultimate. Use Watchdog node instead.<br/>
+**Version 1.1.57** - April 2020 in Italy, continue lock down Coronavirus, but situation is better now.
 
-**Version 1.1.57** - April 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+- Added full KNX scene support for datapoint 18.001 and an example.
 
-- Datapoint 18.001 added. Now this datapoint for Scene is fully supported.<br/>
-- Sample controlling datapoint 18.001.<br/>
-- Scene node and knx-ultimate device node changed accordnlgy.<br/>
+**Version 1.1.55** - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.
 
-**Version 1.1.55** - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+- ETS import can skip group addresses without a datapoint.
 
-- NEW: Added option to skip the import of the group address from the ETS file, if the datapoint is not set.<br/>
+**Version 1.1.54** - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.
 
-**Version 1.1.54** - March 2020 in Italy, continue lock down Coronavirus, but situation is better now.<br/>
+- Improved group-address search, date/time status display and palette organisation.
+- Expanded German translations.
 
-- FIX: fixed status display of date/time. Yet if you uncheck the option not do display the date/time, it works.<br/>
-- ENHANCEMENT: search for all words in the group address fields. You can now search, for example, for "licht wohnzimmer".<br/>
-- Changed palette order to better view the service nodes, like Logger and Watchdog.<br/>
-- Ongoning Deutch translation.<br/>
+**Version 1.1.53** - March 2020 in Italy, continue lock down Coronavirus.
 
-**Version 1.1.53** - March 2020 in Italy, continue lock down Coronavirus.<br/>
+- Added an option to forward incoming flow messages through the node.
 
-- NEW: msg passthrough option.<br/>
+**Version 1.1.52** - March 2020 in Italy, continue lock down Coronavirus.
 
-**Version 1.1.52** - March 2020 in Italy, continue lock down Coronavirus.<br/>
+- New KNX Logger records telegrams in a file that ETS can read.
+- Fixed international ETS imports, Scene Controller suggestions and Watchdog startup.
 
-- FIX: import ETS csv and ESF files may had problem with languages other that english. Fixed.<br/>
-- FIX: Scene Controller, fix trigger suggestion if datapoint trigger is set to DIM.<br/>
-- FIX: WatchDog, fix autostart timer if no Group Address monitor is selected.<br/>
-- NEW: Logger Node, a new node to hear all telegrams and to output an ETS bus monitor compatible file.<br/>
-- Update underlying KNX api to 2.3.10, to extract CEMI telegram for the Logger Node.<br/>
-- Minor bugfixes.<br/>
-- Other translation work has been done.<br/>
+**Version 1.1.50** - March 2020 in Italy, continue lock down Coronavirus. Cases 25.000
 
-**Version 1.1.50** - March 2020 in Italy, continue lock down Coronavirus. Cases 25.000<br/>
+- Fixed Scene Controller saved settings, dimming commands and operation without an ETS import.
 
-- FIX: Scene controller, the "save scene" datapoint was override by "recall scene" datapoint on each open of the config window.<br/>
-- FIX: Scene Controller, without imported ETS file, the scene controller recall/save worked only with boolean values. Now it works correctly. Thanks @mthauth.<br/>
-- FIX: Scene Controller, correct handling of dim commands (example {decr_incr:1,data:5}).<br/>
-- Scene Controller now is called via javascript Promise to leverage the main thread.<br/>
+**Version 1.1.48** - March 2020 in Italy, continue lock down Coronavirus. Milan index down 8%, Down Jons as well. Panic selling everywhere.
 
-**Version 1.1.48** - March 2020 in Italy, continue lock down Coronavirus. Milan index down 8%, Down Jons as well. Panic selling everywhere.<br/>
+- Fixed automatic device names after copying nodes and improved Scene Controller settings.
 
-- FIX: When you copy/paste knx-ultimate or scene controller node, autofill of device names doesn't work.<br/>
-- Scene Controller devices cosmetics adjustments.<br/>
+**Version 1.1.47** - March 2020 in Italy, continue lock down. More people involved in Coronavirus
 
-**Version 1.1.47** - March 2020 in Italy, continue lock down. More people involved in Coronavirus<br/>
+- Fixed the gateway's node list. New nodes can use ETS name suggestions before their first save.
 
-- FIX: In gateway config-node, fixed the "List of your nodes in all flows" (under Advanced Options) list, sometime not populated.<br/>
-- ENHANCEMENT: Now knx-ultimate and scene controller display device list names for newly added nodes in the flow. Prior, you had to save the node first, to get the knx device list into the Group Address fields.<br/>
+**Version 1.1.45** - March 2020 in Italy, we're locked down for Coronavirus
 
-**Version 1.1.45** - March 2020 in Italy, we're locked down for Coronavirus<br/>
+- Nodes sharing a group address now receive local writes when using KNX/IP interfaces.
+- Added translations. Node-RED 1.0.3 or later is needed for translated settings.
 
-- Update knxultimate-api. Nodes connected to an IP Interface now behave like nodes connected to an IP Router, and local writes are mirrored automatically to nodes sharing the same Group Address.<br/>
-- I'm internationalizing the node **(Deutsch, Italiano, English)** with the help of **@svenflender**, so please be patient if some parts are still only in english. Internationalization is working with node-red version 1.0.3 and above. Versions below, does have issues in the i18n module, so knx-ultimate falls back to english. Please upgrade node-red.<br/>
+**Version 1.1.43** - March 2020 in the middle of Coronavirus emergency in Italy
 
-**Version 1.1.43** - March 2020 in the middle of Coronavirus emergency in Italy<br/>
+- Added the Scene Controller node.
 
-- NEW: Scene Controller node (see the Wiki).<br/>
+**Version 1.1.40** - March 2020
 
-**Version 1.1.40** - March 2020<br/>
+- Improved telegram handling by prioritising writes and responses.
 
-- Better handling of telegrams, giving priority to the "write" and "response" telegram in the queue. Thanks @heleon19 for the suggestion.<br/>
+**Version 1.1.39** - March 2020
 
-**Version 1.1.39** - March 2020<br/>
+- Fixed a possible crash when responding with a combined value.
 
-- Fix a very low priority issue: a possible crash if you set the knx-ultimate node's output as "respond", while passing an object as payload to the input.<br/>
+**Version 1.1.38** - March 2020
 
-**Version 1.1.38** - March 2020<br/>
+- Forced ETS imports use on/off datapoint 1.001 when a datapoint is missing.
 
-- Yet, if you import an ETS CSV file without datapoints, a fake datapoint 1.001 will be used (if you selected to force import the group address)<br/>
-- Update help and wiki to reflect the change<br/>
+**Version 1.1.37** - Feb 2020
 
-**Version 1.1.37** - Feb 2020<br/>
+- Fixed opening settings for a new node without a gateway.
 
-- Fixed an issue where new knx-ultimate nodes, without a gateway config node, doesn't open the configuration window. Thanks @svenflender<br/>
+**Version 1.1.36** - Feb 2020
 
-**Version 1.1.36** - Feb 2020<br/>
+- Added ETS ESF imports alongside CSV.
 
-- You can now import ESF group address format, beside CSV.<br/>
-- Updated the Wiki.<br/>
+**Version 1.1.34** - Feb 2020
 
-**Version 1.1.34** - Feb 2020<br/>
+- Fixed RGB values and added a colour example.
 
-- Fix an issue with RGB values.<br/>
-- Added RGB sample in the Wiki.<br/>
+**Version 1.1.33** - Feb 2020
 
-**Version 1.1.33** - Feb 2020<br/>
+- Watchdog reports gateway configuration changes to the flow.
+- Fixed a rare connection-related crash.
 
-- New: the Watchdog node now outputs a msg to the flow if you issued a setGatewayConfig<br/>
-- Patched and switched to knxultimate-api (v. 2.3.8) underlying API. This should fix a very rare issue causing node-red to crash giving ERR_SOCKET_DGRAM_NOT_RUNNING error.<br/>
+**Version 1.1.32** - Feb 2020
 
-**Version 1.1.32** - Feb 2020<br/>
+- Added number formatting options and improved KNX read handling.
+- Fixed Universal Mode settings and device names without an ETS import.
 
-- New: in the knx-ultimate, added the option to <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Device" target="_blank">format the msg.payload value</a>, if it's numeric.<br/>
-- Switched to knx.js API 2.3.7<br/>
-- Refractoring of some internal code to speed up things, whenever the node sends a "Read" request to the BUS.<br/>
-- Fix a message warning in the config page, if you not imported the ETS csv file.<br/>
-- Fix the "Universal Mode" setting wrongly reverting to false on newly added nodes, if you've not imported the ETS csv.<br/>
-- Devicename msg property is now populated with the node name, if the node is in Universal Mode and the ETS CSV file has not been imported (previoulsy was set to empty string).<br/>
-- Update the Wiki and node help, with the new "payload format" options.<br/>
+**Version 1.1.31** - Feb 2020
 
-**Version 1.1.31** - Feb 2020<br/>
+- Improved reading KNX values on connection and reconnection.
 
-- Rewritten the "Send a GrpValue read once on connection/reconnect" using the telegram queue.<br/>
-- New: new underlying API set to knxultimate-api (v. 2.3.7) and patched with last API fixes. From now onwards, knx-ultimate node will switch between underlying **knx.js** API and his own **knxultimate-api**, to allow a quicker fix of possible problems with the API.<br/>
-- Relocate nodes in a specific folder.<br/>
+**Version 1.1.30** - Feb 2020
 
-**Version 1.1.30** - Feb 2020<br/>
+- Watchdog can report errors from other KNX Ultimate nodes.
 
-- New: the Watchdog node now signals if a knx-ultimate node throws errors as well. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">See here output message properties.</a><br/>
+**Version 1.1.29** - Feb 2020
 
-**Version 1.1.29** - Feb 2020<br/>
+- Updated icons and colours. Added a copyable list of group addresses for KNX routing filters.
+- Flow output includes readable value descriptions such as On/Off.
 
-- Changed Node KNX Icon, logo and colors, thanks @svenflender <br/>
-- New in config-node: copy/paste friendly text block, with a list of all KNX Nodes (for using, for example, in KNX Router line/zone filters).<br/>
-- New: added subtype decoded value **payloadsubtypevalue** ( for exampe, On/Off, Ramp/NoRamp, Start/Stop, Alarm/NoAlarm ). <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/-Sample---Subtype" target="_blank">See here an example</a><br/>
+**Version 1.1.28** - Jan 2020
 
-**Version 1.1.28** - Jan 2020<br/>
+- Added message-topic settings and help for node protection.
 
-- New: Added topic property<br/>
-- New: added page to wiki, explaining the node protection. <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Protections" target="_blank">Node Protections</a>.<br/>
-- Updated Wiki to reflect the new changes.<br/>
+**Version 1.1.27** - Jan 2020
 
-**Version 1.1.27** - Jan 2020<br/>
+- Flow output includes measurement units and datapoint descriptions.
+- Added a logging-level setting.
 
-- New: added payloadmeasureunit to the node's msg output (for example "W" or "%"), based on Datapoint type.<br/>
-- New: added knx.dptdesc to the node's msg output (for example "Power" or "Humidity").<br/>
-- New: added Loglevel option in config-node, for debugging pourpose only. Thanks Heleon19.<br/>
+**Version 1.1.26** - Jan 2020
 
-**Version 1.1.26** - Jan 2020<br/>
+- Added Watchdog and a dedicated KNX Ultimate palette category.
 
-- New: Watchdog Node added. Please <a href="https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/WatchDog-Configuration" target="_blank">consult the Wiki</a>.<br/>
-- Changed category (the node's list on left panel of node-red) to "KnxUltimate", to accomodate the Watchdog node.<br/>
+**Version 1.1.25** - Jan 2020
 
-**Version 1.1.25** - Jan 2020<br/>
+- Gateway connection settings can be changed from a flow.
 
-- New: ability to programmatically change the KNX/IP interface or router's IP, Port, Physical Address and reset local ETH Interface Binding.<br/>
+**Version 1.1.24** - Jan 2020
 
-**Version 1.1.24** - Jan 2020<br/>
+- Fixed read requests without a value and improved invalid-input messages.
 
-- FIX: If the message has no payload and no readstatus, throw an error. If you requests a readstatus, there's no need to pass a payload. Previously, the node has gone in stop mode if the payload was null, thus having readstatus.<br/>
-- Added Read Request sample in the Wiki.<br/>
+**Version 1.1.22**
 
-**Version 1.1.22**<br/>
+- Flow output includes the previous value.
 
-- Added msg.previouspayload that stores the previous node value<br/>
-- Update Wiki accordlingy.<br/>
+**Version 1.1.21**
 
-**Version 1.1.21**<br/>
+- Fixed a possible crash when sending response telegrams and clarified status colours.
 
-- Fixed a possible crash if the payload is an object and the node is set to send a "response" telegram instead of a "write" telegram.<br/>
-- Added an explanation about meaning of status colors, in the node info on the right panel and in the wiki.<br/>
-- Updated node info and wiki to reflect the new UI changes.<br/>
+**Version 1.1.20**
 
-**Version 1.1.20**<br/>
+- ETS import can stop or skip addresses with missing datapoints.
+- Simplified settings and added voice-assistant examples.
 
-- Config node UI cleanup.<br/>
-- During the ETS CSV file import, if a datapoint is not set, you can now select whether to abort the import or to skip the affected group address and continue.<br/>
-- Added Homekit, Alexa and Google Assistant samples in the wiki.<br/>
+**Version 1.1.19**
 
-**Version 1.1.19**<br/>
+- Simplified node settings.
 
-- More UI cleanup.
+**Version 1.1.18**
 
-**Version 1.1.18**<br/>
+- Fixed the order of sent telegrams and moved less-used settings into an Advanced section.
 
-- Removed the handling of the telegram queue's delay buffer from underlying KNX.js API, because it doesn't respect the telegram queue order.<br/>
-- Added own message queue buffer with delay of 50 millisecs. Now the telegrams order is respected.<br/>
-- In the node's configuration, added an advanced tab, that hides or shows the advanced options; now the configuration is much more clean. Advanced Options opens up automatically if the values have been changed from defaults.<br/>
+**Version 1.1.17**
 
-**Version 1.1.17**<br/>
+- Fixed automatic replies to KNX read requests.
 
-- Fixed autorespond to a read request.<br/>
+**Version 1.1.16**
 
-**Version 1.1.16**<br/>
+- Added spacing between outgoing telegrams to avoid overloading the KNX bus.
 
-- Added a minimum delay of 60milliseconds between telegrams, when the node sends telegrams to the BUS, to avoid flooding the KNX BUS, causing a loss of telegrams. The KNX.org specs allows max 50 telegrams per seconds (max 1 telegram each 20milliseconds), but in real life, this is too much.<br/>
+**Version 1.1.15**
 
-**Version 1.1.15**<br/>
+- Fixed KNX communication issues and added troubleshooting help.
 
-- Updated underlying API to 2.3.6 with some bugfixes.<br/>
-- Added FAQ and troubleshoot in the Wiki.<br/>
+**Version 1.1.14**
 
-**Version 1.1.14**<br/>
+- Fixed duplicate-value filtering on output.
 
-- Fix issue with RBE Output due to code cleanup.<br/>
+**Version 1.1.13**
 
-**Version 1.1.13**<br/>
+- Maintenance release.
 
-- Code cleanup thanks @SystemKeeper<br/>
+**Version 1.1.12**
 
-**Version 1.1.12**<br/>
+- Improved Universal Mode and automatic datapoint detection.
 
-- Universal mode optimizations<br/>
-- Fix abnormal log iw universal mode receiver cannot find a suitable datapoint<br/>
-- Added automatic discover for datapoint 14.056<br/>
-- Added automatic discover for datapoint 16.001<br/>
+**Version 1.1.12**
 
-**Version 1.1.12**<br/>
+- Universal Mode can send and receive KNX telegrams without an ETS import.
+- Improved settings and messages for invalid addresses.
 
-- Fixed a little issue where the status message is not displayed if the node has not well wrote group address (for example 1/5 instead of 1/5/1). Thanks @arsiesis.<br/>
-- Cleaned up the layout of config window.<br/>
-- Changed option **Listen to all Group Addresses** to a more comprensible **Universal mode (listen to all Group Addresses)**.<br/>
-- The node can now be used as universal KNX sender/receiver without the need of the ETS CSV File.<br/>
+**Version 1.1.10**
 
-**Version 1.1.10**<br/>
+- Nodes can answer KNX read requests with their stored value.
+- Fixed Universal Mode when an address is missing from the ETS import.
 
-- Auto send node value as response to the KNX Bus. It works in conjunction with React to read telegrams. When checked, whenever the node receives a read request from bus, it sends a response to the KNX Bus with the stored payload value.<br/>
-- Fixed an issue where if you have a node set to Universal mode (listen to all Group Addresses) (with ETS CSV File set) and you create a new node having a Group Addr. not in the ETS CSV file, an exception is raised but not caught and the nodes may not receive the values from KNX BUS.<br/>
+**Version 1.1.9**
 
-**Version 1.1.9**<br/>
+- Improved node status options and fixed KNX/IP connections remaining occupied after Deploy.
 
-- Fixed visual glitch when create a new freshly Config Node.<br/>
-- Added 3 options in the config-node to select what to display in the node status, for a cleaner flow or for a clearer flow.<br/>
-- Fixed issue with IP Interfaces. On each deploy, the node doesn't lock tunnels anymore.<br/>
+**Version 1.1.8**
 
-**Version 1.1.8**<br/>
+- New nodes filter repeated output values by default to help prevent loops.
+- Fixed a crash after losing the KNX connection and improved log labels.
 
-- For new nodes, the rbe output filter is enabled by default. You can always turn it off in the options. This helps novice users avoiding loops.<br/>
-- Fixed an issue where if the connection is in tunnel mode and the connection to the IP Interface or KNX Bus is lost, the node trows an unhandled exception. Thanks to User Maarten200.<br/>
-- Added the word "knxUltimate" before any log, to identify that the log comes from the knx-ultimate node.<br/>
+**Version 1.1.7**
 
-**Version 1.1.7**<br/>
+- Fixed network-interface selection and allowed manual interface names.
 
-- Fixed bind to ethernet. Now you can manually input the ethernet name as well. Thanks to user rotorman.<br/>
+**Version 1.1.6**
 
-**Version 1.1.6**<br/>
+- Fixed ETS CSV descriptions containing line breaks or parentheses.
 
-- Fixed inport CSV from ETS where there is return carriages and parenthesis in the Group Address description. Thanks to user xrk.<br/>
+**Version 1.1.4**
 
-**Version 1.1.4**<br/>
+- Shortened the last-update date and time shown in node status.
 
-- Last changed status date/time shortened out<br/>
+**Version 1.1.3**
 
-**Version 1.1.3**<br/>
+- Node status includes the last-update date and time.
 
-- In node status, added the last changed status date/time.<br/>
+**Version 1.1.2**
 
-**Version 1.1.2**<br/>
+- Improved read-request timing and added filtering of repeated incoming values.
+- Added network-interface selection and fixed saved gateway settings.
 
-- When you asks for a read on a node having Listen All Group Addresses set to true, due to a low delay between each KNX telegram, some telegrams are discarded. Increased the delay between telegram to avoid that.<br/>
-- Added RBE filter for the INPUT from KNX bus as well.<br/>
-- Added the option to bind to local ethernet interface, in case you have more than one, for example, ethernet and wifi.<br/>
-- Fixed option suppress_ack_ldatareq not retain after restart.<br/>
-- In-Line help update to reflect new changes.<br/>
+**Version 1.1.1**
 
-**Version 1.1.1**<br/>
+- Clarified connection status and added ETS group names to address suggestions.
 
-- Disambigued misinterpretation of the "disconnect" status.<br/>
-- In the autocomplete box of KNX device names, when you type in the group address or the device's name, it shows the main and subgroup name as well<br/>
-- Cosmetic adjustment<br/>
-- In-Line help additions<br/>
+**Version 1.1.0 LTS (Long term stable)**
 
-**Version 1.1.0 LTS (Long term stable)**<br/>
+- Nodes stopped by loop protection can be re-enabled with a partial Deploy.
+- Universal Mode disables duplicate-value filtering.
 
-- Once disabled for loop or circular reference protection, the node can be re-enabled by simply click on deploy "modified nodes"<br/>
-- When "Universal mode (listen to all Group Addresses)" is selected, the RBE filter is disabled.<br/>
-- Cosmetic adjustment<br/>
+**Version 1.0.19**
 
-**Version 1.0.19**<br/>
+- Added automatic loop protection.
 
-- Automatic loop protection<br/>
+**Version 1.0.18**
 
-**Version 1.0.18**<br/>
+- Added gateway settings for physical address and older KNX/IP interfaces.
+- Added filtering of repeated input values.
 
-- Added gateway options:<br/>
-  KNX Physical Address<br/>
-  Suppress ACK request<br/>
-  This option help compatibility with old Siemens SWG1 148-1AB22 IP Interface <br/>
-- Added RBE option to the input (Report by Exception node - only passes on data if the payload has changed)<br/>
+**Version 1.0.16**
 
-**Version 1.0.16**<br/>
+- Added protection against loops between linked nodes.
+- **Upgrade notice:** the input message format changed. Check the message examples in the help before updating existing flows.
 
-- Input message format has been CHANGED! please see the wiki!!!.<br/>
-- Circular reference protection (when 2 nodes with same group address are link toghether, the protection avoids loops.).<br/>
+**Version 1.0.15**
 
-**Version 1.0.15**<br/>
+- Device names are included in output even without an ETS import.
 
-- Device Node outputs the name when ETS csv is not set too.<br/>
+**Version 1.0.14**
 
-**Version 1.0.14**<br/>
+- Fixed KNX component installation.
 
-- Fixed knx dependency<br/>
+**Version 1.0.7**
 
-**Version 1.0.7**<br/>
+- Added checks for invalid group addresses.
 
-- Check for invalid node's Group Addr.<br/>
+**Version 1.0.5**
 
-**Version 1.0.5**<br/>
+- Corrected a problem in the previous fix.
 
-- Fixed the fix for the typo error causing a mess<br/>
+**Version 1.0.5**
 
-**Version 1.0.5**<br/>
+- Corrected a typing error in the software.
 
-- Fixed a typo error causing a mess<br/>
+**Version 1.0.4**
 
-**Version 1.0.4**<br/>
+- Fixed ETS CSV handling.
 
-- Fixed possible issue with the csv ETS endpoint<br/>
+**Version 1.0.3**
 
-**Version 1.0.3**<br/>
+- Selecting an ETS group address automatically fills in its device name and datapoint.
 
-- If ETS csv file is set, when typing a group address in the node, a list of KNX devices will be shown and when selected, it set the Datapoint and the Devicename automatically.<br/>
+**Version 1.0.2**
 
-**Version 1.0.2**<br/>
+- Fixed minor settings display issues.
 
-- Fixed minor glitches in node config ui<br/>
+**Version 1.0.1 FIRST PUBLIC RELEASE**
 
-**Version 1.0.1 FIRST PUBLIC RELEASE**<br/>
+- First public release, with minor fixes, documentation and an ETS import video.
 
-- Fixed minor glitches<br/>
-- Ended extensive testing<br/>
-- Enhanced Wiki and Youtube Video about ETS CSV File
+**Version 0.0.6 BETA**
 
-**Version 0.0.6 BETA**<br/>
+- Fixed telegram-type selection and added read/response status colours.
 
-- Fixed Telegram type unable to be set<br/>
-- Added node status for response (blue) and read (grey)<br/>
+**Version 0.0.5 BETA**
 
-**Version 0.0.5 BETA**<br/>
+- Added help and fixed status reading.
 
-- Integration of Help documentation<br/>
-- Readstatus fix<br/>
+**Version 0.0.3 BETA**
 
-**Version 0.0.3 BETA**<br/>
+- Added help, examples and clearer ETS import messages.
 
-- Added Help documentation<br/>
-- Added samples on the Readme.md<br/>
-- Better user's notifications handling of the ETS csv file checks.<br/>
+**Version 0.0.2 BETA**
 
-**Version 0.0.2 BETA**<br/>
+- Added beta warnings.
 
-- Added BETA warnings.<br/>
+**Version 0.0.1 BETA**
 
-**Version 0.0.1 BETA**<br/>
-
-- Initial release<br/>
+- Initial beta release.
