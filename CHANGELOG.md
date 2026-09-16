@@ -8,6 +8,7 @@
 
 **Version 7.1.1** - September 2026<br/>
 
+- Restored legacy KNX AI nodes and their web dashboard for existing flows; nodes remain hidden from the palette.<br/>
 - HUE and Matter nodes hidden from the palette; existing flows continue to work.<br/>
 - Added a migration reminder for legacy HUE and KNX nodes.<br/>
 

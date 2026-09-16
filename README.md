@@ -16,7 +16,7 @@ Starting with **7.1.1**, HUE and Matter nodes are hidden from the palette. All t
 
 **KNX Viewer** opens a simple ETS-style list of group address state changes, with time, telegram type (Read, Write, Response), source, GA, name, DPT, previous value and new value. Read requests are also recorded, without changing the last known GA value. Search the history or pause the live view; the node keeps recording to local files and retains the last 24 hours across Node-RED restarts. See the [KNX Viewer guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer).
 
-The AI assistant is available in the standalone [Cerebrum Ultimate](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate) package, with KNX Ultimate as an optional compatible integration. Starting with **7.1.0-beta.0**, the legacy `knxUltimateAI` and `knxUltimateAIHomeAssistant` nodes and their bundled web dashboard have been removed. Existing flows containing these types will show unknown nodes: migrate them to standalone Cerebrum Ultimate before upgrading. There is no automatic conversion; saved AI data on disk is left untouched.
+The AI assistant is available in the standalone [Cerebrum Ultimate](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate) package, with KNX Ultimate as an optional compatible integration. Since **7.1.1**, the legacy `knxUltimateAI` and `knxUltimateAIHomeAssistant` nodes and their web dashboard are included again for compatibility with existing flows. The nodes are hidden from the palette; existing configurations and saved AI data remain supported. Migration to standalone Cerebrum Ultimate is optional and there is no automatic conversion.
 
 <br/>
 <br/>

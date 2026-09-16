@@ -11,6 +11,6 @@ The legacy AI node bundled with KNX Ultimate has been replaced by the standalone
 
 Cerebrum Ultimate treats KNX Ultimate as an optional compatible integration, alongside Home Assistant, HUE, Matter, UniFi Protect and other registered adapters. New installations should use [`node-red-contrib-cerebrum-ultimate`](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate).
 
-Starting with **7.1.0-beta.0**, `knxUltimateAI` and `knxUltimateAIHomeAssistant` and their bundled web dashboard have been removed from KNX Ultimate. Existing flows containing these types will show unknown nodes. Migrate those flows to standalone Cerebrum Ultimate before upgrading; there is no automatic conversion. Saved AI data on disk is left untouched.
+Since **7.1.1**, the legacy `knxUltimateAI` and `knxUltimateAIHomeAssistant` nodes and their web dashboard are included again for compatibility with existing flows. The nodes are hidden from the palette; existing configurations and saved AI data remain supported. Migration to standalone Cerebrum Ultimate is optional and there is no automatic conversion.
 
 The complete English documentation lives in the [Cerebrum Ultimate README](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme).

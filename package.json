@@ -24,14 +24,17 @@
     "mqtt": "^5.15.2",
     "ping": "0.4.4",
     "simple-get": "4.0.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "google-translate-tts": "^0.3.0",
+    "js-yaml": "4.3.2"
   },
   "node-red": {
     "version": ">=3.1.1",
     "plugins": {
       "commonFunctions": "/nodes/commonFunctions.js",
       "knxUltimateFlowBubbles": "/nodes/plugins/knxUltimate-flow-bubbles-plugin.html",
-      "knxUltimateMigrationNotice": "/nodes/plugins/knxUltimate-migration-notice-plugin.html"
+      "knxUltimateMigrationNotice": "/nodes/plugins/knxUltimate-migration-notice-plugin.html",
+      "knxUltimateCerebrumRuntime": "/nodes/plugins/knxUltimate-cerebrum-runtime-plugin.js"
     },
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
@@ -72,7 +75,9 @@
       "knxUltimateHueCameraMotion": "/nodes/knxUltimateHueCameraMotion.js",
       "matter-config": "/nodes/matter-config.js",
       "matterbridge-config": "/nodes/matterbridge-config.js",
-      "knxUltimateMatterBridge": "/nodes/knxUltimateMatterBridge.js"
+      "knxUltimateMatterBridge": "/nodes/knxUltimateMatterBridge.js",
+      "knxUltimateAI": "/nodes/knxUltimateAI.js",
+      "knxUltimateAIHomeAssistant": "/nodes/knxUltimateAIHomeAssistant.js"
     }
   },
   "repository": {
@@ -106,7 +111,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "npm run knx-viewer:build",
+    "build": "npm run knx-ai:build && npm run knx-viewer:build",
     "prepack": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "npm run hue-controller:check && npm run knx-utility:check && DEBUG_KNX_HUE_TEST=0 npm run test:unit && node scripts/check-node-load.js",
@@ -138,15 +143,17 @@
     "docs:serve": "node scripts/dev-serve-docs.js",
     "docs:serve:norl": "node scripts/dev-serve-docs.js",
     "knx-utility:generate": "node scripts/generate-knx-utility-profiles.js",
-    "knx-utility:check": "node scripts/generate-knx-utility-profiles.js --check"
+    "knx-utility:check": "node scripts/generate-knx-utility-profiles.js --check",
+    "knx-ai:dev": "vite --config ui/knxUltimateAI-vue/vite.config.mjs",
+    "knx-ai:build": "vite build --config ui/knxUltimateAI-vue/vite.config.mjs"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
     "chai": "^4.3.10",
-    "js-yaml": "4.3.2",
     "marked": "^14.1.0",
     "mocha": "^10.4.0",
     "vite": "^7.3.6",
-    "vue": "^3.5.41"
+    "vue": "^3.5.41",
+    "jspdf": "^4.2.1"
   }
 }

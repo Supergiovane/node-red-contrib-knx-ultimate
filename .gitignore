@@ -45,3 +45,8 @@ test/*
 !test/flowMigrationBackup.test.js
 !test/hueMigrationBackup.test.js
 !test/legacyMigrationNotice.test.js
+!test/knxAiBootNotification.test.js
+!test/knxAiCerebrum.test.js
+!test/knxAiConversation.test.js
+!test/knxAiHomeMemory.test.js
+!test/knxAiScheduler.test.js
