@@ -6,17 +6,9 @@
 
 ## The most popular KNX node for Node-RED
 
-KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, Philips Hue, Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter), MQTT, diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort.
-
-**KNX Utility** brings eleven functions into one palette node: Alerter, AutoResponder, DateTime, WatchDog, GlobalContext, Logger, Staircase, Garage, SceneController, LoadControl and Home Assistant Translator. Select a function to get its editor, icon and ports; KNX Device remains the main node. Home Assistant Translator converts message values to booleans without requiring a KNX gateway. Existing dedicated nodes continue to work. The migration button converts all compatible nodes in every flow and subflow, preserving IDs, settings, connections, saved scenes and values. Before KNX or HUE conversion, the browser automatically starts downloading a dated JSON backup of all current editor flows using the standard Node-RED export format, without declared credentials. Conversion supports a single Undo and waits for you to Deploy. See the [KNX Utility guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/KNX-Utility), localized node help and the [example flow with all eleven functions](examples/KNX%20Utility%20-%20All%20functions.json).
-
-When the editor opens, a migration reminder appears only if its flows or subflows contain legacy HUE or KNX utility nodes. It shows a migration button for each family present; **Later** dismisses the reminder for the current editor session. Existing nodes continue to work, and each migration keeps its backup, confirmation and manual Deploy steps.
-
-Starting with **7.1.1**, HUE and Matter nodes are hidden from the palette. All their runtimes, configuration nodes and dependencies remain included, so existing flows can still be edited and deployed.
-
-**KNX Viewer** opens a simple ETS-style list of group address state changes, with time, telegram type (Read, Write, Response), source, GA, name, DPT, previous value and new value. Read requests are also recorded, without changing the last known GA value. Search the history or pause the live view; the node keeps recording to local files and retains the last 24 hours across Node-RED restarts. See the [KNX Viewer guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/knxUltimateViewer).
-
-The AI assistant is available in the standalone [Cerebrum Ultimate](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate) package, with KNX Ultimate as an optional compatible integration. Since **7.1.1**, the legacy `knxUltimateAI` and `knxUltimateAIHomeAssistant` nodes and their web dashboard are included again for compatibility with existing flows. The nodes are hidden from the palette; existing configurations and saved AI data remain supported. Migration to standalone Cerebrum Ultimate is optional and there is no automatic conversion.
+KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, ETS diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort. ù
+You can optionally increase the power of KNX, by installing node-red-contrig-hue-ultimate for Philips Hue and installing node-red-contrig-matter-ultimate form Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter).
+These optional nodes will detect KNX-Ultimate and seamlessy integrate with KNX, without further configurations.
 
 <br/>
 <br/>
