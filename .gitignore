@@ -5,6 +5,7 @@ node_modules
 package-lock.json
 KNXUltimateDebugLog.txt
 AGENTS.md
+Node-Red-KNXUltimate.code-workspace
 
 tutorial
 .continue/
