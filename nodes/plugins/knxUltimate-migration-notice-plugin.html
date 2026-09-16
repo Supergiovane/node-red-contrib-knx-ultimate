@@ -1,0 +1,19 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/flowMigrationBackup.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigration.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigrationDialog.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityMigration.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/legacyMigrationNotice.js"></script>
+
+<script type="text/javascript">
+    (function () {
+        let notice;
+        RED.plugins.registerPlugin("knxUltimate-migration-notice-plugin", {
+            onadd: function () {
+                notice = window.KNXUltimateLegacyMigrationNotice.install(RED, { environment: window, $ });
+            },
+            onremove: function () {
+                if (notice) notice.dispose();
+            }
+        });
+    }());
+</script>

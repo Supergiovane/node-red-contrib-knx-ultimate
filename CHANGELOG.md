@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 7.1.1** - September 2026<br/>
+
+- HUE and Matter nodes hidden from the palette; existing flows continue to work.<br/>
+- Added a migration reminder for legacy HUE and KNX nodes.<br/>
+
 **Version 7.1.0-beta.2** - September 2026<br/>
 
 - Public beta avaiable for all<br/>

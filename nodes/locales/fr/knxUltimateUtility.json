@@ -10,6 +10,14 @@
     "migration_success": "Le téléchargement de la sauvegarde des flux a démarré. {{count}} nœuds convertis en KNX Utility. Vérifiez le résultat et cliquez sur Deploy pour l’appliquer. Vous pouvez revenir en arrière avec Annuler.",
     "migration_backup_failed": "Impossible de démarrer la sauvegarde des flux. Aucun nœud n’a été converti :",
     "migration_failed": "Échec de la conversion en KNX Utility :",
+    "startup_migration": {
+      "title": "Anciens nœuds KNX Ultimate",
+      "message": "Anciens nœuds détectés dans vos flux et sous-flux : HUE : {{hue}} ; utilitaires KNX : {{knx}}. Ces nœuds fonctionnent toujours, mais sont masqués dans la palette. Migrez-les vers HUE Controller et KNX Utility. Chaque migration télécharge une sauvegarde des flux ; vérifiez le résultat avant de déployer.",
+      "hue_button": "Migrer HUE ({{count}})",
+      "knx_button": "Migrer KNX ({{count}})",
+      "later": "Plus tard",
+      "unavailable": "L’outil de migration n’est pas disponible. Rechargez l’éditeur après avoir redémarré Node-RED."
+    },
     "locale": "fr",
     "function": "Fonction",
     "gateway": "Passerelle KNX",

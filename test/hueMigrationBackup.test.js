@@ -13,6 +13,7 @@ function createHarness (options = {}) {
   let backupError = options.backupError
   let backupCount = 0
   let backupSnapshot
+  let closeCount = 0
 
   class Element {
     constructor (selector) {
@@ -97,7 +98,17 @@ function createHarness (options = {}) {
     }
   }
   if (!options.missingBackup) windowObject.KNXUltimateFlowMigrationBackup = backupApi
-  const close = migrationDialog.open({ RED, $, windowObject, documentObject, migrationApi })
+  const close = migrationDialog.open({
+    RED,
+    $,
+    windowObject,
+    documentObject,
+    migrationApi,
+    onClose () {
+      closeCount += 1
+      if (options.onClose) options.onClose()
+    }
+  })
   return {
     events,
     pending,
@@ -107,6 +118,7 @@ function createHarness (options = {}) {
     get dialog () { return dialog },
     get backupCount () { return backupCount },
     get backupSnapshot () { return backupSnapshot },
+    get closeCount () { return closeCount },
     get status () { return elements.find(element => element.selector.includes('hue-controller-migration-status')) },
     get convertButton () { return elements.find(element => element.selector === '.hue-controller-migration-convert') },
     get backupNote () { return elements.find(element => element.selector.includes('hue-controller-migration-backup')) },
@@ -134,13 +146,17 @@ describe('HUE migration automatic flow backup', function () {
 
   it('starts only one download and conversion for repeated confirmation clicks', function () {
     const harness = createHarness()
+    assert.equal(harness.closeCount, 0)
     harness.convert()
+    assert.equal(harness.closeCount, 1)
     harness.convert()
     harness.flush()
     harness.convert()
     harness.flush()
+    harness.close()
     assert.equal(harness.backupCount, 1)
     assert.equal(harness.events.filter(event => event === 'apply').length, 1)
+    assert.equal(harness.closeCount, 1)
   })
 
   it('keeps the editor and flow intact after a backup error and allows a retry', function () {
@@ -152,10 +168,12 @@ describe('HUE migration automatic flow backup', function () {
     assert.equal(harness.dialog.removed, undefined)
     assert.equal(harness.nodes[0].type, 'knxUltimateHueLight')
     assert.equal(harness.pending.length, 0)
+    assert.equal(harness.closeCount, 0)
     harness.clearBackupError()
     harness.convert()
     harness.flush()
     assert.equal(harness.nodes[0].type, 'knxUltimateHueController')
+    assert.equal(harness.closeCount, 1)
   })
 
   it('blocks conversion when the shared backup helper is unavailable', function () {
@@ -167,6 +185,7 @@ describe('HUE migration automatic flow backup', function () {
     assert.equal(harness.dialog.removed, undefined)
     assert.equal(harness.pending.length, 0)
     assert.equal(harness.nodes[0].type, 'knxUltimateHueLight')
+    assert.equal(harness.closeCount, 0)
   })
 
   it('does not download or close the editor when migration preflight fails', function () {
@@ -177,19 +196,27 @@ describe('HUE migration automatic flow backup', function () {
     assert.equal(harness.convertButton.properties.disabled, false)
     assert.equal(harness.dialog.removed, undefined)
     assert.equal(harness.backupCount, 0)
+    assert.equal(harness.closeCount, 0)
   })
 
   it('does not download for cancel, a closed dialog, or an empty conversion', function () {
     const harness = createHarness()
     harness.cancel()
+    harness.close()
     harness.convert()
     harness.flush()
     assert.deepEqual(harness.events, ['close-dialog'])
     assert.equal(harness.backupCount, 0)
+    assert.equal(harness.closeCount, 1)
+    const closed = createHarness()
+    closed.close()
+    closed.close()
+    assert.equal(closed.closeCount, 1)
     const empty = createHarness({ nodes: [] })
     assert.equal(empty.dialog, undefined)
     assert.deepEqual(empty.events, [])
     assert.match(empty.notifications[0].message, /No legacy HUE nodes/)
+    assert.equal(empty.closeCount, 1)
   })
 
   it('keeps the downloaded backup when conversion later fails and reports the migration error', function () {

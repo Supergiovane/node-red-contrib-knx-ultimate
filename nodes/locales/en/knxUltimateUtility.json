@@ -10,6 +10,14 @@
     "migration_success": "The flow backup download has started. {{count}} nodes converted to KNX Utility. Review the result and click Deploy to apply it. You can undo the conversion with Undo.",
     "migration_backup_failed": "Flow backup could not be started. No nodes were converted:",
     "migration_failed": "KNX Utility conversion failed:",
+    "startup_migration": {
+      "title": "Legacy KNX Ultimate nodes",
+      "message": "Legacy nodes found in your flows and subflows: HUE: {{hue}}; KNX utility: {{knx}}. These nodes still work, but are hidden from the palette. Migrate them to HUE Controller and KNX Utility. Each migration downloads a flow backup; review the result before deploying.",
+      "hue_button": "Migrate HUE ({{count}})",
+      "knx_button": "Migrate KNX ({{count}})",
+      "later": "Later",
+      "unavailable": "The migration tool is unavailable. Reload the editor after restarting Node-RED."
+    },
     "locale": "en",
     "function": "Function",
     "gateway": "KNX Gateway",

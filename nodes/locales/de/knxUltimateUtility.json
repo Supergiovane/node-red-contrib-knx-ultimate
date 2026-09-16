@@ -10,6 +10,14 @@
     "migration_success": "Der Download der Flow-Sicherung wurde gestartet. {{count}} Knoten in KNX Utility konvertiert. Prüfen Sie das Ergebnis und klicken Sie auf Deploy, um es anzuwenden. Mit Rückgängig können Sie die Konvertierung aufheben.",
     "migration_backup_failed": "Die Flow-Sicherung konnte nicht gestartet werden. Es wurden keine Knoten konvertiert:",
     "migration_failed": "Konvertierung in KNX Utility fehlgeschlagen:",
+    "startup_migration": {
+      "title": "Veraltete KNX Ultimate-Knoten",
+      "message": "Veraltete Knoten in deinen Flows und Subflows gefunden: HUE: {{hue}}; KNX-Utility: {{knx}}. Diese Knoten funktionieren weiterhin, sind aber in der Palette ausgeblendet. Migriere sie zu HUE Controller und KNX Utility. Bei jeder Migration wird eine Sicherung der Flows heruntergeladen; prüfe das Ergebnis vor dem Deploy.",
+      "hue_button": "HUE migrieren ({{count}})",
+      "knx_button": "KNX migrieren ({{count}})",
+      "later": "Später",
+      "unavailable": "Das Migrationstool ist nicht verfügbar. Starte Node-RED neu und lade anschließend den Editor neu."
+    },
     "locale": "de",
     "function": "Funktion",
     "gateway": "KNX-Gateway",

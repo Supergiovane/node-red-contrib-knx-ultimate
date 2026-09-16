@@ -43,3 +43,4 @@ test/*
 !test/knxViewerRuntime.test.js
 !test/flowMigrationBackup.test.js
 !test/hueMigrationBackup.test.js
+!test/legacyMigrationNotice.test.js

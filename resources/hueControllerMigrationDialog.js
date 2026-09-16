@@ -115,12 +115,14 @@
       if (RED && typeof RED.notify === 'function') {
         RED.notify(translate('migration_unavailable', 'The HUE migration tool is unavailable. Restart Node-RED after updating the package.'), 'error')
       }
+      if (typeof options.onClose === 'function') options.onClose()
       return function () {}
     }
 
     const legacyNodes = migrationApi.collectLegacyHueNodes(RED)
     if (legacyNodes.length === 0) {
       if (typeof RED.notify === 'function') RED.notify(translate('migration_none', 'No legacy HUE nodes were found.'), 'warning')
+      if (typeof options.onClose === 'function') options.onClose()
       return function () {}
     }
 
@@ -158,6 +160,7 @@
       if ($convert) $convert.off(EVENT_NAMESPACE)
       try { $dialog.dialog('destroy') } catch (error) { /* already detached */ }
       $dialog.remove()
+      if (typeof options.onClose === 'function') options.onClose()
     }
 
     const performMigration = () => {

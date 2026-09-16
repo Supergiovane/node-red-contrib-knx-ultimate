@@ -450,10 +450,12 @@ describe('KNX Utility migration', function () {
     const pending = []
     const actions = []
     const backups = []
+    let closeCount = 0
     const typesBefore = legacyNodes.map(node => node.type)
     RED.actions = { invoke: action => actions.push(action) }
-    migration.migrate(RED, {
+    const close = migration.migrate(RED, {
       environment: { setTimeout: callback => pending.push(callback) },
+      onClose: () => { closeCount += 1 },
       backupApi: { download: (editor, options) => {
         expect(editor).to.equal(RED)
         expect(options.kind).to.equal('knx')
@@ -464,12 +466,14 @@ describe('KNX Utility migration', function () {
       } }
     })
     expect(backups).to.have.length(0)
+    expect(closeCount).to.equal(0)
     expect(history).to.have.length(0)
     expect(notifications[0].message).to.include('11 compatible legacy')
     expect(notifications[0].settings).to.include({ modal: true, fixed: true })
     const confirm = notifications[0].settings.buttons[1].click
     confirm()
     confirm()
+    expect(closeCount).to.equal(1)
     expect(backups).to.have.length(1)
     expect(actions).to.deep.equal(['core:cancel-edit-tray'])
     expect(pending).to.have.length(1)
@@ -478,6 +482,8 @@ describe('KNX Utility migration', function () {
     expect(legacyNodes.every(node => node.type === 'knxUltimateUtility')).to.equal(true)
     expect(history).to.have.length(1)
     expect(notifications[1].message).to.include('11 nodes converted')
+    close()
+    expect(closeCount).to.equal(1)
   })
 
   it('keeps the editor and nodes unchanged if the backup tool is missing or fails, and allows retry', function () {
@@ -485,14 +491,17 @@ describe('KNX Utility migration', function () {
       const { RED, legacyNodes, history, notifications } = editorFixture({ dirty: true })
       const pending = []
       const actions = []
+      let closeCount = 0
       const originalTypes = legacyNodes.map(node => node.type)
       RED.actions = { invoke: action => actions.push(action) }
       const environment = { setTimeout: callback => pending.push(callback) }
       if (!missing) environment.KNXUltimateFlowMigrationBackup = { download: () => { throw new Error('Download failed') } }
-      migration.migrate(RED, { environment })
+      migration.migrate(RED, { environment, onClose: () => { closeCount += 1 } })
+      expect(closeCount).to.equal(0)
       const confirm = notifications[0].settings.buttons[1].click
       confirm()
       expect(notifications[0].closed).to.equal(false)
+      expect(closeCount).to.equal(0)
       expect(notifications[1].message).to.include('Flow backup could not be started. No nodes were converted:')
       expect(actions).to.have.length(0)
       expect(pending).to.have.length(0)
@@ -505,16 +514,21 @@ describe('KNX Utility migration', function () {
       pending[0]()
       expect(legacyNodes.every(node => node.type === 'knxUltimateUtility')).to.equal(true)
       expect(history).to.have.length(1)
+      expect(closeCount).to.equal(1)
     }
   })
 
   it('cancels without changing nodes and reports an empty editor without conversion', function () {
     const { RED, history, notifications } = editorFixture()
     let downloads = 0
-    const options = { backupApi: { download: () => { downloads++ } } }
-    migration.migrate(RED, options)
+    let closeCount = 0
+    const options = { backupApi: { download: () => { downloads++ } }, onClose: () => { closeCount += 1 } }
+    const close = migration.migrate(RED, options)
+    expect(closeCount).to.equal(0)
     notifications[0].settings.buttons[0].click()
     notifications[0].settings.buttons[1].click()
+    close()
+    expect(closeCount).to.equal(1)
     expect(notifications[0].closed).to.equal(true)
     expect(history).to.have.length(0)
     RED.nodes.eachNode = () => {}
@@ -522,6 +536,7 @@ describe('KNX Utility migration', function () {
     expect(notifications[1].message).to.include('No compatible legacy')
     expect(history).to.have.length(0)
     expect(downloads).to.equal(0)
+    expect(closeCount).to.equal(2)
   })
 
   it('localizes legacy notices, migration controls and help in every supported language', function () {

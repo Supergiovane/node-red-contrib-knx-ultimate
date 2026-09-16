@@ -10,6 +10,14 @@
     "migration_success": "流程备份下载已开始。 已将 {{count}} 个节点转换为 KNX Utility。请检查结果并点击部署以应用。您可以使用撤销来撤销转换。",
     "migration_backup_failed": "无法启动流程备份。未转换任何节点：",
     "migration_failed": "KNX Utility 转换失败：",
+    "startup_migration": {
+      "title": "旧版 KNX Ultimate 节点",
+      "message": "在您的流程和子流程中发现旧版节点：HUE：{{hue}}；KNX 工具：{{knx}}。这些节点仍可正常运行，但已从节点面板中隐藏。请将它们迁移至 HUE Controller 和 KNX Utility。每次迁移都会下载流程备份；部署前请检查迁移结果。",
+      "hue_button": "迁移 HUE（{{count}}）",
+      "knx_button": "迁移 KNX（{{count}}）",
+      "later": "稍后",
+      "unavailable": "迁移工具不可用。请重启 Node-RED 后重新加载编辑器。"
+    },
     "locale": "zh-CN",
     "function": "功能",
     "gateway": "KNX 网关",

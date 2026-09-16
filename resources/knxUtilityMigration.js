@@ -210,6 +210,7 @@
     const t = (key, fallback, values) => translate(RED, key, fallback, values)
     if (legacyNodes.length === 0) {
       RED.notify(t('migration_none', 'No compatible legacy KNX utility nodes were found.'), 'info')
+      if (typeof options.onClose === 'function') options.onClose()
       return
     }
     if (activeNotification && typeof activeNotification.close === 'function') activeNotification.close()
@@ -217,8 +218,10 @@
     let closed = false
     let notification
     const close = () => {
+      if (closed) return
       closed = true
       if (notification && typeof notification.close === 'function') notification.close()
+      if (typeof options.onClose === 'function') options.onClose()
     }
     notification = RED.notify(t('migration_confirm', 'Convert all {{count}} compatible legacy KNX utility nodes in every flow and subflow to KNX Utility? Before conversion, the browser automatically starts downloading a JSON backup of all flows. Protected credentials are excluded, as in the standard Node-RED export. Your browser may ask where to save the file. The current node editor will close and discard unsaved edits. IDs, settings, connections and groups are preserved. Conversion happens in this browser, can be undone, and takes effect when you Deploy.', { count: legacyNodes.length }), {
       modal: true,
