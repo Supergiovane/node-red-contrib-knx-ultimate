@@ -6,8 +6,9 @@
 
 # CHANGELOG
 
-**Version 8.0.0-beta.0** - September 2026
+**Version 8.0.0-beta.2** - September 2026
 
+- The editor stays accessible after upgrading from version 7 and reminds you to restart Node-RED.
 - First beta of KNX Ultimate 8, with only the current KNX nodes.
 - Installation checks saved flows and blocks the upgrade if old HUE or Matter nodes still need migration.
 - HUE and Matter use their separate packages; old KNX utility nodes are replaced by KNX Utility.

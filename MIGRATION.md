@@ -19,6 +19,12 @@ Use the migration tools instead of manually recreating configuration nodes: thei
 
 Missing old node types cannot run in version 8. Reinstall the previous KNX Ultimate 7 version and restart Node-RED before migrating. Restore the complete backup if necessary. Do not delete unknown nodes or reset Matter to try to fix an incomplete migration.
 
+## After installing version 8
+
+Restart the Node-RED service, then reload the editor. Reloading the browser or pressing Deploy does not replace the service restart.
+
+Until Node-RED restarts, it may still serve editor definitions from version 7. Small compatibility resources keep that editor from getting stuck on “Loading Plugins” or “Loading Nodes”, and the old migration notice asks you to restart. Complete the restart before editing or deploying flows. These resources do not restore removed nodes or perform migrations.
+
 ## Using the separate packages
 
 Hue Ultimate and Matter Ultimate provide their own configuration nodes and device connections. To integrate with KNX, select a `knxUltimate-config` gateway in their editors. KNX Ultimate continues to provide group address suggestions, datapoints and telegram exchange; it does not need Hue or Matter libraries installed inside its own package.
