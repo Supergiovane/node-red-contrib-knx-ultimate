@@ -31,7 +31,7 @@
   },
   {
     "id": "ga_node",
-    "type": "knxUltimateGarage",
+    "type": "knxUltimateUtility",
     "z": "ga_tab",
     "server": "ga_cfg",
     "name": "Garage Door",
@@ -66,7 +66,10 @@
       [
         "ga_dbg"
       ]
-    ]
+    ],
+    "utilityType": "garage",
+    "inputs": 1,
+    "outputs": 1
   },
   {
     "id": "ga_inj_on",

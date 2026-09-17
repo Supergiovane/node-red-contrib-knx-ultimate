@@ -46,7 +46,14 @@ test/*
 !test/hueMigrationBackup.test.js
 !test/legacyMigrationNotice.test.js
 !test/knxAiBootNotification.test.js
-!test/knxAiCerebrum.test.js
 !test/knxAiConversation.test.js
 !test/knxAiHomeMemory.test.js
 !test/knxAiScheduler.test.js
+
+# Version 8 package boundary tests and frozen migration input
+!test/knxPackageBoundary.test.js
+!test/fixtures/
+!test/fixtures/knx7-utility-definitions.json
+
+!scripts/check-legacy-flows.js
+!test/legacyInstallGuard.test.js

@@ -14,7 +14,7 @@
   },
   {
     "id": "scene_ctrl_1",
-    "type": "knxUltimateSceneController",
+    "type": "knxUltimateUtility",
     "z": "flow4",
     "server": "sc_cfg_1",
     "name": "Scene Recall/Save",
@@ -30,33 +30,60 @@
     "rules": [],
     "x": 410,
     "y": 200,
-    "wires": [["sc_dbg"]]
+    "wires": [
+      [
+        "sc_dbg"
+      ]
+    ],
+    "utilityType": "scenecontroller",
+    "inputs": 1,
+    "outputs": 1
   },
   {
     "id": "inj_recall",
     "type": "inject",
     "z": "flow4",
     "name": "Recall Scene 2",
-    "props": [{"p":"payload","v":"true","vt":"bool"}],
+    "props": [
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
     "repeat": "",
     "once": false,
     "onceDelay": 0.1,
     "x": 180,
     "y": 180,
-    "wires": [["scene_ctrl_1"]]
+    "wires": [
+      [
+        "scene_ctrl_1"
+      ]
+    ]
   },
   {
     "id": "inj_save",
     "type": "inject",
     "z": "flow4",
     "name": "Save Scene 2",
-    "props": [{"p":"payload","v":"true","vt":"bool"}],
+    "props": [
+      {
+        "p": "payload",
+        "v": "true",
+        "vt": "bool"
+      }
+    ],
     "repeat": "",
     "once": false,
     "onceDelay": 0.1,
     "x": 170,
     "y": 240,
-    "wires": [["scene_ctrl_1"]]
+    "wires": [
+      [
+        "scene_ctrl_1"
+      ]
+    ]
   },
   {
     "id": "sc_dbg",

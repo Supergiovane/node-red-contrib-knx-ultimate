@@ -1,0 +1,593 @@
+{
+  "knxUltimateAlerter": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": false
+      },
+      "name": {
+        "value": ""
+      },
+      "property": {
+        "value": "payload",
+        "required": true
+      },
+      "propertyType": {
+        "value": "msg"
+      },
+      "rules": {
+        "value": [
+          {
+            "t": "eq",
+            "v": "",
+            "vt": "str"
+          }
+        ]
+      },
+      "whentostart": {
+        "value": "ifnewalert"
+      },
+      "timerinterval": {
+        "value": "2"
+      },
+      "initialreadGAInRules": {
+        "value": "1"
+      }
+    },
+    "inputs": 1,
+    "outputs": 3
+  },
+  "knxUltimateAutoResponder": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "name": {
+        "value": "Auto responder",
+        "required": false
+      },
+      "commandText": {
+        "value": "[{\"ga\":\"2/7/1\",\"default\":true},{\"note\":\"Virtual sensors coming from Hikvision AX-Pro\",\"ga\":\"3/1/1..22\",\"dpt\":\"1.001\",\"default\":false},{\"note\":\"DALI garden virtual brightness %\",\"ga\":\"2/2/5..21\",\"dpt\":\"5.001\",\"default\":25},{\"note\":\"Alarm armed status text\",\"ga\":\"2/4/22\",\"dpt\":\"16.001\",\"default\":\"Unknown status!\"}]",
+        "required": false
+      }
+    },
+    "inputs": 0,
+    "outputs": 0
+  },
+  "knxUltimateDateTime": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "name": {
+        "value": ""
+      },
+      "outputtopic": {
+        "value": ""
+      },
+      "gaDateTime": {
+        "value": ""
+      },
+      "nameDateTime": {
+        "value": ""
+      },
+      "dptDateTime": {
+        "value": "19.001"
+      },
+      "gaDate": {
+        "value": ""
+      },
+      "nameDate": {
+        "value": ""
+      },
+      "dptDate": {
+        "value": "11.001"
+      },
+      "gaTime": {
+        "value": ""
+      },
+      "nameTime": {
+        "value": ""
+      },
+      "dptTime": {
+        "value": "10.001"
+      },
+      "sendOnDeploy": {
+        "value": true
+      },
+      "sendOnDeployDelay": {
+        "value": 30
+      },
+      "periodicSend": {
+        "value": true
+      },
+      "periodicSendInterval": {
+        "value": 60
+      },
+      "periodicSendUnit": {
+        "value": "m"
+      }
+    },
+    "inputs": 0,
+    "outputs": 0
+  },
+  "knxUltimateWatchDog": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "topic": {
+        "value": "12/0/0"
+      },
+      "maxRetry": {
+        "value": 6
+      },
+      "retryInterval": {
+        "value": 10
+      },
+      "name": {
+        "value": ""
+      },
+      "autoStart": {
+        "value": true
+      },
+      "listenToKnxUltimateNodeErrors": {
+        "value": true
+      },
+      "checkLevel": {
+        "value": "Ethernet"
+      }
+    },
+    "inputs": 1,
+    "outputs": 1
+  },
+  "knxUltimateGlobalContext": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "name": {
+        "value": "KNXGlobalContext"
+      },
+      "exposeAsVariable": {
+        "value": "exposeAsVariableREADWRITE",
+        "required": false
+      },
+      "writeExecutionInterval": {
+        "value": 1000
+      },
+      "contextStorage": {
+        "value": ""
+      }
+    },
+    "inputs": 0,
+    "outputs": 0
+  },
+  "knxUltimateLogger": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "topic": {
+        "value": ""
+      },
+      "intervalCreateETSXML": {
+        "value": 15,
+        "required": true
+      },
+      "name": {
+        "value": ""
+      },
+      "autoStartTimerCreateETSXML": {
+        "value": true
+      },
+      "maxRowsInETSXML": {
+        "value": 0,
+        "required": true
+      },
+      "saveMode": {
+        "value": "emit"
+      },
+      "filePath": {
+        "value": ""
+      },
+      "autoStartTimerTelegramCounter": {
+        "value": false
+      },
+      "intervalTelegramCount": {
+        "value": 60,
+        "required": false
+      }
+    },
+    "inputs": 1,
+    "outputs": 2
+  },
+  "knxUltimateStaircase": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "name": {
+        "value": ""
+      },
+      "outputtopic": {
+        "value": ""
+      },
+      "gaTrigger": {
+        "value": "",
+        "required": true
+      },
+      "nameTrigger": {
+        "value": ""
+      },
+      "dptTrigger": {
+        "value": "1.001"
+      },
+      "gaOutput": {
+        "value": "",
+        "required": true
+      },
+      "nameOutput": {
+        "value": ""
+      },
+      "dptOutput": {
+        "value": "1.001"
+      },
+      "gaStatus": {
+        "value": ""
+      },
+      "nameStatus": {
+        "value": ""
+      },
+      "dptStatus": {
+        "value": "1.001"
+      },
+      "gaOverride": {
+        "value": ""
+      },
+      "nameOverride": {
+        "value": ""
+      },
+      "dptOverride": {
+        "value": "1.001"
+      },
+      "gaBlock": {
+        "value": ""
+      },
+      "nameBlock": {
+        "value": ""
+      },
+      "dptBlock": {
+        "value": "1.001"
+      },
+      "timerSeconds": {
+        "value": 120,
+        "required": true
+      },
+      "extendMode": {
+        "value": "restart"
+      },
+      "triggerOffCancels": {
+        "value": "yes"
+      },
+      "preWarnEnable": {
+        "value": false
+      },
+      "preWarnSeconds": {
+        "value": 15
+      },
+      "preWarnMode": {
+        "value": "status"
+      },
+      "preWarnFlashMs": {
+        "value": 400
+      },
+      "blockAction": {
+        "value": "off"
+      },
+      "emitEvents": {
+        "value": false
+      }
+    },
+    "inputs": 1,
+    "outputs": 1
+  },
+  "knxUltimateGarage": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "name": {
+        "value": ""
+      },
+      "outputtopic": {
+        "value": ""
+      },
+      "gaCommand": {
+        "value": "",
+        "required": true
+      },
+      "nameCommand": {
+        "value": ""
+      },
+      "dptCommand": {
+        "value": "1.001"
+      },
+      "gaImpulse": {
+        "value": ""
+      },
+      "nameImpulse": {
+        "value": ""
+      },
+      "dptImpulse": {
+        "value": "1.017"
+      },
+      "gaHoldOpen": {
+        "value": ""
+      },
+      "nameHoldOpen": {
+        "value": ""
+      },
+      "dptHoldOpen": {
+        "value": "1.001"
+      },
+      "gaDisable": {
+        "value": ""
+      },
+      "nameDisable": {
+        "value": ""
+      },
+      "dptDisable": {
+        "value": "1.001"
+      },
+      "gaPhotocell": {
+        "value": ""
+      },
+      "namePhotocell": {
+        "value": ""
+      },
+      "dptPhotocell": {
+        "value": "1.001"
+      },
+      "gaMoving": {
+        "value": ""
+      },
+      "nameMoving": {
+        "value": ""
+      },
+      "dptMoving": {
+        "value": "1.001"
+      },
+      "gaObstruction": {
+        "value": ""
+      },
+      "nameObstruction": {
+        "value": ""
+      },
+      "dptObstruction": {
+        "value": "1.001"
+      },
+      "autoCloseEnable": {
+        "value": true
+      },
+      "autoCloseSeconds": {
+        "value": 120
+      },
+      "emitEvents": {
+        "value": false
+      }
+    },
+    "inputs": 1,
+    "outputs": 1
+  },
+  "knxUltimateSceneController": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": true
+      },
+      "name": {
+        "value": ""
+      },
+      "outputtopic": {
+        "value": ""
+      },
+      "topic": {
+        "value": ""
+      },
+      "dpt": {
+        "value": ""
+      },
+      "topicTrigger": {
+        "value": "true"
+      },
+      "topicSave": {
+        "value": ""
+      },
+      "dptSave": {
+        "value": ""
+      },
+      "topicSaveTrigger": {
+        "value": "true"
+      },
+      "property": {
+        "value": "payload",
+        "required": true
+      },
+      "propertyType": {
+        "value": "msg"
+      },
+      "rules": {
+        "value": [
+          {
+            "t": "eq",
+            "v": "",
+            "vt": "str"
+          }
+        ]
+      }
+    },
+    "inputs": 1,
+    "outputs": 1
+  },
+  "knxUltimateLoadControl": {
+    "defaults": {
+      "server": {
+        "type": "knxUltimate-config",
+        "required": false
+      },
+      "name": {
+        "value": ""
+      },
+      "controlMode": {
+        "value": "auto"
+      },
+      "topic": {
+        "value": ""
+      },
+      "dpt": {
+        "value": ""
+      },
+      "wattLimit": {
+        "value": 3000
+      },
+      "sheddingCheckInterval": {
+        "value": 15
+      },
+      "sheddingRestoreDelay": {
+        "value": 60
+      },
+      "GA1": {
+        "value": ""
+      },
+      "DPT1": {
+        "value": ""
+      },
+      "Name1": {
+        "value": ""
+      },
+      "autoRestore1": {
+        "value": true
+      },
+      "MonitorGA1": {
+        "value": ""
+      },
+      "MonitorDPT1": {
+        "value": ""
+      },
+      "MonitorName1": {
+        "value": ""
+      },
+      "GA2": {
+        "value": ""
+      },
+      "DPT2": {
+        "value": ""
+      },
+      "Name2": {
+        "value": ""
+      },
+      "autoRestore2": {
+        "value": true
+      },
+      "MonitorGA2": {
+        "value": ""
+      },
+      "MonitorDPT2": {
+        "value": ""
+      },
+      "MonitorName2": {
+        "value": ""
+      },
+      "GA3": {
+        "value": ""
+      },
+      "DPT3": {
+        "value": ""
+      },
+      "Name3": {
+        "value": ""
+      },
+      "autoRestore3": {
+        "value": true
+      },
+      "MonitorGA3": {
+        "value": ""
+      },
+      "MonitorDPT3": {
+        "value": ""
+      },
+      "MonitorName3": {
+        "value": ""
+      },
+      "GA4": {
+        "value": ""
+      },
+      "DPT4": {
+        "value": ""
+      },
+      "Name4": {
+        "value": ""
+      },
+      "autoRestore4": {
+        "value": true
+      },
+      "MonitorGA4": {
+        "value": ""
+      },
+      "MonitorDPT4": {
+        "value": ""
+      },
+      "MonitorName4": {
+        "value": ""
+      },
+      "GA5": {
+        "value": ""
+      },
+      "DPT5": {
+        "value": ""
+      },
+      "Name5": {
+        "value": ""
+      },
+      "autoRestore5": {
+        "value": true
+      },
+      "MonitorGA5": {
+        "value": ""
+      },
+      "MonitorDPT5": {
+        "value": ""
+      },
+      "MonitorName5": {
+        "value": ""
+      }
+    },
+    "inputs": 1,
+    "outputs": 1
+  },
+  "knxUltimateHATranslator": {
+    "defaults": {
+      "name": {
+        "value": ""
+      },
+      "payloadPropName": {
+        "value": "payload",
+        "required": false
+      },
+      "commandText": {
+        "value": "on:true\noff:false\nactive:true\ninactive:false\nopen:true\nclosed:false\nclose:false\n1:true\n0:false\ntrue:true\nfalse:false\nhome:true\nnot_home:false",
+        "required": false
+      }
+    },
+    "inputs": 1,
+    "outputs": 1
+  }
+}

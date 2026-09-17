@@ -14,7 +14,7 @@
   },
   {
     "id": "logger_1",
-    "type": "knxUltimateLogger",
+    "type": "knxUltimateUtility",
     "z": "flow5",
     "server": "log_cfg_1",
     "topic": "",
@@ -26,7 +26,15 @@
     "intervalTelegramCount": 60,
     "x": 320,
     "y": 180,
-    "wires": [["logger_dbg_ets"],[]]
+    "wires": [
+      [
+        "logger_dbg_ets"
+      ],
+      []
+    ],
+    "utilityType": "logger",
+    "inputs": 1,
+    "outputs": 2
   },
   {
     "id": "logger_dbg_ets",

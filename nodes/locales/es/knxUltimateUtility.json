@@ -55,7 +55,7 @@
       "2": "Último dispositivo en alerta"
     },
     "variable_name": "Nombre de variable",
-    "variable_name_description": "Solo letras (A–Z, a–z). Este nombre determina las variables globales <nombre>_READ y <nombre>_WRITE.",
+    "variable_name_description": "Solo letras (A-Z, a-z). Este nombre determina las variables globales <nombre>_READ y <nombre>_WRITE.",
     "logger_outputs": {
       "0": "XML de diagnóstico ETS",
       "1": "Contador de telegramas"

@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 8.0.0** - September 2026
+
+- KNX Ultimate now includes only the current KNX nodes.
+- Installation checks saved flows and blocks the upgrade if old HUE or Matter nodes still need migration.
+- HUE and Matter use their separate packages; old KNX utility nodes are replaced by KNX Utility.
+- Removed the old AI nodes and unused dependencies. Migrate existing flows before upgrading: see [upgrade steps](MIGRATION.md).
+
 **Version 7.1.2** - September 2026
 
 - HUE Controller is available in the palette again.

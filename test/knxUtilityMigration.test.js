@@ -1,7 +1,6 @@
 const { expect } = require('chai')
 const fs = require('fs')
 const path = require('path')
-const vm = require('vm')
 const migration = require('../resources/knxUtilityMigration')
 
 function editorFixture (options = {}) {
@@ -135,16 +134,8 @@ describe('KNX Utility migration', function () {
   it('preserves every legacy editor setting and persistent storage identity through conversion and Undo/Redo', function () {
     const { RED, legacyNodes, history } = editorFixture()
     legacyNodes.forEach(node => {
-      const html = fs.readFileSync(path.join(__dirname, '..', 'nodes', node.type + '.html'), 'utf8')
-      const source = Array.from(html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi))
-        .find(match => !/\bsrc\s*=/.test(match[1]) && match[2].includes(`registerType('${node.type}'`))[2]
-      let legacyDefinition
-      vm.runInNewContext(source, {
-        RED: {
-          nodes: { registerType: (type, definition) => { legacyDefinition = definition } },
-          validators: { number: () => () => true, regex: () => () => true, typedInput: () => () => true }
-        }
-      })
+      // Frozen version 7 defaults: no dependency on deleted public node editors.
+      const legacyDefinition = require('./fixtures/knx7-utility-definitions.json')[node.type]
       expect(migration.LEGACY_NODE_PROFILES[node.type], node.type).to.include({ inputs: legacyDefinition.inputs, outputs: legacyDefinition.outputs })
       node._def = legacyDefinition
       Object.entries(legacyDefinition.defaults).forEach(([key, field]) => {
@@ -456,14 +447,16 @@ describe('KNX Utility migration', function () {
     const close = migration.migrate(RED, {
       environment: { setTimeout: callback => pending.push(callback) },
       onClose: () => { closeCount += 1 },
-      backupApi: { download: (editor, options) => {
-        expect(editor).to.equal(RED)
-        expect(options.kind).to.equal('knx')
-        expect(actions).to.have.length(0)
-        expect(notifications[0].closed).to.equal(false)
-        expect(legacyNodes.map(node => node.type)).to.deep.equal(typesBefore)
-        backups.push(options)
-      } }
+      backupApi: {
+        download: (editor, options) => {
+          expect(editor).to.equal(RED)
+          expect(options.kind).to.equal('knx')
+          expect(actions).to.have.length(0)
+          expect(notifications[0].closed).to.equal(false)
+          expect(legacyNodes.map(node => node.type)).to.deep.equal(typesBefore)
+          backups.push(options)
+        }
+      }
     })
     expect(backups).to.have.length(0)
     expect(closeCount).to.equal(0)
@@ -546,19 +539,6 @@ describe('KNX Utility migration', function () {
       const dir = path.join(root, 'nodes', 'locales', locale)
       const utility = JSON.parse(fs.readFileSync(path.join(dir, 'knxUltimateUtility.json'), 'utf8')).knxUltimateUtility
       keys.forEach(key => expect(utility[key], `${locale}/${key}`).to.be.a('string').and.not.be.empty)
-      Object.keys(migration.LEGACY_NODE_PROFILES).forEach(type => {
-        const strings = JSON.parse(fs.readFileSync(path.join(dir, type + '.json'), 'utf8'))[type]
-        expect(strings.legacy_notice).to.be.a('string').and.not.be.empty
-        expect(strings.paletteLabel).to.include('(deprecated)')
-        expect(fs.readFileSync(path.join(dir, type + '.html'), 'utf8')).to.include('KNX Utility')
-      })
-    })
-    Object.keys(migration.LEGACY_NODE_PROFILES).forEach(type => {
-      const source = fs.readFileSync(path.join(root, 'nodes', type + '.html'), 'utf8')
-      expect(source).to.include("category: 'deprecated'")
-      expect(source).to.include("color: '#E5F0E2'")
-      expect(source).to.include('knx-utility-migrate-flow')
-      expect(source).to.include('knxUtilityMigration.js')
     })
   })
 })

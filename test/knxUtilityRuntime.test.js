@@ -6,7 +6,6 @@ const path = require('path')
 const vm = require('vm')
 
 const registerUtility = require('../nodes/knxUltimateUtility')
-const registerDateTime = require('../nodes/knxUltimateDateTime')
 const {
   RUNTIME_MODULES,
   normalizeUtilityType,
@@ -272,7 +271,8 @@ describe('KNX Utility private runtime profiles', () => {
       server: '', payloadPropName: 'data.new_state.state', haTranslationTable: 'home:true'
     })
     const input = {
-      topic: 'ha/presence', payload: { source: 'original' },
+      topic: 'ha/presence',
+      payload: { source: 'original' },
       data: { new_state: { state: 'home', attributes: { friendly_name: 'Presence' } } },
       metadata: { source: 'Home Assistant' }
     }
@@ -501,8 +501,12 @@ describe('KNX Utility private runtime profiles', () => {
   it('preserves DateTime startup, periodic and disconnected queue timers, then clears them on close', () => {
     const instance = runtime()
     const node = instance.create('datetime', {
-      gaDateTime: '1/2/1', sendOnDeploy: true, sendOnDeployDelay: 3,
-      periodicSend: true, periodicSendInterval: 2, periodicSendUnit: 'm'
+      gaDateTime: '1/2/1',
+      sendOnDeploy: true,
+      sendOnDeployDelay: 3,
+      periodicSend: true,
+      periodicSendInterval: 2,
+      periodicSendUnit: 'm'
     })
     expect(clock.pending.get(node._timerDeploy).delay).to.equal(3000)
     expect(clock.pending.get(node._timerPeriodic).delay).to.equal(120000)
@@ -537,24 +541,14 @@ describe('KNX Utility private runtime profiles', () => {
     expect(first.telegrams).to.have.length(1)
     expect(utility.sent[0].reason).to.equal('button')
 
-    registerDateTime(first.RED)
     registerUtility(first.RED)
-    registerDateTime(first.RED)
-    expect(first.routes.map(route => route.url)).to.deep.equal([
-      '/knxUltimateUtility/sendNow', '/knxUltimateDateTime/sendNow'
-    ])
-    expect(first.routes[1].permission).to.equal('knxUltimate-config.write')
-    const legacy = first.create(undefined, { gaDateTime: '1/2/2' }, 'knxUltimateDateTime')
-    callRoute(first, '/knxUltimateDateTime/sendNow', { id: legacy.id })
-    expect(first.telegrams[1].grpaddr).to.equal('1/2/2')
-
+    expect(first.routes).to.have.length(1)
     const second = runtime()
-    registerDateTime(second.RED)
-    expect(second.routes).to.have.length(2)
+    expect(second.routes).to.have.length(1)
     const separate = second.create('datetime', { gaDateTime: '1/2/3' })
     callRoute(second, '/knxUltimateUtility/sendNow', { id: separate.id })
     expect(second.telegrams).to.have.length(1)
-    expect(first.telegrams).to.have.length(2)
+    expect(first.telegrams).to.have.length(1)
   })
 
   it('validates DateTime endpoint targets and reports a queued send without transmitting early', () => {
@@ -647,8 +641,12 @@ describe('KNX Utility private runtime profiles', () => {
     const instance = runtime()
     const logFile = path.join(instance.storage, 'logger.xml')
     const node = instance.create('logger', {
-      topic: 'monitor', saveMode: 'emit_save', filePath: logFile,
-      autoStartTimerCreateETSXML: true, autoStartTimerTelegramCounter: true, maxRowsInETSXML: 2
+      topic: 'monitor',
+      saveMode: 'emit_save',
+      filePath: logFile,
+      autoStartTimerCreateETSXML: true,
+      autoStartTimerTelegramCounter: true,
+      maxRowsInETSXML: 2
     })
     expect(node.isLogger).to.equal(true)
     expect(instance.server.nodeClients).to.deep.equal([node])
@@ -671,8 +669,15 @@ describe('KNX Utility private runtime profiles', () => {
   it('subscribes Staircase to gateway telegrams, handles read/block and cancels prewarning pulses on close', () => {
     const instance = runtime()
     const node = instance.create('staircase', {
-      gaTrigger: '1/3/1', gaOutput: '1/3/2', gaStatus: '1/3/3', gaBlock: '1/3/4',
-      timerSeconds: 10, preWarnEnable: true, preWarnSeconds: 2, preWarnMode: 'flash', emitEvents: true
+      gaTrigger: '1/3/1',
+      gaOutput: '1/3/2',
+      gaStatus: '1/3/3',
+      gaBlock: '1/3/4',
+      timerSeconds: 10,
+      preWarnEnable: true,
+      preWarnSeconds: 2,
+      preWarnMode: 'flash',
+      emitEvents: true
     })
     expect(instance.server.nodeClients).to.deep.equal([node])
     const client = instance.server.nodeClients[0]
@@ -716,8 +721,12 @@ describe('KNX Utility private runtime profiles', () => {
   it('subscribes Garage to gateway telegrams and cancels impulse, movement and auto-close callbacks on close', () => {
     const instance = runtime()
     const node = instance.create('garage', {
-      gaImpulse: '1/4/1', gaMoving: '1/4/2', gaHoldOpen: '1/4/3',
-      autoCloseEnable: true, autoCloseSeconds: 5, emitEvents: true
+      gaImpulse: '1/4/1',
+      gaMoving: '1/4/2',
+      gaHoldOpen: '1/4/3',
+      autoCloseEnable: true,
+      autoCloseSeconds: 5,
+      emitEvents: true
     })
     expect(instance.server.nodeClients).to.deep.equal([node])
     node.emit('input', { payload: 'open' })
@@ -766,8 +775,14 @@ describe('KNX Utility private runtime profiles', () => {
   it('keeps LoadControl automatic reads, watt thresholds and delayed shedding', () => {
     const instance = runtime()
     const node = instance.create('loadcontrol', {
-      topic: '1/5/0', controlMode: 'auto', wattLimit: 1000, sheddingCheckInterval: 2,
-      GA1: '1/5/1', DPT1: '1.001', autoRestore1: true, MonitorGA1: '1/5/2'
+      topic: '1/5/0',
+      controlMode: 'auto',
+      wattLimit: 1000,
+      sheddingCheckInterval: 2,
+      GA1: '1/5/1',
+      DPT1: '1.001',
+      autoRestore1: true,
+      MonitorGA1: '1/5/2'
     })
     node.handleSend({ topic: '1/5/0', payload: 2000 })
     node.handleSend({ topic: '1/5/2', payload: 100 })

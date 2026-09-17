@@ -50,7 +50,7 @@ const indent = (source, spaces) => {
   const prefix = ' '.repeat(spaces)
   // Do not indent empty source lines. Besides producing a smaller, cleaner
   // bundle, this keeps the generated artifact free from trailing whitespace.
-  return String(source).split('\n').map((line) => (line ? `${prefix}${line}` : '')).join('\n')
+  return String(source).replace(/^\t+/gm, tabs => '    '.repeat(tabs.length)).split('\n').map((line) => (line ? `${prefix}${line}` : '')).join('\n')
 }
 
 const createEditorBundle = () => {

@@ -31,7 +31,7 @@
   },
   {
     "id": "gc_node",
-    "type": "knxUltimateGlobalContext",
+    "type": "knxUltimateUtility",
     "z": "gc_tab",
     "server": "gc_cfg",
     "name": "KNXGlobalContext",
@@ -40,6 +40,9 @@
     "contextStorage": "",
     "x": 350,
     "y": 140,
-    "wires": []
+    "wires": [],
+    "utilityType": "globalcontext",
+    "inputs": 0,
+    "outputs": 0
   }
 ]

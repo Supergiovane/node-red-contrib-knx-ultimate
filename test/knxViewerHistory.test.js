@@ -28,9 +28,17 @@ describe('KNX Viewer persistent state-change history', () => {
 
   function value (payload, options = {}) {
     return {
-      address: '1/2/3', source: '1.1.20', dpt: '1.001', devicename: 'Kitchen light',
-      payload, payloadText: String(payload), rawPayload: payload ? '01' : '00',
-      payloadmeasureunit: '', event: 'GroupValue_Write', timestampMs: timestamp, ...options
+      address: '1/2/3',
+      source: '1.1.20',
+      dpt: '1.001',
+      devicename: 'Kitchen light',
+      payload,
+      payloadText: String(payload),
+      rawPayload: payload ? '01' : '00',
+      payloadmeasureunit: '',
+      event: 'GroupValue_Write',
+      timestampMs: timestamp,
+      ...options
     }
   }
 

@@ -6,9 +6,16 @@
 
 ## The most popular KNX node for Node-RED
 
-KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure KNX/IP communication, routing, ETS project import, ETS diagnostics, virtual devices, and powerful automation nodes. Build professional, reliable, and scalable smart home and building automation projects with minimal effort. ù
-You can optionally increase the power of KNX, by installing node-red-contrig-hue-ultimate for Philips Hue and installing node-red-contrig-matter-ultimate form Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter).
-These optional nodes will detect KNX-Ultimate and seamlessy integrate with KNX, without further configurations.
+KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, routing, diagnostics, virtual devices and automation utilities.
+
+The palette contains KNX Device, KNX Utility, KNX Viewer, KNX IoT Bridge, KNX Multi Routing and KNX Router Filter.
+
+**Upgrading from version 7.x.x:** migrate old KNX utility, HUE and Matter nodes before installing version 8. The migration is **fully automated** by a push of a button.  
+The old nodes, their configuration nodes and KNX AI are no longer included. Follow the [upgrade steps](MIGRATION.md) to keep your flows working.
+
+**For native Philips Hue seamless integration**, install `node-red-contrib-hue-ultimate`.  
+**For native Matter Controller and Matter Bridge seamless integration**, install `node-red-contrib-matter-ultimate`. Select your existing KNX gateway in those nodes to enable KNX integration. Both packages can also work without KNX Ultimate.
+**For native AI driven KNX control and KNX installer's on field diegnostic and unit testing integration**, install `node-red-contrib-cerebrum-ultimate`.
 
 <br/>
 <br/>
@@ -72,3 +79,9 @@ These optional nodes will detect KNX-Ultimate and seamlessy integrate with KNX, 
 [paypal-image]: https://img.shields.io/badge/Support-PayPal-blue
 [paypal-url]: https://www.paypal.com/donate/?hosted_button_id=S8SKPUBSPK758
 [docs-button-image]: https://img.shields.io/badge/Docs-Open%20Documentation-0d4c70?style=for-the-badge&logo=book&logoColor=f4fbff
+
+---
+
+<p align="center">
+  <img src="docs/assets/brand/made-in-italy.svg" alt="Made in Italy — Designed and developed in Italy" width="260">
+</p>

@@ -35,8 +35,15 @@ const createEditorHarness = () => {
     each (callback) { items.forEach((item, index) => callback.call(item, index, item)); return this }
   })
   const makeElement = (selector, properties = {}) => ({
-    selector, properties, length: 1, value: '', checked: false, children: [],
-    handlers: new Map(), dataValues: new Map(), attributes: new Map(),
+    selector,
+    properties,
+    length: 1,
+    value: '',
+    checked: false,
+    children: [],
+    handlers: new Map(),
+    dataValues: new Map(),
+    attributes: new Map(),
     val (value) {
       if (value === undefined) return this.value
       this.value = value
@@ -124,7 +131,9 @@ const createEditorHarness = () => {
   }
   $.map = (values, callback) => values.map(callback).filter((value) => value !== null && value !== undefined)
   const context = {
-    $, console, URLSearchParams,
+    $,
+    console,
+    URLSearchParams,
     window: { open: (url) => { openedURLs.push(url); return null } },
     htmlUtilsfullCSVSearch: () => true,
     KNX_enableSecureFormatting: () => {},
@@ -138,7 +147,9 @@ const createEditorHarness = () => {
   vm.runInNewContext(fs.readFileSync(path.join(projectRoot, 'resources/knxUtilityProfiles.js'), 'utf8'), context)
   const profileBundle = context.KNXUltimateUtilityProfiles
   return {
-    $, requests, openedURLs,
+    $,
+    requests,
+    openedURLs,
     profiles: profileBundle,
     mount: (type, overrides = {}, RED = createRED()) => {
       const definition = profileBundle.getDefinition(type, RED)

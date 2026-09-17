@@ -31,7 +31,7 @@
   },
   {
     "id": "lc_node",
-    "type": "knxUltimateLoadControl",
+    "type": "knxUltimateUtility",
     "z": "lc_tab",
     "server": "lc_cfg",
     "name": "Load Control",
@@ -82,7 +82,10 @@
       [
         "lc_dbg"
       ]
-    ]
+    ],
+    "utilityType": "loadcontrol",
+    "inputs": 1,
+    "outputs": 1
   },
   {
     "id": "lc_shed",

@@ -23,8 +23,14 @@ const createDOM = () => {
   })
   const emptyCollection = collection([])
   const makeControl = (id, type = 'text', length = 1) => ({
-    id, type, length, value: '', checked: false,
-    handlers: new Map(), attributes: new Map(), dataValues: new Map(),
+    id,
+    type,
+    length,
+    value: '',
+    checked: false,
+    handlers: new Map(),
+    attributes: new Map(),
+    dataValues: new Map(),
     val (value) {
       if (value === undefined) return this.value
       this.value = value
@@ -153,7 +159,9 @@ const loadEditor = (locale = 'en') => {
     }
   }
   const sandbox = {
-    RED, $, console,
+    RED,
+    $,
+    console,
     htmlUtilsfullCSVSearch: () => true,
     KNX_enableSecureFormatting: () => {},
     setTimeout: (callback) => {

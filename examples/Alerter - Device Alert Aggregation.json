@@ -31,7 +31,7 @@
   },
   {
     "id": "al_node",
-    "type": "knxUltimateAlerter",
+    "type": "knxUltimateUtility",
     "z": "al_tab",
     "server": "al_cfg",
     "name": "KNX Alerter",
@@ -64,7 +64,10 @@
       [
         "al_dbg3"
       ]
-    ]
+    ],
+    "utilityType": "alerter",
+    "inputs": 1,
+    "outputs": 3
   },
   {
     "id": "al_on",

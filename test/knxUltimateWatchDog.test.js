@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const vm = require('vm')
 
-const registerWatchDogRuntime = require('../nodes/knxUltimateWatchDog')
+const registerWatchDogRuntime = require('../nodes/utils/knxUtilityProfiles/runtime/watchdog')
 const dispatchWatchDogNodeError = require('../nodes/utils/watchDogErrorDispatcher')
 
 function createWatchDog (config = {}) {
@@ -211,11 +211,8 @@ describe('KNX Ultimate Watchdog node-error listener', () => {
   })
 
   it('declares the editor option as a default-on checkbox', () => {
-    const editorPath = path.join(__dirname, '..', 'nodes', 'knxUltimateWatchDog.html')
-    const editor = fs.readFileSync(editorPath, 'utf8')
-    const registrationScript = [...editor.matchAll(/<script type="text\/javascript"[^>]*>([\s\S]*?)<\/script>/g)]
-      .map(match => match[1])
-      .find(script => script.includes("registerType('knxUltimateWatchDog'"))
+    const editor = fs.readFileSync(path.join(__dirname, '../scripts/knx-utility-profiles/templates/watchdog.html'), 'utf8')
+    const registrationScript = fs.readFileSync(path.join(__dirname, '../scripts/knx-utility-profiles/editors/watchdog.js'), 'utf8')
     let definition
 
     vm.runInNewContext(registrationScript, {
@@ -238,15 +235,12 @@ describe('KNX Ultimate Watchdog node-error listener', () => {
     const locales = ['en', 'it', 'de', 'fr', 'es', 'zh-CN']
 
     locales.forEach(locale => {
-      const messages = require(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateWatchDog.json'))
+      const messages = require(path.join(projectRoot, 'scripts', 'knx-utility-profiles', 'locales', locale, 'watchdog.json'))
       const label = messages.knxUltimateWatchDog.properties['node-input-listenToKnxUltimateNodeErrors']
-      const help = fs.readFileSync(path.join(projectRoot, 'nodes', 'locales', locale, 'knxUltimateWatchDog.html'), 'utf8')
       const wikiName = locale === 'en' ? 'WatchDog-Configuration.md' : `${locale}-WatchDog-Configuration.md`
       const wiki = fs.readFileSync(path.join(projectRoot, 'docs', 'wiki', wikiName), 'utf8')
 
       expect(label, `${locale}: editor label`).to.be.a('string').and.not.equal('')
-      expect(help, `${locale}: node help`).to.include(label)
-      expect(help, `${locale}: default behavior`).to.include('NodeError')
       expect(wiki, `${locale}: wiki`).to.include(label)
       expect(wiki, `${locale}: default behavior`).to.include('NodeError')
     })

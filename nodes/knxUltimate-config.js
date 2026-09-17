@@ -31,10 +31,6 @@ let NODE_VERSION = 'unknown'
 try { NODE_VERSION = require('../package.json').version } catch (e) { /* empty */ }
 let KNX_ENGINE_VERSION = 'unknown'
 try { KNX_ENGINE_VERSION = require('knxultimate/package.json').version } catch (e) { /* empty */ }
-let MATTER_PACKAGE_VERSION = 'unknown'
-let Specification = { REVISION: 'unknown' }
-try { MATTER_PACKAGE_VERSION = require('@matter/main').version } catch (e) { /* empty */ }
-try { Specification = require('@matter/model').Specification } catch (e) { /* empty */ }
 
 // DATAPONT MANIPULATION HELPERS
 // ####################
@@ -204,7 +200,7 @@ const resolveHostAddress = async (hostname, lookup = dns.lookup) => {
 module.exports = (RED) => {
   // Log node and KNXUltimate engine versions once, at Node-RED startup.
   try {
-    RED.log.info(`KNXUltimate: node-red-contrib-knx-ultimate v${NODE_VERSION} (KNXUltimate engine v${KNX_ENGINE_VERSION}, Matter protocol ${Specification.REVISION}, matter.js v${MATTER_PACKAGE_VERSION})`)
+    RED.log.info(`KNXUltimate: node-red-contrib-knx-ultimate v${NODE_VERSION} (KNXUltimate engine v${KNX_ENGINE_VERSION})`)
   } catch (e) { /* empty */ }
 
   function knxUltimateConfigNode (config) {
@@ -1514,19 +1510,6 @@ module.exports = (RED) => {
                     }
                   }
                   _input.setNodeStatus({ fill: 'green', shape: 'dot', text: 'RAW', payload: _evt, GA: _dest, dpt: '', devicename: _src })
-                  _input.handleSend(msg)
-                } else
-                // 21/10/2024 check wether is a HUE device
-                if (_input.type.includes('knxUltimateHue')) {
-                  const msg = {
-                    knx: {
-                      event: _evt,
-                      destination: _dest,
-                      rawValue: _rawValue,
-                      repeated: isRepeated,
-                      repeat: isRepeated
-                    }
-                  }
                   _input.handleSend(msg)
                 } else if (_input.hasOwnProperty('isSceneController')) { // 19/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Scene Controller implementation
                   // 12/08/2020 Check wether is a learn (save) command or a activate (play) command.

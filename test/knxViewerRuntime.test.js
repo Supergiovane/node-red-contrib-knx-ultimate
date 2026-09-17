@@ -13,7 +13,9 @@ function fixture () {
   const middleware = []
   const nodes = []
   const server = {
-    id: 'gateway', name: 'Test gateway', nodeClients: [],
+    id: 'gateway',
+    name: 'Test gateway',
+    nodeClients: [],
     knxConnection: { commandQueue: [] },
     addClient: node => server.nodeClients.push(node),
     removeClient: node => { server.nodeClients = server.nodeClients.filter(client => client !== node) }
@@ -55,7 +57,8 @@ function fixture () {
   })
   const request = async (url, query = {}) => {
     const response = {
-      code: 200, headers: {},
+      code: 200,
+      headers: {},
       status (code) { this.code = code; return this },
       set (name, value) { this.headers[name] = value; return this },
       json (data) { this.data = data; return this }
