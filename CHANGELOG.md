@@ -6,9 +6,9 @@
 
 # CHANGELOG
 
-**Version 8.0.0** - September 2026
+**Version 8.0.0-beta.0** - September 2026
 
-- KNX Ultimate now includes only the current KNX nodes.
+- First beta of KNX Ultimate 8, with only the current KNX nodes.
 - Installation checks saved flows and blocks the upgrade if old HUE or Matter nodes still need migration.
 - HUE and Matter use their separate packages; old KNX utility nodes are replaced by KNX Utility.
 - Removed the old AI nodes and unused dependencies. Migrate existing flows before upgrading: see [upgrade steps](MIGRATION.md).
