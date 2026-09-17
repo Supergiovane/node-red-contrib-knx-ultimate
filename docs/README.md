@@ -23,6 +23,12 @@ Open `http://127.0.0.1:4000/node-red-contrib-knx-ultimate/`. The preview uses th
 
 `npm run wiki:refresh` imports help for the current Device, Gateway, Viewer, IoT Bridge and routing nodes. It preserves page metadata and archive notices. Getting started, migration, Utility overview/function references and examples are maintained directly in `docs/wiki/`.
 
-The `Documentation` GitHub Actions workflow prepares the downloads and builds the site. A push to `8.0.0` only builds an artifact; it does not replace the published version 7 documentation. Publishing runs after a push to `master`/`main`, or when the workflow is explicitly started manually. When ready to deploy version 8, select **Settings → Pages → Source → GitHub Actions**. No hosting setting is changed by editing these files.
+The `Documentation` GitHub Actions workflow prepares the downloads and builds the site. A push to `8.0.0` only builds an artifact; it does not replace the published version 7 documentation. Publishing runs after a push to `main`, or when the workflow is explicitly started manually. GitHub Pages uses **Settings → Pages → Source → GitHub Actions**.
 
 Language pages use explicit permalinks and translation keys, so no extra translation plugin is needed on GitHub Pages. For any other Pages build, run `npm run docs:prepare` before Jekyll so downloadable examples are included.
+
+## Repository branches
+
+- `main` is the default branch for KNX Ultimate 8 and its documentation.
+- `7.x` preserves the 7.1.3 code, including the Matter palette fix, for version 7 maintenance. Apply version 7 fixes there and do not merge the KNX 8 node removals into it.
+- The old `master` reference remains available for existing links. New development belongs on `main`; version 7 fixes belong on `7.x`.

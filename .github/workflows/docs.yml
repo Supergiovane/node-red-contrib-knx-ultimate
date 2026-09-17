@@ -2,7 +2,7 @@ name: Documentation
 
 on:
   push:
-    branches: [master, main, '8.0.0']
+    branches: [main, '8.0.0']
     paths: ['docs/**', 'examples/**', 'scripts/prepare-docs.js', 'scripts/generate-wiki-navbar.js', 'scripts/wiki-menu.json', '.github/workflows/docs.yml']
   pull_request:
     paths: ['docs/**', 'examples/**', 'scripts/prepare-docs.js', 'scripts/generate-wiki-navbar.js', 'scripts/wiki-menu.json', '.github/workflows/docs.yml']
@@ -34,7 +34,7 @@ jobs:
           path: ./_site
   deploy:
     # Branch 8 pushes validate the site without replacing the published version 7 docs.
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'main'))
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref_name == 'main')
     needs: build
     runs-on: ubuntu-latest
     permissions:

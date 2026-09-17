@@ -16,4 +16,4 @@ translation_key: "Changelog"
 
 [Passer de la version 7 à la 8]({{ '/wiki/fr-Migration-8' | relative_url }})
 
-[CHANGELOG.md](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/8.0.0/CHANGELOG.md)
+[CHANGELOG.md](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/main/CHANGELOG.md)

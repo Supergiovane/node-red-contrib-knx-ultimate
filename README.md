@@ -47,7 +47,7 @@ The old nodes, their configuration nodes and KNX AI are no longer included. Foll
 </p>
 
 <p align="left" style="font-size:2.25rem;font-weight:700;line-height:1.9;">
-<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md"
+<a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/main/CHANGELOG.md"
       style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:999px;background:#ffc439;color:#111;font-weight:700;text-decoration:none;box-shadow:0 16px 30px rgba(255,196,57,0.32);">
       CHANGELOG
     </a>
@@ -56,7 +56,7 @@ The old nodes, their configuration nodes and KNX AI are no longer included. Foll
 </br>
 
 [license-image]: https://img.shields.io/github/license/Supergiovane/node-red-contrib-knx-ultimate?color=blue
-[license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/LICENSE
+[license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/main/LICENSE
 [npm-url]: https://npmjs.org/package/node-red-contrib-knx-ultimate
 [npm-version-image]: https://img.shields.io/npm/v/node-red-contrib-knx-ultimate.svg
 [node-version-image]: https://img.shields.io/node/v/node-red-contrib-knx-ultimate?logo=node.js&logoColor=white
