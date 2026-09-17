@@ -6,9 +6,13 @@
 
 # CHANGELOG
 
+**Version 7.1.3** - September 2026
+
+-Quick fix: Matter Controller and Matter Bridge are available in the palette again.
+
 **Version 7.1.2** - September 2026
 
-- HUE Controller is available in the palette again.
+- HUE Controller, Matter Controller and Matter Bridge are available in the palette again.
 
 **Version 7.1.1** - September 2026
 
