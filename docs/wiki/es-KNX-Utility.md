@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Utility"
 lang: es
 permalink: /wiki/es-KNX-Utility
+translation_key: "KNX-Utility"
 ---
 # KNX Utility
 
@@ -36,14 +37,8 @@ Home Assistant Translator tiene una entrada y una salida y no necesita una pasar
 
 Cambiar la función en el editor muestra una vista previa de sus ajustes. **Cancelar** conserva la configuración guardada. Los enlaces de la tabla abren los ajustes y ejemplos de cada función; las páginas anteriores siguen disponibles como referencia de los nodos dedicados.
 
-## Convertir todos los nodos antiguos compatibles
+## Actualizar desde la versión 7
 
-Abre **KNX Utility** o un nodo antiguo compatible, pulsa **Convertir todos los nodos KNX antiguos compatibles** y confirma. La conversión incluye cada instancia de las once funciones en **todos los flujos y subflujos** del editor, independientemente de la pestaña activa o la selección.
+Convierte los nodos separados con **KNX Ultimate 7** todavía instalado y haz Deploy antes de actualizar. La conversión conserva ID, ajustes y conexiones y ofrece copia de los flujos y Deshacer. La versión 8 no carga los tipos eliminados.
 
-Tras confirmar y antes de modificar los nodos, el navegador inicia automáticamente la descarga de una copia JSON con fecha y hora de todos los flujos presentes en el editor, incluidas pestañas, subflujos, nodos de configuración, grupos y conexiones. El archivo usa el formato de exportación estándar de Node-RED y puede volver a importarse. Se excluyen las credenciales declaradas por los nodos, como en la exportación estándar. El navegador puede preguntar dónde guardar el archivo. Si no es posible preparar la copia o iniciar su descarga, no se convierte ningún nodo.
-
-La conversión se realiza localmente en el navegador. Conserva ID, ajustes guardados, referencias de pasarela, conexiones, posiciones y grupos. Los ID conservados mantienen los archivos de valores de AutoResponder y las escenas grabadas de Scene Controller. Global Context conserva el nombre de variable y el almacenamiento; Logger conserva sus ajustes de archivo. Home Assistant Translator conserva su propiedad de entrada y la tabla de traducción personalizada, incluso cuando se deja vacía intencionadamente.
-
-La confirmación cierra el editor del nodo actual y descarta los cambios sin guardar. Toda la conversión constituye una sola operación **Deshacer** y también permite **Rehacer**. Revisa los nodos convertidos y pulsa **Deploy** para activar los cambios. La migración no despliega automáticamente. Un flujo bloqueado impide la conversión hasta que se desbloquee.
-
-Los nodos dedicados existentes siguen cargándose y funcionando. Están ocultos en la paleta y marcados con `(deprecated)` en los flujos existentes, donde sus ajustes siguen siendo editables. KNX Device, Viewer y los demás nodos de integración y enrutamiento conservan sus funciones.
+[Actualizar desde la versión 7]({{ '/wiki/es-Migration-8' | relative_url }})

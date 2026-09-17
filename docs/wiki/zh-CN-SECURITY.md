@@ -3,6 +3,7 @@ layout: wiki
 title: "SECURITY"
 lang: zh-CN
 permalink: /wiki/zh-CN-SECURITY
+translation_key: "SECURITY"
 ---
 ---
 

@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---RGB-Color"
 lang: en
 permalink: /wiki/-Sample---RGB-Color
+translation_key: "-Sample---RGB-Color"
 ---
 # Samples
 

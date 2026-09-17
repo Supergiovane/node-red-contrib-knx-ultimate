@@ -3,6 +3,7 @@ layout: wiki
 title: "Gateway-configuration"
 lang: de
 permalink: /wiki/de-Gateway-configuration
+translation_key: "Gateway-configuration"
 ---
 # KNX Gateway Konfiguration
 

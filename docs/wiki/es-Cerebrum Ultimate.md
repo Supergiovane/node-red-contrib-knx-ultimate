@@ -3,14 +3,15 @@ layout: wiki
 title: "Cerebrum Ultimate"
 lang: es
 permalink: /wiki/es-Cerebrum-Ultimate
+translation_key: Cerebrum-Ultimate
 ---
 
 # Cerebrum Ultimate
 
-El nodo de IA incluido anteriormente en KNX Ultimate ha sido sustituido por el paquete independiente **Cerebrum Ultimate**.
+Asistencia de IA para KNX mediante el paquete separado Cerebrum Ultimate.
 
-Cerebrum Ultimate utiliza KNX Ultimate como una integración compatible opcional, al igual que Home Assistant, HUE, Matter, UniFi Protect y otros adaptadores registrados. Las instalaciones nuevas deben usar [`node-red-contrib-cerebrum-ultimate`](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate).
+Los antiguos nodos `knxUltimateAI` y `knxUltimateAIHomeAssistant` no están incluidos en KNX Ultimate 8. Sustitúyelos antes de actualizar. No existe conversión automática: conserva tu copia y configura Cerebrum Ultimate por separado.
 
-Desde **7.1.1**, los nodos antiguos `knxUltimateAI` y `knxUltimateAIHomeAssistant` y su interfaz web vuelven a estar incluidos para mantener la compatibilidad con los flows existentes. Los nodos están ocultos en la paleta; las configuraciones existentes y los datos de IA guardados siguen siendo compatibles. La migración al paquete independiente Cerebrum Ultimate es opcional y no hay conversión automática.
+[Actualizar desde la versión 7]({{ '/wiki/es-Migration-8' | relative_url }})
 
-La documentación completa en inglés está en el [README de Cerebrum Ultimate](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme).
+[Cerebrum Ultimate — GitHub](https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme)

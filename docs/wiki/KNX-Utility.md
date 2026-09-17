@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Utility"
 lang: en
 permalink: /wiki/KNX-Utility
+translation_key: "KNX-Utility"
 ---
 # KNX Utility
 
@@ -36,14 +37,8 @@ Home Assistant Translator has one input and one output and does not require a KN
 
 Changing the function in the editor previews its settings. **Cancel** keeps the previously saved configuration. Use the links in the table for the function-specific settings and examples; those pages remain available as the dedicated-node reference.
 
-## Convert all compatible legacy nodes
+## Upgrade from version 7
 
-Open **KNX Utility** or any compatible legacy node and click **Convert all compatible legacy KNX nodes**, then confirm. The conversion includes every instance of the eleven functions above across **all flows and subflows** in the editor, regardless of the active tab or selection.
+Convert the old separate nodes while **KNX Ultimate 7** is installed, then Deploy before upgrading. The conversion keeps IDs, settings and wires and provides a flow backup and Undo. Version 8 does not load the removed node types.
 
-After confirmation and before any nodes are changed, the browser automatically starts downloading a dated JSON backup of all current editor flows, including tabs, subflows, configuration nodes, groups and wires. The file uses the standard Node-RED export format and can be reimported. Credentials declared by nodes are excluded, as in the standard export. Your browser may ask where to save the file. If the backup cannot be prepared or its download cannot be started, no nodes are converted.
-
-Conversion happens locally in the browser. It preserves node IDs, saved settings, gateway references, wiring, positions and group membership. Preserved IDs retain AutoResponder value files and recorded Scene Controller scenes; Global Context keeps its variable name and storage selection, and Logger keeps its file settings. Home Assistant Translator preserves its input property and custom translation table, including an intentionally empty table.
-
-Confirmation closes the current node editor and discards its unsaved edits. The whole batch is one **Undo** operation and also supports **Redo**. Review the converted nodes and press **Deploy** yourself to activate the changes. The migration does not deploy automatically. A locked flow blocks the conversion until it is unlocked.
-
-Existing dedicated nodes continue to load and work. They are hidden from the palette and marked `(deprecated)` in existing flows, where their settings remain editable. KNX Device, Viewer, other integration nodes and routing nodes keep their own roles.
+[Upgrade from version 7]({{ '/wiki/Migration-8' | relative_url }})

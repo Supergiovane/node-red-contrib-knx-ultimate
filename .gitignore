@@ -11,6 +11,10 @@ tutorial
 .continue/
 AGENTS/
 docs/_site/
+docs/examples/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+.sass-cache/
 docs/Gemfile.lock
 scripts/
 !scripts/
@@ -56,4 +60,5 @@ test/*
 !test/fixtures/knx7-utility-definitions.json
 
 !scripts/check-legacy-flows.js
+!scripts/prepare-docs.js
 !test/legacyInstallGuard.test.js

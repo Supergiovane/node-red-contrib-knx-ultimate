@@ -3,108 +3,102 @@
     {
       "key": "overview",
       "labels": {
-        "en": "Overview",
-        "it": "Panoramica",
-        "de": "Übersicht",
-        "zh": "概览"
+        "en": "Start here",
+        "it": "Da dove iniziare",
+        "de": "Einstieg",
+        "fr": "Pour commencer",
+        "es": "Por dónde empezar",
+        "zh": "开始使用"
       },
       "items": [
         {
           "type": "page",
+          "page": "Getting-Started",
           "labels": {
-            "en": "Changelog",
-            "it": "Changelog",
-            "de": "Changelog",
-            "zh": "Changelog"
-          },
-          "page": "Changelog"
+            "en": "Getting started",
+            "it": "Primi passi",
+            "de": "Erste Schritte",
+            "fr": "Premiers pas",
+            "es": "Primeros pasos",
+            "zh": "快速入门"
+          }
         },
         {
           "type": "page",
+          "page": "Migration-8",
+          "labels": {
+            "en": "Upgrade from version 7",
+            "it": "Passare dalla versione 7",
+            "de": "Upgrade von Version 7",
+            "fr": "Passer de la version 7 à la 8",
+            "es": "Actualizar desde la versión 7",
+            "zh": "从第 7 版升级"
+          }
+        },
+        {
+          "type": "page",
+          "page": "Changelog",
+          "labels": {
+            "en": "Release notes",
+            "it": "Novità delle versioni",
+            "de": "Versionshinweise",
+            "fr": "Notes de version",
+            "es": "Novedades de las versiones",
+            "zh": "版本更新"
+          }
+        },
+        {
+          "type": "page",
+          "page": "FAQ-Troubleshoot",
           "labels": {
             "en": "FAQ",
             "it": "FAQ",
             "de": "FAQ",
-            "zh": "常见问题"
-          },
-          "page": "FAQ-Troubleshoot"
+            "fr": "FAQ",
+            "es": "FAQ",
+            "zh": "FAQ"
+          }
         },
         {
           "type": "page",
+          "page": "SECURITY",
           "labels": {
             "en": "Security",
             "it": "Sicurezza",
             "de": "Sicherheit",
+            "fr": "Sécurité",
+            "es": "Seguridad",
             "zh": "安全"
-          },
-          "page": "SECURITY"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Cerebrum Ultimate",
-            "it": "Cerebrum Ultimate",
-            "de": "Cerebrum Ultimate",
-            "fr": "Cerebrum Ultimate",
-            "es": "Cerebrum Ultimate",
-            "zh": "Cerebrum Ultimate"
-          },
-          "page": "Cerebrum-Ultimate"
+          }
         }
       ]
     },
     {
-      "key": "knxMain",
+      "key": "nodes",
       "labels": {
-        "en": "KNX Device",
-        "it": "Nodo KNX Dispositivo",
-        "de": "KNX Geräteknoten",
-        "zh": "KNX 设备"
+        "en": "Nodes included",
+        "it": "Nodi inclusi",
+        "de": "Enthaltene Knoten",
+        "fr": "Nœuds inclus",
+        "es": "Nodos incluidos",
+        "zh": "包含的节点"
       },
       "items": [
         {
           "type": "page",
+          "page": "Device",
           "labels": {
-            "en": "Gateway",
-            "it": "Gateway",
-            "de": "Gateway",
-            "zh": "网关"
-          },
-          "page": "Gateway-configuration"
+            "en": "KNX Device",
+            "it": "KNX Device",
+            "de": "KNX Device",
+            "fr": "KNX Device",
+            "es": "KNX Device",
+            "zh": "KNX Device"
+          }
         },
         {
           "type": "page",
-          "labels": {
-            "en": "Device",
-            "it": "Dispositivo",
-            "de": "Gerät",
-            "zh": "设备"
-          },
-          "page": "Device"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Protections",
-            "it": "Protezioni",
-            "de": "Knotenschutz",
-            "zh": "节点保护"
-          },
-          "page": "Protections"
-        }
-      ]
-    },
-    {
-      "key": "knxOther",
-      "labels": {
-        "en": "Other KNX Nodes",
-        "it": "Altri Nodi KNX",
-        "de": "Weitere KNX-Knoten",
-        "zh": "其他 KNX 节点"
-      },
-      "items": [
-        {
-          "type": "page",
+          "page": "KNX-Utility",
           "labels": {
             "en": "KNX Utility",
             "it": "KNX Utility",
@@ -112,153 +106,219 @@
             "fr": "KNX Utility",
             "es": "KNX Utility",
             "zh": "KNX Utility"
-          },
-          "page": "KNX-Utility"
+          }
         },
         {
           "type": "page",
+          "page": "knxUltimateViewer",
           "labels": {
-            "en": "Viewer",
-            "it": "Viewer",
-            "de": "Viewer",
-            "zh": "查看器"
-          },
-          "page": "knxUltimateViewer"
+            "en": "KNX Viewer",
+            "it": "KNX Viewer",
+            "de": "KNX Viewer",
+            "fr": "KNX Viewer",
+            "es": "KNX Viewer",
+            "zh": "KNX Viewer"
+          }
         },
         {
           "type": "page",
+          "page": "IoT-Bridge-Configuration",
+          "labels": {
+            "en": "KNX IoT Bridge",
+            "it": "KNX IoT Bridge",
+            "de": "KNX IoT Bridge",
+            "fr": "KNX IoT Bridge",
+            "es": "KNX IoT Bridge",
+            "zh": "KNX IoT Bridge"
+          }
+        },
+        {
+          "type": "page",
+          "page": "KNX Multi Routing",
           "labels": {
             "en": "KNX Multi Routing",
             "it": "KNX Multi Routing",
             "de": "KNX Multi Routing",
             "fr": "KNX Multi Routing",
             "es": "KNX Multi Routing",
-            "zh": "KNX 多路由"
-          },
-          "page": "KNX Multi Routing"
+            "zh": "KNX Multi Routing"
+          }
         },
         {
           "type": "page",
+          "page": "KNX Router Filter",
           "labels": {
             "en": "KNX Router Filter",
             "it": "KNX Router Filter",
             "de": "KNX Router Filter",
             "fr": "KNX Router Filter",
             "es": "KNX Router Filter",
-            "zh": "KNX 路由过滤器"
-          },
-          "page": "KNX Router Filter"
+            "zh": "KNX Router Filter"
+          }
         },
         {
           "type": "page",
+          "page": "Gateway-configuration",
           "labels": {
-            "en": "IoT Bridge",
-            "it": "IoT Bridge",
-            "de": "IoT Bridge",
-            "zh": "物联网桥接"
-          },
-          "page": "IoT-Bridge-Configuration"
+            "en": "KNX Gateway",
+            "it": "KNX Gateway",
+            "de": "KNX Gateway",
+            "fr": "KNX Gateway",
+            "es": "KNX Gateway",
+            "zh": "KNX Gateway"
+          }
         }
       ]
     },
     {
-      "key": "hue",
+      "key": "utility",
       "labels": {
-        "en": "HUE",
-        "it": "HUE",
-        "de": "HUE",
-        "zh": "HUE"
+        "en": "KNX Utility functions",
+        "it": "Funzioni di KNX Utility",
+        "de": "KNX Utility-Funktionen",
+        "fr": "Fonctions de KNX Utility",
+        "es": "Funciones de KNX Utility",
+        "zh": "KNX Utility 功能"
       },
       "items": [
         {
           "type": "page",
+          "page": "Alerter-Configuration",
           "labels": {
-            "en": "Bridge",
-            "it": "Bridge",
-            "de": "Bridge",
-            "zh": "Bridge"
-          },
-          "page": "HUE Bridge configuration"
+            "en": "Alerter",
+            "it": "Alerter",
+            "de": "Alerter",
+            "fr": "Alerter",
+            "es": "Alerter",
+            "zh": "Alerter"
+          }
         },
         {
           "type": "page",
+          "page": "KNXAutoResponder",
           "labels": {
-            "en": "HUE Controller",
-            "it": "HUE Controller",
-            "de": "HUE Controller",
-            "fr": "HUE Controller",
-            "es": "HUE Controller",
-            "zh": "HUE Controller"
-          },
-          "page": "HUE Controller"
-        }
-      ]
-    },
-    {
-      "key": "matter",
-      "labels": {
-        "en": "Matter",
-        "it": "Matter",
-        "de": "Matter",
-        "fr": "Matter",
-        "es": "Matter",
-        "zh": "Matter"
-      },
-      "items": [
-        {
-          "type": "page",
-          "labels": {
-            "en": "Matter Controller",
-            "it": "Controller Matter",
-            "de": "Matter Controller",
-            "fr": "Contrôleur Matter",
-            "es": "Controlador Matter",
-            "zh": "Matter 控制器"
-          },
-          "page": "Matter-Controller-Configuration"
+            "en": "AutoResponder",
+            "it": "AutoResponder",
+            "de": "AutoResponder",
+            "fr": "AutoResponder",
+            "es": "AutoResponder",
+            "zh": "AutoResponder"
+          }
         },
         {
           "type": "page",
+          "page": "DateTime-Configuration",
           "labels": {
-            "en": "Control Matter from KNX (BETA)",
-            "it": "Control Matter from KNX (BETA)",
-            "de": "Control Matter from KNX (BETA)",
-            "fr": "Control Matter from KNX (BETA)",
-            "es": "Control Matter from KNX (BETA)",
-            "zh": "从 KNX 控制 Matter (BETA)"
-          },
-          "page": "Control Matter from KNX"
+            "en": "DateTime",
+            "it": "DateTime",
+            "de": "DateTime",
+            "fr": "DateTime",
+            "es": "DateTime",
+            "zh": "DateTime"
+          }
         },
         {
           "type": "page",
+          "page": "WatchDog-Configuration",
           "labels": {
-            "en": "Matter Bridge (BETA)",
-            "it": "Bridge Matter (BETA)",
-            "de": "Matter Bridge (BETA)",
-            "fr": "Bridge Matter (BETA)",
-            "es": "Bridge Matter (BETA)",
-            "zh": "Matter 桥接器 (BETA)"
-          },
-          "page": "Matter-Bridge-Configuration"
+            "en": "WatchDog",
+            "it": "WatchDog",
+            "de": "WatchDog",
+            "fr": "WatchDog",
+            "es": "WatchDog",
+            "zh": "WatchDog"
+          }
         },
         {
           "type": "page",
+          "page": "GlobalVariable",
           "labels": {
-            "en": "Expose KNX to Matter (BETA)",
-            "it": "Expose KNX to Matter (BETA)",
-            "de": "Expose KNX to Matter (BETA)",
-            "fr": "Expose KNX to Matter (BETA)",
-            "es": "Expose KNX to Matter (BETA)",
-            "zh": "将 KNX 暴露到 Matter (BETA)"
-          },
-          "page": "Matter-Bridge"
+            "en": "Global Context",
+            "it": "Global Context",
+            "de": "Global Context",
+            "fr": "Global Context",
+            "es": "Global Context",
+            "zh": "Global Context"
+          }
+        },
+        {
+          "type": "page",
+          "page": "Logger-Configuration",
+          "labels": {
+            "en": "Logger",
+            "it": "Logger",
+            "de": "Logger",
+            "fr": "Logger",
+            "es": "Logger",
+            "zh": "Logger"
+          }
+        },
+        {
+          "type": "page",
+          "page": "Staircase-Configuration",
+          "labels": {
+            "en": "Staircase",
+            "it": "Staircase",
+            "de": "Staircase",
+            "fr": "Staircase",
+            "es": "Staircase",
+            "zh": "Staircase"
+          }
+        },
+        {
+          "type": "page",
+          "page": "Garage-Configuration",
+          "labels": {
+            "en": "Garage",
+            "it": "Garage",
+            "de": "Garage",
+            "fr": "Garage",
+            "es": "Garage",
+            "zh": "Garage"
+          }
+        },
+        {
+          "type": "page",
+          "page": "SceneController-Configuration",
+          "labels": {
+            "en": "Scene Controller",
+            "it": "Scene Controller",
+            "de": "Scene Controller",
+            "fr": "Scene Controller",
+            "es": "Scene Controller",
+            "zh": "Scene Controller"
+          }
+        },
+        {
+          "type": "page",
+          "page": "LoadControl-Configuration",
+          "labels": {
+            "en": "Load Control",
+            "it": "Load Control",
+            "de": "Load Control",
+            "fr": "Load Control",
+            "es": "Load Control",
+            "zh": "Load Control"
+          }
+        },
+        {
+          "type": "page",
+          "page": "HATranslator",
+          "labels": {
+            "en": "Home Assistant Translator",
+            "it": "Home Assistant Translator",
+            "de": "Home Assistant Translator",
+            "fr": "Home Assistant Translator",
+            "es": "Home Assistant Translator",
+            "zh": "Home Assistant Translator"
+          }
         }
       ]
     },
     {
       "key": "samples",
       "labels": {
-        "en": "Samples",
+        "en": "Examples",
         "it": "Esempi",
         "de": "Beispiele",
         "fr": "Exemples",
@@ -268,264 +328,70 @@
       "items": [
         {
           "type": "page",
+          "page": "-SamplesHome",
           "labels": {
-            "en": "Samples Home"
+            "en": "Examples",
+            "it": "Esempi",
+            "de": "Beispiele",
+            "fr": "Exemples",
+            "es": "Ejemplos",
+            "zh": "示例"
+          }
+        }
+      ]
+    },
+    {
+      "key": "integrations",
+      "labels": {
+        "en": "Optional integrations",
+        "it": "Integrazioni opzionali",
+        "de": "Optionale Integrationen",
+        "fr": "Intégrations optionnelles",
+        "es": "Integraciones opcionales",
+        "zh": "可选集成"
+      },
+      "items": [
+        {
+          "type": "url",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/en/index.html",
+          "urls": {
+            "en": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/en/index.html",
+            "it": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/it/index.html",
+            "de": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/de/index.html",
+            "fr": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/fr/index.html",
+            "es": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/es/index.html",
+            "zh": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/zh-CN/index.html"
           },
-          "page": "-SamplesHome"
+          "labels": {
+            "en": "HUE Ultimate"
+          }
+        },
+        {
+          "type": "url",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/en/index.html",
+          "urls": {
+            "en": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/en/index.html",
+            "it": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/it/index.html",
+            "de": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/de/index.html",
+            "fr": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/fr/index.html",
+            "es": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/es/index.html",
+            "zh": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/zh-CN/index.html"
+          },
+          "labels": {
+            "en": "Matter Ultimate"
+          }
         },
         {
           "type": "page",
+          "page": "Cerebrum-Ultimate",
           "labels": {
-            "en": "Logger"
-          },
-          "page": "Logger-Sample"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Switch Light"
-          },
-          "page": "-Sample---Switch-light"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Dimming"
-          },
-          "page": "-Sample---Dimming"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Staircase",
-            "it": "Staircase",
-            "de": "Treppenhaus",
-            "fr": "Escalier",
-            "es": "Escalera",
-            "zh": "楼梯定时器"
-          },
-          "page": "-Sample---Staircase"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Garage",
-            "it": "Garage",
-            "de": "Garage",
-            "fr": "Garage",
-            "es": "Garaje",
-            "zh": "车库"
-          },
-          "page": "-Sample---Garage"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "RGB color"
-          },
-          "page": "-Sample---RGB-Color"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "RGBW color + White"
-          },
-          "page": "-Sample---RGBW-Color-plus-White"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Command a scene actuator"
-          },
-          "page": "-Sample---Control-a-scene-actuator"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Datapoint 213.x 4x Setpoint"
-          },
-          "page": "-Sample---DPT213"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Datapoint 222.x 3x Setpoint"
-          },
-          "page": "-Sample---DPT222"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Datapoint 237.x DALI diags"
-          },
-          "page": "-Sample---DPT237"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Datapoint 2.x 1 bit proprity"
-          },
-          "page": "-Sample---DPT2"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Datapoint 22.x RCHH Status"
-          },
-          "page": "-Sample---DPT22"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Datetime to BUS"
-          },
-          "page": "-Sample---DateTime-to-BUS"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "IoT Bridge",
-            "it": "IoT Bridge",
-            "de": "IoT Bridge",
-            "fr": "IoT Bridge",
-            "es": "IoT Bridge",
-            "zh": "物联网桥接"
-          },
-          "page": "-Sample---IoT-Bridge"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX Multi Routing",
-            "it": "KNX Multi Routing",
-            "de": "KNX Multi Routing",
-            "fr": "KNX Multi Routing",
-            "es": "KNX Multi Routing",
-            "zh": "KNX 多路由"
-          },
-          "page": "-Sample---KNX-Multi-Routing"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "KNX Router Filter",
-            "it": "KNX Router Filter",
-            "de": "KNX Router Filter",
-            "fr": "KNX Router Filter",
-            "es": "KNX Router Filter",
-            "zh": "KNX 路由过滤器"
-          },
-          "page": "-Sample---KNX-Router-Filter"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Serial FT1.2 / KBerry wiring",
-            "it": "Cablaggio Serial FT1.2 / KBerry",
-            "de": "Serial FT1.2 / KBerry Verdrahtung",
-            "fr": "Câblage Serial FT1.2 / KBerry",
-            "es": "Cableado Serial FT1.2 / KBerry",
-            "zh": "FT1.2 / KBerry 接线示例"
-          },
-          "page": "-Sample---FT12"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Read Status"
-          },
-          "page": "-Sample---Read-value-from-Device"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Virtual Device"
-          },
-          "page": "-Sample---Virtual-Device"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Subtype decoded"
-          },
-          "page": "-Sample---Subtype"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Alexa"
-          },
-          "page": "-Sample---Alexa"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Apple Homekit"
-          },
-          "page": "-Sample---Apple-Homekit"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Google Home"
-          },
-          "page": "-Sample---Google-Assistant"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Switch on/off POE port of Unifi switch"
-          },
-          "page": "-Sample---UnifiPOE"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Set configuration by msg"
-          },
-          "page": "-Sample-setConfig"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Scene Controller node"
-          },
-          "page": "Sample-Scene-Node"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "WatchDog node"
-          },
-          "page": "-Sample---WatchDog"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Global Context node"
-          },
-          "page": "SampleGlobalContextNode"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Alerter node"
-          },
-          "page": "SampleAlerter"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "Load control node"
-          },
-          "page": "SampleLoadControl"
-        },
-        {
-          "type": "page",
-          "labels": {
-            "en": "MySQL, InfluxDB, MQTT Sample"
-          },
-          "page": "Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
+            "en": "Cerebrum Ultimate",
+            "it": "Cerebrum Ultimate",
+            "de": "Cerebrum Ultimate",
+            "fr": "Cerebrum Ultimate",
+            "es": "Cerebrum Ultimate",
+            "zh": "Cerebrum Ultimate"
+          }
         }
       ]
     }

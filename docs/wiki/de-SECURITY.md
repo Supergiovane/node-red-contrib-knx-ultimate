@@ -3,6 +3,7 @@ layout: wiki
 title: "SECURITY"
 lang: de
 permalink: /wiki/de-SECURITY
+translation_key: "SECURITY"
 ---
 ---
 

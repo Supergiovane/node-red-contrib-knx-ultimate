@@ -3,6 +3,7 @@ layout: wiki
 title: "Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
 lang: en
 permalink: /wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB
+translation_key: "Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB"
 ---
 ## MYSQL, MQTT, INFLUXDB Sample
 

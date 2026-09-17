@@ -3,6 +3,7 @@ layout: wiki
 title: "Page Title"
 lang: it
 permalink: /wiki/it-Page%20Title
+translation_key: "Page Title"
 ---
 # Titolo Pagina Segnaposto
 

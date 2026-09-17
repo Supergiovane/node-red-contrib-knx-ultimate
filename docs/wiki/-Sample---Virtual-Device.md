@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Virtual-Device"
 lang: en
 permalink: /wiki/-Sample---Virtual-Device
+translation_key: "-Sample---Virtual-Device"
 ---
 # VIRTUAL DEVICE
 

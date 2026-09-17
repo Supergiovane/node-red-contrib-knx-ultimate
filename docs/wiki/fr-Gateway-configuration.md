@@ -3,6 +3,7 @@ layout: wiki
 title: "Gateway-configuration"
 lang: fr
 permalink: /wiki/fr-Gateway-configuration
+translation_key: "Gateway-configuration"
 ---
 Configuration de la passerelle KNX
 

@@ -1,0 +1,52 @@
+{% assign lang = include.lang | default: page.lang | default: 'en' %}
+{% assign t = site.data.knx8[lang] %}
+<section class="docs-intro">
+  <p class="docs-version">KNX Ultimate 8</p>
+  <h1>Node-RED + KNX</h1>
+  <p class="docs-lead">{{ t.intro }}</p>
+  <div class="docs-actions">
+    <a class="docs-button" href="{{ t.startUrl | relative_url }}">{{ t.start }}</a>
+    <a href="{{ t.examplesUrl | relative_url }}">{{ t.examples }}</a>
+  </div>
+</section>
+<aside class="docs-notice">
+  <p>{{ t.upgrade }}</p>
+  <a href="{{ t.migrationUrl | relative_url }}">{{ t.migration }} →</a>
+</aside>
+
+<h2>{{ t.nodes }}</h2>
+<div class="docs-grid">
+  {% for node in t.nodeItems %}
+  <section class="docs-card">
+    <h3><a href="{{ node.url | relative_url }}">{{ node.name }}</a></h3>
+    <p>{{ node.description }}</p>
+  </section>
+  {% endfor %}
+</div>
+<p>{{ t.gatewayNote }}</p>
+
+<h2>{{ t.integrations }}</h2>
+<p>{{ t.integrationIntro }}</p>
+<div class="docs-grid docs-grid--integrations">
+  <section class="docs-card">
+    <h3><a href="https://supergiovane.github.io/node-red-contrib-hue-ultimate/{{ lang }}/index.html">HUE Ultimate</a></h3>
+    <p>{{ t.hue }}</p>
+    <code>node-red-contrib-hue-ultimate</code>
+  </section>
+  <section class="docs-card">
+    <h3><a href="https://supergiovane.github.io/node-red-contrib-matter-ultimate/{{ lang }}/index.html">Matter Ultimate</a></h3>
+    <p>{{ t.matter }}</p>
+    <code>node-red-contrib-matter-ultimate</code>
+  </section>
+  <section class="docs-card">
+    <h3><a href="https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme">Cerebrum Ultimate</a></h3>
+    <p>{{ t.cerebrum }}</p>
+    <code>node-red-contrib-cerebrum-ultimate</code>
+  </section>
+</div>
+
+<footer class="docs-home-footer">
+  <p><a href="https://www.youtube.com/@maxsupervibe">{{ t.videos }} — Max Supervibe</a> · <a href="https://github.com/Supergiovane/node-red-contrib-knx-ultimate">GitHub</a> · <a href="https://www.npmjs.com/package/node-red-contrib-knx-ultimate">npm</a></p>
+  <img src="{{ '/assets/brand/made-in-italy.svg' | relative_url }}" alt="Made in Italy" width="260">
+  <p>{{ t.made }}</p>
+</footer>

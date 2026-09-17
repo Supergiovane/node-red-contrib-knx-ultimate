@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---DPT213"
 lang: en
 permalink: /wiki/-Sample---DPT213
+translation_key: "-Sample---DPT213"
 ---
 # Datapoint 213
 

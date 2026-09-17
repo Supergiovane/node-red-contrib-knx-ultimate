@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---DPT22"
 lang: en
 permalink: /wiki/-Sample---DPT22
+translation_key: "-Sample---DPT22"
 ---
 # Datapoint 22
 

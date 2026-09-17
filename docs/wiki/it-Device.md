@@ -3,6 +3,7 @@ layout: wiki
 title: "Device"
 lang: it
 permalink: /wiki/it-Device
+translation_key: "Device"
 ---
 ## IMPOSTAZIONI DEL NODO KNX-ULTIMATE (DEVICE)
 

@@ -3,6 +3,7 @@ layout: wiki
 title: "Gateway-configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Gateway-configuration
+translation_key: "Gateway-configuration"
 ---
 # KNX Gateway 配置
 

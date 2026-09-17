@@ -3,10 +3,13 @@ layout: wiki
 title: "GlobalVariable"
 lang: it
 permalink: /wiki/it-GlobalVariable
+translation_key: "GlobalVariable"
 ---
 
-<!-- KNX_UTILITY_LEGACY_NOTICE -->
-> Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Global Context**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.
+> Nella versione 8 usa **KNX Utility** e seleziona **Global Context**. Le impostazioni qui sotto descrivono questa funzione. Il vecchio nodo separato non è più incluso.
+>
+> [KNX Utility]({{ '/wiki/it-KNX-Utility' | relative_url }}) · [Passare dalla versione 7]({{ '/wiki/it-Migration-8' | relative_url }})
+
 
 # VARIABILE GLOBALE KNX
 

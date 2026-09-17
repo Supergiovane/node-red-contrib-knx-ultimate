@@ -23,7 +23,7 @@ Missing old node types cannot run in version 8. Reinstall the previous KNX Ultim
 
 Hue Ultimate and Matter Ultimate provide their own configuration nodes and device connections. To integrate with KNX, select a `knxUltimate-config` gateway in their editors. KNX Ultimate continues to provide group address suggestions, datapoints and telegram exchange; it does not need Hue or Matter libraries installed inside its own package.
 
-Without a selected KNX gateway, the separate packages can use their standalone Topic mode.
+The separate packages work with normal Node-RED messages, using `msg.topic` and `msg.payload`. Selecting a KNX gateway enables their native KNX mode.
 
 ## Installation check in version 8
 

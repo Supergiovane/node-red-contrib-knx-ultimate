@@ -3,6 +3,7 @@ layout: wiki
 title: "Protections"
 lang: es
 permalink: /wiki/es-Protections
+translation_key: "Protections"
 ---
 ---
 # Protección de nodo

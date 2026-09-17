@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Router Filter"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX%20Router%20Filter
+translation_key: "KNX Router Filter"
 ---
 在将 RAW 电报对象（通常由 **KNX Multi Routing** 产生）转发到其它网关之前，对其进行过滤。
 

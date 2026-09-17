@@ -3,6 +3,7 @@ layout: wiki
 title: "knxUltimateViewer"
 lang: it
 permalink: /wiki/it-knxUltimateViewer
+translation_key: "knxUltimateViewer"
 ---
 # KNX Viewer
 

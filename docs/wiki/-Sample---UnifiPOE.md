@@ -3,11 +3,12 @@ layout: wiki
 title: "-Sample---UnifiPOE"
 lang: en
 permalink: /wiki/-Sample---UnifiPOE
+translation_key: "-Sample---UnifiPOE"
 ---
 # Unifi switch - POE On/Off
 
 KNX-Ultimate can turn on or off POE on a single port or multiple port of an unifi switch<br/>
-To make this possible, you need an unifi controller, an unifi switch and the node [node-red-contrib-unifi](https:flows.nodered.org/node/node-red-contrib-unifi)<br/>
+To make this possible, you need an unifi controller, an unifi switch and the node [node-red-contrib-unifi](https://flows.nodered.org/node/node-red-contrib-unifi)<br/>
 
 ## Switch on/off the port number 2 of an Unifi Switch
 

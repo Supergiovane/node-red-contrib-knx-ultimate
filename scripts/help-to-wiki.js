@@ -17,38 +17,12 @@ const LANGS = [
 ]
 
 const HELP_TO_WIKI = new Map([
-  ['hue-config', 'HUE Bridge configuration'],
   ['knxUltimate-config', 'Gateway-configuration'],
   ['knxUltimate', 'Device'],
-  ['knxUltimateLogger', 'Logger-Configuration'],
-  ['knxUltimateGlobalContext', 'GlobalVariable'],
-  ['knxUltimateWatchDog', 'WatchDog-Configuration'],
-  ['knxUltimateAlerter', 'Alerter-Configuration'],
-  ['knxUltimateLoadControl', 'LoadControl-Configuration'],
-  ['knxUltimateSceneController', 'SceneController-Configuration'],
   ['knxUltimateViewer', 'knxUltimateViewer'],
-  ['knxUltimateAutoResponder', 'KNXAutoResponder'],
-  ['knxUltimateHATranslator', 'HATranslator'],
-  ['knxUltimateHueLight', 'HUE Light'],
-  ['knxUltimateHueBattery', 'HUE Battery'],
-  ['knxUltimateHueButton', 'HUE Button'],
-  ['knxUltimateHueContactSensor', 'HUE Contact sensor'],
-  ['knxUltimateHuedevice_software_update', 'HUE Device software update'],
-  ['knxUltimateHueLightSensor', 'HUE Light sensor'],
-  ['knxUltimateHueMotion', 'HUE Motion'],
-  ['knxUltimateHueScene', 'HUE Scene'],
-  ['knxUltimateHueTapDial', 'HUE Tapdial'],
-  ['knxUltimateHueTemperatureSensor', 'HUE Temperature sensor'],
-  ['knxUltimateHueZigbeeConnectivity', 'HUE Zigbee connectivity'],
-  ['knxUltimateHueHumiditySensor', 'HUE Humidity sensor'],
-  ['knxUltimateHueCameraMotion', 'HUE Camera motion'],
-  ['knxUltimateHuePlug', 'HUE Plug'],
+  ['knxUltimateIoTBridge', 'IoT-Bridge-Configuration'],
   ['knxUltimateMultiRouting', 'KNX Multi Routing'],
-  ['knxUltimateRouterFilter', 'KNX Router Filter'],
-  ['matter-config', 'Matter-Controller-Configuration'],
-  ['knxUltimateMatterControllerDevice', 'Control Matter from KNX'],
-  ['matterbridge-config', 'Matter-Bridge-Configuration'],
-  ['knxUltimateMatterBridge', 'Matter-Bridge']
+  ['knxUltimateRouterFilter', 'KNX Router Filter']
 ])
 
 function extractMarkdown (htmlPath) {
@@ -105,7 +79,9 @@ for (const [helpName, wikiTitle] of HELP_TO_WIKI.entries()) {
     const languageBar = buildLanguageBar(wikiTitle, lang.prefix)
     const body = markdown.trim()
     const content = buildPageContent(languageBar, body)
-    fs.writeFileSync(wikiPath, content, 'utf8')
+    const existing = fs.existsSync(wikiPath) ? fs.readFileSync(wikiPath, 'utf8') : ''
+    const frontMatter = existing.match(/^---\n[\s\S]*?\n---\n/)
+    fs.writeFileSync(wikiPath, (frontMatter ? frontMatter[0] + '\n' : '') + content, 'utf8')
     written++
   }
 }

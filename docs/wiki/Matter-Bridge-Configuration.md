@@ -3,6 +3,8 @@ layout: wiki
 title: "Matter-Bridge-Configuration"
 lang: en
 permalink: /wiki/Matter-Bridge-Configuration
+translation_key: "Matter-Bridge-Configuration"
+legacy_package: matter
 ---
 # Matter Bridge
 

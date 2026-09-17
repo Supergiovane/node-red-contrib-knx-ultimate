@@ -76,6 +76,9 @@ function ensureTrailingNewline (text) {
 function processFile (file) {
   let raw = fs.readFileSync(file, 'utf8')
   raw = raw.replace(/\r\n/g, '\n')
+  const existingFrontMatter = raw.match(/^---\n([\s\S]*?)\n---/)
+  // Keep explicit permalinks, language keys, archive notices and old URL redirects.
+  if (existingFrontMatter && /^layout: redirect$/m.test(existingFrontMatter[1])) return
   raw = stripNavBlock(raw)
   raw = stripFrontMatter(raw)
   raw = stripLanguageBar(raw)
@@ -86,15 +89,22 @@ function processFile (file) {
   const title = baseName.slice(prefix.length) || baseName
   const permalink = `/wiki/${encodeURI(baseName)}`
 
-  const frontMatter = [
+  let frontMatter = [
     '---',
     'layout: wiki',
     `title: "${escapeYaml(title)}"`,
     `lang: ${code}`,
     `permalink: ${permalink}`,
+    `translation_key: "${escapeYaml(title)}"`,
     '---',
     ''
   ].join('\n')
+
+  if (existingFrontMatter) {
+    let metadata = existingFrontMatter[1]
+    if (!/^translation_key:/m.test(metadata)) metadata += `\ntranslation_key: "${escapeYaml(title)}"`
+    frontMatter = `---\n${metadata}\n---\n\n`
+  }
 
   const output = frontMatter + raw.trimStart()
   fs.writeFileSync(file, ensureTrailingNewline(output), 'utf8')

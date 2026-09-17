@@ -3,6 +3,7 @@ layout: wiki
 title: "Docs-Language-Bar"
 lang: en
 permalink: /wiki/Docs-Language-Bar
+translation_key: "Docs-Language-Bar"
 ---
 ---
 <h1><p align='center'>Wiki Language Bar — How To</p></h1>

@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Alexa"
 lang: en
 permalink: /wiki/-Sample---Alexa
+translation_key: "-Sample---Alexa"
 ---
 # Alexa
 

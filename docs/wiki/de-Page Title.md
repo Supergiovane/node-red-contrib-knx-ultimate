@@ -3,6 +3,7 @@ layout: wiki
 title: "Page Title"
 lang: de
 permalink: /wiki/de-Page%20Title
+translation_key: "Page Title"
 ---
 # Platzhalterseiten-Titel
 

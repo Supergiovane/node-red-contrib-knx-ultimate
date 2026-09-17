@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Multi Routing"
 lang: de
 permalink: /wiki/de-KNX%20Multi%20Routing
+translation_key: "KNX Multi Routing"
 ---
 Dieser Node dient dazu, **mehrere KNX-Ultimate-Gateways** (mehrere `knxUltimate-config`) über Node-RED Verbindungen zu koppeln.
 

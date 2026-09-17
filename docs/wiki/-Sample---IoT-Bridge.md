@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---IoT-Bridge"
 lang: en
 permalink: /wiki/-Sample---IoT-Bridge
+translation_key: "-Sample---IoT-Bridge"
 ---
 {% raw %}
 # KNX ↔ MQTT - IoT (sample)

@@ -3,10 +3,13 @@ layout: wiki
 title: "LoadControl-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-LoadControl-Configuration
+translation_key: "LoadControl-Configuration"
 ---
 
-<!-- KNX_UTILITY_LEGACY_NOTICE -->
-> 此专用节点仍兼容现有流程。新流程请使用 [KNX Utility](/node-red-contrib-knx-ultimate/wiki/zh-CN-KNX-Utility) 并选择 **Load Control**。其编辑器可批量转换所有流程和子流程中的全部兼容旧版工具节点，支持一次撤销及手动部署。
+> 第 8 版请使用 **KNX Utility** 并选择 **Load Control**。以下设置说明适用于该功能，旧的独立节点已不再包含。
+>
+> [KNX Utility]({{ '/wiki/zh-CN-KNX-Utility' | relative_url }}) · [从第 7 版升级]({{ '/wiki/zh-CN-Migration-8' | relative_url }})
+
 
 # KNX负载控制节点
 

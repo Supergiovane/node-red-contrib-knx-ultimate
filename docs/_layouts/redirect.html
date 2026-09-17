@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: 'en' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0; url={{ page.redirect_target | relative_url }}">
+  <link rel="canonical" href="{{ page.redirect_target | absolute_url }}">
+  <title>{{ page.title | escape }}</title>
+</head>
+<body><a href="{{ page.redirect_target | relative_url }}">{{ page.title | escape }} →</a></body>
+</html>

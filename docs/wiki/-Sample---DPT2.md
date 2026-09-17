@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---DPT2"
 lang: en
 permalink: /wiki/-Sample---DPT2
+translation_key: "-Sample---DPT2"
 ---
 # Datapoint 2
 

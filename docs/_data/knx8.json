@@ -1,0 +1,614 @@
+{
+  "en": {
+    "intro": "Connect Node-RED to your KNX installation. Version 8 includes six KNX nodes and one shared gateway configuration.",
+    "start": "Getting started",
+    "migration": "Upgrade from version 7",
+    "nodes": "Nodes included",
+    "functions": "KNX Utility functions",
+    "examples": "Examples",
+    "integrations": "Optional integrations",
+    "more": "Documentation",
+    "overview": "Start here",
+    "upgrade": "Already using version 7? Migrate your old nodes and Deploy before installing version 8.",
+    "descriptions": [
+      "Send commands, read a group address and receive values from the KNX bus.",
+      "Eleven functions in one node: scenes, timers, alarms, logging and other bus utilities.",
+      "View group-address values and the last 24 hours of telegram history.",
+      "Connect KNX to MQTT, REST and Modbus flows.",
+      "Route telegrams between KNX gateways or provide a KNX/IP server.",
+      "Filter or change telegrams before forwarding them to another gateway.",
+      "Set up the KNX connection, import ETS group addresses and configure KNX Secure. Shared by the nodes that use the bus."
+    ],
+    "integrationIntro": "Install these separate packages when you need them. HUE Ultimate and Matter Ultimate work with normal Node-RED messages. You can also use them with KNX Ultimate: select the existing KNX gateway to enable native KNX integration.",
+    "hue": "One Controller for Hue lights, scenes, switches and sensors.",
+    "matter": "Controller operates Matter devices; Bridge exposes devices from Node-RED or KNX to a Matter app.",
+    "cerebrum": "AI assistance for KNX. Supplied by the separate Cerebrum Ultimate package.",
+    "gatewayNote": "The gateway is a shared configuration, not an additional node to drag onto the flow.",
+    "startIntro": "For a new installation, follow the steps below. If your flows already use KNX Ultimate 7, complete the upgrade guide first.",
+    "requirements": "Requires Node.js 20.18.1 or newer and Node-RED 3.1.1 or newer.",
+    "steps": [
+      "In Node-RED, open **Manage palette → Install** and install `node-red-contrib-knx-ultimate`. Restart Node-RED.",
+      "Drag **KNX Device** into a flow. Add a gateway configuration and enter the address and connection settings of your KNX interface. Import your ETS group addresses if available.",
+      "Choose a group address from your installation and its datapoint. For an on/off command, use the matching boolean datapoint, such as `1.001`.",
+      "Connect an **Inject** node with a boolean `msg.payload` (`true` or `false`) to KNX Device. Connect KNX Device to **Debug** to inspect received telegrams.",
+      "Review the chosen address and press **Deploy**. Use Inject to send the command. Enable **React to response** to see replies to read requests."
+    ],
+    "readTitle": "Read a value from the bus",
+    "read": "Enable the manual button in KNX Device. Its actions are **Toggle boolean**, **Send KNX Read** (second item) and **Write custom value**. Choose Read and click the button to request the configured address. This button action is not available in universal mode. From a flow, you can also send `msg.readstatus = true`.",
+    "migrationIntro": "Version 8 removes the old HUE, Matter and AI nodes, their configuration nodes and the separate KNX utility nodes. Complete migration while KNX Ultimate 7 is still installed.",
+    "migrationSteps": [
+      "Back up the entire Node-RED user directory: flows, credentials, settings and `knxultimatestorage`. A flow JSON export alone does not save Matter pairings.",
+      "In KNX Ultimate 7, use **Migrate KNX** or the conversion button in KNX Utility to convert the old utility nodes. Check all flows and subflows, then Deploy.",
+      "Install `node-red-contrib-hue-ultimate` and/or `node-red-contrib-matter-ultimate` and restart Node-RED. Accept their migration prompt. HUE converts both the old individual nodes and the old multimode Controller.",
+      "Review and Deploy the converted flows. The tools preserve node IDs and configuration references. Keep the same user directory and do not delete `knxultimatestorage/matter`: it contains the Matter pairing identities and fabrics.",
+      "Replace or remove `knxUltimateAI` and `knxUltimateAIHomeAssistant` before upgrading. Cerebrum Ultimate is the separate AI package; there is no automatic AI conversion. Remove unused old configuration nodes too.",
+      "Confirm that your devices work, then install KNX Ultimate 8 and restart Node-RED. HUE and Matter nodes using KNX keep the existing gateway."
+    ],
+    "guardTitle": "If installation is blocked",
+    "guard": "The version 8 installer checks saved flows for old HUE and Matter nodes, including configuration nodes, disabled flows and subflows. Installing the new packages is not enough: convert and Deploy first. The check cannot cover every custom storage setup or unsaved editor change, so the migration steps remain necessary.",
+    "recovery": "If you upgraded too early, reinstall KNX Ultimate 7 and restart Node-RED before migrating. Restore your full backup if necessary; do not delete unknown nodes or reset Matter pairings.",
+    "utilityNotice": "In version 8, use **KNX Utility** and select **{profile}**. The settings below describe this function. The old separate node is no longer included.",
+    "utilityMigration": "Convert the old separate nodes while **KNX Ultimate 7** is installed, then Deploy before upgrading. The conversion keeps IDs, settings and wires and provides a flow backup and Undo. Version 8 does not load the removed node types.",
+    "archiveTitle": "Version 7 reference",
+    "archive": "This page describes a node removed from KNX Ultimate 8. For current instructions, use the separate package documentation. Migrate existing flows before upgrading KNX Ultimate.",
+    "samplesIntro": "Import the JSON through **Node-RED → Import**. Select your own gateway and replace sample addresses with addresses from your ETS project before Deploy. Read the Comment nodes for the setup required by each example.",
+    "sampleNote": "These files come from the package’s examples folder. The utility examples use KNX Utility, not the removed separate nodes.",
+    "download": "Download JSON",
+    "sampleLink": "Importable example",
+    "made": "Designed and developed in Italy.",
+    "videos": "Video tutorials",
+    "changelog": "Release notes",
+    "security": "Security",
+    "aiRemoved": "The old `knxUltimateAI` and `knxUltimateAIHomeAssistant` nodes are not included in KNX Ultimate 8. Replace them before upgrading. There is no automatic conversion; keep your backup and configure Cerebrum Ultimate separately.",
+    "nodeItems": [
+      {
+        "name": "KNX Device",
+        "url": "/wiki/Device",
+        "description": "Send commands, read a group address and receive values from the KNX bus."
+      },
+      {
+        "name": "KNX Utility",
+        "url": "/wiki/KNX-Utility",
+        "description": "Eleven functions in one node: scenes, timers, alarms, logging and other bus utilities."
+      },
+      {
+        "name": "KNX Viewer",
+        "url": "/wiki/knxUltimateViewer",
+        "description": "View group-address values and the last 24 hours of telegram history."
+      },
+      {
+        "name": "KNX IoT Bridge",
+        "url": "/wiki/IoT-Bridge-Configuration",
+        "description": "Connect KNX to MQTT, REST and Modbus flows."
+      },
+      {
+        "name": "KNX Multi Routing",
+        "url": "/wiki/KNX%20Multi%20Routing",
+        "description": "Route telegrams between KNX gateways or provide a KNX/IP server."
+      },
+      {
+        "name": "KNX Router Filter",
+        "url": "/wiki/KNX%20Router%20Filter",
+        "description": "Filter or change telegrams before forwarding them to another gateway."
+      },
+      {
+        "name": "KNX Gateway",
+        "url": "/wiki/Gateway-configuration",
+        "description": "Set up the KNX connection, import ETS group addresses and configure KNX Secure. Shared by the nodes that use the bus."
+      }
+    ],
+    "startUrl": "/wiki/Getting-Started",
+    "migrationUrl": "/wiki/Migration-8",
+    "examplesUrl": "/wiki/-SamplesHome"
+  },
+  "it": {
+    "intro": "Collega Node-RED al tuo impianto KNX. La versione 8 include sei nodi KNX e una configurazione gateway condivisa.",
+    "start": "Primi passi",
+    "migration": "Passare dalla versione 7",
+    "nodes": "Nodi inclusi",
+    "functions": "Funzioni di KNX Utility",
+    "examples": "Esempi",
+    "integrations": "Integrazioni opzionali",
+    "more": "Documentazione",
+    "overview": "Da dove iniziare",
+    "upgrade": "Usi già la versione 7? Converti i vecchi nodi e fai Deploy prima di installare la versione 8.",
+    "descriptions": [
+      "Invia comandi, leggi un indirizzo di gruppo e ricevi valori dal bus KNX.",
+      "Undici funzioni in un nodo: scene, temporizzazioni, allarmi, registrazione e altre utility del bus.",
+      "Visualizza i valori degli indirizzi di gruppo e lo storico dei telegrammi delle ultime 24 ore.",
+      "Collega KNX ai flow MQTT, REST e Modbus.",
+      "Instrada i telegrammi tra gateway KNX oppure crea un server KNX/IP.",
+      "Filtra o modifica i telegrammi prima di inoltrarli a un altro gateway.",
+      "Configura la connessione KNX, importa gli indirizzi ETS e imposta KNX Secure. È condiviso dai nodi che usano il bus."
+    ],
+    "integrationIntro": "Installa questi package separati quando ti servono. HUE Ultimate e Matter Ultimate lavorano con i normali messaggi Node-RED. Puoi usarli anche con KNX Ultimate: seleziona il gateway KNX esistente per attivare l’integrazione nativa.",
+    "hue": "Un solo Controller per luci, scene, pulsanti e sensori Hue.",
+    "matter": "Controller comanda i dispositivi Matter; Bridge espone dispositivi di Node-RED o KNX a un’app Matter.",
+    "cerebrum": "Assistenza AI per KNX, disponibile nel package separato Cerebrum Ultimate.",
+    "gatewayNote": "Il gateway è una configurazione condivisa, non un altro nodo da trascinare nel flow.",
+    "startIntro": "Per una nuova installazione, segui i passaggi qui sotto. Se i tuoi flow usano già KNX Ultimate 7, completa prima la guida all’aggiornamento.",
+    "requirements": "Servono Node.js 20.18.1 o successivo e Node-RED 3.1.1 o successivo.",
+    "steps": [
+      "In Node-RED, apri **Gestisci palette → Installa** e installa `node-red-contrib-knx-ultimate`. Riavvia Node-RED.",
+      "Trascina **KNX Device** nel flow. Aggiungi una configurazione gateway e inserisci indirizzo e parametri della tua interfaccia KNX. Importa gli indirizzi di gruppo ETS, se disponibili.",
+      "Scegli un indirizzo di gruppo del tuo impianto e il relativo datapoint. Per un comando acceso/spento usa il datapoint booleano previsto, ad esempio `1.001`.",
+      "Collega un nodo **Inject** con `msg.payload` booleano (`true` o `false`) a KNX Device. Collega l’uscita di KNX Device a **Debug** per vedere i telegrammi ricevuti.",
+      "Controlla l’indirizzo scelto e premi **Deploy**. Usa Inject per inviare il comando. Abilita **Reagisci all’evento Risposta** per vedere le risposte alle richieste di lettura."
+    ],
+    "readTitle": "Leggere un valore dal bus",
+    "read": "Abilita il pulsante manuale di KNX Device. Le azioni sono **Alterna valore booleano**, **Invia KNX Read** (seconda voce) e **Scrivi valore personalizzato**. Scegli Read e premi il pulsante per leggere l’indirizzo configurato. Questa azione non è disponibile in modalità universale. Dal flow puoi anche inviare `msg.readstatus = true`.",
+    "migrationIntro": "La versione 8 rimuove i vecchi nodi HUE, Matter e AI, i relativi nodi di configurazione e i nodi Utility separati. Completa la migrazione mentre KNX Ultimate 7 è ancora installato.",
+    "migrationSteps": [
+      "Fai un backup dell’intera cartella utente di Node-RED: flow, credenziali, impostazioni e `knxultimatestorage`. Il solo JSON dei flow non salva gli abbinamenti Matter.",
+      "Con KNX Ultimate 7, usa **Migra KNX** o il pulsante di conversione di KNX Utility per trasformare i vecchi nodi Utility. Controlla tutti i flow e subflow, poi fai Deploy.",
+      "Installa `node-red-contrib-hue-ultimate` e/o `node-red-contrib-matter-ultimate` e riavvia Node-RED. Accetta il messaggio di migrazione. HUE converte sia i vecchi nodi singoli sia il vecchio Controller multimodale.",
+      "Controlla i flow convertiti e fai Deploy. Gli strumenti conservano ID e riferimenti alle configurazioni. Mantieni la stessa cartella utente e non eliminare `knxultimatestorage/matter`: contiene identità di abbinamento e fabric Matter.",
+      "Sostituisci o rimuovi `knxUltimateAI` e `knxUltimateAIHomeAssistant` prima dell’aggiornamento. Cerebrum Ultimate è il package AI separato; non c’è conversione automatica dei nodi AI. Elimina anche le vecchie configurazioni inutilizzate.",
+      "Verifica che i dispositivi funzionino, poi installa KNX Ultimate 8 e riavvia Node-RED. I nodi HUE e Matter che usano KNX mantengono il gateway esistente."
+    ],
+    "guardTitle": "Se l’installazione viene bloccata",
+    "guard": "L’installazione della versione 8 controlla i flow salvati e cerca vecchi nodi HUE e Matter, comprese configurazioni, schede disabilitate e subflow. Non basta installare i nuovi package: devi convertire e fare Deploy. Il controllo non copre ogni sistema di salvataggio personalizzato né le modifiche non salvate nell’editor: segui comunque i passaggi della migrazione.",
+    "recovery": "Se hai aggiornato troppo presto, reinstalla KNX Ultimate 7 e riavvia Node-RED prima di migrare. Se necessario, ripristina il backup completo; non eliminare i nodi sconosciuti e non resettare gli abbinamenti Matter.",
+    "utilityNotice": "Nella versione 8 usa **KNX Utility** e seleziona **{profile}**. Le impostazioni qui sotto descrivono questa funzione. Il vecchio nodo separato non è più incluso.",
+    "utilityMigration": "Converti i vecchi nodi separati con **KNX Ultimate 7** ancora installato e fai Deploy prima di aggiornare. La conversione conserva ID, impostazioni e collegamenti e offre backup dei flow e Annulla. La versione 8 non carica i tipi di nodo rimossi.",
+    "archiveTitle": "Riferimento per la versione 7",
+    "archive": "Questa pagina descrive un nodo rimosso da KNX Ultimate 8. Per le istruzioni attuali consulta la documentazione del package separato. Migra i flow esistenti prima di aggiornare KNX Ultimate.",
+    "samplesIntro": "Importa il JSON da **Node-RED → Importa**. Seleziona il tuo gateway e sostituisci gli indirizzi di esempio con quelli del progetto ETS prima del Deploy. Leggi i nodi Comment per le impostazioni richieste da ciascun esempio.",
+    "sampleNote": "I file provengono dalla cartella examples del package. Gli esempi Utility usano KNX Utility, non i vecchi nodi separati.",
+    "download": "Scarica JSON",
+    "sampleLink": "Esempio da importare",
+    "made": "Progettato e sviluppato in Italia.",
+    "videos": "Video tutorial",
+    "changelog": "Novità delle versioni",
+    "security": "Sicurezza",
+    "aiRemoved": "I vecchi nodi `knxUltimateAI` e `knxUltimateAIHomeAssistant` non sono inclusi in KNX Ultimate 8. Sostituiscili prima di aggiornare. Non esiste una conversione automatica: conserva il backup e configura Cerebrum Ultimate separatamente.",
+    "nodeItems": [
+      {
+        "name": "KNX Device",
+        "url": "/wiki/it-Device",
+        "description": "Invia comandi, leggi un indirizzo di gruppo e ricevi valori dal bus KNX."
+      },
+      {
+        "name": "KNX Utility",
+        "url": "/wiki/it-KNX-Utility",
+        "description": "Undici funzioni in un nodo: scene, temporizzazioni, allarmi, registrazione e altre utility del bus."
+      },
+      {
+        "name": "KNX Viewer",
+        "url": "/wiki/it-knxUltimateViewer",
+        "description": "Visualizza i valori degli indirizzi di gruppo e lo storico dei telegrammi delle ultime 24 ore."
+      },
+      {
+        "name": "KNX IoT Bridge",
+        "url": "/wiki/it-IoT-Bridge-Configuration",
+        "description": "Collega KNX ai flow MQTT, REST e Modbus."
+      },
+      {
+        "name": "KNX Multi Routing",
+        "url": "/wiki/it-KNX%20Multi%20Routing",
+        "description": "Instrada i telegrammi tra gateway KNX oppure crea un server KNX/IP."
+      },
+      {
+        "name": "KNX Router Filter",
+        "url": "/wiki/it-KNX%20Router%20Filter",
+        "description": "Filtra o modifica i telegrammi prima di inoltrarli a un altro gateway."
+      },
+      {
+        "name": "KNX Gateway",
+        "url": "/wiki/it-Gateway-configuration",
+        "description": "Configura la connessione KNX, importa gli indirizzi ETS e imposta KNX Secure. È condiviso dai nodi che usano il bus."
+      }
+    ],
+    "startUrl": "/wiki/it-Getting-Started",
+    "migrationUrl": "/wiki/it-Migration-8",
+    "examplesUrl": "/wiki/it--SamplesHome"
+  },
+  "de": {
+    "intro": "Verbinde Node-RED mit deiner KNX-Anlage. Version 8 enthält sechs KNX-Knoten und eine gemeinsame Gateway-Konfiguration.",
+    "start": "Erste Schritte",
+    "migration": "Upgrade von Version 7",
+    "nodes": "Enthaltene Knoten",
+    "functions": "KNX Utility-Funktionen",
+    "examples": "Beispiele",
+    "integrations": "Optionale Integrationen",
+    "more": "Dokumentation",
+    "overview": "Einstieg",
+    "upgrade": "Du nutzt bereits Version 7? Konvertiere die alten Knoten und führe ein Deploy aus, bevor du Version 8 installierst.",
+    "descriptions": [
+      "Befehle senden, Gruppenadressen lesen und Werte vom KNX-Bus empfangen.",
+      "Elf Funktionen in einem Knoten: Szenen, Timer, Alarme, Protokollierung und weitere Bus-Werkzeuge.",
+      "Gruppenadresswerte und den Telegrammverlauf der letzten 24 Stunden anzeigen.",
+      "KNX mit MQTT-, REST- und Modbus-Flows verbinden.",
+      "Telegramme zwischen KNX-Gateways weiterleiten oder einen KNX/IP-Server bereitstellen.",
+      "Telegramme vor der Weiterleitung an ein anderes Gateway filtern oder ändern.",
+      "KNX-Verbindung einrichten, ETS-Gruppenadressen importieren und KNX Secure konfigurieren. Gemeinsame Konfiguration für die Bus-Knoten."
+    ],
+    "integrationIntro": "Installiere diese separaten Pakete bei Bedarf. HUE Ultimate und Matter Ultimate arbeiten mit normalen Node-RED-Nachrichten. Du kannst sie auch mit KNX Ultimate verwenden: Wähle das vorhandene KNX-Gateway für die native Integration.",
+    "hue": "Ein Controller für Hue-Leuchten, Szenen, Taster und Sensoren.",
+    "matter": "Controller steuert Matter-Geräte; Bridge stellt Geräte aus Node-RED oder KNX einer Matter-App bereit.",
+    "cerebrum": "KI-Unterstützung für KNX im separaten Paket Cerebrum Ultimate.",
+    "gatewayNote": "Das Gateway ist eine gemeinsame Konfiguration und kein zusätzlicher Knoten im Flow.",
+    "startIntro": "Für eine neue Installation folge diesen Schritten. Wenn deine Flows bereits KNX Ultimate 7 nutzen, lies zuerst die Upgrade-Anleitung.",
+    "requirements": "Erfordert Node.js ab 20.18.1 und Node-RED ab 3.1.1.",
+    "steps": [
+      "Öffne **Palette verwalten → Installieren** und installiere `node-red-contrib-knx-ultimate`. Starte Node-RED neu.",
+      "Ziehe **KNX Device** in den Flow. Erstelle eine Gateway-Konfiguration mit Adresse und Verbindungseinstellungen deiner KNX-Schnittstelle. Importiere bei Bedarf die ETS-Gruppenadressen.",
+      "Wähle eine Gruppenadresse deiner Anlage und den passenden Datenpunkt. Für Ein/Aus nutze den vorgesehenen booleschen Datenpunkt, zum Beispiel `1.001`.",
+      "Verbinde einen **Inject**-Knoten mit booleschem `msg.payload` (`true` oder `false`) mit KNX Device. Verbinde dessen Ausgang mit **Debug**, um empfangene Telegramme zu sehen.",
+      "Prüfe die Adresse und klicke **Deploy**. Sende den Befehl mit Inject. Aktiviere **React to response**, um Antworten auf Leseanforderungen zu sehen."
+    ],
+    "readTitle": "Einen Wert vom Bus lesen",
+    "read": "Aktiviere den manuellen Button von KNX Device. Die Aktionen sind **Toggle boolean**, **KNX Read senden** (zweiter Eintrag) und **Benutzerdefinierten Wert schreiben**. Wähle Read und klicke den Button, um die konfigurierte Adresse abzufragen. Im Universalmodus ist diese Button-Aktion nicht verfügbar. Aus einem Flow kannst du auch `msg.readstatus = true` senden.",
+    "migrationIntro": "Version 8 entfernt die alten HUE-, Matter- und KI-Knoten samt Konfigurationen sowie die separaten KNX-Utility-Knoten. Schließe die Migration ab, solange KNX Ultimate 7 noch installiert ist.",
+    "migrationSteps": [
+      "Sichere das gesamte Node-RED-Benutzerverzeichnis: Flows, Zugangsdaten, Einstellungen und `knxultimatestorage`. Ein Flow-JSON allein sichert keine Matter-Kopplungen.",
+      "Nutze in KNX Ultimate 7 **Migrate KNX** oder den Konvertierungsbutton in KNX Utility für die alten Utility-Knoten. Prüfe alle Flows und Subflows und führe Deploy aus.",
+      "Installiere `node-red-contrib-hue-ultimate` und/oder `node-red-contrib-matter-ultimate` und starte Node-RED neu. Bestätige den Migrationshinweis. HUE konvertiert sowohl einzelne alte Knoten als auch den bisherigen multimodalen Controller.",
+      "Prüfe die konvertierten Flows und führe Deploy aus. IDs und Konfigurationsverweise bleiben erhalten. Behalte das Benutzerverzeichnis und lösche `knxultimatestorage/matter` nicht: Dort liegen Matter-Kopplungsidentitäten und Fabrics.",
+      "Ersetze oder entferne `knxUltimateAI` und `knxUltimateAIHomeAssistant` vor dem Upgrade. Cerebrum Ultimate ist das separate KI-Paket; eine automatische KI-Konvertierung gibt es nicht. Entferne auch ungenutzte alte Konfigurationen.",
+      "Prüfe die Gerätefunktion. Installiere dann KNX Ultimate 8 und starte Node-RED neu. HUE- und Matter-Knoten mit KNX verwenden weiterhin das vorhandene Gateway."
+    ],
+    "guardTitle": "Wenn die Installation blockiert wird",
+    "guard": "Die Installation von Version 8 prüft gespeicherte Flows auf alte HUE- und Matter-Knoten, einschließlich Konfigurationen, deaktivierter Flows und Subflows. Die neuen Pakete zu installieren genügt nicht: Konvertiere zuerst und führe Deploy aus. Benutzerdefinierte Speicher und ungespeicherte Änderungen können nicht vollständig geprüft werden; die Migrationsschritte bleiben notwendig.",
+    "recovery": "Bei einem zu frühen Upgrade installiere KNX Ultimate 7 erneut und starte Node-RED vor der Migration neu. Stelle bei Bedarf die vollständige Sicherung wieder her. Lösche keine unbekannten Knoten und setze Matter-Kopplungen nicht zurück.",
+    "utilityNotice": "Nutze in Version 8 **KNX Utility** und wähle **{profile}**. Die folgenden Einstellungen beschreiben diese Funktion. Der alte separate Knoten ist nicht mehr enthalten.",
+    "utilityMigration": "Konvertiere die alten separaten Knoten noch mit **KNX Ultimate 7** und führe Deploy vor dem Upgrade aus. Die Konvertierung erhält IDs, Einstellungen und Verbindungen und bietet Flow-Sicherung und Rückgängig. Version 8 lädt die entfernten Knotentypen nicht.",
+    "archiveTitle": "Referenz für Version 7",
+    "archive": "Diese Seite beschreibt einen aus KNX Ultimate 8 entfernten Knoten. Aktuelle Anleitungen stehen in der Dokumentation des separaten Pakets. Migriere vorhandene Flows vor dem Upgrade.",
+    "samplesIntro": "Importiere die JSON-Datei über **Node-RED → Importieren**. Wähle dein Gateway und ersetze die Beispieladressen vor Deploy durch Adressen aus deinem ETS-Projekt. Lies die Comment-Knoten für die nötige Einrichtung.",
+    "sampleNote": "Die Dateien stammen aus dem examples-Ordner des Pakets. Die Utility-Beispiele verwenden KNX Utility statt der entfernten separaten Knoten.",
+    "download": "JSON herunterladen",
+    "sampleLink": "Importierbares Beispiel",
+    "made": "In Italien entworfen und entwickelt.",
+    "videos": "Videoanleitungen",
+    "changelog": "Versionshinweise",
+    "security": "Sicherheit",
+    "aiRemoved": "Die alten Knoten `knxUltimateAI` und `knxUltimateAIHomeAssistant` sind in KNX Ultimate 8 nicht enthalten. Ersetze sie vor dem Upgrade. Es gibt keine automatische Konvertierung: Behalte deine Sicherung und richte Cerebrum Ultimate separat ein.",
+    "nodeItems": [
+      {
+        "name": "KNX Device",
+        "url": "/wiki/de-Device",
+        "description": "Befehle senden, Gruppenadressen lesen und Werte vom KNX-Bus empfangen."
+      },
+      {
+        "name": "KNX Utility",
+        "url": "/wiki/de-KNX-Utility",
+        "description": "Elf Funktionen in einem Knoten: Szenen, Timer, Alarme, Protokollierung und weitere Bus-Werkzeuge."
+      },
+      {
+        "name": "KNX Viewer",
+        "url": "/wiki/de-knxUltimateViewer",
+        "description": "Gruppenadresswerte und den Telegrammverlauf der letzten 24 Stunden anzeigen."
+      },
+      {
+        "name": "KNX IoT Bridge",
+        "url": "/wiki/de-IoT-Bridge-Configuration",
+        "description": "KNX mit MQTT-, REST- und Modbus-Flows verbinden."
+      },
+      {
+        "name": "KNX Multi Routing",
+        "url": "/wiki/de-KNX%20Multi%20Routing",
+        "description": "Telegramme zwischen KNX-Gateways weiterleiten oder einen KNX/IP-Server bereitstellen."
+      },
+      {
+        "name": "KNX Router Filter",
+        "url": "/wiki/de-KNX%20Router%20Filter",
+        "description": "Telegramme vor der Weiterleitung an ein anderes Gateway filtern oder ändern."
+      },
+      {
+        "name": "KNX Gateway",
+        "url": "/wiki/de-Gateway-configuration",
+        "description": "KNX-Verbindung einrichten, ETS-Gruppenadressen importieren und KNX Secure konfigurieren. Gemeinsame Konfiguration für die Bus-Knoten."
+      }
+    ],
+    "startUrl": "/wiki/de-Getting-Started",
+    "migrationUrl": "/wiki/de-Migration-8",
+    "examplesUrl": "/wiki/de--SamplesHome"
+  },
+  "fr": {
+    "intro": "Reliez Node-RED à votre installation KNX. La version 8 comprend six nœuds KNX et une configuration de passerelle partagée.",
+    "start": "Premiers pas",
+    "migration": "Passer de la version 7 à la 8",
+    "nodes": "Nœuds inclus",
+    "functions": "Fonctions de KNX Utility",
+    "examples": "Exemples",
+    "integrations": "Intégrations optionnelles",
+    "more": "Documentation",
+    "overview": "Pour commencer",
+    "upgrade": "Vous utilisez déjà la version 7 ? Convertissez les anciens nœuds et faites Deploy avant d’installer la version 8.",
+    "descriptions": [
+      "Envoyer des commandes, lire une adresse de groupe et recevoir les valeurs du bus KNX.",
+      "Onze fonctions dans un nœud : scènes, temporisations, alarmes, journalisation et autres outils KNX.",
+      "Afficher les valeurs des adresses de groupe et l’historique des télégrammes des dernières 24 heures.",
+      "Relier KNX aux flux MQTT, REST et Modbus.",
+      "Acheminer des télégrammes entre passerelles KNX ou fournir un serveur KNX/IP.",
+      "Filtrer ou modifier les télégrammes avant leur envoi à une autre passerelle.",
+      "Configurer la connexion KNX, importer les adresses ETS et régler KNX Secure. Configuration partagée par les nœuds utilisant le bus."
+    ],
+    "integrationIntro": "Installez ces packages séparés selon vos besoins. HUE Ultimate et Matter Ultimate utilisent les messages Node-RED habituels. Vous pouvez aussi les utiliser avec KNX Ultimate : sélectionnez la passerelle KNX existante pour activer l’intégration native.",
+    "hue": "Un Controller pour les lumières, scènes, boutons et capteurs Hue.",
+    "matter": "Controller pilote les appareils Matter ; Bridge expose des appareils de Node-RED ou KNX à une application Matter.",
+    "cerebrum": "Assistance IA pour KNX, fournie par le package séparé Cerebrum Ultimate.",
+    "gatewayNote": "La passerelle est une configuration partagée, pas un nœud supplémentaire à placer dans le flow.",
+    "startIntro": "Pour une nouvelle installation, suivez ces étapes. Si vos flows utilisent déjà KNX Ultimate 7, commencez par le guide de mise à niveau.",
+    "requirements": "Nécessite Node.js 20.18.1 minimum et Node-RED 3.1.1 minimum.",
+    "steps": [
+      "Ouvrez **Gérer la palette → Installer** et installez `node-red-contrib-knx-ultimate`. Redémarrez Node-RED.",
+      "Placez **KNX Device** dans un flow. Ajoutez une passerelle avec l’adresse et les paramètres de connexion de votre interface KNX. Importez les adresses ETS si disponibles.",
+      "Choisissez une adresse de groupe de votre installation et son datapoint. Pour marche/arrêt, utilisez le datapoint booléen prévu, par exemple `1.001`.",
+      "Reliez un nœud **Inject** avec un `msg.payload` booléen (`true` ou `false`) à KNX Device. Reliez sa sortie à **Debug** pour voir les télégrammes reçus.",
+      "Vérifiez l’adresse puis cliquez sur **Deploy**. Utilisez Inject pour envoyer la commande. Activez **React to response** pour voir les réponses aux demandes de lecture."
+    ],
+    "readTitle": "Lire une valeur sur le bus",
+    "read": "Activez le bouton manuel de KNX Device. Ses actions sont **Toggle boolean**, **Envoyer KNX Read** (deuxième choix) et **Écrire une valeur personnalisée**. Choisissez Read et cliquez pour interroger l’adresse configurée. Cette action du bouton n’est pas disponible en mode universel. Depuis un flow, vous pouvez aussi envoyer `msg.readstatus = true`.",
+    "migrationIntro": "La version 8 retire les anciens nœuds HUE, Matter et IA, leurs configurations et les nœuds Utility séparés. Terminez la migration pendant que KNX Ultimate 7 est encore installé.",
+    "migrationSteps": [
+      "Sauvegardez tout le dossier utilisateur de Node-RED : flows, identifiants, paramètres et `knxultimatestorage`. Le JSON des flows seul ne sauvegarde pas les appairages Matter.",
+      "Avec KNX Ultimate 7, utilisez **Migrate KNX** ou le bouton de conversion de KNX Utility pour les anciens nœuds Utility. Vérifiez tous les flows et sous-flows, puis faites Deploy.",
+      "Installez `node-red-contrib-hue-ultimate` et/ou `node-red-contrib-matter-ultimate`, puis redémarrez Node-RED. Acceptez la proposition de migration. HUE convertit les anciens nœuds individuels et l’ancien Controller multimode.",
+      "Vérifiez les flows convertis et faites Deploy. Les ID et références de configuration sont conservés. Gardez le même dossier utilisateur et ne supprimez pas `knxultimatestorage/matter` : il contient les identités d’appairage et les fabrics Matter.",
+      "Remplacez ou retirez `knxUltimateAI` et `knxUltimateAIHomeAssistant` avant la mise à niveau. Cerebrum Ultimate est le package IA séparé ; aucune conversion IA automatique n’est prévue. Retirez aussi les anciennes configurations inutilisées.",
+      "Vérifiez le fonctionnement des appareils, puis installez KNX Ultimate 8 et redémarrez Node-RED. Les nœuds HUE et Matter utilisant KNX conservent la passerelle existante."
+    ],
+    "guardTitle": "Si l’installation est bloquée",
+    "guard": "L’installation de la version 8 recherche les anciens nœuds HUE et Matter dans les flows sauvegardés, y compris les configurations, flows désactivés et sous-flows. Installer les nouveaux packages ne suffit pas : convertissez puis faites Deploy. Les stockages personnalisés et modifications non enregistrées ne peuvent pas tous être vérifiés ; les étapes de migration restent nécessaires.",
+    "recovery": "Si la mise à niveau a été faite trop tôt, réinstallez KNX Ultimate 7 et redémarrez Node-RED avant de migrer. Restaurez la sauvegarde complète si nécessaire. Ne supprimez pas les nœuds inconnus et ne réinitialisez pas les appairages Matter.",
+    "utilityNotice": "Dans la version 8, utilisez **KNX Utility** et choisissez **{profile}**. Les réglages ci-dessous décrivent cette fonction. L’ancien nœud séparé n’est plus inclus.",
+    "utilityMigration": "Convertissez les anciens nœuds séparés avec **KNX Ultimate 7** encore installé, puis faites Deploy avant la mise à niveau. La conversion conserve ID, réglages et connexions et fournit une sauvegarde des flows et Annuler. La version 8 ne charge pas les types retirés.",
+    "archiveTitle": "Référence pour la version 7",
+    "archive": "Cette page décrit un nœud retiré de KNX Ultimate 8. Pour les instructions actuelles, consultez la documentation du package séparé. Migrez vos flows avant la mise à niveau.",
+    "samplesIntro": "Importez le JSON via **Node-RED → Importer**. Sélectionnez votre passerelle et remplacez les adresses d’exemple par celles du projet ETS avant Deploy. Lisez les nœuds Comment pour les réglages propres à chaque exemple.",
+    "sampleNote": "Ces fichiers proviennent du dossier examples du package. Les exemples Utility utilisent KNX Utility, pas les anciens nœuds séparés.",
+    "download": "Télécharger le JSON",
+    "sampleLink": "Exemple à importer",
+    "made": "Conçu et développé en Italie.",
+    "videos": "Tutoriels vidéo",
+    "changelog": "Notes de version",
+    "security": "Sécurité",
+    "aiRemoved": "Les anciens nœuds `knxUltimateAI` et `knxUltimateAIHomeAssistant` ne sont pas inclus dans KNX Ultimate 8. Remplacez-les avant la mise à niveau. Il n’existe pas de conversion automatique : gardez votre sauvegarde et configurez Cerebrum Ultimate séparément.",
+    "nodeItems": [
+      {
+        "name": "KNX Device",
+        "url": "/wiki/fr-Device",
+        "description": "Envoyer des commandes, lire une adresse de groupe et recevoir les valeurs du bus KNX."
+      },
+      {
+        "name": "KNX Utility",
+        "url": "/wiki/fr-KNX-Utility",
+        "description": "Onze fonctions dans un nœud : scènes, temporisations, alarmes, journalisation et autres outils KNX."
+      },
+      {
+        "name": "KNX Viewer",
+        "url": "/wiki/fr-knxUltimateViewer",
+        "description": "Afficher les valeurs des adresses de groupe et l’historique des télégrammes des dernières 24 heures."
+      },
+      {
+        "name": "KNX IoT Bridge",
+        "url": "/wiki/fr-IoT-Bridge-Configuration",
+        "description": "Relier KNX aux flux MQTT, REST et Modbus."
+      },
+      {
+        "name": "KNX Multi Routing",
+        "url": "/wiki/fr-KNX%20Multi%20Routing",
+        "description": "Acheminer des télégrammes entre passerelles KNX ou fournir un serveur KNX/IP."
+      },
+      {
+        "name": "KNX Router Filter",
+        "url": "/wiki/fr-KNX%20Router%20Filter",
+        "description": "Filtrer ou modifier les télégrammes avant leur envoi à une autre passerelle."
+      },
+      {
+        "name": "KNX Gateway",
+        "url": "/wiki/fr-Gateway-configuration",
+        "description": "Configurer la connexion KNX, importer les adresses ETS et régler KNX Secure. Configuration partagée par les nœuds utilisant le bus."
+      }
+    ],
+    "startUrl": "/wiki/fr-Getting-Started",
+    "migrationUrl": "/wiki/fr-Migration-8",
+    "examplesUrl": "/wiki/fr--SamplesHome"
+  },
+  "es": {
+    "intro": "Conecta Node-RED a tu instalación KNX. La versión 8 incluye seis nodos KNX y una configuración de gateway compartida.",
+    "start": "Primeros pasos",
+    "migration": "Actualizar desde la versión 7",
+    "nodes": "Nodos incluidos",
+    "functions": "Funciones de KNX Utility",
+    "examples": "Ejemplos",
+    "integrations": "Integraciones opcionales",
+    "more": "Documentación",
+    "overview": "Por dónde empezar",
+    "upgrade": "¿Ya usas la versión 7? Convierte los nodos antiguos y haz Deploy antes de instalar la versión 8.",
+    "descriptions": [
+      "Envía comandos, lee una dirección de grupo y recibe valores del bus KNX.",
+      "Once funciones en un nodo: escenas, temporizadores, alarmas, registro y otras utilidades del bus.",
+      "Muestra los valores de las direcciones de grupo y el historial de telegramas de las últimas 24 horas.",
+      "Conecta KNX a flujos MQTT, REST y Modbus.",
+      "Enruta telegramas entre gateways KNX o proporciona un servidor KNX/IP.",
+      "Filtra o modifica telegramas antes de enviarlos a otro gateway.",
+      "Configura la conexión KNX, importa las direcciones ETS y ajusta KNX Secure. Compartido por los nodos que usan el bus."
+    ],
+    "integrationIntro": "Instala estos paquetes separados cuando los necesites. HUE Ultimate y Matter Ultimate trabajan con mensajes normales de Node-RED. También puedes usarlos con KNX Ultimate: selecciona el gateway KNX existente para activar la integración nativa.",
+    "hue": "Un Controller para luces, escenas, pulsadores y sensores Hue.",
+    "matter": "Controller controla dispositivos Matter; Bridge expone dispositivos de Node-RED o KNX a una aplicación Matter.",
+    "cerebrum": "Asistencia de IA para KNX mediante el paquete separado Cerebrum Ultimate.",
+    "gatewayNote": "El gateway es una configuración compartida, no otro nodo que se arrastra al flow.",
+    "startIntro": "Para una nueva instalación, sigue estos pasos. Si tus flujos ya usan KNX Ultimate 7, completa primero la guía de actualización.",
+    "requirements": "Requiere Node.js 20.18.1 o posterior y Node-RED 3.1.1 o posterior.",
+    "steps": [
+      "Abre **Gestionar paleta → Instalar** e instala `node-red-contrib-knx-ultimate`. Reinicia Node-RED.",
+      "Arrastra **KNX Device** al flow. Añade un gateway con la dirección y los parámetros de conexión de tu interfaz KNX. Importa las direcciones ETS si están disponibles.",
+      "Elige una dirección de grupo de tu instalación y su datapoint. Para encendido/apagado, usa el datapoint booleano previsto, por ejemplo `1.001`.",
+      "Conecta un nodo **Inject** con `msg.payload` booleano (`true` o `false`) a KNX Device. Conecta su salida a **Debug** para ver los telegramas recibidos.",
+      "Revisa la dirección y pulsa **Deploy**. Usa Inject para enviar el comando. Activa **React to response** para ver las respuestas a las solicitudes de lectura."
+    ],
+    "readTitle": "Leer un valor del bus",
+    "read": "Activa el botón manual de KNX Device. Las acciones son **Toggle boolean**, **Enviar KNX Read** (segunda opción) y **Escribir valor personalizado**. Elige Read y pulsa el botón para consultar la dirección configurada. Esta acción no está disponible en modo universal. Desde un flow también puedes enviar `msg.readstatus = true`.",
+    "migrationIntro": "La versión 8 elimina los antiguos nodos HUE, Matter e IA, sus configuraciones y los nodos Utility separados. Completa la migración mientras KNX Ultimate 7 siga instalado.",
+    "migrationSteps": [
+      "Haz una copia de toda la carpeta de usuario de Node-RED: flujos, credenciales, ajustes y `knxultimatestorage`. El JSON de los flujos por sí solo no guarda los emparejamientos Matter.",
+      "Con KNX Ultimate 7, usa **Migrate KNX** o el botón de conversión de KNX Utility para los antiguos nodos Utility. Revisa todos los flujos y subflujos y haz Deploy.",
+      "Instala `node-red-contrib-hue-ultimate` y/o `node-red-contrib-matter-ultimate` y reinicia Node-RED. Acepta el aviso de migración. HUE convierte tanto los nodos individuales antiguos como el antiguo Controller multimodal.",
+      "Revisa los flujos convertidos y haz Deploy. Se conservan ID y referencias de configuración. Mantén la misma carpeta de usuario y no borres `knxultimatestorage/matter`: contiene identidades de emparejamiento y fabrics Matter.",
+      "Sustituye o elimina `knxUltimateAI` y `knxUltimateAIHomeAssistant` antes de actualizar. Cerebrum Ultimate es el paquete de IA separado; no hay conversión automática de IA. Elimina también las configuraciones antiguas sin uso.",
+      "Comprueba que los dispositivos funcionen, instala KNX Ultimate 8 y reinicia Node-RED. Los nodos HUE y Matter que usan KNX mantienen el gateway existente."
+    ],
+    "guardTitle": "Si se bloquea la instalación",
+    "guard": "La instalación de la versión 8 busca nodos HUE y Matter antiguos en los flujos guardados, incluidas configuraciones, flujos desactivados y subflujos. Instalar los nuevos paquetes no basta: convierte y haz Deploy primero. No se pueden revisar todos los almacenamientos personalizados ni los cambios sin guardar; los pasos de migración siguen siendo necesarios.",
+    "recovery": "Si actualizaste demasiado pronto, reinstala KNX Ultimate 7 y reinicia Node-RED antes de migrar. Restaura la copia completa si es necesario. No borres los nodos desconocidos ni reinicies los emparejamientos Matter.",
+    "utilityNotice": "En la versión 8 usa **KNX Utility** y selecciona **{profile}**. Los ajustes siguientes describen esa función. El antiguo nodo separado ya no está incluido.",
+    "utilityMigration": "Convierte los nodos separados con **KNX Ultimate 7** todavía instalado y haz Deploy antes de actualizar. La conversión conserva ID, ajustes y conexiones y ofrece copia de los flujos y Deshacer. La versión 8 no carga los tipos eliminados.",
+    "archiveTitle": "Referencia para la versión 7",
+    "archive": "Esta página describe un nodo eliminado de KNX Ultimate 8. Consulta la documentación del paquete separado para las instrucciones actuales. Migra los flujos existentes antes de actualizar.",
+    "samplesIntro": "Importa el JSON desde **Node-RED → Importar**. Selecciona tu gateway y cambia las direcciones de ejemplo por las del proyecto ETS antes de Deploy. Lee los nodos Comment para la configuración necesaria en cada ejemplo.",
+    "sampleNote": "Los archivos proceden de la carpeta examples del paquete. Los ejemplos Utility usan KNX Utility, no los antiguos nodos separados.",
+    "download": "Descargar JSON",
+    "sampleLink": "Ejemplo para importar",
+    "made": "Diseñado y desarrollado en Italia.",
+    "videos": "Tutoriales en vídeo",
+    "changelog": "Novedades de las versiones",
+    "security": "Seguridad",
+    "aiRemoved": "Los antiguos nodos `knxUltimateAI` y `knxUltimateAIHomeAssistant` no están incluidos en KNX Ultimate 8. Sustitúyelos antes de actualizar. No existe conversión automática: conserva tu copia y configura Cerebrum Ultimate por separado.",
+    "nodeItems": [
+      {
+        "name": "KNX Device",
+        "url": "/wiki/es-Device",
+        "description": "Envía comandos, lee una dirección de grupo y recibe valores del bus KNX."
+      },
+      {
+        "name": "KNX Utility",
+        "url": "/wiki/es-KNX-Utility",
+        "description": "Once funciones en un nodo: escenas, temporizadores, alarmas, registro y otras utilidades del bus."
+      },
+      {
+        "name": "KNX Viewer",
+        "url": "/wiki/es-knxUltimateViewer",
+        "description": "Muestra los valores de las direcciones de grupo y el historial de telegramas de las últimas 24 horas."
+      },
+      {
+        "name": "KNX IoT Bridge",
+        "url": "/wiki/es-IoT-Bridge-Configuration",
+        "description": "Conecta KNX a flujos MQTT, REST y Modbus."
+      },
+      {
+        "name": "KNX Multi Routing",
+        "url": "/wiki/es-KNX%20Multi%20Routing",
+        "description": "Enruta telegramas entre gateways KNX o proporciona un servidor KNX/IP."
+      },
+      {
+        "name": "KNX Router Filter",
+        "url": "/wiki/es-KNX%20Router%20Filter",
+        "description": "Filtra o modifica telegramas antes de enviarlos a otro gateway."
+      },
+      {
+        "name": "KNX Gateway",
+        "url": "/wiki/es-Gateway-configuration",
+        "description": "Configura la conexión KNX, importa las direcciones ETS y ajusta KNX Secure. Compartido por los nodos que usan el bus."
+      }
+    ],
+    "startUrl": "/wiki/es-Getting-Started",
+    "migrationUrl": "/wiki/es-Migration-8",
+    "examplesUrl": "/wiki/es--SamplesHome"
+  },
+  "zh-CN": {
+    "intro": "将 Node-RED 连接到你的 KNX 系统。第 8 版包含六种 KNX 节点和一个共享网关配置。",
+    "start": "快速入门",
+    "migration": "从第 7 版升级",
+    "nodes": "包含的节点",
+    "functions": "KNX Utility 功能",
+    "examples": "示例",
+    "integrations": "可选集成",
+    "more": "文档",
+    "overview": "开始使用",
+    "upgrade": "已经在使用第 7 版？请先转换旧节点并 Deploy，再安装第 8 版。",
+    "descriptions": [
+      "发送命令、读取组地址并接收 KNX 总线的数值。",
+      "一个节点提供十一种功能：场景、定时、报警、记录等 KNX 工具。",
+      "查看组地址值及最近 24 小时的报文历史。",
+      "将 KNX 与 MQTT、REST 和 Modbus 流程连接。",
+      "在 KNX 网关之间转发报文，或提供 KNX/IP 服务器。",
+      "在转发到另一个网关前过滤或修改报文。",
+      "设置 KNX 连接、导入 ETS 组地址并配置 KNX Secure。由使用总线的节点共享。"
+    ],
+    "integrationIntro": "按需安装这些独立软件包。HUE Ultimate 和 Matter Ultimate 直接使用普通 Node-RED 消息，也可以与 KNX Ultimate 配合：选择现有 KNX 网关即可启用原生集成。",
+    "hue": "一个 Controller 控制 Hue 灯光、场景、按钮和传感器。",
+    "matter": "Controller 控制 Matter 设备；Bridge 将 Node-RED 或 KNX 设备提供给 Matter 应用。",
+    "cerebrum": "通过独立的 Cerebrum Ultimate 软件包提供 KNX AI 辅助。",
+    "gatewayNote": "网关是共享配置，不是需要拖入流程的另一个节点。",
+    "startIntro": "新安装请按以下步骤操作。如果流程已经使用 KNX Ultimate 7，请先完成升级指南。",
+    "requirements": "需要 Node.js 20.18.1 或更高版本，以及 Node-RED 3.1.1 或更高版本。",
+    "steps": [
+      "打开 **管理节点面板 → 安装**，安装 `node-red-contrib-knx-ultimate`，然后重启 Node-RED。",
+      "将 **KNX Device** 拖入流程。添加网关配置，填写 KNX 接口的地址和连接设置。有 ETS 组地址时可一并导入。",
+      "选择系统中的组地址和对应数据点。开关命令使用该地址对应的布尔数据点，例如 `1.001`。",
+      "将一个 **Inject** 节点连接到 KNX Device，令 `msg.payload` 为布尔值 `true` 或 `false`。将 KNX Device 输出连接到 **Debug**，查看收到的报文。",
+      "确认地址后点击 **Deploy**。通过 Inject 发送命令。启用 **React to response**，以查看读取请求的响应。"
+    ],
+    "readTitle": "从总线读取数值",
+    "read": "启用 KNX Device 的手动按钮。操作依次为 **Toggle boolean**、**发送 KNX Read**（第二项）和 **写入自定义值**。选择 Read 后点击按钮即可读取已配置的地址。通用模式下无法使用此按钮读取操作。也可以从流程发送 `msg.readstatus = true`。",
+    "migrationIntro": "第 8 版移除了旧 HUE、Matter 和 AI 节点及其配置节点，也移除了独立的 KNX Utility 功能节点。请在 KNX Ultimate 7 仍然安装时完成迁移。",
+    "migrationSteps": [
+      "备份整个 Node-RED 用户目录，包括流程、凭据、设置和 `knxultimatestorage`。仅导出流程 JSON 无法备份 Matter 配对。",
+      "在 KNX Ultimate 7 中使用 **Migrate KNX** 或 KNX Utility 的转换按钮处理旧工具节点。检查所有流程和子流程，然后 Deploy。",
+      "安装 `node-red-contrib-hue-ultimate` 和/或 `node-red-contrib-matter-ultimate`，重启 Node-RED 并确认迁移提示。HUE 同时支持旧独立节点和旧多功能 Controller 的转换。",
+      "检查转换结果并 Deploy。工具会保留 ID 和配置引用。继续使用原用户目录，不要删除 `knxultimatestorage/matter`，其中保存着 Matter 配对身份和 fabric。",
+      "升级前替换或移除 `knxUltimateAI` 和 `knxUltimateAIHomeAssistant`。Cerebrum Ultimate 是独立 AI 软件包，不提供 AI 自动转换。也要删除未使用的旧配置节点。",
+      "确认设备正常工作后，安装 KNX Ultimate 8 并重启 Node-RED。使用 KNX 的 HUE 和 Matter 节点继续使用现有网关。"
+    ],
+    "guardTitle": "安装被阻止时",
+    "guard": "第 8 版安装时会检查已保存流程中的旧 HUE 和 Matter 节点，包括配置节点、已禁用流程和子流程。仅安装新软件包不够，必须先转换并 Deploy。检查无法覆盖所有自定义存储和编辑器中未保存的修改，因此仍需完成迁移步骤。",
+    "recovery": "如果过早升级，请重新安装 KNX Ultimate 7 并重启 Node-RED，然后迁移。必要时恢复完整备份。不要删除未知节点或重置 Matter 配对。",
+    "utilityNotice": "第 8 版请使用 **KNX Utility** 并选择 **{profile}**。以下设置说明适用于该功能，旧的独立节点已不再包含。",
+    "utilityMigration": "请在 **KNX Ultimate 7** 仍安装时转换旧独立节点，并在升级前 Deploy。转换保留 ID、设置和连线，并提供流程备份及撤销。第 8 版不会加载已移除的节点类型。",
+    "archiveTitle": "第 7 版参考文档",
+    "archive": "此页描述的节点已从 KNX Ultimate 8 移除。最新说明请查看独立软件包的文档。升级 KNX Ultimate 前请先迁移现有流程。",
+    "samplesIntro": "通过 **Node-RED → 导入** 导入 JSON。Deploy 前选择自己的网关，并将示例地址改为 ETS 项目中的地址。每个示例的 Comment 节点说明所需设置。",
+    "sampleNote": "这些文件来自软件包的 examples 文件夹。工具示例使用 KNX Utility，而非已移除的独立节点。",
+    "download": "下载 JSON",
+    "sampleLink": "可导入示例",
+    "made": "在意大利设计与开发。",
+    "videos": "视频教程",
+    "changelog": "版本更新",
+    "security": "安全",
+    "aiRemoved": "KNX Ultimate 8 不再包含旧的 `knxUltimateAI` 和 `knxUltimateAIHomeAssistant` 节点。升级前请替换它们。目前没有自动转换功能：请保留备份并单独配置 Cerebrum Ultimate。",
+    "nodeItems": [
+      {
+        "name": "KNX Device",
+        "url": "/wiki/zh-CN-Device",
+        "description": "发送命令、读取组地址并接收 KNX 总线的数值。"
+      },
+      {
+        "name": "KNX Utility",
+        "url": "/wiki/zh-CN-KNX-Utility",
+        "description": "一个节点提供十一种功能：场景、定时、报警、记录等 KNX 工具。"
+      },
+      {
+        "name": "KNX Viewer",
+        "url": "/wiki/zh-CN-knxUltimateViewer",
+        "description": "查看组地址值及最近 24 小时的报文历史。"
+      },
+      {
+        "name": "KNX IoT Bridge",
+        "url": "/wiki/zh-CN-IoT-Bridge-Configuration",
+        "description": "将 KNX 与 MQTT、REST 和 Modbus 流程连接。"
+      },
+      {
+        "name": "KNX Multi Routing",
+        "url": "/wiki/zh-CN-KNX%20Multi%20Routing",
+        "description": "在 KNX 网关之间转发报文，或提供 KNX/IP 服务器。"
+      },
+      {
+        "name": "KNX Router Filter",
+        "url": "/wiki/zh-CN-KNX%20Router%20Filter",
+        "description": "在转发到另一个网关前过滤或修改报文。"
+      },
+      {
+        "name": "KNX Gateway",
+        "url": "/wiki/zh-CN-Gateway-configuration",
+        "description": "设置 KNX 连接、导入 ETS 组地址并配置 KNX Secure。由使用总线的节点共享。"
+      }
+    ],
+    "startUrl": "/wiki/zh-CN-Getting-Started",
+    "migrationUrl": "/wiki/zh-CN-Migration-8",
+    "examplesUrl": "/wiki/zh-CN--SamplesHome"
+  }
+}

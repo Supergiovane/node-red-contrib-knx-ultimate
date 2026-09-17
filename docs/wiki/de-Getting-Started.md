@@ -1,30 +1,35 @@
 ---
 layout: wiki
-title: "Getting-Started"
+title: "Erste Schritte"
 lang: de
 permalink: /wiki/de-Getting-Started
+translation_key: "Getting-Started"
 ---
----
-# Erste Schritte mit KNX-Ultimate
 
-Neu bei KNX-Ultimate? Hier sind Sie richtig. Sehen Sie sich das kurze Video unten an, um zu lernen, wie Sie das Paket installieren, Ihre erste Gateway-Verbindung erstellen und Ihr erstes Telegramm senden.
+# Erste Schritte
 
-<div align="center" style="margin:30px 0;">
-  <!-- TODO: VIDEO_URL_PLACEHOLDER durch die echte "Getting Started" YouTube-Video-URL ersetzen -->
-  <a href="VIDEO_URL_PLACEHOLDER"
-    style="display:inline-flex;align-items:center;gap:12px;padding:14px 30px;border-radius:999px;background:#ff0000;color:#ffffff;font-weight:700;text-decoration:none;box-shadow:0 14px 28px rgba(255,0,0,0.32);">
-    <span style="font-size:1.1rem;">▶ Getting-Started-Video ansehen</span>
-  </a>
-</div>
+Für eine neue Installation folge diesen Schritten. Wenn deine Flows bereits KNX Ultimate 7 nutzen, lies zuerst die Upgrade-Anleitung.
 
-## Kostenlose Video-Tutorials
+> [Upgrade von Version 7]({{ '/wiki/de-Migration-8' | relative_url }})
 
-Die folgende YouTube-Playlist enthält die **kostenlosen Tutorials** für KNX-Ultimate:
+Erfordert Node.js ab 20.18.1 und Node-RED ab 3.1.1.
 
-👉 [Kostenlose KNX-Ultimate Tutorials](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)
+1. Öffne **Palette verwalten → Installieren** und installiere `node-red-contrib-knx-ultimate`. Starte Node-RED neu.
 
-## Tutorials für Kanalmitglieder
+2. Ziehe **KNX Device** in den Flow. Erstelle eine Gateway-Konfiguration mit Adresse und Verbindungseinstellungen deiner KNX-Schnittstelle. Importiere bei Bedarf die ETS-Gruppenadressen.
 
-Diese Tutorials sind **zahlenden Mitgliedern** des YouTube-Kanals **vorbehalten** (Kanalmitgliedschaft):
+3. Wähle eine Gruppenadresse deiner Anlage und den passenden Datenpunkt. Für Ein/Aus nutze den vorgesehenen booleschen Datenpunkt, zum Beispiel `1.001`.
 
-👉 [Tutorials für Kanalmitglieder](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrRa1fvgObRa5sUpPLJk7Eq)
+4. Verbinde einen **Inject**-Knoten mit booleschem `msg.payload` (`true` oder `false`) mit KNX Device. Verbinde dessen Ausgang mit **Debug**, um empfangene Telegramme zu sehen.
+
+5. Prüfe die Adresse und klicke **Deploy**. Sende den Befehl mit Inject. Aktiviere **React to response**, um Antworten auf Leseanforderungen zu sehen.
+
+## Einen Wert vom Bus lesen
+
+Aktiviere den manuellen Button von KNX Device. Die Aktionen sind **Toggle boolean**, **KNX Read senden** (zweiter Eintrag) und **Benutzerdefinierten Wert schreiben**. Wähle Read und klicke den Button, um die konfigurierte Adresse abzufragen. Im Universalmodus ist diese Button-Aktion nicht verfügbar. Aus einem Flow kannst du auch `msg.readstatus = true` senden.
+
+[KNX Device]({{ '/wiki/de-Device' | relative_url }}) · [KNX Gateway]({{ '/wiki/de-Gateway-configuration' | relative_url }}) · [Beispiele]({{ '/wiki/de--SamplesHome' | relative_url }})
+
+## Videoanleitungen
+
+[Max Supervibe — YouTube](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)

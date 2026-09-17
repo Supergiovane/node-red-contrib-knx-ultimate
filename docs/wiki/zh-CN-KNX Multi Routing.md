@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Multi Routing"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX%20Multi%20Routing
+translation_key: "KNX Multi Routing"
 ---
 此节点用于通过 Node-RED 的连线来**互联多个 KNX Ultimate 网关**（多个 `knxUltimate-config`）。
 

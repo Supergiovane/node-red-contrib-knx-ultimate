@@ -3,6 +3,7 @@ layout: wiki
 title: "SECURITY"
 lang: fr
 permalink: /wiki/fr-SECURITY
+translation_key: "SECURITY"
 ---
 ---
 # Politique de sécurité

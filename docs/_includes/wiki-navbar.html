@@ -1,4 +1,4 @@
-{%- assign active_lang = include.lang | default: site.active_lang | default: 'en' -%}
+{%- assign active_lang = include.lang | default: page.lang | default: 'en' -%}
 {%- assign nav_entries = site.data['wiki-nav'][active_lang] -%}
 {%- assign languages = site.data.languages -%}
 {%- assign lang_label = site.data.translations.language_label[active_lang] | default: 'Language' -%}

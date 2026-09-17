@@ -3,6 +3,8 @@ layout: wiki
 title: "HUE Bridge configuration"
 lang: es
 permalink: /wiki/es-HUE%20Bridge%20configuration
+translation_key: "HUE Bridge configuration"
+legacy_package: hue
 ---
 <h1>  Philips Hue Nodos 
 
@@ -25,5 +27,3 @@ Introduce la IP del puente (o elige una de las detectadas automáticamente) y pu
 | Nombre | Nombre del puente leído desde la Hue Bridge después de una conexión correcta. |
 | Nombre de usuario | Nombre de usuario devuelto por la Hue Bridge tras el emparejamiento. El campo permanece editable para poder copiar, pegar o escribir el valor manualmente. |
 | Clave del cliente | Clave del cliente devuelta por la Hue Bridge tras el emparejamiento. El campo permanece editable para poder copiar, pegar o escribir el valor manualmente. |
-
-![Image.png](../ img/hude-config.png)

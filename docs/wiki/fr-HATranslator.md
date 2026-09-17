@@ -3,10 +3,13 @@ layout: wiki
 title: "HATranslator"
 lang: fr
 permalink: /wiki/fr-HATranslator
+translation_key: "HATranslator"
 ---
 
-<!-- KNX_UTILITY_LEGACY_NOTICE -->
-> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **Home Assistant Translator**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+> Dans la version 8, utilisez **KNX Utility** et choisissez **Home Assistant Translator**. Les réglages ci-dessous décrivent cette fonction. L’ancien nœud séparé n’est plus inclus.
+>
+> [KNX Utility]({{ '/wiki/fr-KNX-Utility' | relative_url }}) · [Passer de la version 7 à la 8]({{ '/wiki/fr-Migration-8' | relative_url }})
+
 
 Home Assistant Translator dispose d’une entrée et d’une sortie et ne nécessite pas de passerelle KNX. Choisissez la propriété du message à traduire (par exemple `payload` ou `data.new_state.state`) et modifiez les correspondances `source:true` / `source:false`, comme `open:true` et `closed:false`. La valeur booléenne traduite est envoyée dans `msg.payload` ; reliez la sortie à KNX Device pour écrire sur le bus.
 

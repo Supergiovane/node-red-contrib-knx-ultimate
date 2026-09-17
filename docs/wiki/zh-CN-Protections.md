@@ -3,6 +3,7 @@ layout: wiki
 title: "Protections"
 lang: zh-CN
 permalink: /wiki/zh-CN-Protections
+translation_key: "Protections"
 ---
 ---
 

@@ -3,6 +3,8 @@ layout: wiki
 title: "Matter-Controller-Configuration"
 lang: es
 permalink: /wiki/es-Matter-Controller-Configuration
+translation_key: "Matter-Controller-Configuration"
+legacy_package: matter
 ---
 # Controlador Matter
 

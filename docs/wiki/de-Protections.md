@@ -3,6 +3,7 @@ layout: wiki
 title: "Protections"
 lang: de
 permalink: /wiki/de-Protections
+translation_key: "Protections"
 ---
 ---
 

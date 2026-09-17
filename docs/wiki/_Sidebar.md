@@ -3,6 +3,7 @@ layout: wiki
 title: "_Sidebar"
 lang: en
 permalink: /wiki/_Sidebar
+translation_key: "_Sidebar"
 ---
 - **LANGUAGE**
   - [English](/node-red-contrib-knx-ultimate/wiki/Home)

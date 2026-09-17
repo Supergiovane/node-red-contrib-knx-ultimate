@@ -1,7 +1,7 @@
 {
   "en": [
     {
-      "title": "Overview",
+      "title": "Start here",
       "items": [
         {
           "label": "Home",
@@ -14,7 +14,17 @@
           "external": true
         },
         {
-          "label": "Changelog",
+          "label": "Getting started",
+          "url": "/wiki/Getting-Started",
+          "external": false
+        },
+        {
+          "label": "Upgrade from version 7",
+          "url": "/wiki/Migration-8",
+          "external": false
+        },
+        {
+          "label": "Release notes",
           "url": "/wiki/Changelog",
           "external": false
         },
@@ -27,45 +37,30 @@
           "label": "Security",
           "url": "/wiki/SECURITY",
           "external": false
-        },
-        {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
-          "external": false
         }
       ]
     },
     {
-      "title": "KNX Device",
+      "title": "Nodes included",
       "items": [
         {
-          "label": "Gateway",
-          "url": "/wiki/Gateway-configuration",
-          "external": false
-        },
-        {
-          "label": "Device",
+          "label": "KNX Device",
           "url": "/wiki/Device",
           "external": false
         },
-        {
-          "label": "Protections",
-          "url": "/wiki/Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Other KNX Nodes",
-      "items": [
         {
           "label": "KNX Utility",
           "url": "/wiki/KNX-Utility",
           "external": false
         },
         {
-          "label": "Viewer",
+          "label": "KNX Viewer",
           "url": "/wiki/knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "KNX IoT Bridge",
+          "url": "/wiki/IoT-Bridge-Configuration",
           "external": false
         },
         {
@@ -79,218 +74,98 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
-          "url": "/wiki/IoT-Bridge-Configuration",
+          "label": "KNX Gateway",
+          "url": "/wiki/Gateway-configuration",
           "external": false
         }
       ]
     },
     {
-      "title": "HUE",
+      "title": "KNX Utility functions",
       "items": [
         {
-          "label": "Bridge",
-          "url": "/wiki/HUE%20Bridge%20configuration",
+          "label": "Alerter",
+          "url": "/wiki/Alerter-Configuration",
           "external": false
         },
         {
-          "label": "HUE Controller",
-          "url": "/wiki/HUE%20Controller",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Matter",
-      "items": [
-        {
-          "label": "Matter Controller",
-          "url": "/wiki/Matter-Controller-Configuration",
+          "label": "AutoResponder",
+          "url": "/wiki/KNXAutoResponder",
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
-          "url": "/wiki/Control%20Matter%20from%20KNX",
+          "label": "DateTime",
+          "url": "/wiki/DateTime-Configuration",
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
-          "url": "/wiki/Matter-Bridge-Configuration",
+          "label": "WatchDog",
+          "url": "/wiki/WatchDog-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
-          "url": "/wiki/Matter-Bridge",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Samples",
-      "items": [
-        {
-          "label": "Samples Home",
-          "url": "/wiki/-SamplesHome",
+          "label": "Global Context",
+          "url": "/wiki/GlobalVariable",
           "external": false
         },
         {
           "label": "Logger",
-          "url": "/wiki/Logger-Sample",
-          "external": false
-        },
-        {
-          "label": "Switch Light",
-          "url": "/wiki/-Sample---Switch-light",
-          "external": false
-        },
-        {
-          "label": "Dimming",
-          "url": "/wiki/-Sample---Dimming",
+          "url": "/wiki/Logger-Configuration",
           "external": false
         },
         {
           "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
+          "url": "/wiki/Staircase-Configuration",
           "external": false
         },
         {
           "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
+          "url": "/wiki/Garage-Configuration",
           "external": false
         },
         {
-          "label": "RGB color",
-          "url": "/wiki/-Sample---RGB-Color",
+          "label": "Scene Controller",
+          "url": "/wiki/SceneController-Configuration",
           "external": false
         },
         {
-          "label": "RGBW color + White",
-          "url": "/wiki/-Sample---RGBW-Color-plus-White",
+          "label": "Load Control",
+          "url": "/wiki/LoadControl-Configuration",
           "external": false
         },
         {
-          "label": "Command a scene actuator",
-          "url": "/wiki/-Sample---Control-a-scene-actuator",
+          "label": "Home Assistant Translator",
+          "url": "/wiki/HATranslator",
           "external": false
+        }
+      ]
+    },
+    {
+      "title": "Examples",
+      "items": [
+        {
+          "label": "Examples",
+          "url": "/wiki/-SamplesHome",
+          "external": false
+        }
+      ]
+    },
+    {
+      "title": "Optional integrations",
+      "items": [
+        {
+          "label": "HUE Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/en/index.html",
+          "external": true
         },
         {
-          "label": "Datapoint 213.x 4x Setpoint",
-          "url": "/wiki/-Sample---DPT213",
-          "external": false
+          "label": "Matter Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/en/index.html",
+          "external": true
         },
         {
-          "label": "Datapoint 222.x 3x Setpoint",
-          "url": "/wiki/-Sample---DPT222",
-          "external": false
-        },
-        {
-          "label": "Datapoint 237.x DALI diags",
-          "url": "/wiki/-Sample---DPT237",
-          "external": false
-        },
-        {
-          "label": "Datapoint 2.x 1 bit proprity",
-          "url": "/wiki/-Sample---DPT2",
-          "external": false
-        },
-        {
-          "label": "Datapoint 22.x RCHH Status",
-          "url": "/wiki/-Sample---DPT22",
-          "external": false
-        },
-        {
-          "label": "Datetime to BUS",
-          "url": "/wiki/-Sample---DateTime-to-BUS",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX Multi Routing",
-          "url": "/wiki/-Sample---KNX-Multi-Routing",
-          "external": false
-        },
-        {
-          "label": "KNX Router Filter",
-          "url": "/wiki/-Sample---KNX-Router-Filter",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry wiring",
-          "url": "/wiki/-Sample---FT12",
-          "external": false
-        },
-        {
-          "label": "Read Status",
-          "url": "/wiki/-Sample---Read-value-from-Device",
-          "external": false
-        },
-        {
-          "label": "Virtual Device",
-          "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Subtype decoded",
-          "url": "/wiki/-Sample---Subtype",
-          "external": false
-        },
-        {
-          "label": "Alexa",
-          "url": "/wiki/-Sample---Alexa",
-          "external": false
-        },
-        {
-          "label": "Apple Homekit",
-          "url": "/wiki/-Sample---Apple-Homekit",
-          "external": false
-        },
-        {
-          "label": "Google Home",
-          "url": "/wiki/-Sample---Google-Assistant",
-          "external": false
-        },
-        {
-          "label": "Switch on/off POE port of Unifi switch",
-          "url": "/wiki/-Sample---UnifiPOE",
-          "external": false
-        },
-        {
-          "label": "Set configuration by msg",
-          "url": "/wiki/-Sample-setConfig",
-          "external": false
-        },
-        {
-          "label": "Scene Controller node",
-          "url": "/wiki/Sample-Scene-Node",
-          "external": false
-        },
-        {
-          "label": "WatchDog node",
-          "url": "/wiki/-Sample---WatchDog",
-          "external": false
-        },
-        {
-          "label": "Global Context node",
-          "url": "/wiki/SampleGlobalContextNode",
-          "external": false
-        },
-        {
-          "label": "Alerter node",
-          "url": "/wiki/SampleAlerter",
-          "external": false
-        },
-        {
-          "label": "Load control node",
-          "url": "/wiki/SampleLoadControl",
-          "external": false
-        },
-        {
-          "label": "MySQL, InfluxDB, MQTT Sample",
-          "url": "/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -298,7 +173,7 @@
   ],
   "it": [
     {
-      "title": "Panoramica",
+      "title": "Da dove iniziare",
       "items": [
         {
           "label": "Home",
@@ -311,8 +186,18 @@
           "external": true
         },
         {
-          "label": "Changelog",
-          "url": "/wiki/Changelog",
+          "label": "Primi passi",
+          "url": "/wiki/it-Getting-Started",
+          "external": false
+        },
+        {
+          "label": "Passare dalla versione 7",
+          "url": "/wiki/it-Migration-8",
+          "external": false
+        },
+        {
+          "label": "Novità delle versioni",
+          "url": "/wiki/it-Changelog",
           "external": false
         },
         {
@@ -324,45 +209,30 @@
           "label": "Sicurezza",
           "url": "/wiki/it-SECURITY",
           "external": false
-        },
-        {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
-          "external": false
         }
       ]
     },
     {
-      "title": "Nodo KNX Dispositivo",
+      "title": "Nodi inclusi",
       "items": [
         {
-          "label": "Gateway",
-          "url": "/wiki/it-Gateway-configuration",
-          "external": false
-        },
-        {
-          "label": "Dispositivo",
+          "label": "KNX Device",
           "url": "/wiki/it-Device",
           "external": false
         },
-        {
-          "label": "Protezioni",
-          "url": "/wiki/it-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Altri Nodi KNX",
-      "items": [
         {
           "label": "KNX Utility",
           "url": "/wiki/it-KNX-Utility",
           "external": false
         },
         {
-          "label": "Viewer",
+          "label": "KNX Viewer",
           "url": "/wiki/it-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "KNX IoT Bridge",
+          "url": "/wiki/it-IoT-Bridge-Configuration",
           "external": false
         },
         {
@@ -376,48 +246,68 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
-          "url": "/wiki/it-IoT-Bridge-Configuration",
+          "label": "KNX Gateway",
+          "url": "/wiki/it-Gateway-configuration",
           "external": false
         }
       ]
     },
     {
-      "title": "HUE",
+      "title": "Funzioni di KNX Utility",
       "items": [
         {
-          "label": "Bridge",
-          "url": "/wiki/it-HUE%20Bridge%20configuration",
+          "label": "Alerter",
+          "url": "/wiki/it-Alerter-Configuration",
           "external": false
         },
         {
-          "label": "HUE Controller",
-          "url": "/wiki/it-HUE%20Controller",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Matter",
-      "items": [
-        {
-          "label": "Controller Matter",
-          "url": "/wiki/it-Matter-Controller-Configuration",
+          "label": "AutoResponder",
+          "url": "/wiki/it-KNXAutoResponder",
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
-          "url": "/wiki/it-Control%20Matter%20from%20KNX",
+          "label": "DateTime",
+          "url": "/wiki/it-DateTime-Configuration",
           "external": false
         },
         {
-          "label": "Bridge Matter (BETA)",
-          "url": "/wiki/it-Matter-Bridge-Configuration",
+          "label": "WatchDog",
+          "url": "/wiki/it-WatchDog-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
-          "url": "/wiki/it-Matter-Bridge",
+          "label": "Global Context",
+          "url": "/wiki/it-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/it-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/it-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/it-Garage-Configuration",
+          "external": false
+        },
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/it-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/it-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Home Assistant Translator",
+          "url": "/wiki/it-HATranslator",
           "external": false
         }
       ]
@@ -426,168 +316,28 @@
       "title": "Esempi",
       "items": [
         {
-          "label": "Samples Home",
-          "url": "/wiki/-SamplesHome",
+          "label": "Esempi",
+          "url": "/wiki/it--SamplesHome",
           "external": false
+        }
+      ]
+    },
+    {
+      "title": "Integrazioni opzionali",
+      "items": [
+        {
+          "label": "HUE Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/it/index.html",
+          "external": true
         },
         {
-          "label": "Logger",
-          "url": "/wiki/it-Logger-Sample",
-          "external": false
+          "label": "Matter Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/it/index.html",
+          "external": true
         },
         {
-          "label": "Switch Light",
-          "url": "/wiki/-Sample---Switch-light",
-          "external": false
-        },
-        {
-          "label": "Dimming",
-          "url": "/wiki/-Sample---Dimming",
-          "external": false
-        },
-        {
-          "label": "Staircase",
-          "url": "/wiki/-Sample---Staircase",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "RGB color",
-          "url": "/wiki/-Sample---RGB-Color",
-          "external": false
-        },
-        {
-          "label": "RGBW color + White",
-          "url": "/wiki/-Sample---RGBW-Color-plus-White",
-          "external": false
-        },
-        {
-          "label": "Command a scene actuator",
-          "url": "/wiki/-Sample---Control-a-scene-actuator",
-          "external": false
-        },
-        {
-          "label": "Datapoint 213.x 4x Setpoint",
-          "url": "/wiki/-Sample---DPT213",
-          "external": false
-        },
-        {
-          "label": "Datapoint 222.x 3x Setpoint",
-          "url": "/wiki/-Sample---DPT222",
-          "external": false
-        },
-        {
-          "label": "Datapoint 237.x DALI diags",
-          "url": "/wiki/-Sample---DPT237",
-          "external": false
-        },
-        {
-          "label": "Datapoint 2.x 1 bit proprity",
-          "url": "/wiki/-Sample---DPT2",
-          "external": false
-        },
-        {
-          "label": "Datapoint 22.x RCHH Status",
-          "url": "/wiki/-Sample---DPT22",
-          "external": false
-        },
-        {
-          "label": "Datetime to BUS",
-          "url": "/wiki/-Sample---DateTime-to-BUS",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX Multi Routing",
-          "url": "/wiki/-Sample---KNX-Multi-Routing",
-          "external": false
-        },
-        {
-          "label": "KNX Router Filter",
-          "url": "/wiki/-Sample---KNX-Router-Filter",
-          "external": false
-        },
-        {
-          "label": "Cablaggio Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
-          "external": false
-        },
-        {
-          "label": "Read Status",
-          "url": "/wiki/-Sample---Read-value-from-Device",
-          "external": false
-        },
-        {
-          "label": "Virtual Device",
-          "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Subtype decoded",
-          "url": "/wiki/-Sample---Subtype",
-          "external": false
-        },
-        {
-          "label": "Alexa",
-          "url": "/wiki/-Sample---Alexa",
-          "external": false
-        },
-        {
-          "label": "Apple Homekit",
-          "url": "/wiki/-Sample---Apple-Homekit",
-          "external": false
-        },
-        {
-          "label": "Google Home",
-          "url": "/wiki/-Sample---Google-Assistant",
-          "external": false
-        },
-        {
-          "label": "Switch on/off POE port of Unifi switch",
-          "url": "/wiki/-Sample---UnifiPOE",
-          "external": false
-        },
-        {
-          "label": "Set configuration by msg",
-          "url": "/wiki/-Sample-setConfig",
-          "external": false
-        },
-        {
-          "label": "Scene Controller node",
-          "url": "/wiki/Sample-Scene-Node",
-          "external": false
-        },
-        {
-          "label": "WatchDog node",
-          "url": "/wiki/-Sample---WatchDog",
-          "external": false
-        },
-        {
-          "label": "Global Context node",
-          "url": "/wiki/SampleGlobalContextNode",
-          "external": false
-        },
-        {
-          "label": "Alerter node",
-          "url": "/wiki/SampleAlerter",
-          "external": false
-        },
-        {
-          "label": "Load control node",
-          "url": "/wiki/SampleLoadControl",
-          "external": false
-        },
-        {
-          "label": "MySQL, InfluxDB, MQTT Sample",
-          "url": "/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/it-Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -595,7 +345,7 @@
   ],
   "de": [
     {
-      "title": "Übersicht",
+      "title": "Einstieg",
       "items": [
         {
           "label": "Home",
@@ -608,8 +358,18 @@
           "external": true
         },
         {
-          "label": "Changelog",
-          "url": "/wiki/Changelog",
+          "label": "Erste Schritte",
+          "url": "/wiki/de-Getting-Started",
+          "external": false
+        },
+        {
+          "label": "Upgrade von Version 7",
+          "url": "/wiki/de-Migration-8",
+          "external": false
+        },
+        {
+          "label": "Versionshinweise",
+          "url": "/wiki/de-Changelog",
           "external": false
         },
         {
@@ -621,45 +381,30 @@
           "label": "Sicherheit",
           "url": "/wiki/de-SECURITY",
           "external": false
-        },
-        {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
-          "external": false
         }
       ]
     },
     {
-      "title": "KNX Geräteknoten",
+      "title": "Enthaltene Knoten",
       "items": [
         {
-          "label": "Gateway",
-          "url": "/wiki/de-Gateway-configuration",
-          "external": false
-        },
-        {
-          "label": "Gerät",
+          "label": "KNX Device",
           "url": "/wiki/de-Device",
           "external": false
         },
-        {
-          "label": "Knotenschutz",
-          "url": "/wiki/de-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Weitere KNX-Knoten",
-      "items": [
         {
           "label": "KNX Utility",
           "url": "/wiki/de-KNX-Utility",
           "external": false
         },
         {
-          "label": "Viewer",
+          "label": "KNX Viewer",
           "url": "/wiki/de-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "KNX IoT Bridge",
+          "url": "/wiki/de-IoT-Bridge-Configuration",
           "external": false
         },
         {
@@ -673,48 +418,68 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
-          "url": "/wiki/de-IoT-Bridge-Configuration",
+          "label": "KNX Gateway",
+          "url": "/wiki/de-Gateway-configuration",
           "external": false
         }
       ]
     },
     {
-      "title": "HUE",
+      "title": "KNX Utility-Funktionen",
       "items": [
         {
-          "label": "Bridge",
-          "url": "/wiki/de-HUE%20Bridge%20configuration",
+          "label": "Alerter",
+          "url": "/wiki/de-Alerter-Configuration",
           "external": false
         },
         {
-          "label": "HUE Controller",
-          "url": "/wiki/de-HUE%20Controller",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Matter",
-      "items": [
-        {
-          "label": "Matter Controller",
-          "url": "/wiki/de-Matter-Controller-Configuration",
+          "label": "AutoResponder",
+          "url": "/wiki/de-KNXAutoResponder",
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
-          "url": "/wiki/de-Control%20Matter%20from%20KNX",
+          "label": "DateTime",
+          "url": "/wiki/de-DateTime-Configuration",
           "external": false
         },
         {
-          "label": "Matter Bridge (BETA)",
-          "url": "/wiki/de-Matter-Bridge-Configuration",
+          "label": "WatchDog",
+          "url": "/wiki/de-WatchDog-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
-          "url": "/wiki/de-Matter-Bridge",
+          "label": "Global Context",
+          "url": "/wiki/de-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/de-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/de-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/de-Garage-Configuration",
+          "external": false
+        },
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/de-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/de-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Home Assistant Translator",
+          "url": "/wiki/de-HATranslator",
           "external": false
         }
       ]
@@ -723,168 +488,28 @@
       "title": "Beispiele",
       "items": [
         {
-          "label": "Samples Home",
-          "url": "/wiki/-SamplesHome",
+          "label": "Beispiele",
+          "url": "/wiki/de--SamplesHome",
           "external": false
+        }
+      ]
+    },
+    {
+      "title": "Optionale Integrationen",
+      "items": [
+        {
+          "label": "HUE Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/de/index.html",
+          "external": true
         },
         {
-          "label": "Logger",
-          "url": "/wiki/de-Logger-Sample",
-          "external": false
+          "label": "Matter Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/de/index.html",
+          "external": true
         },
         {
-          "label": "Switch Light",
-          "url": "/wiki/-Sample---Switch-light",
-          "external": false
-        },
-        {
-          "label": "Dimming",
-          "url": "/wiki/-Sample---Dimming",
-          "external": false
-        },
-        {
-          "label": "Treppenhaus",
-          "url": "/wiki/-Sample---Staircase",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "RGB color",
-          "url": "/wiki/-Sample---RGB-Color",
-          "external": false
-        },
-        {
-          "label": "RGBW color + White",
-          "url": "/wiki/-Sample---RGBW-Color-plus-White",
-          "external": false
-        },
-        {
-          "label": "Command a scene actuator",
-          "url": "/wiki/-Sample---Control-a-scene-actuator",
-          "external": false
-        },
-        {
-          "label": "Datapoint 213.x 4x Setpoint",
-          "url": "/wiki/-Sample---DPT213",
-          "external": false
-        },
-        {
-          "label": "Datapoint 222.x 3x Setpoint",
-          "url": "/wiki/-Sample---DPT222",
-          "external": false
-        },
-        {
-          "label": "Datapoint 237.x DALI diags",
-          "url": "/wiki/-Sample---DPT237",
-          "external": false
-        },
-        {
-          "label": "Datapoint 2.x 1 bit proprity",
-          "url": "/wiki/-Sample---DPT2",
-          "external": false
-        },
-        {
-          "label": "Datapoint 22.x RCHH Status",
-          "url": "/wiki/-Sample---DPT22",
-          "external": false
-        },
-        {
-          "label": "Datetime to BUS",
-          "url": "/wiki/-Sample---DateTime-to-BUS",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX Multi Routing",
-          "url": "/wiki/-Sample---KNX-Multi-Routing",
-          "external": false
-        },
-        {
-          "label": "KNX Router Filter",
-          "url": "/wiki/-Sample---KNX-Router-Filter",
-          "external": false
-        },
-        {
-          "label": "Serial FT1.2 / KBerry Verdrahtung",
-          "url": "/wiki/-Sample---FT12",
-          "external": false
-        },
-        {
-          "label": "Read Status",
-          "url": "/wiki/-Sample---Read-value-from-Device",
-          "external": false
-        },
-        {
-          "label": "Virtual Device",
-          "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Subtype decoded",
-          "url": "/wiki/-Sample---Subtype",
-          "external": false
-        },
-        {
-          "label": "Alexa",
-          "url": "/wiki/-Sample---Alexa",
-          "external": false
-        },
-        {
-          "label": "Apple Homekit",
-          "url": "/wiki/-Sample---Apple-Homekit",
-          "external": false
-        },
-        {
-          "label": "Google Home",
-          "url": "/wiki/-Sample---Google-Assistant",
-          "external": false
-        },
-        {
-          "label": "Switch on/off POE port of Unifi switch",
-          "url": "/wiki/-Sample---UnifiPOE",
-          "external": false
-        },
-        {
-          "label": "Set configuration by msg",
-          "url": "/wiki/-Sample-setConfig",
-          "external": false
-        },
-        {
-          "label": "Scene Controller node",
-          "url": "/wiki/Sample-Scene-Node",
-          "external": false
-        },
-        {
-          "label": "WatchDog node",
-          "url": "/wiki/-Sample---WatchDog",
-          "external": false
-        },
-        {
-          "label": "Global Context node",
-          "url": "/wiki/SampleGlobalContextNode",
-          "external": false
-        },
-        {
-          "label": "Alerter node",
-          "url": "/wiki/SampleAlerter",
-          "external": false
-        },
-        {
-          "label": "Load control node",
-          "url": "/wiki/SampleLoadControl",
-          "external": false
-        },
-        {
-          "label": "MySQL, InfluxDB, MQTT Sample",
-          "url": "/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/de-Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -892,7 +517,7 @@
   ],
   "fr": [
     {
-      "title": "Overview",
+      "title": "Pour commencer",
       "items": [
         {
           "label": "Home",
@@ -905,8 +530,18 @@
           "external": true
         },
         {
-          "label": "Changelog",
-          "url": "/wiki/Changelog",
+          "label": "Premiers pas",
+          "url": "/wiki/fr-Getting-Started",
+          "external": false
+        },
+        {
+          "label": "Passer de la version 7 à la 8",
+          "url": "/wiki/fr-Migration-8",
+          "external": false
+        },
+        {
+          "label": "Notes de version",
+          "url": "/wiki/fr-Changelog",
           "external": false
         },
         {
@@ -915,48 +550,33 @@
           "external": false
         },
         {
-          "label": "Security",
+          "label": "Sécurité",
           "url": "/wiki/fr-SECURITY",
-          "external": false
-        },
-        {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
     },
     {
-      "title": "KNX Device",
+      "title": "Nœuds inclus",
       "items": [
         {
-          "label": "Gateway",
-          "url": "/wiki/fr-Gateway-configuration",
-          "external": false
-        },
-        {
-          "label": "Device",
+          "label": "KNX Device",
           "url": "/wiki/fr-Device",
           "external": false
         },
-        {
-          "label": "Protections",
-          "url": "/wiki/fr-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Other KNX Nodes",
-      "items": [
         {
           "label": "KNX Utility",
           "url": "/wiki/fr-KNX-Utility",
           "external": false
         },
         {
-          "label": "Viewer",
+          "label": "KNX Viewer",
           "url": "/wiki/fr-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "KNX IoT Bridge",
+          "url": "/wiki/fr-IoT-Bridge-Configuration",
           "external": false
         },
         {
@@ -970,48 +590,68 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
-          "url": "/wiki/fr-IoT-Bridge-Configuration",
+          "label": "KNX Gateway",
+          "url": "/wiki/fr-Gateway-configuration",
           "external": false
         }
       ]
     },
     {
-      "title": "HUE",
+      "title": "Fonctions de KNX Utility",
       "items": [
         {
-          "label": "Bridge",
-          "url": "/wiki/fr-HUE%20Bridge%20configuration",
+          "label": "Alerter",
+          "url": "/wiki/fr-Alerter-Configuration",
           "external": false
         },
         {
-          "label": "HUE Controller",
-          "url": "/wiki/fr-HUE%20Controller",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Matter",
-      "items": [
-        {
-          "label": "Contrôleur Matter",
-          "url": "/wiki/fr-Matter-Controller-Configuration",
+          "label": "AutoResponder",
+          "url": "/wiki/fr-KNXAutoResponder",
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
-          "url": "/wiki/fr-Control%20Matter%20from%20KNX",
+          "label": "DateTime",
+          "url": "/wiki/fr-DateTime-Configuration",
           "external": false
         },
         {
-          "label": "Bridge Matter (BETA)",
-          "url": "/wiki/fr-Matter-Bridge-Configuration",
+          "label": "WatchDog",
+          "url": "/wiki/fr-WatchDog-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
-          "url": "/wiki/fr-Matter-Bridge",
+          "label": "Global Context",
+          "url": "/wiki/fr-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/fr-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/fr-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/fr-Garage-Configuration",
+          "external": false
+        },
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/fr-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/fr-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Home Assistant Translator",
+          "url": "/wiki/fr-HATranslator",
           "external": false
         }
       ]
@@ -1020,168 +660,28 @@
       "title": "Exemples",
       "items": [
         {
-          "label": "Samples Home",
-          "url": "/wiki/-SamplesHome",
+          "label": "Exemples",
+          "url": "/wiki/fr--SamplesHome",
           "external": false
+        }
+      ]
+    },
+    {
+      "title": "Intégrations optionnelles",
+      "items": [
+        {
+          "label": "HUE Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/fr/index.html",
+          "external": true
         },
         {
-          "label": "Logger",
-          "url": "/wiki/fr-Logger-Sample",
-          "external": false
+          "label": "Matter Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/fr/index.html",
+          "external": true
         },
         {
-          "label": "Switch Light",
-          "url": "/wiki/-Sample---Switch-light",
-          "external": false
-        },
-        {
-          "label": "Dimming",
-          "url": "/wiki/-Sample---Dimming",
-          "external": false
-        },
-        {
-          "label": "Escalier",
-          "url": "/wiki/-Sample---Staircase",
-          "external": false
-        },
-        {
-          "label": "Garage",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "RGB color",
-          "url": "/wiki/-Sample---RGB-Color",
-          "external": false
-        },
-        {
-          "label": "RGBW color + White",
-          "url": "/wiki/-Sample---RGBW-Color-plus-White",
-          "external": false
-        },
-        {
-          "label": "Command a scene actuator",
-          "url": "/wiki/-Sample---Control-a-scene-actuator",
-          "external": false
-        },
-        {
-          "label": "Datapoint 213.x 4x Setpoint",
-          "url": "/wiki/-Sample---DPT213",
-          "external": false
-        },
-        {
-          "label": "Datapoint 222.x 3x Setpoint",
-          "url": "/wiki/-Sample---DPT222",
-          "external": false
-        },
-        {
-          "label": "Datapoint 237.x DALI diags",
-          "url": "/wiki/-Sample---DPT237",
-          "external": false
-        },
-        {
-          "label": "Datapoint 2.x 1 bit proprity",
-          "url": "/wiki/-Sample---DPT2",
-          "external": false
-        },
-        {
-          "label": "Datapoint 22.x RCHH Status",
-          "url": "/wiki/-Sample---DPT22",
-          "external": false
-        },
-        {
-          "label": "Datetime to BUS",
-          "url": "/wiki/-Sample---DateTime-to-BUS",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX Multi Routing",
-          "url": "/wiki/-Sample---KNX-Multi-Routing",
-          "external": false
-        },
-        {
-          "label": "KNX Router Filter",
-          "url": "/wiki/-Sample---KNX-Router-Filter",
-          "external": false
-        },
-        {
-          "label": "Câblage Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
-          "external": false
-        },
-        {
-          "label": "Read Status",
-          "url": "/wiki/-Sample---Read-value-from-Device",
-          "external": false
-        },
-        {
-          "label": "Virtual Device",
-          "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Subtype decoded",
-          "url": "/wiki/-Sample---Subtype",
-          "external": false
-        },
-        {
-          "label": "Alexa",
-          "url": "/wiki/-Sample---Alexa",
-          "external": false
-        },
-        {
-          "label": "Apple Homekit",
-          "url": "/wiki/-Sample---Apple-Homekit",
-          "external": false
-        },
-        {
-          "label": "Google Home",
-          "url": "/wiki/-Sample---Google-Assistant",
-          "external": false
-        },
-        {
-          "label": "Switch on/off POE port of Unifi switch",
-          "url": "/wiki/-Sample---UnifiPOE",
-          "external": false
-        },
-        {
-          "label": "Set configuration by msg",
-          "url": "/wiki/-Sample-setConfig",
-          "external": false
-        },
-        {
-          "label": "Scene Controller node",
-          "url": "/wiki/Sample-Scene-Node",
-          "external": false
-        },
-        {
-          "label": "WatchDog node",
-          "url": "/wiki/-Sample---WatchDog",
-          "external": false
-        },
-        {
-          "label": "Global Context node",
-          "url": "/wiki/SampleGlobalContextNode",
-          "external": false
-        },
-        {
-          "label": "Alerter node",
-          "url": "/wiki/SampleAlerter",
-          "external": false
-        },
-        {
-          "label": "Load control node",
-          "url": "/wiki/SampleLoadControl",
-          "external": false
-        },
-        {
-          "label": "MySQL, InfluxDB, MQTT Sample",
-          "url": "/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/fr-Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -1189,7 +689,7 @@
   ],
   "es": [
     {
-      "title": "Overview",
+      "title": "Por dónde empezar",
       "items": [
         {
           "label": "Home",
@@ -1202,8 +702,18 @@
           "external": true
         },
         {
-          "label": "Changelog",
-          "url": "/wiki/Changelog",
+          "label": "Primeros pasos",
+          "url": "/wiki/es-Getting-Started",
+          "external": false
+        },
+        {
+          "label": "Actualizar desde la versión 7",
+          "url": "/wiki/es-Migration-8",
+          "external": false
+        },
+        {
+          "label": "Novedades de las versiones",
+          "url": "/wiki/es-Changelog",
           "external": false
         },
         {
@@ -1212,48 +722,33 @@
           "external": false
         },
         {
-          "label": "Security",
+          "label": "Seguridad",
           "url": "/wiki/es-SECURITY",
-          "external": false
-        },
-        {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
           "external": false
         }
       ]
     },
     {
-      "title": "KNX Device",
+      "title": "Nodos incluidos",
       "items": [
         {
-          "label": "Gateway",
-          "url": "/wiki/es-Gateway-configuration",
-          "external": false
-        },
-        {
-          "label": "Device",
+          "label": "KNX Device",
           "url": "/wiki/es-Device",
           "external": false
         },
-        {
-          "label": "Protections",
-          "url": "/wiki/es-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Other KNX Nodes",
-      "items": [
         {
           "label": "KNX Utility",
           "url": "/wiki/es-KNX-Utility",
           "external": false
         },
         {
-          "label": "Viewer",
+          "label": "KNX Viewer",
           "url": "/wiki/es-knxUltimateViewer",
+          "external": false
+        },
+        {
+          "label": "KNX IoT Bridge",
+          "url": "/wiki/es-IoT-Bridge-Configuration",
           "external": false
         },
         {
@@ -1267,48 +762,68 @@
           "external": false
         },
         {
-          "label": "IoT Bridge",
-          "url": "/wiki/es-IoT-Bridge-Configuration",
+          "label": "KNX Gateway",
+          "url": "/wiki/es-Gateway-configuration",
           "external": false
         }
       ]
     },
     {
-      "title": "HUE",
+      "title": "Funciones de KNX Utility",
       "items": [
         {
-          "label": "Bridge",
-          "url": "/wiki/es-HUE%20Bridge%20configuration",
+          "label": "Alerter",
+          "url": "/wiki/es-Alerter-Configuration",
           "external": false
         },
         {
-          "label": "HUE Controller",
-          "url": "/wiki/es-HUE%20Controller",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Matter",
-      "items": [
-        {
-          "label": "Controlador Matter",
-          "url": "/wiki/es-Matter-Controller-Configuration",
+          "label": "AutoResponder",
+          "url": "/wiki/es-KNXAutoResponder",
           "external": false
         },
         {
-          "label": "Control Matter from KNX (BETA)",
-          "url": "/wiki/es-Control%20Matter%20from%20KNX",
+          "label": "DateTime",
+          "url": "/wiki/es-DateTime-Configuration",
           "external": false
         },
         {
-          "label": "Bridge Matter (BETA)",
-          "url": "/wiki/es-Matter-Bridge-Configuration",
+          "label": "WatchDog",
+          "url": "/wiki/es-WatchDog-Configuration",
           "external": false
         },
         {
-          "label": "Expose KNX to Matter (BETA)",
-          "url": "/wiki/es-Matter-Bridge",
+          "label": "Global Context",
+          "url": "/wiki/es-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/es-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/es-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/es-Garage-Configuration",
+          "external": false
+        },
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/es-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/es-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Home Assistant Translator",
+          "url": "/wiki/es-HATranslator",
           "external": false
         }
       ]
@@ -1317,168 +832,28 @@
       "title": "Ejemplos",
       "items": [
         {
-          "label": "Samples Home",
-          "url": "/wiki/-SamplesHome",
+          "label": "Ejemplos",
+          "url": "/wiki/es--SamplesHome",
           "external": false
+        }
+      ]
+    },
+    {
+      "title": "Integraciones opcionales",
+      "items": [
+        {
+          "label": "HUE Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/es/index.html",
+          "external": true
         },
         {
-          "label": "Logger",
-          "url": "/wiki/es-Logger-Sample",
-          "external": false
+          "label": "Matter Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/es/index.html",
+          "external": true
         },
         {
-          "label": "Switch Light",
-          "url": "/wiki/-Sample---Switch-light",
-          "external": false
-        },
-        {
-          "label": "Dimming",
-          "url": "/wiki/-Sample---Dimming",
-          "external": false
-        },
-        {
-          "label": "Escalera",
-          "url": "/wiki/-Sample---Staircase",
-          "external": false
-        },
-        {
-          "label": "Garaje",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "RGB color",
-          "url": "/wiki/-Sample---RGB-Color",
-          "external": false
-        },
-        {
-          "label": "RGBW color + White",
-          "url": "/wiki/-Sample---RGBW-Color-plus-White",
-          "external": false
-        },
-        {
-          "label": "Command a scene actuator",
-          "url": "/wiki/-Sample---Control-a-scene-actuator",
-          "external": false
-        },
-        {
-          "label": "Datapoint 213.x 4x Setpoint",
-          "url": "/wiki/-Sample---DPT213",
-          "external": false
-        },
-        {
-          "label": "Datapoint 222.x 3x Setpoint",
-          "url": "/wiki/-Sample---DPT222",
-          "external": false
-        },
-        {
-          "label": "Datapoint 237.x DALI diags",
-          "url": "/wiki/-Sample---DPT237",
-          "external": false
-        },
-        {
-          "label": "Datapoint 2.x 1 bit proprity",
-          "url": "/wiki/-Sample---DPT2",
-          "external": false
-        },
-        {
-          "label": "Datapoint 22.x RCHH Status",
-          "url": "/wiki/-Sample---DPT22",
-          "external": false
-        },
-        {
-          "label": "Datetime to BUS",
-          "url": "/wiki/-Sample---DateTime-to-BUS",
-          "external": false
-        },
-        {
-          "label": "IoT Bridge",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX Multi Routing",
-          "url": "/wiki/-Sample---KNX-Multi-Routing",
-          "external": false
-        },
-        {
-          "label": "KNX Router Filter",
-          "url": "/wiki/-Sample---KNX-Router-Filter",
-          "external": false
-        },
-        {
-          "label": "Cableado Serial FT1.2 / KBerry",
-          "url": "/wiki/-Sample---FT12",
-          "external": false
-        },
-        {
-          "label": "Read Status",
-          "url": "/wiki/-Sample---Read-value-from-Device",
-          "external": false
-        },
-        {
-          "label": "Virtual Device",
-          "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Subtype decoded",
-          "url": "/wiki/-Sample---Subtype",
-          "external": false
-        },
-        {
-          "label": "Alexa",
-          "url": "/wiki/-Sample---Alexa",
-          "external": false
-        },
-        {
-          "label": "Apple Homekit",
-          "url": "/wiki/-Sample---Apple-Homekit",
-          "external": false
-        },
-        {
-          "label": "Google Home",
-          "url": "/wiki/-Sample---Google-Assistant",
-          "external": false
-        },
-        {
-          "label": "Switch on/off POE port of Unifi switch",
-          "url": "/wiki/-Sample---UnifiPOE",
-          "external": false
-        },
-        {
-          "label": "Set configuration by msg",
-          "url": "/wiki/-Sample-setConfig",
-          "external": false
-        },
-        {
-          "label": "Scene Controller node",
-          "url": "/wiki/Sample-Scene-Node",
-          "external": false
-        },
-        {
-          "label": "WatchDog node",
-          "url": "/wiki/-Sample---WatchDog",
-          "external": false
-        },
-        {
-          "label": "Global Context node",
-          "url": "/wiki/SampleGlobalContextNode",
-          "external": false
-        },
-        {
-          "label": "Alerter node",
-          "url": "/wiki/SampleAlerter",
-          "external": false
-        },
-        {
-          "label": "Load control node",
-          "url": "/wiki/SampleLoadControl",
-          "external": false
-        },
-        {
-          "label": "MySQL, InfluxDB, MQTT Sample",
-          "url": "/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/es-Cerebrum-Ultimate",
           "external": false
         }
       ]
@@ -1486,7 +861,7 @@
   ],
   "zh-CN": [
     {
-      "title": "概览",
+      "title": "开始使用",
       "items": [
         {
           "label": "Home",
@@ -1499,12 +874,22 @@
           "external": true
         },
         {
-          "label": "Changelog",
-          "url": "/wiki/Changelog",
+          "label": "快速入门",
+          "url": "/wiki/zh-CN-Getting-Started",
           "external": false
         },
         {
-          "label": "常见问题",
+          "label": "从第 7 版升级",
+          "url": "/wiki/zh-CN-Migration-8",
+          "external": false
+        },
+        {
+          "label": "版本更新",
+          "url": "/wiki/zh-CN-Changelog",
+          "external": false
+        },
+        {
+          "label": "FAQ",
           "url": "/wiki/zh-CN-FAQ-Troubleshoot",
           "external": false
         },
@@ -1512,100 +897,105 @@
           "label": "安全",
           "url": "/wiki/zh-CN-SECURITY",
           "external": false
-        },
-        {
-          "label": "Cerebrum Ultimate",
-          "url": "/wiki/Cerebrum-Ultimate",
-          "external": false
         }
       ]
     },
     {
-      "title": "KNX 设备",
+      "title": "包含的节点",
       "items": [
         {
-          "label": "网关",
-          "url": "/wiki/zh-CN-Gateway-configuration",
-          "external": false
-        },
-        {
-          "label": "设备",
+          "label": "KNX Device",
           "url": "/wiki/zh-CN-Device",
           "external": false
         },
-        {
-          "label": "节点保护",
-          "url": "/wiki/zh-CN-Protections",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "其他 KNX 节点",
-      "items": [
         {
           "label": "KNX Utility",
           "url": "/wiki/zh-CN-KNX-Utility",
           "external": false
         },
         {
-          "label": "查看器",
+          "label": "KNX Viewer",
           "url": "/wiki/zh-CN-knxUltimateViewer",
           "external": false
         },
         {
-          "label": "KNX 多路由",
+          "label": "KNX IoT Bridge",
+          "url": "/wiki/zh-CN-IoT-Bridge-Configuration",
+          "external": false
+        },
+        {
+          "label": "KNX Multi Routing",
           "url": "/wiki/zh-CN-KNX%20Multi%20Routing",
           "external": false
         },
         {
-          "label": "KNX 路由过滤器",
+          "label": "KNX Router Filter",
           "url": "/wiki/zh-CN-KNX%20Router%20Filter",
           "external": false
         },
         {
-          "label": "物联网桥接",
-          "url": "/wiki/zh-CN-IoT-Bridge-Configuration",
+          "label": "KNX Gateway",
+          "url": "/wiki/zh-CN-Gateway-configuration",
           "external": false
         }
       ]
     },
     {
-      "title": "HUE",
+      "title": "KNX Utility 功能",
       "items": [
         {
-          "label": "Bridge",
-          "url": "/wiki/zh-CN-HUE%20Bridge%20configuration",
+          "label": "Alerter",
+          "url": "/wiki/zh-CN-Alerter-Configuration",
           "external": false
         },
         {
-          "label": "HUE Controller",
-          "url": "/wiki/zh-CN-HUE%20Controller",
-          "external": false
-        }
-      ]
-    },
-    {
-      "title": "Matter",
-      "items": [
-        {
-          "label": "Matter 控制器",
-          "url": "/wiki/zh-CN-Matter-Controller-Configuration",
+          "label": "AutoResponder",
+          "url": "/wiki/zh-CN-KNXAutoResponder",
           "external": false
         },
         {
-          "label": "从 KNX 控制 Matter (BETA)",
-          "url": "/wiki/zh-CN-Control%20Matter%20from%20KNX",
+          "label": "DateTime",
+          "url": "/wiki/zh-CN-DateTime-Configuration",
           "external": false
         },
         {
-          "label": "Matter 桥接器 (BETA)",
-          "url": "/wiki/zh-CN-Matter-Bridge-Configuration",
+          "label": "WatchDog",
+          "url": "/wiki/zh-CN-WatchDog-Configuration",
           "external": false
         },
         {
-          "label": "将 KNX 暴露到 Matter (BETA)",
-          "url": "/wiki/zh-CN-Matter-Bridge",
+          "label": "Global Context",
+          "url": "/wiki/zh-CN-GlobalVariable",
+          "external": false
+        },
+        {
+          "label": "Logger",
+          "url": "/wiki/zh-CN-Logger-Configuration",
+          "external": false
+        },
+        {
+          "label": "Staircase",
+          "url": "/wiki/zh-CN-Staircase-Configuration",
+          "external": false
+        },
+        {
+          "label": "Garage",
+          "url": "/wiki/zh-CN-Garage-Configuration",
+          "external": false
+        },
+        {
+          "label": "Scene Controller",
+          "url": "/wiki/zh-CN-SceneController-Configuration",
+          "external": false
+        },
+        {
+          "label": "Load Control",
+          "url": "/wiki/zh-CN-LoadControl-Configuration",
+          "external": false
+        },
+        {
+          "label": "Home Assistant Translator",
+          "url": "/wiki/zh-CN-HATranslator",
           "external": false
         }
       ]
@@ -1614,168 +1004,28 @@
       "title": "示例",
       "items": [
         {
-          "label": "Samples Home",
-          "url": "/wiki/-SamplesHome",
+          "label": "示例",
+          "url": "/wiki/zh-CN--SamplesHome",
           "external": false
+        }
+      ]
+    },
+    {
+      "title": "可选集成",
+      "items": [
+        {
+          "label": "HUE Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-hue-ultimate/zh-CN/index.html",
+          "external": true
         },
         {
-          "label": "Logger",
-          "url": "/wiki/zh-CN-Logger-Sample",
-          "external": false
+          "label": "Matter Ultimate",
+          "url": "https://supergiovane.github.io/node-red-contrib-matter-ultimate/zh-CN/index.html",
+          "external": true
         },
         {
-          "label": "Switch Light",
-          "url": "/wiki/-Sample---Switch-light",
-          "external": false
-        },
-        {
-          "label": "Dimming",
-          "url": "/wiki/-Sample---Dimming",
-          "external": false
-        },
-        {
-          "label": "楼梯定时器",
-          "url": "/wiki/-Sample---Staircase",
-          "external": false
-        },
-        {
-          "label": "车库",
-          "url": "/wiki/-Sample---Garage",
-          "external": false
-        },
-        {
-          "label": "RGB color",
-          "url": "/wiki/-Sample---RGB-Color",
-          "external": false
-        },
-        {
-          "label": "RGBW color + White",
-          "url": "/wiki/-Sample---RGBW-Color-plus-White",
-          "external": false
-        },
-        {
-          "label": "Command a scene actuator",
-          "url": "/wiki/-Sample---Control-a-scene-actuator",
-          "external": false
-        },
-        {
-          "label": "Datapoint 213.x 4x Setpoint",
-          "url": "/wiki/-Sample---DPT213",
-          "external": false
-        },
-        {
-          "label": "Datapoint 222.x 3x Setpoint",
-          "url": "/wiki/-Sample---DPT222",
-          "external": false
-        },
-        {
-          "label": "Datapoint 237.x DALI diags",
-          "url": "/wiki/-Sample---DPT237",
-          "external": false
-        },
-        {
-          "label": "Datapoint 2.x 1 bit proprity",
-          "url": "/wiki/-Sample---DPT2",
-          "external": false
-        },
-        {
-          "label": "Datapoint 22.x RCHH Status",
-          "url": "/wiki/-Sample---DPT22",
-          "external": false
-        },
-        {
-          "label": "Datetime to BUS",
-          "url": "/wiki/-Sample---DateTime-to-BUS",
-          "external": false
-        },
-        {
-          "label": "物联网桥接",
-          "url": "/wiki/-Sample---IoT-Bridge",
-          "external": false
-        },
-        {
-          "label": "KNX 多路由",
-          "url": "/wiki/-Sample---KNX-Multi-Routing",
-          "external": false
-        },
-        {
-          "label": "KNX 路由过滤器",
-          "url": "/wiki/-Sample---KNX-Router-Filter",
-          "external": false
-        },
-        {
-          "label": "FT1.2 / KBerry 接线示例",
-          "url": "/wiki/-Sample---FT12",
-          "external": false
-        },
-        {
-          "label": "Read Status",
-          "url": "/wiki/-Sample---Read-value-from-Device",
-          "external": false
-        },
-        {
-          "label": "Virtual Device",
-          "url": "/wiki/-Sample---Virtual-Device",
-          "external": false
-        },
-        {
-          "label": "Subtype decoded",
-          "url": "/wiki/-Sample---Subtype",
-          "external": false
-        },
-        {
-          "label": "Alexa",
-          "url": "/wiki/-Sample---Alexa",
-          "external": false
-        },
-        {
-          "label": "Apple Homekit",
-          "url": "/wiki/-Sample---Apple-Homekit",
-          "external": false
-        },
-        {
-          "label": "Google Home",
-          "url": "/wiki/-Sample---Google-Assistant",
-          "external": false
-        },
-        {
-          "label": "Switch on/off POE port of Unifi switch",
-          "url": "/wiki/-Sample---UnifiPOE",
-          "external": false
-        },
-        {
-          "label": "Set configuration by msg",
-          "url": "/wiki/-Sample-setConfig",
-          "external": false
-        },
-        {
-          "label": "Scene Controller node",
-          "url": "/wiki/Sample-Scene-Node",
-          "external": false
-        },
-        {
-          "label": "WatchDog node",
-          "url": "/wiki/-Sample---WatchDog",
-          "external": false
-        },
-        {
-          "label": "Global Context node",
-          "url": "/wiki/SampleGlobalContextNode",
-          "external": false
-        },
-        {
-          "label": "Alerter node",
-          "url": "/wiki/SampleAlerter",
-          "external": false
-        },
-        {
-          "label": "Load control node",
-          "url": "/wiki/SampleLoadControl",
-          "external": false
-        },
-        {
-          "label": "MySQL, InfluxDB, MQTT Sample",
-          "url": "/wiki/Sample-KNX2MQTT-KNX2MySQL-KNX2InfluxDB",
+          "label": "Cerebrum Ultimate",
+          "url": "/wiki/zh-CN-Cerebrum-Ultimate",
           "external": false
         }
       ]

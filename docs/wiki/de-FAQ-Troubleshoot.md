@@ -3,6 +3,7 @@ layout: wiki
 title: "FAQ-Troubleshoot"
 lang: de
 permalink: /wiki/de-FAQ-Troubleshoot
+translation_key: "FAQ-Troubleshoot"
 ---
 ---
 

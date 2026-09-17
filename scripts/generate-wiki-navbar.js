@@ -60,7 +60,12 @@ function slugify (title) {
 
 function pageExists (prefix, pageTitle) {
   const name = `${prefix}${pageTitle}.md`
-  return fs.existsSync(path.join(WIKI_DIR, name))
+  if (fs.existsSync(path.join(WIKI_DIR, name))) return true
+  const url = `/wiki/${slugify(prefix + pageTitle)}`
+  return fs.readdirSync(WIKI_DIR).filter(name => name.endsWith('.md')).some(name => {
+    const source = fs.readFileSync(path.join(WIKI_DIR, name), 'utf8')
+    return source.match(/^permalink:\s*(.+)$/m)?.[1] === url
+  })
 }
 
 function resolvePage (lang, pageTitle) {
@@ -82,7 +87,8 @@ function buildSectionItems (lang, items) {
   return items.map(item => {
     if (item.type === 'url') {
       const label = (item.labels && (item.labels[lang.menuKey] || item.labels.en)) || item.url
-      return { label, url: item.url, external: true }
+      const url = (item.urls && (item.urls[lang.menuKey] || item.urls.en)) || item.url
+      return { label, url, external: true }
     }
     if (item.type === 'page') {
       const label = (item.labels && (item.labels[lang.menuKey] || item.labels.en)) || item.page

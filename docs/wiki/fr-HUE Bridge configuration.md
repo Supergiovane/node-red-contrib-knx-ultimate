@@ -3,6 +3,8 @@ layout: wiki
 title: "HUE Bridge configuration"
 lang: fr
 permalink: /wiki/fr-HUE%20Bridge%20configuration
+translation_key: "HUE Bridge configuration"
+legacy_package: hue
 ---
 <h1>  NODES DE CHEUS PHILIPS 
 
@@ -25,5 +27,3 @@ Vous avez déjà les identifiants ? Cliquez sur **JE POSSÈDE DÉJÀ LES IDENTIF
 | Nom | Nom du pont lu sur le Hue Bridge après une connexion réussie. |
 | Nom d'utilisateur | Nom d'utilisateur renvoyé par le Hue Bridge après l'appairage. Le champ reste modifiable pour faciliter le copier/coller ou la saisie manuelle. |
 | Clé client | Clé client renvoyée par le Hue Bridge après l'appairage. Le champ reste modifiable pour faciliter le copier/coller ou la saisie manuelle. |
-
-![image.png](../ img / hude-config.png)

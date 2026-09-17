@@ -3,6 +3,7 @@ layout: wiki
 title: "Device"
 lang: fr
 permalink: /wiki/fr-Device
+translation_key: "Device"
 ---
 ## Paramètres de nœud de périphérique KNX-ultimate
 

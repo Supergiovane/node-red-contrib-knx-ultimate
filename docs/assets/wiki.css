@@ -57,9 +57,28 @@
 
 .wiki-content {
   flex: 1 1 0;
+  min-width: 0;
   max-width: 60rem;
   padding-bottom: 2.5rem;
 }
+
+.docs-intro { margin-bottom: 2rem; }
+.docs-version { color: #0d4c70; font-weight: 700; letter-spacing: 0.06em; }
+.docs-intro h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 0.75rem; }
+.docs-lead { font-size: 1.2rem; line-height: 1.65; max-width: 48rem; }
+.docs-actions { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.docs-button, .docs-button:visited { background: #0d4c70; color: white; padding: 0.65rem 1.1rem; border-radius: 8px; font-weight: 600; }
+.docs-notice { background: #fff7e7; border-left: 4px solid #bc7800; padding: 1rem 1.25rem; margin: 1.5rem 0 2rem; border-radius: 4px; }
+.docs-notice p:last-child { margin-bottom: 0; }
+.docs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+.docs-card { border: 1px solid #d9e4e9; border-top: 3px solid #138357; background: #f8fbfc; border-radius: 10px; padding: 1.1rem 1.2rem; }
+.docs-card h3 { font-size: 1.12rem; margin-bottom: 0.7rem; }
+.docs-card p { line-height: 1.6; margin-bottom: 0.5rem; }
+.docs-card code { overflow-wrap: anywhere; white-space: normal; font-size: 0.8rem; }
+.docs-grid--integrations .docs-card { border-top-color: #577798; }
+.docs-home-footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #d9e4e9; text-align: center; }
+.docs-home-footer img { max-width: 100%; height: auto; }
+.wiki-content pre { overflow-x: auto; }
 
 .wiki-sidebar {
   flex: 0 0 300px;
@@ -186,7 +205,7 @@
 
 .wiki-nav__link--active {
   background: #9ce29b;
-  color: #ffffff;
+  color: #143c22;
   font-weight: 600;
 }
 

@@ -3,6 +3,7 @@ layout: wiki
 title: "Docs-Language-Bar"
 lang: de
 permalink: /wiki/de-Docs-Language-Bar
+translation_key: "Docs-Language-Bar"
 ---
 ---
 

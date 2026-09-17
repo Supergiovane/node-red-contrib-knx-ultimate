@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Switch-light"
 lang: en
 permalink: /wiki/-Sample---Switch-light
+translation_key: "-Sample---Switch-light"
 ---
 # Samples
 

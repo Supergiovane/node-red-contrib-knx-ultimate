@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---DateTime-to-BUS"
 lang: en
 permalink: /wiki/-Sample---DateTime-to-BUS
+translation_key: "-Sample---DateTime-to-BUS"
 ---
 # DATE / TIME TO THE KNX BUS
 

@@ -3,6 +3,8 @@ layout: wiki
 title: "Matter-Bridge"
 lang: fr
 permalink: /wiki/fr-Matter-Bridge
+translation_key: "Matter-Bridge"
+legacy_package: matter
 ---
 # Expose KNX to Matter
 

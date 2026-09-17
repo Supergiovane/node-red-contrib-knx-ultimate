@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---KNX-Router-Filter"
 lang: en
 permalink: /wiki/-Sample---KNX-Router-Filter
+translation_key: "-Sample---KNX-Router-Filter"
 ---
 # KNX Router Filter (sample)
 

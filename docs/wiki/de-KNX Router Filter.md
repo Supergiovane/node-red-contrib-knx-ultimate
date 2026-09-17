@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Router Filter"
 lang: de
 permalink: /wiki/de-KNX%20Router%20Filter
+translation_key: "KNX Router Filter"
 ---
 Filtert RAW-Telegramm-Objekte (typischerweise vom **KNX Multi Routing** Node), bevor sie an ein anderes Gateway weitergeleitet werden.
 

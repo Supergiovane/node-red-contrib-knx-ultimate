@@ -1,42 +1,8 @@
 ---
-layout: wiki
+layout: redirect
 title: "zh-CN-HUE Scene"
 lang: zh-CN
 permalink: /wiki/zh-CN-zh-CN-HUE%20Scene
+redirect_target: /wiki/zh-CN-HUE%20Scene
+sitemap: false
 ---
----
-
-**Hue Scene** 节点将 Hue 场景发布到 KNX，并且可以把 Hue 的原始事件发送到 Node-RED 流程。场景字段支持自动补全；在网桥中新增场景后，请点击刷新图标更新列表。
-
-### 选项卡概览
-
-- **映射** - 将 KNX 组地址与所选 Hue 场景关联。DPT 1.xxx 用于布尔控制，DPT 18.xxx 用于发送 KNX 场景号。
-- **多场景** - 构建规则列表，将不同的 KNX 场景号映射到 Hue 场景，并选择 _active_ / _dynamic\_palette_ / _static_ 的调用方式。
-- **行为** - 控制是否显示 Node-RED 输出引脚。未配置 KNX 网关时，引脚仍保持启用，以便桥接器事件继续进入流程。
-
-### 常规设置
-
-| 属性 | 描述 |
-|--|--|
-| KNX 网关 | 提供自动补全地址目录的 KNX 网关。|
-| HUE 网桥 | 承载场景的 Hue 网桥。|
-| HUE 场景 | 要调用的场景（支持自动补全；刷新按钮会重新获取列表）。|
-
-### 映射选项卡
-
-| 属性 | 描述 |
-|--|--|
-| 调用 | 调用场景的 KNX 组地址。使用 DPT 1.xxx 发送布尔值，或使用 DPT 18.xxx 发送 KNX 场景号。|
-| DPT | 与召回 GA 搭配使用的数据点类型（1.xxx 或 18.001）。|
-| 名称 | 召回 GA 的说明名称。|
-| # | 选择 KNX 场景 DPT 时显示，用于选择要发送的场景号。|
-| 状态 GA | 可选布尔 GA，用于反馈场景是否处于激活状态。|
-
-### 多场景选项卡
-
-| 属性 | 描述 |
-|--|--|
-| 调用 | 使用 DPT 18.001 的 GA，通过 KNX 场景号选择场景。|
-| 场景选择器 | 可编辑列表，将 KNX 场景号对应到 Hue 场景及其调用模式。拖动条可以重新排序。|
-
-> ℹ️ 只有在选择 KNX 网关后才会显示 KNX 相关控件；在同时配置好 Hue 网桥和 KNX 网关之前，映射选项卡会保持隐藏。

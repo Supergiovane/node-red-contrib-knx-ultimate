@@ -3,10 +3,13 @@ layout: wiki
 title: "SceneController-Configuration"
 lang: en
 permalink: /wiki/SceneController-Configuration
+translation_key: "SceneController-Configuration"
 ---
 
-<!-- KNX_UTILITY_LEGACY_NOTICE -->
-> This dedicated node remains compatible with existing flows. For new flows use [KNX Utility](/node-red-contrib-knx-ultimate/wiki/KNX-Utility) and select **Scene Controller**. Its editor provides bulk conversion of all compatible legacy utility nodes across every flow and subflow, with a single Undo and manual Deploy.
+> In version 8, use **KNX Utility** and select **Scene Controller**. The settings below describe this function. The old separate node is no longer included.
+>
+> [KNX Utility]({{ '/wiki/KNX-Utility' | relative_url }}) · [Upgrade from version 7]({{ '/wiki/Migration-8' | relative_url }})
+
 
 The scene controllre node, behaves exactly as a scene controller KNX device. It's capable of saving and recalling a scene.
 

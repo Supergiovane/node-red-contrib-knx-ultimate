@@ -3,6 +3,8 @@ layout: wiki
 title: "HUE Bridge configuration"
 lang: it
 permalink: /wiki/it-HUE%20Bridge%20configuration
+translation_key: "HUE Bridge configuration"
+legacy_package: hue
 ---
 <h1>PHILIPS HUE NODES
 
@@ -25,5 +27,3 @@ Hai già le credenziali? Fai clic su **HO GIÀ LE CREDENZIALI** per mostrare sub
 | Nome | Nome del bridge letto dalla Hue Bridge dopo una connessione riuscita. |
 | Username | Username restituito dalla Hue Bridge dopo l'abbinamento. Il campo resta modificabile per consentire copia/incolla o l'inserimento manuale. |
 | Client Key | Client Key restituita dalla Hue Bridge dopo l'abbinamento. Il campo resta modificabile per consentire copia/incolla o l'inserimento manuale. |
-
-![image.png](../img/hude-config.png)

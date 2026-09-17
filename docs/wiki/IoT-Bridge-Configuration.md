@@ -3,6 +3,7 @@ layout: wiki
 title: "IoT-Bridge-Configuration"
 lang: en
 permalink: /wiki/IoT-Bridge-Configuration
+translation_key: "IoT-Bridge-Configuration"
 ---
 {% raw %}
 ---

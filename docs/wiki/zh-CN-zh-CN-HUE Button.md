@@ -1,49 +1,8 @@
 ---
-layout: wiki
+layout: redirect
 title: "zh-CN-HUE Button"
 lang: zh-CN
 permalink: /wiki/zh-CN-zh-CN-HUE%20Button
+redirect_target: /wiki/zh-CN-HUE%20Button
+sitemap: false
 ---
----
-
-<p>Hue Button 节点利用 <code>button.button_report.event</code> 将 Hue 按钮事件映射到 KNX，并在流程输出中提供相同的事件。</p>
-
-在 GA 输入框（名称或组地址）中键入即可关联 KNX GA；输入时会显示匹配的设备。
-
-**常规**
-
-|属性|说明|
-|--|--|
-| KNX 网关 | 选择要使用的 KNX 网关 |
-| HUE Bridge | 选择要使用的 HUE Bridge |
-| Hue 按钮 | 要使用的 Hue 按钮（输入时自动补全） |
-
-**开关**
-
-|属性|说明|
-|--|--|
-| 开关 | 由 <code>short\_release</code>（短按释放）触发的 GA。|
-| 状态 GA | 启用"每次事件切换数值”时的可选反馈 GA，用于保持内部状态同步。|
-
-**调光**
-
-|属性|说明|
-|--|--|
-| 调光 | <code>long\_press</code>/<code>repeat</code> 事件期间用于调光的 GA（通常为 DPT 3.007）。|
-
-**行为**
-
-|属性|说明|
-|--|--|
-| 每次事件切换数值 | 启用后自动在 <code>true/false</code> 与调光方向之间切换。|
-| 开关负载 | 禁用切换时发送到 KNX/流程的固定负载。|
-| 调光负载 | 禁用切换时发送到 KNX/流程的固定调光方向。|
-
-### 输出
-
-1. 标准输出
-: `msg.payload` 为布尔值或调光对象；`msg.event` 为 Hue 事件字符串（例如 `short_release`, `repeat`）。
-
-### 详细信息
-
-`msg.event` 对应 `button.button_report.event`，原始 Hue 事件包含在 `msg.rawEvent` 中。使用可选的状态 GA 可以让内部切换状态与墙壁开关等外部设备保持一致。

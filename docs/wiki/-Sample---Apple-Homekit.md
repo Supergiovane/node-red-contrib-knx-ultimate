@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Apple-Homekit"
 lang: en
 permalink: /wiki/-Sample---Apple-Homekit
+translation_key: "-Sample---Apple-Homekit"
 ---
 # Homekit with Siri
 

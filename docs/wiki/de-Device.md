@@ -3,6 +3,7 @@ layout: wiki
 title: "Device"
 lang: de
 permalink: /wiki/de-Device
+translation_key: "Device"
 ---
 ## KNX-ULTIMATE GERÄTE-NODE EINSTELLUNGEN
 

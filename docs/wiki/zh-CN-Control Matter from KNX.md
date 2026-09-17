@@ -3,6 +3,8 @@ layout: wiki
 title: "Control Matter from KNX"
 lang: zh-CN
 permalink: /wiki/zh-CN-Control%20Matter%20from%20KNX
+translation_key: "Control Matter from KNX"
+legacy_package: matter
 ---
 # 从 KNX 控制 Matter
 

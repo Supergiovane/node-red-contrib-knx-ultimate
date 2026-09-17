@@ -3,6 +3,8 @@ layout: wiki
 title: "HUE Bridge configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-HUE%20Bridge%20configuration
+translation_key: "HUE Bridge configuration"
+legacy_package: hue
 ---
 <h1>PHILIPS HUE NODES
 
@@ -25,5 +27,3 @@ permalink: /wiki/zh-CN-HUE%20Bridge%20configuration
 | Name | 注册成功后从 Hue 网桥读取的名称。|
 | 用户名 | Hue 网桥在配对完成后返回的用户名。字段保持可编辑，便于复制、粘贴或手动输入。|
 | 客户端密钥 | Hue 网桥在配对完成后返回的客户端密钥。字段保持可编辑，便于复制、粘贴或手动输入。|
-
-![image.png](../img/hude-config.png)

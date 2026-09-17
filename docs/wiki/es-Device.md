@@ -3,6 +3,7 @@ layout: wiki
 title: "Device"
 lang: es
 permalink: /wiki/es-Device
+translation_key: "Device"
 ---
 ## Configuración del nodo del dispositivo KNX-Ulimidad
 

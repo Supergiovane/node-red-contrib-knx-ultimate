@@ -3,6 +3,8 @@ layout: wiki
 title: "HUE Controller"
 lang: en
 permalink: /wiki/HUE%20Controller
+translation_key: "HUE Controller"
+legacy_package: hue
 ---
 # HUE Controller
 

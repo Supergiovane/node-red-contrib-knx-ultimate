@@ -3,6 +3,7 @@ layout: wiki
 title: "Device"
 lang: zh-CN
 permalink: /wiki/zh-CN-Device
+translation_key: "Device"
 ---
 ## KNX-ULTIMATE 设备节点设置
 

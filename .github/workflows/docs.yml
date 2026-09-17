@@ -1,0 +1,50 @@
+name: Documentation
+
+on:
+  push:
+    branches: [master, main, '8.0.0']
+    paths: ['docs/**', 'examples/**', 'scripts/prepare-docs.js', 'scripts/generate-wiki-navbar.js', 'scripts/wiki-menu.json', '.github/workflows/docs.yml']
+  pull_request:
+    paths: ['docs/**', 'examples/**', 'scripts/prepare-docs.js', 'scripts/generate-wiki-navbar.js', 'scripts/wiki-menu.json', '.github/workflows/docs.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare navigation and downloadable examples
+        run: |
+          node scripts/generate-wiki-navbar.js
+          node scripts/prepare-docs.js
+      - name: Build documentation
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./docs
+          destination: ./_site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./_site
+  deploy:
+    # Branch 8 pushes validate the site without replacing the published version 7 docs.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && (github.ref_name == 'master' || github.ref_name == 'main'))
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Publish documentation
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,13 +1,19 @@
 ---
 layout: wiki
-title: "Changelog"
+title: "Release notes"
 lang: en
 permalink: /wiki/Changelog
+translation_key: "Changelog"
 ---
-# Changelog
 
-Consulta il changelog completo del progetto nel repository principale.
+# Release notes
 
-- [Versioni e modifiche](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/CHANGELOG.md)
+## 8.0.0
 
-> Nota: questa pagina rimanda al file originale su GitHub per garantire che le informazioni siano sempre aggiornate.
+- Connect Node-RED to your KNX installation. Version 8 includes six KNX nodes and one shared gateway configuration.
+- Install these separate packages when you need them. HUE Ultimate and Matter Ultimate work with normal Node-RED messages. You can also use them with KNX Ultimate: select the existing KNX gateway to enable native KNX integration.
+- Already using version 7? Migrate your old nodes and Deploy before installing version 8.
+
+[Upgrade from version 7]({{ '/wiki/Migration-8' | relative_url }})
+
+[CHANGELOG.md](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/8.0.0/CHANGELOG.md)

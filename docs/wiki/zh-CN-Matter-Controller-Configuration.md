@@ -3,6 +3,8 @@ layout: wiki
 title: "Matter-Controller-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Matter-Controller-Configuration
+translation_key: "Matter-Controller-Configuration"
+legacy_package: matter
 ---
 # Matter 控制器
 

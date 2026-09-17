@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---KNX-Multi-Routing"
 lang: en
 permalink: /wiki/-Sample---KNX-Multi-Routing
+translation_key: "-Sample---KNX-Multi-Routing"
 ---
 # KNX Multi Routing (sample)
 

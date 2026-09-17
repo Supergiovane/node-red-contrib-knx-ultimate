@@ -3,6 +3,7 @@ layout: wiki
 title: "Page Title"
 lang: zh-CN
 permalink: /wiki/zh-CN-Page%20Title
+translation_key: "Page Title"
 ---
 # 占位示例页面
 

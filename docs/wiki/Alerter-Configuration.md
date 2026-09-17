@@ -3,10 +3,13 @@ layout: wiki
 title: "Alerter-Configuration"
 lang: en
 permalink: /wiki/Alerter-Configuration
+translation_key: "Alerter-Configuration"
 ---
 
-<!-- KNX_UTILITY_LEGACY_NOTICE -->
-> This dedicated node remains compatible with existing flows. For new flows use [KNX Utility](/node-red-contrib-knx-ultimate/wiki/KNX-Utility) and select **Alerter**. Its editor provides bulk conversion of all compatible legacy utility nodes across every flow and subflow, with a single Undo and manual Deploy.
+> In version 8, use **KNX Utility** and select **Alerter**. The settings below describe this function. The old separate node is no longer included.
+>
+> [KNX Utility]({{ '/wiki/KNX-Utility' | relative_url }}) · [Upgrade from version 7]({{ '/wiki/Migration-8' | relative_url }})
+
 
 # ALERTER NODE CONFIGURATION
 

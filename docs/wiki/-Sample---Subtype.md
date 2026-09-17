@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Subtype"
 lang: en
 permalink: /wiki/-Sample---Subtype
+translation_key: "-Sample---Subtype"
 ---
 # Subtype Value Sample
 

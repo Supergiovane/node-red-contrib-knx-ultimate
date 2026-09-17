@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample-setConfig"
 lang: en
 permalink: /wiki/-Sample-setConfig
+translation_key: "-Sample-setConfig"
 ---
 # PROGRAMMATICALLY CHANGE THE NODE CONFIG
 

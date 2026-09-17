@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Control-a-scene-actuator"
 lang: en
 permalink: /wiki/-Sample---Control-a-scene-actuator
+translation_key: "-Sample---Control-a-scene-actuator"
 ---
 # Scene actuator controller
 

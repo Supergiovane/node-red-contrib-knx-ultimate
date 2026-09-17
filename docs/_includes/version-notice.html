@@ -1,0 +1,8 @@
+{% if page.legacy_package %}
+{% assign t = site.data.knx8[page.lang] | default: site.data.knx8.en %}
+<aside class="docs-notice" aria-label="{{ t.archiveTitle }}">
+  <strong>{{ t.archiveTitle }}</strong>
+  <p>{{ t.archive }}</p>
+  <p><a href="https://supergiovane.github.io/node-red-contrib-{{ page.legacy_package }}-ultimate/{{ page.lang }}/index.html">{{ page.legacy_package | upcase }} Ultimate</a> · <a href="{{ t.migrationUrl | relative_url }}">{{ t.migration }}</a></p>
+</aside>
+{% endif %}

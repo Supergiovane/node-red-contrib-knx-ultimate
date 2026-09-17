@@ -3,10 +3,13 @@ layout: wiki
 title: "DateTime-Configuration"
 lang: fr
 permalink: /wiki/fr-DateTime-Configuration
+translation_key: "DateTime-Configuration"
 ---
 
-<!-- KNX_UTILITY_LEGACY_NOTICE -->
-> Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **DateTime**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
+> Dans la version 8, utilisez **KNX Utility** et choisissez **DateTime**. Les réglages ci-dessous décrivent cette fonction. L’ancien nœud séparé n’est plus inclus.
+>
+> [KNX Utility]({{ '/wiki/fr-KNX-Utility' | relative_url }}) · [Passer de la version 7 à la 8]({{ '/wiki/fr-Migration-8' | relative_url }})
+
 
 # Configuration Date/Heure
 

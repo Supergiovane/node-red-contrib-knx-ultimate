@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Google-Assistant"
 lang: en
 permalink: /wiki/-Sample---Google-Assistant
+translation_key: "-Sample---Google-Assistant"
 ---
 # Google Assistant
 

@@ -90,8 +90,10 @@
     "wiki:help-migrate": "node scripts/migrate-node-help.js",
     "docs:sync": "node scripts/export-wiki-to-pages.js",
     "wiki:refresh": "npm run wiki:help-export && node scripts/generate-wiki-navbar.js && node scripts/prepare-wiki-pages.js && npm run docs:sync",
-    "docs:serve": "node scripts/dev-serve-docs.js",
-    "docs:serve:norl": "node scripts/dev-serve-docs.js",
+    "docs:prepare": "node scripts/generate-wiki-navbar.js && node scripts/prepare-docs.js",
+    "docs:build": "npm run docs:prepare && jekyll build --source docs --destination docs/_site",
+    "docs:serve": "npm run docs:prepare && jekyll serve --source docs --destination docs/_site --host 127.0.0.1",
+    "docs:serve:norl": "npm run docs:serve",
     "knx-utility:generate": "node scripts/generate-knx-utility-profiles.js",
     "knx-utility:check": "node scripts/generate-knx-utility-profiles.js --check",
     "preinstall": "node scripts/check-legacy-flows.js"

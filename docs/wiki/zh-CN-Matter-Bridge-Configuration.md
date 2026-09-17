@@ -3,6 +3,8 @@ layout: wiki
 title: "Matter-Bridge-Configuration"
 lang: zh-CN
 permalink: /wiki/zh-CN-Matter-Bridge-Configuration
+translation_key: "Matter-Bridge-Configuration"
+legacy_package: matter
 ---
 # Matter 桥接器
 

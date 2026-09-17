@@ -3,6 +3,7 @@ layout: wiki
 title: "Protections"
 lang: fr
 permalink: /wiki/fr-Protections
+translation_key: "Protections"
 ---
 ---
 # Node auto-protection

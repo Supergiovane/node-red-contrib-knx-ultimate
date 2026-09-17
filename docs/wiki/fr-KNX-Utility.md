@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Utility"
 lang: fr
 permalink: /wiki/fr-KNX-Utility
+translation_key: "KNX-Utility"
 ---
 # KNX Utility
 
@@ -34,16 +35,10 @@ Home Assistant Translator dispose d’une entrée et d’une sortie et ne néces
 2. Choisissez la **Fonction**, la passerelle KNX si nécessaire, puis renseignez les paramètres affichés.
 3. Enregistrez le nœud et vérifiez ses connexions. Cliquez sur **Deploy** pour l’activer.
 
-Changer de fonction dans l’éditeur affiche un aperçu de ses paramètres. **Annuler** conserve la configuration précédemment enregistrée. Les liens du tableau ouvrent les paramètres et exemples propres à chaque fonction ; les anciennes pages restent disponibles comme référence des nœuds dédiés.
+Changer de fonction dans l’éditeur affiche un aperçu de ses paramètres. **Annuler** conserve la configuration précédemment enregistrée. Les liens du tableau ouvrent les paramètres et exemples propres à chaque fonction ; les pages de référence décrivent ces fonctions de KNX Utility.
 
-## Convertir tous les anciens nœuds compatibles
+## Passer de la version 7 à la 8
 
-Ouvrez **KNX Utility** ou un ancien nœud compatible, cliquez sur **Convertir tous les anciens nœuds KNX compatibles**, puis confirmez. La conversion comprend chaque instance des onze fonctions dans **tous les flux et sous-flux** de l’éditeur, quels que soient l’onglet actif et la sélection.
+Convertissez les anciens nœuds séparés avec **KNX Ultimate 7** encore installé, puis faites Deploy avant la mise à niveau. La conversion conserve ID, réglages et connexions et fournit une sauvegarde des flows et Annuler. La version 8 ne charge pas les types retirés.
 
-Après confirmation et avant toute modification des nœuds, le navigateur démarre automatiquement le téléchargement d’une sauvegarde JSON datée de tous les flux actuellement dans l’éditeur, y compris les onglets, sous-flux, nœuds de configuration, groupes et connexions. Le fichier utilise le format d’export standard de Node-RED et peut être réimporté. Les identifiants déclarés par les nœuds sont exclus, comme dans l’export standard. Le navigateur peut demander où enregistrer le fichier. Si la sauvegarde ne peut pas être préparée ou son téléchargement ne peut pas démarrer, aucun nœud n’est converti.
-
-La conversion se déroule localement dans le navigateur. Elle conserve les identifiants, paramètres enregistrés, références de passerelle, connexions, positions et groupes. Les identifiants préservés conservent les fichiers de valeurs AutoResponder et les scènes enregistrées par Scene Controller. Global Context conserve le nom de variable et le stockage ; Logger conserve ses paramètres de fichier. Home Assistant Translator conserve sa propriété d’entrée et sa table de traduction personnalisée, même lorsqu’elle est volontairement vide.
-
-La confirmation ferme l’éditeur du nœud actuel et abandonne les modifications non enregistrées. Toute la conversion constitue une seule opération **Annuler**, également compatible avec **Rétablir**. Vérifiez les nœuds convertis puis cliquez vous-même sur **Deploy**. La migration ne déploie pas automatiquement. Un flux verrouillé empêche la conversion jusqu’à son déverrouillage.
-
-Les nœuds dédiés existants continuent de se charger et de fonctionner. Ils sont masqués dans la palette et portent `(deprecated)` dans les flux existants, où leurs paramètres restent modifiables. KNX Device, Viewer et les autres nœuds d’intégration et de routage conservent leurs rôles.
+[Passer de la version 7 à la 8]({{ '/wiki/fr-Migration-8' | relative_url }})

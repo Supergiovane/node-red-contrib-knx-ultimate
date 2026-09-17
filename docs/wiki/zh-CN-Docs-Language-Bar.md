@@ -3,6 +3,7 @@ layout: wiki
 title: "Docs-Language-Bar"
 lang: zh-CN
 permalink: /wiki/zh-CN-Docs-Language-Bar
+translation_key: "Docs-Language-Bar"
 ---
 ---
 

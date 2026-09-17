@@ -3,70 +3,15 @@ layout: wiki
 title: "Logger-Sample"
 lang: it
 permalink: /wiki/it-Logger-Sample
+translation_key: "Logger-Sample"
 ---
----
-# Campioni di logger
-<img src = "https://raw.githubusercontent.com/supergiovane/node-red-contrib-knx-ultimate/master/img/wiki/logger.png" width = "90%"> <br/>
-\*\* Copia questo codice e incollalo nel tuo flusso \*\*
-<Psumo> <summary> Visualizza codice </summary>
-> Regola i nodi in base alla configurazione e imposta \*\* il percorso nel nodo file \*\*.
-```javascript
 
-[
-    {
-        "id": "b8e9e444.0af1f",
-        "type": "knxUltimateLogger",
-        "z": "9b496263.064388",
-        "server": "55dbcdcf.4aacdc",
-        "topic": "Logger",
-        "intervalCreateETSXML": "15",
-        "name": "",
-        "autoStartTimerCreateETSXML": true,
-        "maxRowsInETSXML": "0",
-        "x": 340,
-        "y": 200,
-        "wires": [
-            [
-                "d46f6877.010698"
-            ]
-        ]
-    },
-    {
-        "id": "d46f6877.010698",
-        "type": "file",
-        "z": "9b496263.064388",
-        "name": "",
-        "filename": "",
-        "appendNewline": true,
-        "createDir": false,
-        "overwriteFile": "true",
-        "encoding": "none",
-        "x": 530,
-        "y": 200,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "55dbcdcf.4aacdc",
-        "type": "knxUltimate-config",
-        "z": "",
-        "host": "224.0.23.12",
-        "port": "3671",
-        "physAddr": "15.15.22",
-        "suppressACKRequest": false,
-        "csv": "",
-        "KNXEthInterface": "en9",
-        "KNXEthInterfaceManuallyInput": "",
-        "statusDisplayLastUpdate": true,
-        "statusDisplayDeviceNameWhenALL": true,
-        "statusDisplayDataPoint": false,
-        "stopETSImportIfNoDatapoint": "stop",
-        "loglevel": "error",
-        "name": "Gateway",
-        "localEchoInTunneling": true
-    }
-]
-```
+# Logger ETS File and Telegram Count
 
-</Dettagli>
+Importa il JSON da **Node-RED → Importa**. Seleziona il tuo gateway e sostituisci gli indirizzi di esempio con quelli del progetto ETS prima del Deploy. Leggi i nodi Comment per le impostazioni richieste da ciascun esempio.
+
+I file provengono dalla cartella examples del package. Gli esempi Utility usano KNX Utility, non i vecchi nodi separati.
+
+[Scarica JSON]({{ '/examples/Logger%20ETS%20File%20and%20Telegram%20Count.json' | relative_url }})
+
+[KNX Utility]({{ '/wiki/it-KNX-Utility' | relative_url }}) · [Esempi]({{ '/wiki/it--SamplesHome' | relative_url }})

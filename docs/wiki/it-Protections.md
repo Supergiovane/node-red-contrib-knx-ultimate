@@ -3,6 +3,7 @@ layout: wiki
 title: "Protections"
 lang: it
 permalink: /wiki/it-Protections
+translation_key: "Protections"
 ---
 ---
 # Autoconteggero nodo

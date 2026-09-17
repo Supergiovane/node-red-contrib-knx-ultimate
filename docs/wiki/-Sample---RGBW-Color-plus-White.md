@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---RGBW-Color-plus-White"
 lang: en
 permalink: /wiki/-Sample---RGBW-Color-plus-White
+translation_key: "-Sample---RGBW-Color-plus-White"
 ---
 # Samples
 

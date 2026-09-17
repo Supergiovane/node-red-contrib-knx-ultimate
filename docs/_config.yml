@@ -4,23 +4,7 @@ theme: minima
 baseurl: "/node-red-contrib-knx-ultimate"
 url: "https://supergiovane.github.io"
 markdown: kramdown
-plugins:
-  - jekyll-polyglot
 feed: false
-polyglot:
-  default_lang: en
-  languages:
-    - en
-    - it
-    - de
-    - fr
-    - es
-    - zh-CN
-  translate_links: false
-  include: ["_data/wiki-nav.json"]
-  exclude_from_localization:
-    - assets
-    - Gemfile
 kramdown:
   input: GFM
 exclude:
@@ -29,6 +13,9 @@ exclude:
   - node_modules
   - scripts
   - Gemfile
+  - Gemfile.lock
+  - vendor
+  - README.md
 defaults:
   - scope:
       path: "wiki"

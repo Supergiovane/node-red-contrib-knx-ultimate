@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Utility"
 lang: it
 permalink: /wiki/it-KNX-Utility
+translation_key: "KNX-Utility"
 ---
 # KNX Utility
 
@@ -34,16 +35,10 @@ Home Assistant Translator ha un ingresso e un’uscita e non richiede un gateway
 2. Scegli la **Funzione**, seleziona il gateway KNX dove richiesto e compila le impostazioni visualizzate.
 3. Salva il nodo e controlla i collegamenti di ingresso e uscita. Premi **Deploy** quando vuoi attivarlo.
 
-Cambiare funzione nell’editor mostra le relative impostazioni in anteprima. **Annulla** mantiene la configurazione salvata in precedenza. I collegamenti nella tabella aprono impostazioni ed esempi della singola funzione; le vecchie pagine restano disponibili come riferimento dei nodi dedicati.
+Cambiare funzione nell’editor mostra le relative impostazioni in anteprima. **Annulla** mantiene la configurazione salvata in precedenza. I collegamenti nella tabella aprono impostazioni ed esempi della singola funzione; le pagine di riferimento descrivono queste funzioni di KNX Utility.
 
-## Convertire tutti i nodi legacy compatibili
+## Passare dalla versione 7
 
-Apri **KNX Utility** o un nodo legacy compatibile e premi **Converti tutti i nodi KNX legacy compatibili**, quindi conferma. La conversione comprende tutte le istanze delle undici funzioni elencate, in **tutti i flow e subflow** dell’editor, indipendentemente dalla scheda attiva o dalla selezione.
+Converti i vecchi nodi separati con **KNX Ultimate 7** ancora installato e fai Deploy prima di aggiornare. La conversione conserva ID, impostazioni e collegamenti e offre backup dei flow e Annulla. La versione 8 non carica i tipi di nodo rimossi.
 
-Dopo la conferma e prima di modificare i nodi, il browser avvia automaticamente il download di un backup JSON con data e ora di tutti i flow attualmente nell’editor, inclusi schede, subflow, nodi di configurazione, gruppi e collegamenti. Il file usa il formato di esportazione standard di Node-RED e può essere reimportato. Le credenziali dichiarate dai nodi sono escluse, come nell’esportazione standard. Il browser può chiedere dove salvare il file. Se non è possibile preparare il backup o avviarne il download, nessun nodo viene convertito.
-
-La conversione avviene localmente nel browser. Conserva ID, impostazioni salvate, riferimenti al gateway, collegamenti, posizioni e appartenenza ai gruppi. Gli ID conservati mantengono i file dei valori AutoResponder e le scene registrate da Scene Controller; Global Context mantiene nome della variabile e storage selezionato, Logger le impostazioni dei file. Home Assistant Translator conserva la proprietà di ingresso e la tabella di traduzione personalizzata, anche quando è volutamente vuota.
-
-La conferma chiude l’editor del nodo corrente e scarta le modifiche non salvate. L’intera conversione è una singola operazione **Annulla** e supporta anche **Ripristina**. Controlla i nodi convertiti e premi **Deploy** per rendere effettive le modifiche. La migrazione non esegue Deploy automaticamente. Un flow bloccato impedisce la conversione finché non viene sbloccato.
-
-I nodi dedicati esistenti continuano a caricarsi e funzionare. Sono nascosti nella palette e contrassegnati con `(deprecated)` nei flow esistenti, dove restano modificabili. KNX Device, Viewer, altri nodi di integrazione e routing mantengono i rispettivi ruoli.
+[Passare dalla versione 7]({{ '/wiki/it-Migration-8' | relative_url }})

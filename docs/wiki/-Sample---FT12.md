@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---FT12"
 lang: en
 permalink: /wiki/-Sample---FT12
+translation_key: "-Sample---FT12"
 ---
 # FT1.2 / KBerry wiring samples
 

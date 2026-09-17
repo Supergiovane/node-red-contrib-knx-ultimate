@@ -3,6 +3,7 @@ layout: wiki
 title: "-Sample---Dimming"
 lang: en
 permalink: /wiki/-Sample---Dimming
+translation_key: "-Sample---Dimming"
 ---
 # Samples
 

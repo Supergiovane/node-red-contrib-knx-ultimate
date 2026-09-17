@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Utility"
 lang: de
 permalink: /wiki/de-KNX-Utility
+translation_key: "KNX-Utility"
 ---
 # KNX Utility
 
@@ -36,14 +37,8 @@ Home Assistant Translator hat einen Eingang und einen Ausgang und benötigt kein
 
 Ein Funktionswechsel im Editor zeigt zunächst eine Vorschau der Einstellungen. **Abbrechen** erhält die zuvor gespeicherte Konfiguration. Die Tabellenlinks führen zu Einstellungen und Beispielen der jeweiligen Funktion; die bisherigen Seiten bleiben als Referenz der Einzelknoten verfügbar.
 
-## Alle kompatiblen bisherigen Knoten konvertieren
+## Upgrade von Version 7
 
-Öffnen Sie **KNX Utility** oder einen kompatiblen bisherigen Knoten, klicken Sie auf **Alle kompatiblen bisherigen KNX-Knoten konvertieren** und bestätigen Sie. Die Konvertierung erfasst jede Instanz der elf Funktionen in **allen Flows und Subflows** des Editors, unabhängig von aktivem Tab und Auswahl.
+Konvertiere die alten separaten Knoten noch mit **KNX Ultimate 7** und führe Deploy vor dem Upgrade aus. Die Konvertierung erhält IDs, Einstellungen und Verbindungen und bietet Flow-Sicherung und Rückgängig. Version 8 lädt die entfernten Knotentypen nicht.
 
-Nach der Bestätigung und bevor Knoten geändert werden, startet der Browser automatisch den Download einer mit Datum und Uhrzeit versehenen JSON-Sicherung aller aktuell im Editor vorhandenen Flows, einschließlich Tabs, Subflows, Konfigurationsknoten, Gruppen und Verbindungen. Die Datei verwendet das Standardexportformat von Node-RED und kann wieder importiert werden. Von Knoten deklarierte Zugangsdaten sind wie beim Standardexport ausgeschlossen. Ihr Browser fragt möglicherweise nach dem Speicherort. Kann die Sicherung nicht vorbereitet oder ihr Download nicht gestartet werden, wird kein Knoten konvertiert.
-
-Die Konvertierung erfolgt lokal im Browser. IDs, gespeicherte Einstellungen, Gateway-Verweise, Verbindungen, Positionen und Gruppenzugehörigkeit bleiben erhalten. Die IDs erhalten AutoResponder-Wertedateien und aufgezeichnete Scene-Controller-Szenen. Global Context behält Variablennamen und Speicherwahl; Logger behält seine Dateieinstellungen. Home Assistant Translator behält die Eingabeeigenschaft und die eigene Übersetzungstabelle bei, auch wenn diese absichtlich leer ist.
-
-Die Bestätigung schließt den aktuellen Knoten-Editor und verwirft nicht gespeicherte Änderungen. Die gesamte Konvertierung lässt sich mit einem einzigen **Rückgängig** aufheben und mit **Wiederholen** erneut anwenden. Prüfen Sie die konvertierten Knoten und klicken Sie selbst auf **Deploy**. Die Migration führt kein automatisches Deploy aus. Ein gesperrter Flow verhindert die Konvertierung, bis er entsperrt wird.
-
-Bestehende Einzelknoten werden weiterhin geladen und funktionieren. Sie sind in der Palette ausgeblendet und in vorhandenen Flows mit `(deprecated)` gekennzeichnet; ihre Einstellungen bleiben bearbeitbar. KNX Device, Viewer sowie weitere Integrations- und Routingknoten behalten ihre jeweiligen Aufgaben.
+[Upgrade von Version 7]({{ '/wiki/de-Migration-8' | relative_url }})

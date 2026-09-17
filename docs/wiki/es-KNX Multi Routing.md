@@ -3,6 +3,7 @@ layout: wiki
 title: "KNX Multi Routing"
 lang: es
 permalink: /wiki/es-KNX%20Multi%20Routing
+translation_key: "KNX Multi Routing"
 ---
 Este nodo se utiliza para **interconectar varios gateways KNX Ultimate** (varios `knxUltimate-config`) mediante cables de Node-RED.
 
