@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 8.0.1** - September 2026
+
+- Made the version 7 migration warning and optional integration packages much more visible in the README.
+
 **Version 8.0.0** - September 2026
 
 - The editor stays accessible after upgrading from version 7 and reminds you to restart Node-RED.

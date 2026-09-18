@@ -10,12 +10,27 @@ KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, r
 
 The palette contains KNX Device, KNX Utility, KNX Viewer, KNX IoT Bridge, KNX Multi Routing and KNX Router Filter.
 
-**Upgrading from version 7.x.x:** migrate old KNX utility, HUE and Matter nodes before installing version 8. The migration is **fully automated** by a push of a button.  
-The old nodes, their configuration nodes and KNX AI are no longer included. Follow the [upgrade steps](MIGRATION.md) to keep your flows working.
+---
 
-**For native Philips Hue seamless integration**, install `node-red-contrib-hue-ultimate`.  
-**For native Matter Controller and Matter Bridge seamless integration**, install `node-red-contrib-matter-ultimate`. Select your existing KNX gateway in those nodes to enable KNX integration. Both packages can also work without KNX Ultimate.
-**For native AI driven KNX control and KNX installer's on field diegnostic and unit testing integration**, install `node-red-contrib-cerebrum-ultimate`.
+## 🚨 IMPORTANT — UPGRADING FROM VERSION 7.1.3 🚨
+
+> ### Migrate before installing version 8
+>
+> Migrate old KNX utility, HUE and Matter nodes **before installing version 8**.
+>
+> ### The migration is fully automated with the push of a button
+>
+> The old nodes, their configuration nodes and KNX AI are no longer included.
+>
+> **Follow the [upgrade steps](MIGRATION.md) to keep your flows working.**
+
+### Native seamless integrations
+
+- **Philips Hue:** install `node-red-contrib-hue-ultimate`.
+- **Matter Controller and Matter Bridge:** install `node-red-contrib-matter-ultimate`. Select your existing KNX gateway in those nodes to enable KNX integration. The package can also work without KNX Ultimate.
+- **AI-driven KNX control, on-field diagnostics and unit testing for KNX installers:** install `node-red-contrib-cerebrum-ultimate`.
+
+---
 
 <br/>
 <br/>
