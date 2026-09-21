@@ -4,6 +4,12 @@ title: "SceneController-Configuration"
 lang: it
 permalink: /wiki/it-SceneController-Configuration
 ---
+## Aggiornamento a KNX Ultimate 8
+
+La versione 7 aggiunge un piccolo pulsante **Aggiorna alla v8** nella parte alta di ogni editor. Il pulsante esegue il backup dei flow, installa i package HUE/Matter necessari, converte i nodi compatibili, esegue un Deploy completo, verifica i flow salvati e installa la versione 8. Quando richiesto, riavvia il servizio Node-RED: ricaricare soltanto il browser non basta. I nodi KNX AI legacy fermano la procedura automatica.
+
+[Leggi la guida completa all’aggiornamento](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Upgrade-to-v8)
+
 
 <!-- KNX_UTILITY_LEGACY_NOTICE -->
 > Questo nodo dedicato resta compatibile con i flow esistenti. Per i nuovi flow usa [KNX Utility](/node-red-contrib-knx-ultimate/wiki/it-KNX-Utility) e seleziona **Scene Controller**. Il suo editor permette di convertire tutti i nodi utility legacy compatibili in tutti i flow e subflow, con un unico Annulla e Deploy manuale.

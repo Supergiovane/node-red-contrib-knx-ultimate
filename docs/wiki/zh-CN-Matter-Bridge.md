@@ -4,6 +4,12 @@ title: "Matter-Bridge"
 lang: zh-CN
 permalink: /wiki/zh-CN-Matter-Bridge
 ---
+## 升级到 KNX Ultimate 8
+
+版本 7 会在每个节点编辑器顶部添加一个小型的 **升级到 v8** 按钮。它会备份流程、安装所需的 HUE/Matter 软件包、转换兼容节点、执行完整部署、验证已保存的流程并安装版本 8。出现提示后必须重启 Node-RED 服务；仅重新加载浏览器并不足够。旧版 KNX AI 节点会停止自动操作。
+
+[阅读完整升级指南](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Upgrade-to-v8)
+
 # Expose KNX to Matter
 
 <div data-matter-bridge-overview="hero" style="margin:18px 0 28px;padding:24px;border-radius:16px;background:linear-gradient(135deg,#073b3a 0%,#087f78 54%,#21b8a6 100%);box-shadow:0 14px 30px rgba(7,59,58,0.25);color:#f2fffd;">

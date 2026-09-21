@@ -4,6 +4,13 @@ title: "Cerebrum Ultimate"
 lang: it
 permalink: /wiki/it-Cerebrum-Ultimate
 ---
+### Aggiornamento a KNX Ultimate 8
+
+La versione 7 mostra un piccolo pulsante **Aggiorna alla v8** nella parte alta di questo editor. Il pulsante scarica un backup dei flow, installa i package HUE/Matter necessari, converte i nodi compatibili, esegue un Deploy completo, verifica i flow salvati e installa la versione 8. Quando richiesto, riavvia il servizio Node-RED: ricaricare soltanto il browser non basta. I nodi KNX AI legacy fermano la procedura automatica.
+
+[Guida completa all’aggiornamento](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Upgrade-to-v8)
+
+<br/>
 
 # Cerebrum Ultimate
 

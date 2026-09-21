@@ -4,6 +4,12 @@ title: "Control Matter from KNX"
 lang: zh-CN
 permalink: /wiki/zh-CN-Control%20Matter%20from%20KNX
 ---
+## 升级到 KNX Ultimate 8
+
+版本 7 会在每个节点编辑器顶部添加一个小型的 **升级到 v8** 按钮。它会备份流程、安装所需的 HUE/Matter 软件包、转换兼容节点、执行完整部署、验证已保存的流程并安装版本 8。出现提示后必须重启 Node-RED 服务；仅重新加载浏览器并不足够。旧版 KNX AI 节点会停止自动操作。
+
+[阅读完整升级指南](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Upgrade-to-v8)
+
 # 从 KNX 控制 Matter
 
 此节点用于从 KNX 控制已经配对的 Matter endpoint。选择 Matter 设备后，编辑器会检测它的能力，并只显示与该 endpoint 匹配的 KNX 映射。

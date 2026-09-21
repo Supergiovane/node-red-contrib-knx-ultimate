@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateAutoResponder">
+### Upgrade to KNX Ultimate 8
+
+Version 7 shows a compact **Upgrade to v8** button at the top of this editor. It downloads a flow backup, installs the required HUE/Matter packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
+<br/>
+
 **Deprecated:** This dedicated node remains supported for existing flows. Use **KNX Utility** for new flows and select the matching function. The legacy node is hidden from the palette and marked `(deprecated)` on the canvas. Its editor offers a button to convert all compatible legacy KNX utility nodes in every flow and subflow after confirmation. Conversion happens locally in the browser, preserves IDs, settings, connections and groups, and supports Undo. Confirming closes the current node editor and discards unsaved edits. Review the result before Deploy.
 
 <p>This node will respond to read requests from the KNX BUS.  

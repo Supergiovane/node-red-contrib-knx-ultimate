@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
+### Actualizar a KNX Ultimate 8
+
+La versión 7 muestra un pequeño botón **Actualizar a v8** en la parte superior de este editor. Descarga una copia de los flujos, instala los paquetes HUE/Matter necesarios, convierte los nodos compatibles, realiza un Deploy completo, verifica los flujos guardados e instala la versión 8. Reinicia después el servicio Node-RED cuando se indique; recargar solo el navegador no es suficiente. Los nodos antiguos KNX AI detienen la operación automática.
+
+[Guía completa de actualización](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Upgrade-to-v8)
+
+<br/>
+
 ## Descripción general
 
 Cada nodo Expose KNX to Matter expone **un dispositivo KNX como dispositivo Matter**: los controladores emparejados (Alexa, Google Home, Apple Home...) lo ven, con el nombre que hayas elegido, listo para el control por app y por voz. Apúntalo a un nodo de configuración **Bridge Matter** (el bridge en sí, emparejado una sola vez - el QR de emparejamiento vive allí) y añade tantos nodos de dispositivo como quieras, en cualquier flow.

@@ -4,6 +4,12 @@ title: "KNX Utility"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX-Utility
 ---
+## 升级到 KNX Ultimate 8
+
+版本 7 会在每个节点编辑器顶部添加一个小型的 **升级到 v8** 按钮。它会备份流程、安装所需的 HUE/Matter 软件包、转换兼容节点、执行完整部署、验证已保存的流程并安装版本 8。出现提示后必须重启 Node-RED 服务；仅重新加载浏览器并不足够。旧版 KNX AI 节点会停止自动操作。
+
+[阅读完整升级指南](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Upgrade-to-v8)
+
 # KNX Utility
 
 **KNX Utility** 将十一种 KNX 辅助功能整合到一个面板节点中。选择**功能**即可显示对应设置、图标及流程端口。**KNX Device（KNXUltimate）**仍是发送和接收 KNX 电报的主节点。

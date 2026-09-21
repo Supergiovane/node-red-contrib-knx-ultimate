@@ -958,6 +958,12 @@
 </script>
 
 <script type="text/html" data-template-name="knxUltimateIoTBridge">
+    <div class="form-row knx-ultimate-v8-upgrade-row">
+        <button type="button" class="red-ui-button knx-ultimate-v8-upgrade-button" data-i18n="[title]node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.button_title">
+            <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+            <span data-i18n="node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.button"></span>
+        </button>
+    </div>
   <div class="form-row" style="margin-bottom:10px;">
     <span style="color:#ff0000"><i class="fa fa-youtube"></i></span>&nbsp;<a target="_blank" href="https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E"><b>KNX-Ultimate video tutorials (YouTube playlist)</b></a>
   </div>
@@ -1069,6 +1075,14 @@
 </script>
 
 <script type="text/markdown" data-help-name="knxUltimateIoTBridge">
+### Upgrade to KNX Ultimate 8
+
+Version 7 shows a compact **Upgrade to v8** button at the top of this editor. It downloads a flow backup, installs the required HUE/Matter packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
+<br/>
+
 # MQTT Home Assistant - IoT
 
 Configure bidirectional maps between KNX group addresses and IoT backends such as MQTT, REST APIs or Modbus registers. Each mapping can scale values, format payloads and define single direction behaviour.

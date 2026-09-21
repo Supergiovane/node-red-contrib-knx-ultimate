@@ -6,6 +6,15 @@
 
 # CHANGELOG
 
+**Version 7.1.4** - September 2026
+
+- Added a compact **Upgrade to v8** button to every node editor in version 7.
+- The guided upgrade downloads a flow backup, installs HUE Ultimate and Matter Ultimate when required, converts compatible legacy nodes, performs and verifies a full Deploy, and then installs the dedicated KNX Ultimate 8.0.1-beta.0 upgrade build.
+- Matter migrations require Matter Ultimate 1.0.3 so protected door-lock PIN credentials remain registered across the Deploy.
+- The v8 build stays on npm's `beta` channel, so normal Palette Manager installations and updates remain on this v7 release.
+- IDs, wiring, groups, configuration references, credentials and Matter storage are preserved. A Node-RED service restart is still required after installation.
+- Legacy KNX AI nodes, locked flows, and unrelated unknown or invalid nodes stop the automatic process before unsafe changes are made.
+
 **Version 7.1.3** - September 2026
 
 -Quick fix: Matter Controller and Matter Bridge are available in the palette again.

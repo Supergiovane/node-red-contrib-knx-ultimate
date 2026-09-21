@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateGarage">
+### 升级到 KNX Ultimate 8
+
+版本 7 会在此编辑器顶部显示一个小型的 **升级到 v8** 按钮。它会下载流程备份、安装所需的 HUE/Matter 软件包、转换兼容节点、执行完整部署、验证已保存的流程并安装版本 8。出现提示后必须重启 Node-RED 服务；仅重新加载浏览器并不足够。旧版 KNX AI 节点会停止自动操作。
+
+[完整升级指南](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Upgrade-to-v8)
+
+<br/>
+
 **已弃用：** 此专用节点仍支持现有流程。新流程请使用 **KNX Utility** 并选择对应功能。旧版节点已从节点面板中隐藏，并在流程中标记为 `(deprecated)`。其编辑器提供转换按钮，经确认后可转换所有流程和子流程中的全部兼容旧版 KNX 工具节点。转换在浏览器本地进行，保留节点 ID、设置、连接和分组，且可以撤销。确认后将关闭当前节点编辑器并丢弃未保存的编辑。请在部署前检查结果。
 
 # KNX GARAGE DOOR

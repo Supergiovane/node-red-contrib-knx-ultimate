@@ -4,6 +4,12 @@ title: "knxUltimateViewer"
 lang: en
 permalink: /wiki/knxUltimateViewer
 ---
+## Upgrade to KNX Ultimate 8
+
+Version 7 adds a compact **Upgrade to v8** button at the top of every node editor. It backs up the flows, installs the required HUE/Matter packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Read the full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
 # KNX Viewer
 
 KNX Viewer shows group address (GA) state changes in a simple table, similar to a minimal ETS monitor.

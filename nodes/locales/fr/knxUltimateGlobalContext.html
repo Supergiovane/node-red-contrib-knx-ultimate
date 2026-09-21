@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateGlobalContext">
+### Mise à jour vers KNX Ultimate 8
+
+La version 7 affiche un petit bouton **Mettre à jour vers v8** en haut de cet éditeur. Il télécharge une sauvegarde des flux, installe les packages HUE/Matter requis, convertit les nœuds compatibles, effectue un Deploy complet, vérifie les flux enregistrés et installe la version 8. Redémarrez ensuite le service Node-RED comme demandé ; recharger uniquement le navigateur ne suffit pas. Les anciens nœuds KNX AI arrêtent l’opération automatique.
+
+[Guide complet de mise à jour](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Upgrade-to-v8)
+
+<br/>
+
 **Obsolète :** Ce nœud dédié reste pris en charge dans les flux existants. Pour les nouveaux flux, utilisez **KNX Utility** et sélectionnez la fonction correspondante. L’ancien nœud est masqué dans la palette et porte la mention `(deprecated)` dans le flux. Son éditeur propose un bouton pour convertir tous les anciens utilitaires KNX compatibles dans tous les flux et sous-flux après confirmation. La conversion se déroule localement dans le navigateur, conserve les identifiants, paramètres, connexions et groupes et peut être annulée. La confirmation ferme l’éditeur du nœud actuel et abandonne les modifications non enregistrées. Vérifiez le résultat avant Deploy.
 
 # Variable globale KNX

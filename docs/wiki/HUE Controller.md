@@ -4,6 +4,12 @@ title: "HUE Controller"
 lang: en
 permalink: /wiki/HUE%20Controller
 ---
+## Upgrade to KNX Ultimate 8
+
+Version 7 adds a compact **Upgrade to v8** button at the top of every node editor. It backs up the flows, installs the required HUE/Matter packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Read the full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
 # HUE Controller
 
 [**KNX-Ultimate video tutorials (YouTube playlist)**](https://www.youtube.com/playlist?list=PL9Yh1bjbLAYrU8PsVhW4xzEug2WtVFv3E)

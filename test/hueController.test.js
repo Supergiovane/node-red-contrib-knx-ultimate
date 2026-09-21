@@ -909,9 +909,9 @@ describe('Unified HUE Controller', () => {
       path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
       'utf8'
     )
-    const goStart = privateLightEditor.indexOf('function Go()')
-    const onEditPrepareCall = privateLightEditor.indexOf('onEditPrepare();', goStart)
-    const restoreCall = privateLightEditor.indexOf('node.__configureHueControllerDeviceControl();', goStart)
+    const goStart = privateLightEditor.indexOf('function Go ()')
+    const onEditPrepareCall = privateLightEditor.indexOf('onEditPrepare()', goStart)
+    const restoreCall = privateLightEditor.indexOf('node.__configureHueControllerDeviceControl()', goStart)
 
     expect(onEditPrepareCall).to.be.greaterThan(goStart)
     expect(restoreCall).to.be.greaterThan(onEditPrepareCall)
@@ -948,11 +948,11 @@ describe('Unified HUE Controller', () => {
       path.join(projectRoot, 'scripts/hue-controller-profiles/editors/light.js'),
       'utf8'
     )
-    const groupedBranch = privateLightEditor.indexOf('if (selectedHueResourceType === "grouped_light")')
-    const groupedDefaults = privateLightEditor.indexOf('applyHueCapabilities({ type: "grouped_light" })', groupedBranch)
+    const groupedBranch = privateLightEditor.indexOf("if (selectedHueResourceType === 'grouped_light')")
+    const groupedDefaults = privateLightEditor.indexOf("applyHueCapabilities({ type: 'grouped_light' })", groupedBranch)
     const individualCapabilityRequest = privateLightEditor.indexOf('getJsonPromise = $.getJSON(`knxUltimateGetLightObject', groupedDefaults)
 
-    expect(privateLightEditor).to.include('const selectedHueResourceType = String(initialHueDeviceRaw.split("#")[1] || \'\').trim().toLowerCase()')
+    expect(privateLightEditor).to.include("const selectedHueResourceType = String(initialHueDeviceRaw.split('#')[1] || '').trim().toLowerCase()")
     expect(groupedBranch).to.be.greaterThan(-1)
     expect(groupedDefaults).to.be.greaterThan(groupedBranch)
     expect(individualCapabilityRequest).to.be.greaterThan(groupedDefaults)
@@ -980,7 +980,7 @@ describe('Unified HUE Controller', () => {
     expect(privateLightEditor).not.to.include('__stopHueConnectionWait')
     expect(privateLightEditor).not.to.include('#waitWindow')
     expect(privateLightEditor).to.include('// Do not gate the Light editor on the runtime resource cache.')
-    expect(privateLightEditor).to.include('Go();')
+    expect(privateLightEditor).to.include('Go()')
   })
 
   it('keeps Light tabs and Locate available before optional editor widgets initialize', () => {
@@ -990,9 +990,9 @@ describe('Unified HUE Controller', () => {
     )
     const earlyLocateComment = privateLightEditor.indexOf('Bind Locate before tabs, effects and KNX widgets are initialized')
     const locateBinding = privateLightEditor.indexOf("on('click.knxUltimateHueLight'", earlyLocateComment)
-    const earlyTabsVisibility = privateLightEditor.indexOf('updateTabsVisibility();', locateBinding)
-    const effectInitialization = privateLightEditor.indexOf('ensureEffectEditableList();', earlyTabsVisibility)
-    const tabsInitialization = privateLightEditor.indexOf('$tabs.tabs();', effectInitialization)
+    const earlyTabsVisibility = privateLightEditor.indexOf('updateTabsVisibility()', locateBinding)
+    const effectInitialization = privateLightEditor.indexOf('ensureEffectEditableList()', earlyTabsVisibility)
+    const tabsInitialization = privateLightEditor.indexOf('$tabs.tabs()', effectInitialization)
 
     expect(earlyLocateComment).to.be.greaterThan(-1)
     expect(locateBinding).to.be.greaterThan(earlyLocateComment)
@@ -1062,7 +1062,7 @@ describe('Unified HUE Controller', () => {
     expect(controllerEditor).to.include("$(document).off('change.knxUltimateHueControllerKnxVisibility', '#node-input-server')")
 
     const selectionSync = privateLightEditor.indexOf('node.server = KNX_EMPTY_VALUES.has(normalizedValue.toLowerCase())')
-    const tabsRefresh = privateLightEditor.indexOf('updateTabsVisibility();', selectionSync)
+    const tabsRefresh = privateLightEditor.indexOf('updateTabsVisibility()', selectionSync)
     expect(selectionSync).to.be.greaterThan(-1)
     expect(tabsRefresh).to.be.greaterThan(selectionSync)
     expect(privateLightEditor).to.include(".on('change.knxUltimateHueLightGateway', '#node-input-server', function (event)")

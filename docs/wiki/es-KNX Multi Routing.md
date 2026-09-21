@@ -4,6 +4,12 @@ title: "KNX Multi Routing"
 lang: es
 permalink: /wiki/es-KNX%20Multi%20Routing
 ---
+## Actualizar a KNX Ultimate 8
+
+La versión 7 añade un pequeño botón **Actualizar a v8** en la parte superior de cada editor de nodo. Crea una copia de los flujos, instala los paquetes HUE/Matter necesarios, convierte los nodos compatibles, realiza un Deploy completo, verifica los flujos guardados e instala la versión 8. Reinicia después el servicio Node-RED cuando se indique; recargar solo el navegador no es suficiente. Los nodos antiguos KNX AI detienen la operación automática.
+
+[Leer la guía completa de actualización](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Upgrade-to-v8)
+
 Este nodo se utiliza para **interconectar varios gateways KNX Ultimate** (varios `knxUltimate-config`) mediante cables de Node-RED.
 
 En la salida emite un objeto con información **RAW del telegrama** (APDU + cEMI en hex + direcciones) para cada telegrama recibido del bus KNX del gateway seleccionado.

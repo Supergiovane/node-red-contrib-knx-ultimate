@@ -4,6 +4,12 @@ title: "KNX Multi Routing"
 lang: zh-CN
 permalink: /wiki/zh-CN-KNX%20Multi%20Routing
 ---
+## 升级到 KNX Ultimate 8
+
+版本 7 会在每个节点编辑器顶部添加一个小型的 **升级到 v8** 按钮。它会备份流程、安装所需的 HUE/Matter 软件包、转换兼容节点、执行完整部署、验证已保存的流程并安装版本 8。出现提示后必须重启 Node-RED 服务；仅重新加载浏览器并不足够。旧版 KNX AI 节点会停止自动操作。
+
+[阅读完整升级指南](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Upgrade-to-v8)
+
 此节点用于通过 Node-RED 的连线来**互联多个 KNX Ultimate 网关**（多个 `knxUltimate-config`）。
 
 它会为所选网关的 KNX 总线上收到的每个电报输出一条包含**RAW 电报信息**（APDU + cEMI 十六进制 + 地址）的消息。

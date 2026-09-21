@@ -4,6 +4,12 @@ title: "KNX Utility"
 lang: es
 permalink: /wiki/es-KNX-Utility
 ---
+## Actualizar a KNX Ultimate 8
+
+La versión 7 añade un pequeño botón **Actualizar a v8** en la parte superior de cada editor de nodo. Crea una copia de los flujos, instala los paquetes HUE/Matter necesarios, convierte los nodos compatibles, realiza un Deploy completo, verifica los flujos guardados e instala la versión 8. Reinicia después el servicio Node-RED cuando se indique; recargar solo el navegador no es suficiente. Los nodos antiguos KNX AI detienen la operación automática.
+
+[Leer la guía completa de actualización](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/es-Upgrade-to-v8)
+
 # KNX Utility
 
 **KNX Utility** reúne once funciones auxiliares KNX en un solo nodo de la paleta. Selecciona una **Función** para mostrar sus ajustes, icono y puertos. **KNX Device (KNXUltimate)** sigue siendo el nodo principal para enviar y recibir telegramas KNX.

@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateSceneController">
+### Aggiornamento a KNX Ultimate 8
+
+La versione 7 mostra un piccolo pulsante **Aggiorna alla v8** nella parte alta di questo editor. Il pulsante scarica un backup dei flow, installa i package HUE/Matter necessari, converte i nodi compatibili, esegue un Deploy completo, verifica i flow salvati e installa la versione 8. Quando richiesto, riavvia il servizio Node-RED: ricaricare soltanto il browser non basta. I nodi KNX AI legacy fermano la procedura automatica.
+
+[Guida completa all’aggiornamento](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Upgrade-to-v8)
+
+<br/>
+
 **Deprecato:** Questo nodo dedicato resta supportato nei flow esistenti. Per i nuovi flow usa **KNX Utility** e seleziona la funzione corrispondente. Il nodo legacy è nascosto nella palette e contrassegnato con `(deprecated)` nel flow. Il suo editor offre un pulsante per convertire tutti i nodi utility KNX legacy compatibili in tutti i flow e subflow dopo conferma. La conversione avviene localmente nel browser, conserva ID, impostazioni, collegamenti e gruppi e supporta Annulla. La conferma chiude l’editor del nodo corrente e scarta le modifiche non salvate. Controlla il risultato prima di premere Deploy.
 
 # Scene Controller

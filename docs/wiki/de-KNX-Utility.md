@@ -4,6 +4,12 @@ title: "KNX Utility"
 lang: de
 permalink: /wiki/de-KNX-Utility
 ---
+## Upgrade auf KNX Ultimate 8
+
+Version 7 ergänzt oben in jedem Knoteneditor eine kleine Schaltfläche **Auf v8 aktualisieren**. Sie sichert die Flows, installiert die benötigten HUE-/Matter-Pakete, konvertiert kompatible Knoten, führt ein vollständiges Deploy aus, prüft die gespeicherten Flows und installiert Version 8. Starten Sie den Node-RED-Dienst anschließend wie aufgefordert neu; nur den Browser neu zu laden genügt nicht. Bisherige KNX-AI-Knoten stoppen den automatischen Vorgang.
+
+[Vollständige Upgrade-Anleitung lesen](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/de-Upgrade-to-v8)
+
 # KNX Utility
 
 **KNX Utility** vereint elf KNX-Hilfsfunktionen in einem Palettenknoten. Wählen Sie eine **Funktion**, um ihre Einstellungen, ihr Symbol und ihre Flow-Anschlüsse anzuzeigen. **KNX Device (KNXUltimate)** bleibt der Hauptknoten zum Senden und Empfangen von KNX-Telegrammen.

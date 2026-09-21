@@ -4,6 +4,12 @@ title: "DateTime-Configuration"
 lang: fr
 permalink: /wiki/fr-DateTime-Configuration
 ---
+## Mise à jour vers KNX Ultimate 8
+
+La version 7 ajoute un petit bouton **Mettre à jour vers v8** en haut de chaque éditeur de nœud. Il sauvegarde les flux, installe les packages HUE/Matter requis, convertit les nœuds compatibles, effectue un Deploy complet, vérifie les flux enregistrés et installe la version 8. Redémarrez ensuite le service Node-RED comme demandé ; recharger uniquement le navigateur ne suffit pas. Les anciens nœuds KNX AI arrêtent l’opération automatique.
+
+[Lire le guide complet de mise à jour](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Upgrade-to-v8)
+
 
 <!-- KNX_UTILITY_LEGACY_NOTICE -->
 > Ce nœud dédié reste compatible avec les flux existants. Pour les nouveaux flux, utilisez [KNX Utility](/node-red-contrib-knx-ultimate/wiki/fr-KNX-Utility) et sélectionnez **DateTime**. Son éditeur convertit tous les anciens utilitaires compatibles dans tous les flux et sous-flux, avec une seule opération Annuler et un Deploy manuel.
@@ -52,4 +58,3 @@ Un message est émis à chaque envoi :
 ## Auto-remplissage (ETS)
 
 Lors de l'ajout d'un nouveau nœud, le premier gateway KNX avec import ETS peut être sélectionné automatiquement et les GA cohérentes pré-remplies.
-

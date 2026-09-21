@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterControllerDevice">
+### Aggiornamento a KNX Ultimate 8
+
+La versione 7 mostra un piccolo pulsante **Aggiorna alla v8** nella parte alta di questo editor. Il pulsante scarica un backup dei flow, installa i package HUE/Matter necessari, converte i nodi compatibili, esegue un Deploy completo, verifica i flow salvati e installa la versione 8. Quando richiesto, riavvia il servizio Node-RED: ricaricare soltanto il browser non basta. I nodi KNX AI legacy fermano la procedura automatica.
+
+[Guida completa all’aggiornamento](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/it-Upgrade-to-v8)
+
+<br/>
+
 Questo nodo controlla da KNX un endpoint Matter già abbinato. Seleziona il dispositivo Matter e l'editor rileva le sue capability, mostrando solo le mappature KNX coerenti con quell'endpoint.
 
 Un click o il focus sul campo del dispositivo Matter apre sempre l'elenco completo degli endpoint abbinati, anche quando un dispositivo è già selezionato. Digitando, l'elenco continua a essere filtrato.

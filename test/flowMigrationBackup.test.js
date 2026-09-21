@@ -105,6 +105,20 @@ describe('Flow migration backup', function () {
     expect(backup.anchor.download).to.equal('flows-backup-before-hue-conversion-2026-01-01_000000-001.json')
   })
 
+  it('supports a dedicated full-upgrade backup kind and filename', async function () {
+    const nodes = [{ id: 'legacy-matter', type: 'knxUltimateMatterBridge', wires: [] }]
+    const backup = fixture(nodes)
+    const result = download(backup.RED, {
+      environment: backup.environment,
+      kind: 'v8',
+      now: new Date(2026, 8, 21, 9, 8, 7, 6)
+    })
+    expect(result).to.deep.equal({ filename: 'flows-backup-before-v8-conversion-2026-09-21_090807-006.json', nodeCount: 1 })
+    expect(backup.anchor.download).to.equal(result.filename)
+    expect(await backup.blobs[0].text()).to.equal(JSON.stringify(nodes, null, 4))
+    expect(backup.calls).to.include('click')
+  })
+
   it('does not mutate the node graph during export and supports an explicit document', async function () {
     const node = Object.freeze({ id: 'frozen-tab', type: 'tab' })
     const nodes = Object.freeze([node])

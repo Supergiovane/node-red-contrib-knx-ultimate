@@ -17,6 +17,12 @@
 </script>
 
 <script type="text/html" data-template-name="knxUltimateAIHomeAssistant">
+    <div class="form-row knx-ultimate-v8-upgrade-row">
+        <button type="button" class="red-ui-button knx-ultimate-v8-upgrade-button" data-i18n="[title]node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.button_title">
+            <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+            <span data-i18n="node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.button"></span>
+        </button>
+    </div>
     <div class="form-tips" style="margin-bottom:10px;"><b>Legacy node:</b> for new installations use the Home Assistant bridge included with <a href="https://github.com/Supergiovane/node-red-contrib-cerebrum-ultimate#readme" target="_blank"><b>Cerebrum Ultimate</b></a>.</div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
@@ -32,6 +38,14 @@
 </script>
 
 <script type="text/html" data-help-name="knxUltimateAIHomeAssistant">
+### Upgrade to KNX Ultimate 8
+
+Version 7 shows a compact **Upgrade to v8** button at the top of this editor. It downloads a flow backup, installs the required HUE/Matter packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
+<br/>
+
     <p>Connects Cerebrum to the Home Assistant Node-RED API node without storing Home Assistant credentials in KNX Ultimate.</p>
     <h3>Required round trip</h3>
     <p><code>Cerebrum Home Assistant → API (ha-api) → Cerebrum Home Assistant</code></p>

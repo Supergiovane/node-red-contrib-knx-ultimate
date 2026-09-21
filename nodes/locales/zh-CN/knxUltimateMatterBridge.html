@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
+### 升级到 KNX Ultimate 8
+
+版本 7 会在此编辑器顶部显示一个小型的 **升级到 v8** 按钮。它会下载流程备份、安装所需的 HUE/Matter 软件包、转换兼容节点、执行完整部署、验证已保存的流程并安装版本 8。出现提示后必须重启 Node-RED 服务；仅重新加载浏览器并不足够。旧版 KNX AI 节点会停止自动操作。
+
+[完整升级指南](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/zh-CN-Upgrade-to-v8)
+
+<br/>
+
 ## 概述
 
 每个 Expose KNX to Matter 节点将**一个 KNX 设备公开为 Matter 设备**：已配对的控制器（Alexa、Google Home、Apple Home...）会以您输入的名称看到它，随时可通过 App 和语音控制。将它指向一个 **Matter 桥接器**配置节点（真正的桥接器，只需配对一次 - 配对二维码在那里），然后在流程中随意添加任意数量的设备节点。

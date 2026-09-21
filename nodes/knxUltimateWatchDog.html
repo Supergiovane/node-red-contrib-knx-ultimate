@@ -162,9 +162,24 @@
 
 </script>
 
-<script type="text/markdown" data-help-name="knxUltimateWatchDog"></script>
+<script type="text/markdown" data-help-name="knxUltimateWatchDog">
+### Upgrade to KNX Ultimate 8
+
+Version 7 shows a compact **Upgrade to v8** button at the top of this editor. It downloads a flow backup, installs the required HUE/Matter packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
+<br/>
+
+</script>
 
 <script type="text/html" data-template-name="knxUltimateWatchDog">
+    <div class="form-row knx-ultimate-v8-upgrade-row">
+        <button type="button" class="red-ui-button knx-ultimate-v8-upgrade-button" data-i18n="[title]node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.button_title">
+            <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+            <span data-i18n="node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.button"></span>
+        </button>
+    </div>
   <div class="form-row knx-utility-legacy-notice" role="note" style="box-sizing:border-box; padding:10px 12px; margin-bottom:12px; border-left:4px solid #d79b00; background:#fff8df; color:#4d3a00;">
     <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
     <span data-i18n="knxUltimateWatchDog.legacy_notice"></span>

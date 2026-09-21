@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateHueMotion">
+### Mise à jour vers KNX Ultimate 8
+
+La version 7 affiche un petit bouton **Mettre à jour vers v8** en haut de cet éditeur. Il télécharge une sauvegarde des flux, installe les packages HUE/Matter requis, convertit les nœuds compatibles, effectue un Deploy complet, vérifie les flux enregistrés et installe la version 8. Redémarrez ensuite le service Node-RED comme demandé ; recharger uniquement le navigateur ne suffit pas. Les anciens nœuds KNX AI arrêtent l’opération automatique.
+
+[Guide complet de mise à jour](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/fr-Upgrade-to-v8)
+
+<br/>
+
 <p><strong>Obsolète :</strong> ce nœud HUE dédié reste disponible pour les flows existants. Utilisez <strong>HUE Controller</strong> pour les nouveaux projets. Le nœud legacy est marqué <code>(deprecated)</code> dans la palette et sur le canevas, utilise une couleur plus claire que HUE Controller et son éditeur affiche un avis de migration en haut. Le bouton de migration orange à contraste élevé avec texte blanc convertit localement tous les nœuds HUE legacy ; il ouvre ensuite uniquement un brouillon d’e-mail modifiable. L’e-mail n’est jamais envoyé automatiquement. À la fin du processus, un message Node-RED fixe reste visible jusqu’à ce que vous cliquiez sur OK et propose un bouton de soutien facultatif ; la page de don ne s’ouvre qu’après un clic sur ce bouton. Avant de commencer, <a href="https://youtu.be/f0Evf2QFI7c" target="_blank" rel="noopener noreferrer">regardez la vidéo explicative sur YouTube</a>.</p>
 <p> Ce nœud écoute un capteur de mouvement de teinte et reflète les événements de KNX et / ou de votre flux rouge-rouge. </p>
 

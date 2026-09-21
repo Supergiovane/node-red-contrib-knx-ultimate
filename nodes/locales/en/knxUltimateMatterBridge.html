@@ -1,4 +1,12 @@
 <script type="text/markdown" data-help-name="knxUltimateMatterBridge">
+### Upgrade to KNX Ultimate 8
+
+Version 7 shows a compact **Upgrade to v8** button at the top of this editor. It downloads a flow backup, installs the required companion packages, converts compatible nodes, performs a full Deploy, verifies the saved flows and installs version 8. Restart the Node-RED service when prompted; reloading only the browser is not enough. Legacy KNX AI nodes stop the automatic operation.
+
+[Full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8)
+
+<br/>
+
 ## Overview
 
 Each Expose KNX to Matter node exposes **one KNX device as a Matter device**: the paired controllers (Alexa, Google Home, Apple Home...) see it, with the name you typed, ready for app and voice control. Point it to a **Matter Bridge** configuration node (the actual bridge, paired once - the pairing QR code lives there) and add as many device nodes as you want, anywhere in your flows.
