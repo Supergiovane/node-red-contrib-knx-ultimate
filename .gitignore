@@ -11,6 +11,10 @@ tutorial
 .continue/
 AGENTS/
 docs/_site/
+docs/examples/
+docs/.jekyll-cache/
+docs/.jekyll-metadata
+.sass-cache/
 docs/Gemfile.lock
 scripts/
 !scripts/
