@@ -61,11 +61,11 @@ function editor (language = 'it-IT') {
 }
 
 describe('Version 7 editor compatibility while waiting for the version 8 restart', () => {
-  it('keeps the compatibility build off the default npm channel', () => {
+  it('publishes the recovery build on the stable npm channel', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'))
 
-    expect(pkg.version).to.equal('8.0.1-beta.0')
-    expect(pkg.publishConfig).to.deep.equal({ tag: 'beta', access: 'public' })
+    expect(pkg.version).to.equal('8.0.2')
+    expect(pkg.publishConfig).to.deep.equal({ tag: 'latest', access: 'public' })
   })
 
   it('keeps every script URL requested by the published version 7 editor loadable', () => {

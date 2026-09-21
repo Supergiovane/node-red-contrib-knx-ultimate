@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 8.0.2** - September 2026
+
+- Published version 8 on the stable `latest` channel for installations that only need the current KNX nodes.
+- Includes the version 7 recovery bridge for direct upgrades that still contain legacy HUE, Matter, utility or AI nodes.
+- Keeps the guided version 7.1.4 upgrade target available separately as `8.0.1-beta.0`.
+
 **Version 8.0.1-beta.0** - September 2026
 
 - Published under the `beta` dist-tag as the exact install target for the version 7 one-click upgrade.
