@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "8.0.1",
+  "version": "8.0.1-beta.0",
   "description": "KNX integration for Node-RED with KNX/IP and KNX Secure, ETS import, routing, diagnostics, automation utilities, MQTT and Modbus adapters. Optional Hue Ultimate and Matter Ultimate packages connect through the KNX gateway.",
   "files": [
     "nodes/",
@@ -29,7 +29,8 @@
     "version": ">=3.1.1",
     "plugins": {
       "commonFunctions": "/nodes/commonFunctions.js",
-      "knxUltimateFlowBubbles": "/nodes/plugins/knxUltimate-flow-bubbles-plugin.html"
+      "knxUltimateFlowBubbles": "/nodes/plugins/knxUltimate-flow-bubbles-plugin.html",
+      "knxUltimateV8MigrationRecovery": "/nodes/plugins/knxUltimate-v8-migration-recovery-plugin.html"
     },
     "nodes": {
       "knxUltimate": "/nodes/knxUltimate.js",
@@ -38,6 +39,7 @@
       "knxUltimateMultiRouting": "/nodes/knxUltimateMultiRouting.js",
       "knxUltimateRouterFilter": "/nodes/knxUltimateRouterFilter.js",
       "knxUltimateIoTBridge": "/nodes/knxUltimateIoTBridge.js",
+      "knxUltimateLegacyMigration": "/nodes/knxUltimateLegacyMigration.js",
       "knxUltimate-config": "/nodes/knxUltimate-config.js"
     }
   },
@@ -69,7 +71,8 @@
   },
   "license": "MIT",
   "publishConfig": {
-    "tag": "beta"
+    "tag": "beta",
+    "access": "public"
   },
   "scripts": {
     "build": "npm run knx-viewer:build",

@@ -61,6 +61,13 @@ function editor (language = 'it-IT') {
 }
 
 describe('Version 7 editor compatibility while waiting for the version 8 restart', () => {
+  it('keeps the compatibility build off the default npm channel', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'))
+
+    expect(pkg.version).to.equal('8.0.1-beta.0')
+    expect(pkg.publishConfig).to.deep.equal({ tag: 'beta', access: 'public' })
+  })
+
   it('keeps every script URL requested by the published version 7 editor loadable', () => {
     for (const script of legacyResources.scripts) {
       const filename = path.join(projectRoot, 'resources', script)
@@ -136,10 +143,27 @@ describe('Version 7 editor compatibility while waiting for the version 8 restart
     for (const filename of [
       '11f26b4500.js', 'KNXAIChatAdapterMappings.js', 'configNodeEditorSelection.js',
       'hueControllerEditorSelection.js', 'hueControllerProfiles.js', 'matterQrScanner.js',
-      'hueControllerMigration.js', 'hueControllerMigrationDialog.js'
+      'hueControllerMigrationDialog.js'
     ]) state.loadResource(filename)
     expect(Object.keys(state.context)).to.deep.equal(Object.keys(before))
     for (const name of Object.keys(before)) expect(state.context[name]).to.equal(before[name])
+    expect(state.notifications).to.have.length(0)
+    expect(state.plugins.size).to.equal(0)
+  })
+
+  it('loads the HUE conversion helper without replacing standalone-package globals', () => {
+    const state = editor()
+    const hueStandalone = { marker: 'hue' }
+    const matterStandalone = { marker: 'matter' }
+    state.context.HueStandaloneKNXUltimateHueControllerMigration = hueStandalone
+    state.context.MatterStandaloneKNXUltimateFlowMigrationBackup = matterStandalone
+
+    state.loadResource('hueControllerMigration.js')
+
+    expect(state.context.KNXUltimateHueControllerMigration).to.be.an('object')
+    expect(state.context.KNXUltimateHueControllerMigration.createLocalMigrationPatches).to.be.a('function')
+    expect(state.context.HueStandaloneKNXUltimateHueControllerMigration).to.equal(hueStandalone)
+    expect(state.context.MatterStandaloneKNXUltimateFlowMigrationBackup).to.equal(matterStandalone)
     expect(state.notifications).to.have.length(0)
     expect(state.plugins.size).to.equal(0)
   })

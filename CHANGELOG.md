@@ -6,9 +6,14 @@
 
 # CHANGELOG
 
-**Version 8.0.1** - September 2026
+**Version 8.0.1-beta.0** - September 2026
 
+- Published under the `beta` dist-tag as the exact install target for the version 7 one-click upgrade.
 - Made the version 7 migration warning and optional integration packages much more visible in the README.
+- Keeps the version 7 one-click upgrade resource loadable while version 8 is waiting for the mandatory Node-RED restart.
+- Added an editor recovery bridge and inert runtime placeholders for direct upgrades from older version 7 installations; compatible unknown nodes can be backed up, converted and deployed without reinstalling KNX Ultimate 8.
+- Requires Matter Ultimate 1.0.3 when Matter nodes are migrated so protected door-lock PIN credentials remain registered across the Deploy.
+- Treats `preinstall` as a read-only, best-effort diagnostic because modern Node-RED/npm installations may skip dependency lifecycle scripts; the editor bridge is the authoritative recovery path.
 
 **Version 8.0.0** - September 2026
 

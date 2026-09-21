@@ -1,5 +1,5 @@
 {
-  "source": "node-red-contrib-knx-ultimate@7.1.3: script URLs in published node and plugin editor templates",
+  "source": "node-red-contrib-knx-ultimate@7.1.4: script URLs in published node and plugin editor templates",
   "scripts": [
     "11f26b4500.js",
     "KNXAIChatAdapterMappings.js",
@@ -16,6 +16,7 @@
     "knxUtilityMigration.js",
     "knxUtilityProfiles.js",
     "legacyMigrationNotice.js",
-    "matterQrScanner.js"
+    "matterQrScanner.js",
+    "upgradeToV8.js"
   ]
 }

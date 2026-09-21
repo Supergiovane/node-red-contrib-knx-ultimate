@@ -5,7 +5,7 @@ const path = require('path')
 const { spawnSync } = require('child_process')
 const { check } = require('../scripts/check-legacy-flows')
 
-describe('version 8 legacy installation guard', () => {
+describe('version 8 legacy installation scan', () => {
   let dir, options
   const write = (file, data) => { const target = path.join(dir, file); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, JSON.stringify(data)); return target }
   beforeEach(() => {
@@ -15,6 +15,10 @@ describe('version 8 legacy installation guard', () => {
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }))
   // Independent compatibility contract: deleting a type from the guard must fail a test.
   const legacyTypes = [
+    'knxUltimateAlerter', 'knxUltimateAutoResponder', 'knxUltimateDateTime',
+    'knxUltimateWatchDog', 'knxUltimateGlobalContext', 'knxUltimateLogger',
+    'knxUltimateStaircase', 'knxUltimateGarage', 'knxUltimateSceneController',
+    'knxUltimateLoadControl', 'knxUltimateHATranslator',
     'hue-config', 'matter-config', 'matterbridge-config',
     'knxUltimateHueController', 'knxUltimateHueLight', 'knxUltimateHuePlug',
     'knxUltimateHueButton', 'knxUltimateHueTapDial', 'knxUltimateHueMotion',
@@ -22,10 +26,11 @@ describe('version 8 legacy installation guard', () => {
     'knxUltimateHueLightSensor', 'knxUltimateHueTemperatureSensor', 'knxUltimateHueHumiditySensor',
     'knxUltimateHueScene', 'knxUltimateHueBattery', 'knxUltimateHueZigbeeConnectivity',
     'knxUltimateHuedevice_software_update', 'knxUltimateMatterControllerDevice',
-    'knxUltimateMatterBridge', 'knxUltimateMatterLight'
+    'knxUltimateMatterBridge', 'knxUltimateMatterLight',
+    'knxUltimateAI', 'knxUltimateAIHomeAssistant'
   ]
   for (const type of legacyTypes) {
-    it(`blocks ${type}, even in a disabled flow/subflow`, () => {
+    it(`detects ${type}, even in a disabled flow/subflow`, () => {
       write('flows.json', [{ id: 'sub', type: 'subflow', disabled: true }, { id: 'old', type, z: 'sub', d: true }])
       expect(check(options).legacy).to.deep.equal([{ file: path.join(dir, 'flows.json'), type, count: 1 }])
     })
@@ -87,12 +92,12 @@ describe('version 8 legacy installation guard', () => {
     write('flows.json', [{ id: 'old', type: 'hue-config' }])
     expect(check({ ...options, version: '7.1.2' }).legacy).to.have.length(0)
   })
-  it('returns a failing lifecycle exit code without modifying flows or printing credentials', () => {
+  it('warns without blocking or modifying flows and never prints credentials', () => {
     const file = write('flows.json', [{ id: 'old', type: 'hue-config', credentials: { token: 'SECRET-DO-NOT-PRINT' } }])
     const before = fs.readFileSync(file, 'utf8')
     const child = spawnSync(process.execPath, [path.join(__dirname, '../scripts/check-legacy-flows.js')], { cwd: dir, env: { ...process.env, KNXULTIMATE_FLOW_FILE: file }, encoding: 'utf8' })
-    expect(child.status).to.equal(1)
-    expect(child.stderr).to.include('installation blocked').and.include('node-red-contrib-hue-ultimate')
+    expect(child.status).to.equal(0)
+    expect(child.stderr).to.include('migration required').and.include('hue-config')
     expect(child.stderr).not.to.include('SECRET-DO-NOT-PRINT')
     expect(fs.readFileSync(file, 'utf8')).to.equal(before)
   })
@@ -129,7 +134,7 @@ describe('version 8 legacy installation guard', () => {
     fs.writeFileSync(file, '\uFEFF' + fs.readFileSync(file, 'utf8'))
     expect(check(options).legacy).to.have.length(1)
   })
-  it('blocks on an unreadable flow, without exposing file contents', () => {
+  it('reports an unreadable flow, without exposing file contents', () => {
     const file = write('flows.json', [])
     const original = fs.readFileSync
     try {
@@ -199,7 +204,7 @@ describe('version 8 legacy installation guard', () => {
     expect(child.stderr).not.to.include('installation blocked')
   })
 
-  it('blocks real npm installs for HUE and Matter, then allows migrated flows offline', function () {
+  it('allows real npm installs while warning when dependency lifecycle scripts are approved', function () {
     this.timeout(60000)
     const manifest = require('../package.json')
     expect(manifest.scripts.preinstall).to.equal('node scripts/check-legacy-flows.js')
@@ -222,18 +227,29 @@ describe('version 8 legacy installation guard', () => {
     const packed = npm(['pack', '--ignore-scripts', '--json'], source)
     expect(packed.status, packed.stderr).to.equal(0)
     const archive = path.join(source, JSON.parse(packed.stdout)[0].filename)
-    const target = path.join(dir, 'installation')
-    write('installation/package.json', { name: 'migration-guard-test', version: '1.0.0', private: true })
-    const flowPath = path.join(target, 'flows.json')
-    for (const type of ['knxUltimateHueController', 'knxUltimateMatterBridge', 'hueUltimateController']) {
+    for (const [index, type] of ['knxUltimateHueController', 'knxUltimateMatterBridge', 'hueUltimateController'].entries()) {
+      // A fresh host is required for every case: reinstalling the same version
+      // is "up to date" and npm correctly does not rerun its preinstall hook.
+      const target = path.join(dir, `installation-${index}`)
+      write(`installation-${index}/package.json`, {
+        name: `migration-guard-test-${index}`,
+        version: '1.0.0',
+        private: true,
+        // npm 11 blocks unapproved dependency install scripts by default. The
+        // scanner remains best-effort; this case checks its behaviour only when
+        // the host project explicitly allows the lifecycle hook to run.
+        allowScripts: { [manifest.name]: true }
+      })
+      const flowPath = path.join(target, 'flows.json')
       fs.writeFileSync(flowPath, JSON.stringify([{ id: 'device', type }]))
       const before = fs.readFileSync(flowPath, 'utf8')
       const result = npm(['install', archive, '--foreground-scripts', '--ignore-scripts=false'], target, { KNXULTIMATE_FLOW_FILE: flowPath })
-      if (type === 'hueUltimateController') expect(result.status, result.stderr).to.equal(0)
-      else {
-        expect(result.status).to.not.equal(0)
-        expect(result.stderr).to.include('installation blocked').and.include(type)
-      }
+      expect(result.status, result.stderr).to.equal(0)
+      // npm forwards foreground lifecycle output to stdout or stderr depending
+      // on its version/platform, so assert against the combined user-visible log.
+      const output = `${result.stdout}\n${result.stderr}`
+      if (type === 'hueUltimateController') expect(output).not.to.include('migration required')
+      else expect(output).to.include('migration required').and.include(type)
       expect(fs.readFileSync(flowPath, 'utf8')).to.equal(before)
     }
   })

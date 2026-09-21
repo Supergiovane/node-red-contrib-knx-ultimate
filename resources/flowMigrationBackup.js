@@ -17,7 +17,7 @@
     const environment = options.environment || root
     const documentObject = options.documentObject || (environment && environment.document)
     const kind = options.kind || 'knx'
-    if (kind !== 'knx' && kind !== 'hue') throw new Error('The migration backup kind is invalid')
+    if (kind !== 'knx' && kind !== 'hue' && kind !== 'v8') throw new Error('The migration backup kind is invalid')
     if (!RED || !RED.nodes || typeof RED.nodes.createCompleteNodeSet !== 'function') {
       throw new Error('The Node-RED flow export API is unavailable')
     }

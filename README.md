@@ -12,15 +12,15 @@ The palette contains KNX Device, KNX Utility, KNX Viewer, KNX IoT Bridge, KNX Mu
 
 ---
 
-## 🚨 IMPORTANT — UPGRADING FROM VERSION 7.1.3 🚨
+## 🚨 IMPORTANT — UPGRADING FROM VERSION 7.1.4 🚨
 
-> ### Migrate before installing version 8
+> ### Preferred: migrate before installing version 8
 >
-> Migrate old KNX utility, HUE and Matter nodes **before installing version 8**.
+> Install version 7.1.4 first, then use **Upgrade to v8** from any KNX Ultimate node.
 >
 > ### The migration is fully automated with the push of a button
 >
-> The old nodes, their configuration nodes and KNX AI are no longer included.
+> If version 8 was installed directly from an older v7, restart Node-RED and open the editor: the built-in recovery bridge offers the same protected backup, package installation, conversion and Deploy. Legacy KNX AI nodes still require manual replacement or removal.
 >
 > **Follow the [upgrade steps](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Migration-8) to keep your flows working.**
 

@@ -240,9 +240,11 @@ Options:
   --tag <name>     npm dist-tag (default: beta for prereleases, latest otherwise)
   --dry-run        run npm publish --dry-run and do not refresh flows.nodered.org
   --skip-tests     skip npm test before publishing
-  --refresh-only   skip npm publish and only verify npm + refresh Flow Library
+  --refresh-only   skip npm publish; verify npm and refresh Flow Library only for latest
   --allow-dirty    allow publishing from a dirty Git worktree
   --help           show this help
+
+Only releases published with the latest dist-tag are submitted to flows.nodered.org.
 `)
 }
 
@@ -294,6 +296,11 @@ async function main () {
     throw new Error(`npm dist-tag ${tag} points to ${distTags[tag] || 'nothing'}, expected ${version}`)
   }
   log.ok(`npm exposes ${packageName}@${version}`)
+
+  if (tag !== 'latest') {
+    log.ok(`Skipping Flow Library refresh for non-latest dist-tag ${tag}`)
+    return
+  }
 
   log.step('Refreshing flows.nodered.org')
   const flowResult = await refreshFlowLibrary({ packageName, version })

@@ -57,6 +57,7 @@ test/*
 # Version 8 package boundary tests and frozen migration input
 !test/knxPackageBoundary.test.js
 !test/upgradeEditorCompatibility.test.js
+!test/v8MigrationRecovery.test.js
 !test/fixtures/
 !test/fixtures/knx7-utility-definitions.json
 

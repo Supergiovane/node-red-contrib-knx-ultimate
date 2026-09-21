@@ -1,0 +1,140 @@
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/flowMigrationBackup.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigration.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityMigration.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/upgradeToV8.js"></script>
+
+<script type="text/javascript">
+    (function () {
+        const I18N_PREFIX = "node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.v8_upgrade.";
+        const EVENTS = ["nodes:add", "nodes:remove", "nodes:change", "workspace:dirty", "deploy"];
+        let recovery;
+        let notification;
+        let timer;
+        let dismissed = false;
+        let lastSignature = "";
+
+        function translate(key, fallback, values) {
+            const qualified = I18N_PREFIX + key;
+            let result;
+            try { result = RED._(qualified, values || {}); } catch (error) { /* use fallback */ }
+            result = result && result !== qualified ? result : fallback;
+            return String(result).replace(/{{\s*(\w+)\s*}}/g, function (match, name) {
+                return values && values[name] !== undefined ? String(values[name]) : match;
+            });
+        }
+
+        function closeNotice() {
+            if (notification && typeof notification.close === "function") notification.close();
+            notification = undefined;
+            lastSignature = "";
+        }
+
+        function originalType(node) {
+            if (node && node.type === "unknown" && node._orig && typeof node._orig.type === "string") {
+                return node._orig.type;
+            }
+            return node && node.type;
+        }
+
+        function inspectLegacyNodes() {
+            const api = window.KNXUltimateUpgradeToV8;
+            const utility = window.KNXUltimateUtilityMigration;
+            const counts = { utility: 0, hue: 0, matter: 0, ai: 0, total: 0 };
+            if (!api || !utility || !utility.LEGACY_NODE_PROFILES || typeof api.collectAllNodes !== "function") return counts;
+            const hueTargets = new Set((api.HUE_PACKAGE && api.HUE_PACKAGE.types) || []);
+            const matterTargets = new Set((api.MATTER_PACKAGE && api.MATTER_PACKAGE.types) || []);
+            api.collectAllNodes(RED).forEach(function (node) {
+                const type = originalType(node);
+                if (api.AI_TYPES && api.AI_TYPES.has(type)) counts.ai += 1;
+                else if (Object.prototype.hasOwnProperty.call(utility.LEGACY_NODE_PROFILES, type)) counts.utility += 1;
+                else if (api.HUE_TYPE_MAP && Object.prototype.hasOwnProperty.call(api.HUE_TYPE_MAP, type)) counts.hue += 1;
+                else if (api.MATTER_TYPE_MAP && Object.prototype.hasOwnProperty.call(api.MATTER_TYPE_MAP, type)) counts.matter += 1;
+                else if (node && node.type === "unknown" && hueTargets.has(type)) counts.hue += 1;
+                else if (node && node.type === "unknown" && matterTargets.has(type)) counts.matter += 1;
+            });
+            counts.total = counts.utility + counts.hue + counts.matter + counts.ai;
+            return counts;
+        }
+
+        function refresh() {
+            timer = undefined;
+            if (dismissed || !recovery || typeof RED.notify !== "function") return;
+            const counts = inspectLegacyNodes();
+            if (!counts.total) {
+                closeNotice();
+                return;
+            }
+            const signature = [counts.utility, counts.hue, counts.matter, counts.ai].join(":");
+            if (notification && signature === lastSignature) return;
+            closeNotice();
+            lastSignature = signature;
+
+            const message = $("<div></div>");
+            $("<p></p>")
+                .append($("<strong></strong>").text(translate("recovery_notice_title", "KNX Ultimate 8 migration required")))
+                .appendTo(message);
+            $("<p></p>")
+                .text(translate("recovery_notice", "Legacy nodes are still present: KNX Utility {{utility}}, HUE {{hue}}, Matter {{matter}}, AI {{ai}}. Complete the protected migration before editing or deploying flows.", counts))
+                .appendTo(message);
+
+            notification = RED.notify(message, {
+                type: "warning",
+                fixed: true,
+                modal: false,
+                silent: true,
+                buttons: [
+                    {
+                        text: translate("recovery_notice_button", "Complete migration"),
+                        class: "primary",
+                        click: function () {
+                            if (recovery.open()) closeNotice();
+                        }
+                    },
+                    {
+                        text: translate("later", "Later"),
+                        click: function () {
+                            dismissed = true;
+                            closeNotice();
+                        }
+                    }
+                ]
+            });
+        }
+
+        function schedule() {
+            if (timer !== undefined) window.clearTimeout(timer);
+            timer = window.setTimeout(refresh, 200);
+        }
+
+        function reset() {
+            dismissed = false;
+            closeNotice();
+            schedule();
+        }
+
+        RED.plugins.registerPlugin("knxUltimate-v8-migration-recovery-plugin", {
+            onadd: function () {
+                const api = window.KNXUltimateUpgradeToV8;
+                if (!api || typeof api.install !== "function") return;
+                recovery = api.install(RED, {
+                    environment: window,
+                    $,
+                    recoveryMode: true,
+                    onRecoveryRetry: schedule
+                });
+                EVENTS.forEach(function (event) { RED.events.on(event, schedule); });
+                RED.events.on("workspace:clear", reset);
+                schedule();
+            },
+            onremove: function () {
+                if (timer !== undefined) window.clearTimeout(timer);
+                timer = undefined;
+                EVENTS.forEach(function (event) { RED.events.off(event, schedule); });
+                RED.events.off("workspace:clear", reset);
+                closeNotice();
+                if (recovery && typeof recovery.dispose === "function") recovery.dispose();
+                recovery = undefined;
+            }
+        });
+    }());
+</script>

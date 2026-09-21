@@ -30,5 +30,5 @@ Language pages use explicit permalinks and translation keys, so no extra transla
 ## Repository branches
 
 - `main` is the default branch for KNX Ultimate 8 and its documentation.
-- `7.x` preserves the 7.1.3 code, including the Matter palette fix, for version 7 maintenance. Apply version 7 fixes there and do not merge the KNX 8 node removals into it.
+- `7.x` preserves the 7.1.4 code, including the Matter palette fix and one-click version 8 upgrade, for version 7 maintenance. Apply version 7 fixes there and do not merge the KNX 8 node removals into it.
 - The old `master` reference remains available for existing links. New development belongs on `main`; version 7 fixes belong on `7.x`.

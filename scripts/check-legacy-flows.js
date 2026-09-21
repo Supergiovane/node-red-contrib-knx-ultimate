@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 'use strict'
 
-// No dependencies and no settings.js execution: this runs before npm install.
+// Best-effort npm lifecycle diagnostic only. Dependency lifecycle scripts may
+// be skipped by the installer, and this hook has no access to Node-RED's live
+// storage API or editor state. Never mutate flows or install other packages.
 const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const LEGACY_TYPES = new Set([
+  'knxUltimateAlerter', 'knxUltimateAutoResponder', 'knxUltimateDateTime',
+  'knxUltimateWatchDog', 'knxUltimateGlobalContext', 'knxUltimateLogger',
+  'knxUltimateStaircase', 'knxUltimateGarage', 'knxUltimateSceneController',
+  'knxUltimateLoadControl', 'knxUltimateHATranslator',
   'hue-config', 'matter-config', 'matterbridge-config',
   'knxUltimateHueController', 'knxUltimateHueLight', 'knxUltimateHuePlug',
   'knxUltimateHueButton', 'knxUltimateHueTapDial', 'knxUltimateHueMotion',
@@ -13,7 +19,8 @@ const LEGACY_TYPES = new Set([
   'knxUltimateHueLightSensor', 'knxUltimateHueTemperatureSensor', 'knxUltimateHueHumiditySensor',
   'knxUltimateHueScene', 'knxUltimateHueBattery', 'knxUltimateHueZigbeeConnectivity',
   'knxUltimateHuedevice_software_update', 'knxUltimateMatterControllerDevice',
-  'knxUltimateMatterBridge', 'knxUltimateMatterLight'
+  'knxUltimateMatterBridge', 'knxUltimateMatterLight',
+  'knxUltimateAI', 'knxUltimateAIHomeAssistant'
 ])
 
 function check (options = {}) {
@@ -99,7 +106,8 @@ function check (options = {}) {
         for (const node of flow) if (node && LEGACY_TYPES.has(node.type)) counts.set(node.type, (counts.get(node.type) || 0) + 1)
         for (const [type, count] of counts) result.legacy.push({ file, type, count })
       } catch (error) {
-        // Broken conventional/explicit flow files must not silently pass the guard.
+        // Report broken conventional/explicit flow files when this diagnostic
+        // is allowed to run; the version 8 editor bridge remains authoritative.
         if (required || /^flows(?:[_.-]|\.json$)/.test(path.basename(file)) || error.code === 'EACCES') result.errors.push(`${file}: unable to read flow (${error.code || 'invalid JSON'}).`)
       }
     }
@@ -117,15 +125,17 @@ function check (options = {}) {
 
 function run (options) {
   const result = check(options)
-  const blocked = result.legacy.length > 0 || result.errors.length > 0
-  if (blocked) {
-    console.error('\nKNX Ultimate 8 installation blocked / Installazione bloccata.')
+  if (result.legacy.length > 0) {
+    console.error('\nKNX Ultimate 8 migration required / Migrazione necessaria.')
     for (const item of result.legacy) console.error(`  ${item.file}: ${item.type} (${item.count})`)
+    console.error('Installation will continue. Restart the Node-RED service, open the editor and follow the KNX Ultimate migration prompt before editing or deploying flows. The editor will back up and convert supported nodes and install HUE/Matter packages when required. Legacy KNX AI nodes still require manual replacement or removal. Do not delete Matter storage.')
+  }
+  if (result.errors.length > 0) {
+    console.error('\nKNX Ultimate could not inspect every saved flow. Installation will continue, but you must open the Node-RED editor after restart and complete any offered migration before deploying.')
     for (const error of result.errors) console.error(`  ${error}`)
-    console.error('Keep/reinstall KNX Ultimate 7. Install node-red-contrib-hue-ultimate and node-red-contrib-matter-ultimate as needed, restart Node-RED, migrate the old nodes AND configuration nodes, then Deploy before retrying version 8. See MIGRATION.md. Do not delete Matter storage. If a flow could not be read, fix its path/permissions first.')
   }
   for (const warning of result.warnings) console.error(`[KNX Ultimate migration check] ${warning}`)
-  return blocked ? 1 : 0
+  return 0
 }
 
 module.exports = { check, run, LEGACY_TYPES }

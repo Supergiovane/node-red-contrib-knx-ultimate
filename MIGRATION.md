@@ -1,50 +1,40 @@
 # Upgrading to KNX Ultimate 8
 
-Version 8 contains only the current KNX nodes and the KNX gateway. Hue, Matter, the old dedicated KNX utility nodes and the old KNX AI nodes are removed, including their configuration nodes.
+Version 8 contains the current KNX nodes and gateway. HUE and Matter are provided by `node-red-contrib-hue-ultimate` and `node-red-contrib-matter-ultimate`; the old dedicated KNX utility nodes are replaced by KNX Utility.
 
-## Before upgrading
+## Recommended path from version 7
 
-Keep KNX Ultimate 7 installed while completing these steps:
+Install KNX Ultimate 7.1.4 first, open any KNX Ultimate node and press **Upgrade to v8**. The guided operation backs up the flows, installs the required HUE/Matter packages, converts compatible nodes, performs and verifies a full Deploy, and installs version 8. Restart the Node-RED service when requested.
 
-1. Back up your entire Node-RED user directory, including flows, credentials, settings and `knxultimatestorage`. A flow export alone does not contain Matter pairing data or all credentials.
-2. Convert the old dedicated KNX utility nodes with the **Migrate KNX** button to **KNX Utility**. Check all flows and subflows, then Deploy.
-3. Install `node-red-contrib-hue-ultimate` and `node-red-contrib-matter-ultimate` as needed, and restart Node-RED. Use their migration messages to convert the old HUE/Matter nodes and their configuration nodes. All dedicated HUE nodes become profiles of the new HUE Controller.
-4. Review and Deploy the migrated flows. Confirm that the new nodes use the existing KNX gateway and that your devices work.
-5. Replace or remove any old `knxUltimateAI` and `knxUltimateAIHomeAssistant` nodes. They are not converted by the HUE/Matter migration tools.
-6. Check that no old nodes or unused old configuration nodes remain, including in disabled flows and subflows. Then install KNX Ultimate 8 and restart Node-RED.
+This is the preferred route because the legacy nodes remain operational until the converted flow has been safely deployed.
 
-Use the migration tools instead of manually recreating configuration nodes: their IDs and credentials must be preserved. Keep the same Node-RED user directory and **do not delete `knxultimatestorage`**. The separate Matter package uses the existing Matter storage, pairing identity and fabrics; the KNX package cleanup does not remove this data.
+## Direct upgrade from an older version 7
 
-## If you upgraded too early
+Every version 8 also includes a recovery bridge for users who reach it without passing through 7.1.4:
 
-Missing old node types cannot run in version 8. Reinstall the previous KNX Ultimate 7 version and restart Node-RED before migrating. Restore the complete backup if necessary. Do not delete unknown nodes or reset Matter to try to fix an incomplete migration.
+1. Install version 8 and restart the Node-RED service.
+2. Open the Node-RED editor. A migration prompt appears when legacy nodes or configuration nodes are found, including nodes displayed as unknown.
+3. Start the guided migration. It downloads a JSON backup, installs HUE Ultimate and/or Matter Ultimate when needed, converts supported nodes in place, performs a full Deploy and reads the saved flows back for verification.
+4. Reload the editor when prompted so converted configuration nodes are re-indexed from the saved flow before any further editing.
 
-## After installing version 8
+IDs, wires, groups and configuration references are preserved. Existing Node-RED credentials remain associated with the same configuration-node IDs, and Matter storage under `knxultimatestorage` is not deleted.
 
-Restart the Node-RED service, then reload the editor. Reloading the browser or pressing Deploy does not replace the service restart.
+Version 8 registers hidden, inert compatibility runtimes for removed types so that their presence does not stop every unrelated flow from starting. Those legacy nodes do not perform their old automation while they are awaiting conversion. Complete the migration immediately after the restart and do not manually Deploy unknown nodes first.
 
-Until Node-RED restarts, it may still serve editor definitions from version 7. Small compatibility resources keep that editor from getting stuck on “Loading Plugins” or “Loading Nodes”, and the old migration notice asks you to restart. Complete the restart before editing or deploying flows. These resources do not restore removed nodes or perform migrations.
+## Legacy KNX AI nodes
+
+`knxUltimateAI` and `knxUltimateAIHomeAssistant` cannot be converted automatically to Cerebrum Ultimate. The guided process stops before changing flows when it finds either type. Replace or remove those nodes manually, then start the migration again. Their credential schema remains registered during the transition so saved secrets are not discarded merely because version 8 was installed.
+
+## Safety behaviour
+
+The migration stops before changing anything if it finds a locked flow, an unrelated unknown/invalid node, insufficient editor permissions or disabled Palette Manager installation. A flow backup is requested before conversion. Package installation happens through the authenticated Node-RED Admin API, not through a nested npm process.
+
+If HUE Ultimate or Matter Ultimate is installed or updated in a way that requires a restart, the bridge asks for that restart before changing flows. After conversion it validates the editor graph, performs a revision-aware full Deploy and verifies the persisted result. Package timeouts and ambiguous Deploy responses are treated as uncertain rather than guessed.
+
+Node-RED can use custom storage and can contain undeployed browser changes, so an npm lifecycle script cannot safely perform this conversion. The version 8 `preinstall` hook is diagnostic only: when npm allows lifecycle scripts it scans common saved-flow locations and prints a migration warning, but it never edits a flow or starts a nested package installation. Some npm/Node-RED policies disable dependency lifecycle scripts entirely, so the editor bridge is the authoritative migration path.
 
 ## Using the separate packages
 
-Hue Ultimate and Matter Ultimate provide their own configuration nodes and device connections. To integrate with KNX, select a `knxUltimate-config` gateway in their editors. KNX Ultimate continues to provide group address suggestions, datapoints and telegram exchange; it does not need Hue or Matter libraries installed inside its own package.
+HUE Ultimate and Matter Ultimate provide their own configuration nodes and device connections. Select the existing `knxUltimate-config` gateway in their editors to enable KNX integration. They can also work without KNX Ultimate.
 
-The separate packages work with normal Node-RED messages, using `msg.topic` and `msg.payload`. Selecting a KNX gateway enables their native KNX mode.
-
-## Installation check in version 8
-
-Version 8 runs a `preinstall` check. It refuses installation when saved flows contain old HUE/Matter nodes or their configuration nodes, including disabled flows and subflows. Installing the new packages alone is not enough: convert the nodes and Deploy first. The check only reads files; it does not migrate or delete anything.
-
-It looks in the npm installation directory and launch directory, then falls back to `~/.node-red` if no saved flow was successfully inspected and no read errors were found. It examines flow-shaped JSON files directly in those directories, literal `flowFile` paths in `settings.js`, and the active project recorded in `.config.projects.json`. It does not execute `settings.js`, read credential files, or traverse backup folders. A JSON flow export left beside the active flow may also be detected; move archived exports into a separate backup folder if necessary.
-
-For a custom installation, explicitly select the saved flow or Node-RED user directory before installing:
-
-```sh
-KNXULTIMATE_FLOW_FILE=/absolute/path/house.json npm install node-red-contrib-knx-ultimate@8
-# Alternatively:
-KNXULTIMATE_NODE_RED_USER_DIR=/absolute/path/node-red-data npm install node-red-contrib-knx-ultimate@8
-```
-
-An unreadable standard/explicit flow stops installation. If no flow can be found, installation continues with a warning: new installations must remain possible. Dynamic settings, custom storage, unsaved editor changes, and installation tools that disable lifecycle scripts cannot be fully checked. This is an additional guard, not a substitute for the migration steps and backup. npm runs lifecycle scripts during installation; the guard cannot guarantee that an interrupted upgrade leaves the previously installed package intact. Reinstall version 7 if necessary before migrating.
-
-Lifecycle behaviour: [npm scripts documentation](https://docs.npmjs.com/cli/v11/using-npm/scripts/). Flow storage discovery: [Node-RED local filesystem storage](https://github.com/node-red/node-red/tree/master/packages/node_modules/%40node-red/runtime/lib/storage/localfilesystem).
+Keep the same Node-RED user directory and do not delete `knxultimatestorage`. The separate Matter package uses the existing pairing identity, fabrics and device storage.

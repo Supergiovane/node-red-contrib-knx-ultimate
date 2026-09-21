@@ -3,16 +3,41 @@
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/hueControllerMigrationDialog.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/knxUtilityMigration.js"></script>
 <script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/legacyMigrationNotice.js"></script>
+<script type="text/javascript" src="resources/node-red-contrib-knx-ultimate/upgradeToV8.js"></script>
+
+<style>
+    .knx-ultimate-v8-upgrade-row {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 6px;
+    }
+    .knx-ultimate-v8-upgrade-button {
+        font-size: 11px;
+        line-height: 18px;
+        min-height: 24px;
+        opacity: 0.78;
+        padding: 2px 8px;
+    }
+    .knx-ultimate-v8-upgrade-button:hover,
+    .knx-ultimate-v8-upgrade-button:focus {
+        opacity: 1;
+    }
+</style>
 
 <script type="text/javascript">
     (function () {
         let notice;
+        let upgrade;
         RED.plugins.registerPlugin("knxUltimate-migration-notice-plugin", {
             onadd: function () {
                 notice = window.KNXUltimateLegacyMigrationNotice.install(RED, { environment: window, $ });
+                if (window.KNXUltimateUpgradeToV8) {
+                    upgrade = window.KNXUltimateUpgradeToV8.install(RED, { environment: window, $ });
+                }
             },
             onremove: function () {
                 if (notice) notice.dispose();
+                if (upgrade) upgrade.dispose();
             }
         });
     }());

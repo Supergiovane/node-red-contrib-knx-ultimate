@@ -9,10 +9,11 @@ const knx = require('knxultimate')
 const pkg = require('../package.json')
 
 const publicTypes = ['knxUltimate', 'knxUltimateUtility', 'knxUltimateViewer', 'knxUltimateIoTBridge', 'knxUltimateMultiRouting', 'knxUltimateRouterFilter', 'knxUltimate-config']
+const runtimeTypes = [...publicTypes, 'knxUltimateLegacyMigration']
 
 describe('KNX-only package and external integration', () => {
-  it('ships only the current KNX nodes and examples that use registered types', () => {
-    expect(Object.keys(pkg['node-red'].nodes)).to.have.members(publicTypes)
+  it('ships the current KNX nodes plus the runtime-only migration boundary', () => {
+    expect(Object.keys(pkg['node-red'].nodes)).to.have.members(runtimeTypes)
     const builtins = new Set(['tab', 'group', 'inject', 'debug', 'function', 'comment', 'delay', 'switch', 'change', 'catch', 'status', 'link in', 'link out', 'modbus-flex-getter', 'modbus-flex-write', 'modbus-client'])
     for (const file of fs.readdirSync(path.join(__dirname, '../examples'))) {
       if (!file.endsWith('.json')) continue
