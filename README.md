@@ -22,7 +22,7 @@ The palette contains KNX Device, KNX Utility, KNX Viewer, KNX IoT Bridge, KNX Mu
 >
 > The old nodes, their configuration nodes and KNX AI are no longer included.
 >
-> **Follow the [upgrade steps](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/main/MIGRATION.md) to keep your flows working.**
+> **Follow the [upgrade steps](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Migration-8) to keep your flows working.**
 
 ### Native seamless integrations
 
