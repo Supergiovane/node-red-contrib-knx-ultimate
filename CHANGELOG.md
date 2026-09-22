@@ -6,6 +6,11 @@
 
 # CHANGELOG
 
+**Version 7.1.5** - September 2026
+
+- The guided version 8 migration no longer validates or blocks nodes from unrelated packages. Their invalid state and saved configuration are preserved unchanged.
+- Added regression coverage for the reported Alarm Ultimate flow with unconfigured Alarm State and Alarm Siren nodes.
+
 **Version 7.1.4** - September 2026
 
 - Added a compact **Upgrade to v8** button to every node editor in version 7.

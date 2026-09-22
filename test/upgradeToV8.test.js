@@ -129,7 +129,7 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
   it('keeps v7 on latest while pinning the guided upgrade to the beta build', function () {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'))
 
-    expect(pkg.version).to.equal('7.1.4')
+    expect(pkg.version).to.equal('7.1.5')
     expect(pkg.publishConfig).to.deep.equal({ access: 'public', tag: 'latest' })
     expect(upgrade.TARGET_VERSION).to.equal('8.0.1-beta.0')
   })
@@ -313,7 +313,7 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
     ], { utility: 1, hue: 1, matter: 0, total: 2 })
 
     const result = upgrade.applyMigrationPlan(fixture.RED, plan)
-    expect(() => upgrade.validateDeployable(fixture.RED)).to.throw('injected validation failure')
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).to.throw('injected validation failure')
     expect(first.valid).to.equal(true)
     result.rollback()
     expect(first).to.deep.equal({ id: 'first', type: 'knxUltimateLogger', z: 'tab-1', changed: false })
@@ -321,31 +321,43 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
     expect(fixture.RED.nodes.dirty()).to.equal(false)
   })
 
-  it('persists incomplete migrated nodes while still blocking unrelated invalid nodes', function () {
+  it('persists incomplete migrated nodes without validating unrelated invalid nodes', function () {
     const hue = { id: 'hue', type: 'knxUltimateHueController', z: 'tab-1', serverHue: '' }
     const matter = { id: 'matter', type: 'knxUltimateMatterControllerDevice', z: 'tab-1' }
-    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1' }
+    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1', valid: false }
+    const validations = []
     const fixture = editorFixture([hue, matter, unrelated], [], {
       definitions: { hueUltimateController: {}, matterUltimateController: {} },
-      invalidNodeIds: ['hue', 'matter', 'unrelated']
+      validateNode: node => {
+        validations.push(node.id)
+        node.valid = false
+      }
     })
     const plan = upgradePlan([
       { node: hue, sourceType: hue.type, targetType: 'hueUltimateController', family: 'hue', values: { hueControllerType: 'light' } },
       { node: matter, sourceType: matter.type, targetType: 'matterUltimateController', family: 'matter', values: {} }
     ], { utility: 0, hue: 1, matter: 1, total: 2 })
 
+    expect(() => upgrade.validatePreflight(fixture.RED, plan)).not.to.throw()
+    expect(validations).to.deep.equal([])
     const result = upgrade.applyMigrationPlan(fixture.RED, plan)
-    expect(() => upgrade.validateDeployable(fixture.RED, plan)).to.throw('unrelated')
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).not.to.throw()
+    expect(validations).to.deep.equal(['hue', 'matter'])
     expect(hue.valid).to.equal(false)
     expect(matter.valid).to.equal(false)
-
-    unrelated.d = true
-    expect(() => upgrade.validateDeployable(fixture.RED, plan)).not.to.throw()
+    expect(unrelated.valid).to.equal(false)
     result.rollback()
   })
 
   it('converts the complete Alarm flow fixture without rejecting its incomplete HUE and Matter placeholders', function () {
     const flow = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'alarm-v8-migration-flow.json'), 'utf8'))
+    const unrelatedInvalidIds = new Set(['5166a4b68732fc02', 'a7d47185c121a7f8'])
+    flow.forEach(node => {
+      if (unrelatedInvalidIds.has(node.id)) {
+        node.alarmId = ''
+        node.valid = false
+      }
+    })
     const before = new Map(flow.map(node => [node.id, JSON.parse(JSON.stringify(node))]))
     const nodes = flow.filter(node => node.z)
     const configs = flow.filter(node => !node.z && !['tab', 'global-config'].includes(node.type))
@@ -353,7 +365,7 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
       completeFlow: flow,
       definitions: { hueUltimateController: {}, matterUltimateController: {} },
       validateNode: node => {
-        node.valid = !(
+        node.valid = !unrelatedInvalidIds.has(node.id) && !(
           (node.type === 'hueUltimateController' && !node.serverHue) ||
           (node.type === 'matterUltimateController' && !node.serverMatter)
         )
@@ -372,6 +384,8 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
     expect(hue).to.include({ type: 'hueUltimateController', serverHue: '', valid: false })
     expect(matter).to.include({ type: 'matterUltimateController', valid: false })
     expect(matter).not.to.have.property('serverMatter')
+    expect(fixture.RED.nodes.node('5166a4b68732fc02')).to.include({ type: 'AlarmUltimateState', alarmId: '' })
+    expect(fixture.RED.nodes.node('a7d47185c121a7f8')).to.include({ type: 'AlarmUltimateSiren', alarmId: '' })
     expect(hue.z).to.equal(before.get(hue.id).z)
     expect(hue.wires).to.deep.equal(before.get(hue.id).wires)
     expect(matter.z).to.equal(before.get(matter.id).z)
@@ -570,14 +584,15 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
       environment: { document: {} },
       $: jqueryStub(),
       ...migrationApis(),
-      backupApi: { download: () => {} }
+      backupApi: { download: () => {} },
+      request: () => { throw new Error('simulated migration failure') }
     })
     confirmation.options.buttons[1].click()
     await new Promise(resolve => setImmediate(resolve))
 
     const failure = notifications.find(notice => notice.options.type === 'error')
     expect(failure).not.to.equal(undefined)
-    expect(failure.message).to.include('Invalid nodes must be corrected before the automatic upgrade: unrelated')
+    expect(failure.message).to.include('simulated migration failure')
     expect(failure.options.fixed).to.equal(true)
     expect(failure.options.buttons).to.have.length(1)
     expect(failure.options.buttons[0]).to.include({ text: 'OK', class: 'primary' })

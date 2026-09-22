@@ -340,23 +340,21 @@
 
   function validateDeployable (RED, plan) {
     const migrating = new Set((plan && plan.entries ? plan.entries : []).map(entry => entry.node))
-    const invalid = []
     const unknown = []
     collectAllNodes(RED).forEach(node => {
       if (node.type === 'unknown' || (node._def && node._def.category === 'unknown')) {
         unknown.push(node.id)
         return
       }
-      if (RED.editor && typeof RED.editor.validateNode === 'function') RED.editor.validateNode(node)
+      if (migrating.has(node) && RED.editor && typeof RED.editor.validateNode === 'function') RED.editor.validateNode(node)
       // A legacy node can be incomplete (for example, a placeholder without a
       // HUE/Matter config reference). It must first be persisted with its new
       // type before the user can open and complete it. Keep its invalid marker
-      // in the editor, but do not let it deadlock the migration. Invalid nodes
-      // unrelated to this migration remain hard blockers.
-      if (node.valid === false && node.d !== true && !migrating.has(node)) invalid.push(node.id)
+      // in the editor, but do not let it deadlock the migration. Nodes outside
+      // the migration plan are preserved verbatim and are deliberately not
+      // validated: their configuration is unrelated to this upgrade.
     })
     if (unknown.length) throw new Error('Unknown nodes must be resolved before the automatic upgrade: ' + unknown.join(', '))
-    if (invalid.length) throw new Error('Invalid nodes must be corrected before the automatic upgrade: ' + invalid.join(', '))
   }
 
   function validatePreflight (RED, plan) {
@@ -365,19 +363,14 @@
       ...((plan && plan.missingStandalone && plan.missingStandalone.hue) || []),
       ...((plan && plan.missingStandalone && plan.missingStandalone.matter) || [])
     ])
-    const invalid = []
     const unknown = []
     collectAllNodes(RED).forEach(node => {
       if (migrating.has(node) || expectedUnknown.has(node) || (plan && plan.ai && plan.ai.includes(node))) return
       if (node.type === 'unknown' || (node._def && node._def.category === 'unknown')) {
         unknown.push(node.id)
-        return
       }
-      if (RED.editor && typeof RED.editor.validateNode === 'function') RED.editor.validateNode(node)
-      if (node.valid === false && node.d !== true) invalid.push(node.id)
     })
     if (unknown.length) throw new Error('Unknown nodes must be resolved before the automatic upgrade: ' + unknown.join(', '))
-    if (invalid.length) throw new Error('Invalid nodes must be corrected before the automatic upgrade: ' + invalid.join(', '))
   }
 
   function requestError (xhr, fallback) {
