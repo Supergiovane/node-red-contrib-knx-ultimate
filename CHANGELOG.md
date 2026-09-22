@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 8.0.4** - September 2026
+
+- Automatic migration now validates only the HUE, Matter and KNX Utility nodes it converts. Invalid nodes from unrelated packages no longer block the upgrade.
+- Unrelated invalid nodes are preserved unchanged while the converted flow is deployed and verified.
+- Added regression coverage for the reported Alarm Ultimate flow with unconfigured Alarm State and Alarm Siren nodes.
+
 **Version 8.0.3** - September 2026
 
 - Allows incomplete legacy HUE and Matter nodes that belong to the active migration plan to be converted without weakening validation for unrelated invalid nodes.

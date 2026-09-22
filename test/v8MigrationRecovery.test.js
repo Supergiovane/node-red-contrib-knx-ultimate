@@ -341,6 +341,13 @@ describe('Version 8 direct-upgrade migration recovery', () => {
 
   it('migrates and verifies the complete Alarm flow fixture with incomplete HUE and Matter placeholders', async () => {
     const sourceFlow = JSON.parse(fs.readFileSync(path.join(projectRoot, 'test', 'fixtures', 'alarm-v8-migration-flow.json'), 'utf8'))
+    const unrelatedInvalidIds = new Set(['5166a4b68732fc02', 'a7d47185c121a7f8'])
+    sourceFlow.forEach(node => {
+      if (unrelatedInvalidIds.has(node.id)) {
+        node.alarmId = ''
+        node.valid = false
+      }
+    })
     const originalById = new Map(sourceFlow.map(node => [node.id, JSON.parse(JSON.stringify(node))]))
     const migratedIds = new Set(['994675b606ae8daa', '6fedd02af5b148b0'])
     const flow = sourceFlow.map(node => {
@@ -369,7 +376,7 @@ describe('Version 8 direct-upgrade migration recovery', () => {
     }, {
       completeFlow: flow,
       validateNode: node => {
-        node.valid = !(
+        node.valid = !unrelatedInvalidIds.has(node.id) && !(
           (node.type === 'hueUltimateController' && !node.serverHue) ||
           (node.type === 'matterUltimateController' && !node.serverMatter)
         )
@@ -410,6 +417,8 @@ describe('Version 8 direct-upgrade migration recovery', () => {
     expect(hue).to.include({ type: 'hueUltimateController', serverHue: '', valid: false })
     expect(matter).to.include({ type: 'matterUltimateController', valid: false })
     expect(matter).not.to.have.property('serverMatter')
+    expect(savedById.get('5166a4b68732fc02')).to.include({ type: 'AlarmUltimateState', alarmId: '' })
+    expect(savedById.get('a7d47185c121a7f8')).to.include({ type: 'AlarmUltimateSiren', alarmId: '' })
 
     const persistent = node => Object.fromEntries(Object.entries(node).filter(([key]) => (
       !['_def', '_', '_orig', 'changed', 'dirty', 'resize', 'valid', 'validationErrors'].includes(key)
@@ -426,19 +435,27 @@ describe('Version 8 direct-upgrade migration recovery', () => {
     }
   })
 
-  it('keeps unrelated invalid nodes as recovery blockers', () => {
+  it('does not validate or block unrelated invalid nodes during recovery', () => {
     const migrated = { id: 'migrated', type: 'knxUltimateMatterControllerDevice', z: 'tab-1' }
-    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1' }
+    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1', valid: false }
+    const validations = []
     const fixture = editorFixture([migrated, unrelated], [], {
       matterUltimateController: { name: 'matter-v8' }
-    }, { invalidNodeIds: ['migrated', 'unrelated'] })
+    }, {
+      validateNode: node => {
+        validations.push(node.id)
+        node.valid = false
+      }
+    })
     const plan = createPlan(fixture.RED)
+    expect(() => upgrade.validatePreflight(fixture.RED, plan)).not.to.throw()
+    expect(validations).to.deep.equal([])
     const result = upgrade.applyMigrationPlan(fixture.RED, plan)
 
-    expect(() => upgrade.validateDeployable(fixture.RED, plan)).to.throw('unrelated')
-    expect(migrated.valid).to.equal(false)
-    unrelated.d = true
     expect(() => upgrade.validateDeployable(fixture.RED, plan)).not.to.throw()
+    expect(validations).to.deep.equal(['migrated'])
+    expect(migrated.valid).to.equal(false)
+    expect(unrelated.valid).to.equal(false)
     result.rollback()
   })
 
@@ -550,14 +567,15 @@ describe('Version 8 direct-upgrade migration recovery', () => {
       $: jqueryStub(),
       utilityApi: utilityMigration,
       hueApi: hueMigration,
-      backupApi: { download: () => {} }
+      backupApi: { download: () => {} },
+      request: () => { throw new Error('simulated migration failure') }
     })
     confirmation.options.buttons[1].click()
     await new Promise(resolve => setImmediate(resolve))
 
     const failure = notifications.find(notice => notice.options.type === 'error')
     expect(failure).not.to.equal(undefined)
-    expect(failure.message).to.include('Automatic migration stopped safely: Invalid nodes must be corrected before the automatic upgrade: unrelated')
+    expect(failure.message).to.include('Automatic migration stopped safely: simulated migration failure')
     expect(failure.options.fixed).to.equal(true)
     expect(failure.options.buttons).to.have.length(1)
     expect(failure.options.buttons[0]).to.include({ text: 'OK', class: 'primary' })
