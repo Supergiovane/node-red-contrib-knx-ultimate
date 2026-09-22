@@ -6,6 +6,12 @@
 
 # CHANGELOG
 
+**Version 8.0.3** - September 2026
+
+- Allows incomplete legacy HUE and Matter nodes that belong to the active migration plan to be converted without weakening validation for unrelated invalid nodes.
+- Adds an explicit **OK** button to persistent migration-error notifications so they can always be dismissed.
+- Adds an end-to-end regression fixture for direct migration of the Alarm Ultimate flow reported by a user.
+
 **Version 8.0.2** - September 2026
 
 - Published version 8 on the stable `latest` channel for installations that only need the current KNX nodes.

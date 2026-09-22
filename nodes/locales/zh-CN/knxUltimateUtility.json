@@ -34,6 +34,7 @@
       "cancel": "取消",
       "start": "备份并升级",
       "close": "关闭",
+      "ok": "OK",
       "backup_failed": "无法启动流程备份。未进行任何更改：",
       "progress_start": "正在准备自动升级…",
       "progress_install_hue": "正在安装 HUE Ultimate…",

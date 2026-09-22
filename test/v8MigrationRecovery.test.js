@@ -49,9 +49,11 @@ function renderedText (element) {
   return [element.textValue, ...(element.children || []).map(renderedText)].filter(Boolean).join(' ')
 }
 
-function editorFixture (nodes = [], configs = [], definitions = {}) {
+function editorFixture (nodes = [], configs = [], definitions = {}, options = {}) {
   const all = [...nodes, ...configs]
+  const completeFlow = options.completeFlow || all
   const targetDefinitions = new Map(Object.entries(definitions))
+  const invalidNodeIds = new Set(options.invalidNodeIds || [])
   let dirty = false
   let revision = 'rev-1'
   let originalFlow
@@ -77,7 +79,7 @@ function editorFixture (nodes = [], configs = [], definitions = {}) {
         return revision
       },
       originalFlow: value => { originalFlow = value },
-      createCompleteNodeSet: () => all.map(node => {
+      createCompleteNodeSet: () => completeFlow.map(node => {
         const copy = { ...node }
         delete copy._def
         delete copy._
@@ -85,7 +87,12 @@ function editorFixture (nodes = [], configs = [], definitions = {}) {
       })
     },
     workspaces: { isLocked: () => false },
-    editor: { validateNode: node => { node.valid = true } },
+    editor: {
+      validateNode: node => {
+        if (typeof options.validateNode === 'function') return options.validateNode(node)
+        node.valid = !invalidNodeIds.has(node.id)
+      }
+    },
     events: { emit: () => {} },
     history: { markAllDirty: () => {} },
     view: { redraw: () => {} }
@@ -284,7 +291,7 @@ describe('Version 8 direct-upgrade migration recovery', () => {
       matterUltimateBridge: { name: 'matter-bridge-v8' },
       'matter-ultimate-config': { name: 'matter-config-v8' },
       'matter-ultimate-bridge-config': { name: 'matter-bridge-config-v8' }
-    })
+    }, { invalidNodeIds: ['hue', 'matter'] })
     const plan = createPlan(fixture.RED)
     const requests = []
     const progress = []
@@ -330,6 +337,109 @@ describe('Version 8 direct-upgrade migration recovery', () => {
     expect(fixture.RED.nodes.version()).to.equal('rev-2')
     expect(fixture.RED.nodes.dirty()).to.equal(false)
     expect(fixture.originalFlow()).to.deep.equal(savedFlows)
+  })
+
+  it('migrates and verifies the complete Alarm flow fixture with incomplete HUE and Matter placeholders', async () => {
+    const sourceFlow = JSON.parse(fs.readFileSync(path.join(projectRoot, 'test', 'fixtures', 'alarm-v8-migration-flow.json'), 'utf8'))
+    const originalById = new Map(sourceFlow.map(node => [node.id, JSON.parse(JSON.stringify(node))]))
+    const migratedIds = new Set(['994675b606ae8daa', '6fedd02af5b148b0'])
+    const flow = sourceFlow.map(node => {
+      if (!migratedIds.has(node.id)) return node
+      return {
+        id: node.id,
+        type: 'unknown',
+        name: node.type,
+        z: node.z,
+        g: node.g,
+        x: node.x,
+        y: node.y,
+        wires: node.wires,
+        _orig: JSON.parse(JSON.stringify(node))
+      }
+    })
+    const nodes = flow.filter(node => node.z)
+    const configs = flow.filter(node => !node.z && !['tab', 'global-config'].includes(node.type))
+    const fixture = editorFixture(nodes, configs, {
+      hueUltimateController: { name: 'hue-v8' },
+      'hue-ultimate-config': { name: 'hue-config-v8' },
+      matterUltimateController: { name: 'matter-v8' },
+      matterUltimateBridge: { name: 'matter-bridge-v8' },
+      'matter-ultimate-config': { name: 'matter-config-v8' },
+      'matter-ultimate-bridge-config': { name: 'matter-bridge-config-v8' }
+    }, {
+      completeFlow: flow,
+      validateNode: node => {
+        node.valid = !(
+          (node.type === 'hueUltimateController' && !node.serverHue) ||
+          (node.type === 'matterUltimateController' && !node.serverMatter)
+        )
+      }
+    })
+    const plan = createPlan(fixture.RED)
+    let savedFlows
+    const progress = []
+    const request = settings => {
+      const body = settings.data ? JSON.parse(settings.data) : undefined
+      if (settings.type === 'GET' && settings.url === `nodes/${upgrade.HUE_PACKAGE.name}`) {
+        return { name: upgrade.HUE_PACKAGE.name, version: upgrade.HUE_PACKAGE.version, nodes: [{ enabled: true, runtime: true }] }
+      }
+      if (settings.type === 'GET' && settings.url === `nodes/${upgrade.MATTER_PACKAGE.name}`) {
+        return { name: upgrade.MATTER_PACKAGE.name, version: upgrade.MATTER_PACKAGE.version, nodes: [{ enabled: true, runtime: true }] }
+      }
+      if (settings.type === 'POST' && settings.url === 'flows') {
+        savedFlows = body.flows
+        return { rev: 'rev-2' }
+      }
+      if (settings.type === 'GET' && settings.url === 'flows') return { rev: 'rev-2', flows: savedFlows }
+      throw new Error(`Unexpected request: ${settings.type} ${settings.url}`)
+    }
+
+    expect(plan.counts).to.deep.equal({ utility: 0, hue: 1, matter: 1, total: 2 })
+    const result = await upgrade.runUpgrade(fixture.RED, plan, {
+      recoveryMode: true,
+      request,
+      onProgress: stage => progress.push(stage)
+    })
+
+    expect(result).to.deep.equal({ utility: 0, hue: 1, matter: 1, total: 2 })
+    expect(progress).to.deep.equal(['install_hue', 'install_matter', 'convert', 'deploy', 'verify', 'complete'])
+    expect(savedFlows).to.have.length(11)
+    const savedById = new Map(savedFlows.map(node => [node.id, node]))
+    const hue = savedById.get('994675b606ae8daa')
+    const matter = savedById.get('6fedd02af5b148b0')
+    expect(hue).to.include({ type: 'hueUltimateController', serverHue: '', valid: false })
+    expect(matter).to.include({ type: 'matterUltimateController', valid: false })
+    expect(matter).not.to.have.property('serverMatter')
+
+    const persistent = node => Object.fromEntries(Object.entries(node).filter(([key]) => (
+      !['_def', '_', '_orig', 'changed', 'dirty', 'resize', 'valid', 'validationErrors'].includes(key)
+    )))
+    sourceFlow.filter(node => !migratedIds.has(node.id)).forEach(node => {
+      expect(persistent(savedById.get(node.id)), node.id).to.deep.equal(persistent(originalById.get(node.id)))
+    })
+    for (const node of [hue, matter]) {
+      const original = persistent(originalById.get(node.id))
+      const converted = persistent(node)
+      delete original.type
+      delete converted.type
+      expect(converted, node.id).to.deep.equal(original)
+    }
+  })
+
+  it('keeps unrelated invalid nodes as recovery blockers', () => {
+    const migrated = { id: 'migrated', type: 'knxUltimateMatterControllerDevice', z: 'tab-1' }
+    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1' }
+    const fixture = editorFixture([migrated, unrelated], [], {
+      matterUltimateController: { name: 'matter-v8' }
+    }, { invalidNodeIds: ['migrated', 'unrelated'] })
+    const plan = createPlan(fixture.RED)
+    const result = upgrade.applyMigrationPlan(fixture.RED, plan)
+
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).to.throw('unrelated')
+    expect(migrated.valid).to.equal(false)
+    unrelated.d = true
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).not.to.throw()
+    result.rollback()
   })
 
   it('keeps Deploy blocked after successful recovery and reloads from the completion button', async () => {
@@ -400,6 +510,60 @@ describe('Version 8 direct-upgrade migration recovery', () => {
     completed.options.buttons[0].click()
     expect(completed.closed).to.equal(true)
     expect(reloadCalls).to.equal(1)
+  })
+
+  it('shows a working OK button when automatic migration recovery stops with a persistent error', async () => {
+    const utility = { id: 'utility', type: 'knxUltimateLogger', z: 'tab-1' }
+    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1' }
+    let unrelatedValidations = 0
+    const fixture = editorFixture([utility, unrelated], [], {
+      knxUltimateUtility: { name: 'utility-v8' }
+    }, {
+      validateNode: node => {
+        if (node.id === unrelated.id) {
+          unrelatedValidations += 1
+          node.valid = unrelatedValidations === 1
+        } else {
+          node.valid = true
+        }
+      }
+    })
+    const notifications = []
+    fixture.RED.notify = (message, options) => {
+      const notice = {
+        message,
+        options,
+        closed: false,
+        close () { this.closed = true }
+      }
+      notifications.push(notice)
+      return notice
+    }
+    fixture.RED.actions = { invoke: () => {} }
+    fixture.RED.keyboard = { disable: () => {}, enable: () => {} }
+    fixture.RED.settings = { get: (_name, fallback) => fallback }
+    fixture.RED.user = { hasPermission: () => true }
+
+    const confirmation = upgrade.open(fixture.RED, {
+      recoveryMode: true,
+      environment: { document: {} },
+      $: jqueryStub(),
+      utilityApi: utilityMigration,
+      hueApi: hueMigration,
+      backupApi: { download: () => {} }
+    })
+    confirmation.options.buttons[1].click()
+    await new Promise(resolve => setImmediate(resolve))
+
+    const failure = notifications.find(notice => notice.options.type === 'error')
+    expect(failure).not.to.equal(undefined)
+    expect(failure.message).to.include('Automatic migration stopped safely: Invalid nodes must be corrected before the automatic upgrade: unrelated')
+    expect(failure.options.fixed).to.equal(true)
+    expect(failure.options.buttons).to.have.length(1)
+    expect(failure.options.buttons[0]).to.include({ text: 'OK', class: 'primary' })
+
+    failure.options.buttons[0].click()
+    expect(failure.closed).to.equal(true)
   })
 
   it('registers runtime-only placeholders for every removed type and preserves credential schemas', () => {

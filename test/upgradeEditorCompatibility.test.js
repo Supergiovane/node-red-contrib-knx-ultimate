@@ -64,7 +64,7 @@ describe('Version 7 editor compatibility while waiting for the version 8 restart
   it('publishes the recovery build on the stable npm channel', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'))
 
-    expect(pkg.version).to.equal('8.0.2')
+    expect(pkg.version).to.equal('8.0.3')
     expect(pkg.publishConfig).to.deep.equal({ tag: 'latest', access: 'public' })
   })
 
