@@ -34,6 +34,7 @@
       "cancel": "Cancel",
       "start": "Back up and upgrade",
       "close": "Close",
+      "ok": "OK",
       "backup_failed": "Flow backup could not be started. Nothing was changed:",
       "progress_start": "Preparing the automatic upgrade…",
       "progress_install_hue": "Installing HUE Ultimate…",

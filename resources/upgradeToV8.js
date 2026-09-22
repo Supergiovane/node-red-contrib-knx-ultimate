@@ -338,7 +338,8 @@
     if (remaining.length) throw new Error('Legacy node types remain after conversion: ' + remaining.map(node => node.type).join(', '))
   }
 
-  function validateDeployable (RED) {
+  function validateDeployable (RED, plan) {
+    const migrating = new Set((plan && plan.entries ? plan.entries : []).map(entry => entry.node))
     const invalid = []
     const unknown = []
     collectAllNodes(RED).forEach(node => {
@@ -347,7 +348,12 @@
         return
       }
       if (RED.editor && typeof RED.editor.validateNode === 'function') RED.editor.validateNode(node)
-      if (node.valid === false && node.d !== true) invalid.push(node.id)
+      // A legacy node can be incomplete (for example, a placeholder without a
+      // HUE/Matter config reference). It must first be persisted with its new
+      // type before the user can open and complete it. Keep its invalid marker
+      // in the editor, but do not let it deadlock the migration. Invalid nodes
+      // unrelated to this migration remain hard blockers.
+      if (node.valid === false && node.d !== true && !migrating.has(node)) invalid.push(node.id)
     })
     if (unknown.length) throw new Error('Unknown nodes must be resolved before the automatic upgrade: ' + unknown.join(', '))
     if (invalid.length) throw new Error('Invalid nodes must be corrected before the automatic upgrade: ' + invalid.join(', '))
@@ -876,7 +882,7 @@
     let deployed = false
     try {
       assertNoLegacyNodes(RED)
-      validateDeployable(RED)
+      validateDeployable(RED, plan)
       progress('deploy')
       await deployFlows(RED, {
         ...options,
@@ -1130,7 +1136,16 @@
                 } else {
                   failureMessage = t('failed', 'Automatic upgrade stopped safely. KNX Ultimate 8 was not activated:') + ' ' + error.message
                 }
-                RED.notify(failureMessage, { type: 'error', fixed: true })
+                let failureNotice
+                failureNotice = RED.notify(failureMessage, {
+                  type: 'error',
+                  fixed: true,
+                  buttons: [{
+                    text: t('ok', 'OK'),
+                    class: 'primary',
+                    click: () => failureNotice.close()
+                  }]
+                })
               })
               .finally(() => unlockEditor({ keepDeployBlocked }))
           }

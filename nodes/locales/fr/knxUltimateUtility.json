@@ -34,6 +34,7 @@
       "cancel": "Annuler",
       "start": "Sauvegarder et mettre à jour",
       "close": "Fermer",
+      "ok": "OK",
       "backup_failed": "Impossible de démarrer la sauvegarde des flux. Rien n’a été modifié :",
       "progress_start": "Préparation de la mise à jour automatique…",
       "progress_install_hue": "Installation de HUE Ultimate…",

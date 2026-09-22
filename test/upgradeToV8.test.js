@@ -4,6 +4,41 @@ const path = require('path')
 const vm = require('vm')
 const upgrade = require('../resources/upgradeToV8')
 
+function jqueryStub () {
+  function element (markup) {
+    return {
+      markup,
+      children: [],
+      textValue: '',
+      length: 1,
+      text (value) {
+        if (value === undefined) return this.textValue
+        this.textValue = String(value)
+        return this
+      },
+      append (...children) {
+        this.children.push(...children)
+        return this
+      },
+      appendTo (parent) {
+        if (parent && typeof parent.append === 'function') parent.append(this)
+        return this
+      }
+    }
+  }
+  return value => {
+    if (typeof value === 'string' && value.trim().startsWith('<')) return element(value)
+    return {
+      length: 0,
+      each () { return this },
+      off () { return this },
+      on () { return this },
+      first () { return this },
+      trigger () { return this }
+    }
+  }
+}
+
 function migrationApis () {
   return {
     utilityApi: {
@@ -19,7 +54,9 @@ function migrationApis () {
 
 function editorFixture (nodes = [], configs = [], options = {}) {
   const all = [...nodes, ...configs]
+  const completeFlow = options.completeFlow || all
   const definitions = new Map(Object.entries(options.definitions || {}))
+  const invalidNodeIds = new Set(options.invalidNodeIds || [])
   const events = []
   const redraws = []
   const originalFlows = []
@@ -43,7 +80,7 @@ function editorFixture (nodes = [], configs = [], options = {}) {
       originalFlow: flow => originalFlows.push(flow),
       workspace: id => ({ id, locked: false }),
       subflow: id => id === 'subflow-1' ? { id, locked: false } : undefined,
-      createCompleteNodeSet: () => all.map(node => {
+      createCompleteNodeSet: () => completeFlow.map(node => {
         const copy = { ...node }
         delete copy._def
         delete copy._
@@ -58,7 +95,8 @@ function editorFixture (nodes = [], configs = [], options = {}) {
     editor: {
       validateNode: node => {
         if (options.validationErrorId === node.id) throw new Error('injected validation failure')
-        node.valid = true
+        if (typeof options.validateNode === 'function') return options.validateNode(node)
+        node.valid = !invalidNodeIds.has(node.id)
       }
     },
     events: { emit: (name, value) => events.push({ name, value }) },
@@ -283,6 +321,64 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
     expect(fixture.RED.nodes.dirty()).to.equal(false)
   })
 
+  it('persists incomplete migrated nodes while still blocking unrelated invalid nodes', function () {
+    const hue = { id: 'hue', type: 'knxUltimateHueController', z: 'tab-1', serverHue: '' }
+    const matter = { id: 'matter', type: 'knxUltimateMatterControllerDevice', z: 'tab-1' }
+    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1' }
+    const fixture = editorFixture([hue, matter, unrelated], [], {
+      definitions: { hueUltimateController: {}, matterUltimateController: {} },
+      invalidNodeIds: ['hue', 'matter', 'unrelated']
+    })
+    const plan = upgradePlan([
+      { node: hue, sourceType: hue.type, targetType: 'hueUltimateController', family: 'hue', values: { hueControllerType: 'light' } },
+      { node: matter, sourceType: matter.type, targetType: 'matterUltimateController', family: 'matter', values: {} }
+    ], { utility: 0, hue: 1, matter: 1, total: 2 })
+
+    const result = upgrade.applyMigrationPlan(fixture.RED, plan)
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).to.throw('unrelated')
+    expect(hue.valid).to.equal(false)
+    expect(matter.valid).to.equal(false)
+
+    unrelated.d = true
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).not.to.throw()
+    result.rollback()
+  })
+
+  it('converts the complete Alarm flow fixture without rejecting its incomplete HUE and Matter placeholders', function () {
+    const flow = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'alarm-v8-migration-flow.json'), 'utf8'))
+    const before = new Map(flow.map(node => [node.id, JSON.parse(JSON.stringify(node))]))
+    const nodes = flow.filter(node => node.z)
+    const configs = flow.filter(node => !node.z && !['tab', 'global-config'].includes(node.type))
+    const fixture = editorFixture(nodes, configs, {
+      completeFlow: flow,
+      definitions: { hueUltimateController: {}, matterUltimateController: {} },
+      validateNode: node => {
+        node.valid = !(
+          (node.type === 'hueUltimateController' && !node.serverHue) ||
+          (node.type === 'matterUltimateController' && !node.serverMatter)
+        )
+      }
+    })
+
+    const plan = upgrade.createMigrationPlan(fixture.RED, migrationApis())
+    expect(plan.counts).to.deep.equal({ utility: 0, hue: 1, matter: 1, total: 2 })
+    expect(() => upgrade.validatePreflight(fixture.RED, plan)).not.to.throw()
+
+    const result = upgrade.applyMigrationPlan(fixture.RED, plan)
+    expect(() => upgrade.validateDeployable(fixture.RED, plan)).not.to.throw()
+
+    const hue = fixture.RED.nodes.node('994675b606ae8daa')
+    const matter = fixture.RED.nodes.node('6fedd02af5b148b0')
+    expect(hue).to.include({ type: 'hueUltimateController', serverHue: '', valid: false })
+    expect(matter).to.include({ type: 'matterUltimateController', valid: false })
+    expect(matter).not.to.have.property('serverMatter')
+    expect(hue.z).to.equal(before.get(hue.id).z)
+    expect(hue.wires).to.deep.equal(before.get(hue.id).wires)
+    expect(matter.z).to.equal(before.get(matter.id).z)
+    expect(matter.wires).to.deep.equal(before.get(matter.id).wires)
+    result.rollback()
+  })
+
   it('stages an update for an old standalone package and requires a restart before conversion', async function () {
     const fixture = editorFixture([], [], { definitions: {} })
     const requests = []
@@ -354,7 +450,8 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
     const hueConfig = { id: 'hue-config', type: 'hue-config' }
     const matter = { id: 'matter', type: 'knxUltimateMatterControllerDevice', z: 'tab-1' }
     const fixture = editorFixture([utility, matter], [hueConfig], {
-      definitions: { knxUltimateUtility: { name: 'utility-v8' } }
+      definitions: { knxUltimateUtility: { name: 'utility-v8' } },
+      invalidNodeIds: ['matter']
     })
     const plan = upgradePlan([
       { node: utility, sourceType: utility.type, targetType: 'knxUltimateUtility', family: 'utility', values: { utilityType: 'logger', inputs: 1, outputs: 2 } },
@@ -436,6 +533,57 @@ describe('KNX Ultimate 8 automatic upgrade', function () {
     expect(fixture.RED.nodes.version()).to.equal('rev-2')
     expect(fixture.RED.nodes.dirty()).to.equal(false)
     expect(disposeCalls).to.deep.equal(['hue', 'matter', 'hue', 'matter', 'hue', 'matter'])
+  })
+
+  it('shows a working OK button when an automatic upgrade error is persistent', async function () {
+    const utility = { id: 'utility', type: 'knxUltimateLogger', z: 'tab-1' }
+    const unrelated = { id: 'unrelated', type: 'debug', z: 'tab-1' }
+    let unrelatedValidations = 0
+    const fixture = editorFixture([utility, unrelated], [], {
+      definitions: { knxUltimateUtility: { name: 'utility-v8' } },
+      validateNode: node => {
+        if (node.id === unrelated.id) {
+          unrelatedValidations += 1
+          node.valid = unrelatedValidations === 1
+        } else {
+          node.valid = true
+        }
+      }
+    })
+    const notifications = []
+    fixture.RED.notify = (message, options) => {
+      const notice = {
+        message,
+        options,
+        closed: false,
+        close () { this.closed = true }
+      }
+      notifications.push(notice)
+      return notice
+    }
+    fixture.RED.actions = { invoke: () => {} }
+    fixture.RED.keyboard = { disable: () => {}, enable: () => {} }
+    fixture.RED.settings = { get: (_name, fallback) => fallback }
+    fixture.RED.user = { hasPermission: () => true }
+
+    const confirmation = upgrade.open(fixture.RED, {
+      environment: { document: {} },
+      $: jqueryStub(),
+      ...migrationApis(),
+      backupApi: { download: () => {} }
+    })
+    confirmation.options.buttons[1].click()
+    await new Promise(resolve => setImmediate(resolve))
+
+    const failure = notifications.find(notice => notice.options.type === 'error')
+    expect(failure).not.to.equal(undefined)
+    expect(failure.message).to.include('Invalid nodes must be corrected before the automatic upgrade: unrelated')
+    expect(failure.options.fixed).to.equal(true)
+    expect(failure.options.buttons).to.have.length(1)
+    expect(failure.options.buttons[0]).to.include({ text: 'OK', class: 'primary' })
+
+    failure.options.buttons[0].click()
+    expect(failure.closed).to.equal(true)
   })
 
   it('marks failures after a confirmed Deploy so the editor remains blocked', async function () {

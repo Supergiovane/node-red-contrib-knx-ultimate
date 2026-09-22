@@ -34,6 +34,7 @@
       "cancel": "Cancelar",
       "start": "Copia y actualización",
       "close": "Cerrar",
+      "ok": "OK",
       "backup_failed": "No se pudo iniciar la copia de seguridad de los flujos. No se modificó nada:",
       "progress_start": "Preparando la actualización automática…",
       "progress_install_hue": "Instalando HUE Ultimate…",

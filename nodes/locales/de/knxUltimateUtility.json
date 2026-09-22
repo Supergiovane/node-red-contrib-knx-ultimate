@@ -34,6 +34,7 @@
       "cancel": "Abbrechen",
       "start": "Sichern und aktualisieren",
       "close": "Schließen",
+      "ok": "OK",
       "backup_failed": "Die Flow-Sicherung konnte nicht gestartet werden. Es wurde nichts geändert:",
       "progress_start": "Automatisches Update wird vorbereitet…",
       "progress_install_hue": "HUE Ultimate wird installiert…",

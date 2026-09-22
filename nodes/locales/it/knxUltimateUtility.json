@@ -34,6 +34,7 @@
       "cancel": "Annulla",
       "start": "Backup e aggiornamento",
       "close": "Chiudi",
+      "ok": "OK",
       "backup_failed": "Impossibile avviare il backup dei flow. Non è stato modificato nulla:",
       "progress_start": "Preparazione dell’aggiornamento automatico…",
       "progress_install_hue": "Installazione di HUE Ultimate…",
