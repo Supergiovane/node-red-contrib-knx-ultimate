@@ -623,6 +623,7 @@ describe('Version 8 direct-upgrade migration recovery', () => {
     const dependencies = Array.from(html.matchAll(/<script[^>]+src="resources\/node-red-contrib-knx-ultimate\/([^"]+)"[^>]*><\/script>/g))
       .map(match => match[1])
     expect(dependencies).to.deep.equal([
+      'editorNotifications.js',
       'flowMigrationBackup.js',
       'hueControllerMigration.js',
       'knxUtilityMigration.js',
