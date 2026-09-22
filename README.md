@@ -10,8 +10,6 @@ KNX Ultimate is the most advanced KNX integration for Node-RED, providing secure
 You can optionally increase the power of KNX, by installing node-red-contrig-hue-ultimate for Philips Hue and installing node-red-contrig-matter-ultimate form Matter Controller and Matter Bridge (control matter device via KNX and expose KNX GA via Matter).
 These optional nodes will detect KNX-Ultimate and seamlessy integrate with KNX, without further configurations.
 
-> **Upgrading from version 7 to version 8:** open any KNX Ultimate node and use the compact **Upgrade to v8** button at the top. It backs up and converts the flows, installs the required HUE/Matter packages, verifies the Deploy and installs KNX Ultimate 8. Restart the Node-RED service when requested; reloading the browser alone is not sufficient. [Read the full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8).
-
 <br/>
 <br/>
 <br/>
@@ -49,6 +47,8 @@ These optional nodes will detect KNX-Ultimate and seamlessy integrate with KNX, 
 </p>
 
 </br>
+
+> **Upgrading from version 7 to version 8:** open any KNX Ultimate node and use the compact **Upgrade to v8** button at the top. It backs up and converts the flows, installs the required HUE/Matter packages, verifies the Deploy and installs KNX Ultimate 8. Restart the Node-RED service when requested; reloading the browser alone is not sufficient. [Read the full upgrade guide](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Upgrade-to-v8).
 
 [license-image]: https://img.shields.io/github/license/Supergiovane/node-red-contrib-knx-ultimate?color=blue
 [license-url]: https://github.com/Supergiovane/node-red-contrib-knx-ultimate/blob/master/LICENSE
