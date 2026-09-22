@@ -2,6 +2,8 @@
 
 Version 8 contains the current KNX nodes and gateway. HUE and Matter are provided by `node-red-contrib-hue-ultimate` and `node-red-contrib-matter-ultimate`; the old dedicated KNX utility nodes are replaced by KNX Utility.
 
+> ▶️ [Watch the KNX Ultimate 7 → 8 migration video](https://youtu.be/fpNNi1jZZSc) *(Italian)*
+
 ## Recommended path from version 7
 
 Install KNX Ultimate 7.1.4 first, open any KNX Ultimate node and press **Upgrade to v8**. The guided operation backs up the flows, installs the required HUE/Matter packages, converts compatible nodes, performs and verifies a full Deploy, and installs version 8. Restart the Node-RED service when requested.

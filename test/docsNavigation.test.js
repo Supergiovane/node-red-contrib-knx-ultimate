@@ -25,4 +25,39 @@ describe('documentation language navigation', () => {
       expect(info.homepage, `${language} homepage URL`).to.equal(frontMatter.permalink)
     }
   })
+
+  it('links the version 8 migration video from package and localized documentation', () => {
+    const projectRoot = path.join(__dirname, '..')
+    const videoUrl = 'https://youtu.be/fpNNi1jZZSc'
+    const migrationPages = [
+      'README.md',
+      'MIGRATION.md',
+      'docs/wiki/Migration-8.md',
+      'docs/wiki/it-Migration-8.md',
+      'docs/wiki/de-Migration-8.md',
+      'docs/wiki/fr-Migration-8.md',
+      'docs/wiki/es-Migration-8.md',
+      'docs/wiki/zh-CN-Migration-8.md'
+    ]
+
+    for (const file of migrationPages) {
+      const content = fs.readFileSync(path.join(projectRoot, file), 'utf8')
+      expect(content, file).to.include(videoUrl)
+    }
+
+    const homepageTemplate = fs.readFileSync(
+      path.join(projectRoot, 'docs', '_includes', 'homepage', 'content.html'),
+      'utf8'
+    )
+    expect(homepageTemplate).to.include(videoUrl)
+    expect(homepageTemplate).to.include('t.migrationVideo')
+
+    const homepageCopy = JSON.parse(fs.readFileSync(
+      path.join(projectRoot, 'docs', '_data', 'knx8.json'),
+      'utf8'
+    ))
+    for (const [language, copy] of Object.entries(homepageCopy)) {
+      expect(copy.migrationVideo, `${language} migration video label`).to.be.a('string').and.not.equal('')
+    }
+  })
 })

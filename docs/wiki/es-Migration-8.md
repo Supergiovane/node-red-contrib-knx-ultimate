@@ -10,6 +10,8 @@ translation_key: "Migration-8"
 
 La versión 8 elimina los antiguos nodos HUE, Matter e IA, sus configuraciones y los nodos Utility separados. Completa la migración mientras KNX Ultimate 7 siga instalado.
 
+> ▶️ [Ver la videoguía para migrar de KNX Ultimate 7 a 8](https://youtu.be/fpNNi1jZZSc) *(en italiano)*
+
 1. Haz una copia de toda la carpeta de usuario de Node-RED: flujos, credenciales, ajustes y `knxultimatestorage`. El JSON de los flujos por sí solo no guarda los emparejamientos Matter.
 
 2. Con KNX Ultimate 7, usa **Migrate KNX** o el botón de conversión de KNX Utility para los antiguos nodos Utility. Revisa todos los flujos y subflujos y haz Deploy.

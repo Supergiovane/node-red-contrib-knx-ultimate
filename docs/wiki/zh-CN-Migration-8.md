@@ -10,6 +10,8 @@ translation_key: "Migration-8"
 
 第 8 版移除了旧 HUE、Matter 和 AI 节点及其配置节点，也移除了独立的 KNX Utility 功能节点。请在 KNX Ultimate 7 仍然安装时完成迁移。
 
+> ▶️ [观看 KNX Ultimate 7 → 8 迁移视频指南](https://youtu.be/fpNNi1jZZSc) *（意大利语）*
+
 1. 备份整个 Node-RED 用户目录，包括流程、凭据、设置和 `knxultimatestorage`。仅导出流程 JSON 无法备份 Matter 配对。
 
 2. 在 KNX Ultimate 7 中使用 **Migrate KNX** 或 KNX Utility 的转换按钮处理旧工具节点。检查所有流程和子流程，然后 Deploy。

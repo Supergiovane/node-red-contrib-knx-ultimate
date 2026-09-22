@@ -10,6 +10,8 @@ translation_key: "Migration-8"
 
 Version 8 removes the old HUE, Matter and AI nodes, their configuration nodes and the separate KNX utility nodes. Complete migration while KNX Ultimate 7 is still installed.
 
+> ▶️ [Watch the KNX Ultimate 7 → 8 migration video](https://youtu.be/fpNNi1jZZSc) *(Italian)*
+
 1. Back up the entire Node-RED user directory: flows, credentials, settings and `knxultimatestorage`. A flow JSON export alone does not save Matter pairings.
 
 2. In KNX Ultimate 7, use **Migrate KNX** or the conversion button in KNX Utility to convert the old utility nodes. Check all flows and subflows, then Deploy.

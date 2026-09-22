@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 8.0.5** - September 2026
+
+- Added the KNX Ultimate 7-to-8 migration video to the package README, migration guide and all localized documentation pages.
+
 **Version 8.0.4** - September 2026
 
 - Automatic migration now validates only the HUE, Matter and KNX Utility nodes it converts. Invalid nodes from unrelated packages no longer block the upgrade.

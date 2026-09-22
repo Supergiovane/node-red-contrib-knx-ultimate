@@ -22,6 +22,8 @@ The palette contains KNX Device, KNX Utility, KNX Viewer, KNX IoT Bridge, KNX Mu
 >
 > If version 8 was installed directly from an older v7, restart Node-RED and open the editor: the built-in recovery bridge offers the same protected backup, package installation, conversion and Deploy. Legacy KNX AI nodes still require manual replacement or removal.
 >
+> ▶️ **[Watch the KNX Ultimate 7 → 8 migration video](https://youtu.be/fpNNi1jZZSc)** *(Italian)*
+>
 > **Follow the [upgrade steps](https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/Migration-8) to keep your flows working.**
 
 ### Native seamless integrations
