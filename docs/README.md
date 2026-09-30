@@ -4,6 +4,7 @@ The site uses GitHub Pages/Jekyll and keeps the existing URLs and six languages:
 
 - `docs/_data/knx8.json`: translated home-page content and version notices.
 - `docs/_includes/homepage/content.html`: shared home-page structure.
+- `docs/_data/homepage-community.json` and `docs/_includes/homepage/community.html`: partners, community links and translated Made in Italy/KNX acknowledgements, with logos in `docs/assets/community/`.
 - `docs/wiki/`: node reference, getting started, migration and examples. Use the same `translation_key` for translations and preserve existing `permalink` values.
 - `scripts/wiki-menu.json`: navigation source. `npm run docs:prepare` regenerates `docs/_data/wiki-nav.json` and copies the package examples to `docs/examples/`.
 - `examples/`: the maintained importable flows. The copies in `docs/examples/` are generated and ignored by Git.
@@ -12,14 +13,14 @@ The old HUE and Matter pages are version 7 references, marked by `legacy_package
 
 ## Local preview
 
-Install the Ruby/Jekyll dependencies from `docs/Gemfile`, then run from the repository root with `jekyll` available on PATH:
+Install the Ruby/Jekyll dependencies from `docs/Gemfile`, then run from the repository root with `ruby` available on PATH:
 
 ```sh
 npm run docs:build
 npm run docs:serve
 ```
 
-Open `http://127.0.0.1:4000/node-red-contrib-knx-ultimate/`. The preview uses the same Liquid templates as the real site.
+Open `http://127.0.0.1:4000/node-red-contrib-knx-ultimate/`. The preview uses the same Liquid templates as the real site. The scripts locate Jekyll through RubyGems, so the gem executable directory does not need to be on PATH. `docs:serve:norl` uses the same launcher.
 
 `npm run wiki:refresh` imports help for the current Device, Gateway, Viewer, IoT Bridge and routing nodes. It preserves page metadata and archive notices. Getting started, migration, Utility overview/function references and examples are maintained directly in `docs/wiki/`.
 

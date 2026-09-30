@@ -1,0 +1,46 @@
+{% assign community = site.data.homepage-community %}
+{% assign community_copy = community.translations[include.lang] %}
+<section class="docs-community">
+  <h2>{{ community_copy.partners }}</h2>
+  <div class="docs-partners">
+    {% for partner in community.partners %}
+    <a class="docs-partner" href="{{ partner.url | escape }}">
+      <img src="{{ partner.logo | relative_url }}" alt="{{ partner.name | escape }}" loading="lazy">
+    </a>
+    {% endfor %}
+  </div>
+
+  <h2>{{ community_copy.communities }}</h2>
+  <div class="docs-grid">
+    {% for item in community.communities %}
+    {% assign item_copy = community_copy.communityItems[forloop.index0] %}
+    <section class="docs-card docs-community-card">
+      <div class="docs-community-logo">
+        {% if item.logoUrl %}<a href="{{ item.logoUrl | escape }}">{% endif %}
+          <img src="{{ item.logo | relative_url }}" alt="{{ item.name | escape }}" loading="lazy">
+        {% if item.logoUrl %}</a>{% endif %}
+      </div>
+      <h3>{{ item_copy.title }}</h3>
+      <p>
+        {% for url in item.urls %}
+        <a href="{{ url | escape }}">{{ item_copy.links[forloop.index0] }}</a>{% unless forloop.last %} · {% endunless %}
+        {% endfor %}
+      </p>
+    </section>
+    {% endfor %}
+  </div>
+
+  <section class="docs-made-in-italy">
+    <img class="docs-made-logo" src="{{ '/assets/brand/made-in-italy.svg' | relative_url }}" alt="{{ community_copy.madeAlt | escape }}" width="260" loading="lazy">
+    <div class="docs-made-copy">
+      <p class="docs-version">Made in Italy</p>
+      <h2>{{ community_copy.madeTitle }}</h2>
+      <p>{{ community_copy.madeDescription }}</p>
+      <div class="docs-knx-partner">
+        <img src="{{ community.knxLogo | relative_url }}" alt="{{ community_copy.knxAlt | escape }}" loading="lazy">
+        <p>{{ community_copy.knxCaption }}</p>
+      </div>
+    </div>
+  </section>
+  <p class="docs-knx-notice"><em>{{ community_copy.knxNotice }}</em></p>
+</section>

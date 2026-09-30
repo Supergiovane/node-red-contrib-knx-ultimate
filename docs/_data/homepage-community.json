@@ -1,0 +1,265 @@
+{
+  "partners": [
+    {
+      "logo": "/assets/community/knxstore_it.png",
+      "name": "KNX Store Italia",
+      "url": "https://knxshop.it"
+    },
+    {
+      "logo": "/assets/community/knxsardegna.png",
+      "name": "KNX Sardegna",
+      "url": "http://www.knxsardegna.com"
+    },
+    {
+      "logo": "/assets/community/agata.png",
+      "name": "Agata Store",
+      "url": "https://www.agatastore.it"
+    },
+    {
+      "logo": "/assets/community/proKNX.png",
+      "name": "ProKNX",
+      "url": "https://proknx.com"
+    },
+    {
+      "logo": "/assets/community/altis.png",
+      "name": "Altis",
+      "url": "https://altis.swiss"
+    },
+    {
+      "logo": "/assets/community/cannx.png",
+      "name": "Can'nX",
+      "url": "https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/"
+    },
+    {
+      "logo": "/assets/community/innovationsystem.png",
+      "name": "Innovation System",
+      "url": "https://www.onsystem-iot.com/"
+    },
+    {
+      "logo": "/assets/community/inventife.png",
+      "name": "Inventife",
+      "url": "https://inventife.com"
+    },
+    {
+      "logo": "/assets/community/Weinzierl.png",
+      "name": "Weinzierl",
+      "url": "https://weinzierl.de"
+    }
+  ],
+  "communities": [
+    {
+      "logo": "/assets/community/viveresmart.png",
+      "name": "VivereSmart",
+      "logoUrl": "https://www.facebook.com/groups/viveresmart",
+      "urls": [
+        "https://www.facebook.com/groups/viveresmart",
+        "https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA"
+      ]
+    },
+    {
+      "logo": "/assets/community/knxuserforum.png",
+      "name": "KNX User Forum",
+      "logoUrl": "https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red",
+      "urls": [
+        "https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red"
+      ]
+    },
+    {
+      "logo": "/assets/community/qq.svg",
+      "name": "QQ Group",
+      "logoUrl": null,
+      "urls": [
+        "tencent://groupwpa/?subcmd=all&param=7b2267726f757055696e223a3833373537393231392c2274696d655374616d70223a313633303934363639312c22617574684b6579223a22762b72482b466f4a496a75613033794e4a30744a6970756c55753639424f4d55724f464c4a6c474b77346a30326b7a4f7a3338535536517844684d7756414d62222c2261757468223a22227d&jump_from="
+      ]
+    }
+  ],
+  "translations": {
+    "en": {
+      "partners": "Our trusted partners",
+      "communities": "Friendly communities around the world",
+      "communityItems": [
+        {
+          "title": "Italy · VivereSmart",
+          "links": [
+            "Community",
+            "VivereSmart TV"
+          ]
+        },
+        {
+          "title": "Germany · KNX User Forum",
+          "links": [
+            "Visit the discussion"
+          ]
+        },
+        {
+          "title": "China · QQ Group",
+          "links": [
+            "QQ group 837579219"
+          ]
+        }
+      ],
+      "madeAlt": "Made in Italy",
+      "madeTitle": "Designed, engineered, and supported in Italia.",
+      "madeDescription": "KNX-Ultimate is developed and tested on real installations, with a strong focus on reliability and long-term maintainability.",
+      "knxAlt": "Authorized KNX partner",
+      "knxCaption": "Authorized KNX logo by KNX Association*<br> Officially recognized for compliant KNX integrations.",
+      "knxNotice": "*The author <strong>Massimo Saccani</strong> has been authorized to use the KNX logo.<br>Forks of the knx-ultimate node are not implicitly allowed to use the KNX logo."
+    },
+    "it": {
+      "partners": "I nostri partner",
+      "communities": "Community amiche nel mondo",
+      "communityItems": [
+        {
+          "title": "Italia · VivereSmart",
+          "links": [
+            "Community",
+            "VivereSmart TV"
+          ]
+        },
+        {
+          "title": "Germania · KNX User Forum",
+          "links": [
+            "Visita il thread"
+          ]
+        },
+        {
+          "title": "Cina · QQ Group",
+          "links": [
+            "QQ group 837579219"
+          ]
+        }
+      ],
+      "madeAlt": "Made in Italy",
+      "madeTitle": "Progettato, sviluppato e supportato in Italia.",
+      "madeDescription": "KNX-Ultimate nasce da esperienza sul campo: ogni versione è testata su impianti reali per garantire qualità e continuità operativa.",
+      "knxAlt": "KNX partner autorizzato",
+      "knxCaption": "Logo KNX autorizzato dalla KNX Association*<br> Riconosciuto ufficialmente per integrazioni KNX conformi.",
+      "knxNotice": "*L’autore <strong>Massimo Saccani</strong> è autorizzato all’uso del logo KNX.<br>I fork di KNX-Ultimate non sono automaticamente abilitati a mostrare il logo KNX."
+    },
+    "de": {
+      "partners": "Unsere geschätzten Partner",
+      "communities": "Freundliche Communities weltweit",
+      "communityItems": [
+        {
+          "title": "Italien · VivereSmart",
+          "links": [
+            "Community",
+            "VivereSmart TV"
+          ]
+        },
+        {
+          "title": "Deutschland · KNX User Forum",
+          "links": [
+            "Zur Diskussion"
+          ]
+        },
+        {
+          "title": "China · QQ-Gruppe",
+          "links": [
+            "QQ-Gruppe 837579219"
+          ]
+        }
+      ],
+      "madeAlt": "Made in Italy",
+      "madeTitle": "Entwickelt, konstruiert und betreut in Italien.",
+      "madeDescription": "KNX-Ultimate wird auf realen Installationen entwickelt und getestet – mit Fokus auf Zuverlässigkeit und langfristige Wartbarkeit.",
+      "knxAlt": "Autorisiertes KNX-Partnerlogo",
+      "knxCaption": "Autorisiertes KNX-Logo der KNX Association*<br> Offiziell anerkannt für konforme KNX-Integrationen.",
+      "knxNotice": "*Der Autor <strong>Massimo Saccani</strong> ist zur Verwendung des KNX-Logos berechtigt.<br>Forks des knx-ultimate-Knotens dürfen das KNX-Logo nicht automatisch mitverwenden."
+    },
+    "fr": {
+      "partners": "Nos partenaires officiels",
+      "communities": "Communautés amies dans le monde",
+      "communityItems": [
+        {
+          "title": "Italie · VivereSmart",
+          "links": [
+            "Communauté",
+            "VivereSmart TV"
+          ]
+        },
+        {
+          "title": "Allemagne · KNX User Forum",
+          "links": [
+            "Voir la discussion"
+          ]
+        },
+        {
+          "title": "Chine · Groupe QQ",
+          "links": [
+            "Groupe QQ 837579219"
+          ]
+        }
+      ],
+      "madeAlt": "Made in Italy",
+      "madeTitle": "Conçu, développé et supporté à Modène.",
+      "madeDescription": "KNX-Ultimate est développé et testé sur des installations réelles, avec un objectif clair : fiabilité et maintenabilité dans le temps.",
+      "knxAlt": "Partenaire KNX autorisé",
+      "knxCaption": "Logo KNX autorisé par la KNX Association*<br> Reconnu officiellement pour des intégrations KNX conformes.",
+      "knxNotice": "*L’auteur <strong>Massimo Saccani</strong> est autorisé à utiliser le logo KNX.<br>Les forks du nœud knx-ultimate ne sont pas autorisés à utiliser le logo KNX automatiquement."
+    },
+    "es": {
+      "partners": "Nuestros socios de confianza",
+      "communities": "Comunidades amigas en todo el mundo",
+      "communityItems": [
+        {
+          "title": "Italia · VivereSmart",
+          "links": [
+            "Comunidad",
+            "VivereSmart TV"
+          ]
+        },
+        {
+          "title": "Alemania · KNX User Forum",
+          "links": [
+            "Ver debate"
+          ]
+        },
+        {
+          "title": "China · Grupo QQ",
+          "links": [
+            "Grupo QQ 837579219"
+          ]
+        }
+      ],
+      "madeAlt": "Made in Italy",
+      "madeTitle": "Diseñado, desarrollado y soportado en Módena.",
+      "madeDescription": "KNX-Ultimate se desarrolla y prueba en instalaciones reales, con foco en fiabilidad y mantenimiento a largo plazo.",
+      "knxAlt": "Socio KNX autorizado",
+      "knxCaption": "Logo KNX autorizado por la KNX Association*<br> Reconocimiento oficial para integraciones KNX conformes.",
+      "knxNotice": "*El autor <strong>Massimo Saccani</strong> está autorizado a utilizar el logotipo KNX.<br>Los forks del nodo knx-ultimate no están autorizados automáticamente a usar el logotipo KNX."
+    },
+    "zh-CN": {
+      "partners": "合作伙伴",
+      "communities": "全球社区伙伴",
+      "communityItems": [
+        {
+          "title": "意大利 · VivereSmart",
+          "links": [
+            "社区",
+            "VivereSmart TV"
+          ]
+        },
+        {
+          "title": "德国 · KNX User Forum",
+          "links": [
+            "参与讨论"
+          ]
+        },
+        {
+          "title": "中国 · QQ 群",
+          "links": [
+            "QQ群 837579219"
+          ]
+        }
+      ],
+      "madeAlt": "意大利制造",
+      "madeTitle": "在摩德纳设计、工程与提供支持。",
+      "madeDescription": "KNX-Ultimate 在真实安装环境中持续开发和测试，重点是稳定性与长期可维护性。",
+      "knxAlt": "KNX 官方许可标识",
+      "knxCaption": "获得 KNX 协会授权的 KNX 徽标*<br> 官方认可的合规 KNX 集成。",
+      "knxNotice": "*作者 <strong>Massimo Saccani</strong> 已获准使用 KNX 徽标。<br>knx-ultimate 节点的分支并不自动拥有使用该徽标的权利。"
+    }
+  },
+  "knxLogo": "/assets/community/KNX_CERTI_MARK_RGB.jpg"
+}
