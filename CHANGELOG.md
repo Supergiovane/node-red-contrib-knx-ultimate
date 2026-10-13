@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 8.1.0** - October 2026
+
+- Updated the KNX engine to `knxultimate` 6.2.0.
+
 **Version 8.0.6** - September 2026
 
 - Updated the KNX engine to `knxultimate` 6.0.8 to restore reception of authenticated Data Secure status telegrams from gateways such as Apricum/MDT that omit the outer KNX/IP wrapper.
