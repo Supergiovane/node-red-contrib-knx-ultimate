@@ -32,6 +32,19 @@ try { NODE_VERSION = require('../package.json').version } catch (e) { /* empty *
 let KNX_ENGINE_VERSION = 'unknown'
 try { KNX_ENGINE_VERSION = require('knxultimate/package.json').version } catch (e) { /* empty */ }
 
+// Returns the group service of a bus telegram, or null when it is not one:
+// transport control TPDUs (T_Connect, T_Disconnect, T_ACK, T_NAK: TPCI only, no APCI)
+// and point-to-point telegrams (cEMI Ctrl2 address type 0 = individual destination).
+const getGroupServiceEvent = (cEMIMessage) => {
+  const npdu = cEMIMessage?.npdu
+  if (!npdu || npdu.isTransportControl === true) return null
+  if (cEMIMessage.control?.addressType === 0) return null
+  if (npdu.isGroupRead) return 'GroupValue_Read'
+  if (npdu.isGroupResponse) return 'GroupValue_Response'
+  if (npdu.isGroupWrite) return 'GroupValue_Write'
+  return null
+}
+
 // DATAPONT MANIPULATION HELPERS
 // ####################
 const sortBy = (field) => (a, b) => {
@@ -1399,18 +1412,20 @@ module.exports = (RED) => {
         return
       }
 
-      let _evt = null
-      if (_datagram.cEMIMessage.npdu.isGroupRead) _evt = 'GroupValue_Read'
-      if (_datagram.cEMIMessage.npdu.isGroupResponse) _evt = 'GroupValue_Response'
-      if (_datagram.cEMIMessage.npdu.isGroupWrite) _evt = 'GroupValue_Write'
-
       let _src = null
       _src = _datagram.cEMIMessage.srcAddress.toString()
 
       let _dest = null
       _dest = _datagram.cEMIMessage.dstAddress.toString()
 
-      if (_evt === null || _src === null || _dest === null) {
+      // Point-to-point and transport control telegrams (e.g. an ETS device scan) are valid, but not for us
+      const _evt = getGroupServiceEvent(_datagram.cEMIMessage)
+      if (_evt === null) {
+        node.sysLogger?.debug(`HandleBusEvent: ignored non group telegram src=${_src} dest=${_dest}`)
+        return
+      }
+
+      if (_src === null || _dest === null) {
         node.sysLogger?.warn(`HandleBusEvent: unable to parse telegram, ignored (evt=${_evt || 'n/a'} src=${_src || 'n/a'} dest=${_dest || 'n/a'})`)
         return
       };
@@ -2754,5 +2769,6 @@ module.exports = (RED) => {
 }
 
 module.exports.__test = {
-  resolveHostAddress
+  resolveHostAddress,
+  getGroupServiceEvent
 }
