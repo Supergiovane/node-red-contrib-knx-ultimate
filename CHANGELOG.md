@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 8.1.1** - October 2026
+
+- Updated the KNX engine to `knxultimate` 6.2.1.
+
 **Version 8.1.0** - October 2026
 
 - Updated the KNX engine to `knxultimate` 6.2.0.
