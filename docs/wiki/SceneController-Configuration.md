@@ -10,6 +10,8 @@ translation_key: "SceneController-Configuration"
 >
 > [KNX Utility]({{ '/wiki/KNX-Utility' | relative_url }}) · [Upgrade from version 7]({{ '/wiki/Migration-8' | relative_url }})
 
+> 💾 When the saved scenes are written to disk depends on the **File Cache Control** of the KNX gateway. With **Disable writing** they are kept in memory only, and are lost at every restart of Node-RED. See [Gateway configuration]({{ '/wiki/Gateway-configuration' | relative_url }}).
+
 
 The scene controllre node, behaves exactly as a scene controller KNX device. It's capable of saving and recalling a scene.
 

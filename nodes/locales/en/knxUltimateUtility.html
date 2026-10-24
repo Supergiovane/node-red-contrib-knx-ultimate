@@ -168,6 +168,8 @@ msg = {
 
 ## AutoResponder
 
+> 💾 When the stored values are written to disk depends on the **File Cache Control** of the KNX gateway. With **Disable writing** they are kept in memory only, and are lost at every restart of Node-RED. See the **File Cache Control** tab of the KNX gateway.
+
 This node will respond to read requests from the KNX BUS.  
 
 The node records all telegrams transmitted to the KNX BUS and store the values in memory.\
@@ -619,6 +621,8 @@ global.set("KNXContextBanana_WRITE",GroupAddressesSend);
 
 ## Logger
 
+> 💾 When the XML file of **Emit payload and save to file** are written to disk depends on the **File Cache Control** of the KNX gateway. With **Disable writing** they are kept in memory only, and are lost at every restart of Node-RED. See the **File Cache Control** tab of the KNX gateway.
+
 ### Logger
 
 <p>The Logger node records all telegrams and outputs it in an ETS bus monitor XML compatible file.</p> 
@@ -912,6 +916,8 @@ return msg;
 <a id="knx-utility-help-scenecontroller"></a>
 
 ## Scene Controller
+
+> 💾 When the saved scenes are written to disk depends on the **File Cache Control** of the KNX gateway. With **Disable writing** they are kept in memory only, and are lost at every restart of Node-RED. See the **File Cache Control** tab of the KNX gateway.
 
 <p>The scene controllre node, behaves exactly as a scene controller KNX device. It's capable of saving and recalling a scene.</p>
 

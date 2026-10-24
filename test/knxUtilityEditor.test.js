@@ -164,6 +164,7 @@ const loadEditor = (locale = 'en') => {
     console,
     htmlUtilsfullCSVSearch: () => true,
     KNX_enableSecureFormatting: () => {},
+    KNX_bindFileCacheDisabledTip: () => () => {},
     setTimeout: (callback) => {
       const id = nextTimer++
       timers.set(id, callback)

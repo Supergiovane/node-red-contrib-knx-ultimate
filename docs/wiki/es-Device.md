@@ -56,6 +56,8 @@ El botón solo aparece cuando la opción está habilitada. En modo universal la 
 | Decimales | Redondo o manejar decimales de cualquier manera. Funciona solo si el valor es un número. |
 | Negativos | Maneja los valores negativos. Funciona solo si el valor es un número. |
 
+> 💾 El momento en que los valores de las GA usados por **Leer el estado al inicio** (lectura desde archivo) se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta [Configuración de la pasarela]({{ '/wiki/es-Gateway-configuration' | relative_url }}).
+
 ## Función Tab Knx
 
 Puede usar JavaScript para modificar el comportamiento del MSG de entrada que proviene del flujo y el telegrama de salida enviado al bus KNX.

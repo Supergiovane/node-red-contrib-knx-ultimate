@@ -10,6 +10,8 @@ translation_key: "Logger-Configuration"
 >
 > [KNX Utility]({{ '/wiki/es-KNX-Utility' | relative_url }}) · [Actualizar desde la versión 7]({{ '/wiki/es-Migration-8' | relative_url }})
 
+> 💾 El momento en que los datos del archivo XML de **Emitir el payload y guardar en archivo** se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta [Configuración de la pasarela]({{ '/wiki/es-Gateway-configuration' | relative_url }}).
+
 
 <
 

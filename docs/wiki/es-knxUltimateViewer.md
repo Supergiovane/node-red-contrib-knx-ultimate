@@ -25,6 +25,8 @@ Selecciona un Viewer, busca en la lista o recorre las páginas para consultar ca
 
 El nodo Viewer activo guarda automáticamente el historial en archivos bajo `userDir/knxultimatestorage/viewer`, separados por Viewer y pasarela. Los cambios de más de 24 horas se eliminan automáticamente. Después de reiniciar Node-RED, el Viewer recupera el historial que todavía está dentro de ese período.
 
+> 💾 El momento en que los archivos del historial se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta [Configuración de la pasarela]({{ '/wiki/es-Gateway-configuration' | relative_url }}).
+
 La grabación comienza cuando el Viewer actualizado está desplegado y en funcionamiento. No reconstruye el tráfico anterior del bus.
 
 ## Salidas del flow

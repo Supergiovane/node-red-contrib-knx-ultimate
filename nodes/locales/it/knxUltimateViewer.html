@@ -19,6 +19,8 @@ Seleziona un Viewer, cerca nell’elenco o scorri le pagine per consultare i cam
 
 Il nodo Viewer attivo salva automaticamente lo storico in file nella cartella `userDir/knxultimatestorage/viewer`, separati per Viewer e gateway. I cambiamenti più vecchi di 24 ore vengono eliminati automaticamente. Dopo un riavvio di Node-RED, il Viewer recupera lo storico ancora compreso in questa finestra.
 
+> 💾 Il momento in cui i file dello storico vengono scritti su disco dipende dal **File Cache Control** del gateway KNX. Con **Disattiva scrittura** restano solo in memoria e vengono persi ad ogni riavvio di Node-RED. Vedi il tab **File Cache Control** del gateway KNX.
+
 La registrazione inizia quando il Viewer aggiornato viene distribuito con il deploy ed è in esecuzione. Non ricostruisce il traffico precedente del bus.
 
 ## Uscite del flow

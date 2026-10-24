@@ -77,6 +77,8 @@
                 const base = raw.split("-")[0];
                 return ["en", "it", "de", "fr", "es"].includes(base) ? base : "en";
             };
+            // The history is kept only in memory when the gateway does not write files.
+            KNX_bindFileCacheDisabledTip($("#knx-viewer-file-cache-tip"), $("#node-input-server"));
             $("#knx-viewer-open-web-page").on("click", function (evt) {
                 evt.preventDefault();
                 const adminRoot = resolveAdminRoot();
@@ -128,6 +130,7 @@
     </label>
     <input type="text" id="node-input-server" />
 </div>
+<div class="form-tips" id="knx-viewer-file-cache-tip" style="display:none;"></div>
 
 <div class="form-row">
     <label for="node-input-name">

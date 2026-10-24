@@ -1,6 +1,6 @@
 // Private KNX Utility profile. Independent of the legacy palette entry point.
 const createProfileTimers = require('./profileTimers')
-const fs = require('fs')
+const { storageOf } = require('../../fileStorage')
 
 module.exports = function (RED) {
   function knxUltimateLogger (config) {
@@ -80,11 +80,14 @@ module.exports = function (RED) {
       return header + lines.join('') + stop + closing
     }
 
+    // The gateway's File Cache Control decides when the file reaches the disk.
+    const storage = storageOf(node.serverKNX)
+
     const readExistingTelegramLines = () => {
       if (node.saveMode !== 'emit_save' || node.filePath === '') return []
-      if (!fs.existsSync(node.filePath)) return []
+      if (!storage.exists(node.filePath)) return []
       try {
-        const fileContent = fs.readFileSync(node.filePath, 'utf8')
+        const fileContent = storage.readFile(node.filePath, 'utf8')
         const lines = fileContent.split(/\r?\n/).map(l => l + '\n') // keep newline
         const telegramLines = []
         let inLog = false
@@ -121,7 +124,7 @@ module.exports = function (RED) {
             allLines = allLines.slice(allLines.length - node.maxRowsInETSXML)
           }
           const fileContent = buildXMLFromLines(allLines)
-          fs.writeFileSync(node.filePath, fileContent, { encoding: 'utf8' })
+          storage.writeFile(node.filePath, fileContent)
           statusText = 'Payload ETS sent and saved.'
         } catch (error) {
           node.error(`knxUltimateLogger: error writing file ${node.filePath}: ${error.message}`)

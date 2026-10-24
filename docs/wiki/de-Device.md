@@ -54,6 +54,8 @@ Der Button wird nur eingeblendet, wenn die Option aktiv ist. Im Universalmodus i
 | Auf Lese-Telegramme reagieren | Sendet bei Read eine Nachricht an den Flow (z. B. um eigene Werte zu liefern). |
 | Multiply/Decimals/Negatives | Skaliert, rundet und behandelt negative Werte (nur numerische Werte). |
 
+> 💾 Wann die von **Bei Verbindung/Wiederverbindung der Wert lesen** (aus Datei) genutzten GA-Werte auf den Datenträger geschrieben werden, bestimmt die **Datei-Cache-Steuerung** des KNX-Gateways. Mit **Schreiben deaktivieren** bleiben sie nur im Speicher und gehen bei jedem Neustart von Node-RED verloren. Siehe [Gateway-Konfiguration]({{ '/wiki/de-Gateway-configuration' | relative_url }}).
+
 ## TAB KNX Function
 
 Mit JavaScript kannst du das Verhalten eingehender Nachrichten (vom Flow) und ausgehender Telegramme (zum BUS) anpassen. Der Editor stellt Hilfsobjekte und -funktionen bereit, um GA-Werte zu lesen - mit ETS (ohne DPT) oder ohne ETS (mit DPT).

@@ -4,6 +4,16 @@
     const optionalNumberValidator = function (value) {
         return (value === '' || value === null || typeof value === 'undefined') ? true : RED.validators.number()(value)
     }
+    // File Cache Control: the custom interval must be between 5 seconds and 30 days.
+    const fileCacheIntervalValidator = function (value) {
+        const field = (name, fallback) => {
+            const element = $("#node-config-input-" + name);
+            return element.length ? element.val() : fallback;
+        };
+        if (field('fileCacheMode', this.fileCacheMode) !== 'custom') return true;
+        const seconds = Number(value) * ({ s: 1, m: 60, h: 3600, d: 86400 }[field('fileCacheIntervalUnit', this.fileCacheIntervalUnit)] || 1);
+        return Number.isFinite(seconds) && seconds >= 5 && seconds <= 30 * 86400;
+    }
 
     RED.nodes.registerType('knxUltimate-config', {
         category: 'config',
@@ -20,6 +30,9 @@
             KNXEthInterfaceManuallyInput: { value: "" },
             stopETSImportIfNoDatapoint: { value: "fake" },
             loglevel: { value: "error" },
+            fileCacheMode: { value: "freshness" },
+            fileCacheInterval: { value: 10, validate: fileCacheIntervalValidator },
+            fileCacheIntervalUnit: { value: "m" },
             name: { value: "KNX Gateway" },
             delaybetweentelegrams: { value: 25, required: false, validate: RED.validators.number() },
             ignoreTelegramsWithRepeatedFlag: { value: false, required: false },
@@ -164,13 +177,13 @@
                 active: (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0,
                 activate: function (event, ui) {
                     node.knxSecureSelected = $(ui.newTab).index() === 1;
-                    try { updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); updateRevealKeyringButton(); } catch (e) { }
+                    try { updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); } catch (e) { }
                 }
             });
             // Ensure the correct tab is enforced after all UI init
             try {
                 const initialActive = (node.knxSecureSelected === true || node.knxSecureSelected === 'true') ? 1 : 0;
-                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); updateRevealKeyringButton(); }, 0);
+                setTimeout(() => { $("#tabsMain").tabs("option", "active", initialActive); updateTunnelIAVisibility(); updatePhysAddrVisibility(); updateSecureMulticastHint(); enforceProtocolFromIP(); }, 0);
             } catch (e) { }
 
             // Keyring ACE editor setup
@@ -973,123 +986,21 @@
             try { updateSecureModeAvailability(); } catch (e) { }
 
 
-            // NOTE: Do not auto-delete persisted GA cache on editor open.
-            // Users can explicitly clear it from the Utility tab.
-
             // 06/07/2023 Tabs
             // *****************************
             $("#tabs").tabs();
             // *****************************
 
-            var sRetDebugText = "";
-            $("#getinfocam").click(function () {
-                sRetDebugText = "";
-                $("#divDebugText").show();
-                for (const [key, value] of Object.entries(node)) {
-                    sRetDebugText += (`-> ${key}: ${value}\r`);
-                }
-                $("#debugText").val(sRetDebugText); // Store the config-node);
-            });
-            $("#getallgaused").click(function () {
-                sRetDebugText = "";
-                $("#divDebugText").show();
-                let aFound = [];
-                RED.nodes.eachNode(function (node) {
-                    if (!aFound.includes(node.topic)) {
-                        aFound.push(node.topic);
-                        sRetDebugText += node.topic + "\r"
-                    }
-                });
-                sRetDebugText = node._('knxUltimate-config.utility.copy_ga_router') + "\r" + sRetDebugText;
-                $("#debugText").val(sRetDebugText); // Store the config-node);
-            });
-
-            $("#clearpersistga").click(function () {
-                try {
-                    const confirmText = node._("knxUltimate-config.utility.clear_persist_confirm");
-                    const okText = node._("knxUltimate-config.utility.clear_persist_ok");
-                    const cancelText = node._("knxUltimate-config.utility.clear_persist_cancel");
-                    const doneText = node._("knxUltimate-config.utility.clear_persist_done");
-                    const failText = node._("knxUltimate-config.utility.clear_persist_fail");
-
-                    var dlg = RED.notify(confirmText, {
-                        modal: true,
-                        fixed: true,
-                        type: "warning",
-                        buttons: [
-                            {
-                                text: cancelText,
-                                click: function () { dlg.close(); }
-                            },
-                            {
-                                text: okText,
-                                class: "primary",
-                                click: function () {
-                                    dlg.close();
-                                    $.getJSON("deletePersistGAFile?serverId=" + node.id, (data) => {
-                                        RED.notify(doneText, { type: "success", timeout: 2500 });
-                                    }).fail(function (jqXHR, textStatus, errorThrown) {
-                                        const err = (errorThrown || textStatus || "").toString();
-                                        RED.notify(failText + (err ? (": " + err) : ""), { type: "error", timeout: 5000 });
-                                    });
-                                }
-                            }
-                        ]
-                    });
-                } catch (e) { }
-            });
-
-            // Utility: reveal all keyring passwords in clear text.
-            // Enabled only when KNX Secure is selected.
-            function updateRevealKeyringButton() {
-                try {
-                    const isSecure = isSecureTabActive();
-                    $("#revealkeyringpwd").prop('disabled', !isSecure)
-                        .css('opacity', isSecure ? 1 : 0.5)
-                        .css('cursor', isSecure ? 'pointer' : 'not-allowed');
-                } catch (e) { }
-            }
-            updateRevealKeyringButton();
-
-            $("#revealkeyringpwd").click(function () {
-                if (!isSecureTabActive()) return;
-                try {
-                    const keyring = (node._keyringEditor && typeof node._keyringEditor.getValue === 'function')
-                        ? node._keyringEditor.getValue()
-                        : $("#node-config-input-keyringFileXML").val();
-                    const pwd = $("#node-config-input-keyringFilePassword").val();
-                    const params = { serverId: node.id };
-                    if (typeof keyring === 'string' && keyring.trim() !== '') params.keyring = keyring.trim();
-                    // '__PWRD__' is the Node-RED placeholder for an unchanged password credential:
-                    // never send it, so the backend falls back to the real stored credential.
-                    if (typeof pwd === 'string' && pwd.trim() !== '' && pwd !== '__PWRD__') params.pwd = pwd.trim();
-                    $("#divDebugText").show();
-                    $("#debugText").val(node._('knxUltimate-config.utility.reveal_keyring_loading'));
-                    const scrollToDebugText = function () {
-                        try {
-                            const el = document.getElementById('debugText');
-                            if (el && typeof el.scrollIntoView === 'function') {
-                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                        } catch (e) { }
-                    };
-                    scrollToDebugText();
-                    $.getJSON('knxUltimateKeyringDump', params, (data) => {
-                        if (data && data.ok) {
-                            $("#debugText").val(data.dump);
-                        } else {
-                            const code = (data && data.error) ? data.error : 'UNEXPECTED_ERROR';
-                            $("#debugText").val(node._('knxUltimate-config.utility.reveal_keyring_fail') + ' (' + code + ')');
-                        }
-                        scrollToDebugText();
-                    }).fail(function (jqXHR, textStatus, errorThrown) {
-                        const err = (errorThrown || textStatus || '').toString();
-                        $("#debugText").val(node._('knxUltimate-config.utility.reveal_keyring_fail') + (err ? (': ' + err) : ''));
-                    });
-                } catch (e) { }
-            });
-
-
+            // File Cache Control: show the custom interval and the "writing disabled" tip.
+            const syncFileCacheRows = () => {
+                const mode = $("#node-config-input-fileCacheMode").val();
+                $("#knxUltimate-fileCacheInterval-row").toggle(mode === 'custom');
+                $("#knxUltimate-fileCacheDisabled-tip").toggle(mode === 'disabled');
+                $("#node-config-input-fileCacheInterval").trigger('change');
+            };
+            $("#knxUltimate-fileCacheDisabled-tip").text(node._("knxUltimate-config.file_cache.disabled_tip"));
+            $("#node-config-input-fileCacheMode, #node-config-input-fileCacheIntervalUnit").on('change', syncFileCacheRows);
+            syncFileCacheRows();
 
         },
         oneditcancel: function () {
@@ -1362,7 +1273,7 @@
         <li><a href="#tabs-1"><i class="fa fa-list-ol"></i> <span data-i18n="knxUltimate-config.tabs.configuration"></span></a></li>
         <li><a href="#tabs-2"><i class="fa fa-braille"></i> <span data-i18n="knxUltimate-config.tabs.advanced"></span></a></li>
         <li><a href="#tabs-3"><i class="fa fa-code"></i> <span data-i18n="knxUltimate-config.tabs.ets_import"></span></a></li>
-        <li><a href="#tabs-4"><i class="fa fa-key"></i> <span data-i18n="knxUltimate-config.tabs.utility"></span></a></li>
+        <li><a href="#tabs-4"><i class="fa fa-hdd-o"></i> <span data-i18n="knxUltimate-config.tabs.file_cache"></span></a></li>
     </ul>
     <div id="tabs-1">
         <p>
@@ -1501,22 +1412,6 @@
             </div>
 
 	            <div class="form-row">
-	                <label for="node-config-input-loglevel">
-	                    <i class="fa fa-question-circle"></i>
-	                    <span data-i18n="knxUltimate-config.advanced.log_level"></span>
-	                </label>
-	                <select id="node-config-input-loglevel" style="width:40%;">
-	                    <option value="disable" data-i18n="knxUltimate-config.advanced.select_silent"></option>
-	                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option> 
-	                    <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
-	                    <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
-	                    <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
-	                </select>
-	                <!-- <// DEBUG LEVELS: success < debug < info < warn < error < disable
-	                            </div> -->
-	            </div>
-
-	            <div class="form-row">
 	                <label>          <span style="font-weight:bold">Node Status</span>
 	      </label>
 	            </div>
@@ -1602,36 +1497,53 @@
         </p>
     </div>
 
-	    <div id="tabs-4">
-	        <p>
-	            <div class="form-row">
-	                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.gather_debug"></span></label>
-	                <input type="button" id="getinfocam" class="ui-button ui-corner-all ui-widget"
-	                    style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
-	            </div>
-	            <div class="form-row">
-	                <label><i class="fa fa-sign-in"></i> <span data-i18n="knxUltimate-config.utility.get_all_used_ga"></span></label>
-	                <input type="button" id="getallgaused" class="ui-button ui-corner-all ui-widget"
-	                    style="background-color:#AEE1FF;width:150px" data-i18n="[value]knxUltimate-config.utility.read_button">
-	            </div>
+    <div id="tabs-4">
+        <p>
+            <div class="form-row">
+                <label for="node-config-input-loglevel">
+                    <i class="fa fa-question-circle"></i>
+                    <span data-i18n="knxUltimate-config.advanced.log_level"></span>
+                </label>
+                <select id="node-config-input-loglevel" style="width:40%;">
+                    <option value="disable" data-i18n="knxUltimate-config.advanced.select_silent"></option>
+                    <option value="error" data-i18n="knxUltimate-config.advanced.select_error"></option>
+                    <option value="warn" data-i18n="knxUltimate-config.advanced.select_warning"></option>
+                    <option value="info" data-i18n="knxUltimate-config.advanced.select_info"></option>
+                    <option value="debug" data-i18n="knxUltimate-config.advanced.select_debug"></option>
+                </select>
+            </div>
 
-                <div class="form-row">
-                    <label><i class="fa fa-trash"></i> <span data-i18n="knxUltimate-config.utility.clear_persist_label"></span></label>
-                    <input type="button" id="clearpersistga" class="ui-button ui-corner-all ui-widget"
-                        style="background-color:#FFD2D2;width:150px" data-i18n="[value]knxUltimate-config.utility.clear_persist_button">
-                </div>
+            <div class="form-row">
+                <label for="node-config-input-fileCacheMode">
+                    <i class="fa fa-hdd-o"></i>
+                    <span data-i18n="knxUltimate-config.file_cache.mode"></span>
+                </label>
+                <select id="node-config-input-fileCacheMode" style="width:60%;">
+                    <option value="freshness" data-i18n="knxUltimate-config.file_cache.mode_freshness"></option>
+                    <option value="balanced" data-i18n="knxUltimate-config.file_cache.mode_balanced"></option>
+                    <option value="disabled" data-i18n="knxUltimate-config.file_cache.mode_disabled"></option>
+                    <option value="custom" data-i18n="knxUltimate-config.file_cache.mode_custom"></option>
+                </select>
+            </div>
+            <div class="form-tips knx-file-cache-disabled-tip" id="knxUltimate-fileCacheDisabled-tip" style="display:none;"></div>
 
-                <div class="form-row">
-                    <label><i class="fa fa-key"></i> <span data-i18n="knxUltimate-config.utility.reveal_keyring_label"></span></label>
-                    <input type="button" id="revealkeyringpwd" class="ui-button ui-corner-all ui-widget"
-                        style="background-color:#FFE9B3;width:150px" data-i18n="[value]knxUltimate-config.utility.reveal_keyring_button">
-                </div>
+            <div class="form-row" id="knxUltimate-fileCacheInterval-row" style="display:none;">
+                <label for="node-config-input-fileCacheInterval">
+                    <i class="fa fa-clock-o"></i>
+                    <span data-i18n="knxUltimate-config.file_cache.interval"></span>
+                </label>
+                <input type="number" id="node-config-input-fileCacheInterval" min="1" style="width:100px;">
+                <select id="node-config-input-fileCacheIntervalUnit" style="width:120px;">
+                    <option value="s" data-i18n="knxUltimate-config.file_cache.unit_seconds"></option>
+                    <option value="m" data-i18n="knxUltimate-config.file_cache.unit_minutes"></option>
+                    <option value="h" data-i18n="knxUltimate-config.file_cache.unit_hours"></option>
+                    <option value="d" data-i18n="knxUltimate-config.file_cache.unit_days"></option>
+                </select>
+            </div>
 
-	            <div class="form-row" id="divDebugText" style="display: none;">
-	                <textarea rows="10" id="debugText" style="width:100%"></textarea>
-	            </div>
-	        </p>
-	    </div>
+            <div class="form-tips" data-i18n="[html]knxUltimate-config.file_cache.description"></div>
+        </p>
+    </div>
     </div>
 
     </div>

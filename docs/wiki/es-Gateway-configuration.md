@@ -43,7 +43,6 @@ translation_key: "Gateway-configuration"
 | Suprimir la solicitud ACK en el modo de túnel | Habilite si tiene una puerta de enlace KNX/IP muy antigua. Ignora el procedimiento ACK y acepta todos los telegramas. El valor predeterminado no está marcado. |
 | Habilitar plugin flow bubbles | Dibuja una pequeña burbuja de color junto a cada nodo KNX Device en el editor. La burbuja refleja el último estado en vivo recibido desde el gateway y se atenúa cuando los datos ya no son recientes. Útil durante la puesta en marcha y la depuración. Valor predeterminado: desactivado. |
 | Retraso entre cada telegrama (en milisegundos) | Las especificaciones de KNX establecen que la velocidad máxima de envío de telegrama es de 50 telegramas por segundo. Una velocidad entre 25 y 50 ms debe estar bien, a menos que se conecte a una puerta de enlace KNX remota a través de una conexión a Internet lenta (en este caso, debe aumentar el valor, por ejemplo, de 200 a 500 ms o más). |
-| Loglevel | Nivel de registro, en caso de que necesite depurar algo con el desarrollo. El valor predeterminado es "error", |
 | Temporización de actualizaciones de estado | Define cada cuánto se actualiza la insignia de estado de los nodos. Con un retardo activo se descartan los estados intermedios y solo se muestra el último después del intervalo elegido. Seleccione **Inmediato** para mantener el comportamiento en tiempo real. |
 | Formato de fecha/hora en estado | Elige cómo se muestra la marca de tiempo en el estado del nodo (útil cuando no se puede configurar el locale del sistema). |
 | Formato personalizado | Se usa cuando se selecciona **Personalizado (tokens)**. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Usa `[texto]` para literales. |
@@ -55,11 +54,15 @@ translation_key: "Gateway-configuration"
 | Si la dirección del grupo no tiene punto de datos | Si una dirección de grupo no tiene un punto de datos, permite elegir si detiene la importación, importar un punto de datos falso de 1.001 o omitir la importación de esa dirección de grupo |
 | Lista de direcciones de grupo ETS | Use esta sección para importar su archivo CSV o ESF ETS. Puede ** Pegar el contenido del archivo CSV o ESF ** o**Establecer la ruta del archivo** , por ejemplo _./pi/homecsv.csv_. Consulte los enlaces de ayuda para obtener más infos. |
 
- **Utilidad** | Propiedad | Descripción |
+ **Control de caché de archivos**
 
-|-|-|
-| Recopilar información de depuración para la solución de problemas | Haga clic en el botón y agréguelo al problema de GitHub que desea abrir, me ayudará mucho a ayudarlo. |
-| Obtenga todos los usados ​​GA para el filtro de enrutamiento KNX | Presione Leer para recuperar una lista de texto sin formato de todas las direcciones grupales que pertenecen a esta puerta de enlace, que se ha utilizado en los flujos. Puede usar esta lista para completar su tabla de filtro de enrutador KNX/IP. |
+|Propiedad|Descripción|
+|--|--|
+| Loglevel | Nivel de registro, útil para la depuración. El valor predeterminado es "Error". El registro no se ve afectado por la gestión del desgaste del disco. |
+| Gestión del desgaste del disco | Define con qué frecuencia KNX Ultimate escribe sus archivos en el disco: valores de las GA, escenas del Scene Controller, valores del AutoResponder, archivo del Logger e historial del Viewer. Útil para reducir el desgaste de las tarjetas SD. Los archivos solo se escriben si su contenido ha cambiado. **Prioridad a la actualidad** (predeterminado) guarda los cambios cada 5 segundos. **Equilibrado** los guarda solo al conectar o desconectar la pasarela, y cuando Node-RED se detiene o la pasarela se vuelve a desplegar. **Desactivar escritura** nunca escribe en el disco: los datos permanecen solo en memoria y, en cada reinicio de Node-RED, se pierden todos los valores actuales de las GA y los datos guardados por los nodos KNX Ultimate. **Intervalo personalizado** guarda los cambios en el intervalo elegido, de 5 segundos a 30 días, y cuando Node-RED se detiene o la pasarela se vuelve a desplegar. |
+| Intervalo de escritura | Visible con **Intervalo personalizado**. Valor y unidad (segundos, minutos, horas, días) del intervalo de escritura. |
+
+> Cuando la escritura está desactivada, los nodos KNX Ultimate que usan archivos (Device con lectura inicial desde archivo, Scene Controller, AutoResponder, Logger con guardado en archivo, Viewer) muestran un recordatorio en su editor.
 
 # Trabajar con el archivo CSV o ESF ETS
 

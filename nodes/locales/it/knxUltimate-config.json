@@ -64,7 +64,7 @@
             "configuration": "Configurazione",
             "advanced": "Avanzate",
             "ets_import": "Import ETS",
-            "utility": "Utility"
+            "file_cache": "File Cache Control"
         },
         "advanced": {
             "knx_phy_addr": "Indirizzo fisico KNX",
@@ -141,22 +141,19 @@
             "tunnel_user_password": "Password utente tunnel",
             "ga_list_label": "Lista indirizzi di gruppo ETS"
         },
-        "utility": {
-            "gather_debug": "Raccogli debug e log per assistenza",
-            "get_all_used_ga": "Ottieni tutte le GA usate per il filtro di routing KNX",
-            "read_button": "Leggi",
-            "copy_ga_router": "Copia questi indirizzi di gruppo nella tabella di routing del tuo router KNX/IP.",
-            "clear_persist_label": "Cancella cache persistente GA di questo gateway",
-            "clear_persist_button": "Cancella",
-            "clear_persist_confirm": "Questo elimina il file di cache persistente delle GA per questo gateway. Continuare?",
-            "clear_persist_ok": "Elimina",
-            "clear_persist_cancel": "Annulla",
-            "clear_persist_done": "Cache persistente GA eliminata.",
-            "clear_persist_fail": "Impossibile eliminare la cache persistente GA",
-            "reveal_keyring_label": "Mostra le password del keyring in chiaro (KNX Secure)",
-            "reveal_keyring_button": "Mostra",
-            "reveal_keyring_loading": "Decodifica del keyring in corso, attendere...",
-            "reveal_keyring_fail": "Impossibile decodificare il keyring. Verifica il file keyring e la password generale."
+        "file_cache": {
+            "mode": "Gestione disk-wearing",
+            "mode_freshness": "Priorità freschezza",
+            "mode_balanced": "Equilibrato",
+            "mode_disabled": "Disattiva scrittura",
+            "mode_custom": "Intervallo personalizzato",
+            "interval": "Intervallo di scrittura",
+            "unit_seconds": "secondi",
+            "unit_minutes": "minuti",
+            "unit_hours": "ore",
+            "unit_days": "giorni",
+            "disabled_tip": "Scrittura su disco disattivata (File Cache Control del gateway KNX): ad ogni riavvio di Node-RED verranno persi tutti i valori correnti dei GA e i dati salvati dai nodi KNX Ultimate.",
+            "description": "Stabilisce ogni quanto KNX Ultimate scrive su disco i propri file (valori dei GA, scene dello Scene Controller, valori dell'AutoResponder, file del Logger, storico del Viewer), per ridurre l'usura delle schede SD. I file vengono scritti solo se il loro contenuto è cambiato. Il log non è interessato: per quello usa il livello di log.<br/><b>Priorità freschezza</b>: le modifiche vengono salvate ogni 5 secondi.<br/><b>Equilibrato</b>: le modifiche vengono salvate solo alla connessione o disconnessione del gateway, e quando Node-RED si arresta o il gateway viene ridistribuito.<br/><b>Disattiva scrittura</b>: non viene scritto nulla su disco.<br/><b>Intervallo personalizzato</b>: le modifiche vengono salvate all'intervallo scelto (da 5 secondi a 30 giorni), e quando Node-RED si arresta o il gateway viene ridistribuito."
         }
     }
 }

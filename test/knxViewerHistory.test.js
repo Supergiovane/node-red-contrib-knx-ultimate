@@ -3,6 +3,7 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 const { createViewerHistory, HISTORY_TTL_MS } = require('../nodes/utils/knxViewerHistory')
+const { createFileStorage } = require('../nodes/utils/fileStorage')
 
 const HOUR_MS = 60 * 60 * 1000
 
@@ -149,19 +150,22 @@ describe('KNX Viewer persistent state-change history', () => {
     expect(fs.existsSync(abandonedCompaction)).to.equal(false)
   })
 
-  it('keeps all changes in the window and prunes only expired entries within an hourly file', async () => {
+  it('keeps all changes in the window and deletes an hourly file only once all its entries expire', async () => {
     const store = create()
     const cutoff = timestamp - HISTORY_TTL_MS
     await store.record(value(false, { timestampMs: cutoff }))
     await store.record(value(true, { timestampMs: cutoff + 5 * 60 * 1000 }))
-    await store.record(value(false))
+    const current = await store.record(value(false))
     expect(await store.record(value(true, { timestampMs: cutoff - 1 }))).to.equal(null)
     timestamp += 60 * 1000
     const result = await store.query()
     expect(result.entries.map(entry => entry.timestampMs)).to.deep.equal([timestamp - 60 * 1000, cutoff + 5 * 60 * 1000])
-    const persisted = historyFiles(userDir).flatMap(filename => fs.readFileSync(filename, 'utf8').trim().split('\n').filter(Boolean).map(JSON.parse))
-    expect(persisted.map(entry => entry.timestampMs)).not.to.include(cutoff)
     expect(result.from).to.equal(new Date(timestamp - HISTORY_TTL_MS).toISOString())
+    // A partially expired hour is not rewritten, to spare the disk.
+    expect(historyFiles(userDir)).to.have.length(2)
+    timestamp += 30 * 60 * 1000
+    expect((await store.query()).entries.map(entry => entry.id)).to.deep.equal([current.id])
+    expect(historyFiles(userDir)).to.have.length(1)
   })
 
   it('prunes while idle, expires duplicate state, and cancels maintenance at close', async () => {
@@ -303,14 +307,41 @@ describe('KNX Viewer persistent state-change history', () => {
   it('repairs a partial failed append and does not mark the lost value as recorded', async () => {
     const store = create()
     await store.record(value(false))
-    const original = fs.promises.appendFile
-    fs.promises.appendFile = async (filename, content, options) => {
-      await original.call(fs.promises, filename, content.slice(0, 30), options)
+    const original = fs.appendFileSync
+    fs.appendFileSync = (filename, content, options) => {
+      original.call(fs, filename, content.subarray(0, 30), options)
       throw new Error('disk full')
     }
-    try { expect(await store.record(value(true))).to.equal(null) } finally { fs.promises.appendFile = original }
+    try { expect(await store.record(value(true))).to.equal(null) } finally { fs.appendFileSync = original }
     expect(await store.record(value(true))).not.to.equal(null)
     expect((await store.query()).entries.map(entry => entry.payload)).to.deep.equal([true, false])
+  })
+
+  it('keeps the history queryable while File Cache Control defers or disables its writes', async () => {
+    const deferred = createFileStorage({ ownerId: 'viewer-test-deferred', mode: 'balanced' })
+    const store = create({ storage: deferred })
+    const first = await store.record(value(false))
+    const second = await store.record(value(true))
+    expect(historyFiles(userDir)).to.have.length(0)
+    expect((await store.query()).entries.map(entry => entry.id)).to.deep.equal([second.id, first.id])
+    deferred.handleGatewayEvent()
+    expect(historyFiles(userDir)).to.have.length(1)
+    const third = await store.record(value(false))
+    expect((await store.query({ limit: 2 })).entries.map(entry => entry.id)).to.deep.equal([third.id, second.id])
+    await store.close()
+    deferred.close()
+    expect(fs.readFileSync(historyFiles(userDir)[0], 'utf8').trim().split('\n')).to.have.length(3)
+
+    const disabled = createFileStorage({ ownerId: 'viewer-test-disabled', mode: 'disabled' })
+    const memoryOnly = create({ storage: disabled, nodeId: 'memory-only' })
+    const kept = await memoryOnly.record(value(true))
+    expect((await memoryOnly.query()).entries.map(entry => entry.id)).to.deep.equal([kept.id])
+    // Expired hours are dropped from memory too.
+    timestamp += HISTORY_TTL_MS + HOUR_MS
+    expect((await memoryOnly.query()).entries).to.deep.equal([])
+    expect(disabled.pending.size).to.equal(0)
+    expect(historyFiles(userDir)).to.have.length(1)
+    disabled.close()
   })
 
   it('waits for accepted writes and rejects records submitted after close', async () => {

@@ -5,24 +5,36 @@ lang: it
 permalink: /wiki/it-Docs-Language-Bar
 translation_key: "Docs-Language-Bar"
 ---
+
+# Traduzioni della wiki — Come fare
+
+Il sito della documentazione mostra ogni pagina in sei lingue: inglese, italiano, tedesco, francese, spagnolo e cinese semplificato. Il menu lingua della barra di navigazione collega automaticamente le traduzioni della stessa pagina.
+
+## Nomi dei file
+
+- La pagina inglese non ha prefisso (ad esempio `Device.md`).
+- Le traduzioni usano i prefissi `it-`, `de-`, `fr-`, `es-` e `zh-CN-` (ad esempio `it-Device.md`).
+
+## Front matter
+
+Ogni pagina inizia con un blocco di front matter:
+
+```yaml
 ---
-<h1> <P align = 'Center'> Barra linguistica wiki - Come </p> </h1>
-Usa questo modello per aggiungere l'interruttore linguistico alle pagine wiki e mantenere la denominazione coerente tra le traduzioni.
-Linee guida
--FILINAMES: base en pagina, quindi prefisso per altre lingue: `it-`,` de-`,` zh-cn-` (ad esempio, `hue light.md`,` it-hue light.md`).
-- Prima riga (richiesta): aggiungi la barra linguistica con l'icona del globo e collegamenti alle quattro varianti.
-  -Separatore: aggiungi `---` Nella riga successiva, quindi una riga vuota, quindi il contenuto della pagina.
-- Link: usa URL wiki assoluti.Gli spazi diventano `+` negli URL (ad es. `Hue Light` →` Hue+Light`).
-- Nuove pagine: se una traduzione non è ancora disponibile, è possibile conservare temporaneamente solo la pagina EN pubblicata;Aggiungi altri file quando sono pronti.
-Frammento
-- Mettilo in cima a ogni pagina, sostituendo il titolo di pagina "con il nome file wiki senza estensione:
-- `🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Page+Title) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Page+Title) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Page+Title) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Page+Title)`
-  -`---`
-Convenzioni
-- Pagine del nodo Hue: le sezioni dovrebbero seguire `General`,` mapping`, `outputs`,` dettagli`.
-- Utilizzare nozioni DPT coerenti (ad es. `Dpt 3.007`,` dpt 5.001`, `dpt 9.001`).
-- Mantieni invariati nomi di prodotti e marchi (ad es. Hue, KNX).
-Manutentori
-- Convalida tutte le pagine: `npm run wiki: validate`
-  -barre linguistiche automatiche su URL assoluti: `npm run wiki: fix-langbar`
-- Note: `_sidebar.md`,` _footer.md` e le pagine in `campioni/` sono esclusi dalla convalida.
+layout: wiki
+title: "Device"
+lang: it
+permalink: /wiki/it-Device
+translation_key: "Device"
+---
+```
+
+- `lang` deve corrispondere al prefisso del file (`en` se non c'è prefisso).
+- `translation_key` è uguale in tutte le traduzioni di una pagina: la barra di navigazione lo usa per collegarle.
+- `npm run wiki:refresh` crea il front matter delle nuove pagine.
+
+## Verifiche
+
+- `npm run wiki:validate` segnala le pagine senza front matter, con `lang` errato o senza `translation_key`, le pagine che hanno ancora la vecchia barra "🌐 Language:" e le pagine a cui manca qualche traduzione.
+- `npm run wiki:fix-langbar` corregge `lang` e `translation_key` e rimuove la vecchia barra. Le traduzioni mancanti vanno scritte a mano.
+- `_Sidebar.md`, `_Footer.md` e le pagine in `samples/` non vengono verificati.

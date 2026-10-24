@@ -10,6 +10,8 @@ translation_key: "SceneController-Configuration"
 >
 > [KNX Utility]({{ '/wiki/fr-KNX-Utility' | relative_url }}) · [Passer de la version 7 à la 8]({{ '/wiki/fr-Migration-8' | relative_url }})
 
+> 💾 Le moment où les scènes enregistrées sont écrits sur le disque dépend du **contrôle du cache fichiers** de la passerelle KNX. Avec **Désactiver l'écriture**, ils restent uniquement en mémoire et sont perdus à chaque redémarrage de Node-RED. Voir [Configuration de la passerelle]({{ '/wiki/fr-Gateway-configuration' | relative_url }}).
+
 
 Le nœud de contrôle de la scène, se comporte exactement comme un périphérique de contrôleur de scène.Il est capable d'économiser et de rappeler une scène. 
 

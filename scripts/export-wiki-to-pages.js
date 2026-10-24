@@ -3,7 +3,7 @@
  * Housekeeping script for docs/wiki:
  *  - removes Finder-style duplicate files (e.g., "Page 2.md")
  *  - normalises links so they point to the GitHub Pages site
- *  - keeps a few placeholder pages in place (Page Title, missing translations, …)
+ *  - keeps placeholder pages in place for missing translations
  */
 
 const fs = require('fs')
@@ -19,42 +19,6 @@ if (!fs.existsSync(WIKI_DIR)) {
 }
 
 const STUBS = [
-  {
-    file: 'Page Title.md',
-    content: `# Placeholder Page Title
-
-This page is a placeholder used inside the documentation snippets (for example when showing how the language bar should look).
-Replace \`Page Title\` with the real name of your page when following those examples.
-If you were looking for the actual documentation, see [Home](./Home) for the index of available pages.
-`
-  },
-  {
-    file: 'de-Page Title.md',
-    content: `# Platzhalterseiten-Titel
-
-Diese Seite dient nur als Platzhalter für die Beispiele in der Dokumentation (zum Beispiel, wenn die Sprachleiste erklärt wird).
-Ersetze \`Page Title\` durch den echten Seitennamen, wenn du den Beispielen folgst.
-Für die echten Inhalte findest du eine Übersicht auf der [Startseite](./Home) der Dokumentation.
-`
-  },
-  {
-    file: 'it-Page Title.md',
-    content: `# Titolo Pagina Segnaposto
-
-Questa pagina è solo un segnaposto utilizzato negli esempi della documentazione (ad esempio quando viene mostrata la barra delle lingue).
-Sostituisci \`Page Title\` con il nome reale della tua pagina quando segui quei passaggi.
-Per i contenuti effettivi consulta l'[indice principale](./Home) della documentazione.
-`
-  },
-  {
-    file: 'zh-CN-Page Title.md',
-    content: `# 占位示例页面
-
-本页面仅用于文档示例（例如展示语言栏时）。
-按照示例操作时请将 \`Page Title\` 替换为你自己的实际页面名称。
-若需查看真实内容，请回到文档的[主页](./Home)。
-`
-  },
   {
     file: 'de-Garage-Configuration.md',
     content: `# Garage-Konfiguration (Übersetzung folgt)

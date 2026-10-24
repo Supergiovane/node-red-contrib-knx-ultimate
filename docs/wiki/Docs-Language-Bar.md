@@ -5,24 +5,36 @@ lang: en
 permalink: /wiki/Docs-Language-Bar
 translation_key: "Docs-Language-Bar"
 ---
+
+# Wiki translations — How To
+
+The documentation site shows every page in six languages: English, Italian, German, French, Spanish and Simplified Chinese. The language menu of the navbar links the translations of the same page automatically.
+
+## Filenames
+
+- The English page has no prefix (for example `Device.md`).
+- Translations use the prefixes `it-`, `de-`, `fr-`, `es-` and `zh-CN-` (for example `it-Device.md`).
+
+## Front matter
+
+Every page starts with a front matter block:
+
+```yaml
 ---
-<h1><p align='center'>Wiki Language Bar — How To</p></h1>
-Use this pattern to add the language switch to wiki pages and keep naming consistent across translations.
-Guidelines
-- Filenames: base EN page, then prefix for other languages: `it-`, `de-`, `zh-CN-` (e.g., `HUE Light.md`, `it-HUE Light.md`).
-- First line (required): add the language bar with the globe icon and links to the four variants.
-- Separator: add `---` on the next line, then a blank line, then the page content.
-- Links: use absolute wiki URLs. Spaces become `+` in URLs (e.g., `HUE Light` → `HUE+Light`).
-- New pages: if a translation is not yet available, you may temporarily keep only the EN page published; add other files when ready.
-Snippet
-- Put this at the very top of each page, replacing `Page Title` with the wiki filename without extension:
-  - `🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Page+Title) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Page+Title) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Page+Title) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Page+Title)`
-  - `---`
-Conventions
-- HUE node pages: sections should follow `General`, `Mapping`, `Outputs`, `Details`.
-- Use consistent DPT notations (e.g., `DPT 3.007`, `DPT 5.001`, `DPT 9.001`).
-- Keep product names and brands unchanged (e.g., HUE, KNX).
-Maintainers
-- Validate all pages: `npm run wiki:validate`
-- Auto-fix language bars to absolute URLs: `npm run wiki:fix-langbar`
-- Notes: `_Sidebar.md`, `_Footer.md`, and pages under `samples/` are excluded from validation.
+layout: wiki
+title: "Device"
+lang: it
+permalink: /wiki/it-Device
+translation_key: "Device"
+---
+```
+
+- `lang` must match the filename prefix (`en` when there is no prefix).
+- `translation_key` is the same in all the translations of a page: the navbar uses it to link them.
+- `npm run wiki:refresh` creates the front matter of new pages.
+
+## Checks
+
+- `npm run wiki:validate` reports pages without front matter, with a wrong `lang` or without `translation_key`, pages still carrying the obsolete "🌐 Language:" bar, and pages missing some translations.
+- `npm run wiki:fix-langbar` fixes `lang` and `translation_key` and removes the obsolete bar. Missing translations must be written by hand.
+- `_Sidebar.md`, `_Footer.md` and the pages under `samples/` are not checked.

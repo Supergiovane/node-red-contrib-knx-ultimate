@@ -42,7 +42,6 @@ Configuration de la passerelle KNX
 | Supprimez la demande ACK en mode tunnel | Activez-le si vous avez une très ancienne passerelle KNX / IP. Il ignore la procédure ACK et accepte tous les télégrammes. La valeur par défaut n'est pas contrôlée. |
 | Activer le plugin flow bubbles | Affiche une petite bulle colorée à côté de chaque nœud KNX Device dans l'éditeur. La bulle reflète le dernier état en direct reçu depuis le gateway et s'atténue lorsque les données deviennent obsolètes. Utile pendant la mise en service et le débogage. Valeur par défaut : désactivé. |
 | Retard entre chaque télégramme (en millisecondes) | KNX Specs indique que la vitesse d'envoi de télégramme maximum est de 50 télégrammes par seconde. Une vitesse comprise entre 25 et 50 ms devrait être bien, sauf si vous vous connectez à une passerelle KNX distante via une connexion Internet lente (dans ce cas, vous devez augmenter la valeur, par exemple, 200 à 500 ms ou plus). |
-| Loglevel | Niveau de journal, au cas où vous auriez besoin de déboguer quelque chose avec le développement. La valeur par défaut est "erreur", |
 | Temporisation de l'état du nœud | Définissez la fréquence de mise à jour des badges de statut. Avec un délai actif, les changements intermédiaires sont ignorés et seul le dernier est affiché après l'intervalle choisi. Sélectionnez **Immédiat** pour conserver le comportement en temps réel. |
 | Format date/heure du statut | Choisissez comment l’horodatage est affiché dans le badge de statut (utile quand le locale du système ne peut pas être configuré). |
 | Format personnalisé | Utilisé quand **Personnalisé (jetons)** est sélectionné. Jetons : `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Utilisez `[texte]` pour les littéraux. |
@@ -59,12 +58,15 @@ Configuration de la passerelle KNX
 
 <br/>
 
-**Utilitaire**
+**Contrôle du cache fichiers**
 
-| Propriété | Description |
-|-|-|
-| Rassemblez les informations de débogage pour le dépannage | Veuillez cliquer sur le bouton et l'ajouter au problème GitHub que vous souhaitez ouvrir, cela m'aidera beaucoup à vous aider. |
-| Obtenez tous les GA d'occasion pour le filtre de routage KNX | Appuyez sur Read pour récupérer une liste de texte brut de toutes les adresses de groupe appartenant à cette passerelle, qui a été utilisée dans les flux. Vous pouvez utiliser cette liste pour remplir votre table de filtre de routeur KNX / IP. |
+|Propriété|Description|
+|--|--|
+| Loglevel | Niveau de journalisation, utile pour le débogage. La valeur par défaut est "Error". Le journal n'est pas concerné par la gestion de l'usure du disque. |
+| Gestion de l'usure du disque | Définit la fréquence à laquelle KNX Ultimate écrit ses fichiers sur le disque : valeurs des GA, scènes du Scene Controller, valeurs de l'AutoResponder, fichier du Logger et historique du Viewer. Utile pour réduire l'usure des cartes SD. Les fichiers ne sont écrits que si leur contenu a changé. **Priorité à la fraîcheur** (par défaut) enregistre les modifications toutes les 5 secondes. **Équilibré** les enregistre uniquement à la connexion ou à la déconnexion de la passerelle, ainsi qu'à l'arrêt de Node-RED ou au redéploiement de la passerelle. **Désactiver l'écriture** n'écrit jamais sur le disque : les données restent uniquement en mémoire et, à chaque redémarrage de Node-RED, toutes les valeurs actuelles des GA et les données enregistrées par les nœuds KNX Ultimate sont perdues. **Intervalle personnalisé** enregistre les modifications à l'intervalle choisi, de 5 secondes à 30 jours, ainsi qu'à l'arrêt de Node-RED ou au redéploiement de la passerelle. |
+| Intervalle d'écriture | Visible avec **Intervalle personnalisé**. Valeur et unité (secondes, minutes, heures, jours) de l'intervalle d'écriture. |
+
+> Lorsque l'écriture est désactivée, les nœuds KNX Ultimate qui utilisent des fichiers (Device avec lecture initiale depuis un fichier, Scene Controller, AutoResponder, Logger avec enregistrement dans un fichier, Viewer) affichent un rappel dans leur éditeur.
 
 <br/>
 

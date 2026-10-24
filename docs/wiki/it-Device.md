@@ -56,6 +56,8 @@ Il pulsante è visibile soltanto se l’opzione è attiva. In modalità universa
 | Decimals | Arrotonda o gestisce i decimali. Solo numeri. |
 | Negatives | Gestisce i valori negativi. Solo numeri. |
 
+> 💾 Il momento in cui i valori dei GA usati da **Leggi il valore alla connessione/riconnessione** (lettura da file) vengono scritti su disco dipende dal **File Cache Control** del gateway KNX. Con **Disattiva scrittura** restano solo in memoria e vengono persi ad ogni riavvio di Node-RED. Vedi [Configurazione del gateway]({{ '/wiki/it-Gateway-configuration' | relative_url }}).
+
 ## TAB KNX Function
 
 Puoi usare JavaScript per modificare il comportamento del msg in ingresso (dal flow) e del telegramma in uscita (verso il BUS KNX).

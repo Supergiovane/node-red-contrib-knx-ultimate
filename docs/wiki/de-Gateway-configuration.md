@@ -44,7 +44,6 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP-Gateway her.
 | Suppress ACK request in tunneling mode | Für sehr alte KNX/IP-Gateways: ACK ignorieren, alle Telegramme akzeptieren. |
 | Flow-Bubbles-Plugin aktivieren | Zeigt im Editor neben jedem KNX Device Node eine kleine farbige Bubble an. Die Bubble spiegelt den zuletzt vom Gateway empfangenen Live-Status wider und wird abgeblendet, wenn die Daten veraltet sind. Nützlich bei Inbetriebnahme und Debugging. Standard: deaktiviert. |
 | Delay between each telegram (ms) | KNX erlaubt max. 50 Telegramme/s. 25-50 ms sind üblich; bei langsamen Verbindungen höher (z. B. 200-500 ms). |
-| Loglevel | Log-Detailgrad. Standard: "Error". |
 | Aktualisierung der Status-Badges | Legt fest, wie oft die Statusanzeige der Nodes erneuert wird. Mit einer Verzögerung werden Zwischenstände verworfen und nur der letzte Wert nach dem gewählten Intervall angezeigt. Wählen Sie **Sofort**, um das bisherige Echtzeitverhalten beizubehalten. |
 | Status Datum/Uhrzeit-Format | Legt fest, wie Datum/Uhrzeit im Status-Badge angezeigt werden (nützlich, wenn das OS-Locale nicht konfigurierbar ist). |
 | Benutzerdefiniertes Format | Wird verwendet, wenn **Benutzerdefiniert (Tokens)** gewählt ist. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Verwenden Sie `[Text]` für Literale. |
@@ -57,12 +56,15 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP-Gateway her.
 | If Group Address has no Datapoint | Wenn eine GA keinen DPT hat: Import abbrechen, GA überspringen oder GA mit Platzhalter-DPT `1.001` übernehmen. |
 | ETS group address list | Inhalt der ETS-Datei (CSV/ESF) einfügen oder Dateipfad angeben (z. B. `/home/pi/mycsv.csv`). Siehe Hilfelinks. |
 
-**Werkzeuge**
+**Datei-Cache-Steuerung**
 
 |Eigenschaft|Beschreibung|
 |--|--|
-| Gather debug info for troubleshoot | Button klicken und Ausgabe an ein GitHub-Issue anhängen. |
-| Get all used GA for KNX routing filter | Mit READ eine Textliste aller in Flows verwendeten GAs für dieses Gateway holen - zum Befüllen der Filtertabelle deines KNX/IP-Routers. |
+| Loglevel | Log-Detailgrad. Standard: "Error". Das Log ist von der Schreibverschleiß-Verwaltung nicht betroffen. |
+| Schreibverschleiß-Verwaltung | Legt fest, wie oft KNX Ultimate seine Dateien auf den Datenträger schreibt: GA-Werte, Szenen des Scene Controllers, AutoResponder-Werte, Logger-Datei und Viewer-Verlauf. Nützlich, um den Verschleiß von SD-Karten zu verringern. Dateien werden nur geschrieben, wenn sich ihr Inhalt geändert hat. **Aktualität zuerst** (Standard) speichert Änderungen alle 5 Sekunden. **Ausgewogen** speichert sie nur beim Verbinden oder Trennen des Gateways sowie wenn Node-RED stoppt oder das Gateway neu bereitgestellt wird. **Schreiben deaktivieren** schreibt nie auf den Datenträger: Die Daten bleiben nur im Speicher, und bei jedem Neustart von Node-RED gehen alle aktuellen GA-Werte und die von den KNX-Ultimate-Knoten gespeicherten Daten verloren. **Benutzerdefiniertes Intervall** speichert Änderungen im gewählten Intervall (5 Sekunden bis 30 Tage) sowie wenn Node-RED stoppt oder das Gateway neu bereitgestellt wird. |
+| Schreibintervall | Sichtbar bei **Benutzerdefiniertes Intervall**. Wert und Einheit (Sekunden, Minuten, Stunden, Tage) des Schreibintervalls. |
+
+> Ist das Schreiben deaktiviert, zeigen die KNX-Ultimate-Knoten, die Dateien verwenden (Device mit initialem Lesen aus Datei, Scene Controller, AutoResponder, Logger mit Speicherung in Datei, Viewer), einen Hinweis in ihrem Editor.
 
 # Arbeit mit ETS-CSV oder ESF
 

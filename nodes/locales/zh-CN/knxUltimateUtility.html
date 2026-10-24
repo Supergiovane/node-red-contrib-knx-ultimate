@@ -163,6 +163,8 @@ msg = {
 
 ## AutoResponder
 
+> 💾 已存储的值何时写入磁盘由 KNX 网关的**文件缓存控制**决定。选择**禁用写入**时，这些数据仅保存在内存中，每次重启 Node-RED 都会丢失。 参见 KNX 网关的**文件缓存控制**选项卡。
+
 此节点将响应KNX总线的读取请求。
 
 节点记录所有传输到KNX总线并将值存储在内存中的电报。
@@ -503,6 +505,8 @@ global.set("KNXContextBanana_WRITE", toSend);
 
 ## 日志记录
 
+> 💾 **发送 payload 并保存到文件**的 XML 文件何时写入磁盘由 KNX 网关的**文件缓存控制**决定。选择**禁用写入**时，这些数据仅保存在内存中，每次重启 Node-RED 都会丢失。 参见 KNX 网关的**文件缓存控制**选项卡。
+
 ### Logger（日志）
 
 Logger 节点会记录所有报文，并输出一份与 ETS Bus Monitor 兼容的 XML 文件。
@@ -761,6 +765,8 @@ return msg;
 <a id="knx-utility-help-scenecontroller"></a>
 
 ## 场景控制
+
+> 💾 已保存的场景何时写入磁盘由 KNX 网关的**文件缓存控制**决定。选择**禁用写入**时，这些数据仅保存在内存中，每次重启 Node-RED 都会丢失。 参见 KNX 网关的**文件缓存控制**选项卡。
 
 ### Scene Controller（场景控制器）
 

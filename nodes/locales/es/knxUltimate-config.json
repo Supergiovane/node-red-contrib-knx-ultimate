@@ -64,7 +64,7 @@
       "configuration": "Configuración",
       "advanced": "Avanzado",
       "ets_import": "Importación de archivos de ETS",
-      "utility": "Utilidad"
+      "file_cache": "Control de caché de archivos"
     },
     "advanced": {
       "knx_phy_addr": "Dirección física KNX",
@@ -137,22 +137,19 @@
       "tunnel_user_password": "Contraseña de usuario del túnel",
       "ga_list_label": "Lista de direcciones del grupo ETS"
     },
-    "utility": {
-      "gather_debug": "Reúna la depuración y el registro para la solución de problemas",
-      "get_all_used_ga": "Obtenga todos los usos GA para el filtro de enrutamiento KNX",
-      "read_button": "Leer",
-      "copy_ga_router": "Copie estas direcciones de grupo en su lista de tabla de enrutamiento de su enrutador KNX/IP.",
-      "clear_persist_label": "Borrar caché persistente de GA de esta pasarela",
-      "clear_persist_button": "Borrar",
-      "clear_persist_confirm": "Esto elimina el archivo de caché persistente de GA para esta pasarela. ¿Continuar?",
-      "clear_persist_ok": "Eliminar",
-      "clear_persist_cancel": "Cancelar",
-      "clear_persist_done": "Caché persistente de GA eliminada.",
-      "clear_persist_fail": "No se puede eliminar la caché persistente de GA",
-      "reveal_keyring_label": "Mostrar las contraseñas del keyring en texto claro (KNX Secure)",
-      "reveal_keyring_button": "Mostrar",
-      "reveal_keyring_loading": "Decodificando el keyring, espere...",
-      "reveal_keyring_fail": "No se puede decodificar el keyring. Comprueba el archivo keyring y la contraseña general."
+    "file_cache": {
+      "mode": "Gestión del desgaste del disco",
+      "mode_freshness": "Prioridad a la actualidad",
+      "mode_balanced": "Equilibrado",
+      "mode_disabled": "Desactivar escritura",
+      "mode_custom": "Intervalo personalizado",
+      "interval": "Intervalo de escritura",
+      "unit_seconds": "segundos",
+      "unit_minutes": "minutos",
+      "unit_hours": "horas",
+      "unit_days": "días",
+      "disabled_tip": "La escritura en disco está desactivada (control de caché de archivos de la pasarela KNX): en cada reinicio de Node-RED se perderán todos los valores actuales de las GA y los datos guardados por los nodos KNX Ultimate.",
+      "description": "Define con qué frecuencia KNX Ultimate escribe sus archivos en el disco (valores de las GA, escenas del Scene Controller, valores del AutoResponder, archivo del Logger, historial del Viewer) para reducir el desgaste de las tarjetas SD. Los archivos solo se escriben si su contenido ha cambiado. El registro no se ve afectado: usa el nivel de registro.<br/><b>Prioridad a la actualidad</b>: los cambios se guardan cada 5 segundos.<br/><b>Equilibrado</b>: los cambios se guardan solo al conectar o desconectar la pasarela, y cuando Node-RED se detiene o la pasarela se vuelve a desplegar.<br/><b>Desactivar escritura</b>: no se escribe nada en el disco.<br/><b>Intervalo personalizado</b>: los cambios se guardan en el intervalo elegido (de 5 segundos a 30 días), y cuando Node-RED se detiene o la pasarela se vuelve a desplegar."
     }
   }
 }

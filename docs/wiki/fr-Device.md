@@ -56,6 +56,8 @@ Le bouton n’est visible que si l’option est activée. En mode universel, l�
 | Décimales | Des décimales rondes ou manipulées de quelque manière que ce soit. Ne fonctionne que si la valeur est un nombre. |
 | Négatifs | Gère les valeurs négatives. Ne fonctionne que si la valeur est un nombre. |
 
+> 💾 Le moment où les valeurs des GA utilisées par **Lire l'état du début** (lecture depuis le fichier) sont écrits sur le disque dépend du **contrôle du cache fichiers** de la passerelle KNX. Avec **Désactiver l'écriture**, ils restent uniquement en mémoire et sont perdus à chaque redémarrage de Node-RED. Voir [Configuration de la passerelle]({{ '/wiki/fr-Gateway-configuration' | relative_url }}).
+
 Fonction ## Tab KNX
 
 Vous pouvez utiliser JavaScript pour modifier le comportement du msg d'entrée provenant du flux et du télégramme de sortie envoyé au bus KNX. \

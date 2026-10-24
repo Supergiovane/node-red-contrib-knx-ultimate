@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 /*
- Validates (and can fix) the language bar on wiki pages.
- Checks that the first line starts with the globe bar and that links are absolute
- and point to the expected EN/IT/DE/FR/ES/zh-CN pages for that filename.
+ Validates (and can fix) the language links of the wiki pages.
+ The Jekyll wiki navbar switches language by matching pages with the same
+ `translation_key` and a different `lang` in their front matter, so every page must:
+   - start with a front matter block;
+   - declare the `lang` matching its filename prefix (none = en, it-, de-, fr-, es-, zh-CN-);
+   - declare a `translation_key`;
+   - not carry the obsolete "🌐 Language:" bar of the GitHub wiki.
+ Each translation_key should also exist in every language: missing translations
+ are reported, but cannot be fixed automatically.
  Usage:
    node scripts/validate-wiki-languagebar.js           # report only
-   node scripts/validate-wiki-languagebar.js --fix     # update files in-place
+   node scripts/validate-wiki-languagebar.js --fix     # fix lang, translation_key and old bars in-place
 */
 
 const fs = require('fs')
@@ -13,17 +19,16 @@ const path = require('path')
 
 const ROOT = process.cwd()
 const WIKI_DIR = path.join(ROOT, 'docs', 'wiki')
-const ABS_PREFIX = 'https://supergiovane.github.io/node-red-contrib-knx-ultimate/wiki/'
 
 const fix = process.argv.includes('--fix')
 
 const LANGUAGES = [
-  { code: 'EN', prefix: '', slugPrefix: '', label: 'EN' },
-  { code: 'IT', prefix: 'it-', slugPrefix: 'it-', label: 'IT' },
-  { code: 'DE', prefix: 'de-', slugPrefix: 'de-', label: 'DE' },
-  { code: 'FR', prefix: 'fr-', slugPrefix: 'fr-', label: 'FR' },
-  { code: 'ES', prefix: 'es-', slugPrefix: 'es-', label: 'ES' },
-  { code: 'ZH', prefix: 'zh-CN-', slugPrefix: 'zh-CN-', label: '简体中文' }
+  { code: 'zh-CN', prefix: 'zh-CN-' },
+  { code: 'it', prefix: 'it-' },
+  { code: 'de', prefix: 'de-' },
+  { code: 'fr', prefix: 'fr-' },
+  { code: 'es', prefix: 'es-' },
+  { code: 'en', prefix: '' }
 ]
 
 function listMarkdown (dir) {
@@ -36,62 +41,10 @@ function listMarkdown (dir) {
   return out
 }
 
-function deriveBaseTitle (filename) {
-  let title = path.basename(filename, '.md')
-  let changed = true
-  while (changed) {
-    changed = false
-    for (const lang of LANGUAGES) {
-      if (lang.prefix && title.startsWith(lang.prefix)) {
-        title = title.slice(lang.prefix.length)
-        changed = true
-        break
-      }
-    }
-  }
-  return title
-}
-
-function toSlug (title) {
-  return encodeURIComponent(title)
-}
-
-function resolveTargetTitle (dir, baseTitle, lang) {
-  if (!lang.prefix) return baseTitle
-  const candidate = `${lang.prefix}${baseTitle}`
-  const candidatePath = path.join(dir, `${candidate}.md`)
-  return fs.existsSync(candidatePath) ? candidate : baseTitle
-}
-
-function expectedLinks (filename) {
-  const base = deriveBaseTitle(filename)
-  const relative = path.relative(WIKI_DIR, filename)
-  const relDir = path.dirname(relative)
-  const dir = relDir === '.' ? WIKI_DIR : path.join(WIKI_DIR, relDir)
-  const entries = LANGUAGES.map((lang) => {
-    const target = resolveTargetTitle(dir, base, lang)
-    const slug = toSlug(target)
-    return { lang, href: ABS_PREFIX + slug }
-  })
-  return entries
-}
-
-function buildBar (filename) {
-  const entries = expectedLinks(filename)
-  const parts = entries.map((entry) => `[${entry.lang.label}](${entry.href})`)
-  return `🌐 Language: ${parts.join(' | ')}`
-}
-
-function validateFile (file) {
-  const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/)
-  if (!lines.length) return null
-  const first = lines[0]
-  if (!first.startsWith('🌐 Language:')) {
-    return { file, status: 'missing', message: 'Missing language bar' }
-  }
-  const want = buildBar(file)
-  const ok = first === want
-  return { file, status: ok ? 'ok' : 'mismatch', message: ok ? '' : 'Bar differs from expected', expected: want, current: first }
+function detectLang (file) {
+  const base = path.basename(file, '.md')
+  const lang = LANGUAGES.find(item => item.prefix && base.startsWith(item.prefix)) || LANGUAGES.find(item => !item.prefix)
+  return { code: lang.code, title: base.slice(lang.prefix.length) }
 }
 
 function shouldSkip (file) {
@@ -102,35 +55,79 @@ function shouldSkip (file) {
   return false
 }
 
-const files = listMarkdown(WIKI_DIR).filter(f => !shouldSkip(f))
-let missing = 0; let mismatches = 0; let fixed = 0
-for (const f of files) {
-  const res = validateFile(f)
-  if (!res) continue
-  if (res.status === 'ok') continue
-  if (res.status === 'missing') {
-    missing++
-    if (fix) {
-      const content = fs.readFileSync(f, 'utf8')
-      const updated = buildBar(f) + '\n' + content
-      fs.writeFileSync(f, updated, 'utf8')
-      fixed++
-    } else {
-      console.log(`[MISSING] ${path.relative(WIKI_DIR, f)}`)
-    }
-  } else if (res.status === 'mismatch') {
-    mismatches++
-    if (fix) {
-      const lines = fs.readFileSync(f, 'utf8').split(/\r?\n/)
-      lines[0] = res.expected
-      fs.writeFileSync(f, lines.join('\n'), 'utf8')
-      fixed++
-    } else {
-      console.log(`[MISMATCH] ${path.relative(WIKI_DIR, f)}`)
-      console.log(`  current: ${res.current}`)
-      console.log(`  expected: ${res.expected}`)
-    }
+function parse (file) {
+  const content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?/)
+  if (!match) return { content, frontMatter: null }
+  const fields = {}
+  for (const line of match[1].split('\n')) {
+    const field = line.match(/^([A-Za-z_]+):\s*(.*)$/)
+    if (field) fields[field[1]] = field[2].replace(/^"(.*)"$/, '$1')
+  }
+  return { content, frontMatter: match[1], fields, body: content.slice(match[0].length) }
+}
+
+function setField (frontMatter, name, value) {
+  const line = `${name}: ${value}`
+  const pattern = new RegExp(`^${name}:.*$`, 'm')
+  return pattern.test(frontMatter) ? frontMatter.replace(pattern, line) : `${frontMatter}\n${line}`
+}
+
+const problems = []
+const translations = new Map()
+let fixed = 0
+const files = listMarkdown(WIKI_DIR).filter(file => !shouldSkip(file))
+
+for (const file of files) {
+  const rel = path.relative(WIKI_DIR, file)
+  const page = parse(file)
+  const expected = detectLang(file)
+  if (!page.frontMatter) {
+    problems.push(`[NO FRONT MATTER] ${rel} (run: npm run wiki:refresh)`)
+    continue
+  }
+  // Redirects only forward old URLs: they take no part in the language switch.
+  if (page.fields.layout === 'redirect') continue
+
+  let frontMatter = page.frontMatter
+  let body = page.body
+  const issues = []
+  if (page.fields.lang !== expected.code) {
+    issues.push(`lang is "${page.fields.lang || ''}", expected "${expected.code}"`)
+    frontMatter = setField(frontMatter, 'lang', expected.code)
+  }
+  const key = page.fields.translation_key || expected.title
+  if (!page.fields.translation_key) {
+    issues.push('missing translation_key')
+    frontMatter = setField(frontMatter, 'translation_key', `"${key.replace(/"/g, '\\"')}"`)
+  }
+  if (/^\s*🌐 Language:/.test(body)) {
+    issues.push('obsolete "🌐 Language:" bar')
+    body = body.replace(/^\s*🌐 Language:[^\n]*\n?/, '')
+  }
+
+  if (!translations.has(key)) translations.set(key, new Map())
+  translations.get(key).set(expected.code, rel)
+
+  if (issues.length === 0) continue
+  if (fix) {
+    fs.writeFileSync(file, `---\n${frontMatter}\n---\n${body}`, 'utf8')
+    fixed++
+  } else {
+    problems.push(`[INVALID] ${rel}: ${issues.join(', ')}`)
   }
 }
 
-console.log(`Checked ${files.length} files. Missing: ${missing}, Mismatches: ${mismatches}${fix ? `, Fixed: ${fixed}` : ''}.`)
+let missingTranslations = 0
+for (const [key, pages] of translations) {
+  // English-only pages (e.g. samples) have no translations to link.
+  if (pages.size === 1) continue
+  const missing = LANGUAGES.map(lang => lang.code).filter(code => !pages.has(code))
+  if (missing.length === 0) continue
+  missingTranslations++
+  problems.push(`[MISSING TRANSLATION] "${key}": ${missing.join(', ')}`)
+}
+
+problems.forEach(problem => console.log(problem))
+console.log(`Checked ${files.length} files. Problems: ${problems.length}, missing translations: ${missingTranslations}${fix ? `, Fixed: ${fixed}` : ''}.`)
+process.exitCode = problems.length > 0 ? 1 : 0

@@ -1,9 +1,9 @@
 // Private KNX Utility profile. Independent of the legacy palette entry point.
 const loggerClass = require('../../sysLogger')
+const { storageOf } = require('../../fileStorage')
 
 module.exports = function (RED) {
   const dptlib = require('knxultimate').dptlib
-  const fs = require('fs')
   const path = require('path')
 
   // msg is:
@@ -51,7 +51,6 @@ module.exports = function (RED) {
     node.inputRBE = 'false' // Apply or not RBE to the input (Messages coming from BUS)
     node.exposedGAs = []
     node.commandText = [] // Raw list Respond To
-    node.timerSaveExposedGAs = null
 
     const pushStatus = (status) => {
       if (!status) return
@@ -86,21 +85,24 @@ module.exports = function (RED) {
       // }
     }
 
-    node.saveExposedGAs = async () => {
-      const sFile = path.join(node.serverKNX.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
+    // The gateway's File Cache Control decides when the values reach the disk.
+    const storage = storageOf(node.serverKNX)
+    const persistFile = path.join(node.serverKNX.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
+    node.saveExposedGAs = (snapshot = false) => {
       try {
         // An empty configured list must also replace its previous saved values.
-        fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs))
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimateAutoResponder: wrote peristent values to the file ' + sFile)
+        // A snapshot is serialized now, as the list is about to be discarded.
+        const serialize = () => JSON.stringify(node.exposedGAs)
+        storage.writeFile(persistFile, snapshot ? serialize() : serialize)
       } catch (err) {
-        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimateAutoResponder: unable to write peristent values to the file ' + sFile + ' ' + err.message)
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimateAutoResponder: unable to write peristent values to the file ' + persistFile + ' ' + err.message)
       }
     }
 
     node.loadExposedGAs = () => {
-      const sFile = path.join(node.serverKNX.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
+      const sFile = persistFile
       try {
-        node.exposedGAs = JSON.parse(fs.readFileSync(sFile, 'utf8'))
+        node.exposedGAs = JSON.parse(storage.readFile(sFile, 'utf8'))
       } catch (err) {
         node.exposedGAs = []
         if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn('knxUltimateAutoResponder: unable to read peristent file ' + sFile + ' ' + err.message)
@@ -183,6 +185,7 @@ module.exports = function (RED) {
     // inside the loop discards persisted payloads belonging to later entries;
     // skipping this step for [] leaves removed addresses able to respond.
     node.exposedGAs = node.exposedGAs.filter(ga => ga.enabled === true)
+    node.saveExposedGAs()
 
     // This function is called by the knx-ultimate config node, to output a msg.payload.
     node.handleSend = msg => {
@@ -203,7 +206,9 @@ module.exports = function (RED) {
             updateStatus({ fill: 'red', shape: 'dot', text: 'const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ' + error.message, payload: '', dpt: '', devicename: '' })
             if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error(`knxUltimateAutoResponder: const decodedPayload = dptlib.fromBuffer(msg.knx.rawValue, dptlib.resolve(oGa.dpt)); ${error.stack}`)
           }
+          const changed = JSON.stringify(oGa.payload) !== JSON.stringify(decodedPayload)
           oGa.payload = decodedPayload
+          if (changed) node.saveExposedGAs()
         }
       } else {
         try {
@@ -238,11 +243,7 @@ module.exports = function (RED) {
     })
 
     node.on('close', function (done) {
-      try {
-        if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs)
-        node.saveExposedGAs()
-      } catch (error) {
-      }
+      node.saveExposedGAs(true)
 
       node.exposedGAs = []
       if (node.serverKNX) {
@@ -256,11 +257,6 @@ module.exports = function (RED) {
       node.serverKNX.removeClient(node)
       node.serverKNX.addClient(node)
     }
-    // Start persistence only after configuration and close handling are ready.
-    // Invalid JSON must not leave an interval alive on an inactive profile.
-    node.timerSaveExposedGAs = setInterval(async () => {
-      await node.saveExposedGAs()
-    }, 5000)
   }
   RED.nodes.registerType('knxUltimateAutoResponder', knxUltimateAutoResponder)
 }

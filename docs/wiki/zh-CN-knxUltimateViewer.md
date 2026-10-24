@@ -25,6 +25,8 @@ Read 请求也会保存在 24 小时历史记录中，但不显示上一个值�
 
 运行中的 Viewer 节点会自动将历史记录保存到 `userDir/knxultimatestorage/viewer` 目录下的文件中，并按 Viewer 和网关分别存储。超过 24 小时的变化记录会自动清除。Node-RED 重启后，Viewer 会恢复仍在此时间范围内的历史记录。
 
+> 💾 历史记录文件何时写入磁盘由 KNX 网关的**文件缓存控制**决定。选择**禁用写入**时，这些数据仅保存在内存中，每次重启 Node-RED 都会丢失。 参见 [网关配置]({{ '/wiki/zh-CN-Gateway-configuration' | relative_url }})。
+
 更新后的 Viewer 部署并运行后才会开始记录，不会补录此前的总线流量。
 
 ## 流程输出

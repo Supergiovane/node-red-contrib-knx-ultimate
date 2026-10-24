@@ -10,6 +10,8 @@ translation_key: "Logger-Configuration"
 >
 > [KNX Utility]({{ '/wiki/zh-CN-KNX-Utility' | relative_url }}) · [从第 7 版升级]({{ '/wiki/zh-CN-Migration-8' | relative_url }})
 
+> 💾 **发送 payload 并保存到文件**的 XML 文件何时写入磁盘由 KNX 网关的**文件缓存控制**决定。选择**禁用写入**时，这些数据仅保存在内存中，每次重启 Node-RED 都会丢失。 参见 [网关配置]({{ '/wiki/zh-CN-Gateway-configuration' | relative_url }})。
+
 
 # Logger（日志）
 

@@ -5,34 +5,36 @@ lang: de
 permalink: /wiki/de-Docs-Language-Bar
 translation_key: "Docs-Language-Bar"
 ---
+
+# Wiki-Übersetzungen — Anleitung
+
+Die Dokumentationsseite zeigt jede Seite in sechs Sprachen: Englisch, Italienisch, Deutsch, Französisch, Spanisch und vereinfachtes Chinesisch. Das Sprachmenü der Navigationsleiste verknüpft die Übersetzungen derselben Seite automatisch.
+
+## Dateinamen
+
+- Die englische Seite hat kein Präfix (zum Beispiel `Device.md`).
+- Übersetzungen verwenden die Präfixe `it-`, `de-`, `fr-`, `es-` und `zh-CN-` (zum Beispiel `it-Device.md`).
+
+## Front Matter
+
+Jede Seite beginnt mit einem Front-Matter-Block:
+
+```yaml
 ---
+layout: wiki
+title: "Device"
+lang: it
+permalink: /wiki/it-Device
+translation_key: "Device"
+---
+```
 
-<H1> <p Align = 'Center'> Wiki -Sprachleiste - Wie zu </p> </h1>
+- `lang` muss zum Präfix des Dateinamens passen (`en`, wenn es kein Präfix gibt).
+- `translation_key` ist in allen Übersetzungen einer Seite gleich: Die Navigationsleiste verknüpft sie darüber.
+- `npm run wiki:refresh` erstellt das Front Matter neuer Seiten.
 
-Verwenden Sie dieses Muster, um den Sprachschalter zu Wiki -Seiten hinzuzufügen und weiterhin übersetzende zu benennen.
+## Prüfungen
 
-Richtlinien
--Dateinamen: Basis-EN-Seite, dann Präfix für andere Sprachen: `it-`, `de-`,`zh-cn-'(z. B.`Hue light.md`,` it-hue light.md\`).
-
-- Erste Zeile (erforderlich): Fügen Sie die Sprachleiste mit dem Globe -Symbol hinzu und verlinkt zu den vier Varianten.
-  -Separator: Hinzufügen von `---` in der nächsten Zeile, dann einer leeren Zeile, dann auf dem Seiteninhalt.
-- Links: Verwenden Sie absolute Wiki -URLs.Leerzeichen werden in URLs zu "+" (z. B. "Hue Light" → "Hue+Light").
-- Neue Seiten: Wenn eine Übersetzung noch nicht verfügbar ist, können Sie nur vorübergehend die EN -Seite veröffentlichen.Fügen Sie andere Dateien hinzu, wenn Sie fertig sind.
-
-Snippet
-
-- Setzen Sie dies ganz oben auf jeder Seite und ersetzen Sie den Page -Titel "durch den Wiki -Dateinamen ohne Erweiterung:
-- `🌐 Language: [EN](/node-red-contrib-knx-ultimate/wiki/Page+Title) | [IT](/node-red-contrib-knx-ultimate/wiki/it-Page+Title) | [DE](/node-red-contrib-knx-ultimate/wiki/de-Page+Title) | [简体中文](/node-red-contrib-knx-ultimate/wiki/zh-CN-Page+Title)`
-  -`---`
-
-Konventionen
-.
-
-- Verwenden Sie konsistente DPT -Notationen (z. B. `DPT 3.007`,` DPT 5.001`, `DPT 9.001`).
-- Halten Sie Produktnamen und Marken unverändert (z. B. Hue, KNX).
-
-Betreuer
-
-- Alle Seiten validieren: `NPM Run Wiki: validate`
-  -Auto-Fix-Sprachbalken zu absoluten URLs: `NPM Run Wiki: Fix-Langbar`
-- Hinweise: `_sideBar.md`,` _footer.md` und Seiten unter `proben/` werden von der Validierung ausgeschlossen.
+- `npm run wiki:validate` meldet Seiten ohne Front Matter, mit falschem `lang` oder ohne `translation_key`, Seiten mit der veralteten Leiste "🌐 Language:" sowie Seiten, denen Übersetzungen fehlen.
+- `npm run wiki:fix-langbar` korrigiert `lang` und `translation_key` und entfernt die veraltete Leiste. Fehlende Übersetzungen müssen von Hand geschrieben werden.
+- `_Sidebar.md`, `_Footer.md` und die Seiten unter `samples/` werden nicht geprüft.

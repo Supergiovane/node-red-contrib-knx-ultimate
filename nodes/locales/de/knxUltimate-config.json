@@ -63,7 +63,7 @@
             "configuration": "Konfiguration",
             "advanced": "Erweitert",
             "ets_import": "ETS-Import",
-            "utility": "Dienstprogramme"
+            "file_cache": "Datei-Cache-Steuerung"
         },
         "advanced": {
             "knx_phy_addr": "KNX-Adresse",
@@ -133,22 +133,19 @@
             "tunnel_user_password": "Tunnel-Benutzerpasswort",
             "ga_list_label": "ETS-Gruppenadressliste"
         },
-        "utility": {
-            "gather_debug": "Debug und Log zur Fehlersuche sammeln",
-            "get_all_used_ga": "Alle verwendeten GA für KNX-Routing-Filter abrufen",
-            "read_button": "Lesen",
-            "copy_ga_router": "Kopieren Sie diese Gruppenadressen in die Routing-Tabelle Ihres KNX/IP-Routers.",
-            "clear_persist_label": "Persistenten GA-Cache für dieses Gateway löschen",
-            "clear_persist_button": "Löschen",
-            "clear_persist_confirm": "Dadurch wird die persistente GA-Cache-Datei für dieses Gateway gelöscht. Fortfahren?",
-            "clear_persist_ok": "Löschen",
-            "clear_persist_cancel": "Abbrechen",
-            "clear_persist_done": "Persistenter GA-Cache gelöscht.",
-            "clear_persist_fail": "Persistenter GA-Cache konnte nicht gelöscht werden",
-            "reveal_keyring_label": "Keyring-Passwörter im Klartext anzeigen (KNX Secure)",
-            "reveal_keyring_button": "Anzeigen",
-            "reveal_keyring_loading": "Keyring wird dekodiert, bitte warten...",
-            "reveal_keyring_fail": "Keyring konnte nicht dekodiert werden. Prüfen Sie die Keyring-Datei und das allgemeine Passwort."
+        "file_cache": {
+            "mode": "Schreibverschleiß-Verwaltung",
+            "mode_freshness": "Aktualität zuerst",
+            "mode_balanced": "Ausgewogen",
+            "mode_disabled": "Schreiben deaktivieren",
+            "mode_custom": "Benutzerdefiniertes Intervall",
+            "interval": "Schreibintervall",
+            "unit_seconds": "Sekunden",
+            "unit_minutes": "Minuten",
+            "unit_hours": "Stunden",
+            "unit_days": "Tage",
+            "disabled_tip": "Das Schreiben auf den Datenträger ist deaktiviert (Datei-Cache-Steuerung des KNX-Gateways): Bei jedem Neustart von Node-RED gehen alle aktuellen GA-Werte und die von den KNX-Ultimate-Knoten gespeicherten Daten verloren.",
+            "description": "Legt fest, wie oft KNX Ultimate seine Dateien auf den Datenträger schreibt (GA-Werte, Szenen des Scene Controllers, AutoResponder-Werte, Logger-Datei, Viewer-Verlauf), um den Verschleiß von SD-Karten zu verringern. Dateien werden nur geschrieben, wenn sich ihr Inhalt geändert hat. Das Log ist nicht betroffen: Verwenden Sie dafür die Protokollstufe.<br/><b>Aktualität zuerst</b>: Änderungen werden alle 5 Sekunden gespeichert.<br/><b>Ausgewogen</b>: Änderungen werden nur beim Verbinden oder Trennen des Gateways gespeichert sowie wenn Node-RED stoppt oder das Gateway neu bereitgestellt wird.<br/><b>Schreiben deaktivieren</b>: Es wird nichts auf den Datenträger geschrieben.<br/><b>Benutzerdefiniertes Intervall</b>: Änderungen werden im gewählten Intervall (5 Sekunden bis 30 Tage) gespeichert sowie wenn Node-RED stoppt oder das Gateway neu bereitgestellt wird."
         }
     }
 }

@@ -19,6 +19,8 @@ Select a Viewer, search the list or use the pages to browse older changes. **Pau
 
 The active Viewer node saves its history automatically in files under `userDir/knxultimatestorage/viewer`, separately for each Viewer and gateway. Changes older than 24 hours are removed automatically. After a Node-RED restart, the Viewer restores the history still within that window.
 
+> 💾 When the history files are written to disk depends on the **File Cache Control** of the KNX gateway. With **Disable writing** they are kept in memory only, and are lost at every restart of Node-RED. See the **File Cache Control** tab of the KNX gateway.
+
 Recording starts when the updated Viewer is deployed and running. It does not reconstruct earlier bus traffic.
 
 ## Flow outputs

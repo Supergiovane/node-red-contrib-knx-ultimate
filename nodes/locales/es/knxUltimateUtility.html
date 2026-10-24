@@ -168,6 +168,8 @@ msg = {
 
 ## AutoResponder
 
+> 💾 El momento en que los valores memorizados se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta la pestaña **Control de caché de archivos** de la pasarela KNX.
+
  Este nodo responderá a las solicitudes de lectura del bus KNX.
 
 El nodo registra todos los telegramas transmitidos al bus KNX y almacenan los valores en la memoria. \
@@ -600,6 +602,8 @@ global.set("KNXContextBanana_WRITE",GroupAddressesSend);
 
 ## Logger
 
+> 💾 El momento en que los datos del archivo XML de **Emitir el payload y guardar en archivo** se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta la pestaña **Control de caché de archivos** de la pasarela KNX.
+
 <
 
 ### Logger
@@ -894,6 +898,8 @@ return msg;
 <a id="knx-utility-help-scenecontroller"></a>
 
 ## Control de escenas
+
+> 💾 El momento en que las escenas guardadas se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta la pestaña **Control de caché de archivos** de la pasarela KNX.
 
 <p> El nodo de control de la escena se comporta exactamente como un dispositivo KNX de controlador de escena.Es capaz de guardar y recordar una escena. </p>
 

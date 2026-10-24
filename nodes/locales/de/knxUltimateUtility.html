@@ -163,6 +163,8 @@ msg = {
 
 ## AutoResponder
 
+> 💾 Wann die gespeicherten Werte auf den Datenträger geschrieben werden, bestimmt die **Datei-Cache-Steuerung** des KNX-Gateways. Mit **Schreiben deaktivieren** bleiben sie nur im Speicher und gehen bei jedem Neustart von Node-RED verloren. Siehe den Tab **Datei-Cache-Steuerung** des KNX-Gateways.
+
  Dieser Knoten antwortet auf Leseanfragen aus dem KNX -Bus.
 
 Der Knoten zeichnet alle an den KNX -Bus übertragenen Telegramme auf und speichert die Werte im Speicher.
@@ -502,6 +504,8 @@ global.set("KNXContextBanana_WRITE", toSend);
 
 ## Logger
 
+> 💾 Wann die Daten der XML-Datei von **Payload senden und in Datei speichern** auf den Datenträger geschrieben werden, bestimmt die **Datei-Cache-Steuerung** des KNX-Gateways. Mit **Schreiben deaktivieren** bleiben sie nur im Speicher und gehen bei jedem Neustart von Node-RED verloren. Siehe den Tab **Datei-Cache-Steuerung** des KNX-Gateways.
+
 ### Logger
 
 Der Logger-Node zeichnet alle Telegramme auf und erzeugt eine ETS-Busmonitor-kompatible XML-Datei.
@@ -760,6 +764,8 @@ return msg;
 <a id="knx-utility-help-scenecontroller"></a>
 
 ## Szenensteuerung
+
+> 💾 Wann die gespeicherten Szenen auf den Datenträger geschrieben werden, bestimmt die **Datei-Cache-Steuerung** des KNX-Gateways. Mit **Schreiben deaktivieren** bleiben sie nur im Speicher und gehen bei jedem Neustart von Node-RED verloren. Siehe den Tab **Datei-Cache-Steuerung** des KNX-Gateways.
 
 ### Scene Controller
 

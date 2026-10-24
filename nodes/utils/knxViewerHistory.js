@@ -1,9 +1,6 @@
-const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
-const readline = require('readline')
-const { once } = require('events')
-const { finished } = require('stream/promises')
+const { directStorage } = require('./fileStorage')
 
 const HISTORY_TTL_MS = 24 * 60 * 60 * 1000
 const HOUR_MS = 60 * 60 * 1000
@@ -11,6 +8,7 @@ const MAINTENANCE_MS = 60 * 1000
 const CHUNK_BYTES = 64 * 1024
 const MAX_LINE_BYTES = 1024 * 1024
 const FILE_PATTERN = /^(\d+)\.jsonl$/
+const FILE_OPTIONS = { mode: 0o600, dirMode: 0o700, newlineDelimited: true }
 
 // Canonical JSON makes structured values independent of object key order and
 // treats a Buffer identically before and after its JSON round trip.
@@ -56,21 +54,30 @@ function parseEntry (line) {
   return null
 }
 
-async function * forwardLines (filename) {
-  const stream = fs.createReadStream(filename, { encoding: 'utf8' })
-  const lines = readline.createInterface({ input: stream, crlfDelay: Infinity })
-  // readline does not forward input-stream errors to its async iterator.
-  let streamError
-  stream.on('error', error => { streamError = error; lines.close() })
+// Files are read through the storage, so data not yet written to disk is included.
+async function * forwardLines (storage, filename) {
+  const snapshot = await storage.openSnapshot(filename)
+  let position = 0
+  let pending = Buffer.alloc(0)
   try {
-    for await (const line of lines) {
-      if (Buffer.byteLength(line) > MAX_LINE_BYTES) throw new Error('KNX Viewer history contains an oversized entry')
-      if (line) yield line
+    while (position < snapshot.size) {
+      const chunk = Buffer.allocUnsafe(Math.min(CHUNK_BYTES, snapshot.size - position))
+      const { bytesRead } = await snapshot.read(chunk, 0, chunk.length, position)
+      if (!bytesRead) break
+      position += bytesRead
+      const data = Buffer.concat([pending, chunk.subarray(0, bytesRead)])
+      let start = 0
+      for (let index = data.indexOf(10); index !== -1; index = data.indexOf(10, start)) {
+        if (index - start > MAX_LINE_BYTES) throw new Error('KNX Viewer history contains an oversized entry')
+        if (index > start) yield data.subarray(start, index).toString('utf8')
+        start = index + 1
+      }
+      pending = data.subarray(start)
+      if (pending.length > MAX_LINE_BYTES) throw new Error('KNX Viewer history contains an oversized entry')
     }
-    if (streamError) throw streamError
+    if (pending.length) yield pending.toString('utf8')
   } finally {
-    lines.close()
-    stream.destroy()
+    await snapshot.close()
   }
 }
 
@@ -95,30 +102,26 @@ async function * reverseLines (handle, size) {
   if (pending.length) yield pending.toString('utf8')
 }
 
-async function repairIncompleteTail (filename) {
-  const handle = await fs.promises.open(filename, 'r+')
+async function repairIncompleteTail (storage, filename) {
+  const snapshot = await storage.openSnapshot(filename)
+  let complete = true
   try {
-    let position = (await handle.stat()).size
-    if (!position) return
-    while (position > 0) {
-      const length = Math.min(position, CHUNK_BYTES)
-      position -= length
-      const chunk = Buffer.allocUnsafe(length)
-      const { bytesRead } = await handle.read(chunk, 0, length, position)
-      const newline = chunk.subarray(0, bytesRead).lastIndexOf(10)
-      if (newline !== -1) {
-        await handle.truncate(position + newline + 1)
-        return
-      }
+    if (snapshot.size) {
+      const last = Buffer.alloc(1)
+      await snapshot.read(last, 0, 1, snapshot.size - 1)
+      complete = last[0] === 10
     }
-    await handle.truncate(0)
   } finally {
-    await handle.close()
+    await snapshot.close()
   }
+  if (complete) return
+  const content = storage.readFile(filename)
+  storage.writeFile(filename, content.subarray(0, content.lastIndexOf(10) + 1), FILE_OPTIONS)
 }
 
 /** Persistent, paginated state changes for one Viewer and one KNX gateway. */
-function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.now }) {
+// Every file operation goes through the gateway's File Cache Control storage.
+function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.now, storage = directStorage }) {
   // Hashing both identifiers prevents path traversal and filesystem name limits.
   const identity = crypto.createHash('sha256').update(JSON.stringify([String(nodeId), String(gatewayId || '')])).digest('hex')
   const directory = path.join(userDir, 'knxultimatestorage', 'viewer', identity)
@@ -158,7 +161,7 @@ function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.
   }
 
   async function files () {
-    return (await fs.promises.readdir(directory))
+    return storage.listDirectory(directory)
       .filter(name => FILE_PATTERN.test(name))
       .map(name => ({ name, hour: Number(name.slice(0, -6)), filename: path.join(directory, name) }))
       .filter(file => Number.isSafeInteger(file.hour))
@@ -174,46 +177,17 @@ function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.
     })
   }
 
-  async function compact (file, cutoff) {
-    const temporary = `${file.filename}.${crypto.randomUUID()}.tmp`
-    const output = fs.createWriteStream(temporary, { flags: 'wx', mode: 0o600 })
-    // Observe errors immediately, including ones raised while reading input.
-    const completion = finished(output)
-    completion.catch(() => {})
-    let removed = false
-    let count = 0
-    try {
-      for await (const line of forwardLines(file.filename)) {
-        const entry = parseEntry(line)
-        if (!entry || entry.timestampMs < cutoff) { removed = true; continue }
-        count++
-        if (!output.write(`${line}\n`)) await once(output, 'drain')
-      }
-      output.end()
-      await completion
-      if (!removed) await fs.promises.unlink(temporary)
-      else if (!count) {
-        await fs.promises.unlink(file.filename)
-        await fs.promises.unlink(temporary)
-        hours.delete(file.hour)
-      } else await fs.promises.rename(temporary, file.filename)
-    } catch (error) {
-      output.destroy()
-      await completion.catch(() => {})
-      await fs.promises.unlink(temporary).catch(() => {})
-      throw error
-    }
-  }
-
   async function prune (force = false) {
     const timestamp = clock()
     if (!force && timestamp - lastPrune < MAINTENANCE_MS) return
     const cutoff = timestamp - HISTORY_TTL_MS
+    // Only whole expired hours are deleted: rewriting a partially expired hour
+    // would wear the disk, and queries already skip its expired entries.
     for (const file of await files()) {
       if ((file.hour + 1) * HOUR_MS <= cutoff) {
-        await fs.promises.unlink(file.filename)
+        storage.deleteFile(file.filename)
         hours.delete(file.hour)
-      } else if (file.hour * HOUR_MS < cutoff) await compact(file, cutoff)
+      }
     }
     for (const [address, state] of latest) {
       if (state.timestampMs < cutoff) latest.delete(address)
@@ -223,17 +197,17 @@ function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.
 
   async function initialize () {
     if (initialized) return
-    await fs.promises.mkdir(directory, { recursive: true, mode: 0o700 })
-    for (const name of await fs.promises.readdir(directory)) {
-      if (/^\d+\.jsonl\.[0-9a-f-]+\.tmp$/.test(name)) await fs.promises.unlink(path.join(directory, name))
+    for (const name of storage.listDirectory(directory)) {
+      // Left over by the compaction of previous versions.
+      if (/^\d+\.jsonl\.[0-9a-f-]+\.tmp$/.test(name)) storage.deleteFile(path.join(directory, name))
     }
-    for (const file of await files()) await repairIncompleteTail(file.filename)
+    for (const file of await files()) await repairIncompleteTail(storage, file.filename)
     await prune(true)
     latest.clear()
     hours.clear()
     const cutoff = clock() - HISTORY_TTL_MS
     for (const file of await files()) {
-      for await (const line of forwardLines(file.filename)) {
+      for await (const line of forwardLines(storage, file.filename)) {
         const entry = parseEntry(line)
         if (!entry || entry.timestampMs < cutoff) continue
         sequence = Math.max(sequence, sequenceOf(entry))
@@ -324,7 +298,7 @@ function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.
         if (Buffer.byteLength(line) > MAX_LINE_BYTES) throw new Error('KNX Viewer history entry exceeds 1 MiB')
         const filename = path.join(directory, `${Math.floor(timestampMs / HOUR_MS)}.jsonl`)
         try {
-          await fs.promises.appendFile(filename, line, { encoding: 'utf8', mode: 0o600 })
+          storage.appendFile(filename, line, FILE_OPTIONS)
         } catch (error) {
           // A failed write can leave half a line; repair it before a later retry.
           initialized = false
@@ -358,10 +332,8 @@ function createViewerHistory ({ userDir, nodeId, gatewayId, onError, now = Date.
         const cutoff = timestamp - HISTORY_TTL_MS
         for (const file of (await files()).reverse()) {
           if ((file.hour + 1) * HOUR_MS <= cutoff || (cursor && file.hour * HOUR_MS > cursor.timestampMs)) continue
-          const handle = await fs.promises.open(file.filename, 'r')
-          const snapshot = { handle, size: 0, ordered: hours.get(file.hour)?.ordered === true }
-          snapshots.push(snapshot)
-          snapshot.size = (await handle.stat()).size
+          const handle = await storage.openSnapshot(file.filename)
+          snapshots.push({ handle, size: handle.size, ordered: hours.get(file.hour)?.ordered === true })
         }
         return { timestamp, cutoff }
       }, null)

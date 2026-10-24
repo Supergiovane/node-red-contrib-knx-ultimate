@@ -1,10 +1,10 @@
 // Private KNX Utility profile. Independent of the legacy palette entry point.
 const createProfileTimers = require('./profileTimers')
 const loggerClass = require('../../sysLogger')
+const { storageOf } = require('../../fileStorage')
 
 module.exports = function (RED) {
   function knxUltimateSceneController (config) {
-    const fs = require('fs')
     const path = require('path')
 
     RED.nodes.createNode(this, config)
@@ -72,43 +72,9 @@ module.exports = function (RED) {
       })
     }
 
-    function setupDirectory (aPath) {
-      try {
-        return fs.statSync(aPath).isDirectory()
-      } catch (e) {
-        // Path does not exist
-        if (e.code === 'ENOENT') {
-          // Try and create it
-          try {
-            try {
-              fs.mkdirSync(aPath, { recursive: true })
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.info('knxUltimate-Scene Controller: created directory path: ' + aPath)
-            } catch (error) {
-              if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: failed to access path:: ' + aPath + ' : ' + error)
-              return false
-            }
-
-            return true
-          } catch (e) {
-            if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: failed to create path: ' + aPath + ' : ' + e)
-          }
-        }
-        // Otherwise failure
-        return false
-      }
-    }
-
-    // This stores all scenes values, that are been saved.
-    try {
-      setupDirectory(node.userDir)
-    } catch (error) { }
-    if (!setupDirectory(node.userDir + '/scenecontroller')) {
-      if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimate-Scene Controller: Unable to set up permanent files directory: ' + node.userDir + '/scenecontroller')
-      updateStatus({ fill: 'red', shape: 'dot', text: 'Unable to setup permanent files directory' })
-    } else {
-
-    }
-
+    // This stores all scenes values, that are been saved. The gateway's
+    // File Cache Control decides when they reach the disk.
+    const storage = storageOf(node.serverKNX)
     const scenePath = path.join(node.userDir, 'scenecontroller', 'SceneController_' + node.id)
     const definitionPath = scenePath + '.config.json'
     const sceneSchema = rules => rules.map(rule => ({ topic: rule.topic, dpt: rule.dpt || '' }))
@@ -123,20 +89,22 @@ module.exports = function (RED) {
     // original configured values using the separate, ID-based definition file.
     try {
       let oldDefinition
-      try { oldDefinition = JSON.parse(fs.readFileSync(definitionPath, 'utf8')) } catch (error) {
+      try { oldDefinition = JSON.parse(storage.readFile(definitionPath, 'utf8')) } catch (error) {
         if (error.code !== 'ENOENT') throw error
       }
       let oldScene
-      try { oldScene = JSON.parse(fs.readFileSync(scenePath, 'utf8')) } catch (error) {
+      try { oldScene = JSON.parse(storage.readFile(scenePath, 'utf8')) } catch (error) {
         if (error.code !== 'ENOENT') throw error
       }
       const definitionChanged = oldDefinition && JSON.stringify(oldDefinition.rules) !== JSON.stringify(configuredDefinition)
       const schemaChanged = oldScene && (!Array.isArray(oldScene) || JSON.stringify(sceneSchema(oldScene)) !== JSON.stringify(sceneSchema(configuredDefinition)))
       if (definitionChanged || schemaChanged) {
         usePersistedScene = false
-        if (oldScene) fs.unlinkSync(scenePath)
+        if (oldScene) storage.deleteFile(scenePath)
       }
-      fs.writeFileSync(definitionPath, JSON.stringify({ version: 1, rules: configuredDefinition }), 'utf8')
+      // Rewrite the definition only when it changes.
+      const definition = JSON.stringify({ version: 1, rules: configuredDefinition })
+      if (!oldDefinition || JSON.stringify(oldDefinition) !== definition) storage.writeFile(definitionPath, definition)
     } catch (error) {
       usePersistedScene = false
       updateStatus({ fill: 'red', shape: 'dot', text: 'Unable to prepare scene storage: ' + error.message })
@@ -244,7 +212,7 @@ module.exports = function (RED) {
       let oSavedRules = null
       try {
         if (usePersistedScene) {
-          oSavedRules = JSON.parse(fs.readFileSync(scenePath, 'utf8'))
+          oSavedRules = JSON.parse(storage.readFile(scenePath, 'utf8'))
         }
       } catch (error) { }
 
@@ -397,7 +365,7 @@ module.exports = function (RED) {
       }
       node.setNodeStatus({ fill: 'blue', shape: 'dot', text: 'Saved scene', payload: '', GA: '', dpt: '', devicename: '' })
       try {
-        fs.writeFileSync(scenePath, JSON.stringify(node.rules, null, 2), 'utf-8')
+        storage.writeFile(scenePath, JSON.stringify(node.rules, null, 2))
         usePersistedScene = true
       } catch (error) {
         node.setNodeStatus({ fill: 'red', shape: 'dot', text: 'Error saving scene. Unable to access filesystem.', payload: '', GA: '', dpt: '', devicename: node.name })

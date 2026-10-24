@@ -54,6 +54,8 @@ translation_key: "Device"
 | 响应读报文 | 收到读报文时向流程输出（用于自定义返回值）。|
 | Multiply/Decimals/Negatives | 数值缩放、四舍五入、小数与负值处理（仅数值）。|
 
+> 💾 **当初始化连接/重新连接的时候发送读取消息**（从文件读取）所用的 GA 值何时写入磁盘由 KNX 网关的**文件缓存控制**决定。选择**禁用写入**时，这些数据仅保存在内存中，每次重启 Node-RED 都会丢失。 参见 [网关配置]({{ '/wiki/zh-CN-Gateway-configuration' | relative_url }})。
+
 ## TAB KNX Function
 
 可使用 JavaScript 自定义：对来自流程的输入消息、以及发送到总线的报文的处理逻辑。编辑器提供若干对象/函数，用于读取任意 GA 的值：导入 ETS 时可不指定 DPT，未导入则需指定 DPT。

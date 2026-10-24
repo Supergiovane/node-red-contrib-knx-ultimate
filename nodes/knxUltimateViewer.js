@@ -4,6 +4,7 @@ const KNXAddress = require('knxultimate').KNXAddress
 const _ = require('lodash')
 const { getRequestAccessToken, normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
 const createViewerHistory = require('./utils/knxViewerHistory')
+const { storageOf } = require('./utils/fileStorage')
 
 const viewerRuntimeContexts = new WeakMap()
 const knxUltimateViewerVueDistDir = path.join(__dirname, 'plugins', 'knxUltimateViewer-vue')
@@ -314,7 +315,8 @@ module.exports = function (RED) {
         userDir: RED.settings.userDir,
         nodeId: node.id,
         gatewayId: node.serverKNX.id,
-        onError: reportHistoryError
+        onError: reportHistoryError,
+        storage: storageOf(node.serverKNX)
       })
       node.viewerHistory.ready.catch(reportHistoryError)
     } catch (error) {

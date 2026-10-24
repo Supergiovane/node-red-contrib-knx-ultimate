@@ -44,7 +44,6 @@ translation_key: "Gateway-configuration"
 | Suppress ACK request in tunneling mode | 适用于非常老的 KNX/IP 网关：忽略 ACK 流程并接受所有报文。|
 | 启用 flow bubbles 插件 | 在编辑器中为每个 KNX Device 节点显示一个小的彩色气泡。该气泡反映从 gateway 收到的最新实时状态，当数据过旧时会自动变淡。适合在调试和现场调试时快速观察状态。默认未启用。 |
 | Delay between each telegram (ms) | KNX 规范最多 50 报文/秒。一般 25-50ms 合适；若经慢速网络远程连接，建议提高到 200-500ms。|
-| Loglevel | 日志级别（调试用）。默认 "Error"。|
 | 节点状态节流 | 设置状态徽章的刷新频率。启用延时后，中间状态会被丢弃，只在所选间隔后显示最后一次状态。选择 **立即** 可以保持实时显示。|
 | 状态日期/时间格式 | 选择状态徽章中日期/时间的显示方式（当系统区域设置无法配置时很有用）。|
 | 自定义格式 | 仅在选择 **自定义（标记）** 时使用。支持标记：`YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`。使用 `[文本]` 表示字面量。|
@@ -57,12 +56,15 @@ translation_key: "Gateway-configuration"
 | If Group Address has no Datapoint | 当某组地址无 DPT 时：停止导入、跳过该 GA，或使用占位 DPT `1.001` 继续。|
 | ETS group address list | 在此粘贴 ETS 导出的 CSV/ESF 内容，或填写文件路径（如 `/home/pi/mycsv.csv`）。详见帮助链接。|
 
-**工具**
+**文件缓存控制**
 
 |属性|说明|
 |--|--|
-| Gather debug info for troubleshoot | 点击按钮收集信息并附在 GitHub issue 中，便于排查。|
-| Get all used GA for KNX routing filter | 点击 READ 获取此网关在各流程中使用的全部 GA 列表，用于配置路由器过滤表。|
+| Loglevel | 日志级别（调试用）。默认 "Error"。日志不受磁盘磨损管理的影响。 |
+| 磁盘磨损管理 | 控制 KNX Ultimate 将其文件写入磁盘的频率：GA 值、Scene Controller 场景、AutoResponder 值、Logger 文件和 Viewer 历史记录。可用于减少 SD 卡的磨损。仅当文件内容发生变化时才会写入。**新鲜度优先**（默认）每 5 秒保存一次更改。**均衡**仅在网关连接或断开时，以及 Node-RED 停止或网关重新部署时保存。**禁用写入**从不写入磁盘：数据仅保存在内存中，每次重启 Node-RED 时，所有当前 GA 值以及 KNX Ultimate 节点保存的数据都会丢失。**自定义间隔**按所选间隔（5 秒到 30 天）保存更改，并在 Node-RED 停止或网关重新部署时保存。 |
+| 写入间隔 | 选择**自定义间隔**时可见。写入间隔的数值和单位（秒、分钟、小时、天）。 |
+
+> 禁用写入时，使用文件的 KNX Ultimate 节点（从文件进行初始读取的 Device、Scene Controller、AutoResponder、保存到文件的 Logger、Viewer）会在编辑器中显示提醒。
 
 # 使用 ETS CSV 或 ESF 文件
 

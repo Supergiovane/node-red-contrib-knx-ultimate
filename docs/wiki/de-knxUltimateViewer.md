@@ -25,6 +25,8 @@ Wählen Sie einen Viewer, durchsuchen Sie die Liste oder blättern Sie zu älter
 
 Der aktive Viewer-Knoten speichert den Verlauf automatisch in Dateien unter `userDir/knxultimatestorage/viewer`, getrennt nach Viewer und Gateway. Änderungen, die älter als 24 Stunden sind, werden automatisch entfernt. Nach einem Neustart von Node-RED lädt der Viewer den noch in diesem Zeitraum liegenden Verlauf.
 
+> 💾 Wann die Verlaufsdateien auf den Datenträger geschrieben werden, bestimmt die **Datei-Cache-Steuerung** des KNX-Gateways. Mit **Schreiben deaktivieren** bleiben sie nur im Speicher und gehen bei jedem Neustart von Node-RED verloren. Siehe [Gateway-Konfiguration]({{ '/wiki/de-Gateway-configuration' | relative_url }}).
+
 Die Aufzeichnung beginnt, sobald der aktualisierte Viewer bereitgestellt ist und läuft. Frühere Bustelegramme werden nicht nachträglich rekonstruiert.
 
 ## Flow-Ausgänge

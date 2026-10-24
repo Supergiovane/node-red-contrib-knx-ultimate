@@ -10,6 +10,8 @@ translation_key: "Logger-Configuration"
 >
 > [KNX Utility]({{ '/wiki/it-KNX-Utility' | relative_url }}) · [Passare dalla versione 7]({{ '/wiki/it-Migration-8' | relative_url }})
 
+> 💾 Il momento in cui i dati del file XML di **Emetti il payload e salva su file** vengono scritti su disco dipende dal **File Cache Control** del gateway KNX. Con **Disattiva scrittura** restano solo in memoria e vengono persi ad ogni riavvio di Node-RED. Vedi [Configurazione del gateway]({{ '/wiki/it-Gateway-configuration' | relative_url }}).
+
 
 # Logger
 

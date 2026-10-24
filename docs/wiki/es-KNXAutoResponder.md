@@ -10,6 +10,8 @@ translation_key: "KNXAutoResponder"
 >
 > [KNX Utility]({{ '/wiki/es-KNX-Utility' | relative_url }}) · [Actualizar desde la versión 7]({{ '/wiki/es-Migration-8' | relative_url }})
 
+> 💾 El momento en que los valores memorizados se escriben en el disco depende del **control de caché de archivos** de la pasarela KNX. Con **Desactivar escritura** permanecen solo en memoria y se pierden en cada reinicio de Node-RED. Consulta [Configuración de la pasarela]({{ '/wiki/es-Gateway-configuration' | relative_url }}).
+
 
 Este nodo responderá a las solicitudes de lectura del bus KNX.
 

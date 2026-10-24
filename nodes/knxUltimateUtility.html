@@ -12,6 +12,8 @@
     const text = (key) => RED._('node-red-contrib-knx-ultimate/knxUltimateUtility:knxUltimateUtility.' + key);
     const activeType = (node) => node._utilityEditor ? node._utilityEditor.type() : node.utilityType;
     const validationContext = (node) => typeof node._utilityEditor?.values === 'function' ? node._utilityEditor.values() : node;
+    // Functions that save files through the gateway's File Cache Control.
+    const usesFiles = (type) => type === 'autoresponder' || type === 'scenecontroller' || (type === 'logger' && $('#node-input-saveMode').val() === 'emit_save');
 
     function buildDefaults() {
       // Node-RED must know every persistable field and the real config-node
@@ -136,6 +138,7 @@
         let closed = false;
         let helpTimer;
         const container = $('#knx-utility-profile-editor');
+        const refreshFileCacheTip = KNX_bindFileCacheDisabledTip($('#knx-utility-file-cache-tip'), $('#node-input-server'), () => usesFiles(selectedType));
 
         // Edit a separate context: profile hooks (including asynchronous ETS
         // suggestions) must never mutate the saved node before Done is pressed.
@@ -201,6 +204,8 @@
           $('#knx-utility-pin-description').text(text('pins.' + type));
           $('#node-input-name').attr('placeholder', isGlobalContext ? mounted.defaults.name.value : 'KNX Utility · ' + text('types.' + type));
           if (typeof mounted.oneditprepare === 'function') mounted.oneditprepare.call(context);
+          $('#node-input-saveMode').on('change.knxFileCacheTip', refreshFileCacheTip);
+          refreshFileCacheTip();
           // These controls are mounted after Node-RED attaches its initial
           // validation handlers. Trigger a shared field's standard handler so
           // the complete editor validates again while the user edits a profile.
@@ -250,6 +255,7 @@
             closed = true;
             dispose();
             $('#node-input-utilityType').off('.knxUtility');
+            $('#node-input-server').off('.knxFileCacheTip');
           }
         };
         const initialType = node.utilityType || 'alerter';
@@ -311,6 +317,7 @@
     <label for="node-input-server"><i class="fa fa-circle-o"></i> <span data-i18n="knxUltimateUtility.gateway"></span></label>
     <input type="text" id="node-input-server">
   </div>
+  <div class="form-tips" id="knx-utility-file-cache-tip" style="display:none"></div>
   <div class="form-row">
     <label for="node-input-name"><i class="fa fa-tag"></i> <span id="knx-utility-name-label" data-i18n="knxUltimateUtility.name"></span></label>
     <input type="text" id="node-input-name">

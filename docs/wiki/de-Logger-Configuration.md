@@ -10,6 +10,8 @@ translation_key: "Logger-Configuration"
 >
 > [KNX Utility]({{ '/wiki/de-KNX-Utility' | relative_url }}) · [Upgrade von Version 7]({{ '/wiki/de-Migration-8' | relative_url }})
 
+> 💾 Wann die Daten der XML-Datei von **Payload senden und in Datei speichern** auf den Datenträger geschrieben werden, bestimmt die **Datei-Cache-Steuerung** des KNX-Gateways. Mit **Schreiben deaktivieren** bleiben sie nur im Speicher und gehen bei jedem Neustart von Node-RED verloren. Siehe [Gateway-Konfiguration]({{ '/wiki/de-Gateway-configuration' | relative_url }}).
+
 
 # Logger
 

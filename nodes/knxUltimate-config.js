@@ -25,6 +25,7 @@ const loggerClass = require('./utils/sysLogger')
 const payloadRounder = require('./utils/payloadManipulation')
 const utils = require('./utils/utils')
 const dispatchWatchDogNodeError = require('./utils/watchDogErrorDispatcher')
+const { createFileStorage } = require('./utils/fileStorage')
 
 // Versions logged once at startup (node package + KNXUltimate engine)
 let NODE_VERSION = 'unknown'
@@ -239,6 +240,16 @@ module.exports = (RED) => {
     try {
       node.sysLogger = new loggerClass({ loglevel: node.loglevel, setPrefix: node.type + ' <' + (node.name || node.id || '') + '>' })
     } catch (error) { console.log(error.stack) }
+    // File Cache Control: every file written by this gateway and by its nodes goes through this storage.
+    node.fileCacheMode = config.fileCacheMode || 'freshness'
+    node.fileStorage = createFileStorage({
+      ownerId: node.id,
+      mode: node.fileCacheMode,
+      interval: config.fileCacheInterval,
+      intervalUnit: config.fileCacheIntervalUnit,
+      log: (level, message) => node.sysLogger?.[level]?.(message)
+    })
+    node.persistFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
     node.csv = readCSV(config.csv) // Array from ETS CSV Group Addresses {ga:group address, dpt: datapoint, devicename: full device name with main and subgroups}
     node.csvByGa = new Map()
     if (Array.isArray(node.csv)) {
@@ -260,15 +271,27 @@ module.exports = (RED) => {
       return node.exposedGAsByGa.get(ga)
     }
 
+    // The persist file is serialized only when the storage commits it.
+    const saveExposedGAs = () => {
+      node.fileStorage.writeFile(node.persistFile, () => JSON.stringify(node.exposedGAs))
+    }
+    const rawValueKey = (rawValue) => {
+      try { return Buffer.from(rawValue?.data ?? rawValue).toString('hex') } catch (error) { return undefined }
+    }
+
     node.upsertExposedGAEntry = (entry) => {
       if (!entry || typeof entry.ga !== 'string' || entry.ga === '') return undefined
       const existing = node.exposedGAsByGa.get(entry.ga)
       if (existing) {
+        // A repeated value does not need to be written again.
+        const changed = rawValueKey(existing.rawValue) !== rawValueKey(entry.rawValue) || existing.dpt !== entry.dpt || existing.devicename !== entry.devicename
         Object.assign(existing, entry)
+        if (changed) saveExposedGAs()
         return existing
       }
       node.exposedGAs.push(entry)
       node.exposedGAsByGa.set(entry.ga, entry)
+      saveExposedGAs()
       return entry
     }
 
@@ -276,7 +299,10 @@ module.exports = (RED) => {
       if (typeof ga !== 'string' || ga === '') return
       node.exposedGAsByGa.delete(ga)
       const index = node.exposedGAs.findIndex((item) => item.ga === ga)
-      if (index > -1) node.exposedGAs.splice(index, 1)
+      if (index > -1) {
+        node.exposedGAs.splice(index, 1)
+        saveExposedGAs()
+      }
     }
 
     // 12/11/2021 Connect at start delay
@@ -533,7 +559,6 @@ module.exports = (RED) => {
     node.delaybetweentelegrams = (config.delaybetweentelegrams === undefined || config.delaybetweentelegrams === null || config.delaybetweentelegrams === '') ? 25 : Number(config.delaybetweentelegrams)
     if (node.delaybetweentelegrams < 25) node.delaybetweentelegrams = 25 // Protection avoiding handleKNXQueue hangs
     if (node.delaybetweentelegrams > 100) node.delaybetweentelegrams = 100 // Protection avoiding handleKNXQueue hangs
-    node.timerSaveExposedGAs = null // Timer to save the exposed GA every once in a while
 
     // 05/12/2021 Set the protocol (this is undefined if coming from ild versions
     if (node.hostProtocol === 'Auto') {
@@ -794,50 +819,18 @@ module.exports = (RED) => {
       }
     })()
 
-    // 04/04/2021 Supergiovane, creates the service paths where the persistent files are created.
-    // The values file is stored only upon disconnection/close
+    // 04/04/2021 Supergiovane, persistent GA values. The file is written by the
+    // File Cache Control storage, according to the selected disk-wearing mode.
     // ************************
-    function setupDirectory (_aPath) {
-      if (!fs.existsSync(_aPath)) {
-        // Create the path
-        try {
-          fs.mkdirSync(_aPath)
-          return true
-        } catch (error) {
-          return false
-        }
-      } else {
-        return true
-      }
-    }
-    if (!setupDirectory(node.userDir)) {
-      node.sysLogger?.error('Unable to set up MAIN directory: ' + node.userDir)
-    }
-    if (!setupDirectory(path.join(node.userDir, 'knxpersistvalues'))) {
-      node.sysLogger?.error('Unable to set up cache directory: ' + path.join(node.userDir, 'knxpersistvalues'))
-    } else {
-      node.sysLogger?.info('payload cache set to ' + path.join(node.userDir, 'knxpersistvalues'))
-    }
-
-    async function saveExposedGAs () {
-      const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
-      try {
-        if (node.exposedGAs.length > 0) {
-          fs.writeFileSync(sFile, JSON.stringify(node.exposedGAs))
-          // node.sysLogger?.debug("wrote peristent values to the file " + sFile);
-        }
-      } catch (err) {
-        node.sysLogger?.error('unable to write peristent values to the file ' + sFile + ' ' + err.message)
-      }
-    }
+    node.sysLogger?.info('payload cache set to ' + node.persistFile + ', file cache mode ' + node.fileStorage.mode)
     function loadExposedGAs () {
-      const sFile = path.join(node.userDir, 'knxpersistvalues', 'knxpersist' + node.id + '.json')
       try {
-        node.exposedGAs = JSON.parse(fs.readFileSync(sFile, 'utf8'))
+        // The storage returns the values not yet written to disk, too.
+        node.exposedGAs = JSON.parse(node.fileStorage.readFile(node.persistFile, 'utf8'))
         if (!Array.isArray(node.exposedGAs)) node.exposedGAs = []
       } catch (err) {
         node.exposedGAs = []
-        node.sysLogger?.info('unable to read peristent file ' + sFile + ' ' + err.message)
+        node.sysLogger?.info('unable to read peristent file ' + node.persistFile + ' ' + err.message)
       }
       node.rebuildExposedGAIndex()
     }
@@ -912,12 +905,6 @@ module.exports = (RED) => {
       node.sysLogger?.info('Do DoInitialReadFromKNXBusOrFile')
       loadExposedGAs() // 04/04/2021 load the current values of GA payload
       node.sysLogger?.info('Loaded persist GA values', node.exposedGAs?.length)
-
-      if (node.timerSaveExposedGAs !== null) clearInterval(node.timerSaveExposedGAs)
-      node.timerSaveExposedGAs = setInterval(async () => {
-        await saveExposedGAs()
-      }, 5000)
-      node.sysLogger?.info('Started timerSaveExposedGAs with array lenght ', node.exposedGAs?.length)
 
       try {
         const readHistory = []
@@ -1351,6 +1338,7 @@ module.exports = (RED) => {
         })
         node.knxConnection.on(knx.KNXClientEvents.connected, (info) => {
           node.linkStatus = 'connected'
+          node.fileStorage.handleGatewayEvent()
 
           // Track serial driver for forced close on redeploy
           if (node.hostProtocol === 'SerialFT12' && node.knxConnection && node.knxConnection._serialDriver) {
@@ -2675,10 +2663,6 @@ module.exports = (RED) => {
     }, 10000)
 
     node.Disconnect = async (_sNodeStatus = '', _sColor = 'grey') => {
-      if (node.timerSaveExposedGAs !== null) {
-        clearInterval(node.timerSaveExposedGAs)
-        node.timerSaveExposedGAs = null
-      }
       if (node.timerDoInitialRead !== null) {
         clearTimeout(node.timerDoInitialRead) // 17/02/2020 Stop the initial read timer
         node.timerDoInitialRead = null
@@ -2739,7 +2723,7 @@ module.exports = (RED) => {
       }
 
       node.setAllClientsStatus('Disconnected', _sColor, _sNodeStatus)
-      await saveExposedGAs() // 04/04/2021 save the current values of GA payload
+      node.fileStorage.handleGatewayEvent() // 04/04/2021 save the current values of GA payload
       node.sysLogger?.debug('Disconnected, node.autoReconnect:' + node.autoReconnect)
     }
 
@@ -2750,6 +2734,9 @@ module.exports = (RED) => {
           node.timerKNXUltimateCheckState = null
         }
         await node.Disconnect()
+      } catch (error) { /* empty */ }
+      try {
+        node.fileStorage.close()
       } catch (error) { /* empty */ }
       node.nodeClients = [] // 05/04/2022 Nullify
       try {

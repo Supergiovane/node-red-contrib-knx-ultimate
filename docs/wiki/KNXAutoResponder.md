@@ -10,6 +10,8 @@ translation_key: "KNXAutoResponder"
 >
 > [KNX Utility]({{ '/wiki/KNX-Utility' | relative_url }}) · [Upgrade from version 7]({{ '/wiki/Migration-8' | relative_url }})
 
+> 💾 When the stored values are written to disk depends on the **File Cache Control** of the KNX gateway. With **Disable writing** they are kept in memory only, and are lost at every restart of Node-RED. See [Gateway configuration]({{ '/wiki/Gateway-configuration' | relative_url }}).
+
 
 This node will respond to read requests from the KNX BUS.  
 

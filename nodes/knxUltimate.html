@@ -790,6 +790,9 @@ return msg;`
                     node.initialread = 0;
                     $("#node-input-initialread").val(0)
                 }
+                // Reading the initial value from file is limited when the gateway does not write files.
+                const refreshFileCacheTip = KNX_bindFileCacheDisabledTip($("#knxUltimate-file-cache-tip"), $("#node-input-server"), () => ['2', '3'].includes(String($("#node-input-initialread").val())));
+                $("#node-input-initialread").on('change', refreshFileCacheTip);
 
                 oNodeServer = RED.nodes.node($("#node-input-server").val());
                 if (oNodeServer === undefined) {
@@ -1352,6 +1355,7 @@ return msg;`
                         <option value=2 data-i18n="knxUltimate.properties.node-input-initialread2"></option>
                         <option value=3 data-i18n="knxUltimate.properties.node-input-initialread3"></option>
                     </select>
+                    <div class="form-tips" id="knxUltimate-file-cache-tip" style="display:none; margin-top:6px;"></div>
 
                 </div>
                 <div class="form-row" id="divInputRBE">

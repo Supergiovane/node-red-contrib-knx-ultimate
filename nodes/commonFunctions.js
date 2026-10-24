@@ -1,11 +1,11 @@
 // Utility function
 // until node-red 3.1.0, there is a bug creating a plugin, so for backward compatibility, i must use a JS as a node.
 const oOS = require('os')
-const fs = require('fs')
 const path = require('path')
 const dptlib = require('knxultimate').dptlib
 const KNXClient = require('knxultimate').KNXClient
 const { normalizeAuthFromAccessTokenQuery } = require('./utils/httpAdminAccessToken')
+const { storageOf } = require('./utils/fileStorage')
 
 // DATAPONT MANIPULATION HELPERS
 // ####################
@@ -65,17 +65,6 @@ module.exports = (RED) => {
     // } catch (error) {
 
     // }
-
-    // 11/03/2020 Delete scene saved file, from html
-    RED.httpAdmin.get('/knxultimatescenecontrollerdelete'), (req, res) => {
-      // Delete the file
-      try {
-        const serverId = RED.nodes.getNode(req.query.serverId) // Retrieve node.id of the config node.
-        const newPath = `${serverId.userDir}/scenecontroller/SceneController_${req.query.FileName}`
-        fs.unlinkSync(newPath)
-      } catch (error) { if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.warn(`e ${error}`) }
-      res.json({ status: 220 })
-    }
 
     // Endpoint for reading csv/esf by the other nodes
     RED.httpAdmin.get('/knxUltimatecsv', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
@@ -147,23 +136,6 @@ module.exports = (RED) => {
       }
     })
 
-    // 12/08/2021 Endpoint for deleting the GA persistent file for the current gateway
-    RED.httpAdmin.get('/deletePersistGAFile', RED.auth.needsPermission('knxUltimate-config.read'), (req, res) => {
-      try {
-        if (typeof req.query.serverId !== 'undefined' && req.query.serverId !== null && req.query.serverId !== '') {
-          try {
-            const serverId = RED.nodes.getNode(req.query.serverId) // Retrieve node.id of the config node.
-            const sFile = path.join(serverId.userDir, 'knxpersistvalues', `knxpersist${req.query.serverId}.json`)
-            fs.unlinkSync(sFile)
-          } catch (error) { res.json({ error: error.stack }) }
-          res.json({ error: 'No error' })
-        } else {
-          res.json({ error: 'No serverId specified' })
-        }
-      } catch (error) {
-      }
-    })
-
     // Shared Logger download for legacy nodes and the private Utility profile.
     const downloadLoggerFile = (req, res) => {
       try {
@@ -182,19 +154,24 @@ module.exports = (RED) => {
           res.status(404).json({ error: 'NO_FILE_PATH' })
           return
         }
-        if (!fs.existsSync(filePath)) {
+        // The file may still be waiting in the gateway's File Cache Control.
+        const storage = storageOf(loggerNode.serverKNX)
+        if (!storage.exists(filePath)) {
           res.status(404).json({ error: 'FILE_NOT_FOUND' })
+          return
+        }
+        let content
+        try {
+          content = storage.readFile(filePath)
+        } catch (err) {
+          try { RED.log.error(`KNXUltimateLoggerDownload error reading file ${filePath}: ${err.message}`) } catch (e) {}
+          res.status(500).json({ error: 'READ_ERROR' })
           return
         }
         const safeName = path.basename(filePath) || 'knx-logger.xml'
         res.setHeader('Content-Type', 'application/xml; charset=utf-8')
         res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`)
-        const stream = fs.createReadStream(filePath)
-        stream.on('error', (err) => {
-          try { RED.log.error(`KNXUltimateLoggerDownload error reading file ${filePath}: ${err.message}`) } catch (e) {}
-          if (!res.headersSent) res.status(500).json({ error: 'READ_ERROR' })
-        })
-        stream.pipe(res)
+        res.end(content)
       } catch (error) {
         try { RED.log.error(`KNXUltimateLoggerDownload error: ${error.message}`) } catch (e) {}
         if (!res.headersSent) res.status(500).json({ error: 'UNEXPECTED_ERROR' })
@@ -243,121 +220,6 @@ module.exports = (RED) => {
       } catch (error) {
         try { RED.log.error(`KNXUltimate: knxUltimateKeyringInterfaces error: ${error.message}`) } catch (e) { }
         res.json([])
-      }
-    })
-
-    // 2026-06 Reveal all keyring passwords (and the general keyring password) in clear text.
-    // Used by the "Utility" tab button, enabled only when KNX Secure is selected.
-    RED.httpAdmin.get('/knxUltimateKeyringDump', RED.auth.needsPermission('knxUltimate-config.read'), async (req, res) => {
-      try {
-        let keyringContent = (req.query.keyring || '').toString()
-        let password = (req.query.pwd || '').toString()
-        // '__PWRD__' is the Node-RED placeholder for an unchanged password credential: ignore it.
-        if (password === '__PWRD__') password = ''
-        // Fill any missing field (keyring and/or password) from the existing config node.
-        if ((!keyringContent || !password) && req.query.serverId) {
-          const cfg = RED.nodes.getNode(req.query.serverId)
-          if (cfg) {
-            if (!keyringContent) { try { keyringContent = cfg.keyringFileXML || keyringContent } catch (e) { } }
-            if (!password) { try { password = (cfg.credentials && cfg.credentials.keyringFilePassword) ? cfg.credentials.keyringFilePassword : password } catch (e) { } }
-          }
-        }
-        if (!keyringContent || !password) {
-          return res.json({ ok: false, error: 'MISSING_KEYRING_OR_PASSWORD' })
-        }
-        let Keyring
-        try {
-          ({ Keyring } = require('knxultimate/build/secure/keyring'))
-        } catch (e) {
-          try { RED.log.error(`KNXUltimate: cannot load Keyring module: ${e.message}`) } catch (err) { }
-          return res.json({ ok: false, error: 'KEYRING_MODULE_UNAVAILABLE' })
-        }
-        const kr = new Keyring()
-        try {
-          await kr.load(keyringContent, password)
-        } catch (e) {
-          try { RED.log.error(`KNXUltimate: keyring load error: ${e.message}`) } catch (err) { }
-          return res.json({ ok: false, error: 'KEYRING_LOAD_FAILED' })
-        }
-
-        const toIAString = (value) => {
-          if (!value) return ''
-          return typeof value.toString === 'function' ? value.toString() : String(value)
-        }
-        const toBufferString = (value) => {
-          if (!value) return ''
-          if (Buffer.isBuffer(value)) return value.toString('hex')
-          return String(value)
-        }
-
-        const lines = []
-        lines.push('================ KNX Secure keyring passwords ================')
-        lines.push(`Created By: ${kr.getCreatedBy?.() || ''}`)
-        lines.push(`Created On: ${kr.getCreated?.() || ''}`)
-        lines.push(`General keyring password: ${password}`)
-        lines.push('')
-
-        lines.push('Interfaces:')
-        const interfaceMap = kr.getInterfaces?.()
-        const interfaces = Array.from(interfaceMap ? interfaceMap.values() : [])
-        if (interfaces.length === 0) {
-          lines.push('  (none)')
-        } else {
-          interfaces.forEach((iface, idx) => {
-            lines.push(`  [${idx + 1}] ${toIAString(iface.individualAddress) || '(unknown)'} (${iface.type || ''})`)
-            lines.push(`       Host: ${toIAString(iface.host) || ''}`)
-            lines.push(`       User ID: ${typeof iface.userId === 'number' ? iface.userId : ''}`)
-            lines.push(`       Password: ${iface.decryptedPassword || ''}`)
-            lines.push(`       Authentication: ${iface.decryptedAuthentication || ''}`)
-          })
-        }
-        lines.push('')
-
-        lines.push('Backbones:')
-        const backbones = kr.getBackbones?.() || []
-        if (backbones.length === 0) {
-          lines.push('  (none)')
-        } else {
-          backbones.forEach((backbone, idx) => {
-            lines.push(`  [${idx + 1}] Multicast: ${backbone.multicastAddress || ''}`)
-            lines.push(`       Key (hex): ${toBufferString(backbone.decryptedKey)}`)
-          })
-        }
-        lines.push('')
-
-        lines.push('Group Addresses:')
-        const groupAddressMap = kr.getGroupAddresses?.()
-        const groupAddresses = Array.from(groupAddressMap ? groupAddressMap.values() : [])
-        if (groupAddresses.length === 0) {
-          lines.push('  (none)')
-        } else {
-          groupAddresses.forEach((group, idx) => {
-            lines.push(`  [${idx + 1}] ${toIAString(group.address) || ''}`)
-            lines.push(`       Key (hex): ${toBufferString(group.decryptedKey)}`)
-          })
-        }
-        lines.push('')
-
-        lines.push('Devices:')
-        const deviceMap = kr.getDevices?.()
-        const devices = Array.from(deviceMap ? deviceMap.values() : [])
-        if (devices.length === 0) {
-          lines.push('  (none)')
-        } else {
-          devices.forEach((device, idx) => {
-            lines.push(`  [${idx + 1}] ${toIAString(device.individualAddress) || ''}`)
-            lines.push(`       Tool Key (hex): ${toBufferString(device.decryptedToolKey)}`)
-            lines.push(`       Management Password: ${device.decryptedManagementPassword || ''}`)
-            lines.push(`       Authentication: ${device.decryptedAuthentication || ''}`)
-            lines.push(`       Serial Number: ${device.serialNumber || ''}`)
-          })
-        }
-        lines.push('================ End of keyring passwords ================')
-
-        res.json({ ok: true, dump: lines.join('\n') })
-      } catch (error) {
-        try { RED.log.error(`KNXUltimate: knxUltimateKeyringDump error: ${error.message}`) } catch (e) { }
-        res.json({ ok: false, error: 'UNEXPECTED_ERROR' })
       }
     })
 

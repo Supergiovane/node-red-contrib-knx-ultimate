@@ -42,7 +42,6 @@
 | Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. It ignores the ACK procedure and accepts all telegrams. Default is unchecked.|
 | Enable flow bubbles plugin | Draw a small coloured bubble next to each KNX Device node in the editor. The bubble reflects the latest live state received from the gateway and becomes dim when the data is stale. Useful during commissioning and debugging. Default is unchecked. |
 | Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
-| Loglevel | Log level, in case you need to debug something with the dev. Default is "Error", |
 | Node status throttle | Delay how often node badges are refreshed. When a delay is selected, intermediate status changes are discarded and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
 | Status date/time format | Choose how the timestamp is shown in node status badges (useful when the host OS locale cannot be configured). |
 | Custom format | Used when **Custom (tokens)** is selected. Tokens: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Use `[text]` for literals. |
@@ -59,12 +58,15 @@
 
 <br/>
 
-**Utility**
+**File Cache Control**
 
 |Property|Description|
 |--|--|
-| Gather debug info for troubleshoot | Please click the button and add it to the gitHub issue you want to open, it will help me a lot to helping you. |
-| Get all used GA for KNX routing filter | Press READ to retrieve a plain text list of all group address belonging to this gateway, that has been used in the flows. You can use this list to populate your KNX/IP router filter table. |
+| Loglevel | Log level, in case you need to debug something with the dev. Default is "Error". The log is not affected by the disk-wear management. |
+| Disk-wear management | Sets how often KNX Ultimate writes its files to disk: GA values, Scene Controller scenes, AutoResponder values, Logger file and Viewer history. Useful to reduce the wear of SD cards. Files are written only when their content has changed. **Freshness priority** (default) saves the changes every 5 seconds. **Balanced** saves them only when the gateway connects or disconnects, and when Node-RED stops or the gateway is redeployed. **Disable writing** never writes to disk: the data is kept in memory only and, at every restart of Node-RED, all the current GA values and the data saved by the KNX Ultimate nodes are lost. **Custom interval** saves the changes at the chosen interval, from 5 seconds to 30 days, and when Node-RED stops or the gateway is redeployed. |
+| Write interval | Visible with **Custom interval**. Number and unit (seconds, minutes, hours, days) of the write interval. |
+
+> When writing is disabled, the KNX Ultimate nodes that use files (Device with initial read from file, Scene Controller, AutoResponder, Logger saving to file, Viewer) show a reminder in their editor.
 
 <br/>
 

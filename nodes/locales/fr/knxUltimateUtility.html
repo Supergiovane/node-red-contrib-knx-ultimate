@@ -168,6 +168,8 @@ msg = {
 
 ## AutoResponder
 
+> 💾 Le moment où les valeurs mémorisées sont écrits sur le disque dépend du **contrôle du cache fichiers** de la passerelle KNX. Avec **Désactiver l'écriture**, ils restent uniquement en mémoire et sont perdus à chaque redémarrage de Node-RED. Voir l'onglet **Contrôle du cache fichiers** de la passerelle KNX.
+
  Ce nœud répondra aux demandes de lecture du bus KNX.
 
 Le nœud enregistre tous les télégrammes transmis au bus KNX et stockent les valeurs en mémoire. \
@@ -601,6 +603,8 @@ global.set("KNXContextBanana_WRITE",GroupAddressesSend);
 
 ## Logger
 
+> 💾 Le moment où les données du fichier XML de **Envoyer le payload et enregistrer dans un fichier** sont écrits sur le disque dépend du **contrôle du cache fichiers** de la passerelle KNX. Avec **Désactiver l'écriture**, ils restent uniquement en mémoire et sont perdus à chaque redémarrage de Node-RED. Voir l'onglet **Contrôle du cache fichiers** de la passerelle KNX.
+
 ### Enregistreur
 
 <p> Le nœud d'enregistrement enregistre tous les télégrammes et les sortira dans un fichier compatible XML moniteur de bus ETS. </p>
@@ -893,6 +897,8 @@ return msg;
 <a id="knx-utility-help-scenecontroller"></a>
 
 ## Contrôleur de scènes
+
+> 💾 Le moment où les scènes enregistrées sont écrits sur le disque dépend du **contrôle du cache fichiers** de la passerelle KNX. Avec **Désactiver l'écriture**, ils restent uniquement en mémoire et sont perdus à chaque redémarrage de Node-RED. Voir l'onglet **Contrôle du cache fichiers** de la passerelle KNX.
 
 <p> Le nœud de contrôle de la scène, se comporte exactement comme un périphérique de contrôleur de scène.Il est capable d'économiser et de rappeler une scène. </p>
 

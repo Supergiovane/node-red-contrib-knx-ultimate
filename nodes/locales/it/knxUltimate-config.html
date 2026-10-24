@@ -42,7 +42,6 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 | Sopprimi richieste ACK in modalità tunnel | Per vecchie interfacce KNX/IP: ignora l'ACK e accetta tutti i telegrammi. Default: disabilitato. |
 | Abilita plugin flow bubbles | Disegna una piccola bubble colorata accanto a ogni nodo KNX Device nell'editor. La bubble riflette l'ultimo stato live ricevuto dal gateway e si attenua quando il dato diventa stantio. Utile durante commissioning e debug. Default: disabilitato. |
 | Pausa tra l'invio di un telegramma e un altro (ms) | Lo standard KNX prevede max 50 telegrammi/s. Un intervallo 25-50ms è adeguato. Con gateway remoto su link lento aumenta (es. 200-500ms). |
-| Livello log | Livello di log per il debug. Default: "Error". |
 | Limitazione aggiornamento stato nodi | Imposta ogni quanto aggiornare il badge di stato dei nodi. Con un ritardo attivo gli stati intermedi vengono ignorati e viene mostrato solo l'ultimo dopo l'intervallo scelto. Seleziona **Immediato** per mantenere l'aggiornamento in tempo reale. |
 | Formato data/ora nello stato | Scegli come visualizzare la data/ora nel badge di stato dei nodi (utile su sistemi in cui non è possibile configurare il locale, ad es. Home Assistant OS). |
 | Formato personalizzato | Usato quando selezioni **Personalizzato (token)**. Token: `YYYY`, `YY`, `MMM`, `MM`, `DD`, `HH`, `mm`, `ss`, `A`, `a`, `Z`. Usa `[testo]` per testo letterale. |
@@ -59,12 +58,15 @@ Questo nodo si connette al tuo KNX/IP Gateway.
 
 <br/>
 
-**Utility**
+**File Cache Control**
 
 |Proprietà|Descrizione|
 |--|--|
-| Raccogli debug e log per assistenza | Clicca il pulsante e allega l'output alla issue su GitHub: aiuta molto l'analisi. |
-| Ottieni tutte le GA usate per il filtro di routing KNX | Clicca Leggi per ottenere l'elenco di tutti i GA usati nei flow associati a questo gateway, utile per popolare la tabella filtri del tuo KNX/IP Router. |
+| Livello log | Livello di log per il debug. Default: "Error". Il log non è interessato dalla gestione disk-wearing. |
+| Gestione disk-wearing | Stabilisce ogni quanto KNX Ultimate scrive su disco i propri file: valori dei GA, scene dello Scene Controller, valori dell'AutoResponder, file del Logger e storico del Viewer. Utile per ridurre l'usura delle schede SD. I file vengono scritti solo se il loro contenuto è cambiato. **Priorità freschezza** (default) salva le modifiche ogni 5 secondi. **Equilibrato** le salva solo alla connessione o disconnessione del gateway, e quando Node-RED si arresta o il gateway viene ridistribuito. **Disattiva scrittura** non scrive mai su disco: i dati restano solo in memoria e, ad ogni riavvio di Node-RED, vengono persi tutti i valori correnti dei GA e i dati salvati dai nodi KNX Ultimate. **Intervallo personalizzato** salva le modifiche all'intervallo scelto, da 5 secondi a 30 giorni, e quando Node-RED si arresta o il gateway viene ridistribuito. |
+| Intervallo di scrittura | Visibile con **Intervallo personalizzato**. Valore e unità (secondi, minuti, ore, giorni) dell'intervallo di scrittura. |
+
+> Quando la scrittura è disattivata, i nodi KNX Ultimate che usano i file (Device con lettura iniziale da file, Scene Controller, AutoResponder, Logger con salvataggio su file, Viewer) mostrano un promemoria nel loro editor.
 
 <br/>
 

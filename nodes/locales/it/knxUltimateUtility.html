@@ -163,6 +163,8 @@ msg = {
 
 ## AutoResponder
 
+> 💾 Il momento in cui i valori memorizzati vengono scritti su disco dipende dal **File Cache Control** del gateway KNX. Con **Disattiva scrittura** restano solo in memoria e vengono persi ad ogni riavvio di Node-RED. Vedi il tab **File Cache Control** del gateway KNX.
+
 Questo nodo risponde alle richieste di lettura del bus KNX.</p>
 
 Il nodo registra tutti i telegrammi trasmessi sul bus KNX e ne conserva i valori in memoria.
@@ -523,6 +525,8 @@ global.set("KNXContextBanana_WRITE", toSend);
 
 ## Logger
 
+> 💾 Il momento in cui i dati del file XML di **Emetti il payload e salva su file** vengono scritti su disco dipende dal **File Cache Control** del gateway KNX. Con **Disattiva scrittura** restano solo in memoria e vengono persi ad ogni riavvio di Node-RED. Vedi il tab **File Cache Control** del gateway KNX.
+
 ### Logger
 
 Il nodo Logger registra tutti i telegrammi e produce un file compatibile con l'XML del bus monitor ETS.
@@ -787,6 +791,8 @@ return msg;
 <a id="knx-utility-help-scenecontroller"></a>
 
 ## Controllo scene
+
+> 💾 Il momento in cui i dati delle scene salvate vengono scritti su disco dipende dal **File Cache Control** del gateway KNX. Con **Disattiva scrittura** restano solo in memoria e vengono persi ad ogni riavvio di Node-RED. Vedi il tab **File Cache Control** del gateway KNX.
 
 ### Scene Controller
 

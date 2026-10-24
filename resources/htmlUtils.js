@@ -1,4 +1,4 @@
-/* global window, document, MutationObserver, $, jQuery */
+/* global window, document, MutationObserver, $, jQuery, RED */
 /* eslint-disable camelcase */
 
 // Keep informational tips aligned with the full width of our Node-RED editor forms.
@@ -8,7 +8,9 @@
   if (document.getElementById('knx-ultimate-editor-styles')) return
   const style = document.createElement('style')
   style.id = 'knx-ultimate-editor-styles'
-  style.textContent = '.form-tips { width: 100% !important; max-width: none !important; box-sizing: border-box !important; background-color: #e8f5e9 !important; }'
+  style.textContent = '.form-tips { width: 100% !important; max-width: none !important; box-sizing: border-box !important; background-color: #e8f5e9 !important; }' +
+    // File Cache Control: warning tip shown when the gateway does not write files.
+    ' .form-tips.knx-file-cache-disabled-tip { background-color: #fde4e1 !important; border-color: #f2a39b !important; color: #8a1c12 !important; }'
   document.head.appendChild(style)
 })()
 
@@ -102,6 +104,26 @@ function KNX_cleanAutocompleteTerm (term) {
 }
 
 window.KNX_cleanAutocompleteTerm = KNX_cleanAutocompleteTerm
+
+// File Cache Control: show a tip when the selected gateway does not write files to disk.
+// isRelevant() tells whether the node currently uses files; returns the refresh function.
+function KNX_bindFileCacheDisabledTip ($tip, $server, isRelevant) {
+  if (!($tip && $tip.length)) return function () { }
+  $tip.addClass('knx-file-cache-disabled-tip').text(RED._('node-red-contrib-knx-ultimate/knxUltimate-config:knxUltimate-config.file_cache.disabled_tip'))
+  const refresh = function () {
+    let disabled = false
+    try {
+      const gateway = RED.nodes.node($server.val())
+      disabled = Boolean(gateway && gateway.fileCacheMode === 'disabled')
+    } catch (e) { }
+    $tip.toggle(disabled && (typeof isRelevant !== 'function' || isRelevant() === true))
+  }
+  $server.on('change.knxFileCacheTip', refresh)
+  refresh()
+  return refresh
+}
+
+window.KNX_bindFileCacheDisabledTip = KNX_bindFileCacheDisabledTip
 
 // 2025-09: Make DPT selects searchable via jQuery UI Autocomplete
 function KNX_makeSelectSearchable ($select) {

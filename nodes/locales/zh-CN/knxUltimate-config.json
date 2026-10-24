@@ -63,7 +63,7 @@
             "configuration": "配置",
             "advanced": "高级",
             "ets_import": "ETS 导入",
-            "utility": "工具"
+            "file_cache": "文件缓存控制"
         },
         "advanced": {
             "knx_phy_addr": "KNX 物理地址",
@@ -129,22 +129,19 @@
             "tunnel_user_password": "隧道用户密码",
             "ga_list_label": "ETS 组地址列表"
         },
-        "utility": {
-            "gather_debug": "收集调试信息和日志以便排查",
-            "get_all_used_ga": "获取 KNX 路由过滤器使用的所有 GA",
-            "read_button": "读取",
-            "copy_ga_router": "将这些组地址复制到 KNX/IP 路由器的路由表中。",
-            "clear_persist_label": "清除该网关的持久化 GA 缓存",
-            "clear_persist_button": "清除",
-            "clear_persist_confirm": "这将删除该网关的持久化 GA 缓存文件。继续？",
-            "clear_persist_ok": "删除",
-            "clear_persist_cancel": "取消",
-            "clear_persist_done": "已删除持久化 GA 缓存。",
-            "clear_persist_fail": "无法删除持久化 GA 缓存",
-            "reveal_keyring_label": "以明文显示密钥环密码 (KNX Secure)",
-            "reveal_keyring_button": "显示",
-            "reveal_keyring_loading": "正在解码密钥环，请稍候...",
-            "reveal_keyring_fail": "无法解码密钥环。请检查密钥环文件和通用密码。"
+        "file_cache": {
+            "mode": "磁盘磨损管理",
+            "mode_freshness": "新鲜度优先",
+            "mode_balanced": "均衡",
+            "mode_disabled": "禁用写入",
+            "mode_custom": "自定义间隔",
+            "interval": "写入间隔",
+            "unit_seconds": "秒",
+            "unit_minutes": "分钟",
+            "unit_hours": "小时",
+            "unit_days": "天",
+            "disabled_tip": "已禁用磁盘写入（KNX 网关的文件缓存控制）：每次重启 Node-RED 时，所有当前 GA 值以及 KNX Ultimate 节点保存的数据都将丢失。",
+            "description": "控制 KNX Ultimate 将其文件（GA 值、Scene Controller 场景、AutoResponder 值、Logger 文件、Viewer 历史记录）写入磁盘的频率，以减少 SD 卡的磨损。仅当文件内容发生变化时才会写入。日志不受影响：请使用日志级别进行控制。<br/><b>新鲜度优先</b>：每 5 秒保存一次更改。<br/><b>均衡</b>：仅在网关连接或断开时，以及 Node-RED 停止或网关重新部署时保存更改。<br/><b>禁用写入</b>：不向磁盘写入任何内容。<br/><b>自定义间隔</b>：按所选间隔（5 秒到 30 天）保存更改，并在 Node-RED 停止或网关重新部署时保存。"
         }
     }
 }
