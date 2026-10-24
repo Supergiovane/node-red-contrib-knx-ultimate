@@ -72,6 +72,12 @@ describe('File Cache Control storage', () => {
     expect(resolveSettings({ mode: 'custom', interval: 30, intervalUnit: 'd' }).intervalMs).to.equal(30 * 24 * 60 * 60 * 1000)
     expect(resolveSettings({ mode: 'custom', interval: 31, intervalUnit: 'd' }).intervalMs).to.equal(30 * 24 * 60 * 60 * 1000)
     expect(resolveSettings({ mode: 'custom', interval: 'abc' }).intervalMs).to.equal(10 * 60 * 1000)
+    // Missing values, as in gateways saved by older versions: 10 minutes, like the editor default.
+    expect(resolveSettings({ mode: 'custom' }).intervalMs).to.equal(10 * 60 * 1000)
+    expect(resolveSettings({ mode: 'custom', interval: null, intervalUnit: null }).intervalMs).to.equal(10 * 60 * 1000)
+    expect(resolveSettings({ mode: 'custom', interval: '', intervalUnit: 'h' }).intervalMs).to.equal(10 * 60 * 1000)
+    expect(resolveSettings({ mode: 'custom', interval: 10 }).intervalMs).to.equal(10 * 60 * 1000)
+    expect(resolveSettings({ mode: null }).mode).to.equal('freshness')
   })
 
   it('commits freshness changes every 5 seconds, serializing lazy data only when committing', () => {

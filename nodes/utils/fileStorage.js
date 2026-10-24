@@ -35,7 +35,9 @@ const handovers = new Map()
 
 function resolveSettings ({ mode, interval, intervalUnit } = {}) {
   const resolvedMode = MODES.includes(mode) ? mode : 'freshness'
-  let seconds = Number(interval) * (UNIT_SECONDS[intervalUnit] || 1)
+  // Missing values (gateways saved by older versions) default to 10 minutes, as in the editor.
+  const amount = interval === '' || interval === null || interval === undefined ? NaN : Number(interval)
+  let seconds = amount * (UNIT_SECONDS[intervalUnit] || UNIT_SECONDS.m)
   if (!Number.isFinite(seconds)) seconds = 10 * 60
   seconds = Math.min(MAX_INTERVAL_SECONDS, Math.max(MIN_INTERVAL_SECONDS, Math.round(seconds)))
   let intervalMs = 0

@@ -992,6 +992,17 @@
             $("#tabs").tabs();
             // *****************************
 
+            // Gateways saved by older versions lack these options: Node-RED then leaves
+            // their fields empty, so show the defaults the runtime uses.
+            const applyMissingDefault = (field, value) => {
+                const $field = $("#node-config-input-" + field);
+                if ($field.val() === null || $field.val() === '') $field.val(value);
+            };
+            applyMissingDefault('fileCacheMode', 'freshness');
+            applyMissingDefault('fileCacheInterval', 10);
+            applyMissingDefault('fileCacheIntervalUnit', 'm');
+            applyMissingDefault('waitForTunnelingAck', 'auto');
+
             // File Cache Control: show the custom interval and the "writing disabled" tip.
             const syncFileCacheRows = () => {
                 const mode = $("#node-config-input-fileCacheMode").val();
