@@ -8,10 +8,12 @@
 
 **Version 8.3.0** - October 2026
 
+- Updated the KNX engine to `knxultimate` 6.3.0.
 - New **File Cache Control** tab in the KNX gateway configuration, to reduce the wear of SD cards ([#536](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/536)). The **Disk-wear management** option sets when every file written by KNX Ultimate (GA values, Scene Controller scenes, AutoResponder values, Logger file, Viewer history) reaches the disk: **Freshness priority** (every 5 seconds, default), **Balanced** (when the gateway connects or disconnects), **Custom interval** (from 5 seconds to 30 days) or **Disable writing** (data kept in memory only, lost at every Node-RED restart). The log is not affected.
 - Files are now written only when their content changes: the GA values file is no longer rewritten every 5 seconds when nothing has changed.
 - When writing is disabled, the nodes that use files show a reminder in their editor.
-- New **Wait for the tunnelling ACK (Tunnel UDP)** option in the **Advanced** tab of the KNX gateway configuration. **Yes** waits for the gateway to acknowledge every telegram, repeats an unacknowledged telegram once and then reconnects, also when the ACK request is suppressed: select it together with **Suppress ACK request** for eibPORT and Loxone gateways. **Auto** (default) keeps the previous behaviour.
+- New **Wait for the tunnelling ACK (Tunnel UDP)** option in the **Advanced** tab of the KNX gateway configuration. **Yes** waits for the KNX/IP interface to confirm every telegram, sends an unconfirmed telegram once more and then reconnects, also when the bus ACK request is suppressed: select it together with **Suppress the bus ACK request** for eibPORT and Loxone gateways. **Auto** (default) keeps the previous behaviour.
+- **Suppress ACK request in tunneling mode** is now **Suppress the bus ACK request**, with a clearer description in the editor and in the documentation: it also applies to Multicast and Serial FT1.2.
 - The log level moved from the **Advanced** tab to the new **File Cache Control** tab.
 - Removed the **Utility** tab of the gateway configuration.
 - The Viewer no longer rewrites its oldest history file every minute: a whole hour of history is deleted once it has fully expired.
