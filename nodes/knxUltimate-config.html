@@ -25,6 +25,7 @@
             hostProtocol: { value: "Auto", required: false }, // TunnelUDP/TunnelTCP/Multicast
             // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
             suppressACKRequest: { value: false },
+            waitForTunnelingAck: { value: "auto" }, // TunnelUDP: auto follows suppressACKRequest, as the KNX engine does
             csv: { value: "", required: false },
             KNXEthInterface: { value: "Auto" },
             KNXEthInterfaceManuallyInput: { value: "" },
@@ -1391,6 +1392,19 @@
                     <span data-i18n="knxUltimate-config.advanced.suppress_ack"></span>
                 </label>
             </div>
+
+            <div class="form-row">
+                <label for="node-config-input-waitForTunnelingAck" style="width:auto;">
+                    <i class="fa fa-exchange"></i>
+                    <span data-i18n="knxUltimate-config.advanced.wait_tunneling_ack"></span>
+                </label>
+                <select id="node-config-input-waitForTunnelingAck" style="width:60%;">
+                    <option value="auto" data-i18n="knxUltimate-config.advanced.wait_tunneling_ack_auto"></option>
+                    <option value="yes" data-i18n="knxUltimate-config.advanced.wait_tunneling_ack_yes"></option>
+                    <option value="no" data-i18n="knxUltimate-config.advanced.wait_tunneling_ack_no"></option>
+                </select>
+            </div>
+            <div class="form-tips" data-i18n="knxUltimate-config.advanced.wait_tunneling_ack_help"></div>
 
             <div class="form-row form-row-checkbox">
                 <input type="checkbox" id="node-config-input-enableFlowBubbles"

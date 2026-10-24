@@ -224,6 +224,8 @@ module.exports = (RED) => {
     node.port = parseInt(config.port)
     node.physAddr = config.physAddr // the KNX physical address we'd like to use
     node.suppressACKRequest = typeof config.suppressACKRequest === 'undefined' ? true : config.suppressACKRequest // enable this option to suppress the acknowledge flag with outgoing L_Data.req requests. LoxOne needs this
+    // TunnelUDP: wait for the TUNNELLING_ACK of each request (yes/no). "auto" leaves it to the KNX engine, which follows suppressACKRequest.
+    node.waitForTunnelingAck = config.waitForTunnelingAck === 'yes' ? true : config.waitForTunnelingAck === 'no' ? false : undefined
     node.linkStatus = 'disconnected' // Can be: connected or disconnected
     node.nodeClients = [] // Stores the registered clients
     node.KNXEthInterface = typeof config.KNXEthInterface === 'undefined' ? 'Auto' : config.KNXEthInterface
@@ -1151,6 +1153,7 @@ module.exports = (RED) => {
         ipPort: node.port,
         physAddr: node.physAddr, // the KNX physical address we'd like to use
         suppress_ack_ldatareq: node.suppressACKRequest,
+        waitForTunnelingAck: node.waitForTunnelingAck,
         loglevel: node.loglevel,
         hostProtocol: node.hostProtocol,
         isSecureKNXEnabled: node.knxSecureSelected,

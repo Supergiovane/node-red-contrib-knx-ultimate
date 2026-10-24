@@ -40,6 +40,7 @@ Dieser Node stellt die Verbindung zu deinem KNX/IP-Gateway her.
 |--|--|
 | Suppress repeated (R-Flag) telegrams fom BUS | Wiederholte BUS-Telegramme (R-Flag) ignorieren. |
 | Suppress ACK request in tunneling mode | Für sehr alte KNX/IP-Gateways: ACK ignorieren, alle Telegramme akzeptieren. |
+| Auf Tunnelling-ACK warten (Tunnel UDP) | Bei Tunnel UDP wird gewartet, bis das Gateway jedes Telegramm bestätigt: Ein unbestätigtes Telegramm wird einmal wiederholt, dann wird die Verbindung geschlossen und neu aufgebaut. Automatisch behält das bisherige Verhalten bei. Wählen Sie Ja zusammen mit "ACK-Anfrage unterdrücken" für eibPORT- und Loxone-Gateways. |
 | Flow-Bubbles-Plugin aktivieren | Zeigt im Editor neben jedem KNX Device Node eine kleine farbige Bubble an. Die Bubble spiegelt den zuletzt vom Gateway empfangenen Live-Status wider und wird abgeblendet, wenn die Daten veraltet sind. Nützlich bei Inbetriebnahme und Debugging. Standard: deaktiviert. |
 | Delay between each telegram (ms) | KNX erlaubt max. 50 Telegramme/s. 25-50 ms sind üblich; bei langsamen Verbindungen höher (z. B. 200-500 ms). |
 | Aktualisierung der Status-Badges | Legt fest, wie oft die Statusanzeige der Nodes erneuert wird. Mit einer Verzögerung werden Zwischenstände verworfen und nur der letzte Wert nach dem gewählten Intervall angezeigt. Wählen Sie **Sofort**, um das bisherige Echtzeitverhalten beizubehalten. |

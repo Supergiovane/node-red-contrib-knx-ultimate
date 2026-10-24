@@ -40,6 +40,7 @@
 |--|--|
 | Suppress repeated (R-Flag) telegrams fom BUS | Ignore repeated KNX telegrams coming from the bus. Default is unchecked. |
 | Suppress ACK request in tunneling mode | Enable it if you have a very old KNX/IP gateway. It ignores the ACK procedure and accepts all telegrams. Default is unchecked.|
+| Wait for the tunnelling ACK (Tunnel UDP) | With Tunnel UDP, waits for the gateway to acknowledge every telegram: a telegram that is not acknowledged is repeated once, then the connection is closed and opened again. Auto keeps the previous behaviour. Select Yes together with "Suppress ACK request" for eibPORT and Loxone gateways. |
 | Enable flow bubbles plugin | Draw a small coloured bubble next to each KNX Device node in the editor. The bubble reflects the latest live state received from the gateway and becomes dim when the data is stale. Useful during commissioning and debugging. Default is unchecked. |
 | Delay between each telegram (in milliseconds) | KNX specs states, that the maximum telegram sending speed is 50 telegrams per second. A speed between 25 and 50ms should be fine, unless you're connecting to a remote KNX Gateway via a slow internet connection (in this case, you should increase the value by, for example, 200 to 500ms or more). |
 | Node status throttle | Delay how often node badges are refreshed. When a delay is selected, intermediate status changes are discarded and the last one is shown after the chosen interval. Select **Immediate** to keep the legacy real-time behaviour. |
