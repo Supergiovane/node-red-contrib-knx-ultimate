@@ -37,6 +37,7 @@ _ **Le nœud de scène enregistre automatiquement les valeurs mises à jour de t
 |Champ de la ligne |Le premier champ est l'adresse de groupe, la deuxième est le point de données, le troisième est la valeur par défaut de ce périphérique dans la scène (cela peut être remplacé par la fonction _Scene Save_).Ci-dessous, le nom du périphérique est ci-dessous.( **12s ** ) 
  Pour définir une valeur en minutes, ajoutez**m ** après la valeur numérique, par exemple (**5m ** ) 
  Pour définir une valeur en heures, ajoutez**h ** après la valeur numérique, par exemple (**1h** ) |
+| GA d'état | Dans le premier champ, vous pouvez aussi écrire la GA de commande, une virgule et la GA d'état, par exemple **1/1/1, 1/4/1**. La scène est rappelée en envoyant les valeurs à la GA de commande. Lors de l'enregistrement de la scène, le nœud envoie une demande de lecture à chaque GA d'état et enregistre les valeurs reçues dans les réponses (il attend au maximum 2 secondes : si un appareil ne répond pas, la dernière valeur reçue du BUS est enregistrée). Le nœud met aussi à jour la valeur chaque fois que la GA d'état change sur le BUS. La GA d'état doit avoir le même point de données que la ligne. Sans virgule, la ligne fonctionne comme avant. |
 |Supprimer le bouton |Supprimer un appareil de la liste.|
 
 # Sortie du message du nœud de contrôleur de scène

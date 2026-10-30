@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 8.3.2** - October 2026
+
+- Scene Controller: a scene row can now have a **status group address**, written after the command group address and a comma, for example `1/1/1, 1/4/1` ([#539](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/discussions/539)). When the scene is saved, the node sends a read request to the status group addresses and saves the values received in the responses, waiting up to 2 seconds. The values are also updated whenever the status group addresses change on the BUS. The scene is still recalled through the command group address. Rows without a comma work as before.
+
 **Version 8.3.1** - October 2026
 
 - Updated the KNX engine to `knxultimate` 6.3.1.

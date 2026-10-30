@@ -33,6 +33,14 @@ module.exports = function (RED) {
     node.outputRBE = 'false'
     node.inputRBE = 'false'
     node.rules = config.rules || [{}]
+    // A row's GA field can hold "command GA, status GA". The command GA is used to recall the scene,
+    // the status GA (optional) is read when saving the scene. Without a comma, the row works as before.
+    node.rules.forEach(rule => {
+      if (!rule || typeof rule.topic !== 'string') return
+      const parts = rule.topic.split(',')
+      rule.commandTopic = parts[0].trim()
+      rule.statusTopic = parts.length > 1 ? parts[1].trim() : ''
+    })
     node.isSceneController = true // Signal to config node, that this is a node scene controller
     node.userDir = path.join(RED.settings.userDir, 'knxultimatestorage') // 09/03/2020 Storage of ttsultimate (otherwise, at each upgrade to a newer version, the node path is wiped out and recreated, loosing all custom files)
     try {
@@ -69,6 +77,34 @@ module.exports = function (RED) {
         }, ms)
         node.timerWait = timer
         pendingWaits.set(timer, resolve)
+      })
+    }
+
+    // Before saving the scene, read the status GAs and wait for their responses (or for the timeout).
+    const STATUS_READ_TIMEOUT_MS = 2000
+    let pendingStatusRead = null
+    node.sceneStatusReceived = (_GA) => {
+      if (pendingStatusRead === null) return
+      pendingStatusRead.gas.delete(_GA)
+      if (pendingStatusRead.gas.size === 0) pendingStatusRead.finish(true)
+    }
+    function readStatusValues (_statusGAs) {
+      if (profileTimers.closed) return Promise.resolve(false)
+      return new Promise(function (resolve) {
+        let timer = null
+        const finish = (_completed) => {
+          if (pendingStatusRead === null) return
+          pendingStatusRead = null
+          profileTimers.clearTimeout(timer)
+          pendingWaits.delete(timer)
+          resolve(_completed)
+        }
+        timer = setTimeout(() => finish(true), STATUS_READ_TIMEOUT_MS)
+        pendingWaits.set(timer, () => finish(false))
+        pendingStatusRead = { gas: new Set(_statusGAs), finish }
+        _statusGAs.forEach(ga => {
+          node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: ga, payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id })
+        })
       })
     }
 
@@ -269,7 +305,7 @@ module.exports = function (RED) {
           }
         } else {
           // Topic is Group Address
-          node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: 'write', nodecallerid: node.id })
+          node.serverKNX.sendKNXTelegramToKNXEngine({ grpaddr: rule.commandTopic || rule.topic, payload: oPayload, dpt: rule.dpt, outputtype: 'write', nodecallerid: node.id })
         }
       }
       const t = setTimeout(() => { // 21/03/2022 fixed possible memory leak. Previously was setTimeout without "let t = ".
@@ -288,6 +324,12 @@ module.exports = function (RED) {
 
     // 11/03/2020 in the middle of coronavirus. Whole italy is red zone, closed down. Save scene.
     node.SaveScene = (_Payload, _ForceEvenControllerIsDisabled) => {
+      return SaveSceneAsync(_Payload, _ForceEvenControllerIsDisabled).catch(error => {
+        if (node.sysLogger !== undefined && node.sysLogger !== null) node.sysLogger.error('knxUltimateSceneController: Node ' + node.id + ' Save scene error:' + error.message)
+      })
+    }
+
+    async function SaveSceneAsync (_Payload, _ForceEvenControllerIsDisabled) {
       let curVal
       let newVal
 
@@ -355,6 +397,14 @@ module.exports = function (RED) {
         return
       }
 
+      // Read the status GAs, so the saved values are the real ones of the devices.
+      const statusGAs = [...new Set(node.rules.filter(rule => rule && rule.statusTopic).map(rule => rule.statusTopic))]
+      if (statusGAs.length > 0) {
+        if (pendingStatusRead !== null) return // A save is already reading the status GAs
+        node.setNodeStatus({ fill: 'blue', shape: 'ring', text: 'Reading status GAs', payload: '', GA: '', dpt: '', devicename: '' })
+        if (!await readStatusValues(statusGAs)) return
+      }
+
       // Save the currentPayload of each device in the scene
       for (let i = 0; i < node.rules.length; i++) {
         // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
@@ -381,7 +431,7 @@ module.exports = function (RED) {
         for (let i = 0; i < node.rules.length; i++) {
           // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
           const oDevice = node.rules[i]
-          if (oDevice.hasOwnProperty('topic') && oDevice.hasOwnProperty('currentPayload') && oDevice.topic === _msg.topic) {
+          if (oDevice.hasOwnProperty('topic') && oDevice.hasOwnProperty('currentPayload') && (oDevice.topic === _msg.topic || oDevice.commandTopic === _msg.topic)) {
             oDevice.currentPayload = _msg.payload
           }
         }

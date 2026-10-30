@@ -1914,7 +1914,7 @@
               const row = $('<div class="form-row"/>').appendTo(container)
               const row2 = $('<div class="form-row"/>', { style: 'padding-top: 5px; padding-left: 5px;' }).appendTo(container)
 
-              const oTopicField = $('<input/>', { class: 'rowRuleTopic', type: 'text', placeholder: '1/1/1, wait or device name', style: 'width:140px; margin-left: 5px; text-align: left;' }).appendTo(row)
+              const oTopicField = $('<input/>', { class: 'rowRuleTopic', type: 'text', placeholder: '1/1/1, 1/4/1 (status) or wait', style: 'width:170px; margin-left: 5px; text-align: left;' }).appendTo(row)
               const oDPTField = $('<select/>', { class: 'rowRuleDPT', type: 'text', style: 'width:160px; margin-left: 5px; text-align: left;' }).appendTo(row)
               const finalspan = $('<span/>', { style: '' }).appendTo(row)
               finalspan.append(' &#8594; <span class="node-input-rule-index"></span> ')
@@ -1927,15 +1927,21 @@
 
               loadDptOptions(oDPTField, rule.dpt)
 
-              // Autocomplete suggestion with ETS csv File
+              // Autocomplete suggestion with ETS csv File. The field can be "command GA, status GA":
+              // after a comma, the suggestions are for the status GA.
+              const statusPrefix = (text) => {
+                const comma = String(text || '').indexOf(',')
+                return comma > -1 ? String(text).substring(0, comma).trim() + ', ' : ''
+              }
               oTopicField.autocomplete({
                 minLength: 0,
                 source: function (request, response) {
                   if (!oNodeServer || !oNodeServer.id) { response([]); return }
+                  const term = statusPrefix(request.term) !== '' ? request.term.substring(request.term.indexOf(',') + 1).trim() : request.term
                   profileGetJSON('knxUltimatecsv?nodeID=' + oNodeServer.id, (data) => {
                     response($.map(data, function (value, key) {
                       const sSearch = (value.ga + ' (' + value.devicename + ') DPT' + value.dpt)
-                      if (htmlUtilsfullCSVSearch(sSearch, request.term)) {
+                      if (htmlUtilsfullCSVSearch(sSearch, term)) {
                         return {
                           label: value.ga + ' # ' + value.devicename + ' # ' + value.dpt, // Label for Display
                           value: value.ga // Value
@@ -1947,6 +1953,12 @@
                   })
                 },
                 select: function (event, ui) {
+                  // Status GA: keep the command GA, its datapoint and its device name
+                  const prefix = statusPrefix(oTopicField.val())
+                  if (prefix !== '') {
+                    oTopicField.val(prefix + ui.item.value)
+                    return false
+                  }
                   // Sets Datapoint and device name automatically
                   let sDevName = ui.item.label.split('#')[1].trim()
                   try {

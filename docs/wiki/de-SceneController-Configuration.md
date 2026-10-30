@@ -39,6 +39,7 @@ Der Node speichert automatisch aktualisierte Werte aller Aktoren der Szene, soba
 | Zeilenfelder | 1) Gruppenadresse 2) Datapoint 3) Default-Wert in der Szene (durch Scene Save überschreibbar). Darunter: Gerätename.
  Eine Pause einfügen: **wait ** im ersten Feld und eine Zahl im letzten Feld (Millisekunden), z. B. `2000`.
 **wait** akzeptiert auch Sekunden/Minuten/Stunden: `12s`, `5m`, `1h`. |
+| Status-GA | Im ersten Feld kann auch die Befehls-GA, ein Komma und die Status-GA eingetragen werden, z. B. **1/1/1, 1/4/1**. Die Szene wird abgerufen, indem die Werte an die Befehls-GA gesendet werden. Beim Speichern der Szene sendet der Node eine Leseanfrage an jede Status-GA und speichert die in den Antworten empfangenen Werte (er wartet höchstens 2 Sekunden: antwortet ein Gerät nicht, wird der zuletzt vom BUS empfangene Wert gespeichert). Der Node aktualisiert den Wert außerdem jedes Mal, wenn sich die Status-GA auf dem BUS ändert. Die Status-GA muss denselben Datapoint wie die Zeile haben. Ohne Komma funktioniert die Zeile wie bisher. |
 | Remove | Gerät/Zeile entfernen. |
 
 ## Ausgaben

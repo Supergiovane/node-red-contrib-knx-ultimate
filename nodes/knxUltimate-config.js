@@ -1488,6 +1488,45 @@ module.exports = (RED) => {
         } catch (error) { }
       }
 
+      // 19/03/2020 Check and update the values of each device in the scene and update the rule array accordingly.
+      // A status GA of a row is updated by Write and Response telegrams, a command GA only by Write telegrams.
+      const updateSceneControllerDevices = (_input, _isResponse) => {
+        try {
+          for (let i = 0; i < _input.rules.length; i++) {
+            // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
+            const oDevice = _input.rules[i]
+            if (typeof oDevice === 'undefined' || oDevice === null) continue
+            const isStatus = typeof oDevice.statusTopic === 'string' && oDevice.statusTopic !== '' && oDevice.statusTopic === _dest
+            const isCommand = !_isResponse && (oDevice.commandTopic || oDevice.topic) == _dest
+            if (!isStatus && !isCommand) continue
+            const msg = buildInputMessage({
+              _srcGA: _src,
+              _destGA: _dest,
+              _event: _evt,
+              _Rawvalue: _rawValue,
+              _inputDpt: oDevice.dpt,
+              _devicename: oDevice.name || '',
+              _outputtopic: oDevice.outputtopic,
+              _oNode: null,
+              _echoed,
+              _repeated: isRepeated
+            })
+            oDevice.currentPayload = msg.payload
+            _input.setNodeStatus({
+              fill: 'grey',
+              shape: 'dot',
+              text: 'Update dev in scene',
+              payload: oDevice.currentPayload,
+              GA: _dest,
+              dpt: oDevice.dpt,
+              devicename: oDevice.devicename || ''
+            })
+            if (isStatus && typeof _input.sceneStatusReceived === 'function') _input.sceneStatusReceived(_dest)
+            break
+          }
+        } catch (error) { }
+      }
+
       switch (_evt) {
         case 'GroupValue_Write':
           // console.time('GroupValue_Write'); // 05/04/2022 Fatto test velocità tra for..loop e forEach. E' risultato sempre comunque più veloce il forEach!
@@ -1563,42 +1602,7 @@ module.exports = (RED) => {
                       .catch(function () { })
                   } else {
                     // 19/03/2020 Check and Update value if the input is part of a scene controller
-                    new Promise((resolve) => {
-                      // Check and update the values of each device in the scene and update the rule array accordingly.
-                      for (let i = 0; i < _input.rules.length; i++) {
-                        // rule is { topic: rowRuleTopic, devicename: rowRuleDeviceName, dpt:rowRuleDPT, send: rowRuleSend}
-                        const oDevice = _input.rules[i]
-                        if (typeof oDevice !== 'undefined' && oDevice.topic == _dest) {
-                          const msg = buildInputMessage({
-                            _srcGA: _src,
-                            _destGA: _dest,
-                            _event: _evt,
-                            _Rawvalue: _rawValue,
-                            _inputDpt: oDevice.dpt,
-                            _devicename: oDevice.name || '',
-                            _outputtopic: oDevice.outputtopic,
-                            _oNode: null,
-                            _echoed,
-                            _repeated: isRepeated
-                          })
-                          oDevice.currentPayload = msg.payload
-                          _input.setNodeStatus({
-                            fill: 'grey',
-                            shape: 'dot',
-                            text: 'Update dev in scene',
-                            payload: oDevice.currentPayload,
-                            GA: oDevice.topic,
-                            dpt: oDevice.dpt,
-                            devicename: oDevice.devicename || ''
-                          })
-                          break
-                        }
-                      }
-                      resolve(true) // fulfilled
-                      // reject("error"); // rejected
-                    })
-                      .then(function () { })
-                      .catch(function () { })
+                    updateSceneControllerDevices(_input, false)
                   }
                 } else if (_input.hasOwnProperty('isLogger')) {
                   // 26/03/2020 Coronavirus is slightly decreasing the affected numer of people. Logger Node
@@ -1682,6 +1686,10 @@ module.exports = (RED) => {
           break
 
         case 'GroupValue_Response':
+          // Scene controllers don't receive responses as normal clients, but need them for the status GAs.
+          node.nodeClients
+            .filter((_input) => _input.isSceneController === true)
+            .forEach((_input) => updateSceneControllerDevices(_input, true))
           node.nodeClients
             .filter((_input) => _input.notifyresponse === true)
             .forEach((_input) => {

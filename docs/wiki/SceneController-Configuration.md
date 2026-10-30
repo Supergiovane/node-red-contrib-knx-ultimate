@@ -41,6 +41,7 @@ The**wait ** command accept also values indicating seconds, minutes or hours.
 To set a value in seconds, add**s ** after the numeric value, for example (**12s ** )
 To set a value in minutes, add**m ** after the numeric value, for example (**5m ** )
 To set a value in hours, add**h ** after the numeric value, for example (**1h** ) |
+| Status GA | In the first field you can also write the command GA, a comma and the status GA, for example **1/1/1, 1/4/1**. The scene is recalled by sending the values to the command GA. When the scene is saved, the node sends a read request to every status GA and saves the values received in the responses (it waits up to 2 seconds: if a device doesn't respond, the last value received from the BUS is saved). The node also keeps the value updated whenever the status GA changes on the BUS. The status GA must have the same datapoint of the row. Without a comma, the row works as before. |
 | Remove button | Remove a device from the list. |
 
 # MESSAGE OUTPUT FROM THE SCENE CONTROLLER NODE

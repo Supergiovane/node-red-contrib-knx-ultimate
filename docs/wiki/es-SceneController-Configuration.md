@@ -41,6 +41,7 @@ _ **El nodo de la escena guarda automáticamente los valores actualizados de tod
  a un valor en segundo lugar, add**ssule, por ejemplo, los valores de los numéricos, por ejemplo, por ejemplo, por ejemplo, los valores de los numéricos.( ** 12s**) 
  Para establecer un valor en minutos, agregue ** m**después del valor numérico, por ejemplo ( ** 5m**) 
  Para establecer un valor en horas, agregue ** h**después del valor numérico, por ejemplo ( ** 1H** ) |
+| GA de estado | En el primer campo también puede escribir la GA de comando, una coma y la GA de estado, por ejemplo **1/1/1, 1/4/1**. La escena se recupera enviando los valores a la GA de comando. Al guardar la escena, el nodo envía una solicitud de lectura a cada GA de estado y guarda los valores recibidos en las respuestas (espera como máximo 2 segundos: si un dispositivo no responde, se guarda el último valor recibido del BUS). El nodo también actualiza el valor cada vez que la GA de estado cambia en el BUS. La GA de estado debe tener el mismo punto de datos de la fila. Sin coma, la fila funciona como antes. |
 |Botón eliminar |Elimine un dispositivo de la lista.|
 
 # Salida de mensajes desde el nodo del controlador de escena

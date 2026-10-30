@@ -914,4 +914,56 @@ describe('KNX Utility private runtime profiles', () => {
     instance.close(node)
     expect(clock.pending.size).to.equal(0)
   })
+
+  it('reads the SceneController status GAs before saving and recalls through the command GA', async () => {
+    const instance = runtime()
+    const id = 'status-ga-scene'
+    const node = instance.create('scenecontroller', {
+      id,
+      rules: [
+        { topic: '1/6/1, 1/7/1', dpt: '5.001', send: '0' },
+        { topic: '1/6/2', dpt: '1.001', send: 'false' }
+      ]
+    })
+    expect(node.rules[0]).to.include({ commandTopic: '1/6/1', statusTopic: '1/7/1' })
+    expect(node.rules[1]).to.include({ commandTopic: '1/6/2', statusTopic: '' })
+    node.rules[1].currentPayload = true
+    const save = node.SaveScene(true)
+    expect(instance.telegrams).to.deep.equal([{ grpaddr: '1/7/1', payload: '', dpt: '', outputtype: 'read', nodecallerid: node.id }])
+    node.rules[0].currentPayload = 42
+    node.sceneStatusReceived('1/7/1')
+    await save
+    const scenePath = path.join(instance.storage, 'scenecontroller', 'SceneController_' + id)
+    expect(JSON.parse(fs.readFileSync(scenePath, 'utf8')).map(rule => rule.send)).to.deep.equal(['42', 'true'])
+    expect(node.sent.at(-1)).to.include({ savescene: true, disabled: false })
+    const recall = node.RecallScene(true)
+    expect(instance.telegrams.slice(1).map(({ grpaddr, payload }) => ({ grpaddr, payload }))).to.deep.equal([
+      { grpaddr: '1/6/1', payload: '42' },
+      { grpaddr: '1/6/2', payload: 'true' }
+    ])
+    clock.run(node.timerWait)
+    await recall
+    instance.close(node)
+    expect(clock.pending.size).to.equal(0)
+  })
+
+  it('saves the last known SceneController value when a status GA does not respond', async () => {
+    const instance = runtime()
+    const node = instance.create('scenecontroller', {
+      id: 'status-ga-timeout',
+      rules: [{ topic: '1/6/1,1/7/1', dpt: '1.001', send: 'false' }]
+    })
+    node.rules[0].currentPayload = true
+    const save = node.SaveScene(true)
+    expect(clock.pending.get(node.timerWait)).to.equal(undefined)
+    expect(node.sent).to.deep.equal([])
+    const [timer] = [...clock.pending.keys()]
+    expect(clock.pending.get(timer).delay).to.equal(2000)
+    clock.run(timer)
+    await save
+    expect(node.rules[0].send).to.equal('true')
+    expect(node.sent[0]).to.include({ savescene: true })
+    instance.close(node)
+    expect(clock.pending.size).to.equal(0)
+  })
 })

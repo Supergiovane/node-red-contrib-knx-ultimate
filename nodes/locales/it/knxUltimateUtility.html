@@ -818,6 +818,7 @@ La scena salva automaticamente i nuovi valori degli attuatori della lista non ap
 |--|--|
 | Pulsante Aggiungi | Aggiunge una riga. |
 | Campi riga | 1) Indirizzo di gruppo 2) Datapoint 3) Valore predefinito per questo dispositivo nella scena (può essere sovrascritto da Salva Scena). Sotto, il nome del dispositivo.<br/> Per inserire una pausa, scrivi **wait** nel primo campo e un numero nell'ultimo campo, che rappresenta la durata (millisecondi), ad es. `2000`.<br/> Il comando **wait** accetta anche secondi, minuti o ore: aggiungi `s` (es. `12s`), `m` (es. `5m`) o `h` (es. `1h`). |
+| GA di stato | Nel primo campo puoi scrivere anche il GA di comando, una virgola e il GA di stato, ad es. **1/1/1, 1/4/1**. La scena viene richiamata inviando i valori al GA di comando. Quando la scena viene salvata, il nodo invia una richiesta di lettura a ogni GA di stato e salva i valori ricevuti nelle risposte (attende al massimo 2 secondi: se un dispositivo non risponde, viene salvato l'ultimo valore ricevuto dal BUS). Il nodo aggiorna il valore anche ogni volta che il GA di stato cambia sul BUS. Il GA di stato deve avere lo stesso datapoint della riga. Senza virgola, la riga funziona come prima. |
 | Pulsante Rimuovi | Rimuove una riga/dispositivo. |
 
 #### Messaggi in uscita
