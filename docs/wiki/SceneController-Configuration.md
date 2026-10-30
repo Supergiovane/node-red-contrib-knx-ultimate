@@ -100,6 +100,8 @@ Think this: if you have a blind actuator, having a group address for move, a gro
 
 With this status group address, you can update the command group addresses of the blind actuators belonging to the scene. Please see the sample in the wiki.
 
+> 💡 Simpler: write the status group address in the scene row, after the command group address and a comma (for example `1/1/1, 1/4/1`). See **Status GA** in the scene configuration. No flow is needed.
+
 ```javascript
 
 // Example of a function that saves the status of a blind actuator, belongind to the scene.

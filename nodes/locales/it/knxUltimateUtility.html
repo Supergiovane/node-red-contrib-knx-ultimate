@@ -862,6 +862,8 @@ La scena salva già automaticamente i valori aggiornati degli attuatori. A volte
 
 Esempio: un attuatore tapparella ha GA di comando e GA di stato; il valore certo della posizione è nella GA di stato "altezza assoluta”. Con questa GA puoi aggiornare le GA di comando degli attuatori presenti in scena.
 
+> 💡 Più semplice: scrivi il GA di stato nella riga della scena, dopo il GA di comando e una virgola (ad es. `1/1/1, 1/4/1`). Vedi **GA di stato** nella configurazione della scena. Non serve nessun flow.
+
 ```javascript
 
 // Salva lo stato (ad es. 70%) di una tapparella appartenente alla scena

@@ -81,6 +81,8 @@ msg.savescene = true; return msg;
 
 例如卷帘：绝对高度的状态 GA 才能反映准确位置。可用该状态 GA 去更新场景内相关执行器的命令 GA。
 
+> 💡 更简单的方法：在场景行中，于命令 GA 和逗号之后填写状态 GA（例如 `1/1/1, 1/4/1`）。参见场景配置中的 **状态 GA**。无需任何流程。
+
 ```javascript
 
 msg.savevalue = true;
