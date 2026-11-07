@@ -6,12 +6,12 @@
 
 # CHANGELOG
 
-**Version 8.3.3** - November 2026
+**Version 8.4.0** - November 2026
 
 - Updated the KNX engine to `knxultimate` 6.4.0.
 - Routing: after a `ROUTING_BUSY`, telegrams now wait in the queue for the time requested by the router, instead of being sent at once.
 - Secure routing: a frame that fails verification no longer disconnects the gateway node, so a single forged frame on the network can't drop the connection. A wrong backbone key therefore no longer causes a disconnection either: telegrams just don't arrive, and the first discarded frame is logged as an error.
-- Secure routing: fixed the first telegram being lost when the connection started late, and the connection staying in *connecting* after a reconnection.
+- Secure routing: fixed the first telegram being lost when the connection started late, and the connection staying in _connecting_ after a reconnection.
 - KNX Secure tunnel: with gateways such as Apricum/MDT, telegrams of group addresses without Data Secure are now received.
 
 **Version 8.3.2** - October 2026
