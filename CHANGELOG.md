@@ -6,6 +6,14 @@
 
 # CHANGELOG
 
+**Version 8.3.3** - November 2026
+
+- Updated the KNX engine to `knxultimate` 6.4.0.
+- Routing: after a `ROUTING_BUSY`, telegrams now wait in the queue for the time requested by the router, instead of being sent at once.
+- Secure routing: a frame that fails verification no longer disconnects the gateway node, so a single forged frame on the network can't drop the connection. A wrong backbone key therefore no longer causes a disconnection either: telegrams just don't arrive, and the first discarded frame is logged as an error.
+- Secure routing: fixed the first telegram being lost when the connection started late, and the connection staying in *connecting* after a reconnection.
+- KNX Secure tunnel: with gateways such as Apricum/MDT, telegrams of group addresses without Data Secure are now received.
+
 **Version 8.3.2** - October 2026
 
 - Scene Controller: a scene row can now have a **status group address**, written after the command group address and a comma, for example `1/1/1, 1/4/1` ([#539](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/discussions/539)). When the scene is saved, the node sends a read request to the status group addresses and saves the values received in the responses, waiting up to 2 seconds. The values are also updated whenever the status group addresses change on the BUS. The scene is still recalled through the command group address. Rows without a comma work as before.
