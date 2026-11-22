@@ -9,7 +9,7 @@
 **Version 8.4.2** - November 2026
 
 - Updated the KNX engine to `knxultimate` 6.4.2.
-- Tunnel UDP: fixed a memory leak that made the memory used by Node-RED grow for as long as the connection stayed up, until an out-of-memory crash after some weeks ([KNXUltimate#121](https://github.com/Supergiovane/KNXUltimate/issues/121)).
+- Tunnel UDP: fixed a memory leak.
 
 **Version 8.4.0** - November 2026
 
