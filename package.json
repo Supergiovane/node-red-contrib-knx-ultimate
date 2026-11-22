@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=20.18.1"
   },
-  "version": "8.4.0",
+  "version": "8.4.1",
   "description": "KNX integration for Node-RED with KNX/IP and KNX Secure, ETS import, routing, diagnostics, automation utilities, MQTT and Modbus adapters. Optional Hue Ultimate and Matter Ultimate packages connect through the KNX gateway.",
   "files": [
     "nodes/",
@@ -19,7 +19,7 @@
     "scripts/check-legacy-flows.js"
   ],
   "dependencies": {
-    "knxultimate": "6.4.0",
+    "knxultimate": "6.4.1",
     "lodash": "4.18.1",
     "mqtt": "^5.15.2",
     "ping": "0.4.4",
@@ -107,10 +107,10 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.8",
     "chai": "^4.3.10",
+    "js-yaml": "4.3.2",
+    "marked": "^14.1.0",
     "mocha": "^10.4.0",
     "vite": "^7.3.6",
-    "vue": "^3.5.41",
-    "marked": "^14.1.0",
-    "js-yaml": "4.3.2"
+    "vue": "^3.5.41"
   }
 }
