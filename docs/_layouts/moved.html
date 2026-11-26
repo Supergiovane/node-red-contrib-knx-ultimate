@@ -1,0 +1,40 @@
+{%- comment -%}
+  The documentation moved to www.maxsupervibe.com/docs/knx-ultimate/ (2026-11-26), in the same six
+  languages. Every old page sends the visitor to its new address at once and tells search engines,
+  with the canonical link, which one counts. The Markdown in wiki/ stays here: the site copies it
+  from this repo (SaccaniWebsite/scripts/sync-docs.mjs), so edit the docs here as before.
+  New address: English at /docs/knx-ultimate/<slug>/, the others at /<lang>/docs/knx-ultimate/<slug>/,
+  where slug is the page's translation_key through slugify (the same rule as the site's script).
+{%- endcomment -%}
+{%- assign lang = page.lang | default: 'en' -%}
+{%- if lang == 'en' -%}{%- assign base = '/docs/knx-ultimate/' -%}{%- else -%}{%- capture base -%}/{{ lang | downcase }}/docs/knx-ultimate/{%- endcapture -%}{%- endif -%}
+{%- assign key = page.translation_key | default: page.title -%}
+{%- if page.layout == 'homepage' or key == 'Home' or key == 'homepage' or key == '_Footer' or key == '_Sidebar' or key == 'Docs-Language-Bar' -%}
+  {%- assign target = base -%}
+{%- else -%}
+  {%- capture target -%}{{ base }}{{ key | slugify }}/{%- endcapture -%}
+{%- endif -%}
+{%- assign url = 'https://www.maxsupervibe.com' | append: target -%}
+{%- case lang -%}
+  {%- when 'it' -%}{%- assign note = 'La documentazione di KNX Ultimate si è spostata su maxsupervibe.com.' -%}{%- assign go = 'Vai alla pagina' -%}
+  {%- when 'de' -%}{%- assign note = 'Die Dokumentation von KNX Ultimate ist nach maxsupervibe.com umgezogen.' -%}{%- assign go = 'Zur Seite' -%}
+  {%- when 'fr' -%}{%- assign note = 'La documentation de KNX Ultimate a déménagé sur maxsupervibe.com.' -%}{%- assign go = 'Aller à la page' -%}
+  {%- when 'es' -%}{%- assign note = 'La documentación de KNX Ultimate se ha trasladado a maxsupervibe.com.' -%}{%- assign go = 'Ir a la página' -%}
+  {%- when 'zh-CN' -%}{%- assign note = 'KNX Ultimate 文档已迁移到 maxsupervibe.com。' -%}{%- assign go = '前往页面' -%}
+  {%- else -%}{%- assign note = 'The KNX Ultimate documentation has moved to maxsupervibe.com.' -%}{%- assign go = 'Go to the page' -%}
+{%- endcase -%}
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title | escape }} — KNX Ultimate</title>
+  <link rel="canonical" href="{{ url }}">
+  <meta http-equiv="refresh" content="0; url={{ url }}">
+  <script>location.replace({{ url | jsonify }} + location.hash);</script>
+</head>
+<body style="font-family:system-ui,sans-serif;max-width:640px;margin:48px auto;padding:0 16px;line-height:1.5">
+  <p>{{ note }}</p>
+  <p><a href="{{ url }}">{{ go }} →</a></p>
+</body>
+</html>
