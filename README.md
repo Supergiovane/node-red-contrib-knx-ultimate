@@ -29,17 +29,24 @@ KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, r
 
 ## Our trusted partners
 
-<p align="center">
-  <a href="https://knxshop.it"><img src="docs/assets/community/knxstore_it.png" alt="KNX Store Italia" width="80"></a>&nbsp;&nbsp;
-  <a href="http://www.knxsardegna.com"><img src="docs/assets/community/knxsardegna.png" alt="KNX Sardegna" width="93"></a>&nbsp;&nbsp;
-  <a href="https://www.agatastore.it"><img src="docs/assets/community/agata.png" alt="Agata Store" width="80"></a>&nbsp;&nbsp;
-  <a href="https://proknx.com"><img src="docs/assets/community/proKNX.png" alt="ProKNX" width="113"></a>&nbsp;&nbsp;
-  <a href="https://altis.swiss"><img src="docs/assets/community/altis.png" alt="Altis" width="74"></a>&nbsp;&nbsp;
-  <a href="https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/"><img src="docs/assets/community/cannx.png" alt="Can'nX" width="125"></a>&nbsp;&nbsp;
-  <a href="https://www.onsystem-iot.com/"><img src="docs/assets/community/innovationsystem.png" alt="Innovation System" width="155"></a>&nbsp;&nbsp;
-  <a href="https://inventife.com"><img src="docs/assets/community/inventife.png" alt="Inventife" width="124"></a>&nbsp;&nbsp;
-  <a href="https://weinzierl.de"><img src="docs/assets/community/Weinzierl.png" alt="Weinzierl" width="191"></a>&nbsp;&nbsp;
-</p>
+<!-- Logos: equal 480×240 tiles made from docs/assets/community (each logo trimmed, centred, same visual size). -->
+<table align="center">
+  <tr>
+    <td align="center"><a href="https://knxshop.it"><img src="docs/assets/community/readme/knxstore_it.png" alt="KNX Store Italia" width="200" height="100"></a></td>
+    <td align="center"><a href="http://www.knxsardegna.com"><img src="docs/assets/community/readme/knxsardegna.png" alt="KNX Sardegna" width="200" height="100"></a></td>
+    <td align="center"><a href="https://www.agatastore.it"><img src="docs/assets/community/readme/agata.png" alt="Agata Store" width="200" height="100"></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://proknx.com"><img src="docs/assets/community/readme/proKNX.png" alt="ProKNX" width="200" height="100"></a></td>
+    <td align="center"><a href="https://altis.swiss"><img src="docs/assets/community/readme/altis.png" alt="Altis" width="200" height="100"></a></td>
+    <td align="center"><a href="https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/"><img src="docs/assets/community/readme/cannx.png" alt="Can'nX" width="200" height="100"></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://www.onsystem-iot.com/"><img src="docs/assets/community/readme/innovationsystem.png" alt="Innovation System" width="200" height="100"></a></td>
+    <td align="center"><a href="https://inventife.com"><img src="docs/assets/community/readme/inventife.png" alt="Inventife" width="200" height="100"></a></td>
+    <td align="center"><a href="https://weinzierl.de"><img src="docs/assets/community/readme/Weinzierl.png" alt="Weinzierl" width="200" height="100"></a></td>
+  </tr>
+</table>
 
 ## Friendly communities around the world
 
