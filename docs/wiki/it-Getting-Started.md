@@ -24,6 +24,19 @@ Servono Node.js 20.18.1 o successivo e Node-RED 3.1.1 o successivo.
 
 5. Controlla l’indirizzo scelto e premi **Deploy**. Usa Inject per inviare il comando. Abilita **Reagisci all’evento Risposta** per vedere le risposte alle richieste di lettura.
 
+## Il primo flow, passo per passo
+
+L'animazione qui sotto costruisce un primo flow: un nodo **KNX Device** per l'indirizzo di gruppo `1/1/0` con datapoint `1.001`, la sua configurazione del gateway e un nodo **Debug**.
+
+1. Trascina **KNX DEVICE** dalla palette nel flow e fai doppio clic.
+2. Accanto a **Gateway** clicca **+**. La configurazione del gateway cerca le interfacce KNX/IP in rete: scrivi l'indirizzo della tua (qui `192.168.1.117`) e sceglila dall'elenco. Indirizzo, porta e protocollo vengono compilati. Clicca **Add**.
+3. In **Group Addr.** scrivi `1/1/0`, dai un nome al nodo e lascia il datapoint `1.001 Switch`. Clicca **Done**.
+4. Trascina un nodo **Debug** nel flow, collega l'uscita di KNX Device e clicca **Deploy**.
+
+Quando il nodo mostra **Connected. On duty.**, ogni telegramma inviato a `1/1/0` sul bus compare nella barra laterale **Debug**.
+
+![Creazione di un nodo KNX Device per l’indirizzo di gruppo 1/1/0, della configurazione del gateway e di un nodo Debug](/node-red-contrib-knx-ultimate/assets/getting-started/first-flow.gif)
+
 ## Leggere un valore dal bus
 
 Abilita il pulsante manuale di KNX Device. Le azioni sono **Alterna valore booleano**, **Invia KNX Read** (seconda voce) e **Scrivi valore personalizzato**. Scegli Read e premi il pulsante per leggere l’indirizzo configurato. Questa azione non è disponibile in modalità universale. Dal flow puoi anche inviare `msg.readstatus = true`.

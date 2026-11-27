@@ -24,6 +24,19 @@ Nécessite Node.js 20.18.1 minimum et Node-RED 3.1.1 minimum.
 
 5. Vérifiez l’adresse puis cliquez sur **Deploy**. Utilisez Inject pour envoyer la commande. Activez **React to response** pour voir les réponses aux demandes de lecture.
 
+## Le premier flow, étape par étape
+
+L’animation ci-dessous construit un premier flow : un nœud **KNX Device** pour l’adresse de groupe `1/1/0` avec le datapoint `1.001`, sa configuration de passerelle et un nœud **Debug**.
+
+1. Faites glisser **KNX DEVICE** de la palette dans le flow et double-cliquez dessus.
+2. À côté de **Gateway**, cliquez sur **+**. La configuration de la passerelle recherche les interfaces KNX/IP du réseau : tapez l’adresse de la vôtre (ici `192.168.1.117`) et choisissez-la dans la liste. L’adresse, le port et le protocole sont remplis. Cliquez sur **Add**.
+3. Dans **Group Addr.**, tapez `1/1/0`, nommez le nœud et gardez le datapoint `1.001 Switch`. Cliquez sur **Done**.
+4. Faites glisser un nœud **Debug** dans le flow, reliez-y la sortie de KNX Device et cliquez sur **Deploy**.
+
+Quand le nœud affiche **Connected. On duty.**, chaque télégramme envoyé à `1/1/0` sur le bus apparaît dans la barre latérale **Debug**.
+
+![Création d’un nœud KNX Device pour l’adresse de groupe 1/1/0, de sa configuration de passerelle et d’un nœud Debug](/node-red-contrib-knx-ultimate/assets/getting-started/first-flow.gif)
+
 ## Lire une valeur sur le bus
 
 Activez le bouton manuel de KNX Device. Ses actions sont **Toggle boolean**, **Envoyer KNX Read** (deuxième choix) et **Écrire une valeur personnalisée**. Choisissez Read et cliquez pour interroger l’adresse configurée. Cette action du bouton n’est pas disponible en mode universel. Depuis un flow, vous pouvez aussi envoyer `msg.readstatus = true`.

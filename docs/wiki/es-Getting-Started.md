@@ -24,6 +24,19 @@ Requiere Node.js 20.18.1 o posterior y Node-RED 3.1.1 o posterior.
 
 5. Revisa la dirección y pulsa **Deploy**. Usa Inject para enviar el comando. Activa **React to response** para ver las respuestas a las solicitudes de lectura.
 
+## El primer flow, paso a paso
+
+La animación de abajo construye un primer flow: un nodo **KNX Device** para la dirección de grupo `1/1/0` con el datapoint `1.001`, su configuración de pasarela y un nodo **Debug**.
+
+1. Arrastra **KNX DEVICE** desde la paleta al flow y haz doble clic.
+2. Junto a **Gateway**, pulsa **+**. La configuración de la pasarela busca las interfaces KNX/IP de la red: escribe la dirección de la tuya (aquí `192.168.1.117`) y elígela en la lista. La dirección, el puerto y el protocolo se rellenan. Pulsa **Add**.
+3. En **Group Addr.** escribe `1/1/0`, ponle un nombre al nodo y deja el datapoint `1.001 Switch`. Pulsa **Done**.
+4. Arrastra un nodo **Debug** al flow, conecta la salida de KNX Device y pulsa **Deploy**.
+
+Cuando el nodo muestra **Connected. On duty.**, cada telegrama enviado a `1/1/0` en el bus aparece en la barra lateral **Debug**.
+
+![Creación de un nodo KNX Device para la dirección de grupo 1/1/0, de su configuración de pasarela y de un nodo Debug](/node-red-contrib-knx-ultimate/assets/getting-started/first-flow.gif)
+
 ## Leer un valor del bus
 
 Activa el botón manual de KNX Device. Las acciones son **Toggle boolean**, **Enviar KNX Read** (segunda opción) y **Escribir valor personalizado**. Elige Read y pulsa el botón para consultar la dirección configurada. Esta acción no está disponible en modo universal. Desde un flow también puedes enviar `msg.readstatus = true`.

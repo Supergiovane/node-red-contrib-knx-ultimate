@@ -24,6 +24,19 @@ translation_key: "Getting-Started"
 
 5. 确认地址后点击 **Deploy**。通过 Inject 发送命令。启用 **React to response**，以查看读取请求的响应。
 
+## 第一个流程，逐步操作
+
+下面的动画演示如何创建第一个流程：一个组地址为 `1/1/0`、数据点为 `1.001` 的 **KNX Device** 节点、它的网关配置，以及一个 **Debug** 节点。
+
+1. 将 **KNX DEVICE** 从节点面板拖到流程中，然后双击它。
+2. 点击 **Gateway** 旁边的 **+**。网关配置会在网络中搜索 KNX/IP 接口：输入你的接口地址（此处为 `192.168.1.117`），并从列表中选择。地址、端口和协议会自动填写。点击 **Add**。
+3. 在 **Group Addr.** 中输入 `1/1/0`，为节点命名，并保留数据点 `1.001 Switch`。点击 **Done**。
+4. 将一个 **Debug** 节点拖到流程中，把 KNX Device 的输出连接到它，然后点击 **Deploy**。
+
+当节点显示 **Connected. On duty.** 时，总线上发送到 `1/1/0` 的每个报文都会显示在 **Debug** 侧边栏中。
+
+![创建组地址为 1/1/0 的 KNX Device 节点、它的网关配置和一个 Debug 节点](/node-red-contrib-knx-ultimate/assets/getting-started/first-flow.gif)
+
 ## 从总线读取数值
 
 启用 KNX Device 的手动按钮。操作依次为 **Toggle boolean**、**发送 KNX Read**（第二项）和 **写入自定义值**。选择 Read 后点击按钮即可读取已配置的地址。通用模式下无法使用此按钮读取操作。也可以从流程发送 `msg.readstatus = true`。
