@@ -46,6 +46,15 @@ const getGroupServiceEvent = (cEMIMessage) => {
   return null
 }
 
+// JSON.stringify writes a Buffer as { type: 'Buffer', data: [...] }. The persist file is read back
+// with JSON.parse, so its values are turned into Buffers again: the GA values cache must hold Buffers only,
+// like the values received from the bus (#543).
+const reviveRawValue = (rawValue) => {
+  if (Buffer.isBuffer(rawValue)) return rawValue
+  if (rawValue && rawValue.type === 'Buffer' && Array.isArray(rawValue.data)) return Buffer.from(rawValue.data)
+  return rawValue
+}
+
 // DATAPONT MANIPULATION HELPERS
 // ####################
 const sortBy = (field) => (a, b) => {
@@ -830,6 +839,9 @@ module.exports = (RED) => {
         // The storage returns the values not yet written to disk, too.
         node.exposedGAs = JSON.parse(node.fileStorage.readFile(node.persistFile, 'utf8'))
         if (!Array.isArray(node.exposedGAs)) node.exposedGAs = []
+        node.exposedGAs.forEach((entry) => {
+          if (entry && typeof entry === 'object') entry.rawValue = reviveRawValue(entry.rawValue)
+        })
       } catch (err) {
         node.exposedGAs = []
         node.sysLogger?.info('unable to read peristent file ' + node.persistFile + ' ' + err.message)
@@ -923,76 +935,75 @@ module.exports = (RED) => {
               // 13/12/2021 DA FARE
             } else {
               try {
-                if (node.exposedGAs.length > 0) {
-                  const oExposedGA = node.getExposedGAEntry(_oClient.topic)
-                  if (oExposedGA !== undefined) {
-                    // Retrieve the value from exposedGAs
-                    const msg = buildInputMessage({
-                      _srcGA: '',
-                      _destGA: _oClient.topic,
-                      _event: 'GroupValue_Response',
-                      _Rawvalue: Buffer.from(oExposedGA.rawValue.data),
-                      _inputDpt: _oClient.dpt,
-                      _devicename: _oClient.name ? _oClient.name : '',
-                      _outputtopic: _oClient.outputtopic,
-                      _oNode: _oClient,
-                      _echoed: false
-                    })
-                    _oClient.previouspayload = '' // 05/04/2021 Added previous payload
-                    _oClient.currentPayload = msg.payload
+                // An entry without a value is handled as missing (#543).
+                const oExposedGA = node.getExposedGAEntry(_oClient.topic)
+                if (oExposedGA !== undefined && Buffer.isBuffer(oExposedGA.rawValue)) {
+                  // Retrieve the value from exposedGAs
+                  const msg = buildInputMessage({
+                    _srcGA: '',
+                    _destGA: _oClient.topic,
+                    _event: 'GroupValue_Response',
+                    _Rawvalue: oExposedGA.rawValue,
+                    _inputDpt: _oClient.dpt,
+                    _devicename: _oClient.name ? _oClient.name : '',
+                    _outputtopic: _oClient.outputtopic,
+                    _oNode: _oClient,
+                    _echoed: false
+                  })
+                  _oClient.previouspayload = '' // 05/04/2021 Added previous payload
+                  _oClient.currentPayload = msg.payload
+                  _oClient.setNodeStatus({
+                    fill: 'grey',
+                    shape: 'dot',
+                    text: 'Update value from persist file',
+                    payload: _oClient.currentPayload,
+                    GA: _oClient.topic,
+                    dpt: _oClient.dpt,
+                    devicename: _oClient.name || ''
+                  })
+                  // 06/05/2021 If, after the rawdata has been savad to file, the user changes the datapoint, the buildInputMessage returns payload null, because it's unable to convert the value
+                  if (msg.payload === null) {
+                    _oClient._hasCurrentPayload = false
+                    // Delete the exposedGA
+                    node.removeExposedGAEntry(_oClient.topic)
                     _oClient.setNodeStatus({
-                      fill: 'grey',
+                      fill: 'yellow',
                       shape: 'dot',
-                      text: 'Update value from persist file',
+                      text: 'Datapoint has been changed, remove the value from persist file',
                       payload: _oClient.currentPayload,
                       GA: _oClient.topic,
                       dpt: _oClient.dpt,
-                      devicename: _oClient.name || ''
+                      devicename: _oClient.devicename || ''
                     })
-                    // 06/05/2021 If, after the rawdata has been savad to file, the user changes the datapoint, the buildInputMessage returns payload null, because it's unable to convert the value
-                    if (msg.payload === null) {
-                      _oClient._hasCurrentPayload = false
-                      // Delete the exposedGA
-                      node.removeExposedGAEntry(_oClient.topic)
+                    node.sysLogger?.error('DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of ' + _oClient.topic + ' Devicename ' + _oClient.name + ' Currend DPT ' + _oClient.dpt + ' Node.id ' + _oClient.id)
+                  } else {
+                    // Ensure optional features relying on "currentPayload" (e.g. periodic/cyclic send)
+                    // work also when the value is restored from persist file after a Node-RED restart.
+                    _oClient._hasCurrentPayload = true
+                    if (_oClient.notifyresponse) _oClient.handleSend(msg)
+                  }
+                } else {
+                  if (_oClient.initialread === 3) {
+                    // Not found, issue a READ to the bus
+                    if (!readHistory.includes(_oClient.topic)) {
+                      node.sysLogger?.debug('DoInitialReadFromKNXBusOrFile 3: sent read request to GA ' + _oClient.topic)
                       _oClient.setNodeStatus({
-                        fill: 'yellow',
+                        fill: 'grey',
                         shape: 'dot',
-                        text: 'Datapoint has been changed, remove the value from persist file',
+                        text: 'Persist value not found, issuing READ request to BUS',
                         payload: _oClient.currentPayload,
                         GA: _oClient.topic,
                         dpt: _oClient.dpt,
                         devicename: _oClient.devicename || ''
                       })
-                      node.sysLogger?.error('DoInitialReadFromKNXBusOrFile: Datapoint may have been changed, remove the value from persist file of ' + _oClient.topic + ' Devicename ' + _oClient.name + ' Currend DPT ' + _oClient.dpt + ' Node.id ' + _oClient.id)
-                    } else {
-                      // Ensure optional features relying on "currentPayload" (e.g. periodic/cyclic send)
-                      // work also when the value is restored from persist file after a Node-RED restart.
-                      _oClient._hasCurrentPayload = true
-                      if (_oClient.notifyresponse) _oClient.handleSend(msg)
-                    }
-                  } else {
-                    if (_oClient.initialread === 3) {
-                      // Not found, issue a READ to the bus
-                      if (!readHistory.includes(_oClient.topic)) {
-                        node.sysLogger?.debug('DoInitialReadFromKNXBusOrFile 3: sent read request to GA ' + _oClient.topic)
-                        _oClient.setNodeStatus({
-                          fill: 'grey',
-                          shape: 'dot',
-                          text: 'Persist value not found, issuing READ request to BUS',
-                          payload: _oClient.currentPayload,
-                          GA: _oClient.topic,
-                          dpt: _oClient.dpt,
-                          devicename: _oClient.devicename || ''
-                        })
-                        node.sendKNXTelegramToKNXEngine({
-                          grpaddr: _oClient.topic,
-                          payload: '',
-                          dpt: '',
-                          outputtype: 'read',
-                          nodecallerid: _oClient.id
-                        })
-                        readHistory.push(_oClient.topic)
-                      }
+                      node.sendKNXTelegramToKNXEngine({
+                        grpaddr: _oClient.topic,
+                        payload: '',
+                        dpt: '',
+                        outputtype: 'read',
+                        nodecallerid: _oClient.id
+                      })
+                      readHistory.push(_oClient.topic)
                     }
                   }
                 }
@@ -2768,5 +2779,6 @@ module.exports = (RED) => {
 
 module.exports.__test = {
   resolveHostAddress,
-  getGroupServiceEvent
+  getGroupServiceEvent,
+  reviveRawValue
 }

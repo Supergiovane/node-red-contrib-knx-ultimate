@@ -6,6 +6,13 @@
 
 # CHANGELOG
 
+**Version 8.4.3** - November 2026
+
+- Values restored from the GA values file ([#543](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/543), thanks @Sylvan86):
+  - `getGAValue()` in the **KNX Function** tab no longer returns `null` for the values restored from the file after a restart: it returns the saved value.
+  - With **Read status at startup** set to _from file, then from bus_, fixed a `TypeError` in `DoInitialReadFromKNXBusOrFile` that left a node without a value when several nodes listen to the same group address and Node-RED itself answers its read request (Auto Responder, or _respond to read requests_).
+  - With _from file, then from bus_, the nodes now send the read request to the bus also when the GA values file is missing or empty, for example after a new installation.
+
 **Version 8.4.2** - November 2026
 
 - Updated the KNX engine to `knxultimate` 6.4.2.
