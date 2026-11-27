@@ -6,6 +6,10 @@
 
 # CHANGELOG
 
+**Version 8.4.4** - November 2026
+
+- README: the images (logos of partners and communities, Made in Italy, KNX partner mark) now show on npm and on the Node-RED Flow Library too.
+
 **Version 8.4.3** - November 2026
 
 - Values restored from the GA values file ([#543](https://github.com/Supergiovane/node-red-contrib-knx-ultimate/issues/543), thanks @Sylvan86):

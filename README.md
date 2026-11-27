@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="img/logo-supervibe.png" alt="KNX Ultimate - Max Supervibe" width="200">
+  <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/img/logo-supervibe.png" alt="KNX Ultimate - Max Supervibe" width="200">
 </p>
 
-![Logo](img/logo-big.png)
+![Logo](https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/img/logo-big.png)
 
 ## The most popular KNX node for Node-RED
 
@@ -24,7 +24,7 @@ KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, r
 [![Website](https://img.shields.io/badge/Website-maxsupervibe.com-0d4c70)](https://www.maxsupervibe.com)
 
 <p align="center">
-  <img src="img/readmemain.png" alt="Sample Node" width="70%">
+  <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/img/readmemain.png" alt="Sample Node" width="70%">
 </p>
 
 ## Our trusted partners
@@ -32,19 +32,19 @@ KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, r
 <!-- Logos: equal 480×240 tiles made from docs/assets/community (each logo trimmed, centred, same visual size). -->
 <table align="center">
   <tr>
-    <td align="center"><a href="https://knxshop.it"><img src="docs/assets/community/readme/knxstore_it.png" alt="KNX Store Italia" width="200" height="100"></a></td>
-    <td align="center"><a href="http://www.knxsardegna.com"><img src="docs/assets/community/readme/knxsardegna.png" alt="KNX Sardegna" width="200" height="100"></a></td>
-    <td align="center"><a href="https://www.agatastore.it"><img src="docs/assets/community/readme/agata.png" alt="Agata Store" width="200" height="100"></a></td>
+    <td align="center"><a href="https://knxshop.it"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/knxstore_it.png" alt="KNX Store Italia" width="200" height="100"></a></td>
+    <td align="center"><a href="http://www.knxsardegna.com"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/knxsardegna.png" alt="KNX Sardegna" width="200" height="100"></a></td>
+    <td align="center"><a href="https://www.agatastore.it"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/agata.png" alt="Agata Store" width="200" height="100"></a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://proknx.com"><img src="docs/assets/community/readme/proKNX.png" alt="ProKNX" width="200" height="100"></a></td>
-    <td align="center"><a href="https://altis.swiss"><img src="docs/assets/community/readme/altis.png" alt="Altis" width="200" height="100"></a></td>
-    <td align="center"><a href="https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/"><img src="docs/assets/community/readme/cannx.png" alt="Can'nX" width="200" height="100"></a></td>
+    <td align="center"><a href="https://proknx.com"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/proKNX.png" alt="ProKNX" width="200" height="100"></a></td>
+    <td align="center"><a href="https://altis.swiss"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/altis.png" alt="Altis" width="200" height="100"></a></td>
+    <td align="center"><a href="https://can-nx.com/kloudnx-routeur-knx-iot-connecte-a-un-cloud-securise/"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/cannx.png" alt="Can'nX" width="200" height="100"></a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://www.onsystem-iot.com/"><img src="docs/assets/community/readme/innovationsystem.png" alt="Innovation System" width="200" height="100"></a></td>
-    <td align="center"><a href="https://inventife.com"><img src="docs/assets/community/readme/inventife.png" alt="Inventife" width="200" height="100"></a></td>
-    <td align="center"><a href="https://weinzierl.de"><img src="docs/assets/community/readme/Weinzierl.png" alt="Weinzierl" width="200" height="100"></a></td>
+    <td align="center"><a href="https://www.onsystem-iot.com/"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/innovationsystem.png" alt="Innovation System" width="200" height="100"></a></td>
+    <td align="center"><a href="https://inventife.com"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/inventife.png" alt="Inventife" width="200" height="100"></a></td>
+    <td align="center"><a href="https://weinzierl.de"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/readme/Weinzierl.png" alt="Weinzierl" width="200" height="100"></a></td>
   </tr>
 </table>
 
@@ -52,9 +52,9 @@ KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, r
 
 <table>
   <tr>
-    <td align="center" width="33%"><a href="https://www.facebook.com/groups/viveresmart"><img src="docs/assets/community/viveresmart.png" alt="VivereSmart" height="56"></a><br/><strong>Italy · VivereSmart</strong><br/><a href="https://www.facebook.com/groups/viveresmart">Community</a> · <a href="https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA">VivereSmart TV</a></td>
-    <td align="center" width="33%"><a href="https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red"><img src="docs/assets/community/knxuserforum.png" alt="KNX User Forum" height="56"></a><br/><strong>Germany · KNX User Forum</strong><br/><a href="https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red">Visit the discussion</a></td>
-    <td align="center" width="33%"><img src="docs/assets/community/qq.svg" alt="QQ Group" height="56"><br/><strong>China · QQ Group</strong><br/>QQ group 837579219</td>
+    <td align="center" width="33%"><a href="https://www.facebook.com/groups/viveresmart"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/viveresmart.png" alt="VivereSmart" height="56"></a><br/><strong>Italy · VivereSmart</strong><br/><a href="https://www.facebook.com/groups/viveresmart">Community</a> · <a href="https://www.youtube.com/channel/UC6GlFhcbNuoSEejZ_HlCynA">VivereSmart TV</a></td>
+    <td align="center" width="33%"><a href="https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/knxuserforum.png" alt="KNX User Forum" height="56"></a><br/><strong>Germany · KNX User Forum</strong><br/><a href="https://knx-user-forum.de/forum/öffentlicher-bereich/knx-eib-forum/1389088-knx-node-for-node-red">Visit the discussion</a></td>
+    <td align="center" width="33%"><img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/qq.svg" alt="QQ Group" height="56"><br/><strong>China · QQ Group</strong><br/>QQ group 837579219</td>
   </tr>
 </table>
 
@@ -85,13 +85,13 @@ KNX Ultimate provides KNX/IP and KNX Secure communication, ETS project import, r
 ## Made in Italy
 
 <p align="center">
-  <img src="docs/assets/brand/made-in-italy.svg" alt="Made in Italy" width="260">
+  <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/brand/made-in-italy.svg" alt="Made in Italy" width="260">
 </p>
 
 **Designed, engineered, and supported in Italia.** KNX-Ultimate is developed and tested on real installations, with a strong focus on reliability and long-term maintainability.
 
 <p align="center">
-  <img src="docs/assets/community/KNX_CERTI_MARK_RGB.jpg" alt="Authorized KNX partner" height="80"><br/>
+  <img src="https://raw.githubusercontent.com/Supergiovane/node-red-contrib-knx-ultimate/main/docs/assets/community/KNX_CERTI_MARK_RGB.jpg" alt="Authorized KNX partner" height="80"><br/>
   Authorized KNX logo by KNX Association*<br> Officially recognized for compliant KNX integrations.
 </p>
 
